@@ -19,20 +19,20 @@ const getHoursAndMinutesString = (date) => {
   return `${dateHours}:${dateMinutes}`;
 };
 
-const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
+const getTimeDuration =  durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
+
+const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSeconds(0), showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
   const targetRef = useRef(null);
+
   const [isPopoverOpen, setPopoverState] = useState(false);
   const [initialDate, setInitialDate] = useState(starDateRange);
 
   useEffect(() => {
-    if (!!dateValue) {
+    if (!!dateValue ) {
       setInitialDate(new Date(dateValue));
     }
   }, [dateValue]);
 
-  const getTimeDuration = useMemo(() => {
-    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
-  }, []);
 
   const generateTimeOptions = useCallback(() => {
     const options = [];
@@ -44,14 +44,14 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
 
       options.push({
         value: timeValue,
-        duration: showDuration ? ` (${getTimeDuration(dateWithAccumulation - initialDate)})` : '',
+        duration: showDuration ? ` (${getTimeDuration(dateWithAccumulation - starDateRange)})` : '',
       });
 
       accumulatedMinutes += MINUTES_INTERVALS;
     }
 
     return options;
-  }, [getTimeDuration, initialDate, showDuration]);
+  }, [getTimeDuration, initialDate, starDateRange, showDuration]);
 
   const handleTimeChange = useCallback((time) => {
     const timeParts = time.split(':');
@@ -74,7 +74,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
       </Popover>}>
         <input
           type="time"
-          min="00:00"
+          min={starDateRange || '00:00'}
           data-testid="time-input"
           ref={targetRef}
           value={dateValue ? getHoursAndMinutesString(new Date(dateValue)) : ''}
