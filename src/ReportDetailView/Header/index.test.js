@@ -37,4 +37,15 @@ describe('Header', () => {
     expect(setTitle).toHaveBeenCalledTimes(1);
     expect(setTitle).toHaveBeenCalledWith('Light2');
   });
+
+  test('sets the event type title if user leaves the title input empty', async () => {
+    expect(setTitle).toHaveBeenCalledTimes(0);
+
+    const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
+    userEvent.type(titleTextBox, '{backspace}{backspace}{backspace}{backspace}{backspace}');
+    userEvent.tab();
+
+    expect(setTitle).toHaveBeenCalledTimes(1);
+    expect(setTitle).toHaveBeenCalledWith('Light');
+  });
 });

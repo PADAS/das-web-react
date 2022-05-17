@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { PRIORITY_COLOR_MAP } from '../../utils/events';
@@ -10,16 +10,21 @@ import EventIcon from '../../EventIcon';
 import styles from './styles.module.scss';
 
 const Header = ({ report, setTitle }) => {
-  const { title: originalReportTitle } = useReport(report);
+  const { displayTitle, eventTypeTitle } = useReport(report);
+
+  const titleInput = useRef();
 
   const isNewReport = !report.id;
 
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
 
   const onTitleBlur = useCallback((event) => {
-    setTitle(event.target.textContent);
+    if (!event.target.textContent) {
+      titleInput.current.innerHTML = eventTypeTitle;
+    }
+    setTitle(event.target.textContent || eventTypeTitle);
     event.target.scrollTop = 0;
-  }, [setTitle]);
+  }, [eventTypeTitle, setTitle]);
 
   return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
     <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
@@ -33,9 +38,10 @@ const Header = ({ report, setTitle }) => {
       contentEditable={true}
       data-testid="reportDetailView-header-title"
       onBlur={onTitleBlur}
+      ref={titleInput}
       suppressContentEditableWarning
     >
-      {report.title === null || report.title === undefined ? originalReportTitle : report.title}
+      {displayTitle}
     </div>
 
     {!isNewReport && <div className={styles.priorityAndDate}>
