@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import addMinutes from 'date-fns/add_minutes';
-import { durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
+import { durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
-import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down-small.svg';
-import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small.svg';
 
 import styles from './styles.module.scss';
 
@@ -51,7 +50,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSecond
     }
 
     return options;
-  }, [getTimeDuration, initialDate, starDateRange, showDuration]);
+  }, [initialDate, starDateRange, showDuration]);
 
   const handleTimeChange = useCallback((time) => {
     const timeParts = time.split(':');
@@ -74,7 +73,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSecond
       </Popover>}>
         <input
           type="time"
-          min={starDateRange || '00:00'}
+          min={'00:00'}
           data-testid="time-input"
           ref={targetRef}
           value={dateValue ? getHoursAndMinutesString(new Date(dateValue)) : ''}
@@ -84,7 +83,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSecond
           onChange={(e) => handleTimeChange(e.target.value)}
           />
       </OverlayTrigger>
-      {isPopoverOpen ? <ArrowUp/> : <ArrowDown/>}
+      <div className={`${styles.triangle} ${isPopoverOpen? 'open' : ''}`}></div>
     </div>
   </>;
 };
