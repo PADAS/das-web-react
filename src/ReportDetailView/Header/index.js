@@ -8,7 +8,6 @@ import {
   PRIORITY_COLOR_MAP,
 } from '../../utils/events';
 import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
-import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';
@@ -18,8 +17,6 @@ import LocationJumpButton from '../../LocationJumpButton';
 import styles from './styles.module.scss';
 
 const Header = ({ report, setTitle }) => {
-  const jumpToLocation = useJumpToLocation();
-
   const { displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -69,7 +66,6 @@ const Header = ({ report, setTitle }) => {
         ]}
         coordinates={coordinates}
         isMulti={collectionHasMultipleValidLocations(report)}
-        onClick={() => jumpToLocation(coordinates)}
       />
     </div>}
   </div>;

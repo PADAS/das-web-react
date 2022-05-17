@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import Header from './';
 import { mockStore } from '../../__test-helpers/MockStore';
+import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
@@ -14,7 +15,9 @@ describe('Header', () => {
   beforeEach(() => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
   });
