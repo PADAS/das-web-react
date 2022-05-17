@@ -110,10 +110,12 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
 
   return {
     ...categoryObject,
-    types: patrolTypes.map(type => ({
-      ...type,
-      category: { ...categoryObject },
-    })),
+    types: patrolTypes
+      .filter(type => !!type.is_active)
+      .map(type => ({
+        ...type,
+        category: { ...categoryObject },
+      })),
   };
 };
 

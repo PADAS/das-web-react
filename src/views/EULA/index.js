@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,6 +8,7 @@ import Form from 'react-bootstrap/Form';
 import { clearAuth } from '../../ducks/auth';
 import { fetchCurrentUser } from '../../ducks/user';
 import { fetchEula, acceptEula } from '../../ducks/eula';
+import useNavigate from '../../hooks/useNavigate';
 
 import { deleteCookie } from '../../utils/auth';
 
@@ -29,7 +30,7 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
   const [formAccepted, setFormAccepted] = useState(false);
   const [submitted, setSubmitState] = useState(false);
   const [canceled, setCancelState] = useState(false);
-  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(REACT_APP_ROUTE_PREFIX);
+  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(location.state?.from || REACT_APP_ROUTE_PREFIX);
   const [formError, setFormError] = useState(false);
 
   const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted=')) ?

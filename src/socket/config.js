@@ -4,20 +4,22 @@ import { socketUpdatePatrol, socketCreatePatrol, socketDeletePatrol } from '../d
 import { refreshTrackOnBulkObservationUpdateIfNecessary } from '../ducks/tracks';
 import { updateMessageFromRealtime } from '../ducks/messaging';
 
+import { updateSocketHealthStatus } from '../ducks/system-status';
+
 const SOCKET_DISPATCHES = {
-  resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ SOCKET_HEALTHY_STATUS],
-  connect_error: [/* 'SOCKET_CONNECT_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
-  disconnect: [/* 'SOCKET_DISCONNECT' ,*/ SOCKET_UNHEALTHY_STATUS],
-  error: [/* 'SOCKET_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
-  echo_resp: [/* 'SOCKET_PING_RESPONSE' ,*/ SOCKET_HEALTHY_STATUS],
-  reconnect_error: [/* 'SOCKET_RECONNECT_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
-  reconnecting: [/* 'SOCKET_RECONNECTING' ,*/ SOCKET_WARNING_STATUS],
-  service_status: [SOCKET_SERVICE_STATUS, SOCKET_HEALTHY_STATUS],
-  socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
-  subject_status: [SOCKET_SUBJECT_STATUS, SOCKET_HEALTHY_STATUS],
-  new_patrol: [socketCreatePatrol, SOCKET_HEALTHY_STATUS],
-  update_patrol: [socketUpdatePatrol, SOCKET_HEALTHY_STATUS],
-  delete_patrol: [socketDeletePatrol, SOCKET_HEALTHY_STATUS],
+  resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  connect_error: [/* 'SOCKET_CONNECT_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  disconnect: [/* 'SOCKET_DISCONNECT' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  error: [/* 'SOCKET_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  echo_resp: [/* 'SOCKET_PING_RESPONSE' ,*/() => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  reconnect_error: [/* 'SOCKET_RECONNECT_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  reconnecting: [/* 'SOCKET_RECONNECTING' ,*/() => updateSocketHealthStatus(SOCKET_WARNING_STATUS)],
+  service_status: [SOCKET_SERVICE_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
+  subject_status: [SOCKET_SUBJECT_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  new_patrol: [socketCreatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  update_patrol: [socketUpdatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  delete_patrol: [socketDeletePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   subject_track_merge: [refreshTrackOnBulkObservationUpdateIfNecessary],
   message_update: [updateMessageFromRealtime],
 };

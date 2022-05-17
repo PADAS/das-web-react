@@ -1,14 +1,14 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import AddReport from './';
 import { createMapMock } from '../__test-helpers/mocks';
-import { createNewReportForEventType, openModalForReport } from '../utils/events';
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { TAB_KEYS } from '../constants';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import { showDetailView } from '../ducks/side-bar';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import useNavigate from '../hooks/useNavigate';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -18,25 +18,19 @@ jest.mock('../constants', () => ({
     ENABLE_UFA_NAVIGATION_UI: true,
   },
 }));
-jest.mock('../utils/events', () => ({
-  ...jest.requireActual('../utils/events'),
-  createNewReportForEventType: jest.fn(),
-  openModalForReport: jest.fn(),
-}));
-jest.mock('../ducks/side-bar', () => ({
-  ...jest.requireActual('../ducks/side-bar'),
-  showDetailView: jest.fn(),
-}));
+jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('AddReport', () => {
-  let map, store;
+  let map, navigate, store, useNavigateMock;
   beforeEach(() => {
     map = createMapMock();
     store = mockStore({ data: { eventTypes } });
 
     render(
       <Provider store={store}>
-        <AddReport map={map} patrolTypes={[]} />
+        <NavigationWrapper>
+          <AddReport map={map} patrolTypes={[]} />
+        </NavigationWrapper>
       </Provider>
     );
   });
@@ -89,65 +83,25 @@ describe('AddReport', () => {
     });
   });
 
-  test('starts the addition of a new report', async () => {
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_PATROL_NEW_UI = false;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI = false;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI = false;
-
-    cleanup();
-    render(
-      <Provider store={store}>
-        <AddReport map={map} patrolTypes={[]} />
-      </Provider>
-    );
-
-    const createNewReportForEventTypeMock = jest.fn();
-    createNewReportForEventType.mockImplementation(createNewReportForEventTypeMock);
-    const openModalForReportMock = jest.fn();
-    openModalForReport.mockImplementation(openModalForReportMock);
-
-    const addRepportButton = await screen.getByTestId('addReport-button');
-    fireEvent.click(addRepportButton);
-
-    await waitFor(() => {
-      expect(createNewReportForEventType).toHaveBeenCalledTimes(0);
-      expect(openModalForReportMock).toHaveBeenCalledTimes(0);
-    });
-
-    const categoryListButton = await screen.findAllByTestId('categoryList-button-d0884b8c-4ecb-45da-841d-f2f8d6246abf');
-    fireEvent.click(categoryListButton[0]);
-
-    await waitFor(() => {
-      expect(createNewReportForEventType).toHaveBeenCalled();
-      expect(openModalForReportMock).toHaveBeenCalled();
-    });
-  });
-
   test('opens the report detail view to add a new report', async () => {
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_PATROL_NEW_UI = true;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI = true;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI = true;
-
-    const createNewReportForEventTypeMock = jest.fn();
-    createNewReportForEventType.mockImplementation(createNewReportForEventTypeMock);
-    const showDetailViewMock = jest.fn(() => () => {});
-    showDetailView.mockImplementation(showDetailViewMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     const addRepportButton = await screen.getByTestId('addReport-button');
     fireEvent.click(addRepportButton);
 
-    await waitFor(() => {
-      expect(createNewReportForEventType).toHaveBeenCalledTimes(0);
-      expect(showDetailView).toHaveBeenCalledTimes(0);
-    });
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const categoryListButton = await screen.findAllByTestId('categoryList-button-d0884b8c-4ecb-45da-841d-f2f8d6246abf');
     fireEvent.click(categoryListButton[0]);
 
     await waitFor(() => {
-      expect(createNewReportForEventType).toHaveBeenCalled();
-      expect(showDetailView).toHaveBeenCalled();
-      expect(showDetailView.mock.calls[0][0]).toBe(TAB_KEYS.REPORTS);
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate.mock.calls[0][0]).toMatchObject({
+        pathname: `${TAB_KEYS.REPORTS}/new`,
+        search: '?reportType=d0884b8c-4ecb-45da-841d-f2f8d6246abf',
+      });
     });
   });
 });

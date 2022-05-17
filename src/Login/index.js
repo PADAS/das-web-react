@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -10,6 +10,7 @@ import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
+import useNavigate from '../hooks/useNavigate';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -38,9 +39,8 @@ const LoginPage = ({
 
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
-
     postAuth({ username, password, hasError, error, errorMessage })
-      .then(() => navigate({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
+      .then(() => navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
       .catch((error) => {
         const errorObject = error.toJSON();
 
@@ -54,7 +54,7 @@ const LoginPage = ({
         setError(errorObject);
         setErrorMessage(errorMessage);
       });
-  }, [clearAuth, error, errorMessage, hasError, location.search, navigate, password, postAuth, username]);
+  }, [clearAuth, error, errorMessage, hasError, location.search, location.state?.from, navigate, password, postAuth, username]);
 
   const onInputChange = useCallback((event) => {
     event.preventDefault();
@@ -95,6 +95,6 @@ const LoginPage = ({
   </div>;
 };
 
-const mapStateToProps = ({ data: { eula, token }, view: { systemConfig } }) => ({ eula, token, systemConfig });
+const mapStateToProps = ({ data: { eula }, view: { systemConfig } }) => ({ eula, systemConfig });
 
 export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(LoginPage));
