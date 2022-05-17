@@ -9,9 +9,11 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
+import useNavigate from '../hooks/useNavigate';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -34,9 +36,10 @@ jest.mock('../hooks', () => ({
   useFeatureFlag: () => true,
   useMatchMedia: jest.fn(),
 }));
+jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('GlobalMenuDrawer', () => {
-  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, store, useMatchMediaMock;
+  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, navigate, store, useMatchMediaMock, useNavigateMock;
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
@@ -46,6 +49,9 @@ describe('GlobalMenuDrawer', () => {
     hideDrawer.mockImplementation(hideDrawerMock);
     useMatchMediaMock = jest.fn(() => true);
     useMatchMedia.mockImplementation(useMatchMediaMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     store = {
       data: {
@@ -74,7 +80,9 @@ describe('GlobalMenuDrawer', () => {
   test('hides the drawer when clicking the cross icon', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -89,7 +97,9 @@ describe('GlobalMenuDrawer', () => {
   test('does not render the navigation buttons in desktop screens', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -102,7 +112,9 @@ describe('GlobalMenuDrawer', () => {
     useMatchMedia.mockImplementation(() => false);
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -113,24 +125,21 @@ describe('GlobalMenuDrawer', () => {
 
   test('navigates to the Reports tab in the Sidebar when clicking the Reports navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
-        <GlobalMenuDrawer />
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
+
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const reportsNavigationButton = await screen.findByText('Reports');
     userEvent.click(reportsNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'reports' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/reports');
   });
 
   test('does not render the Patrols navigation button if user does not have permissions', async () => {
@@ -139,7 +148,9 @@ describe('GlobalMenuDrawer', () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -148,53 +159,49 @@ describe('GlobalMenuDrawer', () => {
 
   test('navigates to the Patrols tab in the Sidebar when clicking the Patrols navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
-        <GlobalMenuDrawer />
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
+
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const patrolsNavigationButton = await screen.findByText('Patrols');
     userEvent.click(patrolsNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'patrols' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to the Map Layers tab in the Sidebar when clicking the Map Layers navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
-        <GlobalMenuDrawer />
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
+
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const mapLayersNavigationButton = await screen.findByText('Map Layers');
     userEvent.click(mapLayersNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'layers' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/layers');
   });
 
   test('does not render Tableau button if it is not enabled', async () => {
     store.view.systemConfig.tableau_enabled = false;
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -205,7 +212,9 @@ describe('GlobalMenuDrawer', () => {
     global.open = jest.fn();
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -227,7 +236,9 @@ describe('GlobalMenuDrawer', () => {
     store.view.systemConfig.alerts_enabled = false;
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -237,7 +248,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the alerts modal when clicking the Alerts button ', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -257,7 +270,9 @@ describe('GlobalMenuDrawer', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -272,7 +287,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens a page to the community site when clicking the Community button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -288,7 +305,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens a page to the users guide site when clicking the User\'s Guide button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -304,7 +323,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the daily report modal when clicking the Daily Report button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -320,7 +341,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the field reports modal when clicking the Field Reports button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -336,7 +359,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the kml export modal when clicking the Master KML button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -352,7 +377,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the subject information modal when clicking the Subject Information button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -368,7 +395,9 @@ describe('GlobalMenuDrawer', () => {
   test('opens the subject reports modal when clicking the Subject Reports button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
       </Provider>
     );
 
