@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
@@ -62,7 +62,7 @@ test('if the date value is not provided, it should consider the starDateRange to
 });
 
 test('should show only the duration time in options if the prop showOptionsDurationFromInitialValue is activated', async () => {
-  render(<TimeRangeInput dateValue={testDate} showOptionsDurationFromInitialValue={true} />);
+  render(<TimeRangeInput dateValue={testDate} starDateRange={testDate} showOptionsDurationFromInitialValue={true} />);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -92,4 +92,22 @@ test('should call onTimeChange and send a date with the time added', async () =>
 
   const expectedValue = new Date('2022-05-01T10:00:00').setHours(10, 30);
   expect(onTimeChange).toHaveBeenCalledWith(new Date(expectedValue));
+});
+
+test('should change style for arrow if input is on focus or blur', async () => {
+  const onTimeChange = jest.fn();
+  render(<TimeRangeInput dateValue={testDate}  onTimeChange={onTimeChange}/>);
+
+  expect(await screen.getByTestId('time-input-triangle-arrow').classList.contains('open')).toBe(false);
+
+  const timeInput = await screen.findByTestId('time-input');
+  userEvent.click(timeInput);
+
+  expect(await screen.getByTestId('time-input-triangle-arrow').classList.contains('open')).toBe(true);
+
+  const optionsList = await screen.findByRole('list');
+  const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+  userEvent.click(timeOptionsListItems[0]);
+
+  expect(await screen.getByTestId('time-input-triangle-arrow').classList.contains('open')).toBe(false);
 });

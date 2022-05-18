@@ -18,9 +18,16 @@ const getHoursAndMinutesString = (date) => {
   return `${dateHours}:${dateMinutes}`;
 };
 
-const getTimeDuration =  durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
+const timeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
+timeConfig.units = ['h', 'm'];
+const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
-const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSeconds(0), showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
+const TimeRangeInput = ({
+  dateValue = null,
+  starDateRange = new Date(),
+  showOptionsDurationFromInitialValue: showDuration = false,
+  onTimeChange
+}) => {
   const targetRef = useRef(null);
 
   const [isPopoverOpen, setPopoverState] = useState(false);
@@ -43,14 +50,14 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSecond
 
       options.push({
         value: timeValue,
-        duration: showDuration ? ` (${getTimeDuration(dateWithAccumulation - starDateRange)})` : '',
+        duration: showDuration ? ` (${getHumanizedTimeDuration(dateWithAccumulation - initialDate)})` : '',
       });
 
       accumulatedMinutes += MINUTES_INTERVALS;
     }
 
     return options;
-  }, [initialDate, starDateRange, showDuration]);
+  }, [initialDate, showDuration]);
 
   const handleTimeChange = useCallback((time) => {
     const timeParts = time.split(':');
@@ -83,7 +90,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date().setSecond
           onChange={(e) => handleTimeChange(e.target.value)}
           />
       </OverlayTrigger>
-      <div className={`${styles.triangle} ${isPopoverOpen? 'open' : ''}`}></div>
+      <div data-testid="time-input-triangle-arrow" className={`${styles.triangle} ${isPopoverOpen? 'open' : ''}`}></div>
     </div>
   </>;
 };
