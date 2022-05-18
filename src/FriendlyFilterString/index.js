@@ -43,7 +43,7 @@ FriendlyFilterString.propTypes = {
   }).isRequired,
   isFiltered: PropTypes.bool,
   sortConfig: PropTypes.array,
-  totalFeedCount: PropTypes.number.isRequired,
+  totalFeedCount: PropTypes.number,
 };
 
 export default memo(FriendlyFilterString);

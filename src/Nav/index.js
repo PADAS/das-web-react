@@ -1,6 +1,6 @@
 import React, { lazy, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
@@ -10,6 +10,7 @@ import { showDrawer } from '../ducks/drawer';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import { useMatchMedia, usePermissions } from '../hooks';
+import useNavigate from '../hooks/useNavigate';
 
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
@@ -30,9 +31,7 @@ const Nav = ({
   clearUserProfile,
   fetchCurrentUser,
   fetchCurrentUserProfiles,
-  history,
   homeMap,
-  location,
   map,
   maps,
   setHomeMap,
@@ -42,6 +41,9 @@ const Nav = ({
   user,
   userProfiles,
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
@@ -74,13 +76,10 @@ const Nav = ({
   useEffect(() => {
     fetchCurrentUser()
       .catch(() => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     fetchCurrentUserProfiles();
-  }, []); // eslint-disable-line
+  }, [navigate]); // eslint-disable-line
 
   return <nav className="primary-nav">
     <div className="left-controls">
@@ -123,4 +122,4 @@ const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile
 export default connect(
   mapStatetoProps,
   { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
-)(memo(withRouter(Nav)));
+)(memo(Nav));

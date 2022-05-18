@@ -9,7 +9,6 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
-import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 import AddReport from '../AddReport';
 
 import { addModal } from '../ducks/modals';
@@ -124,14 +123,15 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {hasAdditionalDeviceProps && subjectIsStatic(data) && <Button data-testid='show-historical-data-btn' variant='light' size='sm' type='button' className={styles.historicalDataButton} onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
-      <Fragment>
+      <>
         <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
-          {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
-            <ChatIcon className={styles.messagingIcon} />
-          </Button>}
+          {isMessageable && <div className={styles.messageButton} onClick={onClickMessagingIcon}>
+            <button title="Message" type="button" ></button>
+            <span> Message </span>
+          </div>}
         </div>
-      </Fragment>
+      </>
     )}
   </>;
 };

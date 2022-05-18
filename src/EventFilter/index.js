@@ -361,7 +361,7 @@ const EventFilter = (props) => {
         dateRange={date_range}
         isFiltered={isFilterModified(eventFilter)}
         sortConfig={sortConfig}
-        totalFeedEventCount={feedEvents.count}
+        totalFeedCount={feedEvents.count}
       />
       {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon />Reset</Button>}
     </div>}

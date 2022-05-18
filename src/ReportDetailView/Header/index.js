@@ -7,7 +7,7 @@ import EventIcon from '../../EventIcon';
 
 import styles from './styles.module.scss';
 
-const Header = ({ report, setTitle, title }) => {
+const Header = ({ report, setTitle }) => {
   const { title: originalReportTitle } = useReport(report);
 
   return <div className={styles.header}>
@@ -16,7 +16,11 @@ const Header = ({ report, setTitle, title }) => {
     </div>
 
     <div className={styles.title}>
-      <input onChange={(event) => setTitle(event.target.value)} type="text" value={title || originalReportTitle} />
+      <input
+        onChange={(event) => setTitle(event.target.value)}
+        type="text"
+        value={report.title || originalReportTitle}
+      />
     </div>
   </div>;
 };
@@ -24,7 +28,6 @@ const Header = ({ report, setTitle, title }) => {
 Header.propTypes = {
   report: PropTypes.object.isRequired,
   setTitle: PropTypes.func.isRequired,
-  title: PropTypes.string,
 };
 
 export default Header;
