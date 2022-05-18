@@ -18,14 +18,14 @@ test('call onClick', () => {
   });
 });
 
-describe('show different titles depending on showLabel prop', () => {
-  test('show the label showLabel is true', () => {
+describe('setting label visibility', () => {
+  test('showing the label showLabel is true', () => {
     render(<SubjectHistoryButton onClick={onClick} showLabel={true}/>);
     expect(screen.getByText('Historical Data')).toBeTruthy();
   });
 
 
-  test('Do not show any label if showLabel is false', () => {
+  test('not showing any label if showLabel is false', () => {
     render(<SubjectHistoryButton onClick={onClick} showLabel={false}/>);
     expect(() => screen.getByText('Historical Data')).toThrow();
   });

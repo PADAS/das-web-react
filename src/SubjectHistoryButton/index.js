@@ -3,14 +3,12 @@ import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
+import SubjectControlButton from '../SubjectControls/button';
+
 const SubjectHistoryButton = (props, ref) => {
-  const { className: externalClassName, disabled, onClick, showLabel, ...rest } = props;
+  const { disabled, onClick, showLabel, ...rest } = props;
 
-
-  return <div className={`${styles.container} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={onClick}>
-    <button ref={ref} disabled={disabled} title='Historical Data' type="button" className={`${styles.button} ${externalClassName || ''}`} {...rest}></button>
-    {showLabel && <span>Historical Data</span>}
-  </div>;
+  return <SubjectControlButton disabled={disabled} buttonClassName={styles.button} containerClassName={styles.container} onClick={onClick} ref={ref} showLabel={showLabel} labelText='Historical Data' {...rest} />;
 };
 
 export default memo(forwardRef(SubjectHistoryButton));

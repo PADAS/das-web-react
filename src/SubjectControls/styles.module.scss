@@ -26,7 +26,7 @@
 .hasLabel {
   background-color: rgba($secondary-light-gray, .25);
   border: 0.06rem solid $secondary-medium-light-gray;
-  border-radius: .12rem;
+  border-radius: 0.12rem;
   max-width: 5.75rem;
   max-height: 1.85rem;
   border-radius: 0.2rem;
@@ -47,7 +47,7 @@
   span {
     font-size: 0.68rem;
     line-height: normal;
-    padding: .1rem .3rem;
+    padding: 0.1rem 0.3rem;
     margin: 0 -.2rem;
   }
 

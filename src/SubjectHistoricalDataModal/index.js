@@ -13,8 +13,6 @@ import { removeModal } from '../ducks/modals';
 
 import { calcGpsDisplayString } from '../utils/location';
 
-/* calcGpsDisplayString(lat, lng, currentFormat) */
-
 import LoadingOverlay from '../LoadingOverlay';
 import DateTime from '../DateTime';
 
