@@ -707,7 +707,7 @@ const PatrolModal = (props) => {
             defaultValue={new Date()}
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
-            maxDate={null}
+            minDate={displayStartTime || null}
             showClockIcon={true}
             isAuto={autoEndPatrols}
             popperPlacement='top'

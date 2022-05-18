@@ -251,7 +251,7 @@ export const DEFAULT_SELECT_STYLES = {
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   calendarIcon: null,
-  dateFormat: 'yyyy-mm-dd HH:mm',
+  dateFormat: 'yyyy-MM-dd HH:mm',
   minDate: new Date('2010-01-01'),
 };
 
