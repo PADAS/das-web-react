@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { PRIORITY_COLOR_MAP } from '../../utils/events';
@@ -15,8 +15,15 @@ const Header = ({ report, setTitle }) => {
   const titleInput = useRef();
 
   const isNewReport = !report.id;
+  const showEventType = report.title !== eventTypeTitle;
 
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
+
+  useEffect(() => {
+    if (!report.title) {
+      setTitle(displayTitle);
+    }
+  }, [displayTitle, report.title, setTitle]);
 
   const onTitleBlur = useCallback((event) => {
     if (!event.target.textContent) {
@@ -33,15 +40,24 @@ const Header = ({ report, setTitle }) => {
 
     <p className={styles.serialNumber}>{report.serial_number}</p>
 
-    <div
-      className={styles.title}
-      contentEditable={true}
-      data-testid="reportDetailView-header-title"
-      onBlur={onTitleBlur}
-      ref={titleInput}
-      suppressContentEditableWarning
-    >
-      {displayTitle}
+    <div className={styles.titleAndType}>
+      {report.title && <div
+        className={styles.title}
+        contentEditable={true}
+        data-testid="reportDetailView-header-title"
+        onBlur={onTitleBlur}
+        ref={titleInput}
+        suppressContentEditableWarning
+      >
+        {report.title}
+      </div>}
+
+      {showEventType && <label
+        className={styles.eventType}
+        data-testid="reportDetailView-header-eventType"
+      >
+        {eventTypeTitle}
+      </label>}
     </div>
 
     {!isNewReport && <div className={styles.priorityAndDate}>
