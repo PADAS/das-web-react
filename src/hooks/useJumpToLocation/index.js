@@ -7,8 +7,8 @@ import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigatio
 import { MapContext } from '../../App';
 import { useMatchMedia } from '../';
 
-const TAB_WIDTH_PIXELS = 512;
-const DETAIL_VIEW_WIDTH_PIXELS = 736;
+const SIDEBAR_WIDTH_PIXELS = 512;
+const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
 const useJumpToLocation = () => {
   const location = useLocation();
@@ -23,9 +23,9 @@ const useJumpToLocation = () => {
 
     if (isMedioumLayoutOrLarger) {
       if (itemId) {
-        return { left: DETAIL_VIEW_WIDTH_PIXELS };
+        return { left: SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS };
       } else if (currentTab) {
-        return { left: TAB_WIDTH_PIXELS };
+        return { left: SIDEBAR_WIDTH_PIXELS };
       }
     }
     return {};

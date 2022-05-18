@@ -51,6 +51,9 @@ $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cance
 :root {
   --nav-height: 2.75rem;
   --vertical-nav-width: 4.375rem;
+
+  // Make sure to update the SIDEBAR_WIDTH_PIXELS variable in the JS too to add the right padding
+  // when centering something in the map
   --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
