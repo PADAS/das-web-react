@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
@@ -12,7 +12,11 @@ import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('Header', () => {
   const setTitle = jest.fn();
-  beforeEach(() => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('renders correctly case of a 300 priority report', async () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
@@ -20,29 +24,54 @@ describe('Header', () => {
         </NavigationWrapper>
       </Provider>
     );
-  });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  test('renders correctly case of a 300 priority report', async () => {
     expect((await screen.findByTestId('reportDetailHeader-icon'))).toHaveClass('priority-300');
   });
 
-  test('triggers setTitle callback when the contenteditable loses focus', async () => {
+  test('sets the display title as the title if it was empty', async () => {
     expect(setTitle).toHaveBeenCalledTimes(0);
+
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(setTitle).toHaveBeenCalledTimes(1);
+    expect(setTitle).toHaveBeenCalledWith('Light');
+  });
+
+  test('triggers setTitle callback when the contenteditable loses focus', async () => {
+    report.title = 'Light';
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
 
     const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
     userEvent.type(titleTextBox, '2');
     userEvent.tab();
 
-    expect(setTitle).toHaveBeenCalledTimes(1);
-    expect(setTitle).toHaveBeenCalledWith('Light2');
+    await waitFor(() => {
+      expect(setTitle).toHaveBeenCalledTimes(1);
+      expect(setTitle).toHaveBeenCalledWith('Light2');
+    });
   });
 
   test('sets the event type title if user leaves the title input empty', async () => {
-    expect(setTitle).toHaveBeenCalledTimes(0);
+    report.title = 'Light';
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
 
     const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
     userEvent.type(titleTextBox, '{backspace}{backspace}{backspace}{backspace}{backspace}');
@@ -52,13 +81,48 @@ describe('Header', () => {
     expect(setTitle).toHaveBeenCalledWith('Light');
   });
 
+  test('shows the event type label if the title does not match the event type title', async () => {
+    report.title = 'Report!';
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const eventTypeLabel = await screen.findByTestId('reportDetailView-header-eventType');
+
+    expect(eventTypeLabel).toHaveTextContent('Light');
+  });
+
+  test('doest not show the event type label if the title matches the event type title', async () => {
+    report.title = 'Light';
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportDetailView-header-eventType'))).toBeNull();
+  });
+
   test('renders the location jump button if the report has coordinates', async () => {
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
     expect(await screen.findByTitle('Jump to this location')).toBeDefined();
   });
 
   test('does not render the location jump button if the report does not have coordinates', async () => {
     report.geojson.geometry.coordinates = null;
-    cleanup();
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
