@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { LngLatBounds } from 'mapbox-gl';
-import { useLocation } from 'react-router-dom';
+import { useLocation as useRouterLocation } from 'react-router-dom';
 
 import { BREAKPOINTS } from '../../constants';
 import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigation';
@@ -11,15 +11,15 @@ const SIDEBAR_WIDTH_PIXELS = 512;
 const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
 const useJumpToLocation = () => {
-  const location = useLocation();
+  const routerLocation = useRouterLocation();
 
   const map = useContext(MapContext);
 
   const isMedioumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const padding = useMemo(() => {
-    const currentTab = getCurrentTabFromURL(location.pathname);
-    const itemId = getCurrentIdFromURL(location.pathname);
+    const currentTab = getCurrentTabFromURL(routerLocation.pathname);
+    const itemId = getCurrentIdFromURL(routerLocation.pathname);
 
     if (isMedioumLayoutOrLarger) {
       if (itemId) {
@@ -29,7 +29,7 @@ const useJumpToLocation = () => {
       }
     }
     return {};
-  }, [isMedioumLayoutOrLarger, location.pathname]);
+  }, [isMedioumLayoutOrLarger, routerLocation.pathname]);
 
   return (coords, zoom = 15) => {
     const isCoordsArray = Array.isArray(coords[0]);

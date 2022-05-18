@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { useLocation } from 'react-router-dom';
+import { useLocation as useRouterLocation } from 'react-router-dom';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
@@ -18,10 +18,10 @@ jest.mock('../', () => ({
 }));
 
 describe('useJumpToLocation', () => {
-  let map, useLocationMock, useMatchMediaMock;
+  let map, useRouterLocationMock, useMatchMediaMock;
   beforeEach(() => {
-    useLocationMock = jest.fn(() => ({ pathname: '/' }),);
-    useLocation.mockImplementation(useLocationMock);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
     useMatchMediaMock = jest.fn(() => true);
     useMatchMedia.mockImplementation(useMatchMediaMock);
 
@@ -114,8 +114,8 @@ describe('useJumpToLocation', () => {
   });
 
   test('sets the right padding if a sidebar tab is open', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports' }),);
-    useLocation.mockImplementation(useLocationMock);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
 
@@ -143,8 +143,8 @@ describe('useJumpToLocation', () => {
   });
 
   test('sets the right padding if a sidebar tab is open in detail view', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
-    useLocation.mockImplementation(useLocationMock);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
 
@@ -172,8 +172,8 @@ describe('useJumpToLocation', () => {
   });
 
   test('does not set padding with the sidebar open if it is a small device', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
-    useLocation.mockImplementation(useLocationMock);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
+    useRouterLocation.mockImplementation(useRouterLocationMock);
     useMatchMediaMock = jest.fn(() => false);
     useMatchMedia.mockImplementation(useMatchMediaMock);
 
