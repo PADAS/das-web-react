@@ -50,6 +50,31 @@
   > .subheaderLabel:not(:first-child) {
     width: 6.25rem;
   }
+  
+  > .subheaderLabel:last-child {
+    width: 16.875rem;
+    margin-left: auto;
+  }
+}
+
+.locationInput {
+  width: 100%;
+  
+  > button {
+    padding: 0.25rem 0 0.187rem;
+
+    > svg {
+      padding: 0.25rem;
+
+      g {
+        stroke: $medium-light-gray; 
+      }
+
+      path {
+        fill: $medium-light-gray;
+      }
+    }
+  }
 }
 
 .autoFieldCheckbox {
@@ -136,12 +161,3 @@
   color: $secondary-medium-gray;
   cursor: not-allowed;
 }
-
-// .autoFieldCheckbox > input:disabled + span::before {
-//   border-color: currentColor;
-// }
-
-// .autoFieldCheckbox > input:checked:disabled + span::before {
-//   border-color: transparent;
-//   background-color: currentColor;
-// }

@@ -10,6 +10,9 @@ import TimeRangeInput from '../../TimeRangeInput';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
+import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+// import EditableItem from '../EditableItem';
+
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
@@ -23,11 +26,20 @@ const END_KEY = 'end';
 
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
-  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
+  const startLocation = useMemo(() => {
+    const starLocation = patrolForm.patrol_segments?.[0]?.start_location;
+    return starLocation ? [starLocation.longitude, starLocation.latitude] : null;
+  }, [patrolForm.patrol_segments]);
+  const endLocation = useMemo(() => {
+    const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
+    return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
+  }, [patrolForm.patrol_segments]);
+
+  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
 
@@ -39,7 +51,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       setLoadingTrackedBy(false);
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
-
 
   const updatePatrol = useCallback((update) => {
     onPatrolChange(merge({}, patrolForm, update));
@@ -114,6 +125,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrolTime('end', endDate, !isAutoEnd);
   }, [isAutoEnd, endDate, updatePatrolTime]);
 
+  const onStartLocationChange = useCallback(() => {
+    console.log('%c star location changed!', 'font-size: 28px;color:red;');
+  }, []);
+  const onEndLocationChange = useCallback(() => {
+    console.log('%c star location changed!', 'font-size: 28px;color:red;');
+  }, []);
+
   const StyledSubheaderLabel = ({ labelText, children,  ...rest }) => (
     <label className={styles.subheaderLabel} {...rest}>
       {labelText}
@@ -150,7 +168,11 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <StyledSubheaderLabel labelText={'Start Time'}>
         <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}/>
       </StyledSubheaderLabel>
+      <StyledSubheaderLabel labelText={'Start Location'}>
+        <LocationSelectorInput label='' className={styles.locationInput} copyable={true} iconPlacement='input' location={startLocation} onLocationChange={onStartLocationChange} placeholder='Set Location'/>
+      </StyledSubheaderLabel>
     </div>
+
     <label className={styles.autoFieldCheckbox}>
       <input type='checkbox' checked={isAutoStart} onChange={onAutoStartChange} disabled={!startDate || !isFuture(startDate)}/>
       <span>Automatically start the patrol at this time</span>
@@ -174,6 +196,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           onTimeChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
+      </StyledSubheaderLabel>
+      <StyledSubheaderLabel labelText={'Start Location'}>
+        <LocationSelectorInput label='' className={styles.locationInput} copyable={true} iconPlacement='input' location={endLocation} onLocationChange={onEndLocationChange} placeholder='Set Location'/>
       </StyledSubheaderLabel>
     </div>
     <label className={styles.autoFieldCheckbox}>
