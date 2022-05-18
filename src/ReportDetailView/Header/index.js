@@ -33,6 +33,8 @@ const Header = ({ report, setTitle }) => {
     event.target.scrollTop = 0;
   }, [eventTypeTitle, setTitle]);
 
+  const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
+
   return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
     <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
       <EventIcon report={report} />
@@ -46,6 +48,7 @@ const Header = ({ report, setTitle }) => {
         contentEditable={true}
         data-testid="reportDetailView-header-title"
         onBlur={onTitleBlur}
+        onFocus={onTitleFocus}
         ref={titleInput}
         suppressContentEditableWarning
       >
