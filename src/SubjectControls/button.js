@@ -14,20 +14,22 @@ const SubjectControlButton = (props, ref) => {
   </div>;
 };
 
-export default memo(forwardRef(SubjectControlButton));
+const memoizedSubjectControlButton = memo(forwardRef(SubjectControlButton));
 
-SubjectControlButton.defaultProps = {
+export default memoizedSubjectControlButton;
+
+memoizedSubjectControlButton.defaultProps = {
   onClick: noop,
   showLabel: true,
   loading: false,
 };
 
-SubjectControlButton.propTypes = {
+memoizedSubjectControlButton.propTypes = {
   buttonClassName: PropTypes.string,
   containerClassName: PropTypes.string,
   disabled: PropTypes.bool,
   labelText: PropTypes.string,
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
   showLabel: PropTypes.bool,
   loading: PropTypes.bool,
 };
