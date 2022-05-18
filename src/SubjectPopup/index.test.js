@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
 import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
 
@@ -67,7 +68,9 @@ describe('SubjectPopup', () => {
 
       map = createMapMock();
       render(<Provider store={store}>
-        <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
+        <NavigationWrapper>
+          <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
+        </NavigationWrapper>
       </Provider>);
     });
 
@@ -95,7 +98,9 @@ describe('SubjectPopup', () => {
     test('listing individual device properties', async () => {
       render(
         <Provider store={store}>
-          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+          <NavigationWrapper>
+            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+          </NavigationWrapper>
         </Provider>
       );
 
@@ -110,7 +115,9 @@ describe('SubjectPopup', () => {
     test('render additional props with boolean values', async () => {
       render(
         <Provider store={store}>
-          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+          <NavigationWrapper>
+            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+          </NavigationWrapper>
         </Provider>
       );
 
@@ -126,7 +133,9 @@ describe('SubjectPopup', () => {
 
     beforeEach(() => {
       render(<Provider store={store}>
-        <SubjectPopup data={staticSubjectFeature} />
+        <NavigationWrapper>
+          <SubjectPopup data={staticSubjectFeature} />
+        </NavigationWrapper>
       </Provider>);
     });
 

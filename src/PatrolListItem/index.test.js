@@ -9,6 +9,7 @@ import { within } from '@testing-library/dom';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';
@@ -76,12 +77,14 @@ test('rendering without crashing', () => {
   testPatrol = { ...patrols[0] };
 
   render(<Provider store={store}>
-    <MapContext.Provider value={map}>
-      <PatrolListItem onTitleClick={onTitleClick}
-      onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-      patrol={testPatrol}
-      map={map} />
-    </MapContext.Provider>
+    <NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+      </MapContext.Provider>
+    </NavigationWrapper>
   </Provider>);
 });
 
@@ -98,12 +101,14 @@ describe('the patrol list item', () => {
 
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
   test('showing an icon for the patrol', async () => {
@@ -150,12 +155,14 @@ describe('for active patrols', () => {
     });
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
 
@@ -245,12 +252,14 @@ describe('for scheduled patrols', () => {
     });
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
   test('showing a "start" button which starts the patrol', async () => {
@@ -302,12 +311,14 @@ describe('for overdue patrols', () => {
     });
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
 
@@ -336,12 +347,14 @@ describe('for cancelled patrols', () => {
     });
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
 
@@ -394,12 +407,14 @@ describe('for completed patrols', () => {
     });
 
     render(<Provider store={store}>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
-      </MapContext.Provider>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>);
   });
 

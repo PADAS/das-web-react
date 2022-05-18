@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -27,6 +27,7 @@ import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
+import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import {
   updateTrackState,
@@ -36,11 +37,9 @@ import {
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
-import { updateUserPreferences } from '../ducks/user-preferences';
-import { showDetailView } from '../ducks/side-bar';
+import useNavigate from '../hooks/useNavigate';
 
 import {
-  BREAKPOINTS,
   DEVELOPMENT_FEATURE_FLAGS,
   LAYER_IDS,
   LAYER_PICKER_IDS,
@@ -87,7 +86,11 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_NEW_CLUSTERING,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -128,7 +131,6 @@ const Map = ({
   showPopup,
   showReportHeatmap,
   showReportsOnMap,
-  showSideBarDetailView,
   showTrackTimepoints,
   socket,
   subjectTrackState,
@@ -140,10 +142,11 @@ const Map = ({
   updateTrackState,
   user,
   userLocation,
-  userPreferences,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const currentTab = getCurrentTabFromURL(location.pathname);
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
@@ -283,7 +286,7 @@ const Map = ({
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
 
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
     } else {
       openModalForReport(event, map);
     }
@@ -482,10 +485,6 @@ const Map = ({
     }
 
     hideUnpinnedTrackLayers(map, event);
-
-    if (userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
-      updateUserPreferences({ sidebarOpen: false });
-    }
   });
 
   // Workaround to lame issue with React Mapbox GL: https://github.com/alex3165/react-mapbox-gl/issues/963
@@ -683,7 +682,7 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!userPreferences.sidebarOpen}>
+      <DelayedUnmount isMounted={!currentTab}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>
@@ -777,7 +776,6 @@ const mapStatetoProps = (state) => {
     showTrackTimepoints,
     trackLength: { length: trackLength, origin: trackLengthOrigin },
     userLocation,
-    userPreferences,
     showReportsOnMap,
   } = view;
 
@@ -808,7 +806,6 @@ const mapStatetoProps = (state) => {
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
-    userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };
@@ -825,8 +822,6 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
-  showSideBarDetailView: showDetailView,
-  updateUserPreferences,
   updateTrackState,
   updatePatrolTrackState,
   updateHeatmapSubjects,
