@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 import subSeconds from 'date-fns/sub_seconds';
 
-import DateTimePickerPopover from '../DateTimePickerPopover';
+import DatePicker from '../DatePicker';
 import FilterSettingsControl from '../FilterSettingsControl';
 
 import styles from './styles.module.scss';
@@ -68,7 +68,19 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={true} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
+          <DatePicker
+            {...DATEPICKER_DEFAULT_CONFIG}
+            showTimeInput
+            placement={placement}
+            required={true}
+            maxDate={endDate ? endDate : maxDate}
+            value={startDate}
+            onChange={onStartDateChange}
+            className={styles.dateInput}
+            popperClassName={`${styles.datePopover}
+            ${popoverClassName || ''}`}
+            {...rest}
+          />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -77,7 +89,21 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={hasEndMaxDate ? endMaxDate : maxDate} value={endDate} onChange={handleEndDateChange} />
+          <DatePicker
+            {...DATEPICKER_DEFAULT_CONFIG}
+            showTimeInput
+            value={endDate}
+            placement={placement}
+            onClickDay={handleEndDateDayClick}
+            className={styles.dateInput}
+            popperClassName={`${styles.datePopover}
+            ${popoverClassName || ''}`}
+            required={requireEnd}
+            minDate={startDate}
+            maxDate={hasEndMaxDate ? endMaxDate : maxDate}
+            onChange={handleEndDateChange}
+            {...rest}
+          />
         </span>
       </label>
     </div>
@@ -109,9 +135,13 @@ const DateRangeSelector = (props) => {
       }, 'last three months')}>Last three months</Button>
     </div>}
     {!!filterSettings && <div>
-      <button type='button' className={styles.gearButton} ref={settingsButtonRef
-      }
-      onClick={toggleFilterSettingsPopover}>
+      <button
+        type='button'
+        className={styles.gearButton}
+        ref={settingsButtonRef}
+        onClick={toggleFilterSettingsPopover}
+        data-testid='settings-gear-icon'
+        >
         <GearIcon />
       </button>
       <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}

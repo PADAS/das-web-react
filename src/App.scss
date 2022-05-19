@@ -3,6 +3,7 @@
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
+@import './common/styles/datepicker';
 
 *,
 *::before,
@@ -273,43 +274,8 @@ aside {
   }
 }
 
-.react-calendar {
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 3px $light-gray-border;
-  padding: 0.5rem;
-
-  .react-calendar__month-view__days {
-    button {
-      border-radius: 100%;
-      height: 3rem;
-      width: 3rem;
-
-      &:not(:disabled):hover,
-      &.react-calendar__tile--active,
-      &.react-calendar__tile--now {
-        border: 1px solid $light-gray-border;
-      }
-
-      &.react-calendar__tile--now {
-        background: none;
-      }
-
-      &.react-calendar__tile--active {
-        background: $primary-button-color;
-        color: white;
-      }
-    }
-  }
-
-  .react-calendar__navigation__label {
-    font-weight: bold;
-  }
-
-  .react-calendar__tile:disabled {
-    background: none;
-    opacity: 0.5;
-  }
+.react-datepicker {
+  @include customDatepicker;
 }
 
 .maplock {
@@ -589,7 +555,7 @@ div.mapboxgl-popup-tip {
   }
 
   .modal-content {
-    box-shadow: 0 0 3px $light-gray;
+    box-shadow: 0 0 0.187rem $light-gray;
   }
 
   .modal-header {

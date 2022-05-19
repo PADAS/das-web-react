@@ -1,10 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import setSeconds from 'date-fns/set_seconds';
 import isFuture from 'date-fns/is_future';
 
-import DateTimePickerPopover from '../DateTimePickerPopover';
+import DatePicker from '../DatePicker';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
@@ -15,12 +15,7 @@ const PatrolDateInput = (props) => {
     isAuto = false, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
-  const [tempPopoverProps, setTempPopoverProps] = useState({});
-
-
-  const onHide = useCallback(() => {
-    setStateTime(value);
-  }, [value]);
+  const pickerRef = useRef(null);
 
   const canShowAutoCheck = useMemo(() =>
     Math.abs(differenceInMinutes(new Date(stateTime), new Date())) > 1
@@ -31,9 +26,7 @@ const PatrolDateInput = (props) => {
     const auto = !canShowAutoCheck ? true : isAuto;
 
     onChange(stateTime, auto);
-
-    setTempPopoverProps({ popoverOpen: false });
-    setTimeout(() => setTempPopoverProps({}), 1000);
+    pickerRef.current.setOpen(false);
   }, [canShowAutoCheck, isAuto, onChange, stateTime]);
 
   const onTimeChange = useCallback((val) => {
@@ -54,14 +47,14 @@ const PatrolDateInput = (props) => {
     let string = styles.timeInput;
 
     if (!value) {
-      string += ` ${styles.empty }`;
+      string += ' empty';
     }
 
     if (timeBeingEdited) {
       string += ` ${styles.editingDate}`;
     }
 
-    if (className) {
+    if (!!className) {
       string += ` ${className}`;
     }
 
@@ -84,28 +77,29 @@ const PatrolDateInput = (props) => {
     }
   }, [value]);
 
-  return <DateTimePickerPopover
+  return <DatePicker
     {...DATEPICKER_DEFAULT_CONFIG}
-    value={stateTime}
+    showTimeInput
+    innerRef={pickerRef}
     className={timeClassName}
-    {...tempPopoverProps}
-    onHide={onHide}
-    onEnterKeyPress={commitTimeChange}
-    onPopoverClosed={onPopoverClosed}
-    onPopoverOpened={onPopoverOpened}
+    value={stateTime}
+    shouldCloseOnSelect={false}
     onChange={onTimeChange}
+    onCalendarOpen={onPopoverOpened}
+    onCalendarClose={onPopoverClosed}
     {...rest}
     >
-    <div className={styles.dateTimePickerChildren}>
-      <Button variant='primary' type='button' onClick={commitTimeChange}>
-        {buttonTitle}
-      </Button>
-      {canShowAutoCheck && <label htmlFor='autoStart'>
-        <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
-      </label>}
+    <div className={styles.datePickerChildrenWrapper}>
+      <div className={styles.datePickerChildren}>
+        <Button variant='primary' type='button' onClick={commitTimeChange}>
+          {buttonTitle}
+        </Button>
+        <label htmlFor='autoStart' style={!canShowAutoCheck ? { visibility: 'hidden' } : {}}>
+          <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
+        </label>
+      </div>
     </div>
-  </DateTimePickerPopover>;
-
+  </DatePicker>;
 };
 
 export default memo(PatrolDateInput);
