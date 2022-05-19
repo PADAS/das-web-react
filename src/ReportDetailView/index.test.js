@@ -156,7 +156,7 @@ describe('ReportDetailView', () => {
 
     userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveTextContent('Jenae Test Auto Resolve2');
+    expect(titleInput).toHaveTextContent('2enae Test Auto Resolve');
   });
 
   test('hides the detail view when clicking the cancel button', async () => {

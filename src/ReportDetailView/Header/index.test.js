@@ -54,12 +54,12 @@ describe('Header', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
-    userEvent.type(titleTextBox, '2');
+    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}2');
     userEvent.tab();
 
     await waitFor(() => {
       expect(setTitle).toHaveBeenCalledTimes(1);
-      expect(setTitle).toHaveBeenCalledWith('Light2');
+      expect(setTitle).toHaveBeenCalledWith('2');
     });
   });
 
@@ -74,7 +74,7 @@ describe('Header', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
-    userEvent.type(titleTextBox, '{backspace}{backspace}{backspace}{backspace}{backspace}');
+    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}');
     userEvent.tab();
 
     expect(setTitle).toHaveBeenCalledTimes(1);
