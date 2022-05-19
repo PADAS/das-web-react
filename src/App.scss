@@ -3,6 +3,7 @@
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
+@import './common/styles/datepicker';
 
 *,
 *::before,
@@ -51,6 +52,9 @@ $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cance
 :root {
   --nav-height: 2.75rem;
   --vertical-nav-width: 4.375rem;
+
+  // Make sure to update the SIDEBAR_WIDTH_PIXELS variable in the JS too to add the right padding
+  // when centering something in the map
   --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
@@ -270,43 +274,8 @@ aside {
   }
 }
 
-.react-calendar {
-  border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 3px $light-gray-border;
-  padding: 0.5rem;
-
-  .react-calendar__month-view__days {
-    button {
-      border-radius: 100%;
-      height: 3rem;
-      width: 3rem;
-
-      &:not(:disabled):hover,
-      &.react-calendar__tile--active,
-      &.react-calendar__tile--now {
-        border: 1px solid $light-gray-border;
-      }
-
-      &.react-calendar__tile--now {
-        background: none;
-      }
-
-      &.react-calendar__tile--active {
-        background: $primary-button-color;
-        color: white;
-      }
-    }
-  }
-
-  .react-calendar__navigation__label {
-    font-weight: bold;
-  }
-
-  .react-calendar__tile:disabled {
-    background: none;
-    opacity: 0.5;
-  }
+.react-datepicker {
+  @include customDatepicker;
 }
 
 .maplock {
@@ -586,7 +555,7 @@ div.mapboxgl-popup-tip {
   }
 
   .modal-content {
-    box-shadow: 0 0 3px $light-gray;
+    box-shadow: 0 0 0.187rem $light-gray;
   }
 
   .modal-header {

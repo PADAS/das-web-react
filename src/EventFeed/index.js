@@ -35,7 +35,6 @@ const EventFeed = (props) => {
               <ReportListItem
                 className={styles.listItem}
                 displayTime={item[displayTimeProp]}
-                map={map}
                 report={item}
                 onTitleClick={onTitleClick}
                 onIconClick={onIconClick} />

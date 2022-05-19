@@ -4,21 +4,25 @@ import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 
+import DatePicker from '../../DatePicker';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
+import { displayStartTimeForPatrol } from '../../utils/patrols';
 
 import styles from './styles.module.scss';
 
 const { Control } = Form;
-
 const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
 
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
+  const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
+  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
+  const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -29,8 +33,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
 
-  const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
-  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
 
   const updatePatrol = useCallback((update) => {
     onPatrolChange(merge({}, patrolForm, update));
@@ -83,6 +85,11 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol({ objective: value });
   }, [updatePatrol]);
 
+  const handleCalendarChange = useCallback((value) => {
+    console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
+    // updatePatrol(value);
+  }, []);
+
   return <>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
@@ -100,6 +107,12 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         value={patrolForm?.objective ?? ''}
         onChange={onObjectiveChange}
       />
+    </label>
+
+    <h3>Start</h3>
+    <label data-testid="patrol-objective" className={styles.objectiveLabel}>
+      Start Date
+      <DatePicker value={startDate ?? new Date()} onChange={handleCalendarChange}/>
     </label>
   </>;
 };

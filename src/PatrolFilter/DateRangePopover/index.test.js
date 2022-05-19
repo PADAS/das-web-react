@@ -68,7 +68,7 @@ describe('DateRangePopover', () => {
     expect(resetGlobalDateRange).toHaveBeenCalledTimes(0);
 
     // Click the patrol filter settings button
-    const patrolFilterSettings = (await screen.findAllByRole('button'))[6];
+    const patrolFilterSettings = await screen.getByTestId('settings-gear-icon');
     userEvent.click(patrolFilterSettings);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
