@@ -34,8 +34,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
   const startLocation = useMemo(() => {
-    const starLocation = patrolForm.patrol_segments?.[0]?.start_location;
-    return starLocation ? [starLocation.longitude, starLocation.latitude] : null;
+    const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
+    return startLocation ? [startLocation.longitude, startLocation.latitude] : null;
   }, [patrolForm.patrol_segments]);
   const endLocation = useMemo(() => {
     const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
@@ -177,8 +177,17 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <StyledSubheaderLabel labelText={'Start Time'}>
         <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}/>
       </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={isMediumLayoutOrLarger ? 'Start Location' : 'Location'}>
-        <LocationSelectorInput label='' className={styles.locationInput} copyable={isMediumLayoutOrLarger ? true : false} iconPlacement='input' location={startLocation} onLocationChange={(value) => onLocationChange(value, START_KEY)} placeholder='Set Location'/>
+      <StyledSubheaderLabel data-testid="planTab-start-location" labelText={isMediumLayoutOrLarger ? 'Start Location' : 'Location'}>
+        <LocationSelectorInput
+          label=''
+          className={styles.locationInput}
+          copyable={isMediumLayoutOrLarger ? true : false}
+          iconPlacement='input'
+          location={startLocation}
+          onLocationChange={(value) =>
+          onLocationChange(value, START_KEY)}
+          placeholder='Set Location'
+        />
         {(!startLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
       </StyledSubheaderLabel>
     </div>
@@ -208,8 +217,16 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={isMediumLayoutOrLarger ? 'End Location' : 'Location'}>
-        <LocationSelectorInput label='' className={styles.locationInput} copyable={isMediumLayoutOrLarger ? true : false} iconPlacement='input' location={endLocation} onLocationChange={(value) => onLocationChange(value, END_KEY)} placeholder='Set Location'/>
+      <StyledSubheaderLabel data-testid="planTab-end-location" labelText={isMediumLayoutOrLarger ? 'End Location' : 'Location'}>
+        <LocationSelectorInput
+          label=''
+          className={styles.locationInput}
+          copyable={isMediumLayoutOrLarger ? true : false}
+          iconPlacement='input'
+          location={endLocation}
+          onLocationChange={(value) => onLocationChange(value, END_KEY)}
+          placeholder='Set Location'
+        />
         {(!endLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
       </StyledSubheaderLabel>
     </div>
