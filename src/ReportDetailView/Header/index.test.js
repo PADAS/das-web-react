@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import Header from './';
 import { mockStore } from '../../__test-helpers/MockStore';
+import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
@@ -18,7 +19,9 @@ describe('Header', () => {
   test('renders correctly case of a 300 priority report', async () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -30,7 +33,9 @@ describe('Header', () => {
 
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -42,7 +47,9 @@ describe('Header', () => {
     report.title = 'Light';
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -60,7 +67,9 @@ describe('Header', () => {
     report.title = 'Light';
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -76,7 +85,9 @@ describe('Header', () => {
     report.title = 'Report!';
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -89,10 +100,37 @@ describe('Header', () => {
     report.title = 'Light';
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
       </Provider>
     );
 
     expect((await screen.queryByTestId('reportDetailView-header-eventType'))).toBeNull();
+  });
+
+  test('renders the location jump button if the report has coordinates', async () => {
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(await screen.findByTitle('Jump to this location')).toBeDefined();
+  });
+
+  test('does not render the location jump button if the report does not have coordinates', async () => {
+    report.geojson.geometry.coordinates = null;
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} setTitle={setTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(await screen.queryByTitle('Jump to this location')).toBeNull();
   });
 });

@@ -14,7 +14,7 @@ import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/e
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
@@ -37,6 +37,7 @@ import {
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import {
@@ -143,6 +144,7 @@ const Map = ({
   user,
   userLocation,
 }) => {
+  const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -524,7 +526,7 @@ const Map = ({
   useEffect(() => {
     if (!!map) {
       const { zoom, center } = homeMap;
-      jumpToLocation(map, lngLatFromParams.current || center, zoom);
+      jumpToLocation(lngLatFromParams.current || center, zoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeMap, map]);

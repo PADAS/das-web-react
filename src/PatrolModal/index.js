@@ -682,7 +682,6 @@ const PatrolModal = (props) => {
               {allPatrolReports.map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
-                  map={map}
                   report={item}
                   key={`${item.id}-${index}`}
                   onTitleClick={onReportListItemClick} />

@@ -142,10 +142,11 @@
 .priorityAndDate {
   margin-left: auto;
   text-align: right;
-  margin-right: 1rem;
+  margin-right: 0.5rem;
   font-size: 0.75rem;
-
+  
   @media (min-width: $md-layout-width-min) {
+    margin-right: 1rem;
     font-size: 1rem;
   }
 }
@@ -157,4 +158,8 @@
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
   }
+}
+
+.locationJumpButton {
+  margin-right: 1.5rem;
 }
