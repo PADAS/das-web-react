@@ -30,6 +30,7 @@
   max-width: 5.75rem;
   max-height: 1.85rem;
   border-radius: 0.2rem;
+  overflow: hidden;
   cursor: pointer;
 
   [class*=spinner] {
