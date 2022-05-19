@@ -7,9 +7,9 @@ import { clearAuth } from '../ducks/auth';
 import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
-import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import { useMatchMedia, usePermissions } from '../hooks';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
@@ -41,6 +41,7 @@ const Nav = ({
   user,
   userProfiles,
 }) => {
+  const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -53,7 +54,7 @@ const Nav = ({
   };
 
   const onCurrentLocationClick = (location) => {
-    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], (MAX_ZOOM - 2));
+    jumpToLocation([location.coords.longitude, location.coords.latitude], (MAX_ZOOM - 2));
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
 

@@ -62,8 +62,10 @@ const ReportDetailView = () => {
         return navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
       }
 
+      const idHasChanged = reportForm?.id !== itemId;
       const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
-      if (!isNewReport || newReportTypeHasChanged) {
+      const selectedReportHasChanged = isNewReport ? newReportTypeHasChanged : idHasChanged;
+      if (selectedReportHasChanged) {
         setReportForm(isNewReport ? newReport : eventStore[itemId]);
       }
     }

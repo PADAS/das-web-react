@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
 import { getSubjectLastPositionCoordinates } from '../utils/subjects';
-import { jumpToLocation } from '../utils/map';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
@@ -11,11 +11,13 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 
 
 const SubjectMessagePopup = (props) => {
-  const  { map, data: { subject, message } } = props;
+  const  { data: { subject, message } } = props;
+
+  const jumpToLocation = useJumpToLocation();
 
   const onTitleClick = () => {
     const coordinates = getSubjectLastPositionCoordinates(subject);
-    jumpToLocation(map, coordinates);
+    jumpToLocation(coordinates);
   };
 
   return <>

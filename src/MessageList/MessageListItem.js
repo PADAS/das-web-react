@@ -1,18 +1,17 @@
 
-import React, { useContext, memo }  from 'react';
+import React, { memo }  from 'react';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 
-import { MapContext } from '../App';
 import DateTime from '../DateTime';
 import SenderDetails from './SenderDetails';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
-import { jumpToLocation } from '../utils/map';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { toggleTrackState } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import { ReactComponent as PendingIcon } from '../common/images/icons/pending-message-icon.svg';
 import { ReactComponent as SentIcon } from '../common/images/icons/sent-message-icon.svg';
@@ -36,10 +35,10 @@ const MESSAGE_ICON_MAP = {
 };
 
 const MessageListItem = (props) => {
-
   const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
     showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, ...rest } = props;
-  const map = useContext(MapContext);
+
+  const jumpToLocation = useJumpToLocation();
 
   if (!subject) return null;
 
@@ -54,7 +53,7 @@ const MessageListItem = (props) => {
         const StatusIcon = MESSAGE_ICON_MAP[message.status];
 
         const onJumpButtonClick = async () => {
-          jumpToLocation(map, [message.device_location.longitude, message.device_location.latitude]);
+          jumpToLocation([message.device_location.longitude, message.device_location.latitude]);
 
           const subjectTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(subject.id);
           if (subjectTrackHidden) {

@@ -60,7 +60,7 @@ const DateRangePopover = React.forwardRef(({
         </div>
       </Popover.Title>
 
-      <Popover.Content>
+      <Popover.Content style={{ overflow: 'visible' }}>
         <PatrolFilterDateRangeSelector
           placement='bottom'
           onFilterSettingsToggle={() => patrolFilterTracker.track('Click Date Filter Settings button')}

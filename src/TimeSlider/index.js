@@ -117,7 +117,14 @@ const TimeSlider = (props) => {
         <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
       </Title>
       <Content className={styles.popoverBody}>
-        <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' popoverClassName={`${styles.dateRangePopover} ${popoverClassName || ''} ${sidebarOpen ? '' : styles.sidebarClosed}`} placement='top' />
+        <EventFilterDateRangeSelector
+          onStartChange={onDateChange}
+          onEndChange={onDateChange}
+          endDateLabel=''
+          startDateLabel=''
+          popoverClassName={`${styles.dateRangePopover} ${popoverClassName || ''} ${sidebarOpen ? '' : styles.sidebarClosed}`}
+          placement='top'
+          />
       </Content>
     </Popover>;
   };

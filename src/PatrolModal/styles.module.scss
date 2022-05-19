@@ -65,6 +65,22 @@ section.timeBar {
   font-size: 0.9rem;
   justify-content: space-between;
   padding: 0.25rem 0.5rem 0.25rem 1rem !important;
+  
+  @media (max-width: $md-layout-width-min) {
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+
+    > span {
+      width: 50%;
+      margin-left: 0;
+    }
+
+    label {
+      margin-left: 0;
+      margin-top: 0.625rem;
+    }
+  }
+  
   > div {
     align-items: center;
     display: flex;
@@ -72,48 +88,87 @@ section.timeBar {
       width: 2.5rem;
     }
   }
+  
   > *:last-child {
     flex-shrink: 0;
     margin-bottom: 0;
+
   }
+
   .timeInput {
     border: none;
-    input {
-      cursor: pointer;
-      max-width: 7.5rem;
+    min-width: 0.8rem;
+    margin-left: 0.5rem;
+
+    @media (max-width: $md-layout-width-min) {
+      display: flex;
+      flex-direction: column;
+
+      svg {
+        display: none;
+      }
+
+      [class*=scheduledLabel] {
+        min-width: 30%;
+      }
     }
-    &:not([class*=empty]) {
+
+    [class*=triangle] {
+      display: none;
+    }
+
+    &[class*=empty] {
+      background: white;
+      display: flex;
+      > span {
+        color: $light-blue;
+      }
+      svg * {
+        fill: $light-blue;
+      }
+    }
+
+    &:not([class*=empty]) , &[class*=editingDate] {
       background: none;
-      > input {
+      > span {
         color: white;
         &:hover {
           text-decoration: underline;
         }
       }
       svg * {
-        stroke: white;
-      }
-      svg[class*=clearIcon] {
-        display: none;
-      }
-      svg[class*=clearIcon] * {
         fill: white;
-      }
-      &:not(.editingDate):hover {
-        svg[class*=clearIcon] {
-          display: block;
-        }
-      }
-    }
-    &[class*=empty] {
-      background: white;
-      max-width: 9rem;
-      display: flex;
-      svg * {
-        stroke: $light-blue;
       }
     }
   }
+  
+  .datePickerChildrenWrapper{
+    display: block;
+    
+    .datePickerChildren {
+      align-items: center;
+      display: flex;
+      float: left;
+      justify-content: space-evenly;
+      margin: 0.5rem 0rem;
+      width: 100%;
+    
+      button {
+        padding: 0.065rem 0.37rem;
+      }
+  
+      label {
+        align-items: center;
+        display: flex;
+        margin: 0;
+      }
+      
+      [type=checkbox] {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
   ::placeholder {
     color: $light-blue;
     opacity: 1;
@@ -186,6 +241,7 @@ section.timeBar {
   flex-wrap: wrap;
   padding: $container-padding;
   position: relative;
+
   > label {
     align-items: center;
     display: flex;
@@ -195,10 +251,12 @@ section.timeBar {
     padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
-    @media #{$whenPageIsMediumHeightAndWidth} {
+
+    @media (max-width: $md-layout-width-min) {
       flex-wrap: wrap;
       font-size: 0.9rem;
       padding: 0.5rem;
+      width: 100%;
     }
     > * {
       font-weight: initial;
@@ -232,35 +290,25 @@ section.timeBar {
 }
 
 .editingDate:not([class*=react-calendar]) {
-  > input {
-    color: yellow !important;
-    font-style: italic;
+  button {
     width: 7.5rem;
+    background: none;
+
+    > span {     
+      color: yellow !important;
+      font-style: italic;
+    }
   }
+
   &::after {
     color: yellow;
     display: inline;
-    content: "*unsaved";
+    content: "\00a0*unsaved";
   }
   + .scheduledLabel {
     display: none;
   }
 } 
-
-.dateTimePickerChildren {
-  align-items: center;
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 1rem;
-  label {
-    align-items: center;
-    display: flex;
-    margin: 0;
-  }
-  [type=checkbox] {
-    margin-right: 0.5rem;
-  }
-}
 
 .patrolDetail {
   display: inline-block;

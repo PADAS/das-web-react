@@ -270,7 +270,7 @@ const EventFilter = (props) => {
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
     </Popover.Title>
-    <Popover.Content>
+    <Popover.Content style={{ overflow: 'visible' }}>
       <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
     </Popover.Content>
   </Popover>;

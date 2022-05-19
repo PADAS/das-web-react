@@ -8,7 +8,7 @@ import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
@@ -151,33 +151,6 @@ export const pointIsInMapBounds = (coords, map) => {
 
 export const generateBoundsForLineString = ({ geometry }) => {
   return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
-};
-
-export const jumpToLocation = (map, coords, zoom = 15) => {
-  if (!Array.isArray(coords[0])) {
-    map.setZoom(zoom);
-    map.easeTo({
-      center: coords,
-      zoom,
-      speed: 200,
-    });
-  } else {
-    if (coords.length > 1) {
-
-      const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
-      map.fitBounds(boundaries, {
-        linear: true,
-        speed: 200,
-        padding: FIT_TO_BOUNDS_PADDING,
-      });
-    } else {
-      map.easeTo({
-        center: coords[0],
-        zoom,
-        speed: 200,
-      });
-    }
-  }
 };
 
 
