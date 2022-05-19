@@ -10,7 +10,6 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/event-types';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection, PRIORITY_COLOR_MAP } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
@@ -19,8 +18,6 @@ import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
   const jumpToLocation = useJumpToLocation();
@@ -70,7 +67,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, 
     themeBgColor={themeBgColor}
     themeColor={themeColor}
     IconComponent={
-      <button className={ENABLE_UFA_NAVIGATION_UI ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
+      <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
         <EventIcon report={report} />
         {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
       </button>

@@ -5,6 +5,7 @@ export const createMapMock = (override = {}) => {
       _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },
       _sw: { lat: -3.480332977332381, lng: 36.96196978906826 },
     }),
+    setFilter: jest.fn(),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
     on: jest.fn(),

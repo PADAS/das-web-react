@@ -15,16 +15,12 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
-}));
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true, ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),

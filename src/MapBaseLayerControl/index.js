@@ -7,7 +7,6 @@ import { setBaseLayer } from '../ducks/layers';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
 
 import {
-  DEVELOPMENT_FEATURE_FLAGS,
   VALID_LAYER_SOURCE_TYPES,
   TILE_LAYER_SOURCE_TYPES,
   MAPBOX_STYLE_LAYER_SOURCE_TYPES,
@@ -20,8 +19,6 @@ import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
@@ -84,9 +81,9 @@ const BaseLayerControl = (props) => {
     <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
       <BaseMapIcon />
     </button>
-    <Overlay placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'} show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
+    <Overlay placement='left' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title='Base Layers'>
-        <ul className={ENABLE_UFA_NAVIGATION_UI ? styles.layerList : styles.oldNavigationLayerList}>
+        <ul className={styles.layerList}>
           {baseLayers.map(layer => {
             const logoSrc = renderLayerLogoSrc(layer);
 

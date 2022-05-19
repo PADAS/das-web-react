@@ -89,9 +89,7 @@ import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 const {
-  ENABLE_NEW_CLUSTERING,
   ENABLE_REPORT_NEW_UI,
-  ENABLE_UFA_NAVIGATION_UI,
 } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
@@ -288,7 +286,7 @@ const Map = ({
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
 
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+    if (ENABLE_REPORT_NEW_UI) {
       navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
     } else {
       openModalForReport(event, map);
@@ -451,20 +449,16 @@ const Map = ({
     );
     let shouldHidePopup = true, clusterFeaturesAtPoint = [];
 
-    if (ENABLE_NEW_CLUSTERING) {
-      const clusterApproxGeometry = [
-        [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
-        [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
-      ];
-      const clustersAtPoint = map.queryRenderedFeatures(
-        clusterApproxGeometry,
-        { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
-      );
+    const clusterApproxGeometry = [
+      [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
+      [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
+    ];
+    const clustersAtPoint = map.queryRenderedFeatures(
+      clusterApproxGeometry,
+      { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
+    );
 
-      shouldHidePopup = !clustersAtPoint.length;
-    } else {
-      clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-    }
+    shouldHidePopup = !clustersAtPoint.length;
 
     if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
@@ -639,14 +633,14 @@ const Map = ({
   const enableEventClustering = timeSliderActive ? false : true;
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
-    className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
     controls={<>
-      {ENABLE_UFA_NAVIGATION_UI && <AddReport
+      <AddReport
         className="general-add-button"
         variant="secondary"
         popoverPlacement="left"
         showLabel={false}
-      />}
+      />
       <MapBaseLayerControl />
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />
@@ -663,7 +657,7 @@ const Map = ({
     {map && <>
       {children}
 
-      {ENABLE_NEW_CLUSTERING && <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />}
+      <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
       <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
         <EventsLayer
@@ -692,14 +686,8 @@ const Map = ({
       </DelayedUnmount>
 
       <div className='map-legends'>
-        {!ENABLE_UFA_NAVIGATION_UI && <>
-          {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
-          {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
-          {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
-          {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
-        </>}
         <span className='compass-wrapper' onClick={onRotationControlClick} >
-          {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+          <CursorGpsDisplay />
           <RotationControl
             className='rotation-control'
             style={{
@@ -710,14 +698,13 @@ const Map = ({
               borderRadius: '0.25rem',
             }}
           />
-          {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
         </span>
-        {ENABLE_UFA_NAVIGATION_UI && <>
+        <>
           {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
           {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
           {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
           {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
-        </>}
+        </>
       </div>
 
       <RightClickMarkerDropper />

@@ -10,7 +10,6 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
-import { DEVELOPMENT_FEATURE_FLAGS } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
@@ -19,9 +18,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
-import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 import { getCurrentTabFromURL } from './utils/navigation';
-import useNavigate from './hooks/useNavigate';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -34,10 +31,6 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 import { showToast } from './utils/toast';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
-const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 export const MapContext = createContext(null);
 
@@ -66,7 +59,6 @@ const App = (props) => {
   } = props;
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   let sidebarOpen = !!currentTab;
@@ -96,11 +88,6 @@ const App = (props) => {
     disallowDragAndDrop(e);
     finishDrag(e);
   }, [disallowDragAndDrop, finishDrag]);
-
-  const onSidebarHandleClick = useCallback(() => {
-    navigate(sidebarOpen ? '/' : '/reports');
-    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
-  }, [navigate, sidebarOpen]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -145,7 +132,7 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`}
     onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
@@ -157,7 +144,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar {...(ENABLE_UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
+        {!!map && <SideBar map={map} />}
         <ModalRenderer map={map} />
       </div>
 

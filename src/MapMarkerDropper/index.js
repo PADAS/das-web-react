@@ -2,8 +2,6 @@ import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
-
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { validateLngLat } from '../utils/location';
 import { addMapImage } from '../utils/map';
 
@@ -14,8 +12,6 @@ import MouseMarkerPopup from '../MouseMarkerPopup';
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
   const [moving, setMovingState] = useState(false);
@@ -102,7 +98,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
       disabled={isValidLocation || moving}
       showCancelButton={moving}
       className={styles.mapControl}
-      wrapperClassName={ENABLE_UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}
+      wrapperClassName={styles.buttons}
       onLocationSelectCancel={hideMarker}
       onLocationSelectStart={startMovingReportMarker}
       onLocationSelect={onLocationSelect} />
