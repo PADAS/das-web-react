@@ -11,6 +11,7 @@ import { MapContext } from '../App';
 import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
@@ -38,7 +39,13 @@ const IMAGE_DATA = {
 const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
 
 
-const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({
+  staticSensors = {},
+  isTimeSliderActive,
+  shouldSubjectsBeClustered,
+  showMapNames,
+  simplifyMapDataOnZoom: { enabled: isDataInMapSimplified },
+}) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
@@ -138,7 +145,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
   useEffect(() => {
     if (map) {
       let renderedStaticSensors = [];
-      if (ENABLE_NEW_CLUSTERING && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+      if (ENABLE_NEW_CLUSTERING && shouldSubjectsBeClustered && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
         renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
           .map((feature) => feature?.properties?.id);
       }
@@ -150,6 +157,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
         const source = map.getSource(sourceId);
 
         if (ENABLE_NEW_CLUSTERING
+          && shouldSubjectsBeClustered
           && !renderedStaticSensors.includes(feature.properties.id) && !isTimeSliderActive) {
           return map.getLayer(layerID) && setLayerVisibility(layerID, false);
         }
@@ -170,7 +178,17 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
         map.on('click', layerID, onLayerClick);
       });
     }
-  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, clickedLayerID]);
+  }, [
+    setLayerVisibility,
+    createLayer,
+    isDataInMapSimplified,
+    map,
+    onLayerClick,
+    sensorsWithDefaultValue,
+    isTimeSliderActive,
+    clickedLayerID,
+    shouldSubjectsBeClustered,
+  ]);
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
@@ -196,7 +214,11 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
   return null;
 };
 
-const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
+const mapStatetoProps = (state) => ({
+  shouldSubjectsBeClustered: getShouldSubjectsBeClustered(state),
+  showMapNames: state.view.showMapNames,
+  simplifyMapDataOnZoom: state.view.simplifyMapDataOnZoom,
+});
 
 export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
 

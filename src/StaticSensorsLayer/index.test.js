@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
 import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS } from '../constants';
@@ -14,6 +15,11 @@ import StaticSensorsLayer from './';
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true },
+}));
+
+jest.mock('../selectors/clusters', () => ({
+  ...jest.requireActual('../selectors/clusters'),
+  getShouldSubjectsBeClustered: jest.fn(),
 }));
 
 const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
@@ -170,6 +176,8 @@ describe('adding layers to the map', () => {
   });
 
   test('It should not create new layers if clustering is enabled and static sensors are not part of the unclustered layer', () => {
+    const getShouldSubjectsBeClusteredMock = jest.fn(() => true);
+    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
     map.queryRenderedFeatures.mockImplementation(() => []);
     render(<Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
@@ -179,5 +187,19 @@ describe('adding layers to the map', () => {
 
     expect(map.addSource).toHaveBeenCalledTimes(0);
     expect(map.addLayer).toHaveBeenCalledTimes(0);
+  });
+
+  test('It create new layers if subjects are not being clustered', () => {
+    const getShouldSubjectsBeClusteredMock = jest.fn(() => false);
+    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
+    map.queryRenderedFeatures.mockImplementation(() => []);
+    render(<Provider store={mockStore(store)}>
+      <MapContext.Provider value={map}>
+        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
+      </MapContext.Provider>
+    </Provider>);
+
+    expect(map.addSource).toHaveBeenCalledTimes(3);
+    expect(map.addLayer).toHaveBeenCalledTimes(6);
   });
 });
