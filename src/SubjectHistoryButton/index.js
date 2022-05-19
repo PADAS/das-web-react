@@ -6,9 +6,8 @@ import styles from './styles.module.scss';
 import SubjectControlButton from '../SubjectControls/button';
 
 const SubjectHistoryButton = (props, ref) => {
-  const { disabled, onClick, showLabel, ...rest } = props;
 
-  return <SubjectControlButton disabled={disabled} buttonClassName={styles.button} containerClassName={styles.container} onClick={onClick} ref={ref} showLabel={showLabel} labelText='Historical Data' {...rest} />;
+  return <SubjectControlButton buttonClassName={styles.button} containerClassName={styles.container} ref={ref} labelText='Historical Data' {...props} />;
 };
 
 export default memo(forwardRef(SubjectHistoryButton));
