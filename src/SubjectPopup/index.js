@@ -109,9 +109,9 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>
-          <span data-testid='additional-props-value'>
+          {isTimeSliderActive ?  <span>No historical data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
-          </span>
+          </span>}
         </li>
       )}
     </ul>}
