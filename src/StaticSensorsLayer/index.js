@@ -107,29 +107,6 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
 
   }, [map, setLayerVisibility, showPopup]);
 
-  /*  const createPopup = useCallback((layer) => {
-    const { geometry } = layer;
-
-    const elementContainer = document.createElement('div');
-    ReactDOM.render(
-      <BrowserRouter>
-        <Provider store={store}>
-          <NavigationContextProvider>
-            <SubjectPopup data={layer}/>
-          </NavigationContextProvider>
-        </Provider>
-      </BrowserRouter>, elementContainer);
-
-    popup.setLngLat(geometry.coordinates)
-      .setDOMContent(elementContainer)
-      .addTo(map);
-
-    popup.on('close', () => {
-      setClickedLayerID('');
-      setLayerVisibility(layer.layer.id);
-    });
-  }, [map, setLayerVisibility]); */
-
   const onLayerClick = useCallback((event) => {
     if (event?.originalEvent?.cancelBubble) return;
 
