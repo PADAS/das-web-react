@@ -190,11 +190,11 @@ const LocationSelectorInput = (props) => {
         onGeoLocationStart={onGeoLocationStart}
         onGeoLocationSuccess={onGeoLocationSuccess} />
     </Overlay>
-      <button onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
-        {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
-        {displayString}
-        {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}
-      </button>
+    <div onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
+      {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
+      <span style={!location ? { marginRight: 'auto' } : {}}>{displayString}</span>
+      {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}
+    </div>
   </label>;
 };
 

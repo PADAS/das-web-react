@@ -1,4 +1,5 @@
 @import '../../common/styles/vars/colors';
+@import '../../common/styles/layout';
 
 .trackedByLabel {
   margin-top: 1rem;
@@ -44,28 +45,45 @@
   gap: 10px;
 
   > .subheaderLabel:first-child {
-    width: 10.6rem;
+    width: 11.25rem;
+    @media (max-width: $md-layout-width-min) {
+      width: 8.75rem;
+    }
   }
-
+  
   > .subheaderLabel:not(:first-child) {
     width: 6.25rem;
+    @media (max-width: $md-layout-width-min) {
+      width: 5.5rem;
+    }
   }
   
   > .subheaderLabel:last-child {
     width: 16.875rem;
     margin-left: auto;
+    position: relative;
+    @media (max-width: $md-layout-width-min) {
+      width: 6.875rem;
+    }
+  }
+}
+
+.patrolDatepicker {
+  min-width: 100%;
+  @media (max-width: $md-layout-width-min) {
+    min-width: 8.75rem;
   }
 }
 
 .locationInput {
   width: 100%;
   
-  > button {
+  > div {
     padding: 0.25rem 0 0.187rem;
 
     > svg {
       padding: 0.25rem;
-
+      
       g {
         stroke: $medium-light-gray; 
       }
@@ -74,6 +92,36 @@
         fill: $medium-light-gray;
       }
     }
+    
+  }
+
+  @media (max-width: $md-layout-width-min) {
+    width: 55%;
+    
+    > div {
+      padding: 0.5rem 0.25rem;
+      > svg {
+        padding: 0;
+      }
+    }
+    span {
+      display: none;
+    }
+  }
+}
+
+.triangle{
+  position: absolute;
+  top: 2.18rem;
+  right: 0.5rem;
+  width: 0;
+  height: 0;
+  border-width: 0.375rem 0.25rem 0 0.25rem;
+  border-color: $secondary-medium-light-gray transparent transparent transparent;
+  border-style: solid;
+  margin-left: 0.25rem;
+  @media (max-width: $md-layout-width-min) {
+    right: 3.625rem;
   }
 }
 
@@ -92,8 +140,7 @@
 
   > span {
     position: relative;
-    font-size: 14px;
-    padding-left: '0.4rem';
+    font-size: 0.875rem;
     color: $secondary-medium-gray;
 
     &::before {
