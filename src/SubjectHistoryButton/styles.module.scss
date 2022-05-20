@@ -1,34 +1,20 @@
 @import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
+@import '../SubjectControls/mixins';
 
-$background_image_url: '../common/images/icons/';
-
-@mixin button($image: 'tracks_off') {
-  background: url('#{$background-image_url+$image}.svg');
-  background-size: 85%;
-  background-position: 0.15rem 0.1rem;
-  background-repeat: no-repeat;
-  border: none;
-  display: block;
-  height: $square-button-dimension;
-  outline: none;
-  width: $square-button-dimension;
-
-  &:focus {
-    outline: none;
-  }
-}
-
-.button {
-  @include button('historical-data');
-  pointer-events: none;
-}
 
 .container {
   display: flex;
   align-items: center;
   flex-flow: row;
   position: relative;
+  .button {
+    @include buttonBackground('historical-data');
+    pointer-events: none;
+    background-size: 90%;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
 
   &.hasLabel {
     background-color: $subject-control-btn-bg;
