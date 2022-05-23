@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import addMinutes from 'date-fns/add_minutes';
+import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
@@ -38,7 +39,7 @@ const TimeRangeInput = ({
 
       options.push({
         value: timeValue,
-        duration: showDuration ? ` (${getHumanizedTimeDuration(dateWithAccumulation - initialDate)})` : '',
+        duration: showDuration ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialDate))})` : '',
       });
 
       accumulatedMinutes += MINUTES_INTERVALS;

@@ -1,25 +1,26 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
 import TimeRangeInput from './';
 
 const testDate = '2022-05-01T10:00:00';
+const testTimeValue = '10:00';
 
 test('rendering without crashing', () => {
   render(<TimeRangeInput />);
 });
 
 test('should render only the time after passing a full date', async () => {
-  render(<TimeRangeInput dateValue={testDate} />);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={testDate}/>);
 
   const timeInput = await screen.findByTestId('time-input');
   expect(timeInput.value).toBe('10:00');
 });
 
 test('should show only 5 options after click on the input', async () => {
-  render(<TimeRangeInput dateValue={testDate} />);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={testDate} />);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -30,7 +31,7 @@ test('should show only 5 options after click on the input', async () => {
 });
 
 test('time options should be given in intervals of 30 minutes', async () => {
-  render(<TimeRangeInput dateValue={testDate} />);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={testDate} />);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -46,7 +47,7 @@ test('time options should be given in intervals of 30 minutes', async () => {
 });
 
 test('if the date value is not provided, it should consider the starDateRange to take the time options', async () => {
-  render(<TimeRangeInput dateValue={null} starDateRange={'2022-05-10T09:00:00'}/>);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={null} starDateRange={'2022-05-10T09:00:00'}/>);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -62,7 +63,7 @@ test('if the date value is not provided, it should consider the starDateRange to
 });
 
 test('should show only the duration time in options if the prop showOptionsDurationFromInitialValue is activated', async () => {
-  render(<TimeRangeInput dateValue={testDate} starDateRange={testDate} showOptionsDurationFromInitialValue={true} />);
+  render(<TimeRangeInput starDateRange={testDate} showOptionsDurationFromInitialValue={true} />);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -80,7 +81,7 @@ test('should show only the duration time in options if the prop showOptionsDurat
 test('should call onTimeChange and send a date with the time added', async () => {
   const onTimeChange = jest.fn();
 
-  render(<TimeRangeInput dateValue={testDate} onTimeChange={onTimeChange}/>);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={testDate} onTimeChange={onTimeChange}/>);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -96,7 +97,7 @@ test('should call onTimeChange and send a date with the time added', async () =>
 
 test('should change style for arrow if input is on focus or blur', async () => {
   const onTimeChange = jest.fn();
-  render(<TimeRangeInput dateValue={testDate}  onTimeChange={onTimeChange}/>);
+  render(<TimeRangeInput timeValue={testTimeValue} dateValue={testDate}  onTimeChange={onTimeChange}/>);
 
   expect(await screen.getByTestId('time-input-triangle-arrow').classList.contains('open')).toBe(false);
 
