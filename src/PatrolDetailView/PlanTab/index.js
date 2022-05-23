@@ -13,6 +13,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
+import { geHoursAndMinutesString } from '../../utils/datetime';
 
 import styles from './styles.module.scss';
 
@@ -30,6 +31,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
+  const [startTime, setStartTime] = useState(geHoursAndMinutesString(startDate));
+  const [endTime, setEndTime] = useState(geHoursAndMinutesString(endDate));
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -93,8 +96,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol({ objective: value });
   }, [updatePatrol]);
 
-  const updatePatrolTime = useCallback((dateType, value, isAuto) => {
-    const isScheduled = !isAuto || isFuture(value);
+  const updatePatrolDate = useCallback((dateType, value, isAuto) => {
+    const isScheduled = !isAuto && isFuture(value);
     const segmentUpdate = {
       [`scheduled_${dateType}`]: isScheduled ? value : null,
       time_range: { [`${dateType}_time`]: !isScheduled ? value : null },
@@ -106,13 +109,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const onAutoStartChange = useCallback(() => {
     setIsAutoStart(!isAutoStart);
-    updatePatrolTime('start', startDate, !isAutoStart);
-  }, [isAutoStart, startDate, updatePatrolTime]);
+    updatePatrolDate('start', startDate, !isAutoStart);
+  }, [isAutoStart, startDate, updatePatrolDate]);
 
   const onAutoEndChange = useCallback(() => {
     setIsAutoEnd(!isAutoEnd);
-    updatePatrolTime('end', endDate, !isAutoEnd);
-  }, [isAutoEnd, endDate, updatePatrolTime]);
+    updatePatrolDate('end', endDate, !isAutoEnd);
+  }, [isAutoEnd, endDate, updatePatrolDate]);
 
   const StyledSubheaderLabel = ({ labelText, children,  ...rest }) => (
     <label className={styles.subheaderLabel} {...rest}>
@@ -142,13 +145,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         <DatePicker
           shouldCloseOnSelect
           selected={startDate ?? new Date()}
-          onChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}
+          onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
           dateFormat="dd MMM yyyy"
           selectsStart
           startDate={startDate}/>
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'Start Time'}>
-        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}/>
+        <TimeRangeInput timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(geHoursAndMinutesString(value));}}/>
       </StyledSubheaderLabel>
     </div>
     <label className={styles.autoFieldCheckbox}>
@@ -160,7 +163,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         <DatePicker
           shouldCloseOnSelect
           selected={endDate}
-          onChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
+          onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}
           dateFormat="dd MMM yyyy"
           selectsEnd
           startDate={startDate}
@@ -169,9 +172,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'End Time'}>
         <TimeRangeInput
+          timeValue={endTime}
           dateValue={endDate}
           starDateRange={startDate}
-          onTimeChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
+          onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(geHoursAndMinutesString(value));}}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </StyledSubheaderLabel>
