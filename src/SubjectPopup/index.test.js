@@ -146,20 +146,5 @@ describe('SubjectPopup', () => {
       expect(defaultStatusElement).toHaveTextContent(defaultSubjectValue);
     });
 
-    test('show button to open historical data modal for Stationary Sensors', async () => {
-      const historicalDataButton = await screen.getByTestId('show-historical-data-btn');
-      expect(historicalDataButton).toBeInTheDocument();
-    });
-
-    test('Open historical data modal after clicking on the button', async () => {
-      const addModalMock = jest.fn(() => () => {});
-      addModal.mockImplementation(addModalMock);
-
-      const historicalDataButton = await screen.getByTestId('show-historical-data-btn');
-      userEvent.click(historicalDataButton);
-
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Historical Data' });
-    });
   });
 });

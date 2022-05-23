@@ -1,20 +1,20 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Provider, connect } from 'react-redux';
-import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 import mapboxgl from 'mapbox-gl';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
-import store from '../store';
 import { MapContext } from '../App';
 import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+
+import { showPopup } from '../ducks/popup';
+
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-import SubjectPopup from '../SubjectPopup';
 
 const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -38,7 +38,7 @@ const IMAGE_DATA = {
 const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
 
 
-const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
@@ -94,31 +94,32 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
     }
   }, [map]);
 
-  const createPopup = useCallback((layer) => {
-    const { geometry } = layer;
+  const showPopupForStationarySubject = useCallback((layer) => {
+    const { geometry, properties } = layer;
 
-    const elementContainer = document.createElement('div');
-    ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={layer}/>
-    </Provider>, elementContainer);
-
-    popup.setLngLat(geometry.coordinates)
-      .setDOMContent(elementContainer)
-      .addTo(map);
-
-    popup.on('close', () => {
+    const handleMapClick = () => {
       setClickedLayerID('');
       setLayerVisibility(layer.layer.id);
-    });
-  }, [map, setLayerVisibility]);
+    };
+
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+    setTimeout(() => map.once('click', handleMapClick));
+
+  }, [map, setLayerVisibility, showPopup]);
 
   const onLayerClick = useCallback((event) => {
+    if (event?.originalEvent?.cancelBubble) return;
+
+    event?.preventDefault();
+    event?.originalEvent?.stopPropagation();
+
     const clickedLayer = getStaticSensorLayer(event);
+
     const clickedLayerID = clickedLayer.layer.id;
     setClickedLayerID(clickedLayerID.replace(PREFIX_ID, ''));
-    createPopup(clickedLayer);
+    showPopupForStationarySubject(clickedLayer);
     setLayerVisibility(clickedLayerID, false);
-  }, [getStaticSensorLayer, setClickedLayerID, createPopup, setLayerVisibility]);
+  }, [getStaticSensorLayer, showPopupForStationarySubject, setClickedLayerID, setLayerVisibility]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
@@ -198,7 +199,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
 
 const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
 
-export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
+export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
   staticSensors: PropTypes.object.isRequired,

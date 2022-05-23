@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import SubjectControlButton from '../SubjectControls/button';
 
 import { usePermissions } from '../hooks';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
@@ -14,9 +15,11 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import styles from './styles.module.scss';
 
 const SubjectMessagesPopover = (props) => {
-  const { className = '', subject } = props;
+  const { className = '', subject, ...rest } = props;
 
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+
+  const buttonClassName = `${className} ${styles.button}`;
 
   const params = useMemo(() => {
     return { subject_id: subject?.id };
@@ -29,15 +32,13 @@ const SubjectMessagesPopover = (props) => {
       <h6><ChatIcon /> {subject.name}</h6>
     </Popover.Title>
     <Popover.Content>
-      <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} className={styles.messageList} params={params} isReverse={true} />
+      <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} params={params} isReverse={true} />
       {!!hasMessagingWritePermissions && <MessageInput subjectId={subject.id} />}
     </Popover.Content>
   </Popover>;
 
   return  <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
-    <button className={`${styles.popoverTrigger} ${className}`}>
-      <ChatIcon />
-    </button>
+    <SubjectControlButton buttonClassName={buttonClassName} containerClassName={styles.container} labelText='Messaging' {...rest} />
   </OverlayTrigger>;
 };
 

@@ -47,21 +47,27 @@ const pingSocket = (socket) => {
   socket.on('echo_resp', () => {
     pinged = true;
   });
-  socket.emit('echo', { data: 'ping' });
 
-  return window.setInterval(() => {
-    if (pinged) {
-      pinged = false;
-      socket.emit('echo', { data: 'ping' });
-    } else {
-      resetSocketStateTracking();
-    }
+  let interval, timeout;
+
+  interval = window.setInterval(() => {
+    socket.emit('echo', { data: 'ping' });
+
+    timeout = window.setTimeout(() => {
+      if (pinged) {
+        pinged = false;
+      } else {
+        resetSocketStateTracking();
+      }
+    }, [15000]);
   }, 30000);
+
+  return [interval, timeout];
 };
 
 export const bindSocketEvents = (socket, store) => {
   let eventsBound = false;
-  let pingInterval;
+  let pingInterval, pingTimeout;
 
   socket.on('connect', () => {
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
@@ -82,7 +88,9 @@ export const bindSocketEvents = (socket, store) => {
     }
 
     window.clearInterval(pingInterval);
-    pingInterval = pingSocket(socket);
+    window.clearTimeout(pingTimeout);
+
+    [pingInterval, pingTimeout] = pingSocket(socket);
 
     if (!eventsBound) {
       Object.entries(events).forEach(([event_name, actionTypes]) => {
