@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 import Alert from 'react-bootstrap/Alert';
-import debounce from 'lodash/debounce';
 
 import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS, GPS_FORMAT_EXAMPLES } from '../utils/location';
 
@@ -93,7 +92,7 @@ const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);
   useEffect(onValueUpdate, [inputValue]);
-  useEffect(debounce(() => handleValidChange, 200), [lastKnownValidValue]);
+  useEffect(handleValidChange, [lastKnownValidValue]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   return <div className={styles.wrapper}>
