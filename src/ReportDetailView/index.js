@@ -1,8 +1,8 @@
-import React, { useEffect, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
@@ -11,10 +11,13 @@ import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
 import { createNewReportForEventType } from '../utils/events';
-import { TAB_KEYS } from '../constants';
+import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
+import { setEventState } from '../ducks/events';
+import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
 import Header from './Header';
@@ -27,6 +30,7 @@ const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 const ReportDetailView = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -39,10 +43,14 @@ const ReportDetailView = () => {
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
+  const [filesToUpload, updateFilesToUpload] = useState([]);
+  const [isSaving, setSaveState] = useState(false);
+  const [notesToAdd, updateNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
+  const [saveError, setSaveErrorState] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
-  const formProps = navigationData?.formProps;
+  const { onSaveError, onSaveSuccess } = navigationData?.formProps || {};
   const reportData = location.state?.reportData;
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
@@ -50,6 +58,10 @@ const ReportDetailView = () => {
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
   );
+  const schemas = useMemo(() => getSchemasForEventTypeByEventId(eventSchemas, event_type, report_id), [eventSchemas, event_type, report_id]);
+
+  const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
+  const reportTracker = trackEventFactory(typeOfReportToTrack);
 
   useEffect(() => {
     const isNewReport = itemId === 'new';
@@ -70,6 +82,47 @@ const ReportDetailView = () => {
       }
     }
   }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType]);
+
+  const handleSaveError = useCallback((e) => {
+    setSaveState(false);
+    setSaveErrorState(generateErrorListForApiResponseDetails(e));
+    onSaveError?.(e);
+    setTimeout(clearErrors, 7000);
+  }, [onSaveError]);
+
+  const onSave = useCallback(() => {
+    const reportIsNew = !reportForm.id;
+    reportTracker.track(`Click 'Save' button for ${reportIsNew ? 'new' : 'existing'} report`);
+
+    setSaveState(true);
+
+    const reportToSubmit = { ...reportForm };
+    if (!reportIsNew && reportToSubmit.contains) {
+      delete reportToSubmit.contains;
+    }
+
+    if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
+      reportToSubmit.location = null;
+    }
+
+    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', notesToAdd, filesToUpload);
+    return executeSaveActions(actions)
+      .then((results) => {
+        onSaveSuccess?.(results);
+
+        if (reportToSubmit.is_collection && reportToSubmit.state) {
+          return Promise.all(reportToSubmit.contains
+            .map(contained => contained.related_event.id)
+            .map(id => dispatch(setEventState(id, reportToSubmit.state))));
+        }
+        return results;
+      })
+      .catch(handleSaveError)
+      .finally(() => {
+        setSaveState(false);
+        navigate(`/${TAB_KEYS.REPORTS}`);
+      });
+  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, navigate]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
@@ -154,13 +207,14 @@ const ReportDetailView = () => {
                   Cancel
                 </Button>
 
-                <Button
+                {/* This may throw undefined? */}
+                {!schemas.schema.readonly && <Button
                   className={styles.saveButton}
-                  onClick={() => {}}
+                  onClick={onSave}
                   type="button"
                 >
                   Save
-                </Button>
+                </Button>}
               </>}
             </div>
           </div>
