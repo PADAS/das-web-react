@@ -22,6 +22,8 @@ export const createMapMock = (override = {}) => {
     queryRenderedFeatures: jest.fn(),
     setLayoutProperty: jest.fn(),
     setTerrain: jest.fn(),
+    fitBounds: jest.fn(),
+    setZoom: jest.fn(),
     ...override,
     __test__: {
       fireHandlers: (handlerName, eventObj) => {

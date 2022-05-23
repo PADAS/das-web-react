@@ -25,6 +25,6 @@ describe('useReport', () => {
       </Provider>
     );
 
-    expect((await screen.findByTestId('report-data'))).toHaveTextContent('{"title":"Light"}');
+    expect((await screen.findByTestId('report-data'))).toHaveTextContent('{"displayTitle":"Light","eventTypeTitle":"Light"}');
   });
 });

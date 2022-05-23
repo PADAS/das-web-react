@@ -39,8 +39,6 @@ export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
-export const FIT_TO_BOUNDS_PADDING = 50;
-
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
@@ -251,7 +249,7 @@ export const DEFAULT_SELECT_STYLES = {
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   calendarIcon: null,
-  dateFormat: 'yyyy-mm-dd HH:mm',
+  dateFormat: 'yyyy-MM-dd HH:mm',
   minDate: new Date('2010-01-01'),
 };
 

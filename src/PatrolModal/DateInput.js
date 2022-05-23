@@ -78,6 +78,7 @@ const PatrolDateInput = (props) => {
   }, [value]);
 
   return <DatePicker
+    {...DATEPICKER_DEFAULT_CONFIG}
     showTimeInput
     innerRef={pickerRef}
     className={timeClassName}
@@ -86,7 +87,6 @@ const PatrolDateInput = (props) => {
     onChange={onTimeChange}
     onCalendarOpen={onPopoverOpened}
     onCalendarClose={onPopoverClosed}
-    {...DATEPICKER_DEFAULT_CONFIG}
     {...rest}
     >
     <div className={styles.datePickerChildrenWrapper}>

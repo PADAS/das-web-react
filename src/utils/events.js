@@ -10,6 +10,7 @@ import isEqual from 'react-fast-compare';
 import { addModal } from '../ducks/modals';
 
 import { calcUrlForImage } from './img';
+import colorVariables from '../common/styles/vars/colors.module.scss';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { EVENT_API_URL } from '../ducks/events';
 
@@ -292,4 +293,27 @@ export const addPatrolSegmentToEvent = (segment_id, event_id) => {
     .catch(function (error) {
       console.warn('add segment error', error);
     });
+};
+
+export const PRIORITY_COLOR_MAP = {
+  300: {
+    base: colorVariables.red,
+    background: colorVariables.redBg,
+    name: 'Red',
+  },
+  200: {
+    base: colorVariables.amber,
+    background: colorVariables.amberBg,
+    name: 'Amber',
+  },
+  100: {
+    base: colorVariables.green,
+    background: colorVariables.greenBg,
+    name: 'Green',
+  },
+  0: {
+    base: colorVariables.gray,
+    background: colorVariables.grayBg,
+    name: 'Gray',
+  },
 };
