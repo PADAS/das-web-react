@@ -5,7 +5,7 @@ import { calcIconColorByPriority } from '../utils/event-types';
 import { calcUrlForImage, imgElFromSrc } from '../utils/img';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE, REACT_APP_DAS_HOST } from '../constants';
 
 export const calcSvgImageIconId = ({ icon_id, priority, height, width }) => {
   let string = `${icon_id}`;
@@ -19,7 +19,7 @@ export const calcSvgImageIconId = ({ icon_id, priority, height, width }) => {
   return string;
 };
 
-const fetchSpriteImage = (icon_id) => axios.get(`${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
+const fetchSpriteImage = (icon_id) => axios.get(`${REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
   {
     headers: {
       Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',

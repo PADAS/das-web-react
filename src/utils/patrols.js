@@ -3,7 +3,7 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, REACT_APP_DAS_HOST } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
@@ -528,7 +528,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 
   const properties = {
     stroke,
-    image: `${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
+    image: `${REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
     name: label,
     title: label,
     time: time,

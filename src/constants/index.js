@@ -9,7 +9,6 @@ const { POSITION: TOAST_POSITIONS } = toast;
 const { buildbranch, buildnum } = packageJson;
 
 export const {
-  REACT_APP_DAS_HOST,
   REACT_APP_DAS_AUTH_TOKEN_URL,
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
@@ -17,6 +16,9 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const REACT_APP_DAS_HOST = process.env.REACT_APP_DAS_HOST
+  || window.location.protocol + '//' + window.location.host;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
