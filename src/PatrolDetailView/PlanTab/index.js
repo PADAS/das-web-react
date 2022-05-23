@@ -13,7 +13,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
-import { geHoursAndMinutesString } from '../../utils/datetime';
+import { getHoursAndMinutesString } from '../../utils/datetime';
 
 import styles from './styles.module.scss';
 
@@ -31,8 +31,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
-  const [startTime, setStartTime] = useState(geHoursAndMinutesString(startDate));
-  const [endTime, setEndTime] = useState(geHoursAndMinutesString(endDate));
+  const [startTime, setStartTime] = useState(getHoursAndMinutesString(startDate));
+  const [endTime, setEndTime] = useState(getHoursAndMinutesString(endDate));
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -151,7 +151,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           startDate={startDate}/>
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'Start Time'}>
-        <TimeRangeInput timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(geHoursAndMinutesString(value));}}/>
+        <TimeRangeInput timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
       </StyledSubheaderLabel>
     </div>
     <label className={styles.autoFieldCheckbox}>
@@ -175,7 +175,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           timeValue={endTime}
           dateValue={endDate}
           starDateRange={startDate}
-          onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(geHoursAndMinutesString(value));}}
+          onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(getHoursAndMinutesString(value));}}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </StyledSubheaderLabel>

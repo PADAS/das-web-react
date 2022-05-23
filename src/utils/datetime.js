@@ -73,7 +73,7 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 
-export const geHoursAndMinutesString = (date) => {
+export const getHoursAndMinutesString = (date) => {
   if (!date) return null;
   const dateMinutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
   const dateHours = (date.getHours()<10?'0':'') + date.getHours();
