@@ -18,7 +18,7 @@ export const {
 } = process.env;
 
 export const REACT_APP_DAS_HOST = process.env.REACT_APP_DAS_HOST
-  || window.location.protocol + '//' + window.location.host;
+  || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
