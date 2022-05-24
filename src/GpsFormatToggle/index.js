@@ -23,8 +23,7 @@ const GpsFormatToggle = (props) => {
     });
   };
 
-  const gpsString = showGpsString && calcGpsDisplayString(lat, lng, currentFormat);
-  const displayGpsString = gpsString || null;
+  const gpsString = showGpsString ? calcGpsDisplayString(lat, lng, currentFormat) : null;
 
   return (
     <div className={`${styles.container} ${className}`} {...rest}>
@@ -34,9 +33,9 @@ const GpsFormatToggle = (props) => {
             onClick={() => onGpsFormatClick(gpsFormat)}>{gpsFormat}</li>
         )}
       </ul>
-      {displayGpsString && <div className={styles.gpsStringWrapper}>
-        <span className={styles.value}>{displayGpsString}</span>
-        {showCopyControl && <TextCopyBtn text={displayGpsString} />}
+      {gpsString && <div className={styles.gpsStringWrapper}>
+        <span className={styles.value}>{gpsString}</span>
+        {showCopyControl && <TextCopyBtn text={gpsString} />}
       </div>
       }
     </div>

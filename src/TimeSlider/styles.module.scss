@@ -318,11 +318,6 @@ $contrast: 25%;
   max-width: unset;
   padding: 0;
   width: 24rem;
-  [class*=dateSelectorWrapper] {
-    [class|=react-calendar] {
-      bottom: 0;
-    }
-  }
 }
 
 .popoverTitle {
@@ -346,6 +341,11 @@ $contrast: 25%;
 
 .popoverBody {
   padding: 1rem 0 0;
+  overflow: visible;
+
+  [class*=label] {
+    width: 48%;
+  }
 }
 
 .activeIcon {
