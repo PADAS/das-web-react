@@ -17,7 +17,7 @@ export const {
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
-export const REACT_APP_DAS_HOST = process.env.REACT_APP_DAS_HOST
+export const DAS_HOST = process.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
@@ -43,7 +43,7 @@ export const CLUSTERS_RADIUS = 40;
 
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
-export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
+export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
