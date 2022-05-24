@@ -10,10 +10,11 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
-import { createNewReportForEventType } from '../utils/events';
+import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
+import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
 import { setEventState } from '../ducks/events';
@@ -38,6 +39,7 @@ const ReportDetailView = () => {
   const { loadingEvents } = useContext(ReportsTabContext);
   const { navigationData } = useContext(NavigationContext);
 
+  const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
@@ -58,7 +60,10 @@ const ReportDetailView = () => {
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
   );
-  const schemas = useMemo(() => getSchemasForEventTypeByEventId(eventSchemas, event_type, report_id), [eventSchemas, event_type, report_id]);
+  const schemas = useMemo(
+    () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
+    [eventSchemas, reportForm]
+  );
 
   const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
   const reportTracker = trackEventFactory(typeOfReportToTrack);
@@ -82,6 +87,8 @@ const ReportDetailView = () => {
       }
     }
   }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType]);
+
+  const clearErrors = () => setSaveErrorState(null);
 
   const handleSaveError = useCallback((e) => {
     setSaveState(false);
@@ -122,7 +129,7 @@ const ReportDetailView = () => {
         setSaveState(false);
         navigate(`/${TAB_KEYS.REPORTS}`);
       });
-  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, navigate]);
+  }, [dispatch, filesToUpload, handleSaveError, navigate, notesToAdd, onSaveSuccess, reportForm, reportTracker]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
@@ -208,7 +215,7 @@ const ReportDetailView = () => {
                 </Button>
 
                 {/* This may throw undefined? */}
-                {!schemas.schema.readonly && <Button
+                {schemas?.schema?.readonly !== true && <Button
                   className={styles.saveButton}
                   onClick={onSave}
                   type="button"
