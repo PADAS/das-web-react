@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import isFunction from 'lodash/isFunction';
 
 import store from '../store';
-import { REACT_APP_DAS_HOST } from '../constants';
+import { DAS_HOST } from '../constants';
 import { events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
@@ -13,7 +13,7 @@ import { socketEventData } from '../ducks/events';
 
 import { showFilterMismatchToastForHiddenReports } from './handlers';
 
-const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
+const SOCKET_URL = `${DAS_HOST}/das`;
 
 const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new Date().toISOString() }) => {
   store.dispatch(

@@ -1,10 +1,10 @@
 import axios, { CancelToken } from 'axios';
-import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
+import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
 
-const AUTH_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
+const AUTH_URL = `${DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
 // actions
 export const POST_AUTH = 'POST_AUTH';
