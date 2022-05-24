@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
@@ -33,6 +33,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(startDate));
   const [endTime, setEndTime] = useState(getHoursAndMinutesString(endDate));
+
+  const rowContainerRef = useRef(null);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -124,7 +126,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     </label>
   );
 
-  return <>
+  return <div className={styles.planTab}>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
       Tracked By
@@ -140,7 +142,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         onChange={onObjectiveChange}
       />
     </StyledSubheaderLabel>
-    <div className={styles.timeLocationRow}>
+    <div className={styles.timeLocationRow} ref={rowContainerRef}>
       <StyledSubheaderLabel labelText={'Start Date'}>
         <DatePicker
           shouldCloseOnSelect
@@ -151,7 +153,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           startDate={startDate}/>
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'Start Time'}>
-        <TimeRangeInput timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
+        <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
       </StyledSubheaderLabel>
     </div>
     <label className={styles.autoFieldCheckbox}>
@@ -184,7 +186,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
       <span>Automatically end the patrol at this time</span>
     </label>
-  </>;
+  </div>;
 };
 
 const mapStateToProps = ({ data: { patrolLeaderSchema } }) => ({

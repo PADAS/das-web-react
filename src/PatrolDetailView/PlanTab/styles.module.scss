@@ -1,5 +1,9 @@
 @import '../../common/styles/vars/colors';
 
+.planTab {
+  margin-bottom: 3rem;
+}
+
 .trackedByLabel {
   margin-top: 1rem;
   width: 65%;
@@ -136,12 +140,3 @@
   color: $secondary-medium-gray;
   cursor: not-allowed;
 }
-
-// .autoFieldCheckbox > input:disabled + span::before {
-//   border-color: currentColor;
-// }
-
-// .autoFieldCheckbox > input:checked:disabled + span::before {
-//   border-color: transparent;
-//   background-color: currentColor;
-// }

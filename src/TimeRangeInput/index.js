@@ -20,6 +20,7 @@ const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 const TimeRangeInput = ({
   timeValue = null,
   dateValue = null,
+  containerRef = null,
   starDateRange,
   showOptionsDurationFromInitialValue: showDuration = false,
   onTimeChange
@@ -55,9 +56,9 @@ const TimeRangeInput = ({
   }, [dateValue, onTimeChange]);
 
   return <>
-    <div className={styles.inputWrapper} >
+    <div className={styles.inputWrapper}>
       <ClockIcon/>
-      <OverlayTrigger target={targetRef.current} trigger='focus' placement="bottom" overlay={<Popover className={styles.popoverOptions}>
+      <OverlayTrigger target={targetRef.current} trigger='focus' placement="auto" container={containerRef} overlay={<Popover className={styles.popoverOptions}>
         <ul>
           {generateTimeOptions().map((option) => {
           return <li onClick={() => handleTimeChange(option.value)} key={option.value} className={styles.timeOption}>
