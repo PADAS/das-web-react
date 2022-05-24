@@ -69,6 +69,7 @@ const DateRangeSelector = (props) => {
         <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
           <DatePicker
+            {...DATEPICKER_DEFAULT_CONFIG}
             showTimeInput
             placement={placement}
             required={true}
@@ -78,7 +79,6 @@ const DateRangeSelector = (props) => {
             className={styles.dateInput}
             popperClassName={`${styles.datePopover}
             ${popoverClassName || ''}`}
-            {...DATEPICKER_DEFAULT_CONFIG}
             {...rest}
           />
         </span>
@@ -90,7 +90,9 @@ const DateRangeSelector = (props) => {
         <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
           <DatePicker
+            {...DATEPICKER_DEFAULT_CONFIG}
             showTimeInput
+            value={endDate}
             placement={placement}
             onClickDay={handleEndDateDayClick}
             className={styles.dateInput}
@@ -99,9 +101,7 @@ const DateRangeSelector = (props) => {
             required={requireEnd}
             minDate={startDate}
             maxDate={hasEndMaxDate ? endMaxDate : maxDate}
-            value={endDate}
             onChange={handleEndDateChange}
-            {...DATEPICKER_DEFAULT_CONFIG}
             {...rest}
           />
         </span>

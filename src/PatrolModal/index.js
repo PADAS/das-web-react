@@ -682,7 +682,6 @@ const PatrolModal = (props) => {
               {allPatrolReports.map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
-                  map={map}
                   report={item}
                   key={`${item.id}-${index}`}
                   onTitleClick={onReportListItemClick} />
@@ -707,7 +706,6 @@ const PatrolModal = (props) => {
             defaultValue={new Date()}
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
-            maxDate={null}
             showClockIcon={true}
             isAuto={autoEndPatrols}
             popperPlacement='top'

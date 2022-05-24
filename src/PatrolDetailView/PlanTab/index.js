@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
@@ -18,6 +18,7 @@ import { useMatchMedia } from '../../hooks';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
+import { getHoursAndMinutesString } from '../../utils/datetime';
 
 import styles from './styles.module.scss';
 
@@ -45,6 +46,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
+  const [startTime, setStartTime] = useState(getHoursAndMinutesString(startDate));
+  const [endTime, setEndTime] = useState(getHoursAndMinutesString(endDate));
+
+  const rowContainerRef = useRef(null);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -107,8 +112,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol({ objective: value });
   }, [updatePatrol]);
 
-  const updatePatrolTime = useCallback((dateType, value, isAuto) => {
-    const isScheduled = !isAuto || isFuture(value);
+  const updatePatrolDate = useCallback((dateType, value, isAuto) => {
+    const isScheduled = !isAuto && isFuture(value);
     const segmentUpdate = {
       [`scheduled_${dateType}`]: isScheduled ? value : null,
       time_range: { [`${dateType}_time`]: !isScheduled ? value : null },
@@ -120,13 +125,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const onAutoStartChange = useCallback(() => {
     setIsAutoStart(!isAutoStart);
-    updatePatrolTime('start', startDate, !isAutoStart);
-  }, [isAutoStart, startDate, updatePatrolTime]);
+    updatePatrolDate('start', startDate, !isAutoStart);
+  }, [isAutoStart, startDate, updatePatrolDate]);
 
   const onAutoEndChange = useCallback(() => {
     setIsAutoEnd(!isAutoEnd);
-    updatePatrolTime('end', endDate, !isAutoEnd);
-  }, [isAutoEnd, endDate, updatePatrolTime]);
+    updatePatrolDate('end', endDate, !isAutoEnd);
+  }, [isAutoEnd, endDate, updatePatrolDate]);
 
   const onLocationChange = useCallback((value, locationType) => {
     patrolModalTracker.track(`Set patrol ${locationType} location`);
@@ -147,7 +152,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     </label>
   );
 
-  return <>
+  return <div className={styles.planTab}>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
       Tracked By
@@ -163,19 +168,19 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         onChange={onObjectiveChange}
       />
     </StyledSubheaderLabel>
-    <div className={styles.timeLocationRow}>
+    <div className={styles.timeLocationRow} ref={rowContainerRef}>
       <StyledSubheaderLabel labelText={'Start Date'}>
         <DatePicker
           selectsStart
           shouldCloseOnSelect
           className={styles.patrolDatepicker}
           selected={startDate ?? new Date()}
-          onChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}
+          onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
           dateFormat="dd MMM yyyy"
           startDate={startDate}/>
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'Start Time'}>
-        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}/>
+        <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
       </StyledSubheaderLabel>
       <StyledSubheaderLabel data-testid="planTab-start-location" labelText={isMediumLayoutOrLarger ? 'Start Location' : 'Location'}>
         <LocationSelectorInput
@@ -202,7 +207,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           shouldCloseOnSelect
           selected={endDate}
           className={styles.patrolDatepicker}
-          onChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
+          onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}
           dateFormat="dd MMM yyyy"
           startDate={startDate}
           endDate={endDate}
@@ -210,9 +215,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'End Time'}>
         <TimeRangeInput
+          timeValue={endTime}
           dateValue={endDate}
           starDateRange={startDate}
-          onTimeChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
+          onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(getHoursAndMinutesString(value));}}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </StyledSubheaderLabel>
@@ -233,7 +239,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
       <span>Automatically end the patrol at this time</span>
     </label>
-  </>;
+  </div>;
 };
 
 const mapStateToProps = ({ data: { patrolLeaderSchema } }) => ({

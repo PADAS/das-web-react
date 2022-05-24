@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
+@import '../common/styles/layout';
 
 $background_image_url: '../common/images/icons/';
   
@@ -67,8 +68,11 @@ $background_image_url: '../common/images/icons/';
 .popoverOptions {
   margin: 0rem;
   border: none;
-  inset: 0.5rem auto auto 0rem !important;
   box-shadow: 0rem 0rem 0.937rem rgba(0, 0, 0, 0.25);
+  
+  @media #{$whenPageIsTallAndMediumWidth} {
+    inset: 2.5rem auto auto 0rem !important;
+  }
 
   > ul {
     margin-bottom: 0rem;
