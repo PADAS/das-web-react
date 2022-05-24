@@ -82,7 +82,7 @@ const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange
 
   const handleValidChange = () => {
     if (!initialized) {
-      setInitState(true);
+      setTimeout(() => setInitState(true), 200);
     } else {
       onValidChange(lastKnownValidValue);
     }

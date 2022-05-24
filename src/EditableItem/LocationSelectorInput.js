@@ -89,7 +89,7 @@ const LocationSelectorInput = (props) => {
     setGpsPopoverState(false);
   }, []);
 
-  const onClickLocationAnchor = useCallback((event) => {
+  const onClickLocation = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
     setGpsPopoverState(!gpsPopoverOpen);
@@ -190,7 +190,7 @@ const LocationSelectorInput = (props) => {
         onGeoLocationStart={onGeoLocationStart}
         onGeoLocationSuccess={onGeoLocationSuccess} />
     </Overlay>
-    <div onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
+    <div data-testid={'set-location-button'} onClick={onClickLocation} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
       {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
       <span style={!location ? { marginRight: 'auto' } : {}}>{displayString}</span>
       {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}

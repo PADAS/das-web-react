@@ -184,8 +184,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           copyable={isMediumLayoutOrLarger ? true : false}
           iconPlacement='input'
           location={startLocation}
-          onLocationChange={(value) =>
-          onLocationChange(value, START_KEY)}
+          onLocationChange={(value) => onLocationChange(value, START_KEY)}
           placeholder='Set Location'
         />
         {(!startLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
