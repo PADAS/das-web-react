@@ -1,5 +1,3 @@
-import { TAB_KEYS } from '../../constants';
-
 const patrols = [
   {
     'id': '91970025-c4dc-4680-822d-21a686595985',
@@ -1153,6 +1151,53 @@ export const scheduledPatrol = {
   ]
 };
 
+export const readyToStartPatrol = {
+  'id': '05113dd3-3f41-49ef-aa7d-fbc6b73795kk',
+  'priority': 0,
+  'state': 'open',
+  'objective': null,
+  'serial_number': 1596,
+  'title': 'Very Ready',
+  'files': [],
+  'notes': [],
+  'patrol_segments': [
+    {
+      'id': 'f3160c12-344f-4357-b2ca-5c3456f5e833',
+      'patrol_type': 'dog_patrol',
+      'leader': null,
+      'scheduled_start': `${today.toISOString().slice(0, -5)}-08:00`,
+      'scheduled_end': null,
+      'time_range': {
+        'start_time': null,
+        'end_time': null
+      },
+      'start_location': {
+        'latitude': 20.73511376906127,
+        'longitude': -103.40970236937243
+      },
+      'end_location': null,
+      'events': [],
+      'image_url': 'https://develop.pamdas.org/static/sprite-src/dog-patrol-icon.svg',
+      'icon_id': 'dog-patrol-icon',
+      'updates': []
+    }
+  ],
+  'updates': [
+    {
+      'message': 'Patrol Added',
+      'time': '2022-01-05T18:17:47.436553+00:00',
+      'user': {
+        'username': 'azarael',
+        'first_name': 'Azarael',
+        'last_name': 'Romero',
+        'id': '82641cc1-3025-42bb-ac50-2a634ed307d2',
+        'content_type': 'accounts.user'
+      },
+      'type': 'add_patrol'
+    }
+  ]
+};
+
 export const activePatrol = {
   'id': '05113dd3-3f41-49ef-aa7d-fbc6b7379533',
   'priority': 0,
@@ -1180,7 +1225,7 @@ export const activePatrol = {
         'tracks_available': false,
         'image_url': '/static/ranger-black.svg'
       },
-      'scheduled_start': '2022-01-07T10:17:00-08:00',
+      'scheduled_start': null,
       'scheduled_end': '2022-01-08T10:17:00-08:00',
       'time_range': {
         'start_time': '2022-01-18T13:42:39.502000-08:00',
