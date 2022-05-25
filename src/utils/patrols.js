@@ -510,8 +510,8 @@ export const sortPatrolList = (patrols) => {
   const sortFunc = (patrol) => {
     const patrolState = calcPatrolState(patrol);
 
-    if (patrolState === START_OVERDUE) return 1;
-    if (patrolState === READY_TO_START) return 2;
+    if (patrolState === READY_TO_START) return 1;
+    if (patrolState === START_OVERDUE) return 2;
     if (patrolState === ACTIVE) return 3;
     if (patrolState === SCHEDULED) return 4;
     if (patrolState === DONE) return 5;
