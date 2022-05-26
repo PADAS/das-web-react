@@ -1102,6 +1102,8 @@ export const newPatrol = {
 };
 
 const today = new Date();
+const todayTwoHoursEarlier = new Date(today);
+todayTwoHoursEarlier.setHours(todayTwoHoursEarlier.getHours() - 2);
 const tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
 export const scheduledPatrol = {
@@ -1152,11 +1154,11 @@ export const scheduledPatrol = {
 };
 
 export const readyToStartPatrol = {
-  'id': '05113dd3-3f41-49ef-aa7d-fbc6b73795kk',
+  'id': 'e9c728a6-148b-475b-9311-668813581c22',
   'priority': 0,
   'state': 'open',
   'objective': null,
-  'serial_number': 1596,
+  'serial_number': 1625,
   'title': 'Very Ready',
   'files': [],
   'notes': [],
@@ -1165,7 +1167,7 @@ export const readyToStartPatrol = {
       'id': 'f3160c12-344f-4357-b2ca-5c3456f5e833',
       'patrol_type': 'dog_patrol',
       'leader': null,
-      'scheduled_start': `${today.toISOString().slice(0, -5)}-08:00`,
+      'scheduled_start': `${todayTwoHoursEarlier.toISOString().slice(0, -5)}-08:00`,
       'scheduled_end': null,
       'time_range': {
         'start_time': null,
@@ -1185,12 +1187,12 @@ export const readyToStartPatrol = {
   'updates': [
     {
       'message': 'Patrol Added',
-      'time': '2022-01-05T18:17:47.436553+00:00',
+      'time': '2022-01-17T19:23:47.216995+00:00',
       'user': {
-        'username': 'azarael',
-        'first_name': 'Azarael',
-        'last_name': 'Romero',
-        'id': '82641cc1-3025-42bb-ac50-2a634ed307d2',
+        'username': 'patsyi',
+        'first_name': 'Patsy',
+        'last_name': 'Iturbe',
+        'id': 'e2dd3ea4-1281-4cf8-be77-78e10656f7cd',
         'content_type': 'accounts.user'
       },
       'type': 'add_patrol'
