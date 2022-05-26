@@ -2,7 +2,7 @@ import axios, { CancelToken } from 'axios';
 import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { resetGlobalState } from '../reducers/global-resettable';
-import { deleteAuthTokenCookie, deleteTemporaryAccessTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
+import { deleteAuthTokenCookie, deleteTemporaryAccessTokenCookie, deleteCsrfToken, getAuthTokenFromCookies } from '../utils/auth';
 
 const AUTH_URL = `${DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
@@ -43,6 +43,7 @@ export const clearAuth = () => dispatch => {
 
     deleteAuthTokenCookie();
     deleteTemporaryAccessTokenCookie();
+    deleteCsrfToken();
     setTimeout(() => {
       dispatch(clearUserProfile());
       dispatch({
