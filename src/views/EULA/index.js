@@ -10,7 +10,7 @@ import { fetchCurrentUser } from '../../ducks/user';
 import { fetchEula, acceptEula } from '../../ducks/eula';
 import useNavigate from '../../hooks/useNavigate';
 
-import { deleteCookie } from '../../utils/auth';
+import { deleteCookie, deleteCsrfToken } from '../../utils/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 
@@ -86,6 +86,8 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
     deleteCookie('routeAfterEulaAccepted');
     deleteCookie('temporaryAccessToken');
   }, []);
+
+  useEffect(deleteCsrfToken, []);
 
   const onSubmit = useCallback((event) => {
     event.preventDefault();

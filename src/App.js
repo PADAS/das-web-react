@@ -21,6 +21,7 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 import { getCurrentTabFromURL } from './utils/navigation';
+import { deleteCsrfToken } from './utils/auth';
 import useNavigate from './hooks/useNavigate';
 
 import Drawer from './Drawer';
@@ -129,6 +130,8 @@ const App = (props) => {
     loadProgressBar();
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(deleteCsrfToken, []);
 
 
   useEffect(() => {

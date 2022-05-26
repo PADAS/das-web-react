@@ -11,6 +11,7 @@ import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
 import useNavigate from '../hooks/useNavigate';
+import { deleteCsrfToken } from '../utils/auth';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -76,6 +77,8 @@ const LoginPage = ({
     fetchEula();
     fetchSystemStatus();
   }, [clearAuth, fetchEula, fetchSystemStatus]);
+
+  useEffect(deleteCsrfToken, []);
 
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
