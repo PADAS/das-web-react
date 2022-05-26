@@ -82,7 +82,7 @@ export const createClusterHTMLMarker = (
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages);
+    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
       featureImageHTML.src = feature.properties.image;
@@ -181,7 +181,7 @@ export const addNewClusterMarkers = (
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
-      const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
+      let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
         mapImages,
         onClusterClick(
@@ -200,6 +200,8 @@ export const addNewClusterMarkers = (
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
+
+      newClusterHTMLMarkerContainer = null; // forcing garbage collection
     }
 
     renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };

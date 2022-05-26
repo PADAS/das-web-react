@@ -1,8 +1,11 @@
-@import '../common/styles/layout';
+
+@import '../common/styles/vars/colors';
+@import './mixins';
 
 .controls {
+  align-items: center;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   &.noTitles {
     span {
       display: none;
@@ -10,13 +13,43 @@
   }
 }
 
-.messagingButton {
-  border: 1px solid black;
-  border-radius: 0.1666rem;
-  svg {
-    stroke: black;
-    * {
-      stroke: black;
-    }
+.container {
+  position: relative;
+  @include control;
+}
+
+.loadingOverlay {
+  z-index: 1000;
+}
+
+
+.hasLabel {
+  background-color: rgba($secondary-light-gray, .25);
+  border: 0.06rem solid $secondary-medium-light-gray;
+  border-radius: 0.12rem;
+  max-width: 5.75rem;
+  max-height: 1.85rem;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  cursor: pointer;
+
+  [class*=spinner] {
+    position: relative;
+    top: -16%;
   }
+
+  .button {
+    min-height: 1.80rem;
+    height: 1.80rem;
+    min-width: 1.80rem;
+    width: 1.80rem;
+  }
+
+  span {
+    font-size: 0.65rem;
+    line-height: normal;
+    padding: 0.1rem 0.3rem;
+    margin: 0 -.2rem;
+  }
+
 }

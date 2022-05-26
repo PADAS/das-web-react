@@ -1,13 +1,14 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
+import useNavigate from '../hooks/useNavigate';
 
 const STARTUP_TIME = new Date();
 
@@ -48,22 +49,26 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 };
 
 
-const RequestConfigManager = (props) => {
-  const { clearAuth, history, location, userLocationAccessGranted,
-    masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,
-    user } = props;
+const RequestConfigManager = ({
+  clearAuth,
+  userLocationAccessGranted,
+  masterRequestCancelToken,
+  resetMasterCancelToken,
+  selectedUserProfile,
+  token,
+  user,
+}) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     }
-  }, [clearAuth, history, location?.search, resetMasterCancelToken]);
+  }, [clearAuth, location?.search, navigate, resetMasterCancelToken]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -147,4 +152,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(withRouter(RequestConfigManager)));
+export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));

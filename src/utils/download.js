@@ -15,13 +15,17 @@ export const downloadFileFromUrl = async (url, { params = {}, filename = null },
     });
   const link = document.createElement('a');
 
-  link.href = window.URL.createObjectURL(new Blob([data], { type: headers['Content-Type'] }));
+  const objectUrl = window.URL.createObjectURL(new Blob([data], { type: headers['Content-Type'] }));
+
+  link.href = objectUrl;
   link.id = uuid();
   link.setAttribute('download', filename ? filename : headers['x-das-download-filename']);
 
   document.body.appendChild(link);
 
   link.click();
+
+  URL.revokeObjectURL(objectUrl);
 
   document.body.removeChild(document.getElementById(link.id));
 };

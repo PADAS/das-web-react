@@ -1,13 +1,15 @@
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { displayTitleForEvent } from '../../utils/events';
+import { displayTitleForEvent, eventTypeTitleForEvent } from '../../utils/events';
 
 const useReport = (report) => {
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
-  const title = displayTitleForEvent(report, eventTypes);
+  const displayTitle = useMemo(() => displayTitleForEvent(report, eventTypes), [eventTypes, report]);
+  const eventTypeTitle = useMemo(() => eventTypeTitleForEvent(report, eventTypes), [eventTypes, report]);
 
-  return { title };
+  return { displayTitle, eventTypeTitle };
 };
 
 export default useReport;

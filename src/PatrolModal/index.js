@@ -20,7 +20,6 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
-import { showDetailView } from '../ducks/side-bar';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -61,8 +60,9 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
+import useNavigate from '../hooks/useNavigate';
 
-const { REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -87,8 +87,10 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    showSideBarDetailView,
   } = props;
+
+  const navigate = useNavigate();
+
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [filesToUpload, updateFilesToUpload] = useState([]);
@@ -618,12 +620,12 @@ const PatrolModal = (props) => {
       relationshipButtonDisabled: !item.is_collection,
       navigateRelationships: false,
     };
-    if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
+    if (ENABLE_REPORT_NEW_UI && ENABLE_UFA_NAVIGATION_UI) {
+      navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView]);
+  }, [eventStore, fetchEvent, map, onAddReport, navigate]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -680,7 +682,6 @@ const PatrolModal = (props) => {
               {allPatrolReports.map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
-                  map={map}
                   report={item}
                   key={`${item.id}-${index}`}
                   onTitleClick={onReportListItemClick} />
@@ -705,7 +706,6 @@ const PatrolModal = (props) => {
             defaultValue={new Date()}
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
-            maxDate={null}
             showClockIcon={true}
             isAuto={autoEndPatrols}
             popperPlacement='top'
@@ -784,10 +784,8 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  showSideBarDetailView: showDetailView,
 })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
-  showSideBarDetailView: PropTypes.func.isRequired,
 };

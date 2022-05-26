@@ -1,3 +1,5 @@
+@import '../SubjectControls/mixins';
+
 .popover {
   height: 22rem;
   max-width: unset;
@@ -5,5 +7,11 @@
   width: 24rem;
   [class*=popover-body] {
     height: 15.5rem;
+  }
+}
+
+.container {
+  .button {
+    @include buttonBackground('chat-icon');
   }
 }

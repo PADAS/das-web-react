@@ -1,4 +1,5 @@
 @import '../common/styles/vars/colors';
+$background_image_url: '../common/images/icons/';
 
 .header {
   text-align: left;
@@ -140,6 +141,11 @@
   margin: -0.25rem 0 0;
   padding: 0;
 
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
   li {
     display: flex;
     justify-content: space-between;
@@ -171,24 +177,14 @@
   }
 }
 
-.trackControls {
-  display: flex;
-  justify-content: space-between;
-}
-
 .controls {
-  align-items: center;
-  display: flex;
-  justify-content: space-evenly;
-}
-
-.messagingIcon {
-  height: 2rem;
-  width: auto;
-  g {
-    stroke: $primary-font-color;
+  flex-wrap: wrap;
+  > * {
+    width: 45%;
+    margin: 0 0.25rem 0.25rem;
   }
 }
+
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 .oldNavigationAddReport {

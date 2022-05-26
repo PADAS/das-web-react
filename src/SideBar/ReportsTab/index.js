@@ -1,20 +1,23 @@
-import React, { useState, useCallback, useEffect, useMemo, memo } from 'react';
+import React, { createContext, useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
+import { getCurrentIdFromURL } from '../../utils/navigation';
 import { getFeedEvents } from '../../selectors';
 import { openModalForReport } from '../../utils/events';
-
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
-import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
+import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
-import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
+import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
+import useNavigate from '../../hooks/useNavigate';
 
+import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
 import DelayedUnmount from '../../DelayedUnmount';
@@ -23,28 +26,36 @@ import EventFilter from '../../EventFilter';
 import ColumnSort from '../../ColumnSort';
 import ErrorMessage from '../../ErrorMessage';
 import EventFeed from '../../EventFeed';
-import ReportDetailView from '../../ReportDetailView';
 
 import styles from './../styles.module.scss';
 
 const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
+export const ReportsTabContext = createContext();
+
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = ({
+  eventStore,
   sidebarOpen,
   events,
+  fetchEvent,
   fetchEventFeed,
   userLocationCoords,
   fetchNextEventFeedPage,
   eventFilter,
   map,
-  showSideBarDetailView,
-  sideBar,
+  userIsGeoPermRestricted,
 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
-  const [loadingEvents, setEventLoadState] = useState(false);
+  const [loadingEventFeed, setEventLoadState] = useState(true);
+  const [loadingEventById, setLoadingEventById] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
+
+  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
   const onFeedSortChange = useCallback((newVal) => {
     setFeedSort(newVal);
@@ -57,15 +68,26 @@ const ReportsTab = ({
   const optionalFeedProps = useMemo(() => {
     let value = {};
 
-    if (userLocationCoords) {
-      value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+    if (userIsGeoPermRestricted && userLocationCoords) {
+      value.location = calcLocationParamStringForUserLocationCoords(userLocationCoords);
     }
 
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
     }
     return value;
-  }, [eventFilter, userLocationCoords]);
+  }, [eventFilter, userIsGeoPermRestricted, userLocationCoords]);
+
+  useEffect(() => {
+    if (itemId && itemId !== 'new' && !eventStore[itemId]) {
+      setLoadingEventById(true);
+      fetchEvent(itemId)
+        .then(() => setLoadingEventById(false))
+        .catch(() => navigate(`/${TAB_KEYS.REPORTS}`, { replace: true }));
+    } else {
+      setLoadingEventById(false);
+    }
+  }, [fetchEvent, itemId, navigate, eventStore]);
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
@@ -87,7 +109,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      navigate(event.id);
     } else {
       openModalForReport(event, map);
     }
@@ -96,10 +118,10 @@ const ReportsTab = ({
   };
 
   useEffect(() => {
-    if (loadingEvents && events.error) {
+    if (loadingEventFeed && events.error) {
       setEventLoadState(false);
     }
-  }, [events.error, loadingEvents]);
+  }, [events.error, loadingEventFeed]);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) {
@@ -118,9 +140,11 @@ const ReportsTab = ({
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
 
+  const loadingEvents = !!itemId ? loadingEventById : loadingEventFeed;
   return <>
-    {sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView &&
-      <ReportDetailView />}
+    <ReportsTabContext.Provider value={{ loadingEvents }}>
+      <Outlet />
+    </ReportsTabContext.Provider>
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
@@ -157,23 +181,21 @@ const ReportsTab = ({
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
-  sideBar: state.view.sideBar,
+  eventStore: state.data.eventStore,
+  userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(
   mapStateToProps,
-  { fetchEventFeed, fetchNextEventFeedPage, showSideBarDetailView: showDetailView }
+  { fetchEvent, fetchEventFeed, fetchNextEventFeedPage }
 )(memo(ReportsTab));
 
 ReportsTab.propTypes = {
+  eventStore: PropTypes.object.isRequired,
+  fetchEvent: PropTypes.func.isRequired,
   fetchEventFeed: PropTypes.func.isRequired,
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
-  sideBar: PropTypes.shape({
-    currentTab: PropTypes.string,
-    showDetailView: PropTypes.bool,
-  }).isRequired,
-  showSideBarDetailView: PropTypes.func.isRequired,
 };

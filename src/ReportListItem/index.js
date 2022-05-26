@@ -12,38 +12,19 @@ import { displayEventTypes } from '../selectors/event-types';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
-  displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
+  displayTitleForEvent, getEventIdsForCollection, PRIORITY_COLOR_MAP } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
-import { jumpToLocation } from '../utils/map';
 import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
-
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import styles from './styles.module.scss';
 
 const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
-const PRIORITY_COLOR_MAP = {
-  300: {
-    base: colorVariables.red,
-    background: colorVariables.redBg,
-  },
-  200: {
-    base: colorVariables.amber,
-    background: colorVariables.amberBg,
-  },
-  100: {
-    base: colorVariables.green,
-    background: colorVariables.greenBg,
-  },
-  0: {
-    base: colorVariables.gray,
-    background: colorVariables.grayBg,
-  },
-};
+const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
+  const jumpToLocation = useJumpToLocation();
 
-const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
@@ -70,7 +51,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
   // Only fire bounce on the second and subsequent click of a jump. First
   // remove the existing ids so that redux can 'clear' the existing state.
   const onClick = () => {
-    jumpToLocation(map, coordinates);
+    jumpToLocation(coordinates);
     if (locationClicked.current) {
       // clear the current prop, in the case where its the same ids
       setBounceEventIDs([]);
@@ -120,7 +101,6 @@ export default connect(mapStateToProps, { setBounceEventIDs })(memo(ReportListIt
 
 ReportListItem.propTypes = {
   report: PropTypes.object.isRequired,
-  map: PropTypes.object,
   onTitleClick: PropTypes.func,
   onIconClick: PropTypes.func,
   showJumpButton: PropTypes.bool,

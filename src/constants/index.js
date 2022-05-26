@@ -9,7 +9,6 @@ const { POSITION: TOAST_POSITIONS } = toast;
 const { buildbranch, buildnum } = packageJson;
 
 export const {
-  REACT_APP_DAS_HOST,
   REACT_APP_DAS_AUTH_TOKEN_URL,
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
@@ -17,6 +16,9 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const DAS_HOST = process.env.REACT_APP_DAS_HOST
+  || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
@@ -39,11 +41,9 @@ export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
-export const FIT_TO_BOUNDS_PADDING = 50;
-
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
-export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
+export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
@@ -251,7 +251,7 @@ export const DEFAULT_SELECT_STYLES = {
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   calendarIcon: null,
-  dateFormat: 'yyyy-mm-dd HH:mm',
+  dateFormat: 'yyyy-MM-dd HH:mm',
   minDate: new Date('2010-01-01'),
 };
 

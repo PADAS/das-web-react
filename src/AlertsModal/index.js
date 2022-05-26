@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
 
-import { REACT_APP_DAS_HOST } from '../constants';
+import { DAS_HOST } from '../constants';
 import { removeModal } from '../ducks/modals';
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -18,7 +18,7 @@ const AlertsModal = ({ title }) => {
       <Title>{title}</Title>
     </Header>
     <Body>
-      <iframe title='Configure your EarthRanger alerts' src={`${REACT_APP_DAS_HOST}/alerts`} onLoad={() => setLoadState(false)} />
+      <iframe title='Configure your EarthRanger alerts' src={`${DAS_HOST}/alerts`} onLoad={() => setLoadState(false)} />
     </Body>
   </Fragment>;
 };
