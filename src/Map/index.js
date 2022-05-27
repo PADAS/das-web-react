@@ -524,7 +524,7 @@ const Map = ({
       const { zoom, center } = homeMap;
       jumpToLocation(lngLatFromParams.current || center, zoom);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeMap, map]);
 
   useEffect(() => {
