@@ -1,4 +1,4 @@
-@import '../common/styles/vars/colors';
+@import '../SubjectControls/mixins';
 
 .popover {
   height: 22rem;
@@ -8,22 +8,10 @@
   [class*=popover-body] {
     height: 15.5rem;
   }
+}
 
-  h6 {
-    svg {
-      width: 2.5rem;
-      height: 2.5rem;
-      margin: -0.625rem;
-      margin-right: -0.312rem;
-      fill: $dark-gray;
-
-      rect {
-        fill: transparent;
-      }
-
-      path {
-        fill: $dark-gray;
-      }
-    }
+.container {
+  .button {
+    @include buttonBackground('chat-icon');
   }
 }

@@ -130,7 +130,6 @@ const App = (props) => {
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
   useEffect(() => {
     if (showGeoPermWarningMessage) {
       const toastId = showToast({

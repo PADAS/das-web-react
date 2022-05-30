@@ -2,7 +2,7 @@ import axios from 'axios';
 import { combineReducers } from 'redux';
 import debounce from 'lodash/debounce';
 
-import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
+import { API_URL, DAS_HOST, FEATURE_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
 export const STATUS_API_URL = `${API_URL}status`;
@@ -242,7 +242,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
   setServerVersionAnalyticsDimension(version);
   return {
     version: version,
-    details: REACT_APP_DAS_HOST || window.location.origin,
+    details: DAS_HOST || window.location.origin,
     status: HEALTHY_STATUS,
     title: `EarthRanger Server ${version}`,
   };

@@ -496,6 +496,7 @@ const Map = ({
   const onMapClickRef = useRef(onMapClick);
   const onMapLoadedRef = useRef(setMap);
 
+  useEffect(() => { return () => { clearEventData(); clearSubjectData();}; }, [clearEventData, clearSubjectData]); // map data cleanup
   useEffect(() => { onMoveStartRef.current = onMapMoveStart; }, [onMapMoveStart]);
   useEffect(() => { onMoveEndRef.current = onMapMoveEnd; }, [onMapMoveEnd]);
   useEffect(() => { onZoomRef.current = onMapZoom; }, [onMapZoom]);
@@ -516,12 +517,7 @@ const Map = ({
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       setTrackLengthToEventFilterLowerValue();
     }
-
-    return () => {
-      clearEventData();
-      clearSubjectData(); // map data cleanup
-    };
-  }, [clearEventData, clearSubjectData, fetchBaseLayers, setTrackLengthToEventFilterLowerValue, trackLengthOrigin]);
+  }, [fetchBaseLayers, setTrackLengthToEventFilterLowerValue, trackLengthOrigin]);
 
   useEffect(() => {
     if (!!map) {

@@ -1,0 +1,37 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+
+@mixin buttonBackground($image: 'tracks_off') {
+  $background_image_url: '../common/images/icons/';
+  background-image: url('#{$background_image_url+$image}.svg');
+}
+
+@mixin control {
+  align-items: center;
+  background-size: cover;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row;
+  line-height: normal;
+  position: relative;
+  
+  .button {
+    @include buttonBackground();
+    background-size: cover;
+    background-color: $subject-control-btn-bg;
+    border: none;
+    display: block;
+    height: $square-button-dimension;
+    outline: none;
+    width: $square-button-dimension;
+  
+    &:focus {
+      outline: none;
+    }
+  
+    &.visible {
+      filter: unset;
+    }
+  }
+}

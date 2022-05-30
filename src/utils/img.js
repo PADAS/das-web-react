@@ -1,4 +1,4 @@
-import { REACT_APP_DAS_HOST } from '../constants';
+import { DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 const imgIsDataUrl = url => url.includes('data:image');
@@ -56,6 +56,6 @@ export const calcUrlForImage = imagePath => {
   if (!imgNeedsHostAppended(imagePath)) {
     return imagePath;
   }
-  const appendString = !!REACT_APP_DAS_HOST ? `${REACT_APP_DAS_HOST}/` : '';
+  const appendString = !!DAS_HOST ? `${DAS_HOST}/` : '';
   return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
 };
