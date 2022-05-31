@@ -14,6 +14,7 @@ import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVE
 import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
+import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import useNavigate from '../../hooks/useNavigate';
 
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
@@ -68,7 +69,7 @@ const ReportsTab = ({
     let value = {};
 
     if (userIsGeoPermRestricted && userLocationCoords) {
-      value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+      value.location = calcLocationParamStringForUserLocationCoords(userLocationCoords);
     }
 
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {

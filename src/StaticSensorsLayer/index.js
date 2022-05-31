@@ -1,20 +1,21 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
-import { Provider, connect } from 'react-redux';
-import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 import mapboxgl from 'mapbox-gl';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
-import store from '../store';
 import { MapContext } from '../App';
 import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { showPopup } from '../ducks/popup';
+
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-import SubjectPopup from '../SubjectPopup';
 
 const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -24,6 +25,7 @@ const LAYER_TYPE = 'symbol';
 const SOURCE_PREFIX = `${STATIC_SENSOR}-source`;
 const LAYER_ID = STATIC_SENSOR;
 const PREFIX_ID = SECOND_STATIC_SENSOR_PREFIX;
+const RENDER_STATIC_SENSORS_DEBOUNCE_TIME = 25;
 
 const IMAGE_DATA = {
   id: 'popup-background',
@@ -37,8 +39,65 @@ const IMAGE_DATA = {
 
 const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
 
+const renderStaticSensors = (
+  clickedLayerID,
+  createLayer,
+  isTimeSliderActive,
+  map,
+  onLayerClick,
+  sensorsWithDefaultValue,
+  setLayerVisibility,
+  shouldSubjectsBeClustered
+) => {
+  if (map) {
+    let renderedStaticSensors = [];
+    if (ENABLE_NEW_CLUSTERING && shouldSubjectsBeClustered && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+      renderedStaticSensors = map
+        .queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
+        .map((feature) => feature?.properties?.id);
+    }
 
-const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+    sensorsWithDefaultValue?.features?.forEach((feature, index) => {
+      const layerID = `${LAYER_ID}${feature.properties.id}`;
+      const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
+      const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
+      const source = map.getSource(sourceId);
+
+      if (ENABLE_NEW_CLUSTERING
+        && shouldSubjectsBeClustered
+        && !renderedStaticSensors.includes(feature.properties.id)
+        && !isTimeSliderActive) {
+        return map.getLayer(layerID) && setLayerVisibility(layerID, false);
+      }
+
+      if (source) {
+        source.setData(sourceData);
+      } else {
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: sourceData,
+        });
+      }
+
+      if (map.getLayer(layerID)) return (!popup.isOpen() && clickedLayerID !== layerID) && setLayerVisibility(layerID);
+
+      createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
+      createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
+      map.on('click', layerID, onLayerClick);
+    });
+  }
+};
+
+const debouncedRenderStaticSensors = debounce(renderStaticSensors, RENDER_STATIC_SENSORS_DEBOUNCE_TIME);
+
+const StaticSensorsLayer = ({
+  staticSensors = {},
+  isTimeSliderActive,
+  shouldSubjectsBeClustered,
+  showMapNames,
+  showPopup,
+  simplifyMapDataOnZoom: { enabled: isDataInMapSimplified },
+}) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
@@ -94,31 +153,32 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
     }
   }, [map]);
 
-  const createPopup = useCallback((layer) => {
-    const { geometry } = layer;
+  const showPopupForStationarySubject = useCallback((layer) => {
+    const { geometry, properties } = layer;
 
-    const elementContainer = document.createElement('div');
-    ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={layer}/>
-    </Provider>, elementContainer);
-
-    popup.setLngLat(geometry.coordinates)
-      .setDOMContent(elementContainer)
-      .addTo(map);
-
-    popup.on('close', () => {
+    const handleMapClick = () => {
       setClickedLayerID('');
       setLayerVisibility(layer.layer.id);
-    });
-  }, [map, setLayerVisibility]);
+    };
+
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+    setTimeout(() => map.once('click', handleMapClick));
+
+  }, [map, setLayerVisibility, showPopup]);
 
   const onLayerClick = useCallback((event) => {
+    if (event?.originalEvent?.cancelBubble) return;
+
+    event?.preventDefault();
+    event?.originalEvent?.stopPropagation();
+
     const clickedLayer = getStaticSensorLayer(event);
+
     const clickedLayerID = clickedLayer.layer.id;
     setClickedLayerID(clickedLayerID.replace(PREFIX_ID, ''));
-    createPopup(clickedLayer);
+    showPopupForStationarySubject(clickedLayer);
     setLayerVisibility(clickedLayerID, false);
-  }, [getStaticSensorLayer, setClickedLayerID, createPopup, setLayerVisibility]);
+  }, [getStaticSensorLayer, showPopupForStationarySubject, setClickedLayerID, setLayerVisibility]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
@@ -135,42 +195,31 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
     }
   }, [map]);
 
+  const debouncedRenderStaticSensorsCallback = useCallback(() => {
+    debouncedRenderStaticSensors(
+      clickedLayerID,
+      createLayer,
+      isTimeSliderActive,
+      map,
+      onLayerClick,
+      sensorsWithDefaultValue,
+      setLayerVisibility,
+      shouldSubjectsBeClustered
+    );
+  }, [
+    clickedLayerID,
+    createLayer,
+    isTimeSliderActive,
+    map,
+    onLayerClick,
+    sensorsWithDefaultValue,
+    setLayerVisibility,
+    shouldSubjectsBeClustered,
+  ]);
+
   useEffect(() => {
-    if (map) {
-      let renderedStaticSensors = [];
-      if (ENABLE_NEW_CLUSTERING && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
-        renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
-          .map((feature) => feature?.properties?.id);
-      }
-
-      sensorsWithDefaultValue?.features?.forEach((feature, index) => {
-        const layerID = `${LAYER_ID}${feature.properties.id}`;
-        const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
-        const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
-        const source = map.getSource(sourceId);
-
-        if (ENABLE_NEW_CLUSTERING
-          && !renderedStaticSensors.includes(feature.properties.id) && !isTimeSliderActive) {
-          return map.getLayer(layerID) && setLayerVisibility(layerID, false);
-        }
-
-        if (source) {
-          source.setData(sourceData);
-        } else {
-          map.addSource(sourceId, {
-            type: 'geojson',
-            data: sourceData,
-          });
-        }
-
-        if (map.getLayer(layerID)) return (!popup.isOpen() && clickedLayerID !== layerID) && setLayerVisibility(layerID);
-
-        createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
-        createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
-        map.on('click', layerID, onLayerClick);
-      });
-    }
-  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, clickedLayerID]);
+    debouncedRenderStaticSensorsCallback();
+  }, [debouncedRenderStaticSensorsCallback, isDataInMapSimplified]);
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
@@ -196,9 +245,13 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
   return null;
 };
 
-const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
+const mapStatetoProps = (state) => ({
+  shouldSubjectsBeClustered: getShouldSubjectsBeClustered(state),
+  showMapNames: state.view.showMapNames,
+  simplifyMapDataOnZoom: state.view.simplifyMapDataOnZoom,
+});
 
-export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
+export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
   staticSensors: PropTypes.object.isRequired,

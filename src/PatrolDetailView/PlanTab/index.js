@@ -177,7 +177,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           selected={startDate ?? new Date()}
           onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
           dateFormat="dd MMM yyyy"
-          startDate={startDate}/>
+          startDate={startDate}
+          maxDate={endDate}
+          />
       </StyledSubheaderLabel>
       <StyledSubheaderLabel labelText={'Start Time'}>
         <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
