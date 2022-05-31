@@ -87,6 +87,10 @@
       border-left: solid white 0.375rem;
       border-right: solid white 0.375rem;
       background-color: $bright-blue;
+
+      &[class*=--outside-month] {
+        color: white;
+      }
   
       &:hover {
         color: $bright-blue;
