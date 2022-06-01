@@ -12,6 +12,7 @@ import { ReactComponent as PencilWritingIcon } from '../common/images/icons/penc
 
 import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { extractObjectDifference } from '../utils/objects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
@@ -22,6 +23,7 @@ import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
 import Header from './Header';
+import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
@@ -45,31 +47,38 @@ const ReportDetailView = () => {
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
-  const [filesToUpload, updateFilesToUpload] = useState([]);
+  const [filesToUpload, setFilesToUpload] = useState([]);
   const [isSaving, setSaveState] = useState(false);
-  const [notesToAdd, updateNotesToAdd] = useState([]);
+  const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
-  const [saveError, setSaveErrorState] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
   const { onSaveError, onSaveSuccess } = navigationData?.formProps || {};
   const reportData = location.state?.reportData;
+  const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
+  const reportTracker = trackEventFactory(typeOfReportToTrack);
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+  const isNewReport = useMemo(() => itemId === 'new', [itemId]);
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
+  );
+  const originalReport = useMemo(
+    () => isNewReport ? newReport : eventStore[itemId],
+    [eventStore, isNewReport, itemId, newReport]
+  );
+  const reportChanges = useMemo(
+    () => extractObjectDifference(reportForm, originalReport),
+    [originalReport, reportForm]
   );
   const schemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
   );
 
-  const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
-  const reportTracker = trackEventFactory(typeOfReportToTrack);
-
   useEffect(() => {
-    const isNewReport = itemId === 'new';
     if (isNewReport && !reportType) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     }
@@ -86,26 +95,51 @@ const ReportDetailView = () => {
         setReportForm(isNewReport ? newReport : eventStore[itemId]);
       }
     }
-  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType]);
+  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType, isNewReport]);
 
-  const clearErrors = () => setSaveErrorState(null);
+  const clearErrors = useCallback(() => setSaveError(null), []);
 
   const handleSaveError = useCallback((e) => {
     setSaveState(false);
-    setSaveErrorState(generateErrorListForApiResponseDetails(e));
+    setSaveError(generateErrorListForApiResponseDetails(e));
     onSaveError?.(e);
     setTimeout(clearErrors, 7000);
-  }, [onSaveError]);
+  }, [clearErrors, onSaveError]);
 
   const onSave = useCallback(() => {
+    if (isSaving) {
+      return;
+    }
+
     const reportIsNew = !reportForm.id;
     reportTracker.track(`Click 'Save' button for ${reportIsNew ? 'new' : 'existing'} report`);
 
     setSaveState(true);
 
-    const reportToSubmit = { ...reportForm };
-    if (!reportIsNew && reportToSubmit.contains) {
-      delete reportToSubmit.contains;
+    let reportToSubmit;
+    if (reportIsNew) {
+      reportToSubmit = reportForm;
+    } else {
+      reportToSubmit = {
+        ...reportChanges,
+        id: reportForm.id,
+        event_details: { ...originalReport.event_details, ...reportChanges.event_details },
+      };
+
+      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
+      if (reportChanges.reported_by) {
+        reportToSubmit.reported_by = { ...reportForm.reported_by, ...reportChanges.reported_by };
+      }
+
+      /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
+      if (reportChanges.notes) {
+        reportToSubmit.notes = reportForm.notes;
+      }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (reportToSubmit.contains) {
+        delete reportToSubmit.contains;
+      }
     }
 
     if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
@@ -129,9 +163,23 @@ const ReportDetailView = () => {
         setSaveState(false);
         navigate(`/${TAB_KEYS.REPORTS}`);
       });
-  }, [dispatch, filesToUpload, handleSaveError, navigate, notesToAdd, onSaveSuccess, reportForm, reportTracker]);
+  }, [
+    dispatch,
+    filesToUpload,
+    handleSaveError,
+    isSaving,
+    originalReport?.event_details,
+    navigate,
+    notesToAdd,
+    onSaveSuccess,
+    reportChanges,
+    reportForm,
+    reportTracker,
+  ]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
+    {isSaving && <LoadingOverlay message='Saving...' />}
+
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
@@ -204,7 +252,7 @@ const ReportDetailView = () => {
             </div>
 
             <div>
-              {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
+              {Object.keys(reportChanges).length > 0  && <>
                 <Button
                   className={styles.cancelButton}
                   onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
@@ -214,7 +262,6 @@ const ReportDetailView = () => {
                   Cancel
                 </Button>
 
-                {/* This may throw undefined? */}
                 {schemas?.schema?.readonly !== true && <Button
                   className={styles.saveButton}
                   onClick={onSave}
