@@ -1,5 +1,6 @@
 import React, { lazy } from 'react';
 import addMinutes from 'date-fns/add_minutes';
+import isWithinRange from 'date-fns/is_within_range';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
@@ -486,8 +487,9 @@ export const calcPatrolState = (patrol) => {
     return ACTIVE;
   }
   if (isSegmentPending(segment)) {
-    const happensToday = isToday(displayStartTimeForPatrol(patrol));
-    return happensToday ? READY_TO_START : SCHEDULED;
+    const todayInTheNextHour = new Date().setHours(new Date().getHours() + 1);
+    const happensTheNextHour = isWithinRange(displayStartTimeForPatrol(patrol), new Date(), todayInTheNextHour);
+    return happensTheNextHour ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
 };

@@ -1102,8 +1102,8 @@ export const newPatrol = {
 };
 
 const today = new Date();
-const todayTwoHoursEarlier = new Date(today);
-todayTwoHoursEarlier.setHours(todayTwoHoursEarlier.getHours() - 2);
+const todayHalfHourEarlier = new Date(today);
+todayHalfHourEarlier.setMinutes(todayHalfHourEarlier.getMinutes() - 30);
 const tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
 export const scheduledPatrol = {
@@ -1167,7 +1167,7 @@ export const readyToStartPatrol = {
       'id': 'f3160c12-344f-4357-b2ca-5c3456f5e833',
       'patrol_type': 'dog_patrol',
       'leader': null,
-      'scheduled_start': `${todayTwoHoursEarlier.toISOString().slice(0, -5)}-08:00`,
+      'scheduled_start': `${todayHalfHourEarlier.toISOString().slice(0, -5)}-01:00`,
       'scheduled_end': null,
       'time_range': {
         'start_time': null,
