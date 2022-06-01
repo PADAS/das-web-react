@@ -237,17 +237,17 @@ const ReportDetailView = () => {
             <div>
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <NoteIcon />
-                Note
+                <label>Note</label>
               </Button>
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <AttachmentIcon />
-                Attachment
+                <label>Attachment</label>
               </Button>
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <HistoryIcon />
-                Report
+                <label>Report</label>
               </Button>
             </div>
 
