@@ -48,7 +48,7 @@ const ReportDetailView = () => {
   );
 
   const [filesToUpload, setFilesToUpload] = useState([]);
-  const [isSaving, setSaveState] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -100,7 +100,7 @@ const ReportDetailView = () => {
   const clearErrors = useCallback(() => setSaveError(null), []);
 
   const handleSaveError = useCallback((e) => {
-    setSaveState(false);
+    setIsSaving(false);
     setSaveError(generateErrorListForApiResponseDetails(e));
     onSaveError?.(e);
     setTimeout(clearErrors, 7000);
@@ -114,7 +114,7 @@ const ReportDetailView = () => {
     const reportIsNew = !reportForm.id;
     reportTracker.track(`Click 'Save' button for ${reportIsNew ? 'new' : 'existing'} report`);
 
-    setSaveState(true);
+    setIsSaving(true);
 
     let reportToSubmit;
     if (reportIsNew) {
@@ -160,7 +160,7 @@ const ReportDetailView = () => {
       })
       .catch(handleSaveError)
       .finally(() => {
-        setSaveState(false);
+        setIsSaving(false);
         navigate(`/${TAB_KEYS.REPORTS}`);
       });
   }, [
