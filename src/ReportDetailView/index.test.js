@@ -177,7 +177,7 @@ describe('ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
   });
 
-  test('does not render the save and cancel buttons if user has not changed the opened report', async () => {
+  test('disables the save button if user has not changed the opened report', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
@@ -194,11 +194,10 @@ describe('ReportDetailView', () => {
       </Provider>
     );
 
-    expect((await screen.queryByText('Save'))).toBeNull();
-    expect((await screen.queryByText('Cancel'))).toBeNull();
+    expect((await screen.queryByText('Save'))).toBeDisabled();
   });
 
-  test('renders the save and cancel button if users modified the opened report', async () => {
+  test('enables the save button if users modified the opened report', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
@@ -219,8 +218,7 @@ describe('ReportDetailView', () => {
     userEvent.type(titleInput, '2');
     titleInput.blur();
 
-    expect(await screen.findByText('Save')).toBeDefined();
-    expect(await screen.findByText('Cancel')).toBeDefined();
+    expect(await screen.findByText('Save')).not.toBeDisabled();
   });
 
   test('executes save actions when clicking save and navigates to report feed', async () => {
@@ -242,5 +240,26 @@ describe('ReportDetailView', () => {
     userEvent.click(saveButton);
 
     expect(await screen.findByText('Saving...')).toBeDefined();
+  });
+
+  test('shows the error messages if the saving action fails', async () => {
+    executeSaveActionsMock = jest.fn(() => Promise.reject());
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    expect(await screen.findByText('Error saving report.')).toBeDefined();
   });
 });

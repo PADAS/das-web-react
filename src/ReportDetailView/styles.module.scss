@@ -144,6 +144,10 @@
 .saveButton {
   width: 3.75rem;
 
+  &:disabled {
+    cursor: not-allowed;
+  }
+
   @media (min-width: $md-layout-width-min) {
     width: 5rem;
   }

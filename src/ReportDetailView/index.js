@@ -22,6 +22,7 @@ import { setEventState } from '../ducks/events';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
+import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -31,6 +32,8 @@ const NAVIGATION_DETAILS_EVENT_KEY = 'details';
 const NAVIGATION_NOTES_EVENT_KEY = 'notes';
 const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
+
+const CLEAR_ERRORS_TIMEOUT = 7000;
 
 const ReportDetailView = () => {
   const dispatch = useDispatch();
@@ -73,6 +76,7 @@ const ReportDetailView = () => {
     () => extractObjectDifference(reportForm, originalReport),
     [originalReport, reportForm]
   );
+  const isReportModified = useMemo(() => Object.keys(reportChanges).length > 0, [reportChanges]);
   const schemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
@@ -100,10 +104,9 @@ const ReportDetailView = () => {
   const clearErrors = useCallback(() => setSaveError(null), []);
 
   const handleSaveError = useCallback((e) => {
-    setIsSaving(false);
     setSaveError(generateErrorListForApiResponseDetails(e));
     onSaveError?.(e);
-    setTimeout(clearErrors, 7000);
+    setTimeout(clearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [clearErrors, onSaveError]);
 
   const onSave = useCallback(() => {
@@ -111,13 +114,12 @@ const ReportDetailView = () => {
       return;
     }
 
-    const reportIsNew = !reportForm.id;
-    reportTracker.track(`Click 'Save' button for ${reportIsNew ? 'new' : 'existing'} report`);
+    reportTracker.track(`Click 'Save' button for ${isNewReport ? 'new' : 'existing'} report`);
 
     setIsSaving(true);
 
     let reportToSubmit;
-    if (reportIsNew) {
+    if (isNewReport) {
       reportToSubmit = reportForm;
     } else {
       reportToSubmit = {
@@ -151,6 +153,8 @@ const ReportDetailView = () => {
       .then((results) => {
         onSaveSuccess?.(results);
 
+        navigate(`/${TAB_KEYS.REPORTS}`);
+
         if (reportToSubmit.is_collection && reportToSubmit.state) {
           return Promise.all(reportToSubmit.contains
             .map(contained => contained.related_event.id)
@@ -159,14 +163,12 @@ const ReportDetailView = () => {
         return results;
       })
       .catch(handleSaveError)
-      .finally(() => {
-        setIsSaving(false);
-        navigate(`/${TAB_KEYS.REPORTS}`);
-      });
+      .finally(() => setIsSaving(false));
   }, [
     dispatch,
     filesToUpload,
     handleSaveError,
+    isNewReport,
     isSaving,
     originalReport?.event_details,
     navigate,
@@ -178,9 +180,11 @@ const ReportDetailView = () => {
   ]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
-    {isSaving && <LoadingOverlay message='Saving...' />}
+    {isSaving && <LoadingOverlay message="Saving..." />}
 
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
+
+    {saveError && <ErrorMessages errorData={saveError} onClose={clearErrors} title="Error saving report." />}
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
@@ -252,24 +256,23 @@ const ReportDetailView = () => {
             </div>
 
             <div>
-              {Object.keys(reportChanges).length > 0  && <>
-                <Button
-                  className={styles.cancelButton}
-                  onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
-                  type="button"
-                  variant="secondary"
-                >
-                  Cancel
-                </Button>
+              <Button
+                className={styles.cancelButton}
+                onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
+                type="button"
+                variant="secondary"
+              >
+                Cancel
+              </Button>
 
-                {schemas?.schema?.readonly !== true && <Button
-                  className={styles.saveButton}
-                  onClick={onSave}
-                  type="button"
-                >
-                  Save
-                </Button>}
-              </>}
+              <Button
+                className={styles.saveButton}
+                disabled={!isReportModified || schemas?.schema?.readonly}
+                onClick={onSave}
+                type="button"
+              >
+                Save
+              </Button>
             </div>
           </div>
         </div>
