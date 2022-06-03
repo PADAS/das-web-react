@@ -74,7 +74,7 @@ const RequestConfigManager = ({
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
   }, [masterRequestCancelToken]);
 
-  const removeCsrfCookie = useCallback((config) => {
+  const omitCsrfCookie = useCallback((config) => {
     if (process.env.NODE_ENV === 'production') {
       config.headers.Cookie = document.cookie.split(';').filter(item => !item.includes('csrf')).join(';');
     }
@@ -97,7 +97,7 @@ const RequestConfigManager = ({
 
       addMasterCancelTokenToRequests(config);
       addUserProfileHeaderToRequestsIfNecessary(config);
-      removeCsrfCookie(config);
+      omitCsrfCookie(config);
 
       return config;
     };
@@ -106,7 +106,7 @@ const RequestConfigManager = ({
 
     return interceptorId;
 
-  }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary, removeCsrfCookie]);
+  }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary, omitCsrfCookie]);
 
 
   const attachResponseInterceptors = useCallback(() => {
