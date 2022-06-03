@@ -75,7 +75,9 @@ const RequestConfigManager = ({
   }, [masterRequestCancelToken]);
 
   const removeCsrfCookie = useCallback((config) => {
-    config.headers.Cookie = document.cookie.split(';').filter(item => !item.includes('csrf')).join(';');
+    if (process.env.NODE_ENV === 'production') {
+      config.headers.Cookie = document.cookie.split(';').filter(item => !item.includes('csrf')).join(';');
+    }
   }, []);
 
   const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
