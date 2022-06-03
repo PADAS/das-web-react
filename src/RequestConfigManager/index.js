@@ -74,6 +74,12 @@ const RequestConfigManager = ({
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
   }, [masterRequestCancelToken]);
 
+  const omitCsrfCookie = useCallback((config) => {
+    if (process.env.NODE_ENV === 'production') {
+      config.headers.Cookie = document.cookie.split(';').filter(item => !item.includes('csrf')).join(';');
+    }
+  }, []);
+
   const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
     const profile = (selectedUserProfile && selectedUserProfile.id)
     && (user && user.id)
@@ -91,6 +97,7 @@ const RequestConfigManager = ({
 
       addMasterCancelTokenToRequests(config);
       addUserProfileHeaderToRequestsIfNecessary(config);
+      omitCsrfCookie(config);
 
       return config;
     };
@@ -99,7 +106,7 @@ const RequestConfigManager = ({
 
     return interceptorId;
 
-  }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary]);
+  }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary, omitCsrfCookie]);
 
 
   const attachResponseInterceptors = useCallback(() => {
