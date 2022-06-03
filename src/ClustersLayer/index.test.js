@@ -10,7 +10,7 @@ import {
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS } from '../constants';
+import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -23,7 +23,7 @@ import {
 } from '../__test-helpers/fixtures/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
-const { CLUSTERS_SOURCE_ID } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {

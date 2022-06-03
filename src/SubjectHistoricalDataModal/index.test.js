@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { fetchObservationsForSubject } from '../ducks/observations';
 
 import { mockStore } from '../__test-helpers/MockStore';
+import { GPS_FORMATS } from '../utils/location';
 import mockedObservationsData from '../__test-helpers/fixtures/observations';
 
 import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties } from './';
@@ -16,7 +17,7 @@ jest.mock('../ducks/observations', () => ({
   fetchObservationsForSubject: jest.fn(),
 }));
 
-const store = mockStore({ data: {}, view: {} });
+const store = mockStore({ data: {}, view: { userPreferences: { gpsFormat: GPS_FORMATS.DEG } } });
 
 describe('SubjectHistoricalDataModal', () => {
   let fetchObservationsForSubjectMock;
@@ -56,7 +57,8 @@ describe('SubjectHistoricalDataModal', () => {
       expect(tableHeaders[2].childNodes[0]).toHaveTextContent('Temperature');
       expect(tableCells[2].childNodes[0]).toHaveTextContent('1000 c');
 
-      expect(tableHeaders[3]).toBe(undefined);
+      expect(tableHeaders[3].childNodes[0]).toHaveTextContent('Location');
+      expect(tableCells[3].childNodes[0]).toHaveTextContent('20.701133°, -103.572941°');
     });
   });
   describe('pagination', () => {

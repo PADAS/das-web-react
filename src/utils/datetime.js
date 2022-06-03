@@ -73,6 +73,13 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 
+export const getHoursAndMinutesString = (date) => {
+  if (!date) return null;
+  const dateMinutes = (new Date(date).getMinutes()<10?'0':'') + new Date(date).getMinutes();
+  const dateHours = (new Date(date).getHours()<10?'0':'') + new Date(date).getHours();
+  return `${dateHours}:${dateMinutes}`;
+};
+
 const DEFAULT_HUMANIZED_DURATION_PROPS = {
   delimiter: ' ',
   maxDecimalPoints: 0,

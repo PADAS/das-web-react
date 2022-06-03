@@ -1,5 +1,9 @@
 @import '../../common/styles/vars/colors';
 
+.planTab {
+  margin-bottom: 3rem;
+}
+
 .trackedByLabel {
   margin-top: 1rem;
   width: 65%;
@@ -25,15 +29,114 @@
   }
 }
 
-.objectiveLabel {
+.subheaderLabel {
   width: 100%;
-  font-size: 1.12rem;
-  font-weight: 500;
+  font-size: 0.875rem;
   margin-top: 1.3rem;
+  color: $secondary-medium-gray;
 
   > textarea {
     min-height: 2.375rem;
     font-size: 1rem;
     margin-top: 0.75rem;
   }
+}
+
+.timeLocationRow {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+
+  > .subheaderLabel:first-child {
+    width: 10.6rem;
+  }
+
+  > .subheaderLabel:not(:first-child) {
+    width: 6.25rem;
+  }
+}
+
+.autoFieldCheckbox {
+
+  > input {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    position: absolute;
+    left: -10px;
+    top: -8px;
+    display: block;
+    margin: 0;
+  }
+
+  > span {
+    position: relative;
+    font-size: 14px;
+    padding-left: '0.4rem';
+    color: $secondary-medium-gray;
+
+    &::before {
+      content: "";
+      display: inline-block;
+      box-sizing: border-box;
+      margin: 0.37rem 0.562rem 0rem 0.06rem;
+      border: solid 0.125rem;
+      border-color: $secondary-medium-gray;
+      border-radius: 0.125rem;
+      width: 0.875rem;
+      height: 0.875rem;
+      vertical-align: top;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+  
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0.0625rem;
+      width: 0.625rem;
+      height: 0.312rem;
+      border: solid 0.125rem transparent;
+      border-right: none;
+      border-top: none;
+      transform: translate(3px, 4px) rotate(-45deg);
+    }
+  }
+}
+
+.autoFieldCheckbox > input:checked {
+    background-color: $light-blue;
+}
+
+.autoFieldCheckbox > input:checked + span::before {
+    border-color: $light-blue;
+    background-color: $light-blue;
+}
+
+.autoFieldCheckbox > input:checked + span::after {
+    border-color: white;
+}
+
+.autoFieldCheckbox > input:active {
+  opacity: 1;
+  transform: scale(0);
+  transition: transform 0s, opacity 0s;
+}
+
+.autoFieldCheckbox > input:active + span::before {
+  border-color: $light-blue;
+}
+
+.autoFieldCheckbox > input:checked:active + span::before {
+  border-color: transparent;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.autoFieldCheckbox > input:disabled {
+  opacity: 0;
+}
+
+.autoFieldCheckbox > input:disabled + span {
+  color: $secondary-medium-gray;
+  cursor: not-allowed;
 }

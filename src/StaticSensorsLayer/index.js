@@ -1,25 +1,24 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Provider, connect } from 'react-redux';
-import ReactDOM from 'react-dom';
-import mapboxgl from 'mapbox-gl';
+import { connect, useSelector } from 'react-redux';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
-import store from '../store';
 import { MapContext } from '../App';
-import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+import { showPopup } from '../ducks/popup';
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-import SubjectPopup from '../SubjectPopup';
 
 
-const { CLUSTERS_SOURCE_ID, STATIC_SENSOR, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
+const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
-const UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND = 'UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND';
+const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const layerFilterDefault = [
   'all',
@@ -38,14 +37,18 @@ const IMAGE_DATA = {
   }
 };
 
-const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
+const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER];
 
-
-const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
   const [layerFilter, setLayerFilter] = useState(layerFilterDefault);
+
+  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
+  const [currentLayerId, currentInactiveLayerId] = shouldSubjectsBeClustered ? [layerIds[0], layerIds[1]] :[layerIds[1], layerIds[0]];
+  const currentBackgroundLayerId = `${currentLayerId}_BACKGROUND`;
 
 
   const addDefaultStatusValue = useCallback((feature) => {
@@ -88,57 +91,56 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
 
     const withDefaultValue = addDefaultStatusValue(cloned);
 
-    const { geometry } = withDefaultValue;
+    const { geometry, properties } = withDefaultValue;
 
-    const elementContainer = document.createElement('div');
-    ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={withDefaultValue}/>
-    </Provider>, elementContainer);
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
 
-    popup.setLngLat(geometry.coordinates)
-      .setDOMContent(elementContainer)
-      .addTo(map);
-
-    popup.on('close', () => {
+    const handleMapClick = () => {
       setLayerFilter(layerFilterDefault);
-    });
-  }, [addDefaultStatusValue, staticSensors?.features, map]);
+    };
+
+    setTimeout(() => map.once('click', handleMapClick));
+
+  }, [addDefaultStatusValue, staticSensors?.features, map, showPopup]);
 
   // Renderless layer to query unclustered static sensors
 
   useEffect(() => {
-    if (map && !!map.getSource(CLUSTERS_SOURCE_ID)) {
-      if (!map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+    if (map && !!map.getSource(currentSourceId)) {
+      if (!map.getLayer(currentLayerId)) {
         map.addLayer({
-          id: UNCLUSTERED_STATIC_SENSORS_LAYER,
-          source: CLUSTERS_SOURCE_ID,
+          id: currentLayerId,
+          source: currentSourceId,
           type: 'symbol',
           layout: LABELS_LAYER.layout,
           paint: LABELS_LAYER.paint,
           filter: layerFilter,
         });
         map.addLayer({
-          id: UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND,
-          source: CLUSTERS_SOURCE_ID,
+          id: currentBackgroundLayerId,
+          source: currentSourceId,
           type: 'symbol',
           layout: BACKGROUND_LAYER.layout,
           paint: BACKGROUND_LAYER.paint,
           filter: layerFilter,
-        }, UNCLUSTERED_STATIC_SENSORS_LAYER);
+        }, currentLayerId);
+      }
+      if (map.getLayer(currentInactiveLayerId)) {
+        map.removeLayer(currentInactiveLayerId);
       }
     }
-  }, [map, layerFilter]);
+  }, [map, currentInactiveLayerId, layerFilter, currentBackgroundLayerId, currentLayerId, currentSourceId]);
 
   useEffect(() => {
     if (map) {
-      map.setFilter(UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, layerFilter);
-      map.setFilter(UNCLUSTERED_STATIC_SENSORS_LAYER, layerFilter);
+      map.setFilter(currentBackgroundLayerId, layerFilter);
+      map.setFilter(currentLayerId, layerFilter);
     }
-  }, [layerFilter, map]);
+  }, [layerFilter, map, currentBackgroundLayerId, currentLayerId]);
 
   useEffect(() => {
     const onLayerClick = (event) => {
-      const feature = map.queryRenderedFeatures(event.point, { layers: [UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND] })[0];
+      const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
       const newFilter = [
         ...layerFilterDefault,
@@ -158,29 +160,32 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
       map.getCanvas().style.cursor = '';
     };
 
-    map.on('click', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerClick);
+    map.on('click', currentBackgroundLayerId, onLayerClick);
 
-    map.on('mouseenter', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerMouseEnter);
+    map.on('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
 
-    map.on('mouseleave', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerMouseLeave);
+    map.on('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
 
     return () => {
-      map.off('click', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerClick);
+      map.off('click', currentBackgroundLayerId, onLayerClick);
 
-      map.off('mouseenter', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerMouseEnter);
+      map.off('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
 
-      map.off('mouseleave', UNCLUSTERED_STATIC_SENSORS_LAYER_BACKGROUND, onLayerMouseLeave);
+      map.off('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
     };
 
-  }, [createPopup, map, getStaticSensorLayer]);
+  }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
 
 
   return null;
 };
 
-const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
+const mapStatetoProps = (state) => ({
+  showMapNames: state.view.showMapNames,
+  simplifyMapDataOnZoom: state.view.simplifyMapDataOnZoom,
+});
 
-export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
+export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
   staticSensors: PropTypes.object.isRequired,

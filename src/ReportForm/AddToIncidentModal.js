@@ -15,6 +15,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
 import styles from './styles.module.scss';
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
 const { Header, Title, Body, Footer } = Modal;
 const addIncidentTracker = trackEventFactory(ADD_INCIDENT_CATEGORY);
@@ -37,7 +38,7 @@ const AddToIncidentModal = (props) => {
     const fetchFeed = async () => {
       let paramString = 'is_collection=true&include_related_events=true&include_notes=true';
       if (userLocationCoords) {
-        paramString = `${paramString}&location=${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+        paramString = calcLocationParamStringForUserLocationCoords(userLocationCoords);
       }
       await fetchIncidentFeed({}, paramString);
       setLoadedState(true);
