@@ -99,9 +99,18 @@
 .patrolDatepicker {
   font-size: 1rem;
   min-width: 100%;
+  > span {
+    padding-right: 1.25rem;
+  }
 
   @media (max-width: $md-layout-width-min) {
     min-width: 8.75rem;
+    > svg {
+      display: none;
+    }
+    > span {
+      padding-right: 0;
+    }
   }
 }
 
