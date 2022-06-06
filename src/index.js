@@ -30,7 +30,6 @@ import DetectOffline from './DetectOffline';
 import RequestConfigManager from './RequestConfigManager';
 
 import { setClientReleaseIdentifier } from './utils/analytics';
-import { deleteCsrfToken } from './utils/auth';
 
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
@@ -48,8 +47,6 @@ const LoginWithTracker = withTracker(Login);
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
 dom.watch();
-
-deleteCsrfToken();
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' ? true : false });

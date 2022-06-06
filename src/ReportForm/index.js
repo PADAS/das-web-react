@@ -23,11 +23,11 @@ import EventIcon from '../EventIcon';
 
 import IncidentReportsList from './IncidentReportsList';
 import ReportFormTopLevelControls from './TopLevelControls';
-import ReportFormErrorMessages from './ErrorMessages';
 import RelationshipButton from './RelationshipButton';
 
 
 import EditableItem from '../EditableItem';
+import ErrorMessages from '../ErrorMessages';
 import HeaderMenuContent from './HeaderMenuContent';
 import AddToIncidentModal from './AddToIncidentModal';
 import AddToPatrolModal from './AddToPatrolModal';
@@ -505,7 +505,7 @@ const ReportForm = (props) => {
       title={reportTitle} onTitleChange={onReportTitleChange}
     />
 
-    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
+    {saveError && <ErrorMessages onClose={clearErrors} errorData={saveError} title="Error saving report." />}
     <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
 
     <Body ref={scrollContainerRef}>

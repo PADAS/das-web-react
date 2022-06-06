@@ -111,14 +111,25 @@
   border-radius: 0.1875rem;
   color: $secondary-medium-gray;
   margin-right: 0.5rem;
-  padding: 0.625rem 0.375rem;
   font-size: 1rem;
   font-weight: bold;
   height: 2.5rem;
+  min-width: 2.5rem;
 
   svg {
     height: 1rem;
-    margin-right: 0.375rem;
+    
+    @media (min-width: $md-layout-width-min) {
+      margin-right: 0.375rem;
+    }
+  }
+
+  label {
+    display: none;
+
+    @media (min-width: $md-layout-width-min) {
+      display: unset;
+    }
   }
 }
 
@@ -126,10 +137,19 @@
   background-color: transparent;
   border-color: transparent;
   color: $secondary-medium-gray;
+  font-weight: bold;
   width: 5rem;
   margin-right: 0.5rem;
 }
 
 .saveButton {
-  width: 5rem;
+  width: 3.75rem;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    width: 5rem;
+  }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ErrorMessages from './ErrorMessages';
+import ErrorMessages from './';
 
 const ERROR_DATA = [{
   'name': 'required',
@@ -37,12 +37,12 @@ const ERROR_DATA = [{
 const clearErrors = jest.fn();
 
 test('rendering without crashing', () => {
-  render(<ErrorMessages onClose={clearErrors} errorData={ERROR_DATA} />);
+  render(<ErrorMessages errorData={ERROR_DATA} onClose={clearErrors} title="Error saving report." />);
 });
 
 describe('Error messages', () => {
   beforeEach(async () => {
-    render(<ErrorMessages onClose={clearErrors} errorData={ERROR_DATA} />);
+    render(<ErrorMessages errorData={ERROR_DATA} onClose={clearErrors} title="Error saving report." />);
   });
 
   afterEach(() => {

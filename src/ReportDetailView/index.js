@@ -1,8 +1,8 @@
-import React, { useEffect, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
@@ -10,14 +10,21 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
-import { createNewReportForEventType } from '../utils/events';
-import { TAB_KEYS } from '../constants';
+import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
+import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { extractObjectDifference } from '../utils/objects';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
+import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
+import { setEventState } from '../ducks/events';
+import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
+import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
+import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
@@ -26,7 +33,10 @@ const NAVIGATION_NOTES_EVENT_KEY = 'notes';
 const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
+const CLEAR_ERRORS_TIMEOUT = 7000;
+
 const ReportDetailView = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -34,25 +44,45 @@ const ReportDetailView = () => {
   const { loadingEvents } = useContext(ReportsTabContext);
   const { navigationData } = useContext(NavigationContext);
 
+  const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
+  const [filesToUpload, setFilesToUpload] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
-  const formProps = navigationData?.formProps;
+  const { onSaveError, onSaveSuccess } = navigationData?.formProps || {};
   const reportData = location.state?.reportData;
+  const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
+  const reportTracker = trackEventFactory(typeOfReportToTrack);
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+  const isNewReport = useMemo(() => itemId === 'new', [itemId]);
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
   );
+  const originalReport = useMemo(
+    () => isNewReport ? newReport : eventStore[itemId],
+    [eventStore, isNewReport, itemId, newReport]
+  );
+  const reportChanges = useMemo(
+    () => extractObjectDifference(reportForm, originalReport),
+    [originalReport, reportForm]
+  );
+  const isReportModified = useMemo(() => Object.keys(reportChanges).length > 0, [reportChanges]);
+  const schemas = useMemo(
+    () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
+    [eventSchemas, reportForm]
+  );
 
   useEffect(() => {
-    const isNewReport = itemId === 'new';
     if (isNewReport && !reportType) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     }
@@ -69,10 +99,92 @@ const ReportDetailView = () => {
         setReportForm(isNewReport ? newReport : eventStore[itemId]);
       }
     }
-  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType]);
+  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType, isNewReport]);
+
+  const clearErrors = useCallback(() => setSaveError(null), []);
+
+  const handleSaveError = useCallback((e) => {
+    setSaveError(generateErrorListForApiResponseDetails(e));
+    onSaveError?.(e);
+    setTimeout(clearErrors, CLEAR_ERRORS_TIMEOUT);
+  }, [clearErrors, onSaveError]);
+
+  const onSave = useCallback(() => {
+    if (isSaving) {
+      return;
+    }
+
+    reportTracker.track(`Click 'Save' button for ${isNewReport ? 'new' : 'existing'} report`);
+
+    setIsSaving(true);
+
+    let reportToSubmit;
+    if (isNewReport) {
+      reportToSubmit = reportForm;
+    } else {
+      reportToSubmit = {
+        ...reportChanges,
+        id: reportForm.id,
+        event_details: { ...originalReport.event_details, ...reportChanges.event_details },
+      };
+
+      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
+      if (reportChanges.reported_by) {
+        reportToSubmit.reported_by = { ...reportForm.reported_by, ...reportChanges.reported_by };
+      }
+
+      /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
+      if (reportChanges.notes) {
+        reportToSubmit.notes = reportForm.notes;
+      }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (reportToSubmit.contains) {
+        delete reportToSubmit.contains;
+      }
+    }
+
+    if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
+      reportToSubmit.location = null;
+    }
+
+    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', notesToAdd, filesToUpload);
+    return executeSaveActions(actions)
+      .then((results) => {
+        onSaveSuccess?.(results);
+
+        navigate(`/${TAB_KEYS.REPORTS}`);
+
+        if (reportToSubmit.is_collection && reportToSubmit.state) {
+          return Promise.all(reportToSubmit.contains
+            .map(contained => contained.related_event.id)
+            .map(id => dispatch(setEventState(id, reportToSubmit.state))));
+        }
+        return results;
+      })
+      .catch(handleSaveError)
+      .finally(() => setIsSaving(false));
+  }, [
+    dispatch,
+    filesToUpload,
+    handleSaveError,
+    isNewReport,
+    isSaving,
+    originalReport?.event_details,
+    navigate,
+    notesToAdd,
+    onSaveSuccess,
+    reportChanges,
+    reportForm,
+    reportTracker,
+  ]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
+    {isSaving && <LoadingOverlay message="Saving..." />}
+
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
+
+    {saveError && <ErrorMessages errorData={saveError} onClose={clearErrors} title="Error saving report." />}
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
@@ -129,39 +241,38 @@ const ReportDetailView = () => {
             <div>
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <NoteIcon />
-                Note
+                <label>Note</label>
               </Button>
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <AttachmentIcon />
-                Attachment
+                <label>Attachment</label>
               </Button>
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <HistoryIcon />
-                Report
+                <label>Report</label>
               </Button>
             </div>
 
             <div>
-              {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
-                <Button
-                  className={styles.cancelButton}
-                  onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
-                  type="button"
-                  variant="secondary"
-                >
-                  Cancel
-                </Button>
+              <Button
+                className={styles.cancelButton}
+                onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
+                type="button"
+                variant="secondary"
+              >
+                Cancel
+              </Button>
 
-                <Button
-                  className={styles.saveButton}
-                  onClick={() => {}}
-                  type="button"
-                >
-                  Save
-                </Button>
-              </>}
+              <Button
+                className={styles.saveButton}
+                disabled={!isReportModified || schemas?.schema?.readonly}
+                onClick={onSave}
+                type="button"
+              >
+                Save
+              </Button>
             </div>
           </div>
         </div>

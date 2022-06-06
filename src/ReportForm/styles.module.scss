@@ -131,42 +131,6 @@
   display: flex;
 }
 
-.saveErrorAlert {
-  @include fade-in;
-  padding: 1rem 0.5rem 0rem !important;
-  border-radius: 0 !important;
-  background-color: rgba(253, 242, 244, 0.95);
-  box-shadow: rgba(0, 0, 0, 0.45) 0rem 1.5rem 1.2rem -1.2rem;
-  color: $bright-red;
-  font-weight: 500;
-  position: absolute !important;
-  width: 100%;
-  z-index: 5;
-  span {
-    margin-bottom: 1rem;
-  }
-  ul {
-    margin: 0;
-  }
-}
-
-.saveErrorAlertLink {
-  display: inline;
-  color: $bright-red !important;
-  padding-top: 0.22rem !important;
-  text-decoration: underline !important;
-  
-  &:hover {
-    color: $bright-red !important;
-  }
-}
-
-.saveErrorAlertList {
-  max-height: 10rem;
-  overflow: hidden;
-  overflow-y: scroll;
-}
-
 .reportControls {
   background: lighten($light-gray-background, 5%);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.65);

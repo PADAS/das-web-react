@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
+import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -21,10 +22,17 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
+jest.mock('../utils/save', () => ({
+  ...jest.requireActual('../utils/save'),
+  executeSaveActions: jest.fn(),
+}));
+
 describe('ReportDetailView', () => {
-  let navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let executeSaveActionsMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
+    executeSaveActionsMock = jest.fn(() => Promise.resolve());
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]));
@@ -169,32 +177,89 @@ describe('ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
   });
 
-  test('renders the save and cancel buttons when user is in the Details tab', async () => {
-    expect((await screen.findByText('Save'))).toBeDefined();
-    expect((await screen.findByText('Cancel'))).toBeDefined();
+  test('disables the save button if user has not changed the opened report', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByText('Save'))).toBeDisabled();
   });
 
-  test('does not render the save and cancel buttons when user is in the Notes tab', async () => {
-    const notesTab = (await screen.findAllByRole('tab'))[1];
-    userEvent.click(notesTab);
+  test('enables the save button if users modified the opened report', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
 
-    expect((await screen.queryByText('Save'))).toBeNull();
-    expect((await screen.queryByText('Cancel'))).toBeNull();
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const titleInput = await screen.findByTestId('reportDetailView-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    expect(await screen.findByText('Save')).not.toBeDisabled();
   });
 
-  test('does not render the save and cancel buttons when user is in the Attachemts tab', async () => {
-    const attachemtsTab = (await screen.findAllByRole('tab'))[2];
-    userEvent.click(attachemtsTab);
+  test('executes save actions when clicking save and navigates to report feed', async () => {
+    expect(executeSaveActions).toHaveBeenCalledTimes(0);
 
-    expect((await screen.queryByText('Save'))).toBeNull();
-    expect((await screen.queryByText('Cancel'))).toBeNull();
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    expect(executeSaveActions).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
+    });
   });
 
-  test('does not render the save and cancel buttons when user is in the History tab', async () => {
-    const historyTab = (await screen.findAllByRole('tab'))[3];
-    userEvent.click(historyTab);
+  test('shows the loading overlay while saving', async () => {
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
 
-    expect((await screen.queryByText('Save'))).toBeNull();
-    expect((await screen.queryByText('Cancel'))).toBeNull();
+    expect(await screen.findByText('Saving...')).toBeDefined();
+  });
+
+  test('shows the error messages if the saving action fails', async () => {
+    executeSaveActionsMock = jest.fn(() => Promise.reject());
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    expect(await screen.findByText('Error saving report.')).toBeDefined();
   });
 });
