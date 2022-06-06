@@ -49,7 +49,7 @@
   gap: 10px;
 
   .dateLabel {
-    width: 11.25rem;
+    width: 10.875rem;
     font-size: 0.875rem;
     margin-top: 1.3rem;
     color: $secondary-medium-gray;
@@ -59,7 +59,7 @@
   }
 
   .timeLabel {
-    width: 6.25rem;
+    width: 6.375rem;
     font-size: 0.875rem;
     margin-top: 1.3rem;
     color: $secondary-medium-gray;
@@ -97,21 +97,27 @@
 }
 
 .patrolDatepicker {
+  font-size: 1rem;
   min-width: 100%;
+
   @media (max-width: $md-layout-width-min) {
     min-width: 8.75rem;
   }
 }
 
 .locationInput {
+  font-size: 1rem;
+  color: black;
+  letter-spacing: 0.05rem;
   width: 100%;
   
   > div {
     padding: 0.25rem 0 0.187rem;
 
     > svg {
+      margin-left: 0.187rem;
       padding: 0.25rem;
-      
+
       g {
         stroke: $medium-light-gray; 
       }
@@ -120,7 +126,14 @@
         fill: $medium-light-gray;
       }
     }
-    
+  }
+
+  > button {
+    padding-right: 0.562rem;
+    > svg {
+      height: 16px !important;
+      margin-right: 0.25rem;
+    }
   }
 
   @media (max-width: $md-layout-width-min) {
