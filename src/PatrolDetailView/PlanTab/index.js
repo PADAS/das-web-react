@@ -145,12 +145,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol({ patrol_segments: [locationToUpdate] });
   }, [updatePatrol]);
 
-  const StyledSubheaderLabel = ({ labelText, children,  ...rest }) => (
-    <label className={styles.subheaderLabel} {...rest}>
-      {labelText}
-      {children}
-    </label>
-  );
 
   return <div className={styles.planTab}>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
@@ -158,7 +152,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       Tracked By
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
     </label>
-    <StyledSubheaderLabel labelText={'Objective'} data-testid="patrol-objective">
+    <label className={styles.objectiveLabel} data-testid="patrol-objective">
+      Objective
       <Control
         as="textarea"
         data-testid="patrol-objective-input"
@@ -167,9 +162,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         value={patrolForm?.objective ?? ''}
         onChange={onObjectiveChange}
       />
-    </StyledSubheaderLabel>
+    </label>
     <div className={styles.timeLocationRow} ref={rowContainerRef}>
-      <StyledSubheaderLabel labelText={'Start Date'}>
+      <label className={styles.dateLabel}>
+        Start Date
         <DatePicker
           selectsStart
           shouldCloseOnSelect
@@ -180,11 +176,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           startDate={startDate}
           maxDate={endDate}
           />
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={'Start Time'}>
+      </label>
+      <label className={styles.timeLabel}>
+        Start Time
         <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel data-testid="planTab-start-location" labelText={isMediumLayoutOrLarger ? 'Start Location' : 'Location'}>
+      </label>
+      <label className={styles.locationLabel} data-testid="planTab-start-location">
+        {isMediumLayoutOrLarger ? 'Start Location' : 'Location'}
         <LocationSelectorInput
           label=''
           className={styles.locationInput}
@@ -195,7 +193,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           placeholder='Set Location'
         />
         {(!startLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
-      </StyledSubheaderLabel>
+      </label>
     </div>
 
     <label className={styles.autoFieldCheckbox}>
@@ -203,7 +201,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <span>Automatically start the patrol at this time</span>
     </label>
     <div className={styles.timeLocationRow}>
-      <StyledSubheaderLabel labelText={'End Date'}>
+      <label className={styles.dateLabel}>
+        End Date
         <DatePicker
           selectsEnd
           shouldCloseOnSelect
@@ -214,8 +213,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           startDate={startDate}
           endDate={endDate}
           minDate={startDate} />
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={'End Time'}>
+      </label>
+      <label className={styles.timeLabel}>
+        End Time
         <TimeRangeInput
           timeValue={endTime}
           dateValue={endDate}
@@ -223,8 +223,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(getHoursAndMinutesString(value));}}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel data-testid="planTab-end-location" labelText={isMediumLayoutOrLarger ? 'End Location' : 'Location'}>
+      </label>
+      <label className={styles.locationLabel} data-testid="planTab-end-location">
+        {isMediumLayoutOrLarger ? 'End Location' : 'Location'}
         <LocationSelectorInput
           label=''
           className={styles.locationInput}
@@ -235,7 +236,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           placeholder='Set Location'
         />
         {(!endLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
-      </StyledSubheaderLabel>
+      </label>
     </div>
     <label className={styles.autoFieldCheckbox}>
       <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
