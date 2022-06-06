@@ -2,14 +2,12 @@ import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useSt
 import PropTypes from 'prop-types';
 import debounceRender from 'react-debounce-render';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
 
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 import { setModalVisibilityState } from '../ducks/modals';
 import { calcGpsDisplayString } from '../utils/location';
-import { getCurrentTabFromURL } from '../utils/navigation';
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
 import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 
@@ -70,16 +68,9 @@ const LocationSelectorInput = (props) => {
     showSideBar,
   } = props;
 
-  const routerLocation = useLocation();
-
-  const currentTab = getCurrentTabFromURL(routerLocation.pathname);
-  const sidebarOpen = !!currentTab;
-
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
-
-  const sidebarOpenBeforeGpsSelectStart = useRef(null);
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
 
@@ -105,17 +96,13 @@ const LocationSelectorInput = (props) => {
   }, []);  /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onLocationSelectFromMapStart = useCallback(() => {
-    sidebarOpenBeforeGpsSelectStart.current = !!sidebarOpen;
     setModalVisibilityState(false);
 
     hideSideBar();
-  }, [setModalVisibilityState, sidebarOpen, hideSideBar]);
+  }, [setModalVisibilityState, hideSideBar]);
 
   const onLocationSelectFromMapCancel = () => {
-    if (sidebarOpenBeforeGpsSelectStart.current) {
-      showSideBar();
-    }
-
+    showSideBar();
     setModalVisibilityState(true);
   };
 
@@ -130,9 +117,7 @@ const LocationSelectorInput = (props) => {
   }, [hideGpsPopover, onLocationChange, setModalVisibilityState]);
 
   const onLocationSelectFromMap = useCallback((event) => {
-    if (sidebarOpenBeforeGpsSelectStart.current) {
-      showSideBar();
-    }
+    showSideBar();
 
     const { lngLat: { lat, lng } } = event;
     onLocationChange([lng, lat]);
