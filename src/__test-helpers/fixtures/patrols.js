@@ -1,5 +1,3 @@
-import { TAB_KEYS } from '../../constants';
-
 const patrols = [
   {
     'id': '91970025-c4dc-4680-822d-21a686595985',
@@ -1104,6 +1102,8 @@ export const newPatrol = {
 };
 
 const today = new Date();
+const todayHalfHourEarlier = new Date(today);
+todayHalfHourEarlier.setMinutes(todayHalfHourEarlier.getMinutes() - 30);
 const tomorrow = new Date(today);
 tomorrow.setDate(tomorrow.getDate() + 1);
 export const scheduledPatrol = {
@@ -1153,6 +1153,53 @@ export const scheduledPatrol = {
   ]
 };
 
+export const readyToStartPatrol = {
+  'id': 'e9c728a6-148b-475b-9311-668813581c22',
+  'priority': 0,
+  'state': 'open',
+  'objective': null,
+  'serial_number': 1625,
+  'title': 'Very Ready',
+  'files': [],
+  'notes': [],
+  'patrol_segments': [
+    {
+      'id': 'f3160c12-344f-4357-b2ca-5c3456f5e833',
+      'patrol_type': 'dog_patrol',
+      'leader': null,
+      'scheduled_start': `${todayHalfHourEarlier.toISOString().slice(0, -5)}-01:00`,
+      'scheduled_end': null,
+      'time_range': {
+        'start_time': null,
+        'end_time': null
+      },
+      'start_location': {
+        'latitude': 20.73511376906127,
+        'longitude': -103.40970236937243
+      },
+      'end_location': null,
+      'events': [],
+      'image_url': 'https://develop.pamdas.org/static/sprite-src/dog-patrol-icon.svg',
+      'icon_id': 'dog-patrol-icon',
+      'updates': []
+    }
+  ],
+  'updates': [
+    {
+      'message': 'Patrol Added',
+      'time': '2022-01-17T19:23:47.216995+00:00',
+      'user': {
+        'username': 'patsyi',
+        'first_name': 'Patsy',
+        'last_name': 'Iturbe',
+        'id': 'e2dd3ea4-1281-4cf8-be77-78e10656f7cd',
+        'content_type': 'accounts.user'
+      },
+      'type': 'add_patrol'
+    }
+  ]
+};
+
 export const activePatrol = {
   'id': '05113dd3-3f41-49ef-aa7d-fbc6b7379533',
   'priority': 0,
@@ -1180,7 +1227,7 @@ export const activePatrol = {
         'tracks_available': false,
         'image_url': '/static/ranger-black.svg'
       },
-      'scheduled_start': '2022-01-07T10:17:00-08:00',
+      'scheduled_start': null,
       'scheduled_end': '2022-01-08T10:17:00-08:00',
       'time_range': {
         'start_time': '2022-01-18T13:42:39.502000-08:00',
