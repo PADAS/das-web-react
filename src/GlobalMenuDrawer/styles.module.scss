@@ -80,10 +80,30 @@
 }
 
 .footer {
+  font-size: 0.6875rem;
+  padding: 0.5rem;
+}
+
+.releaseVersions {
+  margin-bottom: 0;
+  margin-left: 0.333rem;
+}
+
+.policies {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 6rem;
-  padding-left: 1rem;
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  line-height: normal;
+  margin-top: 1rem;
+  width: 100%;
+  li {
+    font-weight: 500;
+    padding: 0 0.333rem;
+    white-space: nowrap;
+    &:not(:last-child) {
+      border-right: 1px solid white;
+    }
+  }
+  a {
+    color: white;
+  }
 }
