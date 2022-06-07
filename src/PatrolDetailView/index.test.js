@@ -12,6 +12,7 @@ import { PatrolsTabContext } from '../SideBar/PatrolsTab';
 import PatrolDetailView from './';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { GPS_FORMATS } from '../utils/location';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -27,6 +28,7 @@ jest.mock('../utils/save', () => ({
 let store = patrolDefaultStoreData;
 store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
+store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
 
 describe('PatrolDetailView', () => {
   let executeSaveActionsMock, navigate, useSearchParamsMock, useNavigateMock;
