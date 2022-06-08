@@ -4,7 +4,6 @@ import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import Button from 'react-bootstrap/Button';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setPrintTitle } from '../ducks/map-ui';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
@@ -12,8 +11,6 @@ import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-ic
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -83,9 +80,9 @@ const MapPrintControl = (props) => {
       show={active}
       target={buttonRef.current}
       container={wrapperRef.current}
-      placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'}
+      placement='left'
     >
-      <Popover placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'}>
+      <Popover placement='left'>
 
         <Popover.Content>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>

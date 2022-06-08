@@ -29,7 +29,7 @@ import EventFeed from '../../EventFeed';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const ReportsTabContext = createContext();
 
@@ -108,7 +108,7 @@ const ReportsTab = ({
   }, [events.next, fetchNextEventFeedPage]);
 
   const onEventTitleClick = (event) => {
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+    if (ENABLE_REPORT_NEW_UI) {
       navigate(event.id);
     } else {
       openModalForReport(event, map);
@@ -148,7 +148,7 @@ const ReportsTab = ({
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
-        <div className={`${styles.filterWrapper} ${!ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
+        <div className={styles.filterWrapper} data-testid='filter-wrapper'>
           <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort} onResetAll={resetFeedSort}>
             <ColumnSort className={styles.dateSort} sortOptions={EVENT_SORT_OPTIONS} orderOptions={EVENT_SORT_ORDER_OPTIONS} value={feedSort} onChange={onFeedSortChange}/>
           </EventFilter>

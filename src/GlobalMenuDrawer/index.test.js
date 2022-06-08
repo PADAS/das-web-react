@@ -15,10 +15,6 @@ import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
-}));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
   addModal: jest.fn(),

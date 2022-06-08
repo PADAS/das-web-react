@@ -1,9 +1,5 @@
 import isEqual from 'react-fast-compare';
 import merge from 'lodash/merge';
-import isSameDay from 'date-fns/is_same_day';
-import isSameMonth from 'date-fns/is_same_month';
-import format from 'date-fns/format';
-import isThisYear from 'date-fns/is_this_year';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';
@@ -61,59 +57,6 @@ export const validatePatrolAgainstPatrolFilter = (patrol) => {
 
   return patrolMatechesDateFilter();
 };
-
-/* --- OLD NAVIGATION STUFF STARTS HERE --- */
-export const calcPatrolListTitleFromFilter = (patrolFilter) => {
-  const { filter: { date_range: { lower, upper } } } = patrolFilter;
-  const dateRangeModified = isDateFilterModified(patrolFilter);
-  if (!dateRangeModified) {
-    return {
-      title: 'Current Patrols',
-      details: '00:00 to 23:59',
-    };
-  }
-
-  const lowerDate = new Date(lower);
-  const upperDate = new Date(upper || new Date());
-
-  const returnValue = {
-    title: null,
-    details: null,
-  };
-
-  const rangeIsWithinCurrentYear = isThisYear(lowerDate) && isThisYear(upperDate);
-
-
-  if (isSameDay(lowerDate, upperDate)) {
-    const titleDateFormatString = `D MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
-    const detailsDateFormatString = 'HH:mm';
-
-    returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)}`;
-    returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
-
-  } else if (isSameMonth(lowerDate, upperDate)) {
-    const titleDateFormatString = `MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
-    const detailsDateFormatString = 'D MMM HH:mm';
-
-    returnValue.title = `Patrols: ${format(lowerDate, 'D')}-${format(upperDate, 'D')} ${format(lowerDate, titleDateFormatString)}`;
-    returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
-  } else if (rangeIsWithinCurrentYear) {
-    const titleDateFormatString = 'MMMM';
-    const detailsDateFormatString = 'D MMM HH:mm';
-
-    returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} - ${format(upperDate, titleDateFormatString)}`;
-    returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
-  } else {
-    const titleDateFormatString = 'MMM YYYY';
-    const detailsDateFormatString = 'D MMM \'YY HH:mm';
-
-    returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} - ${format(upperDate, titleDateFormatString)}`;
-    returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
-  }
-
-  return returnValue;
-};
-/* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
 export const isFilterModified = ({ status, filter: { patrol_type, text, tracked_by } }) => (
   !isEqual(INITIAL_FILTER_STATE.status, status)

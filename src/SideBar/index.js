@@ -1,28 +1,18 @@
 import React, {
-  lazy,
   memo,
-  Suspense,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from 'react';
 import { cloneDeep } from 'lodash-es';
-import isEqual from 'react-fast-compare';
-import isUndefined from 'lodash/isUndefined';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
-import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -30,12 +20,9 @@ import {
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
-import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
-import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
-import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useFeatureFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -53,7 +40,6 @@ import SubjectGroupList from '../SubjectGroupList';
 import PatrolsTab from './PatrolsTab';
 import ReportsTab from './ReportsTab';
 
-import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
@@ -62,31 +48,9 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
-/* --- OLD NAVIGATION STUFF STARTS HERE --- */
-const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
-
-const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
-
-const SET_TAB = 'SET_TAB';
-const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
-
-const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
-
-const setActiveTab = (tab) => ({ type: SET_TAB, payload: tab });
-
-const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
-  if (action.type === SET_TAB) {
-    return action.payload;
-  }
-  return state;
-};
-/* --- OLD NAVIGATION STUFF ENDS HERE --- */
-
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
-const SideBar = ({ map, onHandleClick }) => {
+const SideBar = ({ map }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -198,114 +162,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(currentTab)) {
+    if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, currentTab);
     }
   }, [currentTab]);
-
-  /* --- OLD NAVIGATION STUFF STARTS HERE --- */
-  const eventFilter = useSelector((state) => state.data.eventFilter);
-
-  const activeTabPreClose = useRef(null);
-
-  const [activeTab, dispatchOld] = useReducer(
-    undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE),
-    calcInitialUndoableState(activeTabReducer)
-  );
-
-  const { filter: { overlap } } = patrolFilter;
-
-  const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
-  const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
-
-  const onTabsSelect = (eventKey) => {
-    dispatchOld(setActiveTab(eventKey));
-    let tabTitles = {
-      [TAB_KEYS.REPORTS]: 'Reports',
-      [TAB_KEYS.LAYERS]: 'Map Layers',
-      [TAB_KEYS.PATROLS]: 'Patrols',
-    };
-    drawerTracker.track(`Click '${tabTitles[eventKey]}' tab`);
-  };
-
-  useEffect(() => {
-    if (!ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (!ENABLE_UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
-      fetchAndLoadPatrolData();
-    }
-  }, [overlap]); // eslint-disable-line
-
-  useEffect(() => {
-    if (!ENABLE_UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
-      if (!sidebarOpen) {
-        activeTabPreClose.current = activeTab.current;
-        dispatchOld(setActiveTab(TAB_KEYS.REPORTS));
-      } else {
-        if (activeTabPreClose.current !== TAB_KEYS.REPORTS) {
-          dispatchOld(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
-        }
-      }
-    }
-  }, [sidebarOpen]); /* eslint-disable-line react-hooks/exhaustive-deps */
-
-  const addReportPopoverPlacement = isExtraLargeLayout
-    ? 'left'
-    : (isMediumLayout
-      ? sidebarOpen
-        ? 'auto'
-        : 'left'
-      : 'auto'
-    );
-
-  if (!ENABLE_UFA_NAVIGATION_UI && !map) return null;
-
-  const selectedTab = !!activeTab && activeTab.current;
-
-  if (!ENABLE_UFA_NAVIGATION_UI)  {
-    return <ErrorBoundary>
-      <MapContext.Provider value={map}>
-        <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-          <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-          {activeTab.current !== TAB_KEYS.LAYERS && <div className={styles.addReportContainer}>
-            <AddReport popoverPlacement={addReportPopoverPlacement} showLabel={false} type={activeTab.current} />
-          </div>}
-          <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
-            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.REPORTS} title="Reports">
-              <ReportsTab map={map} sidebarOpen={sidebarOpen}/>
-            </Tab>
-
-            {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-              <Suspense fallback={null}>
-                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-              </Suspense>
-            </Tab>}
-
-            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
-              <ErrorBoundary>
-                <MapLayerFilter />
-                <div className={styles.oldNavigationMapLayers}>
-                  <ReportMapControl/>
-                  <SubjectGroupList map={map} />
-                  <FeatureLayerList map={map} />
-                  <AnalyzerLayerList map={map} />
-                  <div className={styles.noItems}>No items to display.</div>
-                </div>
-                <div className={styles.mapLayerFooter}>
-                  <ClearAllControl map={map} />
-                </div>
-              </ErrorBoundary>
-            </Tab>
-          </Tabs>
-        </aside>
-      </MapContext.Provider>
-    </ErrorBoundary>;
-  }
-  /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
   return <ErrorBoundary>
     <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>

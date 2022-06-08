@@ -4,7 +4,6 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
-import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -12,7 +11,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -21,7 +20,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return onItemClick(patrol.id);
+    if (ENABLE_PATROL_NEW_UI) return onItemClick(patrol.id);
     openModalForPatrol(patrol, map);
   }, [map, onItemClick, patrol]);
 
@@ -51,11 +50,10 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    {!ENABLE_UFA_NAVIGATION_UI && <PatrolListTitle />}
     {!!listItems.length && <Flipper
       flipKey={listItems}
       element='ul'
-      className={ENABLE_UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
+      className={styles.patrolList}
     >
       {listItems.map((item) =>
         <ListItem

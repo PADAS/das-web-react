@@ -2,11 +2,8 @@ import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
@@ -15,13 +12,13 @@ const FeedListItem = (props) => {
   const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
 
   return <li
-    className={`${ENABLE_UFA_NAVIGATION_UI ? styles.listItem : styles.oldNavigationListItem} ${className}`}
+    className={`${styles.listItem} ${className}`}
     style={{ backgroundColor: bodyBackgroundColor }}
     {...rest}
     >
     {IconComponent && <div
       role='img'
-      className={ENABLE_UFA_NAVIGATION_UI ? styles.iconContainer : styles.oldNavigationIconContainer}
+      className={styles.iconContainer}
       style={{ backgroundColor: iconSectionColor }}
     >
       {IconComponent}

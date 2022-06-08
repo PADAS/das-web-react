@@ -3,16 +3,13 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
-
-const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   const { layers: layerList, onSelectSubject, onSelectEvent } = data;
@@ -38,25 +35,6 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     });
   }, [filter, layerList]);
 
-  const itemCountString = useMemo(() => {
-    if (ENABLE_NEW_CLUSTERING) return null;
-
-    const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
-    const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
-
-    let string = '';
-
-    if (subjectCount) {
-      string+= `${subjectCount} subject${subjectCount > 1 ? 's' : ''}`;
-    }
-    if (subjectCount && eventCount)  {
-      string+= ', ';
-    }
-    if (eventCount) {
-      string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
-    }
-    return string;
-  }, [layers]);
 
   const showFilterInput = useMemo(() => layerList.length > 5, [layerList.length]);
 
@@ -77,9 +55,6 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
   return <>
-    {!ENABLE_NEW_CLUSTERING && <h6>
-      {itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}
-    </h6>}
 
     {showFilterInput && <SearchBar
       className={styles.filterInput}

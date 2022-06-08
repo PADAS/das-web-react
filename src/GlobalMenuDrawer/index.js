@@ -16,7 +16,6 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -37,8 +36,6 @@ import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg'
 import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -208,7 +205,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {ENABLE_UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {!isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}

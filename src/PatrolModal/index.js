@@ -62,7 +62,7 @@ import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
 import useNavigate from '../hooks/useNavigate';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -620,7 +620,7 @@ const PatrolModal = (props) => {
       relationshipButtonDisabled: !item.is_collection,
       navigateRelationships: false,
     };
-    if (ENABLE_REPORT_NEW_UI && ENABLE_UFA_NAVIGATION_UI) {
+    if (ENABLE_REPORT_NEW_UI) {
       navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
     } else {
       openModalForReport(item, map, formProps);

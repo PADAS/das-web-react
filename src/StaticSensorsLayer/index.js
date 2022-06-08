@@ -7,7 +7,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
 import { MapContext } from '../App';
-import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
@@ -16,8 +16,6 @@ import { showPopup } from '../ducks/popup';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-
-const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
@@ -51,7 +49,7 @@ const renderStaticSensors = (
 ) => {
   if (map) {
     let renderedStaticSensors = [];
-    if (ENABLE_NEW_CLUSTERING && shouldSubjectsBeClustered && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+    if (shouldSubjectsBeClustered && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
       renderedStaticSensors = map
         .queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
         .map((feature) => feature?.properties?.id);
@@ -63,8 +61,7 @@ const renderStaticSensors = (
       const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
       const source = map.getSource(sourceId);
 
-      if (ENABLE_NEW_CLUSTERING
-        && shouldSubjectsBeClustered
+      if (shouldSubjectsBeClustered
         && !renderedStaticSensors.includes(feature.properties.id)
         && !isTimeSliderActive) {
         return map.getLayer(layerID) && setLayerVisibility(layerID, false);
@@ -223,8 +220,7 @@ const StaticSensorsLayer = ({
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
-    if (ENABLE_NEW_CLUSTERING
-      && map
+    if (map
       && !!map.getSource(CLUSTERS_SOURCE_ID)
       && !map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
       map.addLayer({
