@@ -197,6 +197,7 @@ const DateTimeField = (props) => {
     <DatePicker
       id={id}
       value={date}
+      showTimeInput
       disabled={disabled}
       popperPlacement={placement}
       maxDate={maxDate || new Date((new Date().getFullYear() + 15).toString())}
