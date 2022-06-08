@@ -64,11 +64,11 @@ describe('ReportDetailView - AddAttachmentButton', () => {
   });
 
   test('sorts items by date', async () => {
-    const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent);
+    const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
 
     expect(itemsText).toEqual([
-      'attachment.svgfile1.pdf6 Jun \'22 16:58download-arrow.svg',
-      'attachment.svgfile2.pdf7 Jun \'22 16:58download-arrow.svg',
+      'attachment.svgfile1.pdf6',
+      'attachment.svgfile2.pdf7',
       'attachment.svgnewFile2.pdfclose-icon.svg',
       'attachment.svgnewFile1.pdfclose-icon.svg',
     ]);
