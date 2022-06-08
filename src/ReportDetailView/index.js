@@ -22,6 +22,8 @@ import { setEventState } from '../ducks/events';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
+import ActivitySection from './ActivitySection';
+import AddAttachmentButton from './AddAttachmentButton';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
@@ -29,8 +31,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
 
 const NAVIGATION_DETAILS_EVENT_KEY = 'details';
-const NAVIGATION_NOTES_EVENT_KEY = 'notes';
-const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
+const NAVIGATION_ACTIVITY_EVENT_KEY = 'activity';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
@@ -50,7 +51,7 @@ const ReportDetailView = () => {
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
-  const [filesToUpload, setFilesToUpload] = useState([]);
+  const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
@@ -76,7 +77,11 @@ const ReportDetailView = () => {
     () => extractObjectDifference(reportForm, originalReport),
     [originalReport, reportForm]
   );
-  const isReportModified = useMemo(() => Object.keys(reportChanges).length > 0, [reportChanges]);
+  const isReportModified = useMemo(
+    () => Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || notesToAdd.length > 0,
+    [attachmentsToAdd, notesToAdd, reportChanges]
+  );
+  const reportAttachments = useMemo(() => Array.isArray(reportForm?.files) ? reportForm.files : [], [reportForm?.files]);
   const schemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
@@ -148,7 +153,7 @@ const ReportDetailView = () => {
       reportToSubmit.location = null;
     }
 
-    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', notesToAdd, filesToUpload);
+    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', notesToAdd, attachmentsToAdd);
     return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess?.(results);
@@ -165,8 +170,8 @@ const ReportDetailView = () => {
       .catch(handleSaveError)
       .finally(() => setIsSaving(false));
   }, [
+    attachmentsToAdd,
     dispatch,
-    filesToUpload,
     handleSaveError,
     isNewReport,
     isSaving,
@@ -197,16 +202,9 @@ const ReportDetailView = () => {
           </Nav.Item>
 
           <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_NOTES_EVENT_KEY}>
-              <NoteIcon />
-              <span>Notes</span>
-            </Nav.Link>
-          </Nav.Item>
-
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_ATTACHMENTS_EVENT_KEY}>
+            <Nav.Link eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
               <AttachmentIcon />
-              <span>Attachments</span>
+              <span>Activity</span>
             </Nav.Link>
           </Nav.Item>
 
@@ -224,12 +222,13 @@ const ReportDetailView = () => {
               Details
             </Tab.Pane>
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_NOTES_EVENT_KEY}>
-              Notes
-            </Tab.Pane>
-
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ATTACHMENTS_EVENT_KEY}>
-              Attachments
+            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
+              <ActivitySection
+                attachmentsToAdd={attachmentsToAdd}
+                reportAttachments={reportAttachments}
+                reportTracker={reportTracker}
+                setAttachmentsToAdd={setAttachmentsToAdd}
+              />
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
@@ -244,10 +243,13 @@ const ReportDetailView = () => {
                 <label>Note</label>
               </Button>
 
-              <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
-                <AttachmentIcon />
-                <label>Attachment</label>
-              </Button>
+              <AddAttachmentButton
+                attachmentsToAdd={attachmentsToAdd}
+                className={styles.footerActionButton}
+                reportAttachments={reportAttachments}
+                reportTracker={reportTracker}
+                setAttachmentsToAdd={setAttachmentsToAdd}
+              />
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <HistoryIcon />

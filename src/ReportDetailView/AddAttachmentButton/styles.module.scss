@@ -1,0 +1,7 @@
+@import '../../common/styles/vars/colors';
+
+.draggingOver {
+  background-color: rgba($bright-green, 0.5) !important;
+  border: .1rem dashed $light-gray-border !important;
+  cursor: copy !important;
+}

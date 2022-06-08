@@ -10,7 +10,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
-describe('Header', () => {
+describe('ReportDetailView - Header', () => {
   const setTitle = jest.fn();
   afterEach(() => {
     jest.restoreAllMocks();

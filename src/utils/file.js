@@ -28,12 +28,11 @@ export const fetchImageAsBase64FromUrl = async (url) => {
 };
 
 export const filterDuplicateUploadFilenames = (currentFiles, newFilesToUpload) => newFilesToUpload.filter((file) => {
-  const { name } = file;
-  const filenameAlreadyExists = currentFiles.some(({ name: n }) => n === name);
-
+  const filenameAlreadyExists = currentFiles
+    .some((currentFile) => (currentFile.name || currentFile.filename) === file.name);
   if (filenameAlreadyExists) {
-    window.alert(`Can not add ${name}: 
-        file already exists`);
+    window.alert(`Can not add ${file.name}: file already exists`);
   }
+
   return !filenameAlreadyExists;
 });
