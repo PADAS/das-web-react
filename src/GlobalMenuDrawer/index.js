@@ -16,7 +16,6 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -37,8 +36,6 @@ import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg'
 import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -208,7 +205,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {ENABLE_UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {!isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}
@@ -234,13 +231,27 @@ const GlobalMenuDrawer = ({
     </div>
 
     <div className={styles.footer}>
-      <p>
+      <p className={styles.releaseVersions}>
         Server version: {serverData.version}
         <br />
         Web client version: {CLIENT_BUILD_VERSION}
         <br />
         &copy;{getYear(new Date())} EarthRanger
       </p>
+      <ul className={styles.policies}>
+        <li>
+          <a data-testid='eula-link' rel="noreferrer" href="https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf" target="_blank">EULA</a>
+        </li>
+        <li>
+          <a data-testid='terms-and-conditions-link' rel="noreferrer" href="https://allenai.org/terms" target="_blank">Terms & Conditions</a>
+        </li>
+        <li>
+          <a data-testid='website-privacy-policy' rel="noreferrer" href="https://www.earthranger.com/privacy-policy" target="_blank">Website Privacy Policy</a>
+        </li>
+        <li>
+          <a data-testid='data-privacy-policy' rel="noreferrer" href="https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf" target="_blank">Data Privacy Policy</a>
+        </li>
+      </ul>
     </div>
   </div>;
 };

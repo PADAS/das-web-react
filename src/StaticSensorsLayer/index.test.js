@@ -12,11 +12,6 @@ import { LAYER_IDS } from '../constants';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import StaticSensorsLayer from './';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true },
-}));
-
 jest.mock('../selectors/clusters', () => ({
   ...jest.requireActual('../selectors/clusters'),
   getShouldSubjectsBeClustered: jest.fn(),

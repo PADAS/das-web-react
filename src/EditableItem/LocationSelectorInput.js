@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import debounceRender from 'react-debounce-render';
 import { connect } from 'react-redux';
@@ -11,6 +11,7 @@ import { calcGpsDisplayString } from '../utils/location';
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
 import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 
+import { MapContext } from '../App';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import GeoLocator from '../GeoLocator';
@@ -55,10 +56,10 @@ const LocationSelectorInput = (props) => {
   const {
     copyable = true,
     label,
+    className,
     popoverClassName,
     iconPlacement,
     location,
-    map,
     onLocationChange,
     placeholder,
     setModalVisibilityState,
@@ -68,6 +69,7 @@ const LocationSelectorInput = (props) => {
     showSideBar,
   } = props;
 
+  const map = useContext(MapContext);
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
@@ -78,7 +80,7 @@ const LocationSelectorInput = (props) => {
     setGpsPopoverState(false);
   }, []);
 
-  const onClickLocationAnchor = useCallback((event) => {
+  const onClickLocation = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
     setGpsPopoverState(!gpsPopoverOpen);
@@ -155,7 +157,7 @@ const LocationSelectorInput = (props) => {
   };
 
 
-  return <label onClick={stopEventBubbling} ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={styles.locationSelectionLabel}>
+  return <label onClick={stopEventBubbling} ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={`${styles.locationSelectionLabel} ${className}`}>
     {iconPlacement === 'label' && <LocationIcon className={styles.icon} />}
     {!!label && <span>{label}</span>}
     <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={hideGpsPopover} container={gpsInputLabelRef.current}>
@@ -173,11 +175,11 @@ const LocationSelectorInput = (props) => {
         onGeoLocationStart={onGeoLocationStart}
         onGeoLocationSuccess={onGeoLocationSuccess} />
     </Overlay>
-      <a href="#" onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
-        {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
-        {displayString}
-        {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}
-      </a>
+    <div data-testid={'set-location-button'} onClick={onClickLocation} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
+      {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
+      <span style={!location ? { marginRight: 'auto' } : {}}>{displayString}</span>
+      {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}
+    </div>
   </label>;
 };
 

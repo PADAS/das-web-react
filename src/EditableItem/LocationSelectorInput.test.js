@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { MapContext } from '../App';
 import { createMapMock } from '../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
 import LocationSelectorInput from './LocationSelectorInput';
@@ -32,7 +33,9 @@ describe('LocationSelectorInput', () => {
     render(
       <Provider store={store}>
         <NavigationWrapper>
-          <LocationSelectorInput map={map} />
+          <MapContext.Provider value={map}>
+            <LocationSelectorInput map={map} />
+          </MapContext.Provider>
         </NavigationWrapper>
       </Provider>
     );
@@ -43,7 +46,7 @@ describe('LocationSelectorInput', () => {
   });
 
   test('hides the sidebar when choosing a location in the map', async () => {
-    const setLocationButton = await screen.getByRole('link');
+    const setLocationButton = await screen.getByTestId('set-location-button');
     userEvent.click(setLocationButton);
 
     expect(hideSideBar).toHaveBeenCalledTimes(0);
@@ -51,11 +54,13 @@ describe('LocationSelectorInput', () => {
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
     userEvent.click(placeMarkerOnMapButton);
 
-    expect(hideSideBar).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(hideSideBar).toHaveBeenCalledTimes(1);
+    });
   });
 
   test('shows the sidebar again if user cancels map selection', async () => {
-    const setLocationButton = await screen.getByRole('link');
+    const setLocationButton = await screen.getByTestId('set-location-button');
     userEvent.click(setLocationButton);
 
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');

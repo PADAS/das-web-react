@@ -13,14 +13,11 @@ import AddReport from '../AddReport';
 
 import { showPopup } from '../ducks/popup';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
@@ -82,7 +79,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
             category: MAP_INTERACTION_CATEGORY,
             location: 'subject popover',
           }}
-          className={ENABLE_UFA_NAVIGATION_UI ? styles.addReport : styles.oldNavigationAddReport}
+          className={styles.addReport}
           variant="secondary"
           reportData={{ location: locationObject, reportedById }}
           showLabel={false}

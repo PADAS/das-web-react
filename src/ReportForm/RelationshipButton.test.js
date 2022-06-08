@@ -14,7 +14,6 @@ import useNavigate from '../hooks/useNavigate';
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_UFA_NAVIGATION_UI: true,
     ENABLE_PATROL_NEW_UI: true,
     ENABLE_REPORT_NEW_UI: true,
   },

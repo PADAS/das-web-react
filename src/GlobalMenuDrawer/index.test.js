@@ -15,10 +15,6 @@ import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
-}));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
   addModal: jest.fn(),
@@ -408,5 +404,26 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Subject Reports');
+  });
+
+  test('lists links to various privacy and data policies', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const eulaLink = await screen.getByTestId('eula-link');
+    const termsAndConditionsLink = await screen.getByTestId('terms-and-conditions-link');
+    const sitePrivacyPolicyLink = await screen.getByTestId('website-privacy-policy');
+    const dataPrivacyPolicyLink = await screen.getByTestId('data-privacy-policy');
+
+    [eulaLink, termsAndConditionsLink, sitePrivacyPolicyLink, dataPrivacyPolicyLink].forEach((item) => {
+      expect(item).toHaveAttribute('rel', 'noreferrer');
+      expect(item).toHaveAttribute('target', '_blank');
+      expect(item).toHaveAttribute('href');
+    });
   });
 });

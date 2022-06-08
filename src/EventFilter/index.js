@@ -10,7 +10,7 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 import noop from 'lodash/noop';
 
-import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS, EVENT_STATE_CHOICES } from '../constants';
+import { BREAKPOINTS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT, isFilterModified } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -32,8 +32,6 @@ import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
@@ -264,7 +262,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover {...(ENABLE_UFA_NAVIGATION_UI ? { placement: 'bottom' } : {})} className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
+  const FilterDatePopover = <Popover placement='bottom' className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
@@ -322,20 +320,20 @@ const EventFilter = (props) => {
   </Popover>;
 
   return <>
-    <form className={`${styles.form} ${className} ${ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigation : ''}`} onSubmit={e => e.preventDefault()}>
-      <div className={ENABLE_UFA_NAVIGATION_UI ? styles.controls : styles.oldNavigationControls}>
+    <form className={`${styles.form} ${className} ${styles.oldNavigation}`} onSubmit={e => e.preventDefault()}>
+      <div className={styles.controls}>
         <SearchBar
-          className={`${ENABLE_UFA_NAVIGATION_UI ? styles.search : styles.oldNavigationSearch} ${!hasChildrenComponents ? styles.wider : ''}`}
+          className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`}
           placeholder='Search Reports...'
           value={filterText}
           onChange={onSearchChange}
           onClear={onSearchClear}
         />
-        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement={ENABLE_UFA_NAVIGATION_UI ? 'bottom' : 'auto'} overlay={FilterPopover} flip={true}>
+        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={FilterPopover} flip={true}>
           <Button
             variant={filterModified ? 'primary' : 'light'}
             size='sm'
-            className={ENABLE_UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            className={styles.popoverTrigger}
             data-testid='filter-btn'
           >
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
@@ -345,7 +343,7 @@ const EventFilter = (props) => {
           <Button
             variant={dateRangeModified ? 'primary' : 'light'}
             size='sm'
-            className={ENABLE_UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            className={styles.popoverTrigger}
             data-testid='date-filter-btn'
           >
             <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
@@ -355,7 +353,7 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    {(ENABLE_UFA_NAVIGATION_UI || isLargeLayout) && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+    {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyFilterString
         className={styles.friendlyFilterString}
         dateRange={date_range}

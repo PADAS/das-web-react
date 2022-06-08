@@ -31,7 +31,7 @@ import {
 
 import styles from './styles.module.scss';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -239,7 +239,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
       if (isPatrol) {
         setPopoverState(false);
-        if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+        if (ENABLE_PATROL_NEW_UI) {
           return navigate(
             { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
             { state: { patrolData: reportData } }
@@ -253,7 +253,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+    if (ENABLE_REPORT_NEW_UI) {
       navigate(
         { pathname: `${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
         { state: { reportData } },
@@ -280,7 +280,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={ENABLE_UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
+          className={styles[`addReport-${variant}`]}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}

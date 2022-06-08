@@ -5,11 +5,16 @@ import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 import isFuture from 'date-fns/is_future';
 
+import { BREAKPOINTS } from '../../constants';
 import DatePicker from '../../DatePicker';
 import TimeRangeInput from '../../TimeRangeInput';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
+import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+
+import { useMatchMedia } from '../../hooks';
+
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
@@ -23,12 +28,22 @@ const START_KEY = 'start';
 const END_KEY = 'end';
 
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
+  const startLocation = useMemo(() => {
+    const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
+    return startLocation ? [startLocation.longitude, startLocation.latitude] : null;
+  }, [patrolForm.patrol_segments]);
+  const endLocation = useMemo(() => {
+    const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
+    return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
+  }, [patrolForm.patrol_segments]);
+
+  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(startDate));
@@ -44,7 +59,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       setLoadingTrackedBy(false);
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
-
 
   const updatePatrol = useCallback((update) => {
     onPatrolChange(merge({}, patrolForm, update));
@@ -119,12 +133,18 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrolDate('end', endDate, !isAutoEnd);
   }, [isAutoEnd, endDate, updatePatrolDate]);
 
-  const StyledSubheaderLabel = ({ labelText, children,  ...rest }) => (
-    <label className={styles.subheaderLabel} {...rest}>
-      {labelText}
-      {children}
-    </label>
-  );
+  const onLocationChange = useCallback((value, locationType) => {
+    patrolModalTracker.track(`Set patrol ${locationType} location`);
+    const locationToUpdate = {
+      [`${locationType}_location`]: value ? {
+        longitude: value[0],
+        latitude: value[1],
+      } : null,
+    };
+
+    updatePatrol({ patrol_segments: [locationToUpdate] });
+  }, [updatePatrol]);
+
 
   return <div className={styles.planTab}>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
@@ -132,7 +152,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       Tracked By
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
     </label>
-    <StyledSubheaderLabel labelText={'Objective'} data-testid="patrol-objective">
+    <label className={styles.objectiveLabel} data-testid="patrol-objective">
+      Objective
       <Control
         as="textarea"
         data-testid="patrol-objective-input"
@@ -141,40 +162,60 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         value={patrolForm?.objective ?? ''}
         onChange={onObjectiveChange}
       />
-    </StyledSubheaderLabel>
+    </label>
     <div className={styles.timeLocationRow} ref={rowContainerRef}>
-      <StyledSubheaderLabel labelText={'Start Date'}>
+      <label className={styles.dateLabel}>
+        Start Date
         <DatePicker
+          selectsStart
           shouldCloseOnSelect
+          className={styles.patrolDatepicker}
           selected={startDate ?? new Date()}
           onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
           dateFormat="dd MMM yyyy"
-          selectsStart
           startDate={startDate}
           maxDate={endDate}
           />
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={'Start Time'}>
+      </label>
+      <label className={styles.timeLabel}>
+        Start Time
         <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
-      </StyledSubheaderLabel>
+      </label>
+      <label className={styles.locationLabel} data-testid="planTab-start-location">
+        {isMediumLayoutOrLarger ? 'Start Location' : 'Location'}
+        <LocationSelectorInput
+          label=''
+          className={styles.locationInput}
+          copyable={isMediumLayoutOrLarger ? true : false}
+          iconPlacement='input'
+          location={startLocation}
+          onLocationChange={(value) => onLocationChange(value, START_KEY)}
+          placeholder='Set Location'
+        />
+        {(!startLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
+      </label>
     </div>
+
     <label className={styles.autoFieldCheckbox}>
       <input type='checkbox' checked={isAutoStart} onChange={onAutoStartChange} disabled={!startDate || !isFuture(startDate)}/>
       <span>Automatically start the patrol at this time</span>
     </label>
     <div className={styles.timeLocationRow}>
-      <StyledSubheaderLabel labelText={'End Date'}>
+      <label className={styles.dateLabel}>
+        End Date
         <DatePicker
+          selectsEnd
           shouldCloseOnSelect
           selected={endDate}
+          className={styles.patrolDatepicker}
           onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}
           dateFormat="dd MMM yyyy"
-          selectsEnd
           startDate={startDate}
           endDate={endDate}
           minDate={startDate} />
-      </StyledSubheaderLabel>
-      <StyledSubheaderLabel labelText={'End Time'}>
+      </label>
+      <label className={styles.timeLabel}>
+        End Time
         <TimeRangeInput
           timeValue={endTime}
           dateValue={endDate}
@@ -182,7 +223,20 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(getHoursAndMinutesString(value));}}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
-      </StyledSubheaderLabel>
+      </label>
+      <label className={styles.locationLabel} data-testid="planTab-end-location">
+        {isMediumLayoutOrLarger ? 'End Location' : 'Location'}
+        <LocationSelectorInput
+          label=''
+          className={styles.locationInput}
+          copyable={isMediumLayoutOrLarger ? true : false}
+          iconPlacement='input'
+          location={endLocation}
+          onLocationChange={(value) => onLocationChange(value, END_KEY)}
+          placeholder='Set Location'
+        />
+        {(!endLocation || !isMediumLayoutOrLarger) && <div className={styles.triangle}></div>}
+      </label>
     </div>
     <label className={styles.autoFieldCheckbox}>
       <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
