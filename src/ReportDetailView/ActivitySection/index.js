@@ -26,9 +26,11 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
           <AttachmentIcon />
         </div>
 
-        <p className={styles.title}>{attachment.filename}</p>
+        <div className={styles.details}>
+          <p className={styles.title}>{attachment.filename}</p>
 
-        <DateTime className={styles.date} date={attachment.updates[0].time} showElapsed={false} />
+          <DateTime className={styles.date} date={attachment.updates[0].time} showElapsed={false} />
+        </div>
 
         <div className={styles.actionButton}>
           <DownloadArrowIcon
@@ -54,9 +56,9 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
           <AttachmentIcon />
         </div>
 
-        <p className={styles.title}>{attachment.name}</p>
-
-        <div className={styles.date} />
+        <div className={styles.details}>
+          <p className={styles.title}>{attachment.name}</p>
+        </div>
 
         <div className={styles.actionButton}>
           <CloseIcon
