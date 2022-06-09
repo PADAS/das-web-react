@@ -73,4 +73,18 @@ describe('ReportDetailView - AddAttachmentButton', () => {
       'attachment.svgnewFile1.pdfclose-icon.svg',
     ]);
   });
+
+  test('inverts the sort direction when clicking the time sort button', async () => {
+    const timeSortButton = await screen.findByTestId('reportDetailView-activitySection-timeSortButton');
+    userEvent.click(timeSortButton);
+
+    const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
+
+    expect(itemsText).toEqual([
+      'attachment.svgnewFile2.pdfclose-icon.svg',
+      'attachment.svgnewFile1.pdfclose-icon.svg',
+      'attachment.svgfile2.pdf7',
+      'attachment.svgfile1.pdf6',
+    ]);
+  });
 });

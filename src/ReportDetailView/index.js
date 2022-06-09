@@ -5,7 +5,7 @@ import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
-import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
@@ -203,7 +203,7 @@ const ReportDetailView = () => {
 
           <Nav.Item>
             <Nav.Link eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
-              <AttachmentIcon />
+              <BulletListIcon />
               <span>Activity</span>
             </Nav.Link>
           </Nav.Item>

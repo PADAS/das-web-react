@@ -1,7 +1,11 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
+import { ReactComponent as ArrowDown } from '../../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUp } from '../../common/images/icons/arrow-up.svg';
 import { ReactComponent as AttachmentIcon } from '../../common/images/icons/attachment.svg';
+import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as CloseIcon } from '../../common/images/icons/close-icon.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../common/images/icons/download-arrow.svg';
 
@@ -11,7 +15,12 @@ import DateTime from '../../DateTime';
 
 import styles from './styles.module.scss';
 
+const ASCENDING_TIME_SORT_ORDER = 'asc';
+const DESCENDING_TIME_SORT_ORDER = 'desc';
+
 const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd }) => {
+  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_TIME_SORT_ORDER);
+
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((attachment) => {
     const onDownloadAttachment = () => {
       downloadFileFromUrl(attachment.url, { filename: attachment.filename });
@@ -27,19 +36,19 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         </div>
 
         <div className={styles.details}>
-          <p className={styles.title}>{attachment.filename}</p>
+          <p className={styles.itemTitle}>{attachment.filename}</p>
 
           <DateTime className={styles.date} date={attachment.updates[0].time} showElapsed={false} />
         </div>
 
-        <div className={styles.actionButton}>
+        <div className={styles.itemActionButton}>
           <DownloadArrowIcon
             data-testid="reportDetailView-activitySection-downloadIcon"
             onClick={onDownloadAttachment}
           />
         </div>
 
-        <div className={styles.actionButton} />
+        <div className={styles.itemActionButton} />
       </li>,
     };
   }), [reportAttachments, reportTracker]);
@@ -57,33 +66,63 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         </div>
 
         <div className={styles.details}>
-          <p className={styles.title}>{attachment.name}</p>
+          <p className={styles.itemTitle}>{attachment.name}</p>
         </div>
 
-        <div className={styles.actionButton}>
+        <div className={styles.itemActionButton}>
           <CloseIcon
             data-testid="reportDetailView-activitySection-deleteIcon"
             onClick={onDeleteAttachment}
           />
         </div>
 
-        <div className={styles.actionButton} />
+        <div className={styles.itemActionButton} />
       </li>,
     };
   }), [attachmentsToAdd, setAttachmentsToAdd]);
 
   const sortedItemsRendered = useMemo(
     () => [...reportAttachmentsRendered, ...attachmentsToAddRendered]
-      .sort((a, b) => a.date > b.date ? 1 : -1 )
+      .sort((a, b) => {
+        if (timeSortOrder === DESCENDING_TIME_SORT_ORDER) {
+          return a.date > b.date ? 1 : -1;
+        }
+        return a.date < b.date ? 1 : -1;
+      })
       .map((item) => item.node),
-    [attachmentsToAddRendered, reportAttachmentsRendered]
+    [attachmentsToAddRendered, reportAttachmentsRendered, timeSortOrder]
   );
 
-  // TODO: Match figma designs for Activity title
   return <>
-    <h2>Activity</h2>
+    <div className={styles.sectionHeader}>
+      <div className={styles.title}>
+        <BulletListIcon />
 
-    <ul className={styles.list}>{sortedItemsRendered}</ul>
+        <h2>Activity</h2>
+      </div>
+
+      <div className={styles.actions}>
+        <label>Time</label>
+
+        <Button
+          className={styles.timeSortButton}
+          data-testid="reportDetailView-activitySection-timeSortButton"
+          onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_TIME_SORT_ORDER
+            ? ASCENDING_TIME_SORT_ORDER
+            : DESCENDING_TIME_SORT_ORDER)}
+          type="button"
+          variant={timeSortOrder === DESCENDING_TIME_SORT_ORDER ? 'secondary' : 'primary'}
+        >
+          {timeSortOrder === DESCENDING_TIME_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
+        </Button>
+
+        <Button className={styles.expandAllButton} onClick={() => {}} type="button" variant="secondary">
+          Expand All
+        </Button>
+      </div>
+    </div>
+
+    {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
   </>;
 };
 
