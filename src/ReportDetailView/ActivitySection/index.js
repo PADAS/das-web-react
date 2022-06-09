@@ -9,17 +9,15 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../common/images/icons/download-arrow.svg';
 
+import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 import { downloadFileFromUrl } from '../../utils/download';
 
 import DateTime from '../../DateTime';
 
 import styles from './styles.module.scss';
 
-const ASCENDING_TIME_SORT_ORDER = 'asc';
-const DESCENDING_TIME_SORT_ORDER = 'desc';
-
 const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd }) => {
-  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_TIME_SORT_ORDER);
+  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((attachment) => {
     const onDownloadAttachment = () => {
@@ -84,7 +82,7 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
   const sortedItemsRendered = useMemo(
     () => [...reportAttachmentsRendered, ...attachmentsToAddRendered]
       .sort((a, b) => {
-        if (timeSortOrder === DESCENDING_TIME_SORT_ORDER) {
+        if (timeSortOrder === DESCENDING_SORT_ORDER) {
           return a.date > b.date ? 1 : -1;
         }
         return a.date < b.date ? 1 : -1;
@@ -107,13 +105,13 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         <Button
           className={styles.timeSortButton}
           data-testid="reportDetailView-activitySection-timeSortButton"
-          onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_TIME_SORT_ORDER
-            ? ASCENDING_TIME_SORT_ORDER
-            : DESCENDING_TIME_SORT_ORDER)}
+          onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER
+            ? ASCENDING_SORT_ORDER
+            : DESCENDING_SORT_ORDER)}
           type="button"
-          variant={timeSortOrder === DESCENDING_TIME_SORT_ORDER ? 'secondary' : 'primary'}
+          variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
         >
-          {timeSortOrder === DESCENDING_TIME_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
+          {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
         </Button>
 
         <Button className={styles.expandAllButton} onClick={() => {}} type="button" variant="secondary">
