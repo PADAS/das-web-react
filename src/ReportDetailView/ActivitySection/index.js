@@ -6,7 +6,7 @@ import { ReactComponent as ArrowDown } from '../../common/images/icons/arrow-dow
 import { ReactComponent as ArrowUp } from '../../common/images/icons/arrow-up.svg';
 import { ReactComponent as AttachmentIcon } from '../../common/images/icons/attachment.svg';
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
-import { ReactComponent as CloseIcon } from '../../common/images/icons/close-icon.svg';
+import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../common/images/icons/download-arrow.svg';
 
 import { downloadFileFromUrl } from '../../utils/download';
@@ -70,7 +70,7 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         </div>
 
         <div className={styles.itemActionButton}>
-          <CloseIcon
+          <TrashCanIcon
             data-testid="reportDetailView-activitySection-deleteIcon"
             onClick={onDeleteAttachment}
           />

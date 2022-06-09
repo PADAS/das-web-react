@@ -69,8 +69,8 @@ describe('ReportDetailView - AddAttachmentButton', () => {
     expect(itemsText).toEqual([
       'attachment.svgfile1.pdf6',
       'attachment.svgfile2.pdf7',
-      'attachment.svgnewFile2.pdfclose-icon.svg',
-      'attachment.svgnewFile1.pdfclose-icon.svg',
+      'attachment.svgnewFile2.pdftrash-can.svg',
+      'attachment.svgnewFile1.pdftrash-can.svg',
     ]);
   });
 
@@ -81,8 +81,8 @@ describe('ReportDetailView - AddAttachmentButton', () => {
     const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
 
     expect(itemsText).toEqual([
-      'attachment.svgnewFile2.pdfclose-icon.svg',
-      'attachment.svgnewFile1.pdfclose-icon.svg',
+      'attachment.svgnewFile2.pdftrash-can.svg',
+      'attachment.svgnewFile1.pdftrash-can.svg',
       'attachment.svgfile2.pdf7',
       'attachment.svgfile1.pdf6',
     ]);
