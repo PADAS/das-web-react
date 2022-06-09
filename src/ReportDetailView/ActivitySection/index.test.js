@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { downloadFileFromUrl } from '../../utils/download';
@@ -60,7 +60,6 @@ describe('ReportDetailView - AddAttachmentButton', () => {
     userEvent.click(deleteNewAttachmentButton);
 
     expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd).toHaveBeenCalledWith([{ name: 'newFile1.pdf' }]);
   });
 
   test('sorts items by date', async () => {
@@ -86,5 +85,23 @@ describe('ReportDetailView - AddAttachmentButton', () => {
       'attachment.svgfile2.pdf7',
       'attachment.svgfile1.pdf6',
     ]);
+  });
+
+  test('shows activity action buttons if there are items', async () => {
+    expect((await screen.findByText('Expand All'))).toBeDefined();
+    expect((await screen.findByText('arrow-down.svg'))).toBeDefined();
+  });
+
+  test('hides activity action buttons if items list is empty', async () => {
+    cleanup();
+    render(<ActivitySection
+      attachmentsToAdd={[]}
+      reportAttachments={[]}
+      reportTracker={{ track }}
+      setAttachmentsToAdd={setAttachmentsToAdd}
+    />);
+
+    expect((await screen.queryByText('Expand All'))).toBeNull();
+    expect((await screen.queryByText('arrow-down.svg'))).toBeNull();
   });
 });

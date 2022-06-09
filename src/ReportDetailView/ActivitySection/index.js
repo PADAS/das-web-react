@@ -99,7 +99,7 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         <h2>Activity</h2>
       </div>
 
-      <div className={styles.actions}>
+      {sortedItemsRendered.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
         <Button
@@ -117,7 +117,7 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         <Button className={styles.expandAllButton} onClick={() => {}} type="button" variant="secondary">
           Expand All
         </Button>
-      </div>
+      </div>}
     </div>
 
     {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
