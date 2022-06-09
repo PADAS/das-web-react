@@ -103,14 +103,12 @@ const fetchNamedFeedActionCreator = (name) => {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
-    let finalParamString = paramString;
-
     dispatch({
       name,
       type: FEED_FETCH_START,
     });
 
-    return axios.get(`${EVENTS_API_URL}?${finalParamString}`, {
+    return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,
       cancelToken: cancelToken.token,
     })
