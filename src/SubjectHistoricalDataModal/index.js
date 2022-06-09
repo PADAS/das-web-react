@@ -24,7 +24,7 @@ export const ITEMS_PER_PAGE = 10;
 export const DISPLAYED_PAGES_LIMIT = 5;
 
 export const getObservationUniqProperties = (observations) => {
-  const observationsDeviceProperties = observations.map(result => result.device_status_properties);
+  const observationsDeviceProperties = observations.map(result => result?.device_status_properties ?? []);
   const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
   return uniqPropertiesByLabel.map(property => property.label);
 };
@@ -55,7 +55,7 @@ const SubjectHistoricalDataModal = ({ gpsFormat, title, subjectId, subjectIsStat
     setActivePage(page);
   }, []);
 
-  const getMatchedProperty = useCallback((labelToMatch, observationProperties) => {
+  const getMatchedProperty = useCallback((labelToMatch, observationProperties = []) => {
     const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
     if (!matchedProp) return <span className={styles.noDataLabel}>No data</span>;
     const propertyUnitsLabel = JSON.parse(JSON.stringify(matchedProp.units)) ? ` ${matchedProp.units}` : '';
