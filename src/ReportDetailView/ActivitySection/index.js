@@ -1,86 +1,72 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as ArrowDown } from '../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowUp } from '../../common/images/icons/arrow-up.svg';
-import { ReactComponent as AttachmentIcon } from '../../common/images/icons/attachment.svg';
+import { ReactComponent as ArrowDownIcon } from '../../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUpIcon } from '../../common/images/icons/arrow-up.svg';
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
-import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
-import { ReactComponent as DownloadArrowIcon } from '../../common/images/icons/download-arrow.svg';
 
 import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
-import { downloadFileFromUrl } from '../../utils/download';
 
-import DateTime from '../../DateTime';
+import Attachment from './Attachment';
+import Note from './Note';
 
 import styles from './styles.module.scss';
 
-const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd }) => {
+const ActivitySection = ({
+  attachmentsToAdd,
+  notesToAdd,
+  reportAttachments,
+  reportNotes,
+  reportTracker,
+  setAttachmentsToAdd,
+  setNotesToAdd,
+  setReportNotes,
+}) => {
   const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
+  const [cardsExpanded, setCardsExpanded] = useState([]);
 
-  const reportAttachmentsRendered = useMemo(() => reportAttachments.map((attachment) => {
-    const onDownloadAttachment = () => {
-      downloadFileFromUrl(attachment.url, { filename: attachment.filename });
+  const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
+    date: reportAttachment.updated_at || reportAttachment.created_at,
+    node: <Attachment attachment={reportAttachment} key={reportAttachment.id} reportTracker={reportTracker} />,
+  })), [reportAttachments, reportTracker]);
 
-      reportTracker.track('Open Report Attachment');
-    };
+  const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
+    date: attachmentToAdd.creationDate,
+    node: <Attachment
+      attachment={attachmentToAdd.file}
+      attachmentsToAdd={attachmentsToAdd}
+      key={attachmentToAdd.file.name}
+      setAttachmentsToAdd={setAttachmentsToAdd}
+    />,
+  })), [attachmentsToAdd, setAttachmentsToAdd]);
 
-    return {
-      date: attachment.updated_at || attachment.created_at,
-      node: <li key={attachment.id}>
-        <div className={styles.icon}>
-          <AttachmentIcon />
-        </div>
+  const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
+    date: reportNote.updated_at || reportNote.created_at,
+    node: <Note
+      cardsExpanded={cardsExpanded}
+      key={reportNote.id}
+      note={reportNote}
+      reportNotes={reportNotes}
+      setCardsExpanded={setCardsExpanded}
+      setReportNotes={setReportNotes}
+     />,
+  })), [cardsExpanded, reportNotes, setReportNotes]);
 
-        <div className={styles.details}>
-          <p className={styles.itemTitle}>{attachment.filename}</p>
-
-          <DateTime className={styles.date} date={attachment.updates[0].time} showElapsed={false} />
-        </div>
-
-        <div className={styles.itemActionButton}>
-          <DownloadArrowIcon
-            data-testid="reportDetailView-activitySection-downloadIcon"
-            onClick={onDownloadAttachment}
-          />
-        </div>
-
-        <div className={styles.itemActionButton} />
-      </li>,
-    };
-  }), [reportAttachments, reportTracker]);
-
-  const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachment) => {
-    const onDeleteAttachment = () => setAttachmentsToAdd(
-      attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.name !== attachment.name)
-    );
-
-    return {
-      date: new Date().toISOString(),
-      node: <li key={attachment.name}>
-        <div className={styles.icon}>
-          <AttachmentIcon />
-        </div>
-
-        <div className={styles.details}>
-          <p className={styles.itemTitle}>{attachment.name}</p>
-        </div>
-
-        <div className={styles.itemActionButton}>
-          <TrashCanIcon
-            data-testid="reportDetailView-activitySection-deleteIcon"
-            onClick={onDeleteAttachment}
-          />
-        </div>
-
-        <div className={styles.itemActionButton} />
-      </li>,
-    };
-  }), [attachmentsToAdd, setAttachmentsToAdd]);
+  const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
+    date: noteToAdd.creationDate,
+    node: <Note
+      cardsExpanded={cardsExpanded}
+      key={noteToAdd.text}
+      note={noteToAdd}
+      notesToAdd={notesToAdd}
+      setCardsExpanded={setCardsExpanded}
+      setNotesToAdd={setNotesToAdd}
+    />,
+  })), [cardsExpanded, notesToAdd, setNotesToAdd]);
 
   const sortedItemsRendered = useMemo(
-    () => [...reportAttachmentsRendered, ...attachmentsToAddRendered]
+    () => [...reportAttachmentsRendered, ...reportNotesRendered, ...attachmentsToAddRendered, ...notesToAddRendered]
       .sort((a, b) => {
         if (timeSortOrder === DESCENDING_SORT_ORDER) {
           return a.date > b.date ? 1 : -1;
@@ -88,8 +74,24 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         return a.date < b.date ? 1 : -1;
       })
       .map((item) => item.node),
-    [attachmentsToAddRendered, reportAttachmentsRendered, timeSortOrder]
+    [attachmentsToAddRendered, notesToAddRendered, reportAttachmentsRendered, reportNotesRendered, timeSortOrder]
   );
+
+  const onExpandAll = useCallback(() => {
+    setCardsExpanded([...reportNotes, ...notesToAdd]);
+  }, [notesToAdd, reportNotes]);
+
+  const onToggleSort = useCallback(() => {
+    setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
+  }, [timeSortOrder]);
+
+  useEffect(() => {
+    const newNotesToExpand = notesToAdd.filter((noteToAdd) => !noteToAdd.text && !cardsExpanded.includes(noteToAdd));
+
+    if (newNotesToExpand.length > 0) {
+      setCardsExpanded([...cardsExpanded, ...newNotesToExpand]);
+    }
+  }, [cardsExpanded, notesToAdd]);
 
   return <>
     <div className={styles.sectionHeader}>
@@ -105,16 +107,14 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
         <Button
           className={styles.timeSortButton}
           data-testid="reportDetailView-activitySection-timeSortButton"
-          onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER
-            ? ASCENDING_SORT_ORDER
-            : DESCENDING_SORT_ORDER)}
+          onClick={onToggleSort}
           type="button"
           variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
         >
-          {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
+          {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Button>
 
-        <Button className={styles.expandAllButton} onClick={() => {}} type="button" variant="secondary">
+        <Button className={styles.expandAllButton} onClick={onExpandAll} type="button" variant="secondary">
           Expand All
         </Button>
       </div>}
@@ -126,20 +126,29 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
 
 ActivitySection.propTypes = {
   attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string,
+    creationDate: PropTypes.string,
+    file: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+  })).isRequired,
+  notesToAdd: PropTypes.arrayOf(PropTypes.shape({
+    creationDate: PropTypes.string,
+    text: PropTypes.string,
   })).isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
-    filename: PropTypes.string,
     id: PropTypes.string,
     updated_at: PropTypes.string,
-    updates: PropTypes.arrayOf(PropTypes.object),
-    url: PropTypes.string,
   })).isRequired,
-  reportTracker: PropTypes.shape({
-    track: PropTypes.func,
-  }).isRequired,
+  reportNotes: PropTypes.arrayOf(PropTypes.shape({
+    created_at: PropTypes.string,
+    id: PropTypes.string,
+    updated_at: PropTypes.string,
+  })).isRequired,
+  reportTracker: PropTypes.object.isRequired,
   setAttachmentsToAdd: PropTypes.func.isRequired,
+  setNotesToAdd: PropTypes.func.isRequired,
+  setReportNotes: PropTypes.func.isRequired,
 };
 
 export default memo(ActivitySection);

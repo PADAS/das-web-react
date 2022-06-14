@@ -7,7 +7,6 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
-import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
 import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
@@ -24,6 +23,7 @@ import useNavigate from '../hooks/useNavigate';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from './AddAttachmentButton';
+import AddNoteButton from './AddNoteButton';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
@@ -81,7 +81,11 @@ const ReportDetailView = () => {
     () => Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || notesToAdd.length > 0,
     [attachmentsToAdd, notesToAdd, reportChanges]
   );
-  const reportAttachments = useMemo(() => Array.isArray(reportForm?.files) ? reportForm.files : [], [reportForm?.files]);
+  const reportAttachments = useMemo(
+    () => Array.isArray(reportForm?.files) ? reportForm.files : [],
+    [reportForm?.files]
+  );
+  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
   const schemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
@@ -153,7 +157,12 @@ const ReportDetailView = () => {
       reportToSubmit.location = null;
     }
 
-    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', notesToAdd, attachmentsToAdd);
+    const actions = generateSaveActionsForReportLikeObject(
+      reportToSubmit,
+      'report',
+      notesToAdd.map((noteToAdd) => ({ text: noteToAdd.text })),
+      attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)
+    );
     return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess?.(results);
@@ -225,9 +234,13 @@ const ReportDetailView = () => {
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
+                notesToAdd={notesToAdd}
                 reportAttachments={reportAttachments}
+                reportNotes={reportNotes}
                 reportTracker={reportTracker}
                 setAttachmentsToAdd={setAttachmentsToAdd}
+                setNotesToAdd={setNotesToAdd}
+                setReportNotes={(notes) => setReportForm({ ...reportForm, notes })}
               />
             </Tab.Pane>
 
@@ -238,10 +251,12 @@ const ReportDetailView = () => {
 
           <div className={styles.footer}>
             <div>
-              <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
-                <NoteIcon />
-                <label>Note</label>
-              </Button>
+              <AddNoteButton
+                className={styles.footerActionButton}
+                notesToAdd={notesToAdd}
+                reportTracker={reportTracker}
+                setNotesToAdd={setNotesToAdd}
+              />
 
               <AddAttachmentButton
                 attachmentsToAdd={attachmentsToAdd}

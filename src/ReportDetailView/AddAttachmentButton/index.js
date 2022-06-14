@@ -34,8 +34,14 @@ const AddAttachmentButton = ({
 
   const attachFiles = useCallback((files) => {
     const filesArray = convertFileListToArray(files);
-    const uploadableFiles = filterDuplicateUploadFilenames([...reportAttachments, ...attachmentsToAdd], filesArray);
-    setAttachmentsToAdd([...attachmentsToAdd, ...uploadableFiles]);
+    const uploadableFiles = filterDuplicateUploadFilenames(
+      [...reportAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
+      filesArray
+    );
+    setAttachmentsToAdd([
+      ...attachmentsToAdd,
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
+    ]);
 
     reportTracker.track('Added Attachment');
   }, [attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd]);
@@ -104,7 +110,9 @@ AddAttachmentButton.defaultProps = {
 };
 
 AddAttachmentButton.propTypes = {
-  attachmentsToAdd: PropTypes.arrayOf(PropTypes.object).isRequired,
+  attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
+    file: PropTypes.object,
+  })).isRequired,
   className: PropTypes.string,
   reportAttachments: PropTypes.arrayOf(PropTypes.object).isRequired,
   reportTracker: PropTypes.shape({
