@@ -16,7 +16,7 @@ import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
 import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
-import { ReactComponent as Patrol } from '../../../common/images/icons/patrol.svg';
+import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
 
 import { trackEventFactory, REPORT_DETAIL_VIEW_CATEGORY } from '../../../utils/analytics';
 
@@ -27,7 +27,7 @@ const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
 const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
-const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
+const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
 
   const navigate = useNavigate();
   const map = useContext(MapContext);
@@ -109,29 +109,28 @@ const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
     reportTracker.track('Click \'Add to Patrol\' button');
   }, [addModal, onAddToPatrol]);
 
+  if (!canAddToIncident && reportBelongsToPatrol) return null;
 
   return  <Dropdown alignRight className={styles.kebabMenu}>
-    <Toggle as="button" className={styles.kebabToggle}>
+    <Toggle as="button" className={styles.kebabToggle} data-testid="reportMenu-kebab-button">
       <KebabMenuIcon />
     </Toggle>
     <Menu className={styles.menuDropdown}>
-      {canAddToIncident && <Item className={styles.itemBtn} variant='link' onClick={onStartAddToIncident}>
+      {canAddToIncident && <Item className={styles.itemBtn} data-testid="reportMenu-add-to-incident" variant='link' onClick={onStartAddToIncident}>
         <IncidentIcon className={styles.itemIcon} />Add to Incident
       </Item>}
 
-      {!reportBelongsToPatrol && <Item className={styles.itemBtn} variant='link' onClick={onStartAddToPatrol}>
-        <Patrol className={styles.itemIcon} />
+      {!reportBelongsToPatrol && <Item className={styles.itemBtn} data-testid="reportMenu-add-to-patrol" variant='link' onClick={onStartAddToPatrol}>
+        <PatrolIcon className={styles.itemIcon} />
         Add to Patrol
       </Item>}
     </Menu>
   </Dropdown>;
 };
 
-// export default memo(PatrolMenu);
+export default connect(null, { addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent })(memo(ReportMenu));
 
-export default connect(null, { addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent })(memo(PatrolMenu));
-
-PatrolMenu.propTypes = {
+ReportMenu.propTypes = {
   report: PropTypes.object.isRequired,
   saveReport: PropTypes.func.isRequired,
   addModal: PropTypes.func.isRequired,
