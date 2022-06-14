@@ -89,7 +89,9 @@ const Header = ({ report, setTitle, saveReport }) => {
         isMulti={collectionHasMultipleValidLocations(report)}
       />
     </div>}
-    <ReportMenu report={report} saveReport={saveReport}></ReportMenu>
+    <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
+      <ReportMenu report={report} saveReport={saveReport}></ReportMenu>
+    </div>
   </div>;
 };
 
