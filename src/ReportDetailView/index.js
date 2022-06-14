@@ -182,7 +182,7 @@ const ReportDetailView = () => {
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
-    <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
+    <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} saveReport={onSave} />
 
     {saveError && <ErrorMessages errorData={saveError} onClose={clearErrors} title="Error saving report." />}
 
