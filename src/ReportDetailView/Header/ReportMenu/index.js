@@ -5,13 +5,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import { MapContext } from '../../../App';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../../constants';
+import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
 import { fetchPatrol } from '../../../ducks/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol } from '../../../utils/events';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport } from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
 import useNavigate from '../../../hooks/useNavigate';
 
-
+import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
 import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
@@ -26,7 +27,7 @@ const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
 const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
-const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol }) => {
+const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
 
   const navigate = useNavigate();
   const map = useContext(MapContext);
@@ -36,49 +37,49 @@ const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol }) => {
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
   const reportBelongsToPatrol = eventBelongsToPatrol(report);
 
-  // const onAddToNewIncident = useCallback(async () => {
-  //   const incident = createNewIncidentCollection(/* { priority: report.priority } */);
+  const onAddToNewIncident = useCallback(async () => {
+    const incident = createNewIncidentCollection({ priority: report.priority });
 
-  //   const { data: { data: newIncident } } = await createEvent(incident);
-  //   const [{ data: { data: thisReport } }] = await saveChanges();
-  //   await addEventToIncident(thisReport.id, newIncident.id);
+    const { data: { data: newIncident } } = await createEvent(incident);
+    const [{ data: { data: thisReport } }] = await saveReport();
+    await addEventToIncident(thisReport.id, newIncident.id);
 
-  //   reportTracker.track('Click \'Add To Incident\' button');
+    reportTracker.track('Click \'Add To Incident\' button');
 
-  //   return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-  //     if (ENABLE_REPORT_NEW_UI) {
-  //       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
-  //     } else {
-  //       openModalForReport(data, map);
-  //     }
-  //     removeModal();
-  //   });
-  // }, [addEventToIncident, createEvent, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
+    return fetchEvent(newIncident.id).then(({ data: { data } }) => {
+      if (ENABLE_REPORT_NEW_UI) {
+        navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+      } else {
+        openModalForReport(data, map);
+      }
+      removeModal();
+    });
+  }, [addEventToIncident, createEvent, fetchEvent, map, navigate, report.priority, saveReport]);
 
-  // const onAddToExistingIncident = useCallback(async (incident) => {
-  //   const [{ data: { data: thisReport } }] = await saveChanges();
-  //   await addEventToIncident(thisReport.id, incident.id);
+  const onAddToExistingIncident = useCallback(async (incident) => {
+    const [{ data: { data: thisReport } }] = await saveReport();
+    await addEventToIncident(thisReport.id, incident.id);
 
-  //   reportTracker.track('Click \'Add To Incident\' button');
+    reportTracker.track('Click \'Add To Incident\' button');
 
-  //   return fetchEvent(incident.id).then(({ data: { data } }) => {
-  //     if (ENABLE_REPORT_NEW_UI) {
-  //       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
-  //     } else {
-  //       openModalForReport(data, map);
-  //     }
-  //     removeModal();
-  //   });
-  // }, [addEventToIncident, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
+    return fetchEvent(incident.id).then(({ data: { data } }) => {
+      if (ENABLE_REPORT_NEW_UI) {
+        navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+      } else {
+        openModalForReport(data, map);
+      }
+      removeModal();
+    });
+  }, [addEventToIncident, fetchEvent, map, navigate, saveReport]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
-    // addModal({
-    //   content: AddToIncidentModal,
-    //   onAddToNewIncident,
-    //   onAddToExistingIncident,
-    // });
-  }, []);
+    addModal({
+      content: AddToIncidentModal,
+      onAddToNewIncident,
+      onAddToExistingIncident,
+    });
+  }, [addModal, onAddToExistingIncident, onAddToNewIncident]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
     const patrolId = patrol.id;
@@ -128,7 +129,7 @@ const PatrolMenu = ({ report, saveReport, addModal, fetchPatrol }) => {
 
 // export default memo(PatrolMenu);
 
-export default connect(null, { addModal, fetchPatrol })(memo(PatrolMenu));
+export default connect(null, { addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent })(memo(PatrolMenu));
 
 PatrolMenu.propTypes = {
   report: PropTypes.object.isRequired,
