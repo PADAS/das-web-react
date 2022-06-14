@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddAttachmentButton from './';
@@ -27,7 +27,7 @@ describe('ReportDetailView - AddAttachmentButton', () => {
     userEvent.upload(addAttachmentButton, fakeFile);
 
     expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd.mock.calls[0][0][0].name).toBe('fake.txt');
+    expect(setAttachmentsToAdd.mock.calls[0][0][0].file.name).toBe('fake.txt');
   });
 
   test('omits duplicated files', async () => {
@@ -72,6 +72,6 @@ describe('ReportDetailView - AddAttachmentButton', () => {
     fireEvent.drop(addAttachmentVisualButton, { dataTransfer: { files: mockFileList } });
 
     expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd.mock.calls[0][0][0].name).toBe('fake.txt');
+    expect(setAttachmentsToAdd.mock.calls[0][0][0].file.name).toBe('fake.txt');
   });
 });

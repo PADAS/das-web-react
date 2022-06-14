@@ -64,6 +64,7 @@ const ReportDetailView = () => {
   const reportTracker = trackEventFactory(typeOfReportToTrack);
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+
   const isNewReport = useMemo(() => itemId === 'new', [itemId]);
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -73,22 +74,30 @@ const ReportDetailView = () => {
     () => isNewReport ? newReport : eventStore[itemId],
     [eventStore, isNewReport, itemId, newReport]
   );
+
   const reportChanges = useMemo(
     () => extractObjectDifference(reportForm, originalReport),
     [originalReport, reportForm]
   );
-  const isReportModified = useMemo(
-    () => Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || notesToAdd.length > 0,
-    [attachmentsToAdd, notesToAdd, reportChanges]
-  );
+
   const reportAttachments = useMemo(
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
+
   const schemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
+  );
+
+  const newNotesAdded = useMemo(
+    () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
+    [notesToAdd]
+  );
+  const isReportModified = useMemo(
+    () => Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded,
+    [attachmentsToAdd.length, newNotesAdded, reportChanges]
   );
 
   useEffect(() => {
@@ -157,12 +166,14 @@ const ReportDetailView = () => {
       reportToSubmit.location = null;
     }
 
-    const actions = generateSaveActionsForReportLikeObject(
-      reportToSubmit,
-      'report',
-      notesToAdd.map((noteToAdd) => ({ text: noteToAdd.text })),
-      attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)
-    );
+    const newNotes = notesToAdd.reduce((accumulator, noteToAdd) => {
+      if (noteToAdd.text) {
+        accumulator.push({ text: noteToAdd.text });
+      }
+      return accumulator;
+    }, []);
+    const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
+    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
     return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess?.(results);

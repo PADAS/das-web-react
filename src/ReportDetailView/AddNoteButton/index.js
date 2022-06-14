@@ -17,7 +17,13 @@ const AddNoteButton = ({ className, notesToAdd, reportTracker, setNotesToAdd }) 
     }
   }, [notesToAdd, reportTracker, setNotesToAdd]);
 
-  return <Button className={className} onClick={onClick} type="button" variant="secondary">
+  return <Button
+    data-testid="reportDetailView-addNoteButton"
+    className={className}
+    onClick={onClick}
+    type="button"
+    variant="secondary"
+    >
     <NoteIcon />
     <label>Note</label>
   </Button>;

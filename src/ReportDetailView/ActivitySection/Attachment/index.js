@@ -36,6 +36,7 @@ const Attachment = ({ attachment, attachmentsToAdd, reportTracker, setAttachment
 
       {!!attachment.updates && <DateTime
         className={styles.itemDate}
+        data-testid="reportDetailView-activitySection-dateTime"
         date={attachment.updates[0].time}
         showElapsed={false}
       />}
@@ -45,14 +46,8 @@ const Attachment = ({ attachment, attachmentsToAdd, reportTracker, setAttachment
 
     <div className={styles.itemActionButton}>
       {!isNew
-        ? <DownloadArrowIcon
-          data-testid="reportDetailView-activitySection-downloadIcon"
-          onClick={onDownload}
-        />
-        : <TrashCanIcon
-          data-testid="reportDetailView-activitySection-deleteIcon"
-          onClick={onDelete}
-        />}
+        ? <DownloadArrowIcon data-testid="reportDetailView-activitySection-downloadIcon" onClick={onDownload} />
+        : <TrashCanIcon data-testid="reportDetailView-activitySection-deleteIcon" onClick={onDelete} />}
     </div>
 
     <div className={styles.itemActionButton} />

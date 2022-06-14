@@ -114,7 +114,13 @@ const ActivitySection = ({
           {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
         </Button>
 
-        <Button className={styles.expandAllButton} onClick={onExpandAll} type="button" variant="secondary">
+        <Button
+          className={styles.expandAllButton}
+          data-testid="reportDetailView-activitySection-expandAllButton"
+          onClick={onExpandAll}
+          type="button"
+          variant="secondary"
+        >
           Expand All
         </Button>
       </div>}

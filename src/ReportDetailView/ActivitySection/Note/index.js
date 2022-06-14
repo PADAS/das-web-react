@@ -46,9 +46,11 @@ const Note = ({
   const onDelete = () => setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
 
   const onEdit = useCallback(() => {
-    setIsOpen(true);
-    setIsEditing(true);
-  }, [setIsOpen]);
+    if (!isEditing) {
+      setIsOpen(true);
+    }
+    setIsEditing(!isEditing);
+  }, [isEditing, setIsOpen]);
 
   const onSave = useCallback(() => {
     const noteToSave = { ...note, text };
@@ -80,6 +82,7 @@ const Note = ({
 
         {!!note.updates && <DateTime
           className={styles.itemDate}
+          data-testId="reportDetailView-activitySection-dateTime"
           date={note.updates[0].time}
           showElapsed={false}
         />}
@@ -87,12 +90,12 @@ const Note = ({
 
       {isNew
         ? <div className={styles.itemActionButton}>
-          <TrashCanIcon onClick={onDelete} />
+          <TrashCanIcon data-testid="reportDetailView-activitySection-deleteIcon" onClick={onDelete} />
         </div>
         : <div className={styles.itemActionButton} />}
 
       <div className={styles.itemActionButton}>
-        <PencilIcon onClick={onEdit} />
+        <PencilIcon data-testid="reportDetailView-activitySection-editIcon" onClick={onEdit} />
       </div>
 
       <div className={styles.itemActionButton}>
@@ -102,10 +105,11 @@ const Note = ({
       </div>
     </div>
 
-    <Collapse in={isOpen}>
+    <Collapse data-testid="reportDetailView-activitySection-collapse" in={isOpen}>
       <div>
         <textarea
           className={styles.noteTextArea}
+          data-testId="reportDetailView-activitySection-noteTextArea"
           onChange={(event) => setText(event.target.value)}
           readOnly={!isEditing}
           ref={textareaRef}
@@ -117,7 +121,7 @@ const Note = ({
             Cancel
           </Button>
 
-          <Button onClick={onSave} type="button">
+          <Button disabled={!text || text === note.text} onClick={onSave} type="button">
             Save Note
           </Button>
         </div>}
