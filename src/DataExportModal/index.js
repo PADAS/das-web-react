@@ -42,8 +42,7 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
       });
   };
 
-  const onFormSubmit = (e) => {
-    e.preventDefault();
+  const onFormSubmit = () => {
     triggerDownload();
     reportExportTracker.track('Click \'Export\' button');
   };
@@ -58,7 +57,7 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
     <Header closeButton>
       <Title>{title}</Title>
     </Header>
-    <Form onSubmit={onFormSubmit}>
+    <div>
       {!!children &&
         <Body>
           {children}
@@ -66,9 +65,9 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
       }
       <Footer>
         <Button variant="secondary" onClick={onFormCancel}>Cancel</Button>
-        <Button type="submit" variant="primary">Export</Button>
+        <Button type="submit" variant="primary" onClick={onFormSubmit}>Export</Button>
       </Footer>
-    </Form>
+    </div>
   </Fragment>;
 };
 
