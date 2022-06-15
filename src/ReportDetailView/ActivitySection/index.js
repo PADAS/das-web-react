@@ -16,7 +16,7 @@ import DateTime from '../../DateTime';
 
 import styles from './styles.module.scss';
 
-const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd }) => {
+const ActivitySection = ({ attachmentsToAdd, onDeleteAttachment, reportAttachments, reportTracker }) => {
   const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((attachment) => {
@@ -41,7 +41,7 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
 
         <div className={styles.itemActionButton}>
           <DownloadArrowIcon
-            data-testid="reportDetailView-activitySection-downloadIcon"
+            data-testid={`reportDetailView-activitySection-downloadIcon-${attachment.id}`}
             onClick={onDownloadAttachment}
           />
         </div>
@@ -51,33 +51,27 @@ const ActivitySection = ({ attachmentsToAdd, reportAttachments, reportTracker, s
     };
   }), [reportAttachments, reportTracker]);
 
-  const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachment) => {
-    const onDeleteAttachment = () => setAttachmentsToAdd(
-      attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.name !== attachment.name)
-    );
+  const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachment) => ({
+    date: new Date().toISOString(),
+    node: <li key={attachment.name}>
+      <div className={styles.icon}>
+        <AttachmentIcon />
+      </div>
 
-    return {
-      date: new Date().toISOString(),
-      node: <li key={attachment.name}>
-        <div className={styles.icon}>
-          <AttachmentIcon />
-        </div>
+      <div className={styles.details}>
+        <p className={styles.itemTitle}>{attachment.name}</p>
+      </div>
 
-        <div className={styles.details}>
-          <p className={styles.itemTitle}>{attachment.name}</p>
-        </div>
+      <div className={styles.itemActionButton}>
+        <TrashCanIcon
+          data-testid="reportDetailView-activitySection-deleteIcon"
+          onClick={() => onDeleteAttachment(attachment)}
+        />
+      </div>
 
-        <div className={styles.itemActionButton}>
-          <TrashCanIcon
-            data-testid="reportDetailView-activitySection-deleteIcon"
-            onClick={onDeleteAttachment}
-          />
-        </div>
-
-        <div className={styles.itemActionButton} />
-      </li>,
-    };
-  }), [attachmentsToAdd, setAttachmentsToAdd]);
+      <div className={styles.itemActionButton} />
+    </li>,
+  })), [attachmentsToAdd, onDeleteAttachment]);
 
   const sortedItemsRendered = useMemo(
     () => [...reportAttachmentsRendered, ...attachmentsToAddRendered]
@@ -128,6 +122,7 @@ ActivitySection.propTypes = {
   attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string,
   })).isRequired,
+  onDeleteAttachment: PropTypes.func.isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     filename: PropTypes.string,
@@ -139,7 +134,6 @@ ActivitySection.propTypes = {
   reportTracker: PropTypes.shape({
     track: PropTypes.func,
   }).isRequired,
-  setAttachmentsToAdd: PropTypes.func.isRequired,
 };
 
 export default memo(ActivitySection);

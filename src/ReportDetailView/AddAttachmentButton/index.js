@@ -2,8 +2,6 @@ import React, { memo, useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
-
 import { ReactComponent as AttachmentIcon } from '../../common/images/icons/attachment.svg';
 
 import styles from './styles.module.scss';
@@ -21,24 +19,12 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-const AddAttachmentButton = ({
-  attachmentsToAdd,
-  className,
-  reportAttachments,
-  reportTracker,
-  setAttachmentsToAdd,
-}) => {
+const AddAttachmentButton = ({ className, onAddAttachments }) => {
   const fileInputRef = useRef();
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const attachFiles = useCallback((files) => {
-    const filesArray = convertFileListToArray(files);
-    const uploadableFiles = filterDuplicateUploadFilenames([...reportAttachments, ...attachmentsToAdd], filesArray);
-    setAttachmentsToAdd([...attachmentsToAdd, ...uploadableFiles]);
-
-    reportTracker.track('Added Attachment');
-  }, [attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd]);
+  const attachFiles = useCallback((files) => onAddAttachments(files), [onAddAttachments]);
 
   const onButtonClick = useCallback((event) => {
     event.preventDefault();
@@ -104,13 +90,8 @@ AddAttachmentButton.defaultProps = {
 };
 
 AddAttachmentButton.propTypes = {
-  attachmentsToAdd: PropTypes.arrayOf(PropTypes.object).isRequired,
   className: PropTypes.string,
-  reportAttachments: PropTypes.arrayOf(PropTypes.object).isRequired,
-  reportTracker: PropTypes.shape({
-    track: PropTypes.func,
-  }).isRequired,
-  setAttachmentsToAdd: PropTypes.func.isRequired,
+  onAddAttachments: PropTypes.func.isRequired,
 };
 
 export default memo(AddAttachmentButton);

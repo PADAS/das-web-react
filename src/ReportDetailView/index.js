@@ -10,6 +10,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
+import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { extractObjectDifference } from '../utils/objects';
@@ -184,6 +185,15 @@ const ReportDetailView = () => {
     reportTracker,
   ]);
 
+  const onAddAttachments = useCallback((files) => {
+    const filesArray = convertFileListToArray(files);
+    const uploadableFiles = filterDuplicateUploadFilenames([...reportAttachments, ...attachmentsToAdd], filesArray);
+
+    setAttachmentsToAdd([...attachmentsToAdd, ...uploadableFiles]);
+
+    reportTracker.track('Added Attachment');
+  }, [attachmentsToAdd, reportAttachments, reportTracker]);
+
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
@@ -225,9 +235,11 @@ const ReportDetailView = () => {
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
+                onDeleteAttachment={(attachment) => setAttachmentsToAdd(
+                  attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.name !== attachment.name)
+                )}
                 reportAttachments={reportAttachments}
                 reportTracker={reportTracker}
-                setAttachmentsToAdd={setAttachmentsToAdd}
               />
             </Tab.Pane>
 
@@ -243,13 +255,7 @@ const ReportDetailView = () => {
                 <label>Note</label>
               </Button>
 
-              <AddAttachmentButton
-                attachmentsToAdd={attachmentsToAdd}
-                className={styles.footerActionButton}
-                reportAttachments={reportAttachments}
-                reportTracker={reportTracker}
-                setAttachmentsToAdd={setAttachmentsToAdd}
-              />
+              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <HistoryIcon />

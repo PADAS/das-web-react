@@ -262,4 +262,36 @@ describe('ReportDetailView', () => {
 
     expect(await screen.findByText('Error saving report.')).toBeDefined();
   });
+
+  test('omits duplicated attachment files', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+    window.alert = jest.fn();
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+
+    const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFileAgain);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+  });
 });
