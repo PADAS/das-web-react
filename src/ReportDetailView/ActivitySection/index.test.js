@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { downloadFileFromUrl } from '../../utils/download';
+import { files } from '../../__test-helpers/fixtures/reports';
 
 import ActivitySection from './';
 
@@ -13,7 +14,7 @@ jest.mock('../../utils/download', () => ({
 
 describe('ReportDetailView - ActivitySection', () => {
   let downloadFileFromUrlMock;
-  const setAttachmentsToAdd = jest.fn(), setNotesToAdd= jest.fn(), setReportNotes= jest.fn(), track = jest.fn();
+  const onDeleteAttachment = jest.fn(), setNotesToAdd= jest.fn(), setReportNotes= jest.fn(), track = jest.fn();
   beforeEach(() => {
     downloadFileFromUrlMock = jest.fn();
     downloadFileFromUrl.mockImplementation(downloadFileFromUrlMock);
@@ -33,21 +34,8 @@ describe('ReportDetailView - ActivitySection', () => {
         creationDate: new Date().toISOString(),
         text: 'note2',
       }]}
-      reportAttachments={[{
-        created_at: '2022-06-06T14:58:48.242658-07:00',
-        filename: 'file1.pdf',
-        id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde17',
-        updated_at: '2022-06-06T14:58:48.242658-07:00',
-        updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }],
-        url: 'https://das-7915.pamdas.org/api/v1.0/activity/event/001d3e8e-acc6-43e4-877b-21126b50050e/file/b1a3951e-20b7-4516-b0a2-df6f3e4bde17/',
-      }, {
-        created_at: '2022-06-07T14:58:48.242658-07:00',
-        filename: 'file2.pdf',
-        id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde18',
-        updated_at: '2022-06-07T14:58:48.242658-07:00',
-        updates: [{ time: '2022-06-07T21:58:48.248635+00:00' }],
-        url: 'https://das-7915.pamdas.org/api/v1.0/activity/event/001d3e8e-acc6-43e4-877b-21126b50050e/file/b1a3951e-20b7-4516-b0a2-df6f3e4bde18/',
-      }]}
+      onDeleteAttachment={onDeleteAttachment}
+      reportAttachments={files}
       reportNotes={[{
         text: 'note3',
         id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde19',
@@ -58,7 +46,6 @@ describe('ReportDetailView - ActivitySection', () => {
         updates: [{ time: '2022-06-09T21:58:48.248635+00:00' }],
       }]}
       reportTracker={{ track }}
-      setAttachmentsToAdd={setAttachmentsToAdd}
       setNotesToAdd={setNotesToAdd}
       setReportNotes={setReportNotes}
     />);
@@ -66,6 +53,24 @@ describe('ReportDetailView - ActivitySection', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  test('triggers downloadFileFromUrl when user clicks the download icon of a report attachment', async () => {
+    expect(downloadFileFromUrl).toHaveBeenCalledTimes(0);
+
+    const downloadAttachmentButton = (await screen.findAllByTestId('reportDetailView-activitySection-downloadIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde17'))[0];
+    userEvent.click(downloadAttachmentButton);
+
+    expect(downloadFileFromUrl).toHaveBeenCalledTimes(1);
+  });
+
+  test('removes new attachment from attachments to add when clicking the delete icon', async () => {
+    expect(onDeleteAttachment).toHaveBeenCalledTimes(0);
+
+    const deleteNewAttachmentButton = (await screen.findAllByTestId('reportDetailView-activitySection-deleteIcon-newFile1.pdf'))[0];
+    userEvent.click(deleteNewAttachmentButton);
+
+    expect(onDeleteAttachment).toHaveBeenCalledTimes(1);
   });
 
   test('sorts items by date', async () => {
@@ -122,10 +127,10 @@ describe('ReportDetailView - ActivitySection', () => {
     render(<ActivitySection
       attachmentsToAdd={[]}
       notesToAdd={[]}
+      onDeleteAttachment={onDeleteAttachment}
       reportAttachments={[]}
       reportNotes={[]}
       reportTracker={{ track }}
-      setAttachmentsToAdd={setAttachmentsToAdd}
       setNotesToAdd={setNotesToAdd}
       setReportNotes={setReportNotes}
     />);

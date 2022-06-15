@@ -16,10 +16,10 @@ import styles from './styles.module.scss';
 const ActivitySection = ({
   attachmentsToAdd,
   notesToAdd,
+  onDeleteAttachment,
   reportAttachments,
   reportNotes,
   reportTracker,
-  setAttachmentsToAdd,
   setNotesToAdd,
   setReportNotes,
 }) => {
@@ -35,11 +35,10 @@ const ActivitySection = ({
     date: attachmentToAdd.creationDate,
     node: <Attachment
       attachment={attachmentToAdd.file}
-      attachmentsToAdd={attachmentsToAdd}
       key={attachmentToAdd.file.name}
-      setAttachmentsToAdd={setAttachmentsToAdd}
+      onDeleteAttachment={onDeleteAttachment}
     />,
-  })), [attachmentsToAdd, setAttachmentsToAdd]);
+  })), [attachmentsToAdd, onDeleteAttachment]);
 
   const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
     date: reportNote.updated_at || reportNote.created_at,
@@ -141,6 +140,7 @@ ActivitySection.propTypes = {
     creationDate: PropTypes.string,
     text: PropTypes.string,
   })).isRequired,
+  onDeleteAttachment: PropTypes.func.isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,
@@ -152,7 +152,6 @@ ActivitySection.propTypes = {
     updated_at: PropTypes.string,
   })).isRequired,
   reportTracker: PropTypes.object.isRequired,
-  setAttachmentsToAdd: PropTypes.func.isRequired,
   setNotesToAdd: PropTypes.func.isRequired,
   setReportNotes: PropTypes.func.isRequired,
 };

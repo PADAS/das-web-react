@@ -110,26 +110,26 @@ describe('ReportDetailView', () => {
   });
 
   test('navigates to the Activity view when user clicks the tab', async () => {
-    const activityTab = (await screen.findAllByRole('tab'))[1];
+    const activitySection = (await screen.findAllByRole('tab'))[1];
 
-    expect(activityTab).not.toHaveClass('active');
+    expect(activitySection).not.toHaveClass('active');
     expect((await screen.findAllByRole('tab'))[1]).toHaveTextContent('Activity');
 
-    userEvent.click(activityTab);
+    userEvent.click(activitySection);
 
-    expect(activityTab).toHaveClass('active');
+    expect(activitySection).toHaveClass('active');
     expect(await screen.findByRole('tabpanel')).toHaveClass('show');
   });
 
   test('navigates to the History view when user clicks the tab', async () => {
-    const historyTab = (await screen.findAllByRole('tab'))[2];
+    const historySection = (await screen.findAllByRole('tab'))[2];
 
-    expect(historyTab).not.toHaveClass('active');
+    expect(historySection).not.toHaveClass('active');
     expect((await screen.findAllByRole('tab'))[2]).toHaveTextContent('History');
 
-    userEvent.click(historyTab);
+    userEvent.click(historySection);
 
-    expect(historyTab).toHaveClass('active');
+    expect(historySection).toHaveClass('active');
     expect(await screen.findByRole('tabpanel')).toHaveClass('show');
   });
 
@@ -362,5 +362,37 @@ describe('ReportDetailView', () => {
     userEvent.click(saveButton);
 
     expect(await screen.findByText('Error saving report.')).toBeDefined();
+  });
+
+  test('omits duplicated attachment files', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+    window.alert = jest.fn();
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+
+    const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFileAgain);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
   });
 });

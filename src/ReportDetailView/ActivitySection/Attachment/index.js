@@ -11,14 +11,12 @@ import DateTime from '../../../DateTime';
 
 import styles from '../styles.module.scss';
 
-const Attachment = ({ attachment, attachmentsToAdd, reportTracker, setAttachmentsToAdd }) => {
+const Attachment = ({ attachment, onDeleteAttachment, reportTracker }) => {
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
 
   const onDelete = useCallback(() => {
-    setAttachmentsToAdd(
-      attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name)
-    );
-  }, [attachment.name, attachmentsToAdd, setAttachmentsToAdd]);
+    onDeleteAttachment(attachment);
+  }, [attachment, onDeleteAttachment]);
 
   const onDownload = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
@@ -46,8 +44,14 @@ const Attachment = ({ attachment, attachmentsToAdd, reportTracker, setAttachment
 
     <div className={styles.itemActionButton}>
       {!isNew
-        ? <DownloadArrowIcon data-testid="reportDetailView-activitySection-downloadIcon" onClick={onDownload} />
-        : <TrashCanIcon data-testid="reportDetailView-activitySection-deleteIcon" onClick={onDelete} />}
+        ? <DownloadArrowIcon
+          data-testid={`reportDetailView-activitySection-downloadIcon-${attachment.id}`}
+          onClick={onDownload}
+        />
+        : <TrashCanIcon
+          data-testid={`reportDetailView-activitySection-deleteIcon-${attachment.name}`}
+          onClick={onDelete}
+        />}
     </div>
 
     <div className={styles.itemActionButton} />
@@ -55,9 +59,8 @@ const Attachment = ({ attachment, attachmentsToAdd, reportTracker, setAttachment
 };
 
 Attachment.defaultProps = {
-  attachmentsToAdd: [],
+  onDeleteAttachment: null,
   reportTracker: {},
-  setAttachmentsToAdd: null,
 };
 
 Attachment.propTypes = {
@@ -70,13 +73,10 @@ Attachment.propTypes = {
       time: PropTypes.string,
     })),
   }).isRequired,
-  attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string,
-  })),
+  onDeleteAttachment: PropTypes.func,
   reportTracker: PropTypes.shape({
     track: PropTypes.func,
   }),
-  setAttachmentsToAdd: PropTypes.func,
 };
 
 export default memo(Attachment);

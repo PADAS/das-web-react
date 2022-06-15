@@ -9,6 +9,7 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
+import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { extractObjectDifference } from '../utils/objects';
@@ -204,6 +205,20 @@ const ReportDetailView = () => {
     reportTracker,
   ]);
 
+  const onAddAttachments = useCallback((files) => {
+    const filesArray = convertFileListToArray(files);
+    const uploadableFiles = filterDuplicateUploadFilenames(
+      [...reportAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
+      filesArray
+    );
+    setAttachmentsToAdd([
+      ...attachmentsToAdd,
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
+    ]);
+
+    reportTracker.track('Added Attachment');
+  }, [attachmentsToAdd, reportAttachments, reportTracker]);
+
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
@@ -246,10 +261,12 @@ const ReportDetailView = () => {
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
                 notesToAdd={notesToAdd}
+                onDeleteAttachment={(attachment) => setAttachmentsToAdd(
+                  attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.name !== attachment.name)
+                )}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
                 reportTracker={reportTracker}
-                setAttachmentsToAdd={setAttachmentsToAdd}
                 setNotesToAdd={setNotesToAdd}
                 setReportNotes={(notes) => setReportForm({ ...reportForm, notes })}
               />
@@ -269,13 +286,7 @@ const ReportDetailView = () => {
                 setNotesToAdd={setNotesToAdd}
               />
 
-              <AddAttachmentButton
-                attachmentsToAdd={attachmentsToAdd}
-                className={styles.footerActionButton}
-                reportAttachments={reportAttachments}
-                reportTracker={reportTracker}
-                setAttachmentsToAdd={setAttachmentsToAdd}
-              />
+              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
               <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
                 <HistoryIcon />

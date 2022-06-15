@@ -12,7 +12,7 @@ jest.mock('../../../utils/download', () => ({
 }));
 
 describe('ReportDetailView - ActivitySection - Attachment', () => {
-  const track = jest.fn(), setAttachmentsToAdd = jest.fn();
+  const onDeleteAttachment = jest.fn(), track = jest.fn();
   let downloadFileFromUrlMock;
   beforeEach(() => {
     downloadFileFromUrlMock = jest.fn();
@@ -41,12 +41,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('sets the name as the title if a filename is not defined', async () => {
-    const attachment = { name: 'file.txt' };
-    render(<Attachment
-      attachment={attachment}
-      attachmentsToAdd={[attachment]}
-      setAttachmentsToAdd={setAttachmentsToAdd}
-    />);
+    render(<Attachment attachment={{ name: 'file.txt' }} onDeleteAttachment={onDeleteAttachment} />);
 
     const title = await screen.findByText('file.txt');
 
@@ -69,12 +64,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('does not show a date time if it is a new attachment', async () => {
-    const attachment = { name: 'file.txt' };
-    render(<Attachment
-      attachment={attachment}
-      attachmentsToAdd={[attachment]}
-      setAttachmentsToAdd={setAttachmentsToAdd}
-    />);
+    render(<Attachment attachment={{ name: 'file.txt' }} onDeleteAttachment={onDeleteAttachment} />);
 
     expect((await screen.queryByTestId('reportDetailView-activitySection-dateTime'))).toBeNull();
   });
@@ -92,7 +82,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
 
     expect(downloadFileFromUrl).toHaveBeenCalledTimes(0);
 
-    const downloadButton = await screen.findByTestId('reportDetailView-activitySection-downloadIcon');
+    const downloadButton = await screen.findByTestId('reportDetailView-activitySection-downloadIcon-1234');
     userEvent.click(downloadButton);
 
     expect(downloadFileFromUrl).toHaveBeenCalledTimes(1);
@@ -114,30 +104,21 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('user can not download new attachments', async () => {
-    const attachment = { name: 'file.txt' };
-    render(<Attachment
-      attachment={attachment}
-      attachmentsToAdd={[attachment]}
-      setAttachmentsToAdd={setAttachmentsToAdd}
-    />);
+    render(<Attachment attachment={{ name: 'file.txt' }} onDeleteAttachment={onDeleteAttachment} />);
 
-    expect((await screen.queryByTestId('reportDetailView-activitySection-downloadIcon'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-activitySection-downloadIcon-file.txt'))).toBeNull();
   });
 
   test('user can delete new attachments', async () => {
     const attachment = { name: 'file.txt' };
-    render(<Attachment
-      attachment={attachment}
-      attachmentsToAdd={[{ file: attachment }]}
-      setAttachmentsToAdd={setAttachmentsToAdd}
-    />);
+    render(<Attachment attachment={attachment} onDeleteAttachment={onDeleteAttachment} />);
 
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(0);
+    expect(onDeleteAttachment).toHaveBeenCalledTimes(0);
 
-    const deleteButton = await screen.findByTestId('reportDetailView-activitySection-deleteIcon');
+    const deleteButton = await screen.findByTestId('reportDetailView-activitySection-deleteIcon-file.txt');
     userEvent.click(deleteButton);
 
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd).toHaveBeenCalledWith([]);
+    expect(onDeleteAttachment).toHaveBeenCalledTimes(1);
+    expect(onDeleteAttachment).toHaveBeenCalledWith(attachment);
   });
 });

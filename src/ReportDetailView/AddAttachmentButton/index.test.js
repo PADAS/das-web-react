@@ -5,46 +5,24 @@ import userEvent from '@testing-library/user-event';
 import AddAttachmentButton from './';
 
 describe('ReportDetailView - AddAttachmentButton', () => {
-  const setAttachmentsToAdd = jest.fn(), track = jest.fn();
+  const onAddAttachments = jest.fn();
   beforeEach(() => {
-    render(<AddAttachmentButton
-      attachmentsToAdd={[]}
-      reportAttachments={[]}
-      reportTracker={{ track }}
-      setAttachmentsToAdd={setAttachmentsToAdd}
-    />);
+    render(<AddAttachmentButton onAddAttachments={onAddAttachments} />);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  test('triggers setAttachmentsToAdd if user adds a new attachment', async () => {
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(0);
+  test('triggers onAddAttachments if user adds a new attachment', async () => {
+    expect(onAddAttachments).toHaveBeenCalledTimes(0);
 
     const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd.mock.calls[0][0][0].file.name).toBe('fake.txt');
-  });
-
-  test('omits duplicated files', async () => {
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(0);
-
-    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
-    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
-
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd.mock.calls[0][0]).toHaveLength(1);
-
-    const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFileAgain);
-
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(2);
-    expect(setAttachmentsToAdd.mock.calls[1][0]).toHaveLength(1);
+    expect(onAddAttachments).toHaveBeenCalledTimes(1);
+    expect(onAddAttachments.mock.calls[0][0][0].name).toBe('fake.txt');
   });
 
   test('shows style feedback when dragging over attachments button', async () => {
@@ -62,16 +40,18 @@ describe('ReportDetailView - AddAttachmentButton', () => {
   });
 
   test('attaches dropped files', async () => {
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(0);
+    expect(onAddAttachments).toHaveBeenCalledTimes(0);
 
     const addAttachmentVisualButton = await screen.findByRole('button');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     const mockFileList = {
-      item: () => new File(['fake'], 'fake.txt', { type: 'text/plain' }),
+      '0': fakeFile,
+      item: () => fakeFile,
       length: 1,
     };
     fireEvent.drop(addAttachmentVisualButton, { dataTransfer: { files: mockFileList } });
 
-    expect(setAttachmentsToAdd).toHaveBeenCalledTimes(1);
-    expect(setAttachmentsToAdd.mock.calls[0][0][0].file.name).toBe('fake.txt');
+    expect(onAddAttachments).toHaveBeenCalledTimes(1);
+    expect(onAddAttachments.mock.calls[0][0][0].name).toBe('fake.txt');
   });
 });
