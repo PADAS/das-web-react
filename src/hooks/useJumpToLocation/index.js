@@ -38,10 +38,8 @@ const useJumpToLocation = () => {
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
       map.fitBounds(boundaries, { linear: true, speed: 200, padding });
     } else {
-      if (!isCoordsArray) {
-        map.setZoom(zoom);
-      }
       map.easeTo({ center: isCoordsArray ? coords[0] : coords, padding, zoom, speed: 200 });
+      map.once('moveend', () => map.setZoom(zoom));
     }
   };
 };
