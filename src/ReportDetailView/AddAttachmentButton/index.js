@@ -40,7 +40,7 @@ const AddAttachmentButton = ({
     reportTracker.track('Added Attachment');
   }, [attachmentsToAdd, reportAttachments, reportTracker, setAttachmentsToAdd]);
 
-  const onClick = useCallback((event) => {
+  const onButtonClick = useCallback((event) => {
     event.preventDefault();
 
     fileInputRef.current.click();
@@ -86,7 +86,7 @@ const AddAttachmentButton = ({
 
     <Button
       className={`${className} ${draggingOver ? styles.draggingOver : ''} `}
-      onClick={onClick}
+      onClick={onButtonClick}
       onDragLeave={onDragLeave}
       onDragOver={onDragOver}
       onDrop={onDrop}
