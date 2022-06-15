@@ -27,7 +27,7 @@ const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
 const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
-const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
+const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
 
   const navigate = useNavigate();
   const map = useContext(MapContext);
@@ -41,7 +41,7 @@ const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
     const incident = createNewIncidentCollection({ priority: report.priority });
 
     const { data: { data: newIncident } } = await createEvent(incident);
-    const [{ data: { data: thisReport } }] = await saveReport();
+    const [{ data: { data: thisReport } }] = await onReportChange();
     await addEventToIncident(thisReport.id, newIncident.id);
 
     reportTracker.track('Click \'Add To Incident\' button');
@@ -54,10 +54,10 @@ const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
       }
       removeModal();
     });
-  }, [addEventToIncident, createEvent, fetchEvent, map, navigate, report.priority, saveReport]);
+  }, [addEventToIncident, createEvent, fetchEvent, map, navigate, report.priority, onReportChange]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
-    const [{ data: { data: thisReport } }] = await saveReport();
+    const [{ data: { data: thisReport } }] = await onReportChange();
     await addEventToIncident(thisReport.id, incident.id);
 
     reportTracker.track('Click \'Add To Incident\' button');
@@ -70,7 +70,7 @@ const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
       }
       removeModal();
     });
-  }, [addEventToIncident, fetchEvent, map, navigate, saveReport]);
+  }, [addEventToIncident, fetchEvent, map, navigate, onReportChange]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -86,7 +86,7 @@ const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
 
     if (!patrolSegmentId) return;
-    const [{ data: { data: thisReport } }] = await saveReport();
+    const [{ data: { data: thisReport } }] = await onReportChange();
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
@@ -99,7 +99,7 @@ const ReportMenu = ({ report, saveReport, addModal, fetchPatrol, createEvent, ad
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, navigate, saveReport]);
+  }, [fetchPatrol, is_collection, map, navigate, onReportChange]);
 
   const onStartAddToPatrol = useCallback(() => {
     addModal({
@@ -132,6 +132,6 @@ export default connect(null, { addModal, fetchPatrol, createEvent, addEventToInc
 
 ReportMenu.propTypes = {
   report: PropTypes.object.isRequired,
-  saveReport: PropTypes.func.isRequired,
+  onReportChange: PropTypes.func.isRequired,
   addModal: PropTypes.func.isRequired,
 };

@@ -17,7 +17,7 @@ import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ report, setTitle, saveReport }) => {
+const Header = ({ report, setTitle, onReportChange }) => {
   const { displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -90,7 +90,7 @@ const Header = ({ report, setTitle, saveReport }) => {
       />
     </div>}
     <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
-      <ReportMenu report={report} saveReport={saveReport}></ReportMenu>
+      <ReportMenu report={report} onReportChange={onReportChange}></ReportMenu>
     </div>
   </div>;
 };
@@ -98,7 +98,7 @@ const Header = ({ report, setTitle, saveReport }) => {
 Header.propTypes = {
   report: PropTypes.object.isRequired,
   setTitle: PropTypes.func.isRequired,
-  saveReport: PropTypes.func.isRequired,
+  onReportChange: PropTypes.func.isRequired,
 };
 
 export default Header;
