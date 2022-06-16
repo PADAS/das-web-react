@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -8,7 +8,7 @@ import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../../constants';
 import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
 import { fetchPatrol } from '../../../ducks/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport } from '../../../utils/events';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -24,7 +24,7 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
 const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
@@ -33,9 +33,9 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
   const map = useContext(MapContext);
 
   const { is_collection } = report;
-  const reportBelongsToCollection = eventBelongsToCollection(report);
+  const reportBelongsToCollection = useMemo(() => eventBelongsToCollection(report), [report]);
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
-  const reportBelongsToPatrol = eventBelongsToPatrol(report);
+  const reportBelongsToPatrol = useMemo(() => eventBelongsToPatrol(report), [report]);
 
   const onAddToNewIncident = useCallback(async () => {
     const incident = createNewIncidentCollection({ priority: report.priority });
@@ -47,14 +47,10 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-      if (ENABLE_REPORT_NEW_UI) {
-        navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
-      } else {
-        openModalForReport(data, map);
-      }
       removeModal();
+      navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [addEventToIncident, createEvent, fetchEvent, map, navigate, report.priority, onReportChange]);
+  }, [addEventToIncident, createEvent, fetchEvent, navigate, report.priority, onReportChange]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
     const [{ data: { data: thisReport } }] = await onReportChange();
@@ -63,14 +59,10 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
-      if (ENABLE_REPORT_NEW_UI) {
-        navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
-      } else {
-        openModalForReport(data, map);
-      }
       removeModal();
+      navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [addEventToIncident, fetchEvent, map, navigate, onReportChange]);
+  }, [addEventToIncident, fetchEvent, navigate, onReportChange]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -134,4 +126,8 @@ ReportMenu.propTypes = {
   report: PropTypes.object.isRequired,
   onReportChange: PropTypes.func.isRequired,
   addModal: PropTypes.func.isRequired,
+  fetchPatrol: PropTypes.func.isRequired,
+  createEvent: PropTypes.func.isRequired,
+  addEventToIncident: PropTypes.func.isRequired,
+  fetchEvent: PropTypes.func.isRequired,
 };
