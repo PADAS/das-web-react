@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
+
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -27,10 +28,11 @@ const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
 const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
-const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent }) => {
+const ReportMenu = ({ report, onReportChange }) => {
 
   const navigate = useNavigate();
   const map = useContext(MapContext);
+  const dispatch = useDispatch();
 
   const { is_collection } = report;
   const reportBelongsToCollection = useMemo(() => eventBelongsToCollection(report), [report]);
@@ -40,38 +42,38 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
   const onAddToNewIncident = useCallback(async () => {
     const incident = createNewIncidentCollection({ priority: report.priority });
 
-    const { data: { data: newIncident } } = await createEvent(incident);
+    const { data: { data: newIncident } } = await dispatch(createEvent(incident));
     const [{ data: { data: thisReport } }] = await onReportChange();
-    await addEventToIncident(thisReport.id, newIncident.id);
+    await dispatch(addEventToIncident(thisReport.id, newIncident.id));
 
     reportTracker.track('Click \'Add To Incident\' button');
 
-    return fetchEvent(newIncident.id).then(({ data: { data } }) => {
+    dispatch(fetchEvent(newIncident.id)).then(({ data: { data } }) => {
       removeModal();
       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [addEventToIncident, createEvent, fetchEvent, navigate, report.priority, onReportChange]);
+  }, [report.priority, dispatch, onReportChange, navigate]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
     const [{ data: { data: thisReport } }] = await onReportChange();
-    await addEventToIncident(thisReport.id, incident.id);
+    await dispatch(addEventToIncident(thisReport.id, incident.id));
 
     reportTracker.track('Click \'Add To Incident\' button');
 
-    return fetchEvent(incident.id).then(({ data: { data } }) => {
+    return dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [addEventToIncident, fetchEvent, navigate, onReportChange]);
+  }, [dispatch, navigate, onReportChange]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
-    addModal({
+    dispatch(addModal({
       content: AddToIncidentModal,
       onAddToNewIncident,
       onAddToExistingIncident,
-    });
-  }, [addModal, onAddToExistingIncident, onAddToNewIncident]);
+    }));
+  }, [dispatch, onAddToExistingIncident, onAddToNewIncident]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
     const patrolId = patrol.id;
@@ -88,18 +90,18 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
       return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
     }
 
-    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+    return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, navigate, onReportChange]);
+  }, [dispatch, is_collection, map, navigate, onReportChange]);
 
   const onStartAddToPatrol = useCallback(() => {
-    addModal({
+    dispatch(addModal({
       content: AddToPatrolModal,
       onAddToPatrol,
-    });
+    }));
     reportTracker.track('Click \'Add to Patrol\' button');
-  }, [addModal, onAddToPatrol]);
+  }, [dispatch, onAddToPatrol]);
 
   if (!canAddToIncident && reportBelongsToPatrol) return null;
 
@@ -120,14 +122,9 @@ const ReportMenu = ({ report, onReportChange, addModal, fetchPatrol, createEvent
   </Dropdown>;
 };
 
-export default connect(null, { addModal, fetchPatrol, createEvent, addEventToIncident, fetchEvent })(memo(ReportMenu));
+export default ReportMenu;
 
 ReportMenu.propTypes = {
   report: PropTypes.object.isRequired,
   onReportChange: PropTypes.func.isRequired,
-  addModal: PropTypes.func.isRequired,
-  fetchPatrol: PropTypes.func.isRequired,
-  createEvent: PropTypes.func.isRequired,
-  addEventToIncident: PropTypes.func.isRequired,
-  fetchEvent: PropTypes.func.isRequired,
 };
