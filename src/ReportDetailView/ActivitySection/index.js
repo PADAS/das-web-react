@@ -17,14 +17,19 @@ const ActivitySection = ({
   attachmentsToAdd,
   notesToAdd,
   onDeleteAttachment,
+  onDeleteNote,
+  onSaveNote,
   reportAttachments,
   reportNotes,
   reportTracker,
-  setNotesToAdd,
-  setReportNotes,
 }) => {
   const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
   const [cardsExpanded, setCardsExpanded] = useState([]);
+
+  const onSaveNoteKeepExpanded = useCallback((originalNote) => (editedText) => {
+    const editedNote = onSaveNote(originalNote, editedText);
+    setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
+  }, [cardsExpanded, onSaveNote]);
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
     date: reportAttachment.updated_at || reportAttachment.created_at,
@@ -36,7 +41,7 @@ const ActivitySection = ({
     node: <Attachment
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
-      onDeleteAttachment={onDeleteAttachment}
+      onDelete={() => onDeleteAttachment(attachmentToAdd.file)}
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
@@ -46,11 +51,11 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
       note={reportNote}
-      reportNotes={reportNotes}
-      setCardsExpanded={setCardsExpanded}
-      setReportNotes={setReportNotes}
-     />,
-  })), [cardsExpanded, reportNotes, setReportNotes]);
+      onCollapse={() => setCardsExpanded(cardsExpanded.filter((cardExpanded) => cardExpanded !== reportNote))}
+      onExpand={() => setCardsExpanded([...cardsExpanded, reportNote])}
+      onSave={onSaveNoteKeepExpanded(reportNote)}
+    />,
+  })), [cardsExpanded, onSaveNoteKeepExpanded, reportNotes]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     date: noteToAdd.creationDate,
@@ -58,11 +63,12 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
-      notesToAdd={notesToAdd}
-      setCardsExpanded={setCardsExpanded}
-      setNotesToAdd={setNotesToAdd}
+      onCollapse={() => setCardsExpanded(cardsExpanded.filter((cardExpanded) => cardExpanded !== noteToAdd))}
+      onDelete={() => onDeleteNote(noteToAdd)}
+      onExpand={() => setCardsExpanded([...cardsExpanded, noteToAdd])}
+      onSave={onSaveNoteKeepExpanded(noteToAdd)}
     />,
-  })), [cardsExpanded, notesToAdd, setNotesToAdd]);
+  })), [cardsExpanded, notesToAdd, onDeleteNote, onSaveNoteKeepExpanded]);
 
   const sortedItemsRendered = useMemo(
     () => [...reportAttachmentsRendered, ...reportNotesRendered, ...attachmentsToAddRendered, ...notesToAddRendered]
@@ -76,17 +82,16 @@ const ActivitySection = ({
     [attachmentsToAddRendered, notesToAddRendered, reportAttachmentsRendered, reportNotesRendered, timeSortOrder]
   );
 
-  const onExpandAll = useCallback(() => {
+  const onClickExpandAllButton = useCallback(() => {
     setCardsExpanded([...reportNotes, ...notesToAdd]);
   }, [notesToAdd, reportNotes]);
 
-  const onToggleSort = useCallback(() => {
+  const onClickTimeSortButton = useCallback(() => {
     setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
   }, [timeSortOrder]);
 
   useEffect(() => {
     const newNotesToExpand = notesToAdd.filter((noteToAdd) => !noteToAdd.text && !cardsExpanded.includes(noteToAdd));
-
     if (newNotesToExpand.length > 0) {
       setCardsExpanded([...cardsExpanded, ...newNotesToExpand]);
     }
@@ -106,7 +111,7 @@ const ActivitySection = ({
         <Button
           className={styles.timeSortButton}
           data-testid="reportDetailView-activitySection-timeSortButton"
-          onClick={onToggleSort}
+          onClick={onClickTimeSortButton}
           type="button"
           variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
         >
@@ -116,7 +121,7 @@ const ActivitySection = ({
         <Button
           className={styles.expandAllButton}
           data-testid="reportDetailView-activitySection-expandAllButton"
-          onClick={onExpandAll}
+          onClick={onClickExpandAllButton}
           type="button"
           variant="secondary"
         >
@@ -141,6 +146,8 @@ ActivitySection.propTypes = {
     text: PropTypes.string,
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
+  onDeleteNote: PropTypes.func.isRequired,
+  onSaveNote: PropTypes.func.isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,
@@ -152,8 +159,6 @@ ActivitySection.propTypes = {
     updated_at: PropTypes.string,
   })).isRequired,
   reportTracker: PropTypes.object.isRequired,
-  setNotesToAdd: PropTypes.func.isRequired,
-  setReportNotes: PropTypes.func.isRequired,
 };
 
 export default memo(ActivitySection);

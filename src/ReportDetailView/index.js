@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
@@ -12,8 +12,8 @@ import { ReactComponent as PencilWritingIcon } from '../common/images/icons/penc
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import { createNewReportForEventType, generateErrorListForApiResponseDetails } from '../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
-import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 import { NavigationContext } from '../NavigationContextProvider';
@@ -59,10 +59,11 @@ const ReportDetailView = () => {
   const [saveError, setSaveError] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
-  const { onSaveError, onSaveSuccess } = navigationData?.formProps || {};
+  const { onSaveError: onSaveErrorCallback, onSaveSuccess: onSaveSuccessCallback } = navigationData?.formProps || {};
   const reportData = location.state?.reportData;
-  const typeOfReportToTrack = reportForm?.is_collection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
-  const reportTracker = trackEventFactory(typeOfReportToTrack);
+  const reportTracker = trackEventFactory(reportForm?.is_collection
+    ? INCIDENT_REPORT_CATEGORY
+    : EVENT_REPORT_CATEGORY);
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
@@ -76,22 +77,21 @@ const ReportDetailView = () => {
     [eventStore, isNewReport, itemId, newReport]
   );
 
-  const reportChanges = useMemo(
-    () => extractObjectDifference(reportForm, originalReport),
-    [originalReport, reportForm]
-  );
-
   const reportAttachments = useMemo(
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
 
-  const schemas = useMemo(
+  const reportSchemas = useMemo(
     () => reportForm ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id) : null,
     [eventSchemas, reportForm]
   );
 
+  const reportChanges = useMemo(
+    () => extractObjectDifference(reportForm, originalReport),
+    [originalReport, reportForm]
+  );
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
@@ -101,34 +101,82 @@ const ReportDetailView = () => {
     [attachmentsToAdd.length, newNotesAdded, reportChanges]
   );
 
-  useEffect(() => {
-    if (isNewReport && !reportType) {
-      navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+  const onChangeTitle = useCallback((newTitle) => setReportForm({ ...reportForm, title: newTitle }), [reportForm]);
+
+  const onClearErrors = useCallback(() => setSaveError(null), []);
+
+  const onDeleteAttachment = useCallback((attachment) => {
+    setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
+  }, [attachmentsToAdd]);
+
+  const onDeleteNote = useCallback((note) => {
+    setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
+  }, [notesToAdd]);
+
+  const onSaveNote = useCallback((originalNote, editedText) => {
+    const editedNote = { ...originalNote, text: editedText };
+
+    const isNew = !originalNote.id;
+    if (isNew) {
+      setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
+    } else {
+      setReportForm({
+        ...reportForm,
+        notes: reportNotes.map((reportNote) => reportNote === originalNote ? editedNote : reportNote),
+      });
     }
 
-    if (!loadingEvents) {
-      if (!isNewReport && !eventStore[itemId]) {
-        return navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
-      }
+    return editedNote;
+  }, [notesToAdd, reportForm, reportNotes]);
 
-      const idHasChanged = reportForm?.id !== itemId;
-      const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
-      const selectedReportHasChanged = isNewReport ? newReportTypeHasChanged : idHasChanged;
-      if (selectedReportHasChanged) {
-        setReportForm(isNewReport ? newReport : eventStore[itemId]);
-      }
+  const onAddNote = useCallback(() => {
+    const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.text);
+    if (userHasNewNoteEmpty) {
+      window.alert('Can not add a new note: there\'s an empty note not saved yet');
+    } else {
+      const newNote = { creationDate: new Date().toISOString(), text: '' };
+      setNotesToAdd([...notesToAdd, newNote]);
+
+      reportTracker.track('Added Note');
     }
-  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType, isNewReport]);
+  }, [notesToAdd, reportTracker]);
 
-  const clearErrors = useCallback(() => setSaveError(null), []);
+  const onAddAttachments = useCallback((files) => {
+    const filesArray = convertFileListToArray(files);
+    const uploadableFiles = filterDuplicateUploadFilenames(
+      [...reportAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
+      filesArray
+    );
+    setAttachmentsToAdd([
+      ...attachmentsToAdd,
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
+    ]);
 
-  const handleSaveError = useCallback((e) => {
+    reportTracker.track('Added Attachment');
+  }, [attachmentsToAdd, reportAttachments, reportTracker]);
+
+  const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.REPORTS}`), [navigate]);
+
+  const onSaveSuccess = useCallback((reportToSubmit) => (results) => {
+    onSaveSuccessCallback?.(results);
+
+    navigate(`/${TAB_KEYS.REPORTS}`);
+
+    if (reportToSubmit.is_collection && reportToSubmit.state) {
+      return Promise.all(reportToSubmit.contains
+        .map(contained => contained.related_event.id)
+        .map(id => dispatch(setEventState(id, reportToSubmit.state))));
+    }
+    return results;
+  }, [dispatch, navigate, onSaveSuccessCallback]);
+
+  const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
-    onSaveError?.(e);
-    setTimeout(clearErrors, CLEAR_ERRORS_TIMEOUT);
-  }, [clearErrors, onSaveError]);
+    onSaveErrorCallback?.(e);
+    setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
+  }, [onClearErrors, onSaveErrorCallback]);
 
-  const onSave = useCallback(() => {
+  const onClickSaveButton = useCallback(() => {
     if (isSaving) {
       return;
     }
@@ -151,12 +199,10 @@ const ReportDetailView = () => {
       if (reportChanges.reported_by) {
         reportToSubmit.reported_by = { ...reportForm.reported_by, ...reportChanges.reported_by };
       }
-
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (reportChanges.notes) {
         reportToSubmit.notes = reportForm.notes;
       }
-
       /* the API doesn't handle PATCHes of `contains` prop for incidents */
       if (reportToSubmit.contains) {
         delete reportToSubmit.contains;
@@ -167,64 +213,54 @@ const ReportDetailView = () => {
       reportToSubmit.location = null;
     }
 
-    const newNotes = notesToAdd.reduce((accumulator, noteToAdd) => {
-      if (noteToAdd.text) {
-        accumulator.push({ text: noteToAdd.text });
-      }
-      return accumulator;
-    }, []);
+    const newNotes = notesToAdd.reduce(
+      (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text }] : accumulator,
+      []
+    );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
-    const actions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
-    return executeSaveActions(actions)
-      .then((results) => {
-        onSaveSuccess?.(results);
-
-        navigate(`/${TAB_KEYS.REPORTS}`);
-
-        if (reportToSubmit.is_collection && reportToSubmit.state) {
-          return Promise.all(reportToSubmit.contains
-            .map(contained => contained.related_event.id)
-            .map(id => dispatch(setEventState(id, reportToSubmit.state))));
-        }
-        return results;
-      })
-      .catch(handleSaveError)
+    const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
+    return executeSaveActions(saveActions)
+      .then(onSaveSuccess(reportToSubmit))
+      .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
-    attachmentsToAdd,
-    dispatch,
-    handleSaveError,
-    isNewReport,
     isSaving,
-    originalReport?.event_details,
-    navigate,
-    notesToAdd,
-    onSaveSuccess,
-    reportChanges,
-    reportForm,
     reportTracker,
+    isNewReport,
+    notesToAdd,
+    attachmentsToAdd,
+    onSaveSuccess,
+    onSaveError,
+    reportForm,
+    reportChanges,
+    originalReport.event_details,
   ]);
 
-  const onAddAttachments = useCallback((files) => {
-    const filesArray = convertFileListToArray(files);
-    const uploadableFiles = filterDuplicateUploadFilenames(
-      [...reportAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
-      filesArray
-    );
-    setAttachmentsToAdd([
-      ...attachmentsToAdd,
-      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
-    ]);
+  useEffect(() => {
+    if (isNewReport && !reportType) {
+      navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+    }
 
-    reportTracker.track('Added Attachment');
-  }, [attachmentsToAdd, reportAttachments, reportTracker]);
+    if (!loadingEvents) {
+      if (!isNewReport && !eventStore[itemId]) {
+        return navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+      }
+
+      const idHasChanged = reportForm?.id !== itemId;
+      const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
+      const selectedReportHasChanged = isNewReport ? newReportTypeHasChanged : idHasChanged;
+      if (selectedReportHasChanged) {
+        setReportForm(isNewReport ? newReport : eventStore[itemId]);
+      }
+    }
+  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType, isNewReport]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
-    <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
+    <Header onChangeTitle={onChangeTitle} report={reportForm || {}} />
 
-    {saveError && <ErrorMessages errorData={saveError} onClose={clearErrors} title="Error saving report." />}
+    {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
@@ -261,14 +297,12 @@ const ReportDetailView = () => {
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
                 notesToAdd={notesToAdd}
-                onDeleteAttachment={(attachment) => setAttachmentsToAdd(
-                  attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.name !== attachment.name)
-                )}
+                onDeleteAttachment={onDeleteAttachment}
+                onDeleteNote={onDeleteNote}
+                onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
                 reportTracker={reportTracker}
-                setNotesToAdd={setNotesToAdd}
-                setReportNotes={(notes) => setReportForm({ ...reportForm, notes })}
               />
             </Tab.Pane>
 
@@ -279,12 +313,7 @@ const ReportDetailView = () => {
 
           <div className={styles.footer}>
             <div>
-              <AddNoteButton
-                className={styles.footerActionButton}
-                notesToAdd={notesToAdd}
-                reportTracker={reportTracker}
-                setNotesToAdd={setNotesToAdd}
-              />
+              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 
               <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
@@ -295,19 +324,14 @@ const ReportDetailView = () => {
             </div>
 
             <div>
-              <Button
-                className={styles.cancelButton}
-                onClick={() => navigate(`/${TAB_KEYS.REPORTS}`)}
-                type="button"
-                variant="secondary"
-              >
+              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 Cancel
               </Button>
 
               <Button
                 className={styles.saveButton}
-                disabled={!isReportModified || schemas?.schema?.readonly}
-                onClick={onSave}
+                disabled={!isReportModified || reportSchemas?.schema?.readonly}
+                onClick={onClickSaveButton}
                 type="button"
               >
                 Save
@@ -320,4 +344,4 @@ const ReportDetailView = () => {
   </div> : null;
 };
 
-export default ReportDetailView;
+export default memo(ReportDetailView);

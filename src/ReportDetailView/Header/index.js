@@ -16,7 +16,7 @@ import LocationJumpButton from '../../LocationJumpButton';
 
 import styles from './styles.module.scss';
 
-const Header = ({ report, setTitle }) => {
+const Header = ({ onChangeTitle, report }) => {
   const { displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -27,21 +27,21 @@ const Header = ({ report, setTitle }) => {
 
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
 
-  useEffect(() => {
-    if (!report.title) {
-      setTitle(displayTitle);
-    }
-  }, [displayTitle, report.title, setTitle]);
-
   const onTitleBlur = useCallback((event) => {
     if (!event.target.textContent) {
       titleInput.current.innerHTML = eventTypeTitle;
     }
-    setTitle(event.target.textContent || eventTypeTitle);
+    onChangeTitle(event.target.textContent || eventTypeTitle);
     event.target.scrollTop = 0;
-  }, [eventTypeTitle, setTitle]);
+  }, [eventTypeTitle, onChangeTitle]);
 
   const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
+
+  useEffect(() => {
+    if (!report.title) {
+      onChangeTitle(displayTitle);
+    }
+  }, [onChangeTitle, displayTitle, report.title]);
 
   return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
     <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
@@ -92,8 +92,8 @@ const Header = ({ report, setTitle }) => {
 };
 
 Header.propTypes = {
+  onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
-  setTitle: PropTypes.func.isRequired,
 };
 
 export default Header;

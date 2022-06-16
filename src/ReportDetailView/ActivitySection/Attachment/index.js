@@ -11,14 +11,10 @@ import DateTime from '../../../DateTime';
 
 import styles from '../styles.module.scss';
 
-const Attachment = ({ attachment, onDeleteAttachment, reportTracker }) => {
+const Attachment = ({ attachment, onDelete, reportTracker }) => {
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
 
-  const onDelete = useCallback(() => {
-    onDeleteAttachment(attachment);
-  }, [attachment, onDeleteAttachment]);
-
-  const onDownload = useCallback(() => {
+  const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
 
     reportTracker.track('Open Report Attachment');
@@ -34,7 +30,7 @@ const Attachment = ({ attachment, onDeleteAttachment, reportTracker }) => {
 
       {!!attachment.updates && <DateTime
         className={styles.itemDate}
-        data-testid="reportDetailView-activitySection-dateTime"
+        data-testid={`reportDetailView-activitySection-dateTime-${attachment.id}`}
         date={attachment.updates[0].time}
         showElapsed={false}
       />}
@@ -46,7 +42,7 @@ const Attachment = ({ attachment, onDeleteAttachment, reportTracker }) => {
       {!isNew
         ? <DownloadArrowIcon
           data-testid={`reportDetailView-activitySection-downloadIcon-${attachment.id}`}
-          onClick={onDownload}
+          onClick={onClickDownloadIcon}
         />
         : <TrashCanIcon
           data-testid={`reportDetailView-activitySection-deleteIcon-${attachment.name}`}
@@ -59,7 +55,7 @@ const Attachment = ({ attachment, onDeleteAttachment, reportTracker }) => {
 };
 
 Attachment.defaultProps = {
-  onDeleteAttachment: null,
+  onDelete: null,
   reportTracker: {},
 };
 
@@ -73,7 +69,7 @@ Attachment.propTypes = {
       time: PropTypes.string,
     })),
   }).isRequired,
-  onDeleteAttachment: PropTypes.func,
+  onDelete: PropTypes.func,
   reportTracker: PropTypes.shape({
     track: PropTypes.func,
   }),
