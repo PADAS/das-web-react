@@ -224,16 +224,16 @@ const ReportDetailView = () => {
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
-    isSaving,
-    reportTracker,
-    isNewReport,
-    notesToAdd,
     attachmentsToAdd,
-    onSaveSuccess,
+    isNewReport,
+    isSaving,
+    notesToAdd,
     onSaveError,
-    reportForm,
+    onSaveSuccess,
+    originalReport?.event_details,
     reportChanges,
-    originalReport.event_details,
+    reportForm,
+    reportTracker,
   ]);
 
   useEffect(() => {
@@ -253,7 +253,7 @@ const ReportDetailView = () => {
         setReportForm(isNewReport ? newReport : eventStore[itemId]);
       }
     }
-  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, itemId, newReport, reportType, isNewReport]);
+  }, [eventStore, isNewReport, itemId, loadingEvents, navigationData, navigate, newReport, reportForm, reportType]);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}

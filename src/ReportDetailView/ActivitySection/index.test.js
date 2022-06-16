@@ -107,8 +107,8 @@ describe('ReportDetailView - ActivitySection', () => {
   });
 
   test('expands all expandable items when clicking the button Expand All', async () => {
-    const expandAllButton = await screen.findByTestId('reportDetailView-activitySection-expandAllButton');
-    userEvent.click(expandAllButton);
+    const expandCollapseButton = await screen.findByTestId('reportDetailView-activitySection-expandCollapseButton');
+    userEvent.click(expandCollapseButton);
 
     const collapses = await screen.findAllByTestId('reportDetailView-activitySection-collapse');
 

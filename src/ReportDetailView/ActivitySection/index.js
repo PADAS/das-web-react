@@ -82,9 +82,14 @@ const ActivitySection = ({
     [attachmentsToAddRendered, notesToAddRendered, reportAttachmentsRendered, reportNotesRendered, timeSortOrder]
   );
 
-  const onClickExpandAllButton = useCallback(() => {
-    setCardsExpanded([...reportNotes, ...notesToAdd]);
-  }, [notesToAdd, reportNotes]);
+  const areAllItemsExpanded = useMemo(
+    () => cardsExpanded.length === notesToAdd.length + reportNotes.length,
+    [cardsExpanded.length, notesToAdd.length, reportNotes.length],
+  );
+
+  const onClickExpandCollapseButton = useCallback(() => {
+    setCardsExpanded(areAllItemsExpanded ? [] : [...reportNotes, ...notesToAdd]);
+  }, [areAllItemsExpanded, notesToAdd, reportNotes]);
 
   const onClickTimeSortButton = useCallback(() => {
     setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
@@ -119,13 +124,13 @@ const ActivitySection = ({
         </Button>
 
         <Button
-          className={styles.expandAllButton}
-          data-testid="reportDetailView-activitySection-expandAllButton"
-          onClick={onClickExpandAllButton}
+          className={styles.expandCollapseButton}
+          data-testid="reportDetailView-activitySection-expandCollapseButton"
+          onClick={onClickExpandCollapseButton}
           type="button"
           variant="secondary"
         >
-          Expand All
+          {areAllItemsExpanded ? 'Collapse All' : 'Expand All'}
         </Button>
       </div>}
     </div>

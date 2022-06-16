@@ -37,7 +37,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     expect((await screen.queryByText('(New note) note'))).toBeNull();
   });
 
-  test('shows the date time of the lat update of the note if it is saved in the report already', async () => {
+  test('shows the date time of the last update of the note if it is saved in the report already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
     render(<Note
       cardsExpanded={[note]}

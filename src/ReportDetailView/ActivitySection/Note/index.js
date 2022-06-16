@@ -17,9 +17,17 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
   const textareaRef = useRef();
 
   const isNew = useMemo(() => !note.id, [note.id]);
+  const isNewAndEmpty = useMemo(() => isNew && !note.text, [isNew, note.text]);
   const isOpen = useMemo(() => cardsExpanded.includes(note), [cardsExpanded, note]);
 
-  const [isEditing, setIsEditing] = useState(isNew && !note.text);
+  const title = useMemo(() => {
+    if (isNew) {
+      return `New note${note.text ? `: ${note.text}` : ''}`;
+    }
+    return note.text;
+  }, [isNew, note.text]);
+
+  const [isEditing, setIsEditing] = useState(isNewAndEmpty);
   const [text, setText] = useState(note.text);
 
   const onClickCancelButton = useCallback(() => {
@@ -32,11 +40,14 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
     setIsEditing(!isOpen || !isEditing);
   }, [isEditing, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => setText(event.target.value), []);
+  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
-    onSave(text);
+
+    const trimmedText = text.trim();
+    onSave(trimmedText);
+    setText(trimmedText);
   }, [onSave, text]);
 
   return <li>
@@ -46,7 +57,7 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
       </div>
 
       <div className={styles.itemDetails}>
-        <p className={styles.itemTitle}>{isNew ? `(New note) ${note.text}` : note.text}</p>
+        <p className={styles.itemTitle}>{title}</p>
 
         {!!note.updates && <DateTime
           className={styles.itemDate}
@@ -67,6 +78,7 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
 
       <div className={styles.itemActionButton}>
         <PencilIcon
+          className={isNewAndEmpty && styles.disabled}
           data-testid={`reportDetailView-activitySection-editIcon-${note.id || note.text}`}
           onClick={onClickPencilIcon}
         />
@@ -91,7 +103,13 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
         />
 
         {isEditing && <div className={styles.editingNoteActions}>
-          <Button className={styles.cancelNoteButton} onClick={onClickCancelButton} type="button" variant="secondary">
+          <Button
+            disabled={isNewAndEmpty}
+            className={styles.cancelNoteButton}
+            onClick={onClickCancelButton}
+            type="button"
+            variant="secondary"
+          >
             Cancel
           </Button>
 

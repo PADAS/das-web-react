@@ -75,7 +75,7 @@
   }
 }
 
-.expandAllButton {
+.expandCollapseButton {
   background-color: $light-gray;
   border-color: $light-gray;
   color: $secondary-medium-gray;
@@ -159,6 +159,7 @@
 .noteTextArea {
   border: none;
   resize: none;
+  padding: 1rem 1.25rem;
   width: 100%;
   height: 10rem;
   outline: none;
@@ -181,4 +182,9 @@
   font-weight: bold;
   width: 5rem;
   margin-right: 0.5rem;
+}
+
+.disabled {
+  color: $secondary-light-gray;
+  pointer-events: none;
 }
