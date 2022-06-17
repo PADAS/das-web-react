@@ -40,14 +40,8 @@ const Attachment = ({ attachment, onDelete, reportTracker }) => {
 
     <div className={styles.itemActionButton}>
       {!isNew
-        ? <DownloadArrowIcon
-          data-testid={`reportDetailView-activitySection-downloadIcon-${attachment.id}`}
-          onClick={onClickDownloadIcon}
-        />
-        : <TrashCanIcon
-          data-testid={`reportDetailView-activitySection-deleteIcon-${attachment.name}`}
-          onClick={onDelete}
-        />}
+        ? <DownloadArrowIcon onClick={onClickDownloadIcon} />
+        : <TrashCanIcon onClick={(onDelete)} />}
     </div>
 
     <div className={styles.itemActionButton} />

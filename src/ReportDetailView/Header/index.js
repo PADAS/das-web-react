@@ -71,7 +71,7 @@ const Header = ({ onChangeTitle, report }) => {
       </label>}
     </div>
 
-    {!isNewReport && <div className={styles.priorityAndDate}>
+    {!isNewReport && <div className={styles.priorityAndDate} data-testid="reportDetailView-header-priorityAndDate">
       <span style={{ color: priorityTheme.base }}>{priorityTheme.name}</span>
       <br />
       <DateTime className={styles.dateTime} date={report.updated_at || report.created_at} showElapsed={false} />

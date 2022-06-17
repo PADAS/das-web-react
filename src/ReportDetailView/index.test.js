@@ -179,6 +179,34 @@ describe('ReportDetailView', () => {
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
   });
 
+  test('deletes a new attachment', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+    const deleteAttachmentButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteAttachmentButton);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+  });
+
   test('displays a new note', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
@@ -202,6 +230,33 @@ describe('ReportDetailView', () => {
     userEvent.click(addNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('deletes a new note', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+    const deleteNoteButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
@@ -314,7 +369,7 @@ describe('ReportDetailView', () => {
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
     userEvent.click(addNoteButton);
-    const noteTextArea = await screen.findByTestId('reportDetailView-activitySection-noteTextArea');
+    const noteTextArea = await screen.findByTestId('reportDetailView-activitySection-noteTextArea-');
     userEvent.type(noteTextArea, 'note...');
     const saveNoteButton = await screen.findByText('Save Note');
     userEvent.click(saveNoteButton);
@@ -394,5 +449,34 @@ describe('ReportDetailView', () => {
     userEvent.upload(addAttachmentButton, fakeFileAgain);
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+  });
+
+  test('displays a new note', async () => {
+    window.alert = jest.fn();
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect(window.alert).toHaveBeenCalledTimes(0);
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+    userEvent.click(addNoteButton);
+
+    expect(window.alert).toHaveBeenCalledTimes(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
 });

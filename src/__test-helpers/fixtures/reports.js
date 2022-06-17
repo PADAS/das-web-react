@@ -96,3 +96,13 @@ export const files = [{
   updates: [{ time: '2022-06-07T21:58:48.248635+00:00' }],
   url: 'https://das-7915.pamdas.org/api/v1.0/activity/event/001d3e8e-acc6-43e4-877b-21126b50050e/file/b1a3951e-20b7-4516-b0a2-df6f3e4bde18/',
 }];
+
+export const notes = [{
+  text: 'note3',
+  id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde19',
+  updates: [{ time: '2022-06-08T21:58:48.248635+00:00' }],
+}, {
+  text: 'note4',
+  id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde20',
+  updates: [{ time: '2022-06-09T21:58:48.248635+00:00' }],
+}];

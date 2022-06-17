@@ -57,7 +57,12 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
       </div>
 
       <div className={styles.itemDetails}>
-        <p className={styles.itemTitle}>{title}</p>
+        <p
+          className={styles.itemTitle}
+          data-testid={`reportDetailView-activitySection-noteTitle-${note.id || note.text}`}
+        >
+          {title}
+        </p>
 
         {!!note.updates && <DateTime
           className={styles.itemDate}
