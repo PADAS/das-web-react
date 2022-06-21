@@ -11,7 +11,7 @@ import DateTime from '../../../DateTime';
 
 import styles from '../styles.module.scss';
 
-const Attachment = ({ attachment, onDelete, reportTracker }) => {
+const AttachmentListItem = ({ attachment, onDelete, reportTracker }) => {
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
 
   const onClickDownloadIcon = useCallback(() => {
@@ -48,12 +48,12 @@ const Attachment = ({ attachment, onDelete, reportTracker }) => {
   </li>;
 };
 
-Attachment.defaultProps = {
+AttachmentListItem.defaultProps = {
   onDelete: null,
   reportTracker: {},
 };
 
-Attachment.propTypes = {
+AttachmentListItem.propTypes = {
   attachment: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
@@ -69,4 +69,4 @@ Attachment.propTypes = {
   }),
 };
 
-export default memo(Attachment);
+export default memo(AttachmentListItem);

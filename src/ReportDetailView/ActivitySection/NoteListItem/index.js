@@ -13,7 +13,7 @@ import DateTime from '../../../DateTime';
 
 import styles from '../styles.module.scss';
 
-const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) => {
   const textareaRef = useRef();
 
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -127,11 +127,11 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
   </li>;
 };
 
-Note.defaultProps = {
+NoteListItem.defaultProps = {
   onDelete: null,
 };
 
-Note.propTypes = {
+NoteListItem.propTypes = {
   cardsExpanded: PropTypes.array.isRequired,
   note: PropTypes.PropTypes.shape({
     id: PropTypes.string,
@@ -146,4 +146,4 @@ Note.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-export default memo(Note);
+export default memo(NoteListItem);
