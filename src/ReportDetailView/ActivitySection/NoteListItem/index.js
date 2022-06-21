@@ -50,7 +50,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     setText(trimmedText);
   }, [onSave, text]);
 
-  return <li>
+  return <li className={isOpen ? styles.openItem : ''}>
     <div className={styles.itemRow}>
       <div className={styles.itemIcon}>
         <NoteIcon />
@@ -96,7 +96,11 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       </div>
     </div>
 
-    <Collapse data-testid={`reportDetailView-activitySection-collapse-${note.id || note.text}`} in={isOpen}>
+    <Collapse
+      className={styles.collapse}
+      data-testid={`reportDetailView-activitySection-collapse-${note.id || note.text}`}
+      in={isOpen}
+    >
       <div>
         <textarea
           className={styles.noteTextArea}
