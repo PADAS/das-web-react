@@ -7,16 +7,16 @@ import { ReactComponent as AttachmentIcon } from '../../common/images/icons/atta
 import styles from './styles.module.scss';
 
 const ATTACHMENT_FILE_TYPES_ACCEPTED = [
-  'image/*',
-  '.doc',
-  '.docx',
-  '.xml',
-  '.xlsx',
-  '.csv',
-  '.pdf',
-  'text/plain',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/*',
+  'text/plain',
+  '.csv',
+  '.doc',
+  '.docx',
+  '.pdf',
+  '.xlsx',
+  '.xml',
 ];
 
 const AddAttachmentButton = ({ className, onAddAttachments }) => {
@@ -24,47 +24,43 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const attachFiles = useCallback((files) => onAddAttachments(files), [onAddAttachments]);
-
-  const onButtonClick = useCallback((event) => {
+  const onAttachmentButtonClick = useCallback((event) => {
     event.preventDefault();
 
     fileInputRef.current.click();
   }, []);
 
-  const onDragLeave = useCallback((event) => {
+  const onAttachmentButtonDragLeave = useCallback((event) => {
     event.preventDefault();
 
     setDraggingOver(false);
-    return false;
   }, []);
 
-  const onDragOver = useCallback((event) => {
+  const onAttachmentButtonDragOver = useCallback((event) => {
     event.preventDefault();
 
     setDraggingOver(true);
-    return false;
   }, []);
 
-  const onDrop = useCallback((event) => {
+  const onAttachmentButtonDrop = useCallback((event) => {
     event.preventDefault();
 
     setDraggingOver(false);
-    attachFiles(event.dataTransfer.files);
-  }, [attachFiles]);
+    onAddAttachments(event.dataTransfer.files);
+  }, [onAddAttachments]);
 
-  const onAttachFileFromDialog = useCallback((event) => {
+  const onChangeFileInput = useCallback((event) => {
     event.preventDefault();
 
-    attachFiles(fileInputRef.current.files);
-  }, [attachFiles]);
+    onAddAttachments(fileInputRef.current.files);
+  }, [onAddAttachments]);
 
   return <>
     <input
       accept={ATTACHMENT_FILE_TYPES_ACCEPTED.join(', ')}
       data-testid="reportDetailView-addAttachmentButton"
       multiple
-      onChange={onAttachFileFromDialog}
+      onChange={onChangeFileInput}
       ref={fileInputRef}
       style={{ display: 'none' }}
       type="file"
@@ -72,10 +68,10 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
     <Button
       className={`${className} ${draggingOver ? styles.draggingOver : ''} `}
-      onClick={onButtonClick}
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
+      onClick={onAttachmentButtonClick}
+      onDragLeave={onAttachmentButtonDragLeave}
+      onDragOver={onAttachmentButtonDragOver}
+      onDrop={onAttachmentButtonDrop}
       type="button"
       variant="secondary"
       >
