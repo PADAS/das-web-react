@@ -43,7 +43,7 @@ const MessageMenu = (props) => {
 
   const fetchMenuMessages = useCallback(() => {
     fetchAllMessages({ page_size: 100 })
-      .then((results) => {
+      .then((results = []) => {
         dispatch(fetchMessagesSuccess({ results }));
       })
       .catch((error) => {
