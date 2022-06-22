@@ -10,7 +10,7 @@ import { SENDER_DETAIL_STYLES } from './SenderDetails';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
 
-import { updateMessageFromRealtime, fetchMessages, fetchMessagesNextPage, fetchMessagesSuccess } from '../ducks/messaging';
+import { updateMessageFromRealtime, fetchMessagesNextPage, fetchMessagesSuccess, fetchAllMessages } from '../ducks/messaging';
 
 import styles from './styles.module.scss';
 
@@ -76,9 +76,9 @@ const MessageSummaryList = (props) => {
 
   useEffect(() => {
     setLoadState(true);
-    fetchMessages({ page_size: 500, recent_message: 1 })
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data));
+    fetchAllMessages({ page_size: 100, recent_message: 1 })
+      .then((results) => {
+        dispatch(fetchMessagesSuccess({ results }));
       })
       .catch((error) => {
         console.warn('error fetching messages', { error });

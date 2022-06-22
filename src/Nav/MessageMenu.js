@@ -12,7 +12,7 @@ import { allSubjects } from '../selectors/subjects';
 
 import MessagesModal from '../MessagesModal';
 
-import { fetchMessages, fetchMessagesSuccess, updateMessageFromRealtime } from '../ducks/messaging';
+import { fetchAllMessages, fetchMessagesSuccess, updateMessageFromRealtime } from '../ducks/messaging';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -42,9 +42,9 @@ const MessageMenu = (props) => {
   }, [dispatch]);
 
   const fetchMenuMessages = useCallback(() => {
-    fetchMessages({ page_size: 250 })
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data));
+    fetchAllMessages({ page_size: 100 })
+      .then((results) => {
+        dispatch(fetchMessagesSuccess({ results }));
       })
       .catch((error) => {
         console.warn('error fetching messages', { error });
