@@ -11,13 +11,18 @@ const secondPageOfMessages = messages.slice(26, 50);
 describe('#fetchAllMessages', () => {
   test('paginating, with parameters, to retrieve all messages from the messaging API', async () => {
     const secondPageUrl = 'next-page-url';
+    const requestParams = {
+      whatever: 666,
+      neato: 'hello',
+    };
 
     const server = setupServer(
       rest.get(MESSAGING_API_URL, (req, res, ctx) => {
         const { url } = req;
 
-        expect(url.search.includes('whatever=666')).toBeTruthy();
-        expect(url.search.includes('neato=hello')).toBeTruthy();
+        Object.entries(requestParams).forEach(([key, val]) => {
+          expect(url.search.includes(`${key}=${val}`)).toBeTruthy();
+        });
 
         const data = {
           results: firstPageOfMessages,
@@ -38,7 +43,7 @@ describe('#fetchAllMessages', () => {
 
     server.listen();
 
-    const results = await fetchAllMessages({ whatever: 666, neato: 'hello' });
+    const results = await fetchAllMessages(requestParams);
     expect(results).toEqual([...firstPageOfMessages, ...secondPageOfMessages]);
 
     server.resetHandlers();
