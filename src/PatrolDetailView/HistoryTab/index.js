@@ -5,14 +5,12 @@ import orderBy from 'lodash/orderBy';
 import { ReactComponent as ArrowDown } from '../../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUp } from '../../common/images/icons/arrow-up.svg';
 
+import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 import { extractAttachmentUpdates } from '../../utils/patrols';
 
 import TimeAgo from '../../TimeAgo';
 
 import styles from './styles.module.scss';
-
-const ASCENDING_TIME_SORT_ORDER = 'asc';
-const DESCENDING_TIME_SORT_ORDER = 'desc';
 
 const HistoryListItem = ({ date, message, secondaryMessage, user }) => <div
     className={styles.historyListItem}
@@ -28,7 +26,7 @@ const HistoryListItem = ({ date, message, secondaryMessage, user }) => <div
 </div>;
 
 const HistoryTab = ({ patrolForm }) => {
-  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_TIME_SORT_ORDER);
+  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
 
   const updates = useMemo(() => {
     if (!patrolForm.updates) return [];
@@ -49,12 +47,12 @@ const HistoryTab = ({ patrolForm }) => {
       Time
       <Button
         className={styles.timeSortButton}
-        onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_TIME_SORT_ORDER
-          ? ASCENDING_TIME_SORT_ORDER : DESCENDING_TIME_SORT_ORDER)}
+        onClick={() => setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER
+          ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER)}
         type="button"
-        variant={timeSortOrder === DESCENDING_TIME_SORT_ORDER ? 'secondary' : 'primary'}
+        variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
       >
-        {timeSortOrder === DESCENDING_TIME_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
+        {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDown /> : <ArrowUp />}
       </Button>
     </div>
 

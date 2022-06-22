@@ -10,8 +10,8 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
-describe('Header', () => {
-  const setTitle = jest.fn();
+describe('ReportDetailView - Header', () => {
+  const onChangeTitle = jest.fn();
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -20,7 +20,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -29,18 +29,18 @@ describe('Header', () => {
   });
 
   test('sets the display title as the title if it was empty', async () => {
-    expect(setTitle).toHaveBeenCalledTimes(0);
+    expect(onChangeTitle).toHaveBeenCalledTimes(0);
 
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
 
-    expect(setTitle).toHaveBeenCalledTimes(1);
-    expect(setTitle).toHaveBeenCalledWith('Light');
+    expect(onChangeTitle).toHaveBeenCalledTimes(1);
+    expect(onChangeTitle).toHaveBeenCalledWith('Light');
   });
 
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
@@ -48,7 +48,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -58,8 +58,8 @@ describe('Header', () => {
     userEvent.tab();
 
     await waitFor(() => {
-      expect(setTitle).toHaveBeenCalledTimes(1);
-      expect(setTitle).toHaveBeenCalledWith('2');
+      expect(onChangeTitle).toHaveBeenCalledTimes(1);
+      expect(onChangeTitle).toHaveBeenCalledWith('2');
     });
   });
 
@@ -68,7 +68,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -77,8 +77,8 @@ describe('Header', () => {
     userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}');
     userEvent.tab();
 
-    expect(setTitle).toHaveBeenCalledTimes(1);
-    expect(setTitle).toHaveBeenCalledWith('Light');
+    expect(onChangeTitle).toHaveBeenCalledTimes(1);
+    expect(onChangeTitle).toHaveBeenCalledWith('Light');
   });
 
   test('shows the event type label if the title does not match the event type title', async () => {
@@ -86,7 +86,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -101,7 +101,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -109,11 +109,36 @@ describe('Header', () => {
     expect((await screen.queryByTestId('reportDetailView-header-eventType'))).toBeNull();
   });
 
+  test('renders the priority and date values if report is not new', async () => {
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} onChangeTitle={onChangeTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(await screen.findByTestId('reportDetailView-header-priorityAndDate')).toBeDefined();
+  });
+
+  test('does not render the priority and date values if report is new', async () => {
+    report.id = undefined;
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} onChangeTitle={onChangeTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(await screen.queryByTestId('reportDetailView-header-priorityAndDate')).toBeNull();
+  });
+
   test('renders the location jump button if the report has coordinates', async () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
@@ -126,7 +151,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
-          <Header report={report} setTitle={setTitle} />
+          <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
       </Provider>
     );
