@@ -113,8 +113,8 @@ const SideBar = ({ map }) => {
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
   const onClickBackFromDetailView = useCallback(() => {
-    navigate(`/${currentTab}`);
-  }, [currentTab, navigate]);
+    navigate(-1);
+  }, [navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {

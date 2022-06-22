@@ -1,0 +1,25 @@
+@import '../../common/styles/layout';
+@import '../../common/styles/vars/colors';
+
+.addReportButton {
+  display: flex;
+  padding: 0.375rem 0.75rem;
+
+  button[class*=addReport] {
+    padding: 0;
+    height: 2.5rem;
+    width: 0;
+    visibility: hidden;
+
+    span {
+      color: $secondary-medium-gray;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      width: unset;
+      visibility: unset;
+    }
+  }
+}

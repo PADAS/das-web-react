@@ -174,8 +174,22 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
+// eslint-disable-next-line react/display-name
+const AddReport = forwardRef(({
+  analyticsMetadata,
+  className = '',
+  hideReports,
+  variant,
+  formProps,
+  patrolTypes,
+  reportData,
+  eventsByCategory,
+  popoverPlacement,
+  showLabel,
+  showIcon,
+  title,
+  clickSideEffect,
+}, ref) => {
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
@@ -255,7 +269,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     if (ENABLE_REPORT_NEW_UI) {
       navigate(
-        { pathname: `${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
         { state: { reportData } },
         { formProps }
       );
@@ -281,7 +295,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
         <button
           title={title}
           className={styles[`addReport-${variant}`]}
-          ref={targetRef}
+          ref={ref || targetRef}
           type='button'
           onClick={onButtonClick}
           data-testid='addReport-button'
@@ -289,13 +303,13 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
           {showIcon && <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
+        <Overlay show={popoverOpen} container={containerRef.current} target={ref?.current || targetRef.current} placement={popoverPlacement}>
           <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
   </PatrolTypesContext.Provider>;
-};
+});
 
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
@@ -303,7 +317,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps)(memo(AddReport));
+export default connect(mapStateToProps, null, null, { forwardRef: true })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {

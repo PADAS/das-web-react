@@ -98,7 +98,7 @@ describe('AddReport', () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
       expect(navigate.mock.calls[0][0]).toMatchObject({
-        pathname: `${TAB_KEYS.REPORTS}/new`,
+        pathname: `/${TAB_KEYS.REPORTS}/new`,
         search: '?reportType=d0884b8c-4ecb-45da-841d-f2f8d6246abf',
       });
     });
