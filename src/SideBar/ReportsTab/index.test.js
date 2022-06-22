@@ -48,6 +48,8 @@ describe('ReportsTab', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
+    jest.useFakeTimers();
+
     store = {
       data: {
         eventStore: {},
@@ -56,6 +58,10 @@ describe('ReportsTab', () => {
         patrolTypes,
       },
     };
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   test('fetches the event data if there is an id specified in the URL', () => {
@@ -116,6 +122,8 @@ describe('ReportsTab', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    jest.runAllTimers();
 
     expect(fetchEventFeed).toHaveBeenCalledTimes(1);
   });

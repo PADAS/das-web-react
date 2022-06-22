@@ -18,7 +18,6 @@ import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
-import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -139,8 +138,6 @@ const Map = ({
   updateHeatmapSubjects,
   updatePatrolTrackState,
   updateTrackState,
-  user,
-  userLocation,
 }) => {
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
@@ -188,13 +185,10 @@ const Map = ({
     cancelMapEventsFetch();
   }, []);
 
-  const fetchMapEventsFromLocation = useCallback(() => {
-    let params;
-    if (userLocation?.coords) {
-      params = { location: calcLocationParamStringForUserLocationCoords(userLocation.coords) };
-    }
-    return fetchMapEvents(map, params).catch((e) => console.warn('error fetching map events', e));
-  }, [fetchMapEvents, map, userLocation?.coords]);
+  const mapEventsFetch = useCallback(() =>
+    fetchMapEvents(map)
+      .catch((e) => console.warn('error fetching map events', e))
+  , [fetchMapEvents, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -236,14 +230,14 @@ const Map = ({
   const fetchMapData = useCallback(() => {
     onMapMoveStart();
 
-    return Promise.all([fetchMapEventsFromLocation(), fetchMapSubjectsFromTimeslider()])
+    return Promise.all([mapEventsFetch(), fetchMapSubjectsFromTimeslider()])
       .catch((e) => console.warn('error loading map data', e))
       .finally(() => {});
-  }, [fetchMapEventsFromLocation, fetchMapSubjectsFromTimeslider, onMapMoveStart]);
+  }, [mapEventsFetch, fetchMapSubjectsFromTimeslider, onMapMoveStart]);
 
   const debouncedFetchMapData = debounce(fetchMapData, 500);
 
-  const debouncedFetchMapEvents = debounce(fetchMapEventsFromLocation, 300);
+  const debouncedFetchMapEvents = debounce(mapEventsFetch, 300);
 
   const onMapMoveEnd = useCallback(() => {
     debouncedFetchMapData();
@@ -561,13 +555,6 @@ const Map = ({
   }, [map, timeSliderState.active]);
 
   useEffect(() => {
-    if (!!map && userIsGeoPermissionRestricted(user)) {
-      debouncedFetchMapEvents();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, userLocation]);
-
-  useEffect(() => {
     if (!!map && showReportHeatmap) {
       onSubjectHeatmapClose();
     }
@@ -792,6 +779,8 @@ const mapStatetoProps = (state) => {
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
+    userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
+    userLocationCoords: state?.view?.userLocation?.coords,
   });
 };
 

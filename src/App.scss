@@ -30,6 +30,11 @@ div.mapboxgl-canvas-container.mapboxgl-interactive {
   cursor: crosshair;
 }
 
+canvas.mapboxgl-canvas {
+  height: 100% !important;
+  width: 100% !important;
+}
+
 .Toastify__toast--warning {
   background: $amber;
 }
