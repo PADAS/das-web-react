@@ -8,8 +8,8 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 
 import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 
-import Attachment from './Attachment';
-import Note from './Note';
+import AttachmentListItem from './AttachmentListItem';
+import NoteListItem from './NoteListItem';
 
 import styles from './styles.module.scss';
 
@@ -33,12 +33,12 @@ const ActivitySection = ({
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
     date: reportAttachment.updated_at || reportAttachment.created_at,
-    node: <Attachment attachment={reportAttachment} key={reportAttachment.id} reportTracker={reportTracker} />,
+    node: <AttachmentListItem attachment={reportAttachment} key={reportAttachment.id} reportTracker={reportTracker} />,
   })), [reportAttachments, reportTracker]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
     date: attachmentToAdd.creationDate,
-    node: <Attachment
+    node: <AttachmentListItem
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
       onDelete={() => onDeleteAttachment(attachmentToAdd.file)}
@@ -47,7 +47,7 @@ const ActivitySection = ({
 
   const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
     date: reportNote.updated_at || reportNote.created_at,
-    node: <Note
+    node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
       note={reportNote}
@@ -59,7 +59,7 @@ const ActivitySection = ({
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     date: noteToAdd.creationDate,
-    node: <Note
+    node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}

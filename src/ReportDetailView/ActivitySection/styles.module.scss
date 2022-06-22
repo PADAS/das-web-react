@@ -85,16 +85,29 @@
   display: flex;
   flex-flow: column;
   margin-bottom: 0;
-  border: 1px solid $light-gray-border;
-  border-radius: 3px;
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);
+  
+  li {
+    transition: margin 500ms;
+
+    &.openItem {
+      margin: 0.5rem 0;
+    }
+  }
 }
 
 .itemRow {
-  border-top: 1px solid $light-gray-border;
+  border: 0.0625rem solid $light-gray-border;
+  border-radius: 0.1875rem;
+  margin-top: -0.0625rem;
   display: flex;
   align-items: center;
   height: 3.5rem;
+}
+
+.collapse {
+  border: 0.0625rem solid $light-gray-border;
+  border-top: none;
+  border-radius: 0.1875rem;
 }
 
 .itemIcon {
@@ -163,7 +176,7 @@
   width: 100%;
   height: 10rem;
   outline: none;
-  border-top: 1px solid $light-gray;
+  border-top: 0.0625rem solid $light-gray;
 }
 
 .editingNoteActions {
@@ -172,13 +185,13 @@
   align-items: center;
   height: 3.5rem;
   padding: 0.5rem;
-  border-top: 1px solid $light-gray;
+  border-top: 0.0625rem solid $light-gray;
 }
 
 .cancelNoteButton {
-  background-color: transparent;
-  border-color: transparent;
-  color: $secondary-medium-gray;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: $secondary-medium-gray !important;
   font-weight: bold;
   width: 5rem;
   margin-right: 0.5rem;

@@ -13,7 +13,7 @@ import DateTime from '../../../DateTime';
 
 import styles from '../styles.module.scss';
 
-const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) => {
   const textareaRef = useRef();
 
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -50,7 +50,7 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
     setText(trimmedText);
   }, [onSave, text]);
 
-  return <li>
+  return <li className={isOpen ? styles.openItem : ''}>
     <div className={styles.itemRow}>
       <div className={styles.itemIcon}>
         <NoteIcon />
@@ -96,7 +96,11 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
       </div>
     </div>
 
-    <Collapse data-testid={`reportDetailView-activitySection-collapse-${note.id || note.text}`} in={isOpen}>
+    <Collapse
+      className={styles.collapse}
+      data-testid={`reportDetailView-activitySection-collapse-${note.id || note.text}`}
+      in={isOpen}
+    >
       <div>
         <textarea
           className={styles.noteTextArea}
@@ -127,11 +131,11 @@ const Note = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) =
   </li>;
 };
 
-Note.defaultProps = {
+NoteListItem.defaultProps = {
   onDelete: null,
 };
 
-Note.propTypes = {
+NoteListItem.propTypes = {
   cardsExpanded: PropTypes.array.isRequired,
   note: PropTypes.PropTypes.shape({
     id: PropTypes.string,
@@ -146,4 +150,4 @@ Note.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-export default memo(Note);
+export default memo(NoteListItem);

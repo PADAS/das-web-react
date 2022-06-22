@@ -38,7 +38,7 @@ const AddToIncidentModal = (props) => {
     const fetchFeed = async () => {
       let paramString = 'is_collection=true&include_related_events=true&include_notes=true';
       if (userLocationCoords) {
-        paramString = calcLocationParamStringForUserLocationCoords(userLocationCoords);
+        paramString += `&location=${calcLocationParamStringForUserLocationCoords(userLocationCoords)}`;
       }
       await fetchIncidentFeed({}, paramString);
       setLoadedState(true);

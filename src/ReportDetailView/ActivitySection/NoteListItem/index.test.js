@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Note from './';
+import NoteListItem from '.';
 
 describe('ReportDetailView - ActivitySection - Note', () => {
   const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), onSave = jest.fn();
@@ -13,7 +13,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('sets the name New note to a new added note', async () => {
     const note = { text: '' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -27,7 +27,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('adds the text New note: before the note text if the note is not part of the report yet', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -42,7 +42,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('does not add the text New note: if the note is saved in the report already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -55,7 +55,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('shows the date time of the last update of the note if it is saved in the report already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -68,7 +68,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('does not show the date time if it is a new note', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -82,7 +82,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can delete a new note', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -101,7 +101,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can not delete an existing note', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -114,7 +114,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can edit a note', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[]}
       note={note}
       onCollapse={onCollapse}
@@ -137,7 +137,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can open the note collapsible', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[]}
       note={note}
       onCollapse={onCollapse}
@@ -157,7 +157,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can close the note collapsible', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -177,7 +177,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can cancel the edition of a note', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -205,7 +205,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can save the edition of a new note', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -236,7 +236,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('user can not type an empty space at the beginning of a note', async () => {
     const note = { text: '' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -257,7 +257,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('empty spaces at the end of a note get trimmed before saving', async () => {
     const note = { text: 'note' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -281,7 +281,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
   test('cancel and edition buttons are disabled while editing a new empty note', async () => {
     const note = { text: '' };
-    render(<Note
+    render(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}

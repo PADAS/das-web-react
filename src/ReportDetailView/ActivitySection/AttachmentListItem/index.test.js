@@ -4,14 +4,14 @@ import userEvent from '@testing-library/user-event';
 
 import { downloadFileFromUrl } from '../../../utils/download';
 
-import Attachment from './';
+import AttachmentListItem from '.';
 
 jest.mock('../../../utils/download', () => ({
   ...jest.requireActual('../../../utils/download'),
   downloadFileFromUrl: jest.fn(),
 }));
 
-describe('ReportDetailView - ActivitySection - Attachment', () => {
+describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
   const onDelete = jest.fn(), track = jest.fn();
   let downloadFileFromUrlMock;
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('sets the filename as the title if it is defined', async () => {
-    render(<Attachment
+    render(<AttachmentListItem
       attachment={{
         filename: 'file.txt',
         id: '1234',
@@ -41,7 +41,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('sets the name as the title if a filename is not defined', async () => {
-    render(<Attachment attachment={{ name: 'file.txt' }} onDelete={onDelete} />);
+    render(<AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />);
 
     const title = await screen.findByText('file.txt');
 
@@ -50,7 +50,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('shows the last update time if it is an existing attachment', async () => {
-    render(<Attachment
+    render(<AttachmentListItem
       attachment={{
         filename: 'file.txt',
         id: '1234',
@@ -64,7 +64,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('user can download existing attachments', async () => {
-    render(<Attachment
+    render(<AttachmentListItem
       attachment={{
         filename: 'file.txt',
         id: '1234',
@@ -84,7 +84,7 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('user can not delete existing attachments', async () => {
-    render(<Attachment
+    render(<AttachmentListItem
       attachment={{
         filename: 'file.txt',
         id: '1234',
@@ -98,14 +98,14 @@ describe('ReportDetailView - ActivitySection - Attachment', () => {
   });
 
   test('user can not download new attachments', async () => {
-    render(<Attachment attachment={{ name: 'file.txt' }} onDelete={onDelete} />);
+    render(<AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />);
 
     expect((await screen.queryByText('download-arrow.svg'))).toBeNull();
   });
 
   test('user can delete new attachments', async () => {
     const attachment = { name: 'file.txt' };
-    render(<Attachment attachment={attachment} onDelete={onDelete} />);
+    render(<AttachmentListItem attachment={attachment} onDelete={onDelete} />);
 
     expect(onDelete).toHaveBeenCalledTimes(0);
 
