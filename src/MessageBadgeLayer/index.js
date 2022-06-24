@@ -15,9 +15,7 @@ import { SocketContext } from '../withSocketConnection';
 import { withMap } from '../EarthRangerMap';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { extractSubjectFromMessage } from '../utils/messaging';
-import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
-
-import { fetchMessages } from '../ducks/messaging';
+import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE, fetchAllMessages } from '../ducks/messaging';
 
 import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
@@ -146,9 +144,9 @@ const MessageBadgeLayer = (props) => {
 
 
             if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
-              fetchMessages({ read: false, subject_id: toRequest })
-                .then((response) => {
-                  dispatch(fetchMessagesSuccess(response?.data?.data));
+              fetchAllMessages({ read: false, subject_id: toRequest })
+                .then((results = []) => {
+                  dispatch(fetchMessagesSuccess({ results }));
                 });
             }
             lastRequestedSubjectIdList.current = toRequest;
