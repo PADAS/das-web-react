@@ -109,51 +109,27 @@ describe('ReportDetailView', () => {
     expect((await screen.findAllByRole('tabpanel'))[0]).toHaveClass('show');
   });
 
-  test('navigates to the Notes view when user clicks the tab', async () => {
-    const notesTab = (await screen.findAllByRole('tab'))[1];
+  test('navigates to the Activity view when user clicks the tab', async () => {
+    const activitySection = (await screen.findAllByRole('tab'))[1];
 
-    expect(notesTab).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[1]).toHaveTextContent('Notes');
+    expect(activitySection).not.toHaveClass('active');
+    expect((await screen.findAllByRole('tab'))[1]).toHaveTextContent('Activity');
 
-    userEvent.click(notesTab);
+    userEvent.click(activitySection);
 
-    expect(notesTab).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
-  test('navigates to the Attachments view when user clicks the tab', async () => {
-    const attachmentsTab = (await screen.findAllByRole('tab'))[2];
-
-    expect(attachmentsTab).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[2]).toHaveTextContent('Attachments');
-
-    userEvent.click(attachmentsTab);
-
-    expect(attachmentsTab).toHaveClass('active');
+    expect(activitySection).toHaveClass('active');
     expect(await screen.findByRole('tabpanel')).toHaveClass('show');
   });
 
   test('navigates to the History view when user clicks the tab', async () => {
-    const historyTab = (await screen.findAllByRole('tab'))[3];
+    const historySection = (await screen.findAllByRole('tab'))[2];
 
-    expect(historyTab).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[3]).toHaveTextContent('History');
+    expect(historySection).not.toHaveClass('active');
+    expect((await screen.findAllByRole('tab'))[2]).toHaveTextContent('History');
 
-    userEvent.click(historyTab);
+    userEvent.click(historySection);
 
-    expect(historyTab).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
-
-  test('navigates to the History view when user clicks the tab', async () => {
-    const historyTab = (await screen.findAllByRole('tab'))[2];
-
-    expect(historyTab).not.toHaveClass('active');
-
-    userEvent.click(historyTab);
-
-    expect(historyTab).toHaveClass('active');
+    expect(historySection).toHaveClass('active');
     expect(await screen.findByRole('tabpanel')).toHaveClass('show');
   });
 
@@ -175,6 +151,112 @@ describe('ReportDetailView', () => {
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
+  });
+
+  test('displays a new attachment', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+  });
+
+  test('deletes a new attachment', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+    const deleteAttachmentButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteAttachmentButton);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+  });
+
+  test('displays a new note', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('deletes a new note', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+    const deleteNoteButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
@@ -221,6 +303,80 @@ describe('ReportDetailView', () => {
     expect(await screen.findByText('Save')).not.toBeDisabled();
   });
 
+  test('enables the save button if user adds an attachment', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+
+    expect(await screen.findByText('Save')).not.toBeDisabled();
+  });
+
+  test('keeps the save button disabled if user adds a note without saving', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect(await screen.findByText('Save')).toBeDisabled();
+  });
+
+  test('enables the save button if user adds a note, edits it and saves it', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+    const noteTextArea = await screen.findByTestId('reportDetailView-activitySection-noteTextArea-');
+    userEvent.type(noteTextArea, 'note...');
+    const saveNoteButton = await screen.findByText('Save Note');
+    userEvent.click(saveNoteButton);
+
+    expect(await screen.findByText('Save')).not.toBeDisabled();
+  });
+
   test('executes save actions when clicking save and navigates to report feed', async () => {
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
 
@@ -261,5 +417,66 @@ describe('ReportDetailView', () => {
     userEvent.click(saveButton);
 
     expect(await screen.findByText('Error saving report.')).toBeDefined();
+  });
+
+  test('omits duplicated attachment files', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+    window.alert = jest.fn();
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+    const addAttachmentButton = await screen.findByTestId('reportDetailView-addAttachmentButton');
+    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFile);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+
+    const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+    userEvent.upload(addAttachmentButton, fakeFileAgain);
+
+    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+  });
+
+  test('displays a new note', async () => {
+    window.alert = jest.fn();
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect(window.alert).toHaveBeenCalledTimes(0);
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+    userEvent.click(addNoteButton);
+
+    expect(window.alert).toHaveBeenCalledTimes(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
 });
