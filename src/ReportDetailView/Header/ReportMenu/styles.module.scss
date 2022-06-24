@@ -1,0 +1,49 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/vars/colors';
+
+.kebabMenu {
+  display: flex;
+  --hamburger-menu-color: #1a2026;
+  background: rgba(136, 139, 141, 0.15);
+  border: none;
+  border-radius: 0.25rem;
+  height: 2.25rem;
+  width: 2.25rem;
+  padding: 0;
+  margin-right: 0.5rem;
+
+  &:active {
+      background: rgba(0,0,0,0.17);
+  }
+  > button {
+    border: none;
+    outline: none;
+    background: none;
+    width: 100%;
+    padding-bottom: 20%;
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.menuDropdown {
+  padding: 0.312rem 0;
+  min-width: 8.56rem;
+}
+
+.itemBtn {
+  font-size: 0.875rem;
+  padding: 0.437rem 0.312rem !important;
+
+  img, svg {
+    margin-left: 0.1rem;
+    margin-right: 0.5rem;
+  }
+  
+  .itemIcon {
+    height: 1.125rem;
+    width: 1.125rem;
+    color: $secondary-medium-light-gray;
+  }
+}
