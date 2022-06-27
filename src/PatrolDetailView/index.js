@@ -54,46 +54,23 @@ const PatrolDetailView = ({ patrolPermissions }) => {
   const state = useSelector((state) => state);
 
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
+  const [temporalId, setTemporalId] = useState(null);
+
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
   const patrolData = location.state?.patrolData;
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+
+  const isNewPatrol = useMemo(() => itemId === 'new', [itemId]);
   const newPatrol = useMemo(
     () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
     [patrolData, patrolType]
   );
-
-  useEffect(() => {
-    const isNewPatrol = itemId === 'new';
-    if (isNewPatrol && !patrolType) {
-      navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
-    }
-
-    if (!loadingPatrols) {
-      if (!isNewPatrol && !patrolStore[itemId]) {
-        return navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
-      }
-
-      const idHasChanged = patrolDataSelector?.patrol?.id !== itemId;
-      const newPatrolTypeHasChanged = patrolDataSelector?.patrol?.icon_id !== patrolType?.icon_id;
-      const selectedPatrolHasChanged = isNewPatrol ? newPatrolTypeHasChanged : idHasChanged;
-      if (selectedPatrolHasChanged) {
-        const patrol = isNewPatrol ? newPatrol : patrolStore[itemId];
-        setPatrolDataSelector(patrol ? createPatrolDataSelector()(state, { patrol }) : {});
-      }
-    }
-  }, [
-    loadingPatrols,
-    navigate,
-    newPatrol,
-    patrolDataSelector,
-    patrolStore,
-    state,
-    itemId,
-    searchParams.patrolType?.icon_id,
-    patrolType,
-  ]);
+  const originalPatrol = useMemo(
+    () => isNewPatrol ? newPatrol : patrolStore[itemId],
+    [isNewPatrol, itemId, newPatrol, patrolStore]
+  );
 
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
@@ -111,12 +88,6 @@ const PatrolDetailView = ({ patrolPermissions }) => {
       return displayPatrolSegmentId(patrol);
     }
   }, [patrol]);
-
-  useEffect(() => {
-    if (patrol) {
-      setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
-    }
-  }, [leader, patrol]);
 
   const onPatrolChange = useCallback((patrolChanges) => {
     setPatrolForm({ ...patrol, ...patrolChanges });
@@ -158,6 +129,37 @@ const PatrolDetailView = ({ patrolPermissions }) => {
         navigate(`/${TAB_KEYS.PATROLS}`);
       });
   }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, navigate]);
+
+  useEffect(() => {
+    if (patrol) {
+      setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
+    }
+  }, [leader, patrol]);
+
+  useEffect(() => {
+    if ((isNewPatrol && !patrolType) || (!isNewPatrol && !loadingPatrols && !patrolStore[itemId])) {
+      navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+    } else if (!loadingPatrols) {
+      const currentPatrolId = isNewPatrol ? searchParams.get('temporalId') : itemId;
+      const selectedPatrolHasChanged = (isNewPatrol ? temporalId : patrolDataSelector?.patrol?.id) !== currentPatrolId;
+      if (selectedPatrolHasChanged) {
+        setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
+        setTemporalId(isNewPatrol ? currentPatrolId : null);
+      }
+    }
+  }, [
+    isNewPatrol,
+    itemId,
+    loadingPatrols,
+    navigate,
+    originalPatrol,
+    patrolDataSelector?.patrol?.id,
+    patrolStore,
+    patrolType,
+    searchParams,
+    state,
+    temporalId,
+  ]);
 
   return !!patrolForm && <div className={styles.patrolDetailView}>
     <Header

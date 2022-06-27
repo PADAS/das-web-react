@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
@@ -9,6 +9,7 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
+import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   createNewIncidentCollection,
@@ -21,10 +22,10 @@ import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } fr
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { getCurrentIdFromURL } from '../utils/navigation';
+import { getReportDataTemporalStorage, setReportDataTemporalStorage } from './reportDataTemporalStorage';
 import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
-import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../ducks/events';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
@@ -59,12 +60,15 @@ const ReportDetailView = () => {
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
+  const reportDataToStore = useRef();
+
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
+  const [temporalId, setTemporalId] = useState(null);
 
   const {
     onSaveError: onSaveErrorCallback,
@@ -90,6 +94,10 @@ const ReportDetailView = () => {
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(reportForm), [reportForm]);
   const isCollection = useMemo(() => !!reportForm?.is_collection, [reportForm]);
+  const containedReports = useMemo(
+    () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
+    [reportForm?.contains]
+  );
   const isCollectionChild = useMemo(() => eventBelongsToCollection(reportForm), [reportForm]);
 
   const reportAttachments = useMemo(
@@ -120,6 +128,16 @@ const ReportDetailView = () => {
     () => !relationshipButtonDisabled && (isCollection || (!isPatrolReport && !isCollectionChild)),
     [isCollection, isCollectionChild, isPatrolReport, relationshipButtonDisabled]
   );
+
+  const onCleanState = useCallback((reportForm = null, temporalId = null) => {
+    setAttachmentsToAdd([]);
+    setIsSaving(false);
+    setNotesToAdd([]);
+    setReportForm(reportForm);
+    setSaveError(null);
+    setTab(NAVIGATION_DETAILS_EVENT_KEY);
+    setTemporalId(temporalId);
+  }, []);
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
@@ -286,24 +304,46 @@ const ReportDetailView = () => {
   const onClickSaveButton = useCallback(() => onSaveReport(), [onSaveReport]);
 
   useEffect(() => {
-    if (isNewReport && !reportType) {
+    if ((isNewReport && !reportType) || (!isNewReport && !loadingEvents && !eventStore[itemId])) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
-    }
-
-    if (!loadingEvents) {
-      if (!isNewReport && !eventStore[itemId]) {
-        return navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
-      }
-
-      const idHasChanged = reportForm?.id !== itemId;
-      const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
-      const selectedReportHasChanged = isNewReport ? newReportTypeHasChanged : idHasChanged;
+    } else if (!loadingEvents) {
+      const currentReportId = isNewReport ? searchParams.get('temporalId') : itemId;
+      const selectedReportHasChanged = (isNewReport ? temporalId : reportForm?.id) !== currentReportId;
       if (selectedReportHasChanged) {
-        setReportForm(isNewReport ? newReport : eventStore[itemId]);
+        const reportDataStored = getReportDataTemporalStorage();
+        if (!relationshipButtonDisabled && reportDataStored?.id === currentReportId) {
+          setAttachmentsToAdd(reportDataStored.attachmentsToAdd);
+          setNotesToAdd(reportDataStored.notesToAdd);
+          setReportForm({ ...originalReport, ...reportDataStored.reportChanges });
+          setTemporalId(isNewReport ? currentReportId : null);
+        } else {
+          setReportDataTemporalStorage(reportDataToStore.current);
+          onCleanState(originalReport, isNewReport ? currentReportId : null);
+        }
       }
     }
-  }, [eventStore, isNewReport, itemId, loadingEvents, navigationData, navigate, newReport, reportForm, reportType]);
+  }, [
+    eventStore,
+    isNewReport,
+    itemId,
+    loadingEvents,
+    navigate,
+    newReport,
+    onCleanState,
+    originalReport,
+    relationshipButtonDisabled,
+    reportForm?.id,
+    reportType,
+    searchParams,
+    temporalId,
+  ]);
 
+  useEffect(() => {
+    const currentReportId = isNewReport ? temporalId : itemId;
+    reportDataToStore.current = { attachmentsToAdd, id: currentReportId, notesToAdd, reportChanges };
+  }, [attachmentsToAdd, isNewReport, itemId, notesToAdd, reportChanges, temporalId]);
+
+  useEffect(() => () => setReportDataTemporalStorage(null), []);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
@@ -346,6 +386,7 @@ const ReportDetailView = () => {
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
+                containedReports={containedReports}
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}

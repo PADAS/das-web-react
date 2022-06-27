@@ -37,7 +37,7 @@ describe('PatrolDetailView', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol', temporalId: '1234' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
     render(

@@ -35,7 +35,10 @@ describe('ReportDetailView', () => {
     executeSaveActions.mockImplementation(executeSaveActionsMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
+      reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf',
+      temporalId: '1234',
+    })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);

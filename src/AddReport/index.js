@@ -17,6 +17,7 @@ import { openModalForReport, createNewReportForEventType } from '../utils/events
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { uuid } from '../utils/string';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
@@ -255,7 +256,7 @@ const AddReport = forwardRef(({
         setPopoverState(false);
         if (ENABLE_PATROL_NEW_UI) {
           return navigate(
-            { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
+            { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}&temporalId=${uuid()}` },
             { state: { patrolData: reportData } }
           );
         }
@@ -269,7 +270,7 @@ const AddReport = forwardRef(({
 
     if (ENABLE_REPORT_NEW_UI) {
       navigate(
-        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}&temporalId=${uuid()}` },
         { state: { reportData } },
         { formProps }
       );

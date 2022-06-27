@@ -97,10 +97,9 @@ describe('AddReport', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
-      expect(navigate.mock.calls[0][0]).toMatchObject({
-        pathname: `/${TAB_KEYS.REPORTS}/new`,
-        search: '?reportType=d0884b8c-4ecb-45da-841d-f2f8d6246abf',
-      });
+      expect(navigate.mock.calls[0][0].pathname).toBe(`/${TAB_KEYS.REPORTS}/new`);
+      expect(navigate.mock.calls[0][0].search.substring(0, 48))
+        .toBe('?reportType=d0884b8c-4ecb-45da-841d-f2f8d6246abf');
     });
   });
 });

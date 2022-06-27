@@ -15,6 +15,7 @@ import styles from './styles.module.scss';
 
 const ActivitySection = ({
   attachmentsToAdd,
+  containedReports,
   notesToAdd,
   onDeleteAttachment,
   onDeleteNote,
@@ -136,6 +137,9 @@ const ActivitySection = ({
     </div>
 
     {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
+
+    {/* TODO: This is a temporal print of child reports for testing purposes */}
+    {!!containedReports.length && containedReports.map((report) => <div key={report.id}>{report.id}<br/></div>)}
   </>;
 };
 
@@ -145,6 +149,9 @@ ActivitySection.propTypes = {
     file: PropTypes.shape({
       name: PropTypes.string,
     }),
+  })).isRequired,
+  containedReports: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
   })).isRequired,
   notesToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
