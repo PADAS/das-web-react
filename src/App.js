@@ -21,6 +21,7 @@ import { fetchEventSchema } from './ducks/event-schemas';
 import { getCurrentTabFromURL } from './utils/navigation';
 
 import Drawer from './Drawer';
+import FullScreenImage from './FullScreenImage';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
@@ -140,6 +141,8 @@ const App = (props) => {
       <PrintTitle />
 
       <Nav map={map} />
+
+      <FullScreenImage />
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />

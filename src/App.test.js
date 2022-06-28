@@ -71,6 +71,7 @@ describe('The main app view', () => {
     store = mockStore({
       view: {
         drawer: {},
+        fullScreenImage: {},
         modals: {
           canShowModals: true,
           modals: [],

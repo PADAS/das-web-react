@@ -46,7 +46,7 @@ describe('ReportDetailView', () => {
 
     store = {
       data: { eventStore: {}, eventTypes, patrolTypes },
-      view: { sideBar: {} },
+      view: { fullScreenImage: {}, sideBar: {} },
     };
 
     render(

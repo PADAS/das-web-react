@@ -1,38 +1,47 @@
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { files, notes } from '../../__test-helpers/fixtures/reports';
+import { mockStore } from '../../__test-helpers/MockStore';
 
 import ActivitySection from './';
 
 describe('ReportDetailView - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(), onDeleteNote= jest.fn(), onSaveNote= jest.fn(), track = jest.fn();
+  let store;
   beforeEach(() => {
+    store = { data: {}, view: { fullScreenImage: {} } };
+
     const currentDate = new Date();
-    render(<ActivitySection
-      attachmentsToAdd={[{
-        creationDate: new Date(currentDate.getTime() + 1).toISOString(),
-        file: { name: 'newFile1.pdf' },
-      }, {
-        creationDate: new Date(currentDate.getTime() + 2).toISOString(),
-        file: { name: 'newFile2.pdf' },
-      }]}
-      containedReports={[]}
-      notesToAdd={[{
-        creationDate: new Date(currentDate.getTime() + 3).toISOString(),
-        text: 'note1',
-      }, {
-        creationDate: new Date(currentDate.getTime() + 4).toISOString(),
-        text: 'note2',
-      }]}
-      onDeleteAttachment={onDeleteAttachment}
-      onDeleteNote={onDeleteNote}
-      onSaveNote={onSaveNote}
-      reportAttachments={files}
-      reportNotes={notes}
-      reportTracker={{ track }}
-    />);
+    render(
+      <Provider store={mockStore(store)}>
+        <ActivitySection
+          attachmentsToAdd={[{
+            creationDate: new Date(currentDate.getTime() + 1).toISOString(),
+            file: { name: 'newFile1.pdf' },
+          }, {
+            creationDate: new Date(currentDate.getTime() + 2).toISOString(),
+            file: { name: 'newFile2.pdf' },
+          }]}
+          containedReports={[]}
+          notesToAdd={[{
+            creationDate: new Date(currentDate.getTime() + 3).toISOString(),
+            text: 'note1',
+          }, {
+            creationDate: new Date(currentDate.getTime() + 4).toISOString(),
+            text: 'note2',
+          }]}
+          onDeleteAttachment={onDeleteAttachment}
+          onDeleteNote={onDeleteNote}
+          onSaveNote={onSaveNote}
+          reportAttachments={files}
+          reportNotes={notes}
+          reportTracker={{ track }}
+        />
+      </Provider>
+    );
   });
 
   afterEach(() => {
@@ -205,17 +214,21 @@ describe('ReportDetailView - ActivitySection', () => {
 
   test('hides activity action buttons if items list is empty', async () => {
     cleanup();
-    render(<ActivitySection
-      attachmentsToAdd={[]}
-      containedReports={[]}
-      notesToAdd={[]}
-      onDeleteAttachment={onDeleteAttachment}
-      onDeleteNote={onDeleteNote}
-      onSaveNote={onSaveNote}
-      reportAttachments={[]}
-      reportNotes={[]}
-      reportTracker={{ track }}
-    />);
+    render(
+      <Provider store={mockStore(store)}>
+        <ActivitySection
+          attachmentsToAdd={[]}
+          containedReports={[]}
+          notesToAdd={[]}
+          onDeleteAttachment={onDeleteAttachment}
+          onDeleteNote={onDeleteNote}
+          onSaveNote={onSaveNote}
+          reportAttachments={[]}
+          reportNotes={[]}
+          reportTracker={{ track }}
+        />
+      </Provider>
+    );
 
     expect((await screen.queryByText('Expand All'))).toBeNull();
     expect((await screen.queryByText('arrow-down.svg'))).toBeNull();

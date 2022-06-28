@@ -40,6 +40,7 @@ import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
+import fullScreenImageReducer from '../ducks/full-screen-image';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -128,6 +129,7 @@ const rootReducer = combineReducers({
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
     sideBar: sideBarReducer,
+    fullScreenImage: fullScreenImageReducer,
   }),
 });
 

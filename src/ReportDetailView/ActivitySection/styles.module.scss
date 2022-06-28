@@ -169,6 +169,22 @@
   }
 }
 
+.attachmentThumbnail {
+  height: 100%;
+  width: 3.5rem;
+  object-fit: cover;
+}
+
+.attachmentImagePreview {
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  cursor: pointer;
+}
+
 .noteTextArea {
   border: none;
   resize: none;
