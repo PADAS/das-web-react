@@ -89,6 +89,19 @@ export const files = [{
   updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }],
   url: 'https://das-7915.pamdas.org/api/v1.0/activity/event/001d3e8e-acc6-43e4-877b-21126b50050e/file/b1a3951e-20b7-4516-b0a2-df6f3e4bde17/',
 }, {
+  created_at: '2022-06-08T14:58:48.242658-07:00',
+  filename: 'file1.png',
+  file_type: 'image',
+  id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde21',
+  images: {
+    icon: 'https://das-8222.pamdas.org/api/v1.0/activity/event/241ba5a9-531c-4f0d-b610-d041811f38a0/file/001ae071-5696-4164-9be6-0f2d1850864f/icon/image.png',
+    original: 'https://das-8222.pamdas.org/api/v1.0/activity/event/241ba5a9-531c-4f0d-b610-d041811f38a0/file/001ae071-5696-4164-9be6-0f2d1850864f/original/image.png',
+    thumbnail: 'https://das-8222.pamdas.org/api/v1.0/activity/event/241ba5a9-531c-4f0d-b610-d041811f38a0/file/001ae071-5696-4164-9be6-0f2d1850864f/thumbnail/image.png',
+  },
+  updated_at: '2022-06-08T14:58:48.242658-07:00',
+  updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }],
+  url: 'https://das-7915.pamdas.org/api/v1.0/activity/event/001d3e8e-acc6-43e4-877b-21126b50050e/file/b1a3951e-20b7-4516-b0a2-df6f3e4bde21/',
+}, {
   created_at: '2022-06-07T14:58:48.242658-07:00',
   filename: 'file2.pdf',
   id: 'b1a3951e-20b7-4516-b0a2-df6f3e4bde18',

@@ -8,6 +8,11 @@ import { mockStore } from '../../__test-helpers/MockStore';
 
 import ActivitySection from './';
 
+jest.mock('../../utils/file', () => ({
+  ...jest.requireActual('../../utils/file'),
+  fetchImageAsBase64FromUrl: jest.fn(),
+}));
+
 describe('ReportDetailView - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(), onDeleteNote= jest.fn(), onSaveNote= jest.fn(), track = jest.fn();
   let store;
@@ -46,6 +51,32 @@ describe('ReportDetailView - ActivitySection', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  test('expands an existing image attachment when clicking the down arrow', async () => {
+    const imageCollapse = await screen.findByTestId('reportDetailView-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+
+    expect(imageCollapse).toHaveClass('collapse');
+
+    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    userEvent.click(expandButton);
+
+    await waitFor(() => {
+      expect(imageCollapse).toHaveClass('show');
+    });
+  });
+
+  test('collapses an existing image attachment when clicking the up arrow', async () => {
+    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    userEvent.click(expandButton);
+    const collapseButton = (await screen.findAllByText('arrow-up-small.svg'))[0];
+    userEvent.click(collapseButton);
+
+    const imageCollapse = await screen.findByTestId('reportDetailView-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+
+    await waitFor(() => {
+      expect(imageCollapse).toHaveClass('collapse');
+    });
   });
 
   test('removes new attachment from attachments to add when clicking the delete icon', async () => {
@@ -102,7 +133,7 @@ describe('ReportDetailView - ActivitySection', () => {
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[3];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -154,6 +185,7 @@ describe('ReportDetailView - ActivitySection', () => {
       'note.svgnote38',
       'attachment.svgfile1.pdf6',
       'attachment.svgfile2.pdf7',
+      'attachment.svgfile1.png6',
       'attachment.svgnewFile1.pdftrash-can.svg',
       'attachment.svgnewFile2.pdftrash-can.svg',
       'note.svgNew',
@@ -174,6 +206,7 @@ describe('ReportDetailView - ActivitySection', () => {
       'attachment.svgnewFile1.pdftrash-can.svg',
       'note.svgnote49',
       'note.svgnote38',
+      'attachment.svgfile1.png6',
       'attachment.svgfile2.pdf7',
       'attachment.svgfile1.pdf6',
     ]);

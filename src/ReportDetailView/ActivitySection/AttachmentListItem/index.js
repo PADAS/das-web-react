@@ -97,22 +97,20 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
           </div>}
 
         <div className={styles.itemDetails}>
-          <p className={styles.itemTitle}>{attachment.filename || attachment.name}</p>
+          <p className={styles.itemTitle}>{attachment.filename}</p>
 
-          {!!attachment.updates && <DateTime
+          <DateTime
             className={styles.itemDate}
             data-testid={`reportDetailView-activitySection-dateTime-${attachment.id}`}
             date={attachment.updates[0].time}
             showElapsed={false}
-          />}
+          />
         </div>
 
         <div className={styles.itemActionButton} />
 
         <div className={styles.itemActionButton}>
-          {!isNew
-            ? <ExpandArrowIcon onClick={onShowImageFullScreen} />
-            : <TrashCanIcon onClick={(onDelete)} />}
+          <ExpandArrowIcon onClick={onShowImageFullScreen} />
         </div>
 
         <div className={styles.itemActionButton}>
@@ -124,7 +122,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
       <Collapse
         className={styles.collapse}
-        data-testid={`reportDetailView-activitySection-collapse-${attachment.id || attachment.name}`}
+        data-testid={`reportDetailView-activitySection-collapse-${attachment.id}`}
         in={isOpen}
       >
         <div>
@@ -168,7 +166,10 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 };
 
 AttachmentListItem.defaultProps = {
+  cardsExpanded: [],
+  onCollapse: null,
   onDelete: null,
+  onExpand: null,
   reportTracker: {},
 };
 
@@ -182,10 +183,10 @@ AttachmentListItem.propTypes = {
       time: PropTypes.string,
     })),
   }).isRequired,
-  cardsExpanded: PropTypes.array.isRequired,
-  onCollapse: PropTypes.func.isRequired,
+  cardsExpanded: PropTypes.array,
+  onCollapse: PropTypes.func,
   onDelete: PropTypes.func,
-  onExpand: PropTypes.func.isRequired,
+  onExpand: PropTypes.func,
   reportTracker: PropTypes.shape({
     track: PropTypes.func,
   }),

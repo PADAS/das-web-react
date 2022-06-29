@@ -40,7 +40,11 @@ const FullScreenImage = () => {
     return () => document.removeEventListener('keydown', onKeydown);
   }, [dispatch]);
 
-  return !!source ? <div className={styles.fullScreenBackground} onClick={onClickFullScreenBrackground}>
+  return !!source ? <div
+      className={styles.fullScreenBackground}
+      data-testid="fullScreenImage-background"
+      onClick={onClickFullScreenBrackground}
+    >
     <div className={styles.header}>
       <div className={styles.leftSpace} />
 

@@ -2,13 +2,9 @@
 const SET_FULL_SCREEN_IMAGE_DATA = 'SET_FULL_SCREEN_IMAGE_DATA';
 
 // Action creators
-export const showFullScreenImage = (file, source) => (dispatch) => {
-  dispatch({ type: SET_FULL_SCREEN_IMAGE_DATA, payload: { file, source } });
-};
+export const showFullScreenImage = (file, source) => ({ type: SET_FULL_SCREEN_IMAGE_DATA, payload: { file, source } });
 
-export const hideFullScreenImage = () => (dispatch) => {
-  dispatch({ type: SET_FULL_SCREEN_IMAGE_DATA, payload: { file: null, source: null } });
-};
+export const hideFullScreenImage = () => ({ type: SET_FULL_SCREEN_IMAGE_DATA, payload: { file: null, source: null } });
 
 // Reducer
 const INITIAL_STATE = { file: null, source: null };
