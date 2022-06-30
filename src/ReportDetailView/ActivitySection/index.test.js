@@ -185,7 +185,7 @@ describe('ReportDetailView - ActivitySection', () => {
       'note.svgnote38',
       'attachment.svgfile1.pdf6',
       'attachment.svgfile2.pdf7',
-      'attachment.svgfile1.png6',
+      'image.svgfile1.png6',
       'attachment.svgnewFile1.pdftrash-can.svg',
       'attachment.svgnewFile2.pdftrash-can.svg',
       'note.svgNew',
@@ -206,7 +206,7 @@ describe('ReportDetailView - ActivitySection', () => {
       'attachment.svgnewFile1.pdftrash-can.svg',
       'note.svgnote49',
       'note.svgnote38',
-      'attachment.svgfile1.png6',
+      'image.svgfile1.png6',
       'attachment.svgfile2.pdf7',
       'attachment.svgfile1.pdf6',
     ]);

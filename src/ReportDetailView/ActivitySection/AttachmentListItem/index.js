@@ -8,6 +8,7 @@ import { ReactComponent as ArrowUpSmallIcon } from '../../../common/images/icons
 import { ReactComponent as AttachmentIcon } from '../../../common/images/icons/attachment.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/expand-arrow.svg';
+import { ReactComponent as ImageIcon } from '../../../common/images/icons/image.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
 import { downloadFileFromUrl } from '../../../utils/download';
@@ -91,9 +92,13 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     return <li className={isOpen ? styles.openItem : ''}>
       <div className={styles.itemRow}>
         {!!imageIconSource
-          ? <img alt="Thumbnail" className={styles.attachmentThumbnail} src={imageIconSource} />
+          ? <img
+            alt={`${attachment.filename} thumbnail`}
+            className={styles.attachmentThumbnail}
+            src={imageIconSource}
+          />
           : <div className={styles.itemIcon}>
-            <AttachmentIcon />
+            <ImageIcon />
           </div>}
 
         <div className={styles.itemDetails}>
@@ -127,7 +132,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
       >
         <div>
           <img
-            alt="Thumbnail"
+            alt={`${attachment.filename} preview`}
             className={styles.attachmentImagePreview}
             onClick={onShowImageFullScreen}
             src={currentImageSource}

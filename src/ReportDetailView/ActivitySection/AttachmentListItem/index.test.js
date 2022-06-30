@@ -20,6 +20,13 @@ jest.mock('../../../utils/file', () => ({
 }));
 
 describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
+  const savedImageAttachment = {
+    file_type: 'image',
+    id: '1234',
+    images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
+    filename: 'file.txt',
+    updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
+  };
   const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), track = jest.fn();
   let downloadFileFromUrlMock, fetchImageAsBase64FromUrlMock, store;
   beforeEach(() => {
@@ -155,16 +162,10 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  test('existing images are collapsibles', async () => {
-    const attachment = { file_type: 'image',
-      id: '1234',
-      images: {},
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
+  test('saved images are collapsibles', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -172,17 +173,10 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
       .toHaveLength(1);
   });
 
-  test('fetches the different image sizes for existing images', async () => {
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
+  test('fetches the different image sizes for saved images', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -209,17 +203,10 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -230,7 +217,7 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
     expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: attachment, source: 'original' },
+      payload: { file: savedImageAttachment, source: 'original' },
       type: 'SET_FULL_SCREEN_IMAGE_DATA',
     }]);
   });
@@ -239,17 +226,10 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => url === 'original' ? undefined : Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -260,22 +240,15 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
     expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: attachment, source: 'thumbnail' },
+      payload: { file: savedImageAttachment, source: 'thumbnail' },
       type: 'SET_FULL_SCREEN_IMAGE_DATA',
     }]);
   });
 
   test('user can open the image collapsible', async () => {
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
     render(
       <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -288,19 +261,12 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
 
-  test('user can close the note collapsible', async () => {
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
+  test('user can close the image collapsible', async () => {
     render(
       <Provider store={mockStore(store)}>
         <AttachmentListItem
-          attachment={attachment}
-          cardsExpanded={[attachment]}
+          attachment={savedImageAttachment}
+          cardsExpanded={[savedImageAttachment]}
           onCollapse={onCollapse}
           onExpand={onExpand}
         />
@@ -320,17 +286,10 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
@@ -341,7 +300,7 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
     expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: attachment, source: 'original' },
+      payload: { file: savedImageAttachment, source: 'original' },
       type: 'SET_FULL_SCREEN_IMAGE_DATA',
     }]);
   });
@@ -352,37 +311,22 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
       : Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
+    store.view.fullScreenImage = { file: savedImageAttachment, source: 'thumbnail' };
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
-    expect(mockStoreInstance.getActions()).toHaveLength(0);
-
-    const expandedImage = await screen.findByRole('img');
-    userEvent.click(expandedImage);
-
     expect(mockStoreInstance.getActions()).toHaveLength(1);
-    expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: attachment, source: 'thumbnail' },
-      type: 'SET_FULL_SCREEN_IMAGE_DATA',
-    }]);
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(mockStoreInstance.getActions()).toHaveLength(2);
-      expect(mockStoreInstance.getActions()).toEqual([{
-        payload: { file: attachment, source: 'original' },
+      expect(mockStoreInstance.getActions()[1]).toEqual({
+        payload: { file: savedImageAttachment, source: 'original' },
         type: 'SET_FULL_SCREEN_IMAGE_DATA',
-      }]);
+      });
     });
   });
 
@@ -392,26 +336,19 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
       : Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const attachment = {
-      file_type: 'image',
-      id: '1234',
-      images: { icon: 'icon', original: 'original', thumbnail: 'thumbnail' },
-      filename: 'file.txt',
-      updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
-    };
     render(
       <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
+        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
       </Provider>
     );
 
     const expandedImage = await screen.findByRole('img');
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(expandedImage).toHaveAttribute('src', 'thumbnail');
     });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(expandedImage).toHaveAttribute('src', 'original');
     });
   });
