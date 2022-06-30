@@ -290,6 +290,8 @@ const ReportDetailView = () => {
           onSaveSuccess(incidentCollectionRefreshedResults);
         }
 
+        reportTracker.track('Added Report');
+
         navigate(`/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`);
       });
     } catch (e) {
@@ -301,10 +303,10 @@ const ReportDetailView = () => {
     navigate(relationshipButtonDisabled ? -1 : `/${TAB_KEYS.REPORTS}`);
   }, [navigate, relationshipButtonDisabled]);
 
-  const onClickSaveButton = useCallback(() => onSaveReport(), [onSaveReport]);
-
   useEffect(() => {
-    if ((isNewReport && !reportType) || (!isNewReport && !loadingEvents && !eventStore[itemId])) {
+    const shouldRedirectToFeed = (isNewReport && !reportType)
+      || (!isNewReport && !loadingEvents && !eventStore[itemId]);
+    if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     } else if (!loadingEvents) {
       const currentReportId = isNewReport ? searchParams.get('temporalId') : itemId;
@@ -348,7 +350,7 @@ const ReportDetailView = () => {
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
-    <Header onChangeTitle={onChangeTitle} report={reportForm || {}} />
+    <Header onChangeTitle={onChangeTitle} report={reportForm || {}} onReportChange={onSaveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
@@ -419,7 +421,7 @@ const ReportDetailView = () => {
               <Button
                 className={styles.saveButton}
                 disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                onClick={onClickSaveButton}
+                onClick={onSaveReport}
                 type="button"
               >
                 Save

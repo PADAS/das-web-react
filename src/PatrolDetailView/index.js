@@ -137,7 +137,9 @@ const PatrolDetailView = ({ patrolPermissions }) => {
   }, [leader, patrol]);
 
   useEffect(() => {
-    if ((isNewPatrol && !patrolType) || (!isNewPatrol && !loadingPatrols && !patrolStore[itemId])) {
+    const shouldRedirectToFeed = (isNewPatrol && !patrolType)
+      || (!isNewPatrol && !loadingPatrols && !patrolStore[itemId]);
+    if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     } else if (!loadingPatrols) {
       const currentPatrolId = isNewPatrol ? searchParams.get('temporalId') : itemId;
