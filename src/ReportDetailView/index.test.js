@@ -482,4 +482,64 @@ describe('ReportDetailView', () => {
     expect(window.alert).toHaveBeenCalledTimes(1);
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
+
+  test('does not show add report button if report belongs to a collection', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { is_contained_in: ['collection'], id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportDetailView-addReportButton'))).toBeNull();
+  });
+
+  test('does not show add report button if report belongs to patrol', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', patrols: ['patrol'], priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportDetailView-addReportButton'))).toBeNull();
+  });
+
+  test('shows the add report button', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByTestId('reportDetailView-addReportButton'))).toBeDefined();
+  });
 });

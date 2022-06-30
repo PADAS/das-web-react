@@ -190,7 +190,7 @@ const AddReport = forwardRef(({
   showIcon,
   title,
   clickSideEffect,
-}, ref) => {
+}, forwardedRef) => {
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
@@ -296,7 +296,7 @@ const AddReport = forwardRef(({
         <button
           title={title}
           className={styles[`addReport-${variant}`]}
-          ref={ref || targetRef}
+          ref={forwardedRef || targetRef}
           type='button'
           onClick={onButtonClick}
           data-testid='addReport-button'
@@ -304,7 +304,7 @@ const AddReport = forwardRef(({
           {showIcon && <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} container={containerRef.current} target={ref?.current || targetRef.current} placement={popoverPlacement}>
+        <Overlay show={popoverOpen} container={containerRef.current} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
           <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>

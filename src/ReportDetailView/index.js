@@ -290,6 +290,8 @@ const ReportDetailView = () => {
           onSaveSuccess(incidentCollectionRefreshedResults);
         }
 
+        reportTracker.track('Added Report');
+
         navigate(`/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`);
       });
     } catch (e) {
@@ -302,7 +304,9 @@ const ReportDetailView = () => {
   }, [navigate, relationshipButtonDisabled]);
 
   useEffect(() => {
-    if ((isNewReport && !reportType) || (!isNewReport && !loadingEvents && !eventStore[itemId])) {
+    const shouldRedirectToFeed = (isNewReport && !reportType)
+      || (!isNewReport && !loadingEvents && !eventStore[itemId]);
+    if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     } else if (!loadingEvents) {
       const currentReportId = isNewReport ? searchParams.get('temporalId') : itemId;
