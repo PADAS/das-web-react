@@ -198,6 +198,7 @@ const DateTimeField = (props) => {
       id={id}
       value={date}
       showTimeInput
+      minDate={null}
       disabled={disabled}
       popperPlacement={placement}
       maxDate={maxDate || new Date((new Date().getFullYear() + 15).toString())}
