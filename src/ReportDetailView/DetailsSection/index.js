@@ -7,10 +7,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import styles from './styles.module.scss';
 
-const DetailsSection = ({
-  report,
-  onReportedByChange,
-}) => {
+const DetailsSection = ({ report, onReportedByChange }) => {
   return <>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
