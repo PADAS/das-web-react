@@ -3,8 +3,8 @@ import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ReactComponent as ArrowDownSmallIcon } from '../../../common/images/icons/arrow-down-small.svg';
-import { ReactComponent as ArrowUpSmallIcon } from '../../../common/images/icons/arrow-up-small.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as AttachmentIcon } from '../../../common/images/icons/attachment.svg';
 import { ReactComponent as DownloadArrowIcon } from '../../../common/images/icons/download-arrow.svg';
 import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/expand-arrow.svg';
@@ -16,6 +16,7 @@ import { fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { showFullScreenImage } from '../../../ducks/full-screen-image';
 
 import DateTime from '../../../DateTime';
+import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
@@ -36,7 +37,9 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
   const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
 
-  const onShowImageFullScreen = useCallback(() => {
+  const onShowImageFullScreen = useCallback((event) => {
+    event.stopPropagation();
+
     dispatch(showFullScreenImage(attachment, currentImageSource));
   }, [attachment, currentImageSource, dispatch]);
 
@@ -90,7 +93,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
   if (attachment.file_type === 'image') {
     return <li className={isOpen ? styles.openItem : ''}>
-      <div className={styles.itemRow}>
+      <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
         {!!imageIconSource
           ? <img
             alt={`${attachment.filename} thumbnail`}
@@ -112,16 +115,16 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
           />
         </div>
 
-        <div className={styles.itemActionButton} />
-
-        <div className={styles.itemActionButton}>
-          <ExpandArrowIcon onClick={onShowImageFullScreen} />
+        <div className={styles.itemActionButtonContainer}>
+          <ItemActionButton onClick={onShowImageFullScreen} tooltip="Full View">
+            <ExpandArrowIcon />
+          </ItemActionButton>
         </div>
 
-        <div className={styles.itemActionButton}>
-          {isOpen
-            ? <ArrowUpSmallIcon onClick={onCollapse} />
-            : <ArrowDownSmallIcon onClick={onExpand} />}
+        <div className={styles.itemActionButtonContainer}>
+          <ItemActionButton>
+            {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+          </ItemActionButton>
         </div>
       </div>
 
@@ -158,15 +161,15 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
       />}
     </div>
 
-    <div className={styles.itemActionButton} />
-
-    <div className={styles.itemActionButton}>
-      {!isNew
-        ? <DownloadArrowIcon onClick={onClickDownloadIcon} />
-        : <TrashCanIcon onClick={(onDelete)} />}
+    <div className={styles.itemActionButtonContainer}>
+      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={!isNew ? 'Download' : 'Delete'}>
+        {!isNew
+          ? <DownloadArrowIcon />
+          : <TrashCanIcon />}
+      </ItemActionButton>
     </div>
 
-    <div className={styles.itemActionButton} />
+    <div className={styles.itemActionButtonContainer} />
   </li>;
 };
 

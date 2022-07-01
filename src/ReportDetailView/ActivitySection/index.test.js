@@ -58,7 +58,7 @@ describe('ReportDetailView - ActivitySection', () => {
 
     expect(imageCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -67,9 +67,9 @@ describe('ReportDetailView - ActivitySection', () => {
   });
 
   test('collapses an existing image attachment when clicking the up arrow', async () => {
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
     userEvent.click(expandButton);
-    const collapseButton = (await screen.findAllByText('arrow-up-small.svg'))[0];
+    const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
     userEvent.click(collapseButton);
 
     const imageCollapse = await screen.findByTestId('reportDetailView-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
@@ -93,7 +93,7 @@ describe('ReportDetailView - ActivitySection', () => {
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[0];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[0];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -102,9 +102,9 @@ describe('ReportDetailView - ActivitySection', () => {
   });
 
   test('collapses an existing note when clicking the up arrow', async () => {
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[0];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[0];
     userEvent.click(expandButton);
-    const collapseButton = (await screen.findAllByText('arrow-up-small.svg'))[0];
+    const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
     userEvent.click(collapseButton);
 
     const noteCollapse = await screen.findByTestId('reportDetailView-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
@@ -133,7 +133,7 @@ describe('ReportDetailView - ActivitySection', () => {
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[3];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[3];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -142,9 +142,9 @@ describe('ReportDetailView - ActivitySection', () => {
   });
 
   test('collapses a new note when clicking the up arrow', async () => {
-    const expandButton = (await screen.findAllByText('arrow-down-small.svg'))[2];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
     userEvent.click(expandButton);
-    const collapseButton = (await screen.findAllByText('arrow-up-small.svg'))[0];
+    const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
     userEvent.click(collapseButton);
 
     const noteCollapse = await screen.findByTestId('reportDetailView-activitySection-collapse-note1');

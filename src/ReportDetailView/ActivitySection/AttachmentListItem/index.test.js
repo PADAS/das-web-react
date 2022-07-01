@@ -255,7 +255,7 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('reportDetailView-activitySection-collapse-1234'))).toHaveClass('collapse');
 
-    const expandAttachmentButton = await screen.findByText('arrow-down-small.svg');
+    const expandAttachmentButton = await screen.findByText('arrow-down-simple.svg');
     userEvent.click(expandAttachmentButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
@@ -276,7 +276,7 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('reportDetailView-activitySection-collapse-1234'))).toHaveClass('show');
 
-    const colapseAttachmentButton = await screen.findByText('arrow-up-small.svg');
+    const colapseAttachmentButton = await screen.findByText('arrow-up-simple.svg');
     userEvent.click(colapseAttachmentButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);

@@ -102,6 +102,10 @@
   display: flex;
   align-items: center;
   height: 3.5rem;
+
+  &.collapseRow {
+    cursor: pointer;
+  }
 }
 
 .collapse {
@@ -130,11 +134,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding-left: 0.5rem;
+  padding: 0 0.5rem;
   overflow: hidden;
 
   @media (min-width: $md-layout-width-min) {
-    flex: 8;
+    flex: 10;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -159,14 +163,8 @@
   }
 }
 
-.itemActionButton {
+.itemActionButtonContainer {
   flex: 1;
-
-  svg {
-    margin: auto;
-    display: block;
-    cursor: pointer;
-  }
 }
 
 .attachmentThumbnail {
