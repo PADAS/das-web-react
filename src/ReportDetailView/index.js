@@ -25,6 +25,7 @@ import useNavigate from '../hooks/useNavigate';
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from './AddAttachmentButton';
 import AddNoteButton from './AddNoteButton';
+import DetailsSection from './DetailsSection';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
@@ -104,6 +105,20 @@ const ReportDetailView = () => {
   const onChangeTitle = useCallback((newTitle) => setReportForm({ ...reportForm, title: newTitle }), [reportForm]);
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
+
+  const onReportedByChange = useCallback((selection) => {
+    const reportedBySelection = { reported_by: selection ? selection : null };
+    const selectionCoordinates = selection?.last_position?.geometry?.coordinates ?? null;
+
+    if (selectionCoordinates) {
+      reportedBySelection.location = {
+        latitude: selectionCoordinates[1],
+        longitude: selectionCoordinates[0],
+      };
+    }
+    setReportForm({ ...reportForm, ...reportedBySelection });
+    reportTracker.track('Change Report Report By');
+  }, [reportForm, reportTracker]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -290,7 +305,11 @@ const ReportDetailView = () => {
         <div className={styles.content}>
           <Tab.Content className={styles.tab}>
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              Details
+              <DetailsSection
+                report={reportForm}
+                onReportedByChange={onReportedByChange}
+                reportTracker={reportTracker}
+              />
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>

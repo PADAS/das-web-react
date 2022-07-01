@@ -1,0 +1,36 @@
+@import '../../common/styles/vars/colors';
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+
+  h2 {
+    font-size: 1.125rem;
+    margin: 0;
+  }
+
+  svg {
+    color: $secondary-medium-gray;
+    width: 1.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.trackedByLabel {
+  margin-top: 0.5rem;
+  width: 45%;
+  position: relative;
+  color: $secondary-medium-gray;
+  font-size: 0.875rem;
+  
+  > div {
+    margin-top: 0.187rem;
+  }
+}
