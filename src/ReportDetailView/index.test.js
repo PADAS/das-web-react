@@ -42,7 +42,25 @@ describe('ReportDetailView', () => {
     useNavigate.mockImplementation(useNavigateMock);
 
     store = {
-      data: { eventStore: {}, eventTypes, patrolTypes },
+      data: {
+        subjectStore: {},
+        eventStore: {},
+        eventTypes,
+        patrolTypes,
+        eventSchemas: {
+          globalSchema: {
+            properties: {
+              reported_by: {
+                enum_ext: [{
+                  value: { id: 'Leader 1' },
+                }, {
+                  value: { id: 'Leader 2' },
+                }],
+              },
+            },
+          },
+        },
+      },
       view: { sideBar: {} },
     };
 
