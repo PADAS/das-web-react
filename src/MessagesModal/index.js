@@ -94,7 +94,7 @@ const MessagesModal =  ({ id: modalId, showClose = true, onSelectSubject, select
         </Button>
       </Footer>}
       {selectedSubject && <Footer>
-        {!selectedSubject.messaging && <strong>You may only receive messages from this subject.</strong>}
+        {!selectedSubject.messaging && <strong>You may not send messages to this subject.</strong>}
         {!!hasMessagingWritePermissions && <MessageInput subjectId={selectedSubject.id} />}
       </Footer>}
     </Fragment>}
