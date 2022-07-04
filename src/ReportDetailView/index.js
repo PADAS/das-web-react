@@ -107,17 +107,15 @@ const ReportDetailView = () => {
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
   const onReportedByChange = useCallback((selection) => {
-    const reportedBySelection = { reported_by: selection ? selection : null };
-    const selectionCoordinates = selection?.last_position?.geometry?.coordinates ?? null;
-
+    const reportedBySelection = { reported_by: selection || null };
+    const selectionCoordinates = selection?.last_position?.geometry?.coordinates;
     if (selectionCoordinates) {
-      reportedBySelection.location = {
-        latitude: selectionCoordinates[1],
-        longitude: selectionCoordinates[0],
-      };
+      reportedBySelection.location = { latitude: selectionCoordinates[1], longitude: selectionCoordinates[0] };
     }
+
     setReportForm({ ...reportForm, ...reportedBySelection });
-    reportTracker.track('Change Report Report By');
+
+    reportTracker.track('Change Report Reported By');
   }, [reportForm, reportTracker]);
 
   const onDeleteAttachment = useCallback((attachment) => {
@@ -305,11 +303,7 @@ const ReportDetailView = () => {
         <div className={styles.content}>
           <Tab.Content className={styles.tab}>
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              <DetailsSection
-                report={reportForm}
-                onReportedByChange={onReportedByChange}
-                reportTracker={reportTracker}
-              />
+              <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm.reported_by} />
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
