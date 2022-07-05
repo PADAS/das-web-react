@@ -12,7 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
 // Date picker documentation
-// https://reactdatepicker.com/#example-custom-input
+// https://reactdatepicker.com
 
 const CustomDatePicker = ({ value,
   onChange,
@@ -77,22 +77,22 @@ const CustomHeader = ({
   nextMonthButtonDisabled,
 }) => (
   <div className={styles.customHeader}>
-    <button onClick={decreaseYear}> <ChevronLeft/><ChevronLeft/> </button>
-    <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}> <ChevronLeft/> </button>
+    <button onClick={(e) => {e.preventDefault(); decreaseYear();}}> <ChevronLeft/><ChevronLeft/> </button>
+    <button onClick={(e) => {e.preventDefault(); decreaseMonth();}} disabled={prevMonthButtonDisabled}> <ChevronLeft/> </button>
 
     <DatePicker
       selected={date}
       dateFormat="yyyy"
       showMonthYearPicker
       onChange={(date) => { changeMonth(getMonth(date)); changeYear(getYear(date)); }}
-      customInput={<button className={styles.headerTitle} onClick={increaseMonth}>
+      customInput={<div className={styles.headerTitle}>
         {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
         <div className={styles.triangle}></div>
-      </button>}
+      </div>}
     />
 
-    <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}> <ChevronRight/> </button>
-    <button onClick={increaseYear}> <ChevronRight/><ChevronRight/> </button>
+    <button onClick={(e) => {e.preventDefault(); increaseMonth();}} disabled={nextMonthButtonDisabled}> <ChevronRight/> </button>
+    <button onClick={(e) => {e.preventDefault(); increaseYear();}}> <ChevronRight/><ChevronRight/> </button>
   </div>
 );
 
