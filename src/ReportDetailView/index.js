@@ -342,7 +342,12 @@ const ReportDetailView = () => {
 
   useEffect(() => {
     const currentReportId = isNewReport ? temporalId : itemId;
-    reportDataToStore.current = { attachmentsToAdd, id: currentReportId, notesToAdd, reportChanges };
+    reportDataToStore.current = {
+      attachmentsToAdd,
+      id: currentReportId,
+      notesToAdd: notesToAdd.filter((noteToAdd) => !!noteToAdd.text),
+      reportChanges,
+    };
   }, [attachmentsToAdd, isNewReport, itemId, notesToAdd, reportChanges, temporalId]);
 
   useEffect(() => () => setReportDataTemporalStorage(null), []);

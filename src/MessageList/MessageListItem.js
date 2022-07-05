@@ -36,7 +36,7 @@ const MESSAGE_ICON_MAP = {
 
 const MessageListItem = (props) => {
   const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
-    showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, ...rest } = props;
+    showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, dispatch: _dispatch, ...rest } = props;
 
   const jumpToLocation = useJumpToLocation();
 

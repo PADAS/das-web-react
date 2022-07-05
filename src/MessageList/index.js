@@ -88,7 +88,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         <ul>
           {group.messages.map((message) => {
             return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} messageGroup={message} onMessageSubjectClick={onMessageSubjectClick}
-              key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
+              key={`${instanceId}-message-${Array.isArray(message) ? message?.[0]?.id : message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
           })}
         </ul>
         {isReverse && <h6 className={`${styles.dividerTitle} ${styles.reverse}`}>
