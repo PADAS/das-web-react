@@ -5,6 +5,8 @@ import store from '../store';
 
 import { API_URL } from '../constants';
 
+import { recursivePaginatedQuery } from '../utils/query';
+
 
 import { messageIsValidForDisplay } from '../utils/messaging';
 
@@ -13,7 +15,7 @@ const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 export const FETCH_MESSAGES_FOR_SUBJECT_SUCCESS = 'FETCH_MESSAGES_FOR_SUBJECT_SUCCESS';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
 
-const MESSAGING_API_URL = `${API_URL}messages/`;
+export const MESSAGING_API_URL = `${API_URL}messages/`;
 
 export const fetchMessagesSuccess = (payload, refresh = false) => ({
   type: FETCH_MESSAGES_SUCCESS,
@@ -37,6 +39,11 @@ const { get, post, patch } = axios;
 export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { params: {
   include_additional_data: false, page_size: 25, ...params,
 } });
+
+export const fetchAllMessages = (params = {}) =>
+  recursivePaginatedQuery(
+    fetchMessages(params)
+  );
 
 
 export const fetchMessagesNextPage = url => get(url);
