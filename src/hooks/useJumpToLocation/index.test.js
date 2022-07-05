@@ -24,11 +24,12 @@ describe('useJumpToLocation', () => {
     useRouterLocation.mockImplementation(useRouterLocationMock);
     useMatchMediaMock = jest.fn(() => true);
     useMatchMedia.mockImplementation(useMatchMediaMock);
-
+    jest.useFakeTimers();
     map = createMapMock();
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -85,7 +86,7 @@ describe('useJumpToLocation', () => {
     });
   });
 
-  test('sets the zooma and eases to the coordinates when they are not an array', async () => {
+  test('sets the zooms and eases to the coordinates when they are not an array', async () => {
     const coordinates = [-104.19557197413907, 20.75709101172957];
 
     const Component = () => {
@@ -101,8 +102,6 @@ describe('useJumpToLocation', () => {
     );
 
     await waitFor(() => {
-      expect(map.setZoom).toHaveBeenCalledTimes(1);
-      expect(map.setZoom).toHaveBeenCalledWith(12);
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
@@ -111,6 +110,33 @@ describe('useJumpToLocation', () => {
         zoom: 12,
       });
     });
+  });
+
+  test('quickly zooms the map in and out if no features have been rendered after easing', async () => {
+    map.queryRenderedFeatures.mockReturnValue([]);
+    map.once.mockImplementation((_eventName, callback) => callback());
+
+    const coordinates = [-104.19557197413907, 20.75709101172957];
+
+    const Component = () => {
+      const jumpToLocation = useJumpToLocation();
+      useEffect(() => { jumpToLocation(coordinates, 12); }, [jumpToLocation]);
+      return null;
+    };
+
+    render(
+      <MapContext.Provider value={map}>
+        <Component />
+      </MapContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(map.easeTo).toHaveBeenCalledTimes(1);
+      expect(map.flyTo).not.toHaveBeenCalled();
+    });
+
+    jest.runAllTimers();
+    expect(map.flyTo).toHaveBeenCalledTimes(2);
   });
 
   test('sets the right padding if a sidebar tab is open', async () => {

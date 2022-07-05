@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
 
-import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
+import { ReactComponent as IncidentIcon } from '../common/images/icons/incident.svg';
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import PriorityPicker from '../PriorityPicker';
 import { withFormDataContext } from '../EditableItem/context';
@@ -37,7 +37,7 @@ const ReportHeaderPopover = (props, ref) => {
       {canAddToIncident && <Fragment>
         <hr />
         <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToIncident}>
-          <AddToIncidentIcon style={{ height: '2rem', width: '2rem' }} />Add to Incident
+          <IncidentIcon style={{ height: '2rem', width: '2rem' }} />Add to Incident
         </Button>
       </Fragment>
       }

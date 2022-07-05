@@ -21,14 +21,11 @@
 }
 
 .headerTitle {
-  background-color: transparent;
-  border: none;
   color: black;
   font-size: 0.875rem;
-  margin-left: 0.75rem;
+  margin-left: 30%;
   display: flex;
   align-items: center;
-  margin: auto;
 
   > span {
     color: $secondary-medium-light-gray;

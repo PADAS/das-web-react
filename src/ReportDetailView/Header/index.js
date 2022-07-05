@@ -13,10 +13,11 @@ import useReport from '../../hooks/useReport';
 import DateTime from '../../DateTime';
 import EventIcon from '../../EventIcon';
 import LocationJumpButton from '../../LocationJumpButton';
+import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onChangeTitle, report }) => {
+const Header = ({ onChangeTitle, report, onReportChange }) => {
   const { displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -88,12 +89,16 @@ const Header = ({ onChangeTitle, report }) => {
         isMulti={collectionHasMultipleValidLocations(report)}
       />
     </div>}
+    <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
+      <ReportMenu report={report} onReportChange={onReportChange}></ReportMenu>
+    </div>
   </div>;
 };
 
 Header.propTypes = {
   onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
+  onReportChange: PropTypes.func.isRequired,
 };
 
 export default Header;

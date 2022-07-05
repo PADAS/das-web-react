@@ -189,7 +189,7 @@ const ReportDetailView = () => {
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback]);
 
-  const onClickSaveButton = useCallback(() => {
+  const saveReport = useCallback(() => {
     if (isSaving) {
       return;
     }
@@ -271,7 +271,7 @@ const ReportDetailView = () => {
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
-    <Header onChangeTitle={onChangeTitle} report={reportForm || {}} />
+    <Header onChangeTitle={onChangeTitle} report={reportForm || {}} onReportChange={saveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
@@ -344,7 +344,7 @@ const ReportDetailView = () => {
               <Button
                 className={styles.saveButton}
                 disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                onClick={onClickSaveButton}
+                onClick={saveReport}
                 type="button"
               >
                 Save
