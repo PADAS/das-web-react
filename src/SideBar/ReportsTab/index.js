@@ -1,5 +1,6 @@
-import React, { createContext, useState, useCallback, useEffect, useMemo, memo } from 'react';
+import React, { createContext, useRef, useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { connect } from 'react-redux';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
@@ -15,6 +16,7 @@ import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
+import { objectToParamString } from '../../utils/query';
 import useNavigate from '../../hooks/useNavigate';
 
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
@@ -54,6 +56,7 @@ const ReportsTab = ({
   const [loadingEventFeed, setEventLoadState] = useState(true);
   const [loadingEventById, setLoadingEventById] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
+  const eventParams = useRef(null);
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
@@ -65,18 +68,47 @@ const ReportsTab = ({
     setFeedSort(DEFAULT_EVENT_SORT);
   }, []);
 
-  const optionalFeedProps = useMemo(() => {
-    let value = {};
+  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
+  const geoResrictedUserLocationCoords = useMemo(() => userIsGeoPermRestricted && userLocationCoords, [userIsGeoPermRestricted, userLocationCoords]);
 
-    if (userIsGeoPermRestricted && userLocationCoords) {
-      value.location = calcLocationParamStringForUserLocationCoords(userLocationCoords);
+  const loadFeedEvents = useCallback(debounce((silent = false) => { /* eslint-disable-line */
+    if (!silent) setEventLoadState(true);
+
+    const paramString = objectToParamString(eventParams.current);
+
+    fetchEventFeed({}, paramString)
+      .finally(() => {
+        setEventLoadState(false);
+      });
+
+  }, 100), [fetchEventFeed]);
+
+  useEffect(() => {
+    if (geoResrictedUserLocationCoords) {
+      eventParams.current = {
+        ...eventParams.current,
+        location: calcLocationParamStringForUserLocationCoords(geoResrictedUserLocationCoords),
+      };
     }
 
-    if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
-      value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
+    loadFeedEvents(true);
+
+  }, [geoResrictedUserLocationCoords, loadFeedEvents]);
+
+  useEffect(() => {
+    const params = {};
+    if (shouldExcludeContained) {
+      params.exclude_contained = true;
     }
-    return value;
-  }, [eventFilter, userIsGeoPermRestricted, userLocationCoords]);
+
+    eventParams.current = {
+      ...eventParams.current,
+      ...calcEventFilterForRequest({ params, format: 'object' }, feedSort)
+    };
+
+    loadFeedEvents();
+
+  }, [feedSort, loadFeedEvents, shouldExcludeContained]);
 
   useEffect(() => {
     if (itemId && itemId !== 'new' && !eventStore[itemId]) {
@@ -88,18 +120,6 @@ const ReportsTab = ({
       setLoadingEventById(false);
     }
   }, [fetchEvent, itemId, navigate, eventStore]);
-
-  const loadFeedEvents = useCallback(() => {
-    setEventLoadState(true);
-    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }, feedSort))
-      .then(() => {
-        setEventLoadState(false);
-      });
-  }, [feedSort, fetchEventFeed, optionalFeedProps]);
-
-  useEffect(() => {
-    loadFeedEvents();
-  }, [loadFeedEvents]);
 
   const onScroll = useCallback(() => {
     if (events.next) {
@@ -124,7 +144,7 @@ const ReportsTab = ({
   }, [events.error, loadingEventFeed]);
 
   useEffect(() => {
-    if (!optionalFeedProps.exclude_contained) {
+    if (!shouldExcludeContained) {
       setFeedEvents(events.results);
     }
     else {
@@ -138,7 +158,7 @@ const ReportsTab = ({
         ], []));
       setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
     }
-  }, [events.results, optionalFeedProps.exclude_contained]);
+  }, [events.results, shouldExcludeContained]);
 
   const loadingEvents = !!itemId ? loadingEventById : loadingEventFeed;
   return <>
