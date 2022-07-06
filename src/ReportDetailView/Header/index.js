@@ -13,10 +13,11 @@ import useReport from '../../hooks/useReport';
 import DateTime from '../../DateTime';
 import EventIcon from '../../EventIcon';
 import LocationJumpButton from '../../LocationJumpButton';
+import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ report, setTitle }) => {
+const Header = ({ onChangeTitle, report, onReportChange }) => {
   const { displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -27,21 +28,21 @@ const Header = ({ report, setTitle }) => {
 
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
 
-  useEffect(() => {
-    if (!report.title) {
-      setTitle(displayTitle);
-    }
-  }, [displayTitle, report.title, setTitle]);
-
   const onTitleBlur = useCallback((event) => {
     if (!event.target.textContent) {
       titleInput.current.innerHTML = eventTypeTitle;
     }
-    setTitle(event.target.textContent || eventTypeTitle);
+    onChangeTitle(event.target.textContent || eventTypeTitle);
     event.target.scrollTop = 0;
-  }, [eventTypeTitle, setTitle]);
+  }, [eventTypeTitle, onChangeTitle]);
 
   const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
+
+  useEffect(() => {
+    if (!report.title) {
+      onChangeTitle(displayTitle);
+    }
+  }, [onChangeTitle, displayTitle, report.title]);
 
   return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
     <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
@@ -71,7 +72,7 @@ const Header = ({ report, setTitle }) => {
       </label>}
     </div>
 
-    {!isNewReport && <div className={styles.priorityAndDate}>
+    {!isNewReport && <div className={styles.priorityAndDate} data-testid="reportDetailView-header-priorityAndDate">
       <span style={{ color: priorityTheme.base }}>{priorityTheme.name}</span>
       <br />
       <DateTime className={styles.dateTime} date={report.updated_at || report.created_at} showElapsed={false} />
@@ -88,12 +89,16 @@ const Header = ({ report, setTitle }) => {
         isMulti={collectionHasMultipleValidLocations(report)}
       />
     </div>}
+    <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
+      <ReportMenu report={report} onReportChange={onReportChange}></ReportMenu>
+    </div>
   </div>;
 };
 
 Header.propTypes = {
+  onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
-  setTitle: PropTypes.func.isRequired,
+  onReportChange: PropTypes.func.isRequired,
 };
 
 export default Header;
