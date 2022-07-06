@@ -779,8 +779,6 @@ const mapStatetoProps = (state) => {
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
-    userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
-    userLocationCoords: state?.view?.userLocation?.coords,
   });
 };
 
