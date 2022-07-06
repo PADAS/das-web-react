@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -23,7 +23,7 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
-}) => {
+}, ref) => {
   const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -124,7 +124,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notesToAdd, onExpandCard]);
 
-  return <>
+  return <div ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -161,7 +161,7 @@ const ActivitySection = ({
 
     {/* TODO: This is a temporal print of child reports for testing purposes */}
     {!!containedReports.length && containedReports.map((report) => <div key={report.id}>{report.id}<br/></div>)}
-  </>;
+  </div>;
 };
 
 ActivitySection.propTypes = {
@@ -194,4 +194,4 @@ ActivitySection.propTypes = {
   reportTracker: PropTypes.object.isRequired,
 };
 
-export default memo(ActivitySection);
+export default memo(forwardRef(ActivitySection));

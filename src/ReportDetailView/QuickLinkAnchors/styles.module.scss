@@ -1,0 +1,56 @@
+@import '../../common/styles/layout';
+@import '../../common/styles/vars/colors';
+
+.navigationBar {
+  display: flex;
+  flex-direction: column;
+  min-width: 3rem;
+  background-color: white;
+  
+  @media (min-width: $md-layout-width-min) {
+    min-width: 4.5rem;
+  }
+
+  .anchor {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: $secondary-light-gray;
+    font-size: 0.625rem;
+    height: 3rem;
+    padding: 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(177, 179, 179, 0.25);
+
+    svg {
+      color: $secondary-light-gray;
+      
+      @media (min-width: $md-layout-width-min) {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    span {
+      display: none;
+
+      @media (min-width: $md-layout-width-min) {
+        display: block;
+      }
+    }
+
+    &[class*=active] {
+      color: $bright-blue !important;
+      background-color: $very-light-blue !important;
+      font-weight: bold;
+
+      svg {
+        color: $bright-blue;
+      }
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      height: 5.5rem;
+    }
+  }
+}

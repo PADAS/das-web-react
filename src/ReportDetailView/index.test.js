@@ -106,36 +106,6 @@ describe('ReportDetailView', () => {
     });
   });
 
-  test('renders the Details view by default', async () => {
-    expect((await screen.findAllByRole('tab'))[0]).toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[0]).toHaveTextContent('Details');
-    expect((await screen.findAllByRole('tabpanel'))[0]).toHaveClass('show');
-  });
-
-  test('navigates to the Activity view when user clicks the tab', async () => {
-    const activitySection = (await screen.findAllByRole('tab'))[1];
-
-    expect(activitySection).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[1]).toHaveTextContent('Activity');
-
-    userEvent.click(activitySection);
-
-    expect(activitySection).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
-  test('navigates to the History view when user clicks the tab', async () => {
-    const historySection = (await screen.findAllByRole('tab'))[2];
-
-    expect(historySection).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[2]).toHaveTextContent('History');
-
-    userEvent.click(historySection);
-
-    expect(historySection).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
   test('updates the title when user types in it', async () => {
     const titleInput = await screen.findByTestId('reportDetailView-header-title');
 

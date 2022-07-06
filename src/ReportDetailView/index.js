@@ -1,13 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Nav from 'react-bootstrap/Nav';
-import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
-import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
-import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
-import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
@@ -36,14 +30,12 @@ import AddReportButton from './AddReportButton';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
+import QuickLinkAnchors from './QuickLinkAnchors';
 
 import styles from './styles.module.scss';
 
-const NAVIGATION_DETAILS_EVENT_KEY = 'details';
-const NAVIGATION_ACTIVITY_EVENT_KEY = 'activity';
-const NAVIGATION_HISTORY_EVENT_KEY = 'history';
-
 const CLEAR_ERRORS_TIMEOUT = 7000;
+const OFFSET_TOP_SCROLL_GAP = 20;
 
 const ReportDetailView = () => {
   const dispatch = useDispatch();
@@ -61,13 +53,21 @@ const ReportDetailView = () => {
   );
 
   const reportDataToStore = useRef();
+  const reportFormRef = useRef();
+
+  const [activitySectionNode, setActivitySectionNode] = useState(null);
+  const [detailsSectionNode, setDetailsSectionNode] = useState(null);
+  const [historySectionNode, setHistorySectionNode] = useState(null);
+
+  const activitySectionRef = useCallback((node) => setActivitySectionNode(node), []);
+  const detailsSectionRef = useCallback((node) => setDetailsSectionNode(node), []);
+  const historySectionRef = useCallback((node) => setHistorySectionNode(node), []);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
-  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
   const [temporalId, setTemporalId] = useState(null);
 
   const {
@@ -129,13 +129,16 @@ const ReportDetailView = () => {
     [isCollection, isCollectionChild, isPatrolReport, relationshipButtonDisabled]
   );
 
+  const onScrollToSection = useCallback((sectionNode) => () => {
+    reportFormRef.current.scrollTo({ top: sectionNode.offsetTop - OFFSET_TOP_SCROLL_GAP, behavior: 'smooth' });
+  }, []);
+
   const onCleanState = useCallback((reportForm = null, temporalId = null) => {
     setAttachmentsToAdd([]);
     setIsSaving(false);
     setNotesToAdd([]);
     setReportForm(reportForm);
     setSaveError(null);
-    setTab(NAVIGATION_DETAILS_EVENT_KEY);
     setTemporalId(temporalId);
   }, []);
 
@@ -352,6 +355,12 @@ const ReportDetailView = () => {
 
   useEffect(() => () => setReportDataTemporalStorage(null), []);
 
+  const shouldRenderActivitySection = (reportAttachments.length
+    + attachmentsToAdd.length
+    + reportNotes.length
+    + notesToAdd.length) > 0;
+  const shouldRenderHistorySection = !isNewReport;
+
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     {isSaving && <LoadingOverlay message="Saving..." />}
 
@@ -359,83 +368,68 @@ const ReportDetailView = () => {
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
-    <Tab.Container activeKey={tab} onSelect={setTab}>
-      <div className={styles.body}>
-        <Nav className={styles.navigation}>
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              <PencilWritingIcon />
-              <span>Details</span>
-            </Nav.Link>
-          </Nav.Item>
+    <div className={styles.body}>
+      <QuickLinkAnchors
+        activitySectionNode={activitySectionNode}
+        detailsSectionNode={detailsSectionNode}
+        historySectionNode={historySectionNode}
+        onScrollToSection={onScrollToSection}
+      />
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
-              <BulletListIcon />
-              <span>Activity</span>
-            </Nav.Link>
-          </Nav.Item>
+      <div className={styles.content}>
+        <div className={styles.reportForm} ref={reportFormRef}>
+          <h3 ref={detailsSectionRef}>Details</h3>
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              <HistoryIcon />
-              <span>History</span>
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+          {shouldRenderActivitySection && <>
+            <div className={styles.sectionSeparation} />
 
-        <div className={styles.content}>
-          <Tab.Content className={styles.tab}>
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              Details
-            </Tab.Pane>
+            <ActivitySection
+              attachmentsToAdd={attachmentsToAdd}
+              containedReports={containedReports}
+              notesToAdd={notesToAdd}
+              onDeleteAttachment={onDeleteAttachment}
+              onDeleteNote={onDeleteNote}
+              onSaveNote={onSaveNote}
+              ref={activitySectionRef}
+              reportAttachments={reportAttachments}
+              reportNotes={reportNotes}
+              reportTracker={reportTracker}
+            />
+          </>}
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
-              <ActivitySection
-                attachmentsToAdd={attachmentsToAdd}
-                containedReports={containedReports}
-                notesToAdd={notesToAdd}
-                onDeleteAttachment={onDeleteAttachment}
-                onDeleteNote={onDeleteNote}
-                onSaveNote={onSaveNote}
-                reportAttachments={reportAttachments}
-                reportNotes={reportNotes}
-                reportTracker={reportTracker}
-              />
-            </Tab.Pane>
+          {shouldRenderHistorySection && <>
+            <div className={styles.sectionSeparation} />
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              History
-            </Tab.Pane>
-          </Tab.Content>
+            <h3 ref={historySectionRef}>History</h3>
+          </>}
+        </div>
 
-          <div className={styles.footer}>
-            <div className={styles.footerActionButtonsContainer}>
-              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+        <div className={styles.footer}>
+          <div className={styles.footerActionButtonsContainer}>
+            <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 
-              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+            <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
-              {showAddReportButton && <AddReportButton className={styles.footerActionButton} onAddReport={onAddReport} />}
-            </div>
+            {showAddReportButton && <AddReportButton className={styles.footerActionButton} onAddReport={onAddReport} />}
+          </div>
 
-            <div>
-              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                Cancel
-              </Button>
+          <div>
+            <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+              Cancel
+            </Button>
 
-              <Button
-                className={styles.saveButton}
-                disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                onClick={onSaveReport}
-                type="button"
-              >
-                Save
-              </Button>
-            </div>
+            <Button
+              className={styles.saveButton}
+              disabled={!isReportModified || reportSchemas?.schema?.readonly}
+              onClick={onSaveReport}
+              type="button"
+            >
+              Save
+            </Button>
           </div>
         </div>
       </div>
-    </Tab.Container>
+    </div>
   </div> : null;
 };
 
