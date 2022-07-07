@@ -1,68 +1,48 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
+import useOnScreen from '../../hooks/useOnScreen';
+
 import styles from './styles.module.scss';
 
-const QuickLinkAnchors = ({ activitySectionNode, detailsSectionNode, historySectionNode, onScrollToSection }) => {
-  const intersectionObserversRef = useRef([]);
-
-  const [isActivitySectionOnScreen, setIsActivitySectionOnScreen] = useState(false);
-  const [isDetailsSectionOnScreen, setIsDetailsSectionOnScreen] = useState(false);
-  const [isHistorySectionOnScreen, setIsHistorySectionOnScreen] = useState(false);
-
-  const setIntersectionObserver = useCallback((setIsSectionOnScreen, sectionNode) => {
-    if (!!sectionNode) {
-      const observer = new IntersectionObserver(([entry]) => setIsSectionOnScreen(entry.isIntersecting));
-      observer.observe(sectionNode);
-
-      intersectionObserversRef.current.push(observer);
-    } else {
-      setIsSectionOnScreen(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    setIntersectionObserver(setIsActivitySectionOnScreen, activitySectionNode);
-  }, [activitySectionNode, setIntersectionObserver]);
-
-  useEffect(() => {
-    setIntersectionObserver(setIsDetailsSectionOnScreen, detailsSectionNode);
-  }, [detailsSectionNode, setIntersectionObserver]);
-
-  useEffect(() => {
-    setIntersectionObserver(setIsHistorySectionOnScreen, historySectionNode);
-  }, [historySectionNode, setIntersectionObserver]);
-
-  useEffect(() => () => intersectionObserversRef.current.forEach((observer) => observer.disconnect()), []);
+const QuickLinkAnchors = ({
+  activitySectionElement,
+  detailsSectionElement,
+  historySectionElement,
+  onScrollToSection,
+}) => {
+  const isActivitySectionOnScreen = useOnScreen(activitySectionElement);
+  const isDetailsSectionOnScreen = useOnScreen(detailsSectionElement);
+  const isHistorySectionOnScreen = useOnScreen(historySectionElement);
 
   const isDetailAnchorActive = isDetailsSectionOnScreen;
   const isActivityAnchorActive = !isDetailsSectionOnScreen && isActivitySectionOnScreen;
-  const isHistoryAchorActive = !isDetailsSectionOnScreen && !isActivitySectionOnScreen && isHistorySectionOnScreen;
+  const isHistoryAnchorActive = !isDetailsSectionOnScreen && !isActivitySectionOnScreen && isHistorySectionOnScreen;
 
   return <div className={styles.navigationBar}>
-    {detailsSectionNode && <div
+    {detailsSectionElement && <div
       className={`${styles.anchor} ${isDetailAnchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(detailsSectionNode)}
+      onClick={onScrollToSection(detailsSectionElement)}
     >
       <PencilWritingIcon />
       <span>Details</span>
     </div>}
 
-    {activitySectionNode && <div
+    {activitySectionElement && <div
       className={`${styles.anchor} ${isActivityAnchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(activitySectionNode)}
+      onClick={onScrollToSection(activitySectionElement)}
     >
       <BulletListIcon />
       <span>Activity</span>
     </div>}
 
-    {historySectionNode && <div
-      className={`${styles.anchor} ${isHistoryAchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(historySectionNode)}
+    {historySectionElement && <div
+      className={`${styles.anchor} ${isHistoryAnchorActive ? 'active' : ''}`}
+      onClick={onScrollToSection(historySectionElement)}
     >
       <HistoryIcon />
       <span>History</span>
@@ -71,15 +51,15 @@ const QuickLinkAnchors = ({ activitySectionNode, detailsSectionNode, historySect
 };
 
 QuickLinkAnchors.defaultProps = {
-  activitySectionNode: null,
-  detailsSectionNode: null,
-  historySectionNode: null,
+  activitySectionElement: null,
+  detailsSectionElement: null,
+  historySectionElement: null,
 };
 
 QuickLinkAnchors.propTypes = {
-  activitySectionNode: PropTypes.instanceOf(Element),
-  detailsSectionNode: PropTypes.instanceOf(Element),
-  historySectionNode: PropTypes.instanceOf(Element),
+  activitySectionElement: PropTypes.instanceOf(Element),
+  detailsSectionElement: PropTypes.instanceOf(Element),
+  historySectionElement: PropTypes.instanceOf(Element),
   onScrollToSection: PropTypes.func.isRequired,
 };
 

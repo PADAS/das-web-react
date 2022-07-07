@@ -55,13 +55,13 @@ const ReportDetailView = () => {
   const reportDataToStore = useRef();
   const reportFormRef = useRef();
 
-  const [activitySectionNode, setActivitySectionNode] = useState(null);
-  const [detailsSectionNode, setDetailsSectionNode] = useState(null);
-  const [historySectionNode, setHistorySectionNode] = useState(null);
+  const [activitySectionElement, setActivitySectionElement] = useState(null);
+  const [detailsSectionElement, setDetailsSectionElement] = useState(null);
+  const [historySectionElement, setHistorySectionElement] = useState(null);
 
-  const activitySectionRef = useCallback((node) => setActivitySectionNode(node), []);
-  const detailsSectionRef = useCallback((node) => setDetailsSectionNode(node), []);
-  const historySectionRef = useCallback((node) => setHistorySectionNode(node), []);
+  const activitySectionRef = useCallback((node) => setActivitySectionElement(node), []);
+  const detailsSectionRef = useCallback((node) => setDetailsSectionElement(node), []);
+  const historySectionRef = useCallback((node) => setHistorySectionElement(node), []);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -129,8 +129,8 @@ const ReportDetailView = () => {
     [isCollection, isCollectionChild, isPatrolReport, relationshipButtonDisabled]
   );
 
-  const onScrollToSection = useCallback((sectionNode) => () => {
-    reportFormRef.current.scrollTo({ top: sectionNode.offsetTop - OFFSET_TOP_SCROLL_GAP, behavior: 'smooth' });
+  const onScrollToSection = useCallback((sectionElement) => () => {
+    reportFormRef.current.scrollTo({ top: sectionElement.offsetTop - OFFSET_TOP_SCROLL_GAP, behavior: 'smooth' });
   }, []);
 
   const onCleanState = useCallback((reportForm = null, temporalId = null) => {
@@ -370,9 +370,9 @@ const ReportDetailView = () => {
 
     <div className={styles.body}>
       <QuickLinkAnchors
-        activitySectionNode={activitySectionNode}
-        detailsSectionNode={detailsSectionNode}
-        historySectionNode={historySectionNode}
+        activitySectionElement={activitySectionElement}
+        detailsSectionElement={detailsSectionElement}
+        historySectionElement={historySectionElement}
         onScrollToSection={onScrollToSection}
       />
 
