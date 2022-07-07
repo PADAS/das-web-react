@@ -25,6 +25,7 @@ import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../co
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { PatrolsTabContext } from '../SideBar/PatrolsTab';
 import useNavigate from '../hooks/useNavigate';
+import { uuid } from '../utils/string';
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
@@ -131,6 +132,15 @@ const PatrolDetailView = ({ patrolPermissions }) => {
   }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, navigate]);
 
   useEffect(() => {
+    if (isNewPatrol && !location.state?.temporalId) {
+      navigate(
+        `${location.pathname}${location.search}`,
+        { replace: true, state: { ...location.state, temporalId: uuid() } }
+      );
+    }
+  }, [isNewPatrol, location, navigate]);
+
+  useEffect(() => {
     if (patrol) {
       setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
     }
@@ -142,7 +152,7 @@ const PatrolDetailView = ({ patrolPermissions }) => {
     if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     } else if (!loadingPatrols) {
-      const currentPatrolId = isNewPatrol ? searchParams.get('temporalId') : itemId;
+      const currentPatrolId = isNewPatrol ? location.state?.temporalId : itemId;
       const selectedPatrolHasChanged = (isNewPatrol ? temporalId : patrolDataSelector?.patrol?.id) !== currentPatrolId;
       if (selectedPatrolHasChanged) {
         setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
@@ -153,12 +163,12 @@ const PatrolDetailView = ({ patrolPermissions }) => {
     isNewPatrol,
     itemId,
     loadingPatrols,
+    location.state?.temporalId,
     navigate,
     originalPatrol,
     patrolDataSelector?.patrol?.id,
     patrolStore,
     patrolType,
-    searchParams,
     state,
     temporalId,
   ]);

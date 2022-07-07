@@ -28,6 +28,7 @@ import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { uuid } from '../utils/string';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from './AddAttachmentButton';
@@ -304,16 +305,25 @@ const ReportDetailView = () => {
   }, [navigate, relationshipButtonDisabled]);
 
   useEffect(() => {
+    if (isNewReport && !location.state?.temporalId) {
+      navigate(
+        `${location.pathname}${location.search}`,
+        { replace: true, state: { ...location.state, temporalId: uuid() } }
+      );
+    }
+  }, [isNewReport, location, navigate]);
+
+  useEffect(() => {
     const shouldRedirectToFeed = (isNewReport && !reportType)
       || (!isNewReport && !loadingEvents && !eventStore[itemId]);
     if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     } else if (!loadingEvents) {
-      const currentReportId = isNewReport ? searchParams.get('temporalId') : itemId;
+      const currentReportId = isNewReport ? location.state?.temporalId : itemId;
       const selectedReportHasChanged = (isNewReport ? temporalId : reportForm?.id) !== currentReportId;
       if (selectedReportHasChanged) {
         const reportDataStored = getReportDataTemporalStorage();
-        if (!relationshipButtonDisabled && reportDataStored?.id === currentReportId) {
+        if (!relationshipButtonDisabled && reportDataStored?.id && reportDataStored.id === currentReportId) {
           setAttachmentsToAdd(reportDataStored.attachmentsToAdd);
           setNotesToAdd(reportDataStored.notesToAdd);
           setReportForm({ ...originalReport, ...reportDataStored.reportChanges });
@@ -329,6 +339,7 @@ const ReportDetailView = () => {
     isNewReport,
     itemId,
     loadingEvents,
+    location.state?.temporalId,
     navigate,
     newReport,
     onCleanState,
@@ -336,7 +347,6 @@ const ReportDetailView = () => {
     relationshipButtonDisabled,
     reportForm?.id,
     reportType,
-    searchParams,
     temporalId,
   ]);
 

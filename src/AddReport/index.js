@@ -256,8 +256,8 @@ const AddReport = forwardRef(({
         setPopoverState(false);
         if (ENABLE_PATROL_NEW_UI) {
           return navigate(
-            { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}&temporalId=${uuid()}` },
-            { state: { patrolData: reportData } }
+            { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
+            { state: { patrolData: reportData, temporalId: uuid() } }
           );
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
@@ -270,8 +270,8 @@ const AddReport = forwardRef(({
 
     if (ENABLE_REPORT_NEW_UI) {
       navigate(
-        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}&temporalId=${uuid()}` },
-        { state: { reportData } },
+        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { state: { reportData, temporalId: uuid() } },
         { formProps }
       );
     } else {
