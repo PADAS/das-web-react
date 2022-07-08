@@ -108,7 +108,7 @@ const ReportsTab = ({
 
     loadFeedEvents();
 
-  }, [feedSort, loadFeedEvents, shouldExcludeContained]);
+  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
 
   useEffect(() => {
     if (itemId && itemId !== 'new' && !eventStore[itemId]) {
