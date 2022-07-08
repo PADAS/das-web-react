@@ -17,7 +17,7 @@ describe('ReportDetailView - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(), onDeleteNote= jest.fn(), onSaveNote= jest.fn(), track = jest.fn();
   let store;
   beforeEach(() => {
-    store = { data: {}, view: { fullScreenImage: {} } };
+    store = { data: {}, view: {} };
 
     const currentDate = new Date();
     render(

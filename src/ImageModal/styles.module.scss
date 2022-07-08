@@ -1,3 +1,26 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+
+  .leftSpace {
+    width: 3.25rem;
+  }
+  
+  .title {
+    font-size: 1.125rem;
+  }
+
+  svg {
+    cursor: pointer;
+
+    &:first-child {
+      margin-right: 1.5rem;
+    }
+  }
+}
+
 .body {
   align-items: center;
   display: flex;
@@ -5,10 +28,12 @@
   justify-content: center;
   max-height: 80vh;
   min-height: 10rem;
+
   img {
     max-height: calc(77vh - 3rem);
     max-width: 90%;
   }
+
   h5 {
     margin-bottom: 1rem;
   }
