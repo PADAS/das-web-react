@@ -1,17 +1,14 @@
-import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import React, { useContext, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect, useSelector } from 'react-redux';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
 
 import { MapContext } from '../App';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { showPopup } from '../ducks/popup';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 
-import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
+import { backgroundLayerStyles, labelLayerStyles, calcDynamicBackgroundLayerLayout, calcDynamicLabelLayerLayoutStyles } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 
@@ -50,26 +47,13 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
   const [currentLayerId, currentInactiveLayerId] = shouldSubjectsBeClustered ? [layerIds[0], layerIds[1]] :[layerIds[1], layerIds[0]];
   const currentBackgroundLayerId = `${currentLayerId}_BACKGROUND`;
 
+  const dynamicBackgroundLayerLayoutProps = useMemo(() =>
+    calcDynamicBackgroundLayerLayout(isDataInMapSimplified, showMapStaticSubjectsNames),
+  [isDataInMapSimplified, showMapStaticSubjectsNames]);
 
-  const addDefaultStatusValue = useCallback((feature) => {
-    const { properties } = feature;
-    const defaultProperty = getSubjectDefaultDeviceProperty(feature);
-
-    let featureWithDefaultValue;
-    featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
-    featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
-
-    if (!isEmpty(defaultProperty)) {
-      const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
-      featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value}${propertyUnitsLabel}`);
-    };
-
-    if (!properties?.image?.length) {
-      featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;
-    }
-
-    return featureWithDefaultValue;
-  }, [isDataInMapSimplified, isTimeSliderActive, showMapStaticSubjectsNames]);
+  const dynamicLabelLayerLayoutProps = useMemo(() =>
+    calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive),
+  [isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive]);
 
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
@@ -89,19 +73,28 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
     const match = staticSensors.features.find(f => f.properties.id === feature.properties.id);
     const cloned = { ...match };
 
-    const withDefaultValue = addDefaultStatusValue(cloned);
+    const withDefaultValue = cloned;
 
     const { geometry, properties } = withDefaultValue;
 
-    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
+      offset: [0, -8],
+    } });
 
-    const handleMapClick = () => {
-      setLayerFilter(layerFilterDefault);
+    const handleMapClick = (event) => {
+      const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+
+      const newFilter = !!feature ?  [
+        ...layerFilterDefault,
+        ['!=', 'id', feature.properties.id]
+      ] : layerFilterDefault;
+
+      setLayerFilter(newFilter);
     };
 
     setTimeout(() => map.once('click', handleMapClick));
 
-  }, [addDefaultStatusValue, staticSensors?.features, map, showPopup]);
+  }, [currentBackgroundLayerId, staticSensors?.features, map, showPopup]);
 
   // Renderless layer to query unclustered static sensors
 
@@ -112,16 +105,16 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
           id: currentLayerId,
           source: currentSourceId,
           type: 'symbol',
-          layout: LABELS_LAYER.layout,
-          paint: LABELS_LAYER.paint,
+          layout: labelLayerStyles.layout,
+          paint: labelLayerStyles.paint,
           filter: layerFilter,
         });
         map.addLayer({
           id: currentBackgroundLayerId,
           source: currentSourceId,
           type: 'symbol',
-          layout: BACKGROUND_LAYER.layout,
-          paint: BACKGROUND_LAYER.paint,
+          layout: backgroundLayerStyles.layout,
+          paint: backgroundLayerStyles.paint,
           filter: layerFilter,
         }, currentLayerId);
       }
@@ -140,6 +133,8 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
 
   useEffect(() => {
     const onLayerClick = (event) => {
+      event.preventDefault();
+
       const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
       const newFilter = [
@@ -175,6 +170,26 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
     };
 
   }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
+
+  useEffect(() => {
+    const layer = map.getLayer(currentLayerId);
+
+    if (!!layer) {
+      Object.entries(dynamicLabelLayerLayoutProps).forEach(([key, value]) => {
+        map.setLayoutProperty(currentLayerId, key, value);
+      });
+    }
+  }, [currentLayerId, dynamicLabelLayerLayoutProps, map]);
+
+  useEffect(() => {
+    const layer = map.getLayer(currentBackgroundLayerId);
+
+    if (!!layer) {
+      Object.entries(dynamicBackgroundLayerLayoutProps).forEach(([key, value]) => {
+        map.setLayoutProperty(currentBackgroundLayerId, key, value);
+      });
+    }
+  }, [currentBackgroundLayerId, dynamicBackgroundLayerLayoutProps, map]);
 
 
   return null;

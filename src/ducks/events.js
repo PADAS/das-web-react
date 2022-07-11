@@ -103,14 +103,12 @@ const fetchNamedFeedActionCreator = (name) => {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
-    let finalParamString = paramString;
-
     dispatch({
       name,
       type: FEED_FETCH_START,
     });
 
-    return axios.get(`${EVENTS_API_URL}?${finalParamString}`, {
+    return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,
       cancelToken: cancelToken.token,
     })
@@ -516,9 +514,6 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
 
   if (name !== action.name) return state;
 
-  if (type === FEED_FETCH_START) {
-    return INITIAL_EVENT_FEED_STATE;
-  }
   if (type === FEED_FETCH_SUCCESS
 
   ) {

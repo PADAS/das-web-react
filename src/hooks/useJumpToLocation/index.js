@@ -38,10 +38,16 @@ const useJumpToLocation = () => {
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
       map.fitBounds(boundaries, { linear: true, speed: 200, padding });
     } else {
-      if (!isCoordsArray) {
-        map.setZoom(zoom);
-      }
-      map.easeTo({ center: isCoordsArray ? coords[0] : coords, padding, zoom, speed: 200 });
+      map.easeTo({ center: isCoordsArray ? coords[0] : coords, zoom, padding, speed: 200 });
+      map.once('moveend', () => {
+        setTimeout(() => {
+          const hasFeatures = !!map.queryRenderedFeatures().length;
+          if (!hasFeatures) {
+            map.flyTo({ zoom: 1, speed: 10 });
+            map.flyTo({ zoom, speed: 10 });
+          }
+        });
+      });
     }
   };
 };

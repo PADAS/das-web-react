@@ -305,6 +305,9 @@ export const PERMISSIONS = {
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 
+export const ASCENDING_SORT_ORDER = 'asc';
+export const DESCENDING_SORT_ORDER = 'desc';
+
 export const DEVELOPMENT_FEATURE_FLAGS = {
   ENABLE_PATROL_NEW_UI: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
   ENABLE_REPORT_NEW_UI: process.env.REACT_APP_ENABLE_REPORT_NEW_UI === 'true',

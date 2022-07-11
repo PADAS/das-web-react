@@ -1,12 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
-import addYears from 'date-fns/add_years';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
 import debounce from 'lodash/debounce';
 
 import DatePicker from '../DatePicker';
-import { DEFAULT_SELECT_STYLES } from '../constants';
+import { DEFAULT_SELECT_STYLES, DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 import { uuid } from '../utils/string';
 
@@ -195,8 +194,11 @@ const DateTimeField = (props) => {
   return <Fragment>
     <label ref={labelRef} htmlFor={id}>{label}{required ? '*' : ''}</label>
     <DatePicker
+      {...DATEPICKER_DEFAULT_CONFIG}
       id={id}
       value={date}
+      showTimeInput
+      minDate={null}
       disabled={disabled}
       popperPlacement={placement}
       maxDate={maxDate || new Date((new Date().getFullYear() + 15).toString())}

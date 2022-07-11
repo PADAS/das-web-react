@@ -12,7 +12,7 @@ import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/even
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
-  const { className = '', events = [], sortConfig, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
+  const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
 
   const scrollRef = useRef(null);
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);

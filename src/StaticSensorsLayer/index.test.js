@@ -5,9 +5,8 @@ import { Provider } from 'react-redux';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
-import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
+import { staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS } from '../constants';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import StaticSensorsLayer from './';
@@ -152,52 +151,6 @@ describe('adding layers to the map', () => {
         'source': `${STATIC_SENSOR}-source-${staticSubjectFeature.properties.id}`,
         'type': 'symbol'
       });
-    });
-  });
-
-  test('Each feature should have its own source', async () => {
-    map.queryRenderedFeatures.mockImplementation(() => mockMapStaticSubjectFeatureCollection.features);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(3);
-      expect(map.addLayer).toHaveBeenCalledTimes(6);
-    });
-  });
-
-  test('It should not create new layers if clustering is enabled and static sensors are not part of the unclustered layer', async () => {
-    const getShouldSubjectsBeClusteredMock = jest.fn(() => true);
-    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
-    map.queryRenderedFeatures.mockImplementation(() => []);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(0);
-      expect(map.addLayer).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  test('It create new layers if subjects are not being clustered', async () => {
-    const getShouldSubjectsBeClusteredMock = jest.fn(() => false);
-    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
-    map.queryRenderedFeatures.mockImplementation(() => []);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(3);
-      expect(map.addLayer).toHaveBeenCalledTimes(6);
     });
   });
 });

@@ -1,12 +1,25 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
-import { newPatrol, overduePatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
+import { newPatrol, overduePatrol, scheduledPatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { GPS_FORMATS } from '../../utils/location';
 
 import PlanTab from './';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({ pathname: '/patrols' }),
+}));
+
+jest.mock('../../ducks/patrols', () => ({
+  ...jest.requireActual('../../ducks/patrols'),
+  updatePatrol: jest.fn(),
+}));
+
+const gpsFormat = Object.values(GPS_FORMATS)[0];
 let store = patrolDefaultStoreData;
 
 store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
@@ -27,6 +40,8 @@ store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
     },
   }
 );
+
+store.view.userPreferences = { gpsFormat };
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>
@@ -82,5 +97,25 @@ describe('Objective input', () => {
 
     const objectiveInput = await screen.getByTestId('patrol-objective-input');
     expect(objectiveInput).toHaveTextContent('');
+  });
+});
+
+describe('location inputs', () => {
+  test('it should show the start and end location inputs', async () => {
+    render(<Provider store={mockStore(store)}>
+      <PlanTab patrolForm={scheduledPatrol} />
+    </Provider>);
+
+    expect(await screen.getByTestId('planTab-start-location')).toBeDefined();
+    expect(await screen.getByTestId('planTab-end-location')).toBeDefined();
+  });
+
+  test('it should show the placeholder for empty values', async () => {
+    render(<Provider store={mockStore(store)}>
+      <PlanTab patrolForm={overduePatrol} />
+    </Provider>);
+
+    expect(await screen.findByText('Start Location')).toBeDefined();
+    expect(await screen.findByText('End Location')).toBeDefined();
   });
 });

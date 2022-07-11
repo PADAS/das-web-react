@@ -390,6 +390,8 @@
 
 .locationAnchor {
   @include defaultTextInput;
+  align-items: center;
+  color: $bright-blue;
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0.25rem;
