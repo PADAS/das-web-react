@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
@@ -23,10 +23,15 @@ const QuickLinkAnchors = ({
   const isActivityAnchorActive = !isDetailsSectionOnScreen && isActivitySectionOnScreen;
   const isHistoryAnchorActive = !isDetailsSectionOnScreen && !isActivitySectionOnScreen && isHistorySectionOnScreen;
 
+  const onClickAnchor = useCallback((sectionElement) => () => {
+    onScrollToSection(sectionElement);
+  }, [onScrollToSection]);
+
   return <div className={styles.navigationBar}>
     {detailsSectionElement && <div
       className={`${styles.anchor} ${isDetailAnchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(detailsSectionElement)}
+      data-testid="reportDetailView-quickLinkAnchors-detailsAnchor"
+      onClick={onClickAnchor(detailsSectionElement)}
     >
       <PencilWritingIcon />
       <span>Details</span>
@@ -34,7 +39,8 @@ const QuickLinkAnchors = ({
 
     {activitySectionElement && <div
       className={`${styles.anchor} ${isActivityAnchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(activitySectionElement)}
+      data-testid="reportDetailView-quickLinkAnchors-activityAnchor"
+      onClick={onClickAnchor(activitySectionElement)}
     >
       <BulletListIcon />
       <span>Activity</span>
@@ -42,7 +48,8 @@ const QuickLinkAnchors = ({
 
     {historySectionElement && <div
       className={`${styles.anchor} ${isHistoryAnchorActive ? 'active' : ''}`}
-      onClick={onScrollToSection(historySectionElement)}
+      data-testid="reportDetailView-quickLinkAnchors-historyAnchor"
+      onClick={onClickAnchor(historySectionElement)}
     >
       <HistoryIcon />
       <span>History</span>

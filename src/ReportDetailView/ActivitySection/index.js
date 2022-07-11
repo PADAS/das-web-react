@@ -124,7 +124,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notesToAdd, onExpandCard]);
 
-  return <div ref={ref}>
+  return <div data-testid="reportDetailView-activitySection" ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />

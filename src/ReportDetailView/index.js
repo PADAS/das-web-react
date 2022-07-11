@@ -129,7 +129,7 @@ const ReportDetailView = () => {
     [isCollection, isCollectionChild, isPatrolReport, relationshipButtonDisabled]
   );
 
-  const onScrollToSection = useCallback((sectionElement) => () => {
+  const onScrollToSection = useCallback((sectionElement) => {
     reportFormRef.current.scrollTo({ top: sectionElement.offsetTop - OFFSET_TOP_SCROLL_GAP, behavior: 'smooth' });
   }, []);
 
@@ -400,7 +400,7 @@ const ReportDetailView = () => {
           {shouldRenderHistorySection && <>
             <div className={styles.sectionSeparation} />
 
-            <h3 ref={historySectionRef}>History</h3>
+            <h3 data-testid="reportDetailView-historySection" ref={historySectionRef}>History</h3>
           </>}
         </div>
 
