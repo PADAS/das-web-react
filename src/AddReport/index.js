@@ -180,6 +180,7 @@ const AddReport = forwardRef(({
   analyticsMetadata,
   className = '',
   hideReports,
+  iconComponent,
   variant,
   formProps,
   patrolTypes,
@@ -187,7 +188,6 @@ const AddReport = forwardRef(({
   eventsByCategory,
   popoverPlacement,
   showLabel,
-  showIcon,
   title,
   clickSideEffect,
 }, forwardedRef) => {
@@ -301,7 +301,7 @@ const AddReport = forwardRef(({
           onClick={onButtonClick}
           data-testid='addReport-button'
         >
-          {showIcon && <AddButtonIcon />}
+          {iconComponent || <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
         <Overlay show={popoverOpen} container={containerRef.current} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
@@ -325,8 +325,8 @@ AddReport.defaultProps = {
     category: 'Feed',
     location: null,
   },
+  iconComponent: null,
   popoverPlacement: 'auto',
-  showIcon: true,
   showLabel: true,
   title: 'Add',
   variant: 'primary',
@@ -346,8 +346,8 @@ AddReport.defaultProps = {
 
 AddReport.propTypes = {
   analyticsMetaData: CustomPropTypes.analyticsMetadata,
+  iconComponent: PropTypes.node,
   showLabel: PropTypes.bool,
-  showIcon: PropTypes.bool,
   title: PropTypes.string,
   patrolTypes: PropTypes.array,
   popoverPlacement: PropTypes.string,

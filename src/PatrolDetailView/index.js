@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect, useSelector } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
@@ -54,8 +54,9 @@ const PatrolDetailView = ({ patrolPermissions }) => {
 
   const state = useSelector((state) => state);
 
+  const temporalIdRef = useRef(null);
+
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
-  const [temporalId, setTemporalId] = useState(null);
 
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
@@ -153,10 +154,10 @@ const PatrolDetailView = ({ patrolPermissions }) => {
       navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
     } else if (!loadingPatrols) {
       const currentPatrolId = isNewPatrol ? location.state?.temporalId : itemId;
-      const selectedPatrolHasChanged = (isNewPatrol ? temporalId : patrolDataSelector?.patrol?.id) !== currentPatrolId;
+      const selectedPatrolHasChanged = (isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id) !== currentPatrolId;
       if (selectedPatrolHasChanged) {
         setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
-        setTemporalId(isNewPatrol ? currentPatrolId : null);
+        temporalIdRef.current = isNewPatrol ? currentPatrolId : null;
       }
     }
   }, [
@@ -170,7 +171,6 @@ const PatrolDetailView = ({ patrolPermissions }) => {
     patrolStore,
     patrolType,
     state,
-    temporalId,
   ]);
 
   return !!patrolForm && <div className={styles.patrolDetailView}>
