@@ -31,6 +31,10 @@ const ModalRenderer = ({ canShowModals, map, modals, removeModal }) => {
           style={style}
           {...modalProps}
           onHide={() => removeModal(id)}
+          {...(ContentComponent.type?.name === 'ImageModal'
+            ? { className: `${modalProps?.className || ''} ${styles.modalImageBackground}` }
+            : {}
+          )}
         >
           <ContentComponent id={id} {...rest} map={map} />
         </Modal>;

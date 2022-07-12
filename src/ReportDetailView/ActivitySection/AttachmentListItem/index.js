@@ -20,7 +20,6 @@ import ImageModal from '../../../ImageModal';
 import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
-import modalStyles from './styles.module.scss';
 
 const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }) => {
   const dispatch = useDispatch();
@@ -34,23 +33,16 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
   const currentImageSource = useMemo(() => imageOriginalSource || imageThumbnailSource, [imageOriginalSource, imageThumbnailSource]);
 
-  const onClickDownloadImage = useCallback(() => {
-    downloadFileFromUrl(attachment.url, { filename: attachment.filename });
-  }, [attachment?.filename, attachment?.url]);
-
   const onShowImageFullScreen = useCallback((event) => {
     event.stopPropagation();
 
     dispatch(addModal({
       content: ImageModal,
-      modalProps: {
-        className: modalStyles.modalBackground,
-      },
-      onDownload: onClickDownloadImage,
       src: currentImageSource,
       title: attachment.filename,
+      url: attachment.url,
     }));
-  }, [attachment.filename, currentImageSource, dispatch, onClickDownloadImage]);
+  }, [attachment.filename, attachment.url, currentImageSource, dispatch]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });

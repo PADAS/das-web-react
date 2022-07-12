@@ -3,21 +3,18 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
-import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DownloadArrowIcon } from '../common/images/icons/download-arrow.svg';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { downloadFileFromUrl } from '../utils/download';
 import { removeModal } from '../ducks/modals';
 
 import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ id, onDownload, src, title }) => {
+const ImageModal = ({ id, src, title, url }) => {
   const dispatch = useDispatch();
 
   const imageRef = useRef();
@@ -34,35 +31,37 @@ const ImageModal = ({ id, onDownload, src, title }) => {
     setImageLoaded();
   }, [setImageLoaded]);
 
+  const onClickDownload = useCallback(() => {
+    downloadFileFromUrl(url, { filename: title });
+  }, [title, url]);
+
   useEffect(() => {
-    if (ENABLE_REPORT_NEW_UI) {
-      const handleClickOutside = (event) => {
-        if (!imageRef.current?.contains(event.target)
-          && !downloadIconRef.current?.contains(event.target)
-          && !titleRef.current?.contains(event.target)) {
-          dispatch(removeModal(id));
-        }
-      };
+    const handleClickOutside = (event) => {
+      if (!imageRef.current?.contains(event.target)
+        && !downloadIconRef.current?.contains(event.target)
+        && !titleRef.current?.contains(event.target)) {
+        dispatch(removeModal(id));
+      }
+    };
 
-      document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dispatch, id]);
 
   return <>
-    <Header className={ENABLE_REPORT_NEW_UI ? styles.header : ''} closeButton={!ENABLE_REPORT_NEW_UI}>
-      {ENABLE_REPORT_NEW_UI && <div className={styles.leftSpace} />}
+    <Header className={styles.header}>
+      <div className={styles.leftSpace} />
 
-      <Title className={ENABLE_REPORT_NEW_UI ? styles.title : ''} ref={titleRef}>
+      <Title className={styles.title} ref={titleRef}>
         {title}
       </Title>
 
-      {ENABLE_REPORT_NEW_UI && <div>
-        <DownloadArrowIcon onClick={onDownload} ref={downloadIconRef} />
+      <div>
+        <DownloadArrowIcon onClick={onClickDownload} ref={downloadIconRef} />
 
-        <CrossIcon />
-      </div>}
+        <label>X</label>
+      </div>
     </Header>
 
     <Body className={styles.body}>
@@ -87,14 +86,9 @@ const ImageModal = ({ id, onDownload, src, title }) => {
 
 export default memo(ImageModal);
 
-ImageModal.defaultProps = {
-  onDownload: null,
-  title: 'View image:',
-};
-
 ImageModal.propTypes = {
   id: PropTypes.string.isRequired,
-  onDownload: PropTypes.func,
   src: PropTypes.string.isRequired,
-  title: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
 };
