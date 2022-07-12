@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Modal from 'react-bootstrap/Modal';
 import { connect } from 'react-redux';
 
+import ImageModal from '../ImageModal';
 import { removeModal } from '../ducks/modals';
 
 import styles from './styles.module.scss';
@@ -31,7 +32,7 @@ const ModalRenderer = ({ canShowModals, map, modals, removeModal }) => {
           style={style}
           {...modalProps}
           onHide={() => removeModal(id)}
-          {...(ContentComponent.type?.name === 'ImageModal'
+          {...(ContentComponent.type?.name === ImageModal.type.name
             ? { className: `${modalProps?.className || ''} ${styles.modalImageBackground}` }
             : {}
           )}
