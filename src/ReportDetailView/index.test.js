@@ -33,11 +33,10 @@ describe('ReportDetailView', () => {
   beforeEach(() => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
       reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf',
-      temporalId: '1234',
     })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
     navigate = jest.fn();
@@ -103,6 +102,30 @@ describe('ReportDetailView', () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+    });
+  });
+
+  test('redirects to the same route assignin a temporal id in case it is missing', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate.mock.calls[0][0]).toBe('/reports/new?reportType=1234');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('replace');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('state');
+      expect(navigate.mock.calls[0][1].state).toHaveProperty('temporalId');
     });
   });
 

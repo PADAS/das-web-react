@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -16,7 +16,7 @@ import { GPS_FORMATS } from '../utils/location';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({ pathname: '/patrols/new', state: {} }),
+  useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
@@ -31,13 +31,15 @@ store.data.user = { permissions: { patrol: ['change'] } };
 store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
 
 describe('PatrolDetailView', () => {
-  let executeSaveActionsMock, navigate, useSearchParamsMock, useNavigateMock;
+  let executeSaveActionsMock, navigate, useLocationMock, useSearchParamsMock, useNavigateMock;
 
   beforeEach(() => {
     navigate = jest.fn();
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/new', state: { temporalId: '1234' } }));
+    useLocation.mockImplementation(useLocationMock);
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol', temporalId: '1234' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
     render(
@@ -53,6 +55,30 @@ describe('PatrolDetailView', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  test('redirects to the same route assignin a temporal id in case it is missing', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?patrolType=1234', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+            <PatrolDetailView />
+          </PatrolsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate.mock.calls[0][0]).toBe('/reports/new?patrolType=1234');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('replace');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('state');
+      expect(navigate.mock.calls[0][1].state).toHaveProperty('temporalId');
+    });
   });
 
   test('renders the drawer in the Plan view by default', async () => {
