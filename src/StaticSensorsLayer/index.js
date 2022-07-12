@@ -78,7 +78,7 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
     const { geometry, properties } = withDefaultValue;
 
     showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
-      offset: [0, -8],
+      offset: [0, -12],
     } });
 
     const handleMapClick = (event) => {
@@ -172,9 +172,7 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
   }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
 
   useEffect(() => {
-    const layer = map.getLayer(currentLayerId);
-
-    if (!!layer) {
+    if (!!map.getLayer(currentLayerId)) {
       Object.entries(dynamicLabelLayerLayoutProps).forEach(([key, value]) => {
         map.setLayoutProperty(currentLayerId, key, value);
       });
@@ -182,9 +180,7 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
   }, [currentLayerId, dynamicLabelLayerLayoutProps, map]);
 
   useEffect(() => {
-    const layer = map.getLayer(currentBackgroundLayerId);
-
-    if (!!layer) {
+    if (!!map.getLayer(currentBackgroundLayerId)) {
       Object.entries(dynamicBackgroundLayerLayoutProps).forEach(([key, value]) => {
         map.setLayoutProperty(currentBackgroundLayerId, key, value);
       });

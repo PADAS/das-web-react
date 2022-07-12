@@ -34,7 +34,7 @@ export const calcDynamicBackgroundLayerLayout = (mapSimplified, showMapNames) =>
   'text-field': [
     'case',
     // no icon either default prop
-    ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
+    ['all', ['==', ['get', 'image'], null], ['!', ['has', 'default_status_value']]],
     ['get', 'title'],
     // no icon but default prop and data is simplified
     ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value'], mapSimplified],
@@ -51,7 +51,13 @@ export const calcDynamicBackgroundLayerLayout = (mapSimplified, showMapNames) =>
     // same as previous but without showing map names
     ['all', ['has', 'default_status_value'], !mapSimplified],
     ['format',
-      ['get', 'default_status_value'],
+      ['case',
+        ['>',
+          ['length', 'icon'], ['length', ['get', 'default_status_value']]
+        ],
+        'icon',
+        ['get', 'default_status_value'],
+      ],
       '\n',
       ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
       '\n',
@@ -93,14 +99,14 @@ export const labelLayerStyles = {
   }
 };
 
-export const calcDynamicLabelLayerLayoutStyles = (mapSimplified, showMapNames, timesliderActive) => ({
+export const calcDynamicLabelLayerLayoutStyles = (mapSimplified, showMapNames) => ({
   'text-offset': [
     'case',
-    ['all', ['!', ['get', 'image']], ['has', 'default_status_value']],
+    ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
     ['literal', [0, -2.4]],
-    ['all', ['!', ['get', 'image']], ['!', ['has', 'default_status_value']]],
+    ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
     ['literal', [0, -2.6]],
-    ['all',  ['!', ['has', 'default_status_value']], !mapSimplified, showMapNames],
+    ['all',  ['==', ['has', 'default_status_value'], false], ['!', mapSimplified], showMapNames],
     ['literal', [0, -1.3]],
     ['literal', [0, -1.7]],
   ],
@@ -122,14 +128,10 @@ export const calcDynamicLabelLayerLayoutStyles = (mapSimplified, showMapNames, t
     ['all', ['!=', ['get', 'image'], null], mapSimplified],
     '',
 
-    ['all', ['!', ['get', 'image']], ['!', ['has', 'default_status_value']]],
+    ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
     ['get', 'title'],
 
-    // default prop and timeslider is on
-    ['all', ['has', 'default_status_value'], timesliderActive],
-    'No historical data',
-
-    ['all', ['!', ['get', 'image']], !mapSimplified, showMapNames],
+    ['all', ['==', ['get', 'image'], null], !mapSimplified, showMapNames],
     ['format',
       ['get', 'default_status_value'],
       '\n',
@@ -138,13 +140,13 @@ export const calcDynamicLabelLayerLayoutStyles = (mapSimplified, showMapNames, t
       ['get', 'title'],
     ],
 
-    ['all', ['!', ['get', 'image']], !mapSimplified],
+    ['all', ['==', ['get', 'image'], null], !mapSimplified],
     ['format',
       ['get', 'default_status_value'],
       '\n',
       ['coalesce', ['get', 'default_status_label'], ''],
     ],
-    ['all', ['!', ['has', 'default_status_value']], !mapSimplified, showMapNames],
+    ['all', ['==', ['has', 'default_status_value'], false], !mapSimplified, showMapNames],
     ['get', 'title'],
     ['all', !mapSimplified, showMapNames],
     ['format',
