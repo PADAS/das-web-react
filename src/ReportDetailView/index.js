@@ -58,7 +58,6 @@ const ReportDetailView = () => {
 
   const reportDataTemporalStorage = useRef(null);
   const reportDataToStore = useRef();
-  const reportSectionsWrapperRef = useRef();
   const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
@@ -369,7 +368,7 @@ const ReportDetailView = () => {
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
     <div className={styles.body}>
-      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET} sectionsWrapperRef={reportSectionsWrapperRef}>
+      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
         <QuickLinks.NavigationBar>
           <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
 
