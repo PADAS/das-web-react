@@ -2,6 +2,8 @@ import React, { useContext, memo, useCallback, useEffect, useMemo, useState } fr
 import PropTypes from 'prop-types';
 import { connect, useSelector } from 'react-redux';
 
+import { featureCollection } from '@turf/helpers';
+
 import { MapContext } from '../App';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
@@ -36,7 +38,7 @@ const IMAGE_DATA = {
 
 const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER];
 
-const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
+const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
@@ -56,10 +58,22 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
   [isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive]);
 
   useEffect(() => {
-    if (!!staticSensors?.features?.length) {
-      addFeatureCollectionImagesToMap(staticSensors, { sdf: true });
+    if (map && !!map.getLayer(currentBackgroundLayerId)) {
+      const onSourceData = ({ sourceDataType, sourceId }) => {
+        if (sourceId === currentSourceId
+          && sourceDataType !== 'metadata') {
+          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId] })[0];
+
+          addFeatureCollectionImagesToMap(featureCollection(features), { sdf: true });
+        }
+      };
+      map.on('sourcedata', onSourceData);
+
+      return () => {
+        map.off('sourcedata', onSourceData);
+      };
     }
-  }, [staticSensors]);
+  }, [currentBackgroundLayerId, map, currentSourceId]);
 
   useEffect(() => {
     if (map) {
@@ -70,23 +84,19 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
   }, [map]);
 
   const createPopup = useCallback((feature) => {
-    const match = staticSensors.features.find(f => f.properties.id === feature.properties.id);
-    const cloned = { ...match };
 
-    const withDefaultValue = cloned;
-
-    const { geometry, properties } = withDefaultValue;
+    const { geometry, properties } = feature;
 
     showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
-      offset: [0, -12],
+      offset: [0, 0],
     } });
 
     const handleMapClick = (event) => {
-      const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+      const stationarySubjectAtPoint = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
-      const newFilter = !!feature ?  [
+      const newFilter = !!stationarySubjectAtPoint ?  [
         ...layerFilterDefault,
-        ['!=', 'id', feature.properties.id]
+        ['!=', 'id', stationarySubjectAtPoint.properties.id]
       ] : layerFilterDefault;
 
       setLayerFilter(newFilter);
@@ -94,7 +104,7 @@ const StaticSensorsLayer = ({ staticSensors = { features: [] }, isTimeSliderActi
 
     setTimeout(() => map.once('click', handleMapClick));
 
-  }, [currentBackgroundLayerId, staticSensors?.features, map, showPopup]);
+  }, [currentBackgroundLayerId, map, showPopup]);
 
   // Renderless layer to query unclustered static sensors
 
@@ -199,6 +209,5 @@ const mapStatetoProps = (state) => ({
 export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
-  staticSensors: PropTypes.object.isRequired,
   isTimeSliderActive: PropTypes.bool,
 };

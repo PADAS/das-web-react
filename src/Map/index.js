@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
@@ -8,7 +8,6 @@ import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
-import { featureCollection } from '@turf/helpers';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -604,11 +603,6 @@ const Map = ({
     }
   });
 
-  const stationarySubjects = useMemo(() => featureCollection(
-    (mapSubjectFeatureCollection?.features ?? [])
-      .filter(subjectFeature => subjectIsStatic(subjectFeature))
-  ), [mapSubjectFeatureCollection?.features]);
-
   if (!maps.length) return null;
 
   const timeSliderActive = timeSliderState.active;
@@ -657,7 +651,7 @@ const Map = ({
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer staticSensors={stationarySubjects} isTimeSliderActive={timeSliderActive}/>
+      <StaticSensorsLayer isTimeSliderActive={timeSliderActive}/>
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
