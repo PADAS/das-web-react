@@ -19,7 +19,7 @@ const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSOR
 
 const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
-const layerFilterDefault = [
+const DEFAULT_LAYER_FILTER = [
   'all',
   ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
   ['==', 'is_static', true],
@@ -42,7 +42,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
-  const [layerFilter, setLayerFilter] = useState(layerFilterDefault);
+  const [layerFilter, setLayerFilter] = useState(DEFAULT_LAYER_FILTER);
 
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
@@ -57,6 +57,8 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
     calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive),
   [isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive]);
 
+
+  /* watch the source data for updates, and add potential new icon images to the map if necessary */
   useEffect(() => {
     if (map && !!map.getLayer(currentBackgroundLayerId)) {
       const onSourceData = ({ sourceDataType, sourceId }) => {
@@ -75,6 +77,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
     }
   }, [currentBackgroundLayerId, map, currentSourceId]);
 
+  /* add the popup background image on load */
   useEffect(() => {
     if (map) {
       map.loadImage(LayerBackground, (error, image) =>
@@ -95,9 +98,9 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
       const stationarySubjectAtPoint = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
       const newFilter = !!stationarySubjectAtPoint ?  [
-        ...layerFilterDefault,
+        ...DEFAULT_LAYER_FILTER,
         ['!=', 'id', stationarySubjectAtPoint.properties.id]
-      ] : layerFilterDefault;
+      ] : DEFAULT_LAYER_FILTER;
 
       setLayerFilter(newFilter);
     };
@@ -108,6 +111,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
 
   // Renderless layer to query unclustered static sensors
 
+  /* adding the map layers */
   useEffect(() => {
     if (map && !!map.getSource(currentSourceId)) {
       if (!map.getLayer(currentLayerId)) {
@@ -134,6 +138,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
     }
   }, [map, currentInactiveLayerId, layerFilter, currentBackgroundLayerId, currentLayerId, currentSourceId]);
 
+  /* updating the stationary subject layers when the filter changes */
   useEffect(() => {
     if (map) {
       map.setFilter(currentBackgroundLayerId, layerFilter);
@@ -141,56 +146,60 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
     }
   }, [layerFilter, map, currentBackgroundLayerId, currentLayerId]);
 
+  /* layer interaction handlers. click and hover. */
   useEffect(() => {
-    const onLayerClick = (event) => {
-      event.preventDefault();
+    if (map) {
+      const onLayerClick = (event) => {
+        event.preventDefault();
 
-      const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+        const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
-      const newFilter = [
-        ...layerFilterDefault,
-        ['!=', 'id', feature.properties.id]
-      ];
+        const newFilter = [
+          ...DEFAULT_LAYER_FILTER,
+          ['!=', 'id', feature.properties.id]
+        ];
 
-      setLayerFilter(newFilter);
+        setLayerFilter(newFilter);
 
-      createPopup(feature);
-    };
+        createPopup(feature);
+      };
 
-    const onLayerMouseEnter = () => {
-      map.getCanvas().style.cursor = 'pointer';
-    };
+      const onLayerMouseEnter = () => {
+        map.getCanvas().style.cursor = 'pointer';
+      };
 
-    const onLayerMouseLeave = () => {
-      map.getCanvas().style.cursor = '';
-    };
+      const onLayerMouseLeave = () => {
+        map.getCanvas().style.cursor = '';
+      };
 
-    map.on('click', currentBackgroundLayerId, onLayerClick);
+      map.on('click', currentBackgroundLayerId, onLayerClick);
 
-    map.on('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
+      map.on('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
 
-    map.on('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
+      map.on('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
 
-    return () => {
-      map.off('click', currentBackgroundLayerId, onLayerClick);
+      return () => {
+        map.off('click', currentBackgroundLayerId, onLayerClick);
 
-      map.off('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
+        map.off('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
 
-      map.off('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
-    };
-
+        map.off('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
+      };
+    }
   }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
 
+  /* updating layer layout properties when the map view config changes */
   useEffect(() => {
-    if (!!map.getLayer(currentLayerId)) {
+    if (map && !!map.getLayer(currentLayerId)) {
       Object.entries(dynamicLabelLayerLayoutProps).forEach(([key, value]) => {
         map.setLayoutProperty(currentLayerId, key, value);
       });
     }
   }, [currentLayerId, dynamicLabelLayerLayoutProps, map]);
 
+  /* updating layer layout properties when the map view config changes */
   useEffect(() => {
-    if (!!map.getLayer(currentBackgroundLayerId)) {
+    if (map && !!map.getLayer(currentBackgroundLayerId)) {
       Object.entries(dynamicBackgroundLayerLayoutProps).forEach(([key, value]) => {
         map.setLayoutProperty(currentBackgroundLayerId, key, value);
       });
