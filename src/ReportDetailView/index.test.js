@@ -455,23 +455,23 @@ describe('ReportDetailView', () => {
 
   test('does not display neither the activity section nor its anchor if there are no items to show', async () => {
     expect((await screen.queryByTestId('reportDetailView-activitySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportDetailView-quickLinkAnchors-activityAnchor'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeNull();
   });
 
   test('displays the activity section and its anchor after adding an item', async () => {
     expect((await screen.queryByTestId('reportDetailView-activitySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportDetailView-quickLinkAnchors-activityAnchor'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
     userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('reportDetailView-activitySection'))).toBeDefined();
-    expect((await screen.findByTestId('reportDetailView-quickLinkAnchors-activityAnchor'))).toBeDefined();
+    expect((await screen.findByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeDefined();
   });
 
   test('does not display neither the history section nor its anchor if the report is new', async () => {
     expect((await screen.queryByTestId('reportDetailView-historySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportDetailView-quickLinkAnchors-historyAnchor'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-History'))).toBeNull();
   });
 
   test('displays the history section and its anchor if the report is saved', async () => {
@@ -492,7 +492,7 @@ describe('ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportDetailView-historySection'))).toBeDefined();
-    expect((await screen.findByTestId('reportDetailView-quickLinkAnchors-historyAnchor'))).toBeDefined();
+    expect((await screen.findByTestId('reportDetailView-quickLinks-anchor-History'))).toBeDefined();
   });
 
   test('does not show add report button if report belongs to a collection', async () => {

@@ -29,18 +29,6 @@
   border-left: 1px solid $very-light-gray-alt;
 }
 
-.reportForm {
-  position: relative;
-  overflow-x: hidden;
-  padding: 1.125rem 1.125rem 0;
-  width: 100%;
-  height: 100%;
-
-  &[class*=readonly] {
-    cursor: not-allowed;
-  }
-}
-
 .sectionSeparation {
   width: calc(100% + 2.5rem);
   border-top: 1px solid $very-light-gray-alt;

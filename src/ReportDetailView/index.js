@@ -3,6 +3,10 @@ import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
+import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
+import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
+
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
@@ -30,12 +34,12 @@ import AddReportButton from './AddReportButton';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
-import QuickLinkAnchors from './QuickLinkAnchors';
+import QuickLinks from './QuickLinks';
 
 import styles from './styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
-const OFFSET_TOP_SCROLL_GAP = 20;
+const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ReportDetailView = () => {
   const dispatch = useDispatch();
@@ -53,15 +57,7 @@ const ReportDetailView = () => {
   );
 
   const reportDataToStore = useRef();
-  const reportFormRef = useRef();
-
-  const [activitySectionElement, setActivitySectionElement] = useState(null);
-  const [detailsSectionElement, setDetailsSectionElement] = useState(null);
-  const [historySectionElement, setHistorySectionElement] = useState(null);
-
-  const activitySectionRef = useCallback((node) => setActivitySectionElement(node), []);
-  const detailsSectionRef = useCallback((node) => setDetailsSectionElement(node), []);
-  const historySectionRef = useCallback((node) => setHistorySectionElement(node), []);
+  const reportSectionsWrapperRef = useRef();
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -128,10 +124,6 @@ const ReportDetailView = () => {
     () => !relationshipButtonDisabled && (isCollection || (!isPatrolReport && !isCollectionChild)),
     [isCollection, isCollectionChild, isPatrolReport, relationshipButtonDisabled]
   );
-
-  const onScrollToSection = useCallback((sectionElement) => {
-    reportFormRef.current.scrollTo({ top: sectionElement.offsetTop - OFFSET_TOP_SCROLL_GAP, behavior: 'smooth' });
-  }, []);
 
   const onCleanState = useCallback((reportForm = null, temporalId = null) => {
     setAttachmentsToAdd([]);
@@ -369,66 +361,70 @@ const ReportDetailView = () => {
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
     <div className={styles.body}>
-      <QuickLinkAnchors
-        activitySectionElement={activitySectionElement}
-        detailsSectionElement={detailsSectionElement}
-        historySectionElement={historySectionElement}
-        onScrollToSection={onScrollToSection}
-      />
+      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET} sectionsWrapperRef={reportSectionsWrapperRef}>
+        <QuickLinks.NavigationBar>
+          <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
 
-      <div className={styles.content}>
-        <div className={styles.reportForm} ref={reportFormRef}>
-          <h3 ref={detailsSectionRef}>Details</h3>
+          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
 
-          {shouldRenderActivitySection && <>
-            <div className={styles.sectionSeparation} />
+          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+        </QuickLinks.NavigationBar>
 
-            <ActivitySection
-              attachmentsToAdd={attachmentsToAdd}
-              containedReports={containedReports}
-              notesToAdd={notesToAdd}
-              onDeleteAttachment={onDeleteAttachment}
-              onDeleteNote={onDeleteNote}
-              onSaveNote={onSaveNote}
-              ref={activitySectionRef}
-              reportAttachments={reportAttachments}
-              reportNotes={reportNotes}
-              reportTracker={reportTracker}
-            />
-          </>}
+        <div className={styles.content}>
+          <QuickLinks.SectionsWrapper>
+            <QuickLinks.Section anchorTitle="Details">
+              <h3>Details</h3>
+            </QuickLinks.Section>
 
-          {shouldRenderHistorySection && <>
-            <div className={styles.sectionSeparation} />
+            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-            <h3 data-testid="reportDetailView-historySection" ref={historySectionRef}>History</h3>
-          </>}
-        </div>
+            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+              <ActivitySection
+                attachmentsToAdd={attachmentsToAdd}
+                containedReports={containedReports}
+                notesToAdd={notesToAdd}
+                onDeleteAttachment={onDeleteAttachment}
+                onDeleteNote={onDeleteNote}
+                onSaveNote={onSaveNote}
+                reportAttachments={reportAttachments}
+                reportNotes={reportNotes}
+                reportTracker={reportTracker}
+              />
+            </QuickLinks.Section>
 
-        <div className={styles.footer}>
-          <div className={styles.footerActionButtonsContainer}>
-            <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
-            <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+              <h3 data-testid="reportDetailView-historySection">History</h3>
+            </QuickLinks.Section>
+          </QuickLinks.SectionsWrapper>
 
-            {showAddReportButton && <AddReportButton className={styles.footerActionButton} onAddReport={onAddReport} />}
+          <div className={styles.footer}>
+            <div className={styles.footerActionButtonsContainer}>
+              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+
+              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+
+              {showAddReportButton && <AddReportButton className={styles.footerActionButton} onAddReport={onAddReport} />}
+            </div>
+
+            <div>
+              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+                Cancel
+              </Button>
+
+              <Button
+                className={styles.saveButton}
+                disabled={!isReportModified || reportSchemas?.schema?.readonly}
+                onClick={onSaveReport}
+                type="button"
+              >
+                Save
+              </Button>
+            </div>
           </div>
-
-          <div>
-            <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-              Cancel
-            </Button>
-
-            <Button
-              className={styles.saveButton}
-              disabled={!isReportModified || reportSchemas?.schema?.readonly}
-              onClick={onSaveReport}
-              type="button"
-            >
-              Save
-            </Button>
-          </div>
         </div>
-      </div>
+      </QuickLinks>
     </div>
   </div> : null;
 };
