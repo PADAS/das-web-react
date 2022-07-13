@@ -443,6 +443,7 @@ const PatrolModal = (props) => {
         content: ImageModal,
         src: fileData,
         title: file.filename,
+        url: file.url,
       });
     } else {
       await downloadFileFromUrl(file.url, { filename: file.filename });

@@ -19,13 +19,12 @@ const AddReportButton = ({ className, onAddReport }) => {
     data-testid="reportDetailView-addReportButton"
     onClick={onReportButtonClick}
     >
-    <DocumentIcon />
     <AddReport
       analyticsMetadata={{ category: REPORT_MODAL_CATEGORY, location: 'report modal' }}
       formProps={{ hidePatrols: true, onSaveSuccess: onAddReport, relationshipButtonDisabled: true }}
       popoverPlacement="top"
       ref={addReportButtonRef}
-      showIcon={false}
+      iconComponent={<DocumentIcon />}
       title="Report"
     />
   </div>;

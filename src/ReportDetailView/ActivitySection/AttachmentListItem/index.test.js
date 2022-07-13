@@ -216,10 +216,8 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     userEvent.click(expandArrowIcon);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
-    expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: savedImageAttachment, source: 'original' },
-      type: 'SET_FULL_SCREEN_IMAGE_DATA',
-    }]);
+    expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
+    expect(mockStoreInstance.getActions()[0].payload.src).toEqual('original');
   });
 
   test('opens the thumbnail of an existing image in fullscreen when pressing the expand icon if the original is not loaded yet', async () => {
@@ -239,10 +237,8 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     userEvent.click(expandArrowIcon);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
-    expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: savedImageAttachment, source: 'thumbnail' },
-      type: 'SET_FULL_SCREEN_IMAGE_DATA',
-    }]);
+    expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
+    expect(mockStoreInstance.getActions()[0].payload.src).toEqual('thumbnail');
   });
 
   test('user can open the image collapsible', async () => {
@@ -299,35 +295,8 @@ describe('ReportDetailView - ActivitySection - AttachmentListItem', () => {
     userEvent.click(expandedImage);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
-    expect(mockStoreInstance.getActions()).toEqual([{
-      payload: { file: savedImageAttachment, source: 'original' },
-      type: 'SET_FULL_SCREEN_IMAGE_DATA',
-    }]);
-  });
-
-  test('replaces the fullscreen mode image with the original once it is loaded', async () => {
-    fetchImageAsBase64FromUrlMock = jest.fn((url) => url === 'original'
-      ? new Promise((resolve) => setTimeout(() => resolve(url), 50))
-      : Promise.resolve(url));
-    fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
-
-    store.view.fullScreenImage = { file: savedImageAttachment, source: 'thumbnail' };
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
-    );
-
-    expect(mockStoreInstance.getActions()).toHaveLength(1);
-
-    await waitFor(() => {
-      expect(mockStoreInstance.getActions()).toHaveLength(2);
-      expect(mockStoreInstance.getActions()[1]).toEqual({
-        payload: { file: savedImageAttachment, source: 'original' },
-        type: 'SET_FULL_SCREEN_IMAGE_DATA',
-      });
-    });
+    expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
+    expect(mockStoreInstance.getActions()[0].payload.src).toEqual('original');
   });
 
   test('replaces the expanded image with the original once it is loaded', async () => {

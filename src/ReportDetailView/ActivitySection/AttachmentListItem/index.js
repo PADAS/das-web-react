@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
@@ -11,22 +11,18 @@ import { ReactComponent as ExpandArrowIcon } from '../../../common/images/icons/
 import { ReactComponent as ImageIcon } from '../../../common/images/icons/image.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
+import { addModal } from '../../../ducks/modals';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchImageAsBase64FromUrl } from '../../../utils/file';
-import { showFullScreenImage } from '../../../ducks/full-screen-image';
 
 import DateTime from '../../../DateTime';
+import ImageModal from '../../../ImageModal';
 import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
 const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }) => {
   const dispatch = useDispatch();
-
-  const {
-    file: fullScreenImageFile,
-    source: fullScreenImageSource,
-  } = useSelector((state) => state.view.fullScreenImage);
 
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
@@ -40,8 +36,13 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   const onShowImageFullScreen = useCallback((event) => {
     event.stopPropagation();
 
-    dispatch(showFullScreenImage(attachment, currentImageSource));
-  }, [attachment, currentImageSource, dispatch]);
+    dispatch(addModal({
+      content: ImageModal,
+      src: currentImageSource,
+      title: attachment.filename,
+      url: attachment.url,
+    }));
+  }, [attachment.filename, attachment.url, currentImageSource, dispatch]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
@@ -81,15 +82,6 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
       downloadAndSetOriginal();
     }
   }, [attachment.file_type, attachment.images?.original]);
-
-  useEffect(() => {
-    const shouldReplaceFullScreenImage = !!fullScreenImageSource
-      && fullScreenImageFile === attachment
-      && fullScreenImageSource !== currentImageSource;
-    if (attachment.file_type === 'image' && shouldReplaceFullScreenImage) {
-      dispatch(showFullScreenImage(attachment, currentImageSource));
-    }
-  }, [attachment, currentImageSource, dispatch, fullScreenImageFile, fullScreenImageSource]);
 
   if (attachment.file_type === 'image') {
     return <li className={isOpen ? styles.openItem : ''}>

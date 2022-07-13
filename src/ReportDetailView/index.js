@@ -20,12 +20,12 @@ import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } fr
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { getCurrentIdFromURL } from '../utils/navigation';
-import { getReportDataTemporalStorage, setReportDataTemporalStorage } from './reportDataTemporalStorage';
 import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { uuid } from '../utils/string';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from './AddAttachmentButton';
@@ -56,15 +56,16 @@ const ReportDetailView = () => {
     (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
+  const reportDataTemporalStorage = useRef(null);
   const reportDataToStore = useRef();
   const reportSectionsWrapperRef = useRef();
+  const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
-  const [temporalId, setTemporalId] = useState(null);
 
   const {
     onSaveError: onSaveErrorCallback,
@@ -131,7 +132,7 @@ const ReportDetailView = () => {
     setNotesToAdd([]);
     setReportForm(reportForm);
     setSaveError(null);
-    setTemporalId(temporalId);
+    temporalIdRef.current = temporalId;
   }, []);
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
@@ -299,22 +300,32 @@ const ReportDetailView = () => {
   }, [navigate, relationshipButtonDisabled]);
 
   useEffect(() => {
+    if (isNewReport && !location.state?.temporalId) {
+      navigate(
+        `${location.pathname}${location.search}`,
+        { replace: true, state: { ...location.state, temporalId: uuid() } }
+      );
+    }
+  }, [isNewReport, location, navigate]);
+
+  useEffect(() => {
     const shouldRedirectToFeed = (isNewReport && !reportType)
       || (!isNewReport && !loadingEvents && !eventStore[itemId]);
     if (shouldRedirectToFeed) {
       navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
     } else if (!loadingEvents) {
-      const currentReportId = isNewReport ? searchParams.get('temporalId') : itemId;
-      const selectedReportHasChanged = (isNewReport ? temporalId : reportForm?.id) !== currentReportId;
+      const currentReportId = isNewReport ? location.state?.temporalId : itemId;
+      const selectedReportHasChanged = (isNewReport ? temporalIdRef.current : reportForm?.id) !== currentReportId;
       if (selectedReportHasChanged) {
-        const reportDataStored = getReportDataTemporalStorage();
-        if (!relationshipButtonDisabled && reportDataStored?.id === currentReportId) {
-          setAttachmentsToAdd(reportDataStored.attachmentsToAdd);
-          setNotesToAdd(reportDataStored.notesToAdd);
-          setReportForm({ ...originalReport, ...reportDataStored.reportChanges });
-          setTemporalId(isNewReport ? currentReportId : null);
+        if (!relationshipButtonDisabled
+          && reportDataTemporalStorage.current?.id
+          && reportDataTemporalStorage.current.id === currentReportId) {
+          setAttachmentsToAdd(reportDataTemporalStorage.current.attachmentsToAdd);
+          setNotesToAdd(reportDataTemporalStorage.current.notesToAdd);
+          setReportForm({ ...originalReport, ...reportDataTemporalStorage.current.reportChanges });
+          temporalIdRef.current = isNewReport ? currentReportId : null;
         } else {
-          setReportDataTemporalStorage(reportDataToStore.current);
+          reportDataTemporalStorage.current = { ...reportDataToStore.current };
           onCleanState(originalReport, isNewReport ? currentReportId : null);
         }
       }
@@ -324,6 +335,7 @@ const ReportDetailView = () => {
     isNewReport,
     itemId,
     loadingEvents,
+    location.state?.temporalId,
     navigate,
     newReport,
     onCleanState,
@@ -331,21 +343,17 @@ const ReportDetailView = () => {
     relationshipButtonDisabled,
     reportForm?.id,
     reportType,
-    searchParams,
-    temporalId,
   ]);
 
   useEffect(() => {
-    const currentReportId = isNewReport ? temporalId : itemId;
+    const currentReportId = isNewReport ? temporalIdRef.current : itemId;
     reportDataToStore.current = {
       attachmentsToAdd,
       id: currentReportId,
       notesToAdd: notesToAdd.filter((noteToAdd) => !!noteToAdd.text),
       reportChanges,
     };
-  }, [attachmentsToAdd, isNewReport, itemId, notesToAdd, reportChanges, temporalId]);
-
-  useEffect(() => () => setReportDataTemporalStorage(null), []);
+  }, [attachmentsToAdd, isNewReport, itemId, notesToAdd, reportChanges]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
