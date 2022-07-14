@@ -83,7 +83,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
       <div className={styles.itemActionButton}>
         <PencilIcon
-          className={isNewAndEmpty && styles.disabled}
+          className={isNewAndEmpty ? styles.disabled : ''}
           data-testid={`reportDetailView-activitySection-editIcon-${note.id || note.text}`}
           onClick={onClickPencilIcon}
         />

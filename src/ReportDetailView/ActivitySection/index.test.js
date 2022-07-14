@@ -18,6 +18,7 @@ describe('ReportDetailView - ActivitySection', () => {
         creationDate: new Date(currentDate.getTime() + 2).toISOString(),
         file: { name: 'newFile2.pdf' },
       }]}
+      containedReports={[]}
       notesToAdd={[{
         creationDate: new Date(currentDate.getTime() + 3).toISOString(),
         text: 'note1',
@@ -206,6 +207,7 @@ describe('ReportDetailView - ActivitySection', () => {
     cleanup();
     render(<ActivitySection
       attachmentsToAdd={[]}
+      containedReports={[]}
       notesToAdd={[]}
       onDeleteAttachment={onDeleteAttachment}
       onDeleteNote={onDeleteNote}

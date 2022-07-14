@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
+import AddReport from '../AddReport';
+import { addEventToIncident, createEvent, fetchEvent } from '../ducks/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -20,7 +22,16 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
+jest.mock('../AddReport', () => jest.fn());
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../ducks/events', () => ({
+  ...jest.requireActual('../ducks/events'),
+  addEventToIncident: jest.fn(),
+  createEvent: jest.fn(),
+  fetchEvent: jest.fn(),
+}));
 
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
@@ -28,14 +39,33 @@ jest.mock('../utils/save', () => ({
 }));
 
 describe('ReportDetailView', () => {
-  let executeSaveActionsMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddReportMock,
+    addEventToIncidentMock,
+    createEventMock,
+    fetchEventMock,
+    executeSaveActionsMock,
+    navigate,
+    useNavigateMock,
+    store,
+    useLocationMock,
+    useSearchParamsMock;
 
   beforeEach(() => {
+    AddReportMock = jest.fn(() => null);
+    AddReport.mockImplementation(AddReportMock);
+    addEventToIncidentMock = jest.fn(() => () => {});
+    addEventToIncident.mockImplementation(addEventToIncidentMock);
+    createEventMock = jest.fn(() => () => {});
+    createEvent.mockImplementation(createEventMock);
+    fetchEventMock = jest.fn(() => () => {});
+    fetchEvent.mockImplementation(fetchEventMock);
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]));
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
+      reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf',
+    })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
@@ -100,6 +130,30 @@ describe('ReportDetailView', () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+    });
+  });
+
+  test('redirects to the same route assignin a temporal id in case it is missing', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate.mock.calls[0][0]).toBe('/reports/new?reportType=1234');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('replace');
+      expect(navigate.mock.calls[0][1]).toHaveProperty('state');
+      expect(navigate.mock.calls[0][1].state).toHaveProperty('temporalId');
     });
   });
 
@@ -257,6 +311,99 @@ describe('ReportDetailView', () => {
     userEvent.click(deleteNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+  });
+
+  test('if the current report is a collection, adding a new one simply appends it', async () => {
+    const addedReport = [{ data: { data: { id: 'added' } } }];
+    const initialReport = [{ data: { data: { id: 'initial' } } }];
+
+    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    AddReportMock = ({ formProps }) => {
+      useEffect(() => {
+        formProps.onSaveSuccess(addedReport);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/initial', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    fetchEventMock = jest.fn(() => () => initialReport[0]);
+    fetchEvent.mockImplementation(fetchEventMock);
+
+    store.data.eventStore = { initial: { id: 'initial', is_collection: true, priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(addEventToIncident).toHaveBeenCalledTimes(1);
+      expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
+      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalledWith('initial');
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/reports/initial');
+    });
+  });
+
+  test('if the current report is not a collection, adding a new one creates a collections and appends both', async () => {
+    const addedReport = [{ data: { data: { id: 'added' } } }];
+    const initialReport = [{ data: { data: { id: 'initial' } } }];
+    const incidentCollection = { data: { data: { id: 'incident' } } };
+
+    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    AddReportMock = ({ formProps }) => {
+      useEffect(() => {
+        formProps.onSaveSuccess(addedReport);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    createEventMock = jest.fn(() => () => incidentCollection);
+    createEvent.mockImplementation(createEventMock);
+
+    fetchEventMock = jest.fn(() => () => incidentCollection);
+    fetchEvent.mockImplementation(fetchEventMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+      expect(addEventToIncident).toHaveBeenCalledTimes(2);
+      expect(addEventToIncident).toHaveBeenCalledWith('initial', 'incident');
+      expect(addEventToIncident).toHaveBeenCalledWith('added', 'incident');
+      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalledWith('incident');
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/reports/incident');
+    });
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
@@ -478,5 +625,65 @@ describe('ReportDetailView', () => {
 
     expect(window.alert).toHaveBeenCalledTimes(1);
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('does not show add report button if report belongs to a collection', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { is_contained_in: ['collection'], id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportDetailView-addReportButton'))).toBeNull();
+  });
+
+  test('does not show add report button if report belongs to patrol', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', patrols: ['patrol'], priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportDetailView-addReportButton'))).toBeNull();
+  });
+
+  test('shows the add report button', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByTestId('reportDetailView-addReportButton'))).toBeDefined();
   });
 });

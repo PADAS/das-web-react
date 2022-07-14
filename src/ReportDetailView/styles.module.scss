@@ -104,6 +104,10 @@
   border-top: 1px solid $very-light-gray-alt;
 }
 
+.footerActionButtonsContainer {
+  display: flex;
+}
+
 .footerActionButton {
   align-items: center;
   background-color: lighten($light-gray-background, 3.5%);

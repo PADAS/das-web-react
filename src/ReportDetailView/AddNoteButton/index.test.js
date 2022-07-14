@@ -12,7 +12,7 @@ describe('ReportDetailView - AddNoteButton', () => {
   });
 
   test('triggers onAddNote if user adds a new note', async () => {
-    render(<AddNoteButton notesToAdd={[]} onAddNote={onAddNote} />);
+    render(<AddNoteButton onAddNote={onAddNote} />);
 
     expect(onAddNote).toHaveBeenCalledTimes(0);
 
