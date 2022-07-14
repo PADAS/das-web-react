@@ -11,8 +11,6 @@ import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
 import AddReport from '../AddReport';
 
-import { showPopup } from '../ducks/popup';
-
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -21,7 +19,7 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState }) => {
   const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
 
@@ -42,8 +40,6 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
   const showAdditionalProps = hasAdditionalDeviceProps &&
     (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  const isMessageable = !!properties?.messaging?.length;
-
   const radioWithRecentMicActivity = useMemo(() =>
     subjectIsARadioWithRecentVoiceActivity(properties)
   , [properties]);
@@ -52,10 +48,6 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
     window.localStorage.setItem(STORAGE_KEY, !additionalPropsToggledOn);
   }, [additionalPropsToggledOn]);
-
-  const onClickMessagingIcon = useCallback(() => {
-    showPopup('subject-messages', { geometry, properties: properties, coordinates: geometry.coordinates });
-  }, [geometry, properties, showPopup]);
 
   const locationObject = {
     longitude: geometry.coordinates[0],
@@ -122,7 +114,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
 };
 
 const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
-export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
+export default connect(mapStateToProps, null)(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
