@@ -514,9 +514,6 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
 
   if (name !== action.name) return state;
 
-  if (type === FEED_FETCH_START) {
-    return INITIAL_EVENT_FEED_STATE;
-  }
   if (type === FEED_FETCH_SUCCESS
 
   ) {
