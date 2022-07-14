@@ -80,7 +80,7 @@ const Nav = ({
         navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     fetchCurrentUserProfiles();
-  }, [navigate]); // eslint-disable-line
+  }, []); // eslint-disable-line
 
   return <nav className="primary-nav">
     <div className="left-controls">
