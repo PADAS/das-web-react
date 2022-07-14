@@ -3,13 +3,14 @@ import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as ArrowDownSmallIcon } from '../../../common/images/icons/arrow-down-small.svg';
-import { ReactComponent as ArrowUpSmallIcon } from '../../../common/images/icons/arrow-up-small.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as NoteIcon } from '../../../common/images/icons/note.svg';
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
 import DateTime from '../../../DateTime';
+import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
@@ -30,17 +31,25 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const [isEditing, setIsEditing] = useState(isNewAndEmpty);
   const [text, setText] = useState(note.text);
 
-  const onClickCancelButton = useCallback(() => {
-    setText(note.text);
-    setIsEditing(false);
-  }, [note.text]);
+  const onClickTrashCanIcon = useCallback((event) => {
+    event.stopPropagation();
 
-  const onClickPencilIcon = useCallback(() => {
+    onDelete();
+  }, [onDelete]);
+
+  const onClickPencilIcon = useCallback((event) => {
+    event.stopPropagation();
+
     onExpand();
     setIsEditing(!isOpen || !isEditing);
   }, [isEditing, isOpen, onExpand]);
 
   const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
+
+  const onClickCancelButton = useCallback(() => {
+    setText(note.text);
+    setIsEditing(false);
+  }, [note.text]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -51,7 +60,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   }, [onSave, text]);
 
   return <li className={isOpen ? styles.openItem : ''}>
-    <div className={styles.itemRow}>
+    <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
       <div className={styles.itemIcon}>
         <NoteIcon />
       </div>
@@ -70,29 +79,29 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
           date={note.updates[0].time}
           showElapsed={false}
         />}
+
+        {isNew && <div>
+          <ItemActionButton onClick={onClickTrashCanIcon} tooltip="Delete">
+            <TrashCanIcon data-testid={`reportDetailView-activitySection-deleteIcon-${note.id || note.text}`} />
+          </ItemActionButton>
+        </div>}
       </div>
 
-      {isNew
-        ? <div className={styles.itemActionButton}>
-          <TrashCanIcon
-            data-testid={`reportDetailView-activitySection-deleteIcon-${note.id || note.text}`}
-            onClick={onDelete}
+      <div className={styles.itemActionButtonContainer}>
+        <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
+          <PencilIcon
+            className={isNewAndEmpty ? styles.disabled : ''}
+            data-testid={`reportDetailView-activitySection-editIcon-${note.id || note.text}`}
           />
-        </div>
-        : <div className={styles.itemActionButton} />}
-
-      <div className={styles.itemActionButton}>
-        <PencilIcon
-          className={isNewAndEmpty ? styles.disabled : ''}
-          data-testid={`reportDetailView-activitySection-editIcon-${note.id || note.text}`}
-          onClick={onClickPencilIcon}
-        />
+        </ItemActionButton>
       </div>
 
-      <div className={styles.itemActionButton}>
-        {isOpen
-          ? <ArrowUpSmallIcon onClick={onCollapse} />
-          : <ArrowDownSmallIcon onClick={onExpand} />}
+      <div className={styles.itemActionButtonContainer}>
+        <ItemActionButton>
+          {isOpen
+            ? <ArrowUpSimpleIcon />
+            : <ArrowDownSimpleIcon />}
+        </ItemActionButton>
       </div>
     </div>
 

@@ -1,0 +1,23 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/layout';
+
+.itemActionButton {
+  @include unstyledButton;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.1875rem;
+  margin: auto;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
