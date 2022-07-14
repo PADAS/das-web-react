@@ -37,8 +37,8 @@ global.console = {
 };
 
 global.IntersectionObserver = class IntersectionObserver {
-  disconnect() { return null; }
-  observe() { return null; }
-  takeRecords() { return null; }
-  unobserve() { return null; }
+  disconnect = jest.fn();
+  observe = jest.fn();
+  takeRecords = jest.fn();
+  unobserve = jest.fn();
 };
