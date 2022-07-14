@@ -158,7 +158,9 @@ const StaticSensorsLayer = ({
       setLayerVisibility(layer.layer.id);
     };
 
-    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
+      offset: [0, -8],
+    } });
     setTimeout(() => map.once('click', handleMapClick));
 
   }, [map, setLayerVisibility, showPopup]);

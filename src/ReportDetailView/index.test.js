@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
+import AddReport from '../AddReport';
+import { addEventToIncident, createEvent, fetchEvent } from '../ducks/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -20,7 +22,16 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
+jest.mock('../AddReport', () => jest.fn());
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../ducks/events', () => ({
+  ...jest.requireActual('../ducks/events'),
+  addEventToIncident: jest.fn(),
+  createEvent: jest.fn(),
+  fetchEvent: jest.fn(),
+}));
 
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
@@ -28,9 +39,26 @@ jest.mock('../utils/save', () => ({
 }));
 
 describe('ReportDetailView', () => {
-  let executeSaveActionsMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddReportMock,
+    addEventToIncidentMock,
+    createEventMock,
+    fetchEventMock,
+    executeSaveActionsMock,
+    navigate,
+    useNavigateMock,
+    store,
+    useLocationMock,
+    useSearchParamsMock;
 
   beforeEach(() => {
+    AddReportMock = jest.fn(() => null);
+    AddReport.mockImplementation(AddReportMock);
+    addEventToIncidentMock = jest.fn(() => () => {});
+    addEventToIncident.mockImplementation(addEventToIncidentMock);
+    createEventMock = jest.fn(() => () => {});
+    createEvent.mockImplementation(createEventMock);
+    fetchEventMock = jest.fn(() => () => {});
+    fetchEvent.mockImplementation(fetchEventMock);
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
@@ -253,6 +281,99 @@ describe('ReportDetailView', () => {
     userEvent.click(deleteNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+  });
+
+  test('if the current report is a collection, adding a new one simply appends it', async () => {
+    const addedReport = [{ data: { data: { id: 'added' } } }];
+    const initialReport = [{ data: { data: { id: 'initial' } } }];
+
+    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    AddReportMock = ({ formProps }) => {
+      useEffect(() => {
+        formProps.onSaveSuccess(addedReport);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/initial', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    fetchEventMock = jest.fn(() => () => initialReport[0]);
+    fetchEvent.mockImplementation(fetchEventMock);
+
+    store.data.eventStore = { initial: { id: 'initial', is_collection: true, priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(addEventToIncident).toHaveBeenCalledTimes(1);
+      expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
+      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalledWith('initial');
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/reports/initial');
+    });
+  });
+
+  test('if the current report is not a collection, adding a new one creates a collections and appends both', async () => {
+    const addedReport = [{ data: { data: { id: 'added' } } }];
+    const initialReport = [{ data: { data: { id: 'initial' } } }];
+    const incidentCollection = { data: { data: { id: 'incident' } } };
+
+    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    AddReportMock = ({ formProps }) => {
+      useEffect(() => {
+        formProps.onSaveSuccess(addedReport);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    createEventMock = jest.fn(() => () => incidentCollection);
+    createEvent.mockImplementation(createEventMock);
+
+    fetchEventMock = jest.fn(() => () => incidentCollection);
+    fetchEvent.mockImplementation(fetchEventMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+      expect(addEventToIncident).toHaveBeenCalledTimes(2);
+      expect(addEventToIncident).toHaveBeenCalledWith('initial', 'incident');
+      expect(addEventToIncident).toHaveBeenCalledWith('added', 'incident');
+      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalledWith('incident');
+      expect(navigate).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/reports/incident');
+    });
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
