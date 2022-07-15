@@ -31,6 +31,7 @@ import ActivitySection from './ActivitySection';
 import AddAttachmentButton from './AddAttachmentButton';
 import AddNoteButton from './AddNoteButton';
 import AddReportButton from './AddReportButton';
+import DetailsSection from './DetailsSection';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
@@ -217,6 +218,18 @@ const ReportDetailView = () => {
 
   const onChangeTitle = useCallback((newTitle) => setReportForm({ ...reportForm, title: newTitle }), [reportForm]);
 
+  const onReportedByChange = useCallback((selection) => {
+    const reportedBySelection = { reported_by: selection || null };
+    const selectionCoordinates = selection?.last_position?.geometry?.coordinates;
+    if (selectionCoordinates) {
+      reportedBySelection.location = { latitude: selectionCoordinates[1], longitude: selectionCoordinates[0] };
+    }
+
+    setReportForm({ ...reportForm, ...reportedBySelection });
+
+    reportTracker.track('Change Report Reported By');
+  }, [reportForm, reportTracker]);
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -380,7 +393,7 @@ const ReportDetailView = () => {
         <div className={styles.content}>
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle="Details">
-              <h3>Details</h3>
+              <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm.reported_by} />
             </QuickLinks.Section>
 
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}

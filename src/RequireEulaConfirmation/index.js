@@ -24,7 +24,7 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
         navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchCurrentUser, navigate]);
+  }, [fetchCurrentUser]);
 
   const eulaEnabled = useFeatureFlag(FEATURE_FLAGS.EULA);
 
