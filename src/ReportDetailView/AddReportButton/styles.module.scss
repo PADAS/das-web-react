@@ -1,0 +1,39 @@
+@import '../../common/styles/layout';
+@import '../../common/styles/vars/colors';
+
+.addReportButton {
+  display: flex;
+  padding: 0.375rem 0.75rem;
+
+  button[class*=addReport] {
+    display: flex;
+    flex-direction: row;
+    color: $secondary-medium-gray;
+    padding: 0;
+    height: 2.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+
+    span {
+      color: $secondary-medium-gray;
+      font-size: 1rem;
+      font-weight: bold;
+      display: none;
+
+      @media (min-width: $md-layout-width-min) {
+        display: unset;
+      }
+    }
+
+    svg {
+      height: 1rem;
+      width: 1rem;
+      border-radius: 0;
+      margin-bottom: 0;
+      
+      @media (min-width: $md-layout-width-min) {
+        margin-right: 0.375rem;
+      }
+    }
+  }
+}

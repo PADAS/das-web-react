@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -15,6 +15,7 @@ import styles from './styles.module.scss';
 
 const ActivitySection = ({
   attachmentsToAdd,
+  containedReports,
   notesToAdd,
   onDeleteAttachment,
   onDeleteNote,
@@ -22,9 +23,21 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
-}) => {
+}, ref) => {
   const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
   const [cardsExpanded, setCardsExpanded] = useState([]);
+
+  const onCollapseCard = useCallback((card) => {
+    if (cardsExpanded.includes(card)) {
+      setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== card)]);
+    }
+  }, [cardsExpanded]);
+
+  const onExpandCard = useCallback((card) => {
+    if (!cardsExpanded.includes(card)) {
+      setCardsExpanded([...cardsExpanded, card]);
+    }
+  }, [cardsExpanded]);
 
   const onSaveNoteKeepExpanded = useCallback((originalNote) => (editedText) => {
     const editedNote = onSaveNote(originalNote, editedText);
@@ -33,8 +46,15 @@ const ActivitySection = ({
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
     date: reportAttachment.updated_at || reportAttachment.created_at,
-    node: <AttachmentListItem attachment={reportAttachment} key={reportAttachment.id} reportTracker={reportTracker} />,
-  })), [reportAttachments, reportTracker]);
+    node: <AttachmentListItem
+      attachment={reportAttachment}
+      cardsExpanded={cardsExpanded}
+      key={reportAttachment.id}
+      onCollapse={() => onCollapseCard(reportAttachment)}
+      onExpand={() => onExpandCard(reportAttachment)}
+      reportTracker={reportTracker}
+    />,
+  })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments, reportTracker]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
     date: attachmentToAdd.creationDate,
@@ -51,11 +71,11 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
       note={reportNote}
-      onCollapse={() => setCardsExpanded(cardsExpanded.filter((cardExpanded) => cardExpanded !== reportNote))}
-      onExpand={() => setCardsExpanded([...cardsExpanded, reportNote])}
+      onCollapse={() => onCollapseCard(reportNote)}
+      onExpand={() => onExpandCard(reportNote)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
     />,
-  })), [cardsExpanded, onSaveNoteKeepExpanded, reportNotes]);
+  })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     date: noteToAdd.creationDate,
@@ -63,12 +83,12 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
-      onCollapse={() => setCardsExpanded(cardsExpanded.filter((cardExpanded) => cardExpanded !== noteToAdd))}
+      onCollapse={() => onCollapseCard(noteToAdd)}
       onDelete={() => onDeleteNote(noteToAdd)}
-      onExpand={() => setCardsExpanded([...cardsExpanded, noteToAdd])}
+      onExpand={() => onExpandCard(noteToAdd)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
     />,
-  })), [cardsExpanded, notesToAdd, onDeleteNote, onSaveNoteKeepExpanded]);
+  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
 
   const sortedItemsRendered = useMemo(
     () => [...reportAttachmentsRendered, ...reportNotesRendered, ...attachmentsToAddRendered, ...notesToAddRendered]
@@ -82,27 +102,29 @@ const ActivitySection = ({
     [attachmentsToAddRendered, notesToAddRendered, reportAttachmentsRendered, reportNotesRendered, timeSortOrder]
   );
 
+  const reportImageAttachments = useMemo(
+    () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
+    [reportAttachments]
+  );
+
   const areAllItemsExpanded = useMemo(
-    () => cardsExpanded.length === notesToAdd.length + reportNotes.length,
-    [cardsExpanded.length, notesToAdd.length, reportNotes.length],
+    () => cardsExpanded.length === (notesToAdd.length + reportNotes.length + reportImageAttachments.length),
+    [cardsExpanded.length, notesToAdd.length, reportImageAttachments.length, reportNotes.length],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
-    setCardsExpanded(areAllItemsExpanded ? [] : [...reportNotes, ...notesToAdd]);
-  }, [areAllItemsExpanded, notesToAdd, reportNotes]);
+    setCardsExpanded(areAllItemsExpanded ? [] : [...reportNotes, ...notesToAdd, ...reportImageAttachments]);
+  }, [areAllItemsExpanded, notesToAdd, reportImageAttachments, reportNotes]);
 
   const onClickTimeSortButton = useCallback(() => {
     setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
   }, [timeSortOrder]);
 
   useEffect(() => {
-    const newNotesToExpand = notesToAdd.filter((noteToAdd) => !noteToAdd.text && !cardsExpanded.includes(noteToAdd));
-    if (newNotesToExpand.length > 0) {
-      setCardsExpanded([...cardsExpanded, ...newNotesToExpand]);
-    }
-  }, [cardsExpanded, notesToAdd]);
+    notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
+  }, [notesToAdd, onExpandCard]);
 
-  return <>
+  return <div data-testid="reportDetailView-activitySection" ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -136,7 +158,10 @@ const ActivitySection = ({
     </div>
 
     {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
-  </>;
+
+    {/* TODO: This is a temporal print of child reports for testing purposes */}
+    {!!containedReports.length && containedReports.map((report) => <div key={report.id}>{report.id}<br/></div>)}
+  </div>;
 };
 
 ActivitySection.propTypes = {
@@ -145,6 +170,9 @@ ActivitySection.propTypes = {
     file: PropTypes.shape({
       name: PropTypes.string,
     }),
+  })).isRequired,
+  containedReports: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
   })).isRequired,
   notesToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
@@ -166,4 +194,4 @@ ActivitySection.propTypes = {
   reportTracker: PropTypes.object.isRequired,
 };
 
-export default memo(ActivitySection);
+export default memo(forwardRef(ActivitySection));

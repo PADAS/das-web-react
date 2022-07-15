@@ -124,14 +124,14 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     />);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.queryAllByRole('button'))).toHaveLength(0);
+    expect((await screen.queryByText('Save Note'))).toBeNull();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', true);
 
     const editButton = await screen.findByTestId('reportDetailView-activitySection-editIcon-note');
     userEvent.click(editButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
-    expect((await screen.findAllByRole('button'))).toHaveLength(2);
+    expect((await screen.findByText('Save Note'))).toBeDefined();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', false);
   });
 
@@ -149,7 +149,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('reportDetailView-activitySection-collapse-note'))).toHaveClass('collapse');
 
-    const expandNoteButton = await screen.findByText('arrow-down-small.svg');
+    const expandNoteButton = await screen.findByText('arrow-down-simple.svg');
     userEvent.click(expandNoteButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
@@ -169,7 +169,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('reportDetailView-activitySection-collapse-note'))).toHaveClass('show');
 
-    const colapseNoteButton = await screen.findByText('arrow-up-small.svg');
+    const colapseNoteButton = await screen.findByText('arrow-up-simple.svg');
     userEvent.click(colapseNoteButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);
@@ -196,11 +196,11 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('edition');
 
-    const cancelButton = (await screen.findAllByRole('button'))[0];
+    const cancelButton = await screen.findByText('Cancel');
     userEvent.click(cancelButton);
 
     expect(noteTextArea).toHaveTextContent('note');
-    expect((await screen.queryAllByRole('button'))).toHaveLength(0);
+    expect((await screen.queryByText('Save Note'))).toBeNull();
   });
 
   test('user can save the edition of a new note', async () => {
@@ -226,12 +226,12 @@ describe('ReportDetailView - ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('edition');
 
-    const saveButton = (await screen.findAllByRole('button'))[1];
+    const saveButton = await screen.findByText('Save Note');
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith('noteedition');
-    expect((await screen.queryAllByRole('button'))).toHaveLength(0);
+    expect((await screen.queryByText('Save Note'))).toBeNull();
   });
 
   test('user can not type an empty space at the beginning of a note', async () => {
@@ -272,7 +272,7 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     const editButton = await screen.findByTestId('reportDetailView-activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition     ');
-    const saveButton = (await screen.findAllByRole('button'))[1];
+    const saveButton = await screen.findByText('Save Note');
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
@@ -291,6 +291,6 @@ describe('ReportDetailView - ActivitySection - Note', () => {
     />);
 
     expect((await screen.findByTestId('reportDetailView-activitySection-editIcon-'))).toHaveClass('disabled');
-    expect((await screen.findAllByRole('button'))[0]).toHaveAttribute('disabled');
+    expect((await screen.findByText('Cancel'))).toHaveAttribute('disabled');
   });
 });

@@ -17,6 +17,7 @@ import { openModalForReport, createNewReportForEventType } from '../utils/events
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { uuid } from '../utils/string';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
@@ -174,8 +175,22 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
+// eslint-disable-next-line react/display-name
+const AddReport = forwardRef(({
+  analyticsMetadata,
+  className = '',
+  hideReports,
+  iconComponent,
+  variant,
+  formProps,
+  patrolTypes,
+  reportData,
+  eventsByCategory,
+  popoverPlacement,
+  showLabel,
+  title,
+  clickSideEffect,
+}, forwardedRef) => {
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
@@ -242,7 +257,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
         if (ENABLE_PATROL_NEW_UI) {
           return navigate(
             { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
-            { state: { patrolData: reportData } }
+            { state: { patrolData: reportData, temporalId: uuid() } }
           );
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
@@ -255,8 +270,8 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     if (ENABLE_REPORT_NEW_UI) {
       navigate(
-        { pathname: `${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
-        { state: { reportData } },
+        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { state: { reportData, temporalId: uuid() } },
         { formProps }
       );
     } else {
@@ -281,21 +296,21 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
         <button
           title={title}
           className={styles[`addReport-${variant}`]}
-          ref={targetRef}
+          ref={forwardedRef || targetRef}
           type='button'
           onClick={onButtonClick}
           data-testid='addReport-button'
         >
-          {showIcon && <AddButtonIcon />}
+          {iconComponent || <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
+        <Overlay show={popoverOpen} container={containerRef.current} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
           <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
   </PatrolTypesContext.Provider>;
-};
+});
 
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
@@ -303,15 +318,15 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps)(memo(AddReport));
+export default connect(mapStateToProps, null, null, { forwardRef: true })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
     category: 'Feed',
     location: null,
   },
+  iconComponent: null,
   popoverPlacement: 'auto',
-  showIcon: true,
   showLabel: true,
   title: 'Add',
   variant: 'primary',
@@ -331,8 +346,8 @@ AddReport.defaultProps = {
 
 AddReport.propTypes = {
   analyticsMetaData: CustomPropTypes.analyticsMetadata,
+  iconComponent: PropTypes.node,
   showLabel: PropTypes.bool,
-  showIcon: PropTypes.bool,
   title: PropTypes.string,
   patrolTypes: PropTypes.array,
   popoverPlacement: PropTypes.string,

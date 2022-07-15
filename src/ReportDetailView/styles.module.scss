@@ -11,65 +11,16 @@
   }
 }
 
+.loadingOverlay {
+  z-index: 6;
+}
+
 .body {
   display: flex;
   height: calc(100% - 3.5rem);
 
   @media (min-width: $md-layout-width-min) {
     height: calc(100% - 5rem);
-  }
-}
-
-.navigation {
-  display: flex;
-  flex-direction: column;
-  min-width: 3rem;
-  background-color: white;
-  
-  @media (min-width: $md-layout-width-min) {
-    min-width: 4.5rem;
-  }
-
-  a {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: $secondary-light-gray;
-    font-size: 0.625rem;
-    height: 3rem;
-    padding: 0;
-    border-bottom: 1px solid rgba(177, 179, 179, 0.25);
-
-    svg {
-      color: $secondary-light-gray;
-      
-      @media (min-width: $md-layout-width-min) {
-        margin-bottom: 0.5rem;
-      }
-    }
-
-    span {
-      display: none;
-
-      @media (min-width: $md-layout-width-min) {
-        display: block;
-      }
-    }
-
-    &[class*=active] {
-      color: $bright-blue !important;
-      background-color: $very-light-blue !important;
-      font-weight: bold;
-
-      svg {
-        color: $bright-blue;
-      }
-    }
-
-    @media (min-width: $md-layout-width-min) {
-      height: 5.5rem;
-    }
   }
 }
 
@@ -82,19 +33,10 @@
   border-left: 1px solid $very-light-gray-alt;
 }
 
-.tab {
-  overflow-x: hidden;
-  padding: 1.125rem 1.125rem 0;
-  width: 100%;
-  height: 100%;
-
-  &[class*=readonly] {
-    cursor: not-allowed;
-  }
-}
-
-.tabPane {
-  height: 100%;
+.sectionSeparation {
+  width: calc(100% + 2.5rem);
+  border-top: 1px solid $very-light-gray-alt;
+  margin: 3rem -1.125rem;
 }
 
 .footer {
@@ -102,6 +44,10 @@
   justify-content: space-between;
   padding: 0.875rem 1rem;
   border-top: 1px solid $very-light-gray-alt;
+}
+
+.footerActionButtonsContainer {
+  display: flex;
 }
 
 .footerActionButton {
