@@ -361,7 +361,7 @@ const ReportDetailView = () => {
   const shouldRenderHistorySection = !isNewReport;
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
-    {isSaving && <LoadingOverlay message="Saving..." />}
+    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <Header onChangeTitle={onChangeTitle} report={reportForm || {}} onReportChange={onSaveReport}/>
 
