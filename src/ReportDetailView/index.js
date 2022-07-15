@@ -1,7 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Nav from 'react-bootstrap/Nav';
-import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
@@ -36,14 +34,12 @@ import AddReportButton from './AddReportButton';
 import ErrorMessages from '../ErrorMessages';
 import Header from './Header';
 import LoadingOverlay from '../LoadingOverlay';
+import QuickLinks from './QuickLinks';
 
 import styles from './styles.module.scss';
 
-const NAVIGATION_DETAILS_EVENT_KEY = 'details';
-const NAVIGATION_ACTIVITY_EVENT_KEY = 'activity';
-const NAVIGATION_HISTORY_EVENT_KEY = 'history';
-
 const CLEAR_ERRORS_TIMEOUT = 7000;
+const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ReportDetailView = () => {
   const dispatch = useDispatch();
@@ -69,7 +65,6 @@ const ReportDetailView = () => {
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
-  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
   const {
     onSaveError: onSaveErrorCallback,
@@ -136,7 +131,6 @@ const ReportDetailView = () => {
     setNotesToAdd([]);
     setReportForm(reportForm);
     setSaveError(null);
-    setTab(NAVIGATION_DETAILS_EVENT_KEY);
     temporalIdRef.current = temporalId;
   }, []);
 
@@ -360,45 +354,38 @@ const ReportDetailView = () => {
     };
   }, [attachmentsToAdd, isNewReport, itemId, notesToAdd, reportChanges]);
 
+  const shouldRenderActivitySection = (reportAttachments.length
+    + attachmentsToAdd.length
+    + reportNotes.length
+    + notesToAdd.length) > 0;
+  const shouldRenderHistorySection = !isNewReport;
+
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
-    {isSaving && <LoadingOverlay message="Saving..." />}
+    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <Header onChangeTitle={onChangeTitle} report={reportForm || {}} onReportChange={onSaveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
-    <Tab.Container activeKey={tab} onSelect={setTab}>
-      <div className={styles.body}>
-        <Nav className={styles.navigation}>
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              <PencilWritingIcon />
-              <span>Details</span>
-            </Nav.Link>
-          </Nav.Item>
+    <div className={styles.body}>
+      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
+        <QuickLinks.NavigationBar>
+          <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
-              <BulletListIcon />
-              <span>Activity</span>
-            </Nav.Link>
-          </Nav.Item>
+          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              <HistoryIcon />
-              <span>History</span>
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+        </QuickLinks.NavigationBar>
 
         <div className={styles.content}>
-          <Tab.Content className={styles.tab}>
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_DETAILS_EVENT_KEY}>
-              Details
-            </Tab.Pane>
+          <QuickLinks.SectionsWrapper>
+            <QuickLinks.Section anchorTitle="Details">
+              <h3>Details</h3>
+            </QuickLinks.Section>
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_ACTIVITY_EVENT_KEY}>
+            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
+
+            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
               <ActivitySection
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
@@ -410,12 +397,14 @@ const ReportDetailView = () => {
                 reportNotes={reportNotes}
                 reportTracker={reportTracker}
               />
-            </Tab.Pane>
+            </QuickLinks.Section>
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              History
-            </Tab.Pane>
-          </Tab.Content>
+            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+
+            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+              <h3 data-testid="reportDetailView-historySection">History</h3>
+            </QuickLinks.Section>
+          </QuickLinks.SectionsWrapper>
 
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
@@ -442,8 +431,8 @@ const ReportDetailView = () => {
             </div>
           </div>
         </div>
-      </div>
-    </Tab.Container>
+      </QuickLinks>
+    </div>
   </div> : null;
 };
 

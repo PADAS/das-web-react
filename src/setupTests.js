@@ -35,3 +35,10 @@ global.console = {
   info: console.info,
   debug: console.debug,
 };
+
+global.IntersectionObserver = class IntersectionObserver {
+  disconnect = jest.fn();
+  observe = jest.fn();
+  takeRecords = jest.fn();
+  unobserve = jest.fn();
+};

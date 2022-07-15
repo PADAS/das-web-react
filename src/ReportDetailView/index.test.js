@@ -157,36 +157,6 @@ describe('ReportDetailView', () => {
     });
   });
 
-  test('renders the Details view by default', async () => {
-    expect((await screen.findAllByRole('tab'))[0]).toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[0]).toHaveTextContent('Details');
-    expect((await screen.findAllByRole('tabpanel'))[0]).toHaveClass('show');
-  });
-
-  test('navigates to the Activity view when user clicks the tab', async () => {
-    const activitySection = (await screen.findAllByRole('tab'))[1];
-
-    expect(activitySection).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[1]).toHaveTextContent('Activity');
-
-    userEvent.click(activitySection);
-
-    expect(activitySection).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
-  test('navigates to the History view when user clicks the tab', async () => {
-    const historySection = (await screen.findAllByRole('tab'))[2];
-
-    expect(historySection).not.toHaveClass('active');
-    expect((await screen.findAllByRole('tab'))[2]).toHaveTextContent('History');
-
-    userEvent.click(historySection);
-
-    expect(historySection).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
   test('updates the title when user types in it', async () => {
     const titleInput = await screen.findByTestId('reportDetailView-header-title');
 
@@ -625,6 +595,48 @@ describe('ReportDetailView', () => {
 
     expect(window.alert).toHaveBeenCalledTimes(1);
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('does not display neither the activity section nor its anchor if there are no items to show', async () => {
+    expect((await screen.queryByTestId('reportDetailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeNull();
+  });
+
+  test('displays the activity section and its anchor after adding an item', async () => {
+    expect((await screen.queryByTestId('reportDetailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeNull();
+
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect((await screen.findByTestId('reportDetailView-activitySection'))).toBeDefined();
+    expect((await screen.findByTestId('reportDetailView-quickLinks-anchor-Activity'))).toBeDefined();
+  });
+
+  test('does not display neither the history section nor its anchor if the report is new', async () => {
+    expect((await screen.queryByTestId('reportDetailView-historySection'))).toBeNull();
+    expect((await screen.queryByTestId('reportDetailView-quickLinks-anchor-History'))).toBeNull();
+  });
+
+  test('displays the history section and its anchor if the report is saved', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = { 456: { id: '456', priority: 0, title: 'title' } };
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByTestId('reportDetailView-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('reportDetailView-quickLinks-anchor-History'))).toBeDefined();
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
