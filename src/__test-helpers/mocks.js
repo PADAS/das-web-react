@@ -1,4 +1,4 @@
-import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 export const createMapMock = (override = {}) => {
   const mockMap = {
@@ -32,13 +32,25 @@ export const createMapMock = (override = {}) => {
     setZoom: jest.fn(),
     ...override,
     __test__: {
-      fireHandlers: (handlerName, eventObj) => {
-        const toCall = mockMap.on.mock.calls.filter(([name]) => name === handlerName);
+      fireHandlers: (handlerName, ...rest) => {
+        const layerName = isString(rest[0]) ? rest[0] : null;
+        const eventObj = layerName ? rest[1] : rest[0];
+
+        const toCall = mockMap.on.mock.calls
+          .filter(([name, ...rest]) => {
+            const layerId = isString(rest[0]) ? rest[0] : null;
+
+            if (layerName) return layerName === layerId;
+
+            return name === handlerName;
+          });
+
         toCall.forEach((item) => {
           const [, ...rest] = item;
+          const layerId = isString(rest[0]) ? rest[0] : null;
 
           /* skip the optional layerName arg if it hasn't been passed */
-          const func = isFunction(rest[0]) ? rest[0] : rest[1];
+          const func = !!layerId ? rest[1] : rest[0];
 
           func(eventObj);
         });
