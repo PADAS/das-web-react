@@ -19,7 +19,7 @@ const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSOR
 
 const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
-const DEFAULT_LAYER_FILTER = [
+export const DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER = [
   'all',
   ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
   ['==', 'is_static', true],
@@ -42,7 +42,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
-  const [layerFilter, setLayerFilter] = useState(DEFAULT_LAYER_FILTER);
+  const [layerFilter, setLayerFilter] = useState(DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER);
 
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
@@ -64,8 +64,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
       const onSourceData = ({ sourceDataType, sourceId }) => {
         if (sourceId === currentSourceId
           && sourceDataType !== 'metadata') {
-          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId] })[0];
-
+          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId] });
           addFeatureCollectionImagesToMap(featureCollection(features), { sdf: true });
         }
       };
@@ -77,7 +76,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
     }
   }, [currentBackgroundLayerId, map, currentSourceId]);
 
-  /* add the popup background image on load */
+  /* add the marker's background image on load */
   useEffect(() => {
     if (map) {
       map.loadImage(LayerBackground, (error, image) =>
@@ -98,9 +97,9 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
       const stationarySubjectAtPoint = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
       const newFilter = !!stationarySubjectAtPoint ?  [
-        ...DEFAULT_LAYER_FILTER,
+        ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
         ['!=', 'id', stationarySubjectAtPoint.properties.id]
-      ] : DEFAULT_LAYER_FILTER;
+      ] : DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER;
 
       setLayerFilter(newFilter);
     };
@@ -155,7 +154,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
         const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
         const newFilter = [
-          ...DEFAULT_LAYER_FILTER,
+          ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
           ['!=', 'id', feature.properties.id]
         ];
 

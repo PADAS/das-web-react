@@ -1,3 +1,5 @@
+import isFunction from 'lodash/isFunction';
+
 export const createMapMock = (override = {}) => {
   const mockMap = {
     addSource: jest.fn(),
@@ -8,6 +10,7 @@ export const createMapMock = (override = {}) => {
     setFilter: jest.fn(),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
+    removeLayer: jest.fn(),
     on: jest.fn(),
     once: jest.fn(),
     off: jest.fn(),
@@ -31,7 +34,14 @@ export const createMapMock = (override = {}) => {
     __test__: {
       fireHandlers: (handlerName, eventObj) => {
         const toCall = mockMap.on.mock.calls.filter(([name]) => name === handlerName);
-        toCall.forEach(([, func]) => func(eventObj));
+        toCall.forEach((item) => {
+          const [, ...rest] = item;
+
+          /* skip the optional layerName arg if it hasn't been passed */
+          const func = isFunction(rest[0]) ? rest[0] : rest[1];
+
+          func(eventObj);
+        });
       },
     }
   };
