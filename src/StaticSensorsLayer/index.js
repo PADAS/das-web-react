@@ -153,14 +153,16 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
 
         const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
 
-        const newFilter = [
-          ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
-          ['!=', 'id', feature.properties.id]
-        ];
+        if (feature) {
+          const newFilter = [
+            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+            ['!=', 'id', feature.properties.id]
+          ];
 
-        setLayerFilter(newFilter);
+          setLayerFilter(newFilter);
 
-        createPopup(feature);
+          createPopup(feature);
+        }
       };
 
       const onLayerMouseEnter = () => {

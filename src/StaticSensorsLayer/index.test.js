@@ -6,12 +6,11 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { MapContext } from '../App';
-import { staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
+import { staticSubjectFeature, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
-import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import StaticSensorsLayer, { DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER } from './';
 
-import { hidePopup, showPopup } from '../ducks/popup';
+import { showPopup } from '../ducks/popup';
 
 import * as mapUtils from '../utils/map';
 
@@ -19,7 +18,7 @@ import LayerBackground from '../common/images/sprites/layer-background-sprite.pn
 
 const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
-const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
+const { STATIC_SENSOR } = LAYER_IDS;
 let map;
 
 let store = {
@@ -40,6 +39,13 @@ let store = {
     }
   },
 };
+
+
+jest.mock('../ducks/popup', () => ({
+  ...jest.requireActual('../ducks/popup'),
+  showPopup: jest.fn(),
+  hidePopup: jest.fn(),
+}));
 
 describe('adding layers to the map', () => {
   beforeEach(() => {
@@ -128,85 +134,7 @@ describe('adding layers to the map', () => {
     });
   });
 
-  describe('updating layout properties based on map config', () => {
-    let data = mockStore(store), reRender;
-
-    beforeEach(() => {
-      const { rerender } = render(
-        <Provider store={data}>
-          <MapContext.Provider value={map}>
-            <StaticSensorsLayer isTimeSliderActive={false} />
-          </MapContext.Provider>
-        </Provider>
-      );
-
-      reRender = rerender;
-
-      map.setLayoutProperty.mockClear();
-      expect(map.setLayoutProperty).not.toHaveBeenCalled();
-    });
-
-    test('updating layout when map data simplification is toggled', async () => {
-      data = mockStore(() => ({
-        ...store,
-        view: {
-          ...store.view,
-          simplifyMapDataOnZoom: {
-            active: true
-          },
-        }
-      }));
-
-      reRender(<Provider store={data}>
-        <MapContext.Provider value={map}>
-          <StaticSensorsLayer isTimeSliderActive={false} />
-        </MapContext.Provider>
-      </Provider>);
-
-      await waitFor(() => {
-        expect(map.setLayoutProperty).toHaveBeenCalled();
-      });
-    });
-
-    test('updating layout when the timeslider state is toggled', async () => {
-      reRender(<Provider store={data}>
-        <MapContext.Provider value={map}>
-          <StaticSensorsLayer isTimeSliderActive={true} />
-        </MapContext.Provider>
-      </Provider>);
-
-      await waitFor(() => {
-        expect(map.setLayoutProperty).toHaveBeenCalled();
-      });
-    });
-
-    test('updating layout when statonary subject name visibility is toggled', async () => {
-      data = mockStore(() => ({
-        ...store,
-        view: {
-          ...store.view,
-          showMapNames: {
-            [STATIC_SENSOR]: {
-              enabled: true,
-            }
-          },
-        }
-      }));
-
-      reRender(<Provider store={data}>
-        <MapContext.Provider value={map}>
-          <StaticSensorsLayer isTimeSliderActive={true} />
-        </MapContext.Provider>
-      </Provider>);
-
-      await waitFor(() => {
-        expect(map.setLayoutProperty).toHaveBeenCalled();
-      });
-    });
-  });
-
   describe('clicking on a stationary subject', () => {
-    // let hidePopupMock, showPopupMock;
     beforeEach(() => {
       render(
         <Provider store={mockStore(store)}>
@@ -216,13 +144,10 @@ describe('adding layers to the map', () => {
         </Provider>
       );
 
-      jest.mock('../ducks/popup', () => ({
-        ...jest.requireActual('../ducks/popup'),
-        addPopup: jest.fn(),
-        hidePopup: jest.fn(),
-      }));
+      showPopup.mockImplementation(() => jest.fn());
 
-      map.queryRenderedFeatures.mockReturnValue(staticSubjectFeature);
+      map.queryRenderedFeatures.mockReturnValue([staticSubjectFeature]);
+      map.setFilter.mockClear();
 
       map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
     });
@@ -233,20 +158,41 @@ describe('adding layers to the map', () => {
       } });
     });
 
-    test('setting the map filter to hide the selected subject\'s marker', () => {
-      expect(map.setFilter).toHaveBeenCalledWith([
-        ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
-        ['!=', 'id', staticSubjectFeature.properties.id]
-      ]);
+    test('setting the map filter to hide the selected subject\'s marker', async () => {
+      await waitFor(() => {
+        expect(map.setFilter).toHaveBeenCalledTimes(2); /* once for the background layer, once for the symbol layer */
+
+        map.setFilter.mock.calls.forEach((call) => {
+          expect(call[1]).toEqual([
+            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+            ['!=', 'id', staticSubjectFeature.properties.id]
+          ]);
+        });
+      });
+    });
+
+    test('a one-time handler is bound to the map for handling map click after selecting a stationary subject', async () => {
+      await waitFor(() => {
+        expect(map.once).toHaveBeenCalled();
+      });
     });
 
     describe('clicking the map while a stationary subject popup is visible', () => {
-      test('changing the filter to a new stationary subject if another is the click target', () => {
+      test('changing the filter to a new stationary subject if another is the click target', async () => {
+        map.queryRenderedFeatures.mockReset();
+        map.queryRenderedFeatures.mockReturnValue([staticSubjectFeatureWithoutDefaultValue]);
 
-      });
+        map.__test__.fireHandlers('once', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
+        map.setFilter.mockClear();
 
-      test('setting the filter back to default if another stationary subject is not the click target', () => {
-
+        await waitFor(() => {
+          map.setFilter.mock.calls.forEach((call) => {
+            expect(call[1]).toEqual([
+              ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+              ['!=', 'id', staticSubjectFeatureWithoutDefaultValue.properties.id]
+            ]);
+          });
+        });
       });
     });
   });
