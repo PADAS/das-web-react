@@ -39,10 +39,12 @@ export const createMapMock = (override = {}) => {
         const toCall = mockMap.on.mock.calls
           .filter(([name, ...rest]) => {
             const layerId = isString(rest[0]) ? rest[0] : null;
+            const handlerNameMatches = (name === handlerName);
 
-            if (layerName) return layerName === layerId;
+            if (!layerName) return handlerNameMatches;
 
-            return name === handlerName;
+            return handlerNameMatches
+              && layerName === layerId;
           });
 
         toCall.forEach((item) => {
