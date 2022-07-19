@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { updateClusterMarkers } from './utils';
-import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
+import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
@@ -13,10 +13,10 @@ import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
-  CLUSTER_BUFFER_POLYGON_SOURCE_ID,
   CLUSTERS_LAYER_ID,
-  CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
+
+const { CLUSTER_BUFFER_POLYGON_SOURCE_ID, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 75;
 

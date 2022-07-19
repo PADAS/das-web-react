@@ -17,6 +17,7 @@ import {
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
+  SOURCE_IDS,
   MAX_ZOOM,
   MAP_ICON_SCALE,
 } from '../constants';
@@ -25,10 +26,11 @@ import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFr
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 
 const {
-  CLUSTERS_SOURCE_ID,
   EVENT_SYMBOLS,
   SUBJECT_SYMBOLS,
 } = LAYER_IDS;
+
+const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const ANIMATION_LENGTH_SECONDS = .25;
 const FRAMES_PER_SECOND = 6;

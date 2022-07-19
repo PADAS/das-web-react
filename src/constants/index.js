@@ -93,17 +93,16 @@ export const BREAKPOINTS = {
 export const LAYER_IDS = {
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
   CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
-  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
   CLUSTERS_LAYER_ID: 'clusters-layer',
-  CLUSTERS_SOURCE_ID: 'clusters-source',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',
   EVENT_CLUSTERS_CIRCLES: 'event_clusters',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
-  SUBJECT_SYMBOLS: 'subject_symbols',
+  SUBJECT_SYMBOLS: 'subject-symbol-layer',
   STATIC_SENSOR: 'static_sensor',
+  CLUSTERED_STATIC_SENSORS_LAYER: 'clustered_static_sensors_layer',
   UNCLUSTERED_STATIC_SENSORS_LAYER: 'unclustered_static_sensors_layer',
   SECOND_STATIC_SENSOR_PREFIX: 'icons-layer-',
   PATROL_SYMBOLS: 'patrol_symbols',
@@ -115,6 +114,16 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ISOCHRONE_LAYER: 'isochrone',
+};
+
+export const SOURCE_IDS = {
+  ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
+  ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
+  ANALYZER_LINES_WARNING_SOURCE: 'analyzer-line-warning-source',
+  ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
+  SUBJECT_SYMBOLS: 'subject-symbol-source',
+  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
+  CLUSTERS_SOURCE_ID: 'clusters-source',
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
@@ -140,12 +149,6 @@ export const FEATURE_FLAGS = {
   GEOPERMISSIONS: 'geopermissions_enabled',
 };
 
-export const SOURCE_IDS = {
-  ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
-  ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
-  ANALYZER_LINES_WARNING_SOURCE: 'analyzer-line-warning-source',
-  ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
-};
 
 export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
   ['in', 'generic', ['get', 'image']], ifGeneric,

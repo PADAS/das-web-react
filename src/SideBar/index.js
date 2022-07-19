@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { cloneDeep } from 'lodash-es';
+import cloneDeep from 'lodash/cloneDeep';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';

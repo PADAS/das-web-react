@@ -9,11 +9,12 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 
-const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);

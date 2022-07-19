@@ -84,7 +84,6 @@ import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 const {
   ENABLE_REPORT_NEW_UI,
@@ -608,11 +607,6 @@ const Map = ({
 
   const timeSliderActive = timeSliderState.active;
   const enableEventClustering = timeSliderActive ? false : true;
-
-  const staticFeatures = (mapSubjectFeatureCollection?.features ?? [])
-    .filter(subjectFeature => subjectIsStatic(subjectFeature));
-  const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
-
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
@@ -657,7 +651,7 @@ const Map = ({
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
+      <StaticSensorsLayer isTimeSliderActive={timeSliderActive}/>
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 

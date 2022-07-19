@@ -1,5 +1,8 @@
 import uniqBy from 'lodash/uniqBy';
 import differenceInSeconds from 'date-fns/difference_in_seconds';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
@@ -88,6 +91,25 @@ export const getSubjectLastPositionCoordinates = subject => {
 export const getSubjectDefaultDeviceProperty = subject => {
   const deviceStatusProperties = subject?.properties?.device_status_properties ?? subject?.device_status_properties ?? [];
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
+};
+
+
+export const addDefaultStatusValue = (originalFeature) => {
+  const feature = cloneDeep(originalFeature);
+
+  const { properties } = feature;
+  const defaultProperty = getSubjectDefaultDeviceProperty(feature);
+
+  if (!isEmpty(defaultProperty)) {
+    const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
+    set(feature, 'properties.default_status_value', `${defaultProperty.value}${propertyUnitsLabel}`);
+  };
+
+  if (!properties?.image?.length) {
+    set(feature, 'properties.default_status_label', defaultProperty.label) ;
+  }
+
+  return feature;
 };
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {

@@ -1,4 +1,4 @@
-import { subjectIsStatic, getSubjectDefaultDeviceProperty } from './subjects.js';
+import { subjectIsStatic, getSubjectDefaultDeviceProperty, addDefaultStatusValue } from './subjects.js';
 import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 
 
@@ -28,4 +28,11 @@ describe('getting the feature default property from a subject', () => {
   test('getting an empty object for subject without feature default property', () => {
     expect(getSubjectDefaultDeviceProperty(subjectFeatureWithOneDeviceProp)).toMatchObject({});
   });
+});
+
+test('adding a default status value to stationary subjects', () => {
+  expect(staticSubjectFeature).not.toHaveProperty(['properties', 'default_status_value']);
+
+  const withDefault = addDefaultStatusValue(staticSubjectFeature);
+  expect(withDefault).toHaveProperty(['properties', 'default_status_value']);
 });

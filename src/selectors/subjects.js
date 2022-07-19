@@ -5,7 +5,7 @@ import { tracks } from './tracks';
 
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
-import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols } from '../utils/subjects';
+import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols, addDefaultStatusValue, subjectIsStatic } from '../utils/subjects';
 
 const getMapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -24,8 +24,19 @@ export const getMapSubjectFeatureCollection = createSelector(
       .filter(item => !!item);
 
     const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
-    if (showInactiveRadios) return mapSubjectCollection;
-    return filterInactiveRadiosFromCollection(mapSubjectCollection);
+
+    const withDefaultValuesForStationarySubjects = {
+      ...mapSubjectCollection,
+      features: mapSubjectCollection.features
+        .map(feature =>
+          subjectIsStatic(feature)
+            ? addDefaultStatusValue(feature)
+            : feature
+        ),
+    };
+
+    if (showInactiveRadios) return withDefaultValuesForStationarySubjects;
+    return filterInactiveRadiosFromCollection(withDefaultValuesForStationarySubjects);
   });
 
 export const getSubjectGroups = createSelector(

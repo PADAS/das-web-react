@@ -5,22 +5,23 @@ import { Provider } from 'react-redux';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
-import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
-import { LAYER_IDS } from '../constants';
-import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
-import StaticSensorsLayer from './';
+import { staticSubjectFeature, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
+import { LAYER_IDS, SOURCE_IDS } from '../constants';
+import StaticSensorsLayer, { DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER } from './';
 
-jest.mock('../selectors/clusters', () => ({
-  ...jest.requireActual('../selectors/clusters'),
-  getShouldSubjectsBeClustered: jest.fn(),
-}));
+import { showPopup } from '../ducks/popup';
 
-const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
+import * as mapUtils from '../utils/map';
+
+import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
+
+const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
+
+const { STATIC_SENSOR } = LAYER_IDS;
 let map;
 
-const store = {
+let store = {
   view: {
     simplifyMapDataOnZoom: {
       active: false
@@ -30,179 +31,169 @@ const store = {
         enabled: false,
       }
     },
+    mapClusterConfig: {
+      subjects: false,
+    },
+    timeSliderState: {
+      active: false,
+    }
   },
 };
 
-describe('adding default property', () => {
-  function getDefaultProperty(feature) {
-    return feature.properties.device_status_properties.find(property => property?.default ?? false) ?? null;
-  }
 
-  beforeEach(() => {
-    map = createMapMock();
-  });
-
-  test('Adding default property with value and units', () => {
-    expect(staticSubjectFeature.properties).not.toHaveProperty('default_status_value');
-
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeature],
-      }}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    const defaultDeviceProperty = getDefaultProperty(staticSubjectFeature);
-    expect(staticSubjectFeature).toHaveProperty('properties.default_status_value', `${defaultDeviceProperty.value} ${defaultDeviceProperty.units}`);
-  });
-
-  test('Adding default property label when image is missing', () => {
-    expect(staticSubjectFeatureWithoutIcon.properties).not.toHaveProperty('default_status_value');
-    expect(staticSubjectFeatureWithoutIcon.properties).not.toHaveProperty('default_status_label');
-
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeatureWithoutIcon],
-      }}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    const defaultDeviceProperty = getDefaultProperty(staticSubjectFeatureWithoutIcon);
-    expect(staticSubjectFeatureWithoutIcon).toHaveProperty('properties.default_status_value', `${defaultDeviceProperty.value} ${defaultDeviceProperty.units}`);
-    expect(staticSubjectFeatureWithoutIcon).toHaveProperty('properties.default_status_label', defaultDeviceProperty.label);
-  });
-
-  test('It should not add default_status_value if the subject does not have a property as default', () => {
-    expect(staticSubjectFeatureWithoutDefaultValue.properties).not.toHaveProperty('default_status_value');
-
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeatureWithoutDefaultValue],
-      }}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    expect(staticSubjectFeatureWithoutDefaultValue.properties).not.toHaveProperty('default_status_value');
-  });
-
-  test('Showing label as "No historical data" in case the time slider is active', () => {
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeature],
-      }} isTimeSliderActive={true} />
-      </MapContext.Provider>
-    </Provider>);
-
-    expect(staticSubjectFeature.properties.default_status_value).toBe('No historical data');
-  });
-
-  test('Set property show_map_names as true in case the showNames control for this layer is enabled', () => {
-    const storeWithShowNamesEnabled = { ...store };
-    storeWithShowNamesEnabled.view.showMapNames[STATIC_SENSOR].enabled = true;
-    render(<Provider store={mockStore(storeWithShowNamesEnabled)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeature],
-      }}/>
-      </MapContext.Provider>
-    </Provider>);
-
-    expect(staticSubjectFeature.properties.show_map_names).toBe(true);
-  });
-});
+jest.mock('../ducks/popup', () => ({
+  ...jest.requireActual('../ducks/popup'),
+  showPopup: jest.fn(),
+  hidePopup: jest.fn(),
+}));
 
 describe('adding layers to the map', () => {
   beforeEach(() => {
     map = createMapMock({
-      getLayer: jest.fn().mockImplementation((id) => id === UNCLUSTERED_STATIC_SENSORS_LAYER ? {} : null),
-      getSource: jest.fn().mockImplementation(() => null)
+      getLayer: jest.fn().mockReturnValue(false),
+      getSource: jest.fn().mockReturnValue(true),
     });
   });
 
-  test('It should create each feature with 2 layers', async () => {
-    map.queryRenderedFeatures.mockImplementation(() => [staticSubjectFeature]);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={{
-        'type': 'FeatureCollection',
-        'features': [staticSubjectFeature],
-      }}/>
-      </MapContext.Provider>
-    </Provider>);
+  describe('the layer used when clustering is disabled', () => {
+    beforeEach(() => {
+      render(
+        <Provider store={mockStore(store)}>
+          <MapContext.Provider value={map}>
+            <StaticSensorsLayer isTimeSliderActive={false} />
+          </MapContext.Provider>
+        </Provider>
+      );
+    });
 
-    await waitFor(() => {
+
+    test('adding two layers with unclustered source data', () => {
       expect(map.addLayer).toHaveBeenCalledTimes(2);
-
-      expect(map.addLayer.mock.calls[0][0]).toStrictEqual({
-        'id': `${STATIC_SENSOR}${staticSubjectFeature.properties.id}`,
-        'layout': BACKGROUND_LAYER.layout,
-        'paint': BACKGROUND_LAYER.paint,
-        'source': `${STATIC_SENSOR}-source-${staticSubjectFeature.properties.id}`,
-        'type': 'symbol'
-      });
-
-      expect(map.addLayer.mock.calls[1][0]).toStrictEqual({
-        'id': `${SECOND_STATIC_SENSOR_PREFIX}${STATIC_SENSOR}${staticSubjectFeature.properties.id}`,
-        'layout': LABELS_LAYER.layout,
-        'paint': LABELS_LAYER.paint,
-        'source': `${STATIC_SENSOR}-source-${staticSubjectFeature.properties.id}`,
-        'type': 'symbol'
+      map.addLayer.mock.calls.forEach((call) => {
+        const [layerConfig] = call;
+        expect(layerConfig.source).toEqual(SUBJECT_SYMBOLS);
       });
     });
   });
 
-  test('Each feature should have its own source', async () => {
-    map.queryRenderedFeatures.mockImplementation(() => mockMapStaticSubjectFeatureCollection.features);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
+  describe('the layer used when clustering is enabled', () => {
+    beforeEach(() => {
+      render(
+        <Provider store={mockStore({ ...store, view: { ...store.view, mapClusterConfig: { subjects: true } } })}>
+          <MapContext.Provider value={map}>
+            <StaticSensorsLayer isTimeSliderActive={false} />
+          </MapContext.Provider>
+        </Provider>
+      );
+    });
 
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(3);
-      expect(map.addLayer).toHaveBeenCalledTimes(6);
+    test('adding two layers with clustered source data', () => {
+      expect(map.addLayer).toHaveBeenCalledTimes(2);
+      map.addLayer.mock.calls.forEach((call) => {
+        const [layerConfig] = call;
+        expect(layerConfig.source).toEqual(CLUSTERS_SOURCE_ID);
+      });
+    });
+
+  });
+
+  describe('adding images to the map', () => {
+
+    test('adding the background popup image', () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <MapContext.Provider value={map}>
+            <StaticSensorsLayer isTimeSliderActive={false} />
+          </MapContext.Provider>
+        </Provider>
+      );
+
+      expect(map.loadImage).toHaveBeenCalled();
+      expect(map.loadImage.mock.calls[0][0]).toEqual(LayerBackground);
+    });
+
+    test('adding images for the individual sensor icons when the source data changes', () => {
+      map.getLayer.mockReturnValue(true);
+
+      const mockImageAddFn = jest.spyOn(mapUtils, 'addFeatureCollectionImagesToMap');
+
+      map.queryRenderedFeatures.mockReturnValue([staticSubjectFeature]);
+
+      render(
+        <Provider store={mockStore(store)}>
+          <MapContext.Provider value={map}>
+            <StaticSensorsLayer isTimeSliderActive={false} />
+          </MapContext.Provider>
+        </Provider>
+      );
+
+
+      map.__test__.fireHandlers('sourcedata', { sourceId: SUBJECT_SYMBOLS, sourceDataType: 'data' });
+
+      expect(mockImageAddFn).toHaveBeenCalledWith({ type: 'FeatureCollection', features: [staticSubjectFeature] }, { sdf: true });
     });
   });
 
-  test('It should not create new layers if clustering is enabled and static sensors are not part of the unclustered layer', async () => {
-    const getShouldSubjectsBeClusteredMock = jest.fn(() => true);
-    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
-    map.queryRenderedFeatures.mockImplementation(() => []);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
+  describe('clicking on a stationary subject', () => {
+    beforeEach(() => {
+      render(
+        <Provider store={mockStore(store)}>
+          <MapContext.Provider value={map}>
+            <StaticSensorsLayer isTimeSliderActive={false} />
+          </MapContext.Provider>
+        </Provider>
+      );
 
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(0);
-      expect(map.addLayer).toHaveBeenCalledTimes(0);
+      showPopup.mockImplementation(() => jest.fn());
+
+      map.queryRenderedFeatures.mockReturnValue([staticSubjectFeature]);
+      map.setFilter.mockClear();
+
+      map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
     });
-  });
 
-  test('It create new layers if subjects are not being clustered', async () => {
-    const getShouldSubjectsBeClusteredMock = jest.fn(() => false);
-    getShouldSubjectsBeClustered.mockImplementation(getShouldSubjectsBeClusteredMock);
-    map.queryRenderedFeatures.mockImplementation(() => []);
-    render(<Provider store={mockStore(store)}>
-      <MapContext.Provider value={map}>
-        <StaticSensorsLayer staticSensors={mockMapStaticSubjectFeatureCollection}/>
-      </MapContext.Provider>
-    </Provider>);
+    test('showing the subject popup', () => {
+      expect(showPopup).toHaveBeenCalledWith('subject', { geometry: staticSubjectFeature.geometry, properties: staticSubjectFeature.properties, coordinates: staticSubjectFeature.geometry.coordinates, popupAttrsOverride: {
+        offset: [0, 0],
+      } });
+    });
 
-    await waitFor(() => {
-      expect(map.addSource).toHaveBeenCalledTimes(3);
-      expect(map.addLayer).toHaveBeenCalledTimes(6);
+    test('setting the map filter to hide the selected subject\'s marker', async () => {
+      await waitFor(() => {
+        expect(map.setFilter).toHaveBeenCalledTimes(2); /* once for the background layer, once for the symbol layer */
+
+        map.setFilter.mock.calls.forEach((call) => {
+          expect(call[1]).toEqual([
+            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+            ['!=', 'id', staticSubjectFeature.properties.id]
+          ]);
+        });
+      });
+    });
+
+    test('a one-time handler is bound to the map for handling map click after selecting a stationary subject', async () => {
+      await waitFor(() => {
+        expect(map.once).toHaveBeenCalled();
+      });
+    });
+
+    describe('clicking the map while a stationary subject popup is visible', () => {
+      test('changing the filter to a new stationary subject if another is the click target', async () => {
+        map.queryRenderedFeatures.mockReset();
+        map.queryRenderedFeatures.mockReturnValue([staticSubjectFeatureWithoutDefaultValue]);
+
+        map.__test__.fireHandlers('once', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
+        map.setFilter.mockClear();
+
+        await waitFor(() => {
+          map.setFilter.mock.calls.forEach((call) => {
+            expect(call[1]).toEqual([
+              ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+              ['!=', 'id', staticSubjectFeatureWithoutDefaultValue.properties.id]
+            ]);
+          });
+        });
+      });
     });
   });
 });
