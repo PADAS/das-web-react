@@ -190,6 +190,7 @@ const AddReport = forwardRef(({
   showLabel,
   title,
   clickSideEffect,
+  onAddReport,
 }, forwardedRef) => {
   const navigate = useNavigate();
 
@@ -269,11 +270,15 @@ const AddReport = forwardRef(({
     const newReport = createNewReportForEventType(reportType, reportData);
 
     if (ENABLE_REPORT_NEW_UI) {
-      navigate(
-        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
-        { state: { reportData, temporalId: uuid() } },
-        { formProps }
-      );
+      if (!!onAddReport) {
+        onAddReport(reportType.id, formProps);
+      } else {
+        navigate(
+          { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+          { state: { reportData, temporalId: uuid() } },
+          { formProps }
+        );
+      }
     } else {
       openModalForReport(newReport, map, formProps);
     }
@@ -283,6 +288,7 @@ const AddReport = forwardRef(({
     analyticsMetadata.location,
     formProps,
     map,
+    onAddReport,
     patrolsEnabled,
     reportData,
     navigate,
@@ -342,6 +348,7 @@ AddReport.defaultProps = {
   },
   reportData: {},
   hideReports: false,
+  onAddReport: null,
 };
 
 AddReport.propTypes = {
@@ -361,4 +368,5 @@ AddReport.propTypes = {
     isPatrolReport: PropTypes.bool,
   }),
   hideReports: PropTypes.bool,
+  onAddReport: PropTypes.func,
 };

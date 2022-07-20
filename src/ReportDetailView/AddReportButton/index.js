@@ -9,7 +9,7 @@ import AddReport from '../../AddReport';
 
 import styles from './styles.module.scss';
 
-const AddReportButton = ({ className, onAddReport }) => {
+const AddReportButton = ({ className, onAddReport, onSaveAddedReport }) => {
   const addReportButtonRef = useRef();
 
   const onReportButtonClick = useCallback(() => addReportButtonRef.current.click(), []);
@@ -21,7 +21,8 @@ const AddReportButton = ({ className, onAddReport }) => {
     >
     <AddReport
       analyticsMetadata={{ category: REPORT_MODAL_CATEGORY, location: 'report modal' }}
-      formProps={{ hidePatrols: true, onSaveSuccess: onAddReport, relationshipButtonDisabled: true }}
+      formProps={{ hidePatrols: true, onSaveSuccess: onSaveAddedReport, relationshipButtonDisabled: true }}
+      onAddReport={onAddReport}
       popoverPlacement="top"
       ref={addReportButtonRef}
       iconComponent={<DocumentIcon />}
