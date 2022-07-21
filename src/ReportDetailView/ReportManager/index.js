@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,10 +15,12 @@ import {
   eventBelongsToPatrol,
   generateErrorListForApiResponseDetails
 } from '../../utils/events';
+import { createNewReportForEventType } from '../../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
+import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -39,24 +41,32 @@ const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ReportManager = ({
   className,
-  id,
-  isNewReport,
   formProps,
-  newReport,
+  isAddedReport,
+  isNewReport,
+  newReportTypeId,
   onAddReport,
   onCancelAddedReport,
-  reportForm,
-  setReportForm,
+  reportData,
+  reportId,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
+  const reportType = useSelector(
+    (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
+  );
+
+  const { loadingEvents } = useContext(ReportsTabContext);
+
+  const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
+  const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
 
   const reportTracker = trackEventFactory(reportForm?.is_collection
@@ -67,9 +77,14 @@ const ReportManager = ({
     onSaveError: onSaveErrorCallback,
     onSaveSuccess: onSaveSuccessCallback,
     relationshipButtonDisabled,
-  } = formProps;
+  } = formProps || {};
 
-  const originalReport = isNewReport ? newReport : eventStore[id];
+  const newReport = useMemo(
+    () => reportType ? createNewReportForEventType(reportType, reportData) : null,
+    [reportData, reportType]
+  );
+
+  const originalReport = isNewReport ? newReport : eventStore[reportId];
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
@@ -91,7 +106,7 @@ const ReportManager = ({
     : null;
 
   const reportChanges = useMemo(
-    () => extractObjectDifference(reportForm, originalReport),
+    () => originalReport && reportForm ? extractObjectDifference(reportForm, originalReport) : {},
     [originalReport, reportForm]
   );
   const newNotesAdded = useMemo(
@@ -100,7 +115,9 @@ const ReportManager = ({
   );
   const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded;
 
-  const showAddReportButton = !relationshipButtonDisabled && (isCollection || (!isPatrolReport && !isCollectionChild));
+  const showAddReportButton = !isAddedReport
+    && !relationshipButtonDisabled
+    && (isCollection || (!isPatrolReport && !isCollectionChild));
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
@@ -278,12 +295,30 @@ const ReportManager = ({
   };
 
   const onClickCancelButton = useCallback(() => {
-    if (relationshipButtonDisabled) {
+    if (isAddedReport) {
       onCancelAddedReport();
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [navigate, onCancelAddedReport, relationshipButtonDisabled]);
+  }, [isAddedReport, navigate, onCancelAddedReport]);
+
+  useEffect(() => {
+    const missingReportData = (isNewReport && !reportType)
+      || (!isNewReport && !loadingEvents && !eventStore[reportId]);
+    if (!isAddedReport && missingReportData) {
+      navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+    }
+  }, [eventStore, isAddedReport, isNewReport, loadingEvents, navigate, reportId, reportType]);
+
+  useEffect(() => {
+    if (!loadingEvents) {
+      const selectedReportHasChanged = (isNewReport ? temporalIdRef.current : reportForm?.id) !== reportId;
+      if (selectedReportHasChanged) {
+        setReportForm(isNewReport ? newReport : eventStore[reportId]);
+        temporalIdRef.current = reportId;
+      }
+    }
+  }, [eventStore, isNewReport, loadingEvents, newReport, reportForm?.id, reportId]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
@@ -378,33 +413,28 @@ const ReportManager = ({
 
 ReportManager.defaulProps = {
   className: '',
-  id: null,
   formProps: {},
+  isAddedReport: false,
+  newReportTypeId: null,
   onAddReport: null,
   onCancelAddedReport: null,
+  reportData: null,
 };
 
 ReportManager.propTypes = {
   className: PropTypes.string,
-  id: PropTypes.string,
+  isAddedReport: PropTypes.bool,
   isNewReport: PropTypes.bool.isRequired,
   formProps: PropTypes.shape({
     onSaveError: PropTypes.func,
     onSaveSuccess: PropTypes.func,
     relationshipButtonDisabled: PropTypes.bool,
   }),
-  newReport: PropTypes.object.isRequired,
+  newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,
   onCancelAddedReport: PropTypes.func,
-  reportForm: PropTypes.shape({
-    contains: PropTypes.array,
-    files: PropTypes.array,
-    id: PropTypes.string,
-    is_collection: PropTypes.bool,
-    notes: PropTypes.array,
-    reported_by: PropTypes.string,
-  }).isRequired,
-  setReportForm: PropTypes.func.isRequired,
+  reportData: PropTypes.object,
+  reportId: PropTypes.string.isRequired,
 };
 
 export default memo(ReportManager);

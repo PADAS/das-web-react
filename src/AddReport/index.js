@@ -271,7 +271,7 @@ const AddReport = forwardRef(({
 
     if (ENABLE_REPORT_NEW_UI) {
       if (!!onAddReport) {
-        onAddReport(reportType.id, formProps);
+        onAddReport(formProps, reportData, reportType.id);
       } else {
         navigate(
           { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },

@@ -47,7 +47,7 @@ QuickLinks.propTypes = {
 
 const NavigationBar = ({ children }) => <div
   className={styles.navigationBar}
-  data-testId="reportDetailView-quickLinks-navigationBar"
+  data-testid="reportDetailView-quickLinks-navigationBar"
   >
   {children}
 </div>;

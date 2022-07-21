@@ -22,9 +22,11 @@ const DetailsSection = ({ onReportedByChange, reportedBy }) => <>
   </label>
 </>;
 
+DetailsSection.defaultProps = { reportedBy: null };
+
 DetailsSection.propTypes = {
   onReportedByChange: PropTypes.func.isRequired,
-  reportedBy: PropTypes.object.isRequired,
+  reportedBy: PropTypes.object,
 };
 
 export default memo(DetailsSection);
