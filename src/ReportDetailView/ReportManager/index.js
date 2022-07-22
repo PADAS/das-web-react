@@ -423,13 +423,13 @@ ReportManager.defaulProps = {
 
 ReportManager.propTypes = {
   className: PropTypes.string,
-  isAddedReport: PropTypes.bool,
-  isNewReport: PropTypes.bool.isRequired,
   formProps: PropTypes.shape({
     onSaveError: PropTypes.func,
     onSaveSuccess: PropTypes.func,
     relationshipButtonDisabled: PropTypes.bool,
   }),
+  isAddedReport: PropTypes.bool,
+  isNewReport: PropTypes.bool.isRequired,
   newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,
   onCancelAddedReport: PropTypes.func,
