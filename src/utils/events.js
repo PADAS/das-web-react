@@ -189,8 +189,17 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featu
 };
 
 export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
-  if (event.geojson) {
+  if (event?.geojson?.properties?.image) {
     event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
+  }
+  if (event?.geojson?.features) {
+    event.geojson.features = event.geojson.features.map(feature => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        image: calcUrlForImage(feature.properties.image),
+      }
+    }));
   }
 };
 

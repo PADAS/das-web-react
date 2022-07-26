@@ -1,4 +1,4 @@
-const { polygon } =  require('@turf/helpers');
+const { polygon, featureCollection } =  require('@turf/helpers');
 const faker = require('faker/locale/en');
 
 const utils = require('../utils');
@@ -8,10 +8,30 @@ const { randomItemFromArray, randomInteger } = utils;
 const generateArrayofCoordinatePairs = (length = 5) =>
   Array.from({ length }, () =>
     [Number.parseFloat(faker.address.latitude()), Number.parseFloat(faker.address.longitude())]
-  )
-;
+  );
 
-const geometryOptions = [polygon, null];
+
+const createPolygonFeatureCollection = () => {
+  const numberOfPolygons = 1; // change this to randomInteger() when you want to support multi-feature featurecollections for the geometry prop
+
+  const polygonCoordinateSets = Array.from({ length: numberOfPolygons }, () => {
+    let coordinates = generateArrayofCoordinatePairs(randomInteger(3));
+    coordinates = [[...coordinates, coordinates[0]]]; /* close the polygon by adding a final point identical to the first */
+
+    return coordinates;
+  });
+
+  return createFeatureCollectionOfPolygonsFromCoords(polygonCoordinateSets);
+};
+
+const createFeatureCollectionOfPolygonsFromCoords = (arrayOfCoords = []) =>
+  featureCollection(
+    arrayOfCoords.map(coords =>
+      polygon(coords)
+    )
+  );
+
+const geometryOptions = [createPolygonFeatureCollection, null];
 const priorityOptions = [
   { value: 0, label: 'Gray' },
   { value: 100, label: 'Green' },
@@ -20,10 +40,7 @@ const priorityOptions = [
 ];
 
 const generateEvent = (override) => {
-  let coordinates = generateArrayofCoordinatePairs(randomInteger(3));
-  coordinates = [[...coordinates, coordinates[0]]];
-
-  const geometry = randomItemFromArray(geometryOptions)?.(coordinates);
+  const geometry = randomItemFromArray(geometryOptions)?.();
 
   const location = !!geometry ? null : {
     latitude: Number.parseFloat(faker.address.latitude()),
