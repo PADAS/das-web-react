@@ -1,4 +1,4 @@
-const { polygon, featureCollection } =  require('@turf/helpers');
+const { lineString, polygon, featureCollection } =  require('@turf/helpers');
 const faker = require('faker/locale/en');
 
 const utils = require('../utils');
@@ -21,17 +21,32 @@ const createPolygonFeatureCollection = () => {
     return coordinates;
   });
 
-  return createFeatureCollectionOfPolygonsFromCoords(polygonCoordinateSets);
+  return createFeatureCollectionOfGeometryTypeFromCoords(polygonCoordinateSets);
 };
 
-const createFeatureCollectionOfPolygonsFromCoords = (arrayOfCoords = []) =>
+const createLineStringFeatureCollection = () => {
+  const numberOfLineStrings = 1;
+
+  const lineStringCoordinateSets = Array.from({ length: numberOfLineStrings }, () => generateArrayofCoordinatePairs(randomInteger(2)));
+
+  return createFeatureCollectionOfGeometryTypeFromCoords(lineStringCoordinateSets, lineString);
+};
+
+const createMixedGeometryFeatureCollection = () => {
+  const collectionOne = createPolygonFeatureCollection();
+  const collectionTwo = createLineStringFeatureCollection();
+
+  return featureCollection([...collectionOne.features, ...collectionTwo.features]);
+};
+
+const createFeatureCollectionOfGeometryTypeFromCoords = (arrayOfCoords = [], geometryType = polygon) =>
   featureCollection(
     arrayOfCoords.map(coords =>
-      polygon(coords)
+      geometryType(coords)
     )
   );
 
-const geometryOptions = [createPolygonFeatureCollection, null];
+const geometryOptions = [createPolygonFeatureCollection, createLineStringFeatureCollection, createMixedGeometryFeatureCollection, null];
 const priorityOptions = [
   { value: 0, label: 'Gray' },
   { value: 100, label: 'Green' },
