@@ -25,7 +25,7 @@ import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_POLYGONS } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -52,7 +52,7 @@ const LocationSelectorInput = ({
   const [isGpsPopoverOpen, setIsGpsPopoverOpenState] = useState(false);
 
   const displayString = location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder;
-  const popoverClassString = ENABLE_POLYGONS
+  const popoverClassString = ENABLE_EVENT_GEOMETRY
     ? popoverClassName ? `${styles.newGpsPopover} ${popoverClassName}` : styles.newGpsPopover
     : popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
@@ -155,7 +155,7 @@ const LocationSelectorInput = ({
       show={isGpsPopoverOpen}
       target={gpsInputAnchorRef.current}
     >
-      {ENABLE_POLYGONS
+      {ENABLE_EVENT_GEOMETRY
         ? <Popover className={popoverClassString}>
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
