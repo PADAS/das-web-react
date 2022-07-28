@@ -18,7 +18,7 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_POLYGONS: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_EVENT_GEOMETRY: true },
 }));
 
 jest.mock('../../ducks/side-bar', () => ({

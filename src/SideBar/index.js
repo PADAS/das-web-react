@@ -33,7 +33,7 @@ import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolDetailView from '../PatrolDetailView';
-import ReportDetailView from '../ReportDetailView';
+import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
@@ -227,7 +227,7 @@ const SideBar = ({ map }) => {
                 path="reports"
                 element={<ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>}
               >
-                <Route path=":id/*" element={<ReportDetailView />} />
+                <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
               <Route
