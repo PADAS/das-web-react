@@ -8,8 +8,7 @@ import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
-import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
+import { addPatrolSegmentToEvent, calcDisplayPriorityForReport, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
@@ -75,22 +74,9 @@ const ReportForm = (props) => {
 
   const isActive = reportIsActive(report.state);
 
-  const displayPriority = useMemo(() => {
-    if (!!report.priority) return report.priority;
-
-    if (report.is_collection) {
-      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-      if (!topRatedReportAndType) return report.priority;
-
-      return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority
-        : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
-          topRatedReportAndType.event_type.default_priority
-          : report.priority;
-    }
-
-    return report.priority;
-  }, [eventTypes, report]);
+  const displayPriority = useMemo(() =>
+    calcDisplayPriorityForReport(report, eventTypes)
+  , [eventTypes, report]);
 
   const handleSaveError = useCallback((e) => {
     setSavingState(false);
