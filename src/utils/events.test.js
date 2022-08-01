@@ -34,6 +34,32 @@ describe('#calcDisplayPriorityForReport', () => {
     expect(result).toBe(100);
   });
 
+  test('falling back on the incident\'s priority if #calcTopRatedReportAndTypeForCollection fails', () => {
+    eventTypeUtils.calcTopRatedReportAndTypeForCollection.mockReturnValue(null);
+
+    const testReport = {
+      is_collection: true,
+      priority: 100,
+    };
+
+    const result = calcDisplayPriorityForReport(testReport, []);
+
+    expect(result).toBe(100);
+  });
+
+  test('extracting the top priority from an incident collection based on a member event\'s default high priority', () => {
+    eventTypeUtils.calcTopRatedReportAndTypeForCollection.mockReturnValue({ event_type: { default_priority: 200 } });
+
+    const testReport = {
+      is_collection: true,
+      priority: 0,
+    };
+
+    const result = calcDisplayPriorityForReport(testReport, []);
+
+    expect(result).toBe(200);
+  });
+
   test('extracting the top priority from an incident collection when the incident\'s priority IS set', () => {
     const testReport = {
       is_collection: true,
