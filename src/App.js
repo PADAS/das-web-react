@@ -135,6 +135,7 @@ const App = (props) => {
 
   return <div
     className={`App ${isDragging ? 'dragging' : ''} ${pickingAreaOrLocationOnMap ? 'picking-location' : ''}`}
+    data-testid="app-wrapper"
     onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}

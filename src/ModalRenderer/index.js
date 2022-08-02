@@ -18,8 +18,6 @@ const ModalRenderer = ({ canShowModals, map, modals, removeModal }) => !!modals.
       const { content: ContentComponent, backdrop = 'static', forceShowModal = false, id, modalProps, ...rest } = item;
       const showModal = forceShowModal || canShowModals;
 
-      console.log(modalProps);
-
       return !!ContentComponent && <Modal
         backdrop={backdrop}
         backdropClassName={showModal ? styles.show : styles.hide}

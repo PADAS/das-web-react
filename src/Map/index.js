@@ -28,14 +28,8 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
-import {
-  updateTrackState,
-  updateHeatmapSubjects,
-  setReportHeatmapVisibility,
-} from '../ducks/map-ui';
-import { addModal } from '../ducks/modals';
+import { setReportHeatmapVisibility, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { addUserNotification } from '../ducks/user-notifications';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
@@ -789,14 +783,12 @@ const mapStatetoProps = (state) => {
 };
 
 export default connect(mapStatetoProps, {
-  addUserNotification,
   clearEventData,
   clearSubjectData,
   fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
   hidePopup,
-  addModal,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,

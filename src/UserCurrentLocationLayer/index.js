@@ -93,8 +93,7 @@ const UserCurrentLocationLayer = (props) => {
     };
   }, [showLayer, userLocation]);
 
-
-  return showLayer && <Fragment>
+  return showLayer ? <Fragment>
     <Source id='current-user-location' geoJsonSource={sourceData} />
     <Layer minZoom={6} sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
     <Layer minZoom={6} sourceId='current-user-location' paint={{
@@ -106,7 +105,7 @@ const UserCurrentLocationLayer = (props) => {
       'circle-stroke-width': animationState.strokeWidth,
       'circle-stroke-opacity': animationState.opacity,
     }} type="circle" />
-  </Fragment>;
+  </Fragment> : null;
 };
 
 const mapStateToProps = (state) => ({

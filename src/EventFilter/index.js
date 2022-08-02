@@ -320,7 +320,11 @@ const EventFilter = (props) => {
   </Popover>;
 
   return <>
-    <form className={`${styles.form} ${className} ${styles.oldNavigation}`} onSubmit={e => e.preventDefault()}>
+    <form
+      className={`${styles.form} ${className} ${styles.oldNavigation}`}
+      data-testid="eventFilter-form"
+      onSubmit={e => e.preventDefault()}
+      >
       <div className={styles.controls}>
         <SearchBar
           className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`}

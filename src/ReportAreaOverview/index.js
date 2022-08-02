@@ -30,7 +30,7 @@ const ReportAreaOverview = () => {
     }));
   }, [dispatch]);
 
-  return <div className={styles.reportAreaOverview}>
+  return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={() => setIsOpen(!isOpen)}>
       <h2>Create Report Area</h2>
 
@@ -41,7 +41,7 @@ const ReportAreaOverview = () => {
       </div>
     </div>
 
-    <Collapse in={isOpen}>
+    <Collapse data-testid="reportAreaOverview-collapse" in={isOpen}>
       <div className={styles.body}>
         <ReportListItem className={styles.reportItem} report={event} />
 

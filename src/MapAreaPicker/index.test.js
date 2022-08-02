@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -8,19 +8,20 @@ import MapAreaPicker from './';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
-import { setPickingMapLocationState } from '../ducks/map-ui';
+import { report } from '../__test-helpers/fixtures/reports';
+import { setPickingMapAreaState } from '../ducks/map-ui';
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
-  setPickingMapLocationState: jest.fn(),
+  setPickingMapAreaState: jest.fn(),
 }));
 
 describe('MapAreaPicker', () => {
   const onAreaSelectStart = jest.fn();
-  let map, setPickingMapLocationStateMock, store;
+  let map, setPickingMapAreaStateMock, store;
   beforeEach(() => {
-    setPickingMapLocationStateMock = jest.fn(() => () => {});
-    setPickingMapLocationState.mockImplementation(setPickingMapLocationStateMock);
+    setPickingMapAreaStateMock = jest.fn(() => () => {});
+    setPickingMapAreaState.mockImplementation(setPickingMapAreaStateMock);
 
     map = createMapMock();
 
@@ -32,7 +33,7 @@ describe('MapAreaPicker', () => {
       <Provider store={store}>
         <NavigationWrapper>
           <MapContext.Provider value={map}>
-            <MapAreaPicker onAreaSelectStart={onAreaSelectStart}>
+            <MapAreaPicker areaFor={report} onAreaSelectStart={onAreaSelectStart}>
               Map Area Picker
             </MapAreaPicker>
           </MapContext.Provider>
@@ -45,16 +46,16 @@ describe('MapAreaPicker', () => {
     jest.restoreAllMocks();
   });
 
-  test('triggers onAreaSelectStart and setPickingMapLocationState if clicking the picker', async () => {
+  test('triggers onAreaSelectStart and setPickingMapAreaState if clicking the picker', async () => {
     expect(onAreaSelectStart).toHaveBeenCalledTimes(0);
-    expect(setPickingMapLocationState).toHaveBeenCalledTimes(0);
+    expect(setPickingMapAreaState).toHaveBeenCalledTimes(0);
 
     const mapAreaPickerButton = await screen.findByTitle('Place geometry on map');
     userEvent.click(mapAreaPickerButton);
 
     expect(onAreaSelectStart).toHaveBeenCalledTimes(1);
-    expect(setPickingMapLocationState).toHaveBeenCalledTimes(1);
-    expect(setPickingMapLocationState).toHaveBeenCalledWith(true);
+    expect(setPickingMapAreaState).toHaveBeenCalledTimes(1);
+    expect(setPickingMapAreaState).toHaveBeenCalledWith(true, report);
   });
 
   test('jumps to user location if it is available when clicking the picker', async () => {
