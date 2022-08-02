@@ -7,14 +7,16 @@
 
   background: white;
   border-radius: 3px;
-  width: 14rem;
+  width: 100%;
   position: absolute;
-  left: 1rem;
-  top: 2rem;
+  left: 0;
+  top: 0;
   transition: all 0.3s linear;
   z-index: 12;
 
   @media (min-width: $md-layout-width-min) {
+    left: 1rem;
+    top: 2rem;
     width: 25rem;
   }
 }
@@ -60,7 +62,7 @@
   border-bottom: 1px solid #DDD;
   margin-top: 0.5rem;
   margin-left: -0.5rem;
-  width: 14rem;
+  width: calc(100% + 1rem);
 
   @media (min-width: $md-layout-width-min) {
     width: 25rem;
@@ -80,10 +82,18 @@
 
 .modal {
   [class*=modal-dialog] {
-    width: 29.5rem;
+    width: 19rem;
+    
+    @media (min-width: $md-layout-width-min) {
+      width: 29.5rem;
+    }
 
     [class*=modal-content] {
-      width: 29.5rem;
+      width: 19rem;
+
+      @media (min-width: $md-layout-width-min) {
+        width: 29.5rem;
+      }
     }
   }
 }
