@@ -22,10 +22,15 @@ import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
 
+export const DRAWING_MODES = {
+  POLYGON: 'polygon',
+  LINE: 'linestring',
+};
+
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapRulerControl = (props) => {
-  const { map, setPickingMapLocationState } = props;
+const MapDrawingTools = (props) => {
+  const { drawingMode = DRAWING_MODES.LINE, map, setPickingMapLocationState } = props;
 
   const [active, setActiveState] = useState(false);
   const [points, setPointState] = useState([]);
@@ -205,7 +210,7 @@ const MapRulerControl = (props) => {
   </Fragment>;
 };
 
-export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRulerControl)));
+export default connect(null, { setPickingMapLocationState })(memo(withMap(MapDrawingTools)));
 
 
 const PointPopup = (props) => {
@@ -238,6 +243,7 @@ const PointPopup = (props) => {
   }, [isFirstPoint, point, pointIndex, points]);
 
   const [popoverPlacement, setPopoverPlacement] = useState('auto');
+
   useEffect(() => {
     const updatePopoverPlacement = async () => {
       const updatedPopoverPlacement = await calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
@@ -280,3 +286,38 @@ const PointPopup = (props) => {
   </Popup>;
 };
 const MemoizedPointPopup = memo(PointPopup);
+
+
+/* EVENTING
+
+  cursorContent
+  drawMode
+  onCancel
+  onChange
+  onComplete
+
+*/
+
+/* 
+
+components
+
+map layer(s)
+  - polygon outline (linestring)
+  - polygon fill (poly)
+  - polygon auto-close line (linestring)
+  - event marker
+
+
+tooling
+  - click
+    - on map? place point
+    - on point
+      - valid? close polygon
+      - invalid? do nothing/show error?
+  - dblclick
+  - esc (undo one point)
+  - enter (finish/autocomplete)
+*/
+
+

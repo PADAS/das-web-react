@@ -2,12 +2,13 @@ import React, { memo, Fragment, useMemo } from 'react';
 import { Popup, Source, Layer } from 'react-mapbox-gl';
 import { lineString } from '@turf/helpers';
 import length from '@turf/length';
-import lineSegment from '@turf/line-segment';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
 import { calcPositiveBearing } from '../utils/location';
 import { withMap } from '../EarthRangerMap';
+
+import { useDrawToolGeoJson } from '../MapDrawingTools/utils';
 
 import { DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -45,6 +46,9 @@ const circlePaint = {
   'circle-color': 'orange',
 };
 
+const fillLayout = { visibility: 'visible' };
+const fillPaint = { 'fill-color': 'red', 'fill-opacity': 0.4 };
+
 const MapRulerLayer = (props) => {
   const { drawing, map, onPointClick, pointerLocation, points } = props;
   const showLayer = pointerLocation || points.length;
@@ -53,44 +57,30 @@ const MapRulerLayer = (props) => {
   const onCircleMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onCircleMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  const geoJsonLayerData = useMemo(() => {
-    let pointArray = drawing ? [...points, cursorPopupCoords] : points;
 
-    if (pointArray.length < 2) return null;
+  const data = useDrawToolGeoJson(points, (drawing && cursorPopupCoords) || null, 'polygon');
 
-    const lineSegments = lineSegment(lineString(pointArray));
-    lineSegments.features = lineSegments.features.map(feature => {
-      const lineLength = length(feature);
-      const lengthLabel = `${lineLength.toFixed(2)}km`;
-
-      return {
-        ...feature,
-        properties: {
-          ...feature.properties,
-          length: lineLength,
-          lengthLabel,
-        }
-      };
-    });
-
-    return lineSegments;
-  }, [cursorPopupCoords, points, drawing]);
-
-  const sourceData = {
+  const sourceData = useMemo(() => ({
     type: 'geojson',
-    data: geoJsonLayerData,
-  };
+    data: data?.drawnLineSegments,
+  }), [data?.drawnLineSegments]);
+
+  const fillSourceData = useMemo(() => ({
+    type: 'geojson',
+    data: data?.fillPolygon,
+  }), [data?.fillPolygon]);
 
   if (!showLayer) return null;
-
 
   return <Fragment>
     {drawing && <MemoizedCursorPopup coords={cursorPopupCoords} points={points} />}
     {!!points.length && <Fragment>
       <Source id='map-ruler-source' geoJsonSource={sourceData} />
+      <Source id='map-fill-source' geoJsonSource={fillSourceData} />
       <Layer sourceId='map-ruler-source' id={RULER_POINTS_LAYER_ID} type='circle' onMouseEnter={onCircleMouseEnter} onMouseLeave={onCircleMouseLeave} paint={circlePaint} onClick={onPointClick} />
       <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
       <Layer sourceId='map-ruler-source' type='symbol' paint={symbolPaint} layout={symbolLayout} />
+      <Layer sourceId='map-fill-source' type='fill' paint={fillPaint} layout={fillLayout} />
     </Fragment>}
   </Fragment>;
 };

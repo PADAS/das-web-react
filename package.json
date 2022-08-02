@@ -18,7 +18,7 @@
     "humanize-duration": "^3.27.1",
     "localforage": "^1.7.3",
     "lodash-es": "^4.17.11",
-    "mapbox-gl": "^2.4.1",
+    "mapbox-gl": "^2.9.2",
     "mb-isochrone": "^0.1.0",
     "pluralize": "^8.0.0",
     "prop-types": "^15.7.2",
@@ -110,7 +110,7 @@
   ],
   "resolutions": {
     "eslint-loader": "3.0.2",
-    "mapbox-gl": "2.4.1",
+    "mapbox-gl": "2.9.2",
     "node-fetch": "2.6.7",
     "immer": "9.0.6"
   }
