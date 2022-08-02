@@ -34,6 +34,7 @@ const LocationSelectorInput = ({
   copyable = true,
   label,
   location,
+  locationFor,
   onLocationChange,
   placeholder,
   popoverClassName,
@@ -165,6 +166,7 @@ const LocationSelectorInput = ({
               <div className={styles.locationAreaContent}>
                 <MapAreaPicker
                   className={styles.createAreaButton}
+                  areaFor={locationFor}
                   onAreaSelectCancel={onAreaSelectCancel}
                   onAreaSelectStart={onAreaSelectStart}
                 >
@@ -221,6 +223,7 @@ LocationSelectorInput.defaultProps = {
   copyable: true,
   label: 'Location:',
   location: null,
+  locationFor: null,
   placeholder: 'Click here to set location',
   popoverClassName: '',
 };
@@ -230,6 +233,7 @@ LocationSelectorInput.propTypes = {
   copyable: PropTypes.bool,
   label: PropTypes.string,
   location: PropTypes.arrayOf(PropTypes.number),
+  locationFor: PropTypes.object,
   map: PropTypes.object.isRequired,
   onLocationChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,

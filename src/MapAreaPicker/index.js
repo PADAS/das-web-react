@@ -6,13 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // import { MapContext } from '../App';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { setPickingMapLocationState } from '../ducks/map-ui';
+import { setPickingMapAreaState } from '../ducks/map-ui';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { userLocationCanBeShown as userLocationCanBeShownSelector } from '../selectors';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapAreaPicker = ({
+  areaFor,
   // onAreaSelect: onAreaSelectCallback,
   onAreaSelectCancel: onAreaSelectCancelCallback,
   onAreaSelectStart: onAreaSelectStartCallback,
@@ -90,23 +91,24 @@ const MapAreaPicker = ({
   const onAreaSelectStart = useCallback(() => {
     onAreaSelectStartCallback?.();
 
-    dispatch(setPickingMapLocationState(true));
+    dispatch(setPickingMapAreaState(true, areaFor));
 
     if (userLocationCanBeShown) {
       jumpToLocation([userLocation.coords.longitude, userLocation.coords.latitude]);
     }
 
-    setTimeout(() => {
-      onAreaSelectCancelCallback?.();
+    // setTimeout(() => {
+    //   onAreaSelectCancelCallback?.();
 
-      dispatch(setPickingMapLocationState(false));
-    }, 5000);
+    //   dispatch(setPickingMapAreaState(false));
+    // }, 5000);
 
     mapInteractionTracker.track('Geometry selection on map started');
   }, [
+    areaFor,
     dispatch,
     jumpToLocation,
-    onAreaSelectCancelCallback,
+    // onAreaSelectCancelCallback,
     onAreaSelectStartCallback,
     userLocation.coords.latitude,
     userLocation.coords.longitude,
@@ -122,16 +124,14 @@ const MapAreaPicker = ({
 };
 
 MapAreaPicker.defaultProps = {
-  className: '',
-  disabled: false,
+  areaFor: null,
   onAreaSelectCancel: null,
   onAreaSelectStart: null,
 };
 
 MapAreaPicker.propTypes = {
+  areaFor: PropTypes.object,
   children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
   onAreaSelectCancel: PropTypes.func,
   onAreaSelectStart: PropTypes.func,
 };

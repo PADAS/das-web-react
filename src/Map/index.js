@@ -82,6 +82,7 @@ import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
+import ReportAreaOverview from '../ReportAreaOverview';
 
 import './Map.scss';
 
@@ -121,7 +122,6 @@ const Map = ({
   onMapLoad,
   patrolFilter,
   patrolTrackState,
-  pickingLocationOnMap,
   popup,
   setReportHeatmapVisibility,
   setTrackLength,
@@ -137,6 +137,8 @@ const Map = ({
   updateHeatmapSubjects,
   updatePatrolTrackState,
   updateTrackState,
+  pickingAreaOnMap,
+  pickingLocationOnMap,
 }) => {
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
@@ -146,6 +148,8 @@ const Map = ({
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
+
+  const pickingAreaOrLocationOnMap = pickingLocationOnMap || pickingAreaOnMap.isPicking;
 
   useEffect(() => {
     const lnglat = new URLSearchParams(location.search).get('lnglat');
@@ -249,10 +253,10 @@ const Map = ({
   }, 100);
 
   const withLocationPickerState = useCallback((func) => (...args) => {
-    if (!pickingLocationOnMap) {
+    if (!pickingAreaOrLocationOnMap) {
       return func(...args);
     }
-  }, [pickingLocationOnMap]);
+  }, [pickingAreaOrLocationOnMap]);
 
   const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
     if (event?.originalEvent?.cancelBubble) return;
@@ -655,10 +659,14 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!currentTab}>
+      <DelayedUnmount isMounted={!currentTab && !pickingAreaOrLocationOnMap}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>
+      </DelayedUnmount>
+
+      <DelayedUnmount isMounted={pickingAreaOnMap.isPicking}>
+        <ReportAreaOverview />
       </DelayedUnmount>
 
       <div className='map-legends'>
@@ -734,6 +742,8 @@ const mapStatetoProps = (state) => {
     homeMap,
     mapIsLocked,
     patrolTrackState,
+    pickingAreaOnMap,
+    pickingLocationOnMap,
     popup,
     subjectTrackState,
     heatmapSubjectIDs,
@@ -773,6 +783,8 @@ const mapStatetoProps = (state) => {
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
+    pickingAreaOnMap,
+    pickingLocationOnMap,
   });
 };
 

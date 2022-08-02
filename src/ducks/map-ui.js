@@ -30,6 +30,7 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
+const SET_PICKING_MAP_AREA_STATE = 'SET_PICKING_MAP_AREA_STATE';
 const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
@@ -161,6 +162,11 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
+export const setPickingMapAreaState = (isPicking, areaFor = null) => ({
+  type: SET_PICKING_MAP_AREA_STATE,
+  payload: { areaFor, isPicking },
+});
+
 export const setPickingMapLocationState = (isPicking) => ({
   type: SET_PICKING_MAP_LOCATION_STATE,
   payload: isPicking,
@@ -290,6 +296,18 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
   if (type === UPDATE_SUBJECT_TRACK_STATE) return { ...state, ...payload };
   return state;
 }, INITIAL_TRACK_STATE);
+
+const INITIAL_PICKING_AREA_ON_MAP_STATE = { areaFor: null, isPicking: false };
+
+export const pickingAreaOnMapReducer = (state = INITIAL_PICKING_AREA_ON_MAP_STATE, action) => {
+  switch (action.type) {
+  case SET_PICKING_MAP_AREA_STATE:
+    return { ...state, areaFor: action.payload.areaFor, isPicking: action.payload.isPicking };
+
+  default:
+    return state;
+  }
+};
 
 export const pickingLocationOnMapReducer = (state = false, action) => {
   const { type, payload } = action;
