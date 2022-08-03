@@ -57,14 +57,4 @@ describe('MapAreaPicker', () => {
     expect(setPickingMapAreaState).toHaveBeenCalledTimes(1);
     expect(setPickingMapAreaState).toHaveBeenCalledWith(true, report);
   });
-
-  test('jumps to user location if it is available when clicking the picker', async () => {
-    expect(map.easeTo).toHaveBeenCalledTimes(0);
-
-    const mapAreaPickerButton = await screen.findByTitle('Place geometry on map');
-    userEvent.click(mapAreaPickerButton);
-
-    expect(map.easeTo).toHaveBeenCalledTimes(1);
-    expect(map.easeTo).toHaveBeenCalledWith({ center: [456, 123], padding: {}, speed: 200, zoom: 15 });
-  });
 });
