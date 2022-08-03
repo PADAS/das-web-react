@@ -59,7 +59,7 @@ const {
 
 
 const generatePatrolSegment = (patrol) => ({
-  id: faker.random.uuid(),
+  id: faker.datatype.uuid(),
   patrol: { id: patrol.id, type: patrol.type, priority: patrol.priority, state: patrol.state, title: patrol.title }, // just need: ID, type, priority, status, title, url
   patrol_type: randomItemFromArray(patrolTypes),
   priority: randomItemFromArray(priorities),
@@ -77,8 +77,8 @@ const generatePatrolSegment = (patrol) => ({
 
 const generatePatrol = () => {
   const patrol = {
-    id: faker.random.uuid(),
-    serial_number: faker.random.number(),
+    id: faker.datatype.uuid(),
+    serial_number: faker.datatype.number(),
     priority: randomItemFromArray(priorities),
     title: faker.random.words(2),
     notes: [],
@@ -100,8 +100,8 @@ const generateSubject = () => {
     subject_subtype,
     image_url,
   } = mockSubjectValues[Math.floor(Math.random() * mockSubjectValues.length)];
-  const name = `Mock ${subject_subtype} ${faker.random.number()}`;
-  const id = faker.random.uuid();
+  const name = `Mock ${subject_subtype} ${faker.datatype.number()}`;
+  const id = faker.datatype.uuid();
   let device_status_properties = null;
 
   if (subject_type === 'static_sensor') {
@@ -111,7 +111,7 @@ const generateSubject = () => {
   return {
     content_type: 'observations.subject',
     id,
-    name: `Subject ${faker.random.number()}`,
+    name: `Subject ${faker.datatype.number()}`,
     subject_type,
     subject_subtype,
     common_name: name,

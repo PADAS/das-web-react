@@ -10,9 +10,8 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/event-types';
 
-import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
+import { calcDisplayPriorityForReport, getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection, PRIORITY_COLOR_MAP } from '../utils/events';
-import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
 import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import useJumpToLocation from '../hooks/useJumpToLocation';
@@ -32,11 +31,9 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, 
   const hasPatrols = !!report?.patrols?.length;
 
   const theme = useMemo(() => {
-    const reportToConsider = report.is_collection
-      ? calcTopRatedReportAndTypeForCollection(report, eventTypes)?.related_event
-      : report;
+    const displayPriority = calcDisplayPriorityForReport(report, eventTypes);
 
-    return PRIORITY_COLOR_MAP[reportToConsider?.priority] || PRIORITY_COLOR_MAP['0'];
+    return PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
   }, [eventTypes, report]);
 
   const { base: themeColor, background: themeBgColor } = theme;
