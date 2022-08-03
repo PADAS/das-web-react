@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -55,15 +55,5 @@ describe('MapAreaPicker', () => {
     expect(onAreaSelectStart).toHaveBeenCalledTimes(1);
     expect(setPickingMapLocationState).toHaveBeenCalledTimes(1);
     expect(setPickingMapLocationState).toHaveBeenCalledWith(true);
-  });
-
-  test('jumps to user location if it is available when clicking the picker', async () => {
-    expect(map.easeTo).toHaveBeenCalledTimes(0);
-
-    const mapAreaPickerButton = await screen.findByTitle('Place geometry on map');
-    userEvent.click(mapAreaPickerButton);
-
-    expect(map.easeTo).toHaveBeenCalledTimes(1);
-    expect(map.easeTo).toHaveBeenCalledWith({ center: [456, 123], padding: {}, speed: 200, zoom: 15 });
   });
 });
