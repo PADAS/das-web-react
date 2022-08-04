@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
+import { MapContext } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
+import noop from 'lodash/noop';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
@@ -48,4 +50,106 @@ export const useDeepCompareEffect = (callback, dependencies) => {
       callback();
     }
   }, [callback, dependencies]);
+};
+
+
+export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerId = null, condition = true) => {
+  const map = useContext(MapContext);
+
+  useEffect(() => {
+    const args = [eventType, layerId, handlerFn].filter(item => !!item);
+
+    if (map && condition) {
+      map.on(...args);
+      return () => {
+        map.off(...args);
+      };
+    } else {
+      map.off(...args);
+    }
+  }, [map, condition, eventType, layerId, handlerFn]);
+};
+
+export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
+  const map = useContext(MapContext);
+  let source = map.getSource(sourceId);
+
+  useEffect(() => {
+    if (map) {
+      if (!source) {
+        map.addSource(sourceId, {
+          ...config,
+          data,
+        });
+      }
+    }
+  }, [sourceId, source, config, data, map]);
+
+  useEffect(() => {
+    if (source) {
+      source.setData(data);
+    }
+  }, [data, source]);
+
+  useEffect(() => {
+    return () => {
+      setTimeout(() => {
+        map.getSource(sourceId) && map.removeSource(sourceId);
+      });
+    };
+  }, [sourceId, map]);
+
+  return source;
+};
+
+export const useMapLayer = (layerId, type, sourceId, paint, layout, filter) => {
+  const map = useContext(MapContext);
+
+  const layer = map.getLayer(layerId);
+
+  useEffect(() => {
+    if (map && !layer) {
+      const source = map.getSource(sourceId);
+
+      if (!!source) {
+        map.addLayer({
+          id: layerId,
+          source: sourceId,
+          type,
+          layout: layout || {},
+          paint: paint || {},
+        });
+      }
+    }
+  }, [layer, layerId, layout, map, sourceId, paint, type]);
+
+  useEffect(() => {
+    if (layer && layout) {
+      Object.entries(layout).forEach(([key, value]) => {
+        layer.setLayoutProperty(key, value);
+      });
+    }
+  }, [layer, layout]);
+
+  useEffect(() => {
+    if (layer && paint) {
+      Object.entries(paint).forEach(([key, value]) => {
+        layer.setPaintProperty(key, value);
+      });
+    }
+  }, [layer, paint]);
+
+  useEffect(() => {
+    if (layer && filter) {
+      layer.setFilter(filter);
+    }
+  }, [filter, layer]);
+
+  useEffect(() => {
+    return () => {
+      map.getLayer(layerId) && map.removeLayer(layerId);
+    };
+  }, [layerId, map]);
+
+  return layer;
 };

@@ -1,61 +1,63 @@
-import React, { memo, useState, useEffect, useRef, Fragment, useCallback, useMemo } from 'react';
+import React, { memo, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
-import { connect } from 'react-redux';
-import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
+import noop from 'lodash/noop';
 import length from '@turf/length';
-import { lineString } from '@turf/helpers';
+import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
-import { calculatePopoverPlacement } from '../utils/map';
-import { withMap } from '../EarthRangerMap';
-import MapRulerLayer from '../MapRulerLayer';
-import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
-import GpsFormatToggle from '../GpsFormatToggle';
-import AddReport from '../AddReport';
-import { setPickingMapLocationState } from '../ducks/map-ui';
 import { calcPositiveBearing } from '../utils/location';
+import { withMap } from '../EarthRangerMap';
 
-import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
+import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
+import { useMapEventBinding } from '../hooks';
 
 import styles from './styles.module.scss';
+import MapLayers from './MapLayers';
+
+import { LAYER_IDS } from './MapLayers';
+
+export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
 export const DRAWING_MODES = {
   POLYGON: 'polygon',
-  LINE: 'linestring',
+  LINE: 'line',
 };
 
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-
 const MapDrawingTools = (props) => {
-  const { drawingMode = DRAWING_MODES.LINE, map, setPickingMapLocationState } = props;
+  const {
+    children,
+    drawing = true,
+    drawingMode = DRAWING_MODES.POLYGON,
+    onChange = noop,
+    onClickPoint = noop,
+    onClickFill = noop,
+    points,
+    onClickLine = noop,
+    onClickLabel = noop,
+  } = props;
 
-  const [active, setActiveState] = useState(false);
-  const [points, setPointState] = useState([]);
   const [pointerLocation, setPointerLocation] = useState(null);
-  const [completed, setCompletedState] = useState(false);
-  const [selectedPoint, setSelectedPoint] = useState(null);
 
-  const onMouseMove = useCallback((e) => {
-    setPointerLocation(e.lngLat);
-  }, []);
+  const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
+  const data = useDrawToolGeoJson(points, (drawing && cursorPopupCoords), drawingMode);
+  const dataContainer = useRef(data);
 
-  const toggleActiveState = useCallback(() => {
-    setActiveState(active => !active);
-    setCompletedState(false);
-    active ?
-      mapInteractionTracker.track('Dismiss \'Measurement Tool\'') :
-      mapInteractionTracker.track('Click \'Measurement Tool\' button');
-  }, [active]);
+  const lineLength = useMemo(() => {
+    if (!data?.drawnLineSegments) return null;
 
-  const onMapClick = useCallback(debounce((e) => { /* eslint-disable-line */
+    return `${length(data.drawnLineSegments).toFixed(2)}km`;
+  }, [data?.drawnLineSegments]);
+
+  const showLayer = pointerLocation || points.length;
+
+  const onMapClick = useCallback(debounce((e) => {
     const { lngLat } = e;
     e.preventDefault();
     e.originalEvent.stopPropagation();
-    setPointState(points => [...points, [lngLat.lng, lngLat.lat]]);
-  }, 100), []);
+    onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
+  }, 100), [onChange, points]);
+
 
   const onMapDblClick = useCallback((e) => {
     onMapClick(e);
@@ -64,260 +66,79 @@ const MapDrawingTools = (props) => {
     e.originalEvent.stopPropagation();
     onMapClick.cancel();
 
-    setCompletedState(true);
   }, [onMapClick]);
 
-  const onMapClickToReset = useCallback((e) => {
-    const isPointClick = !!map.queryRenderedFeatures(e.point, {
-      layers: [RULER_POINTS_LAYER_ID],
-    }).length;
-
-    if (!isPointClick) {
-      setActiveState(false);
-      map.off('click', nextClickResetsState.current);
-    }
-  }, [map]);
-
-  const onPointClick = useCallback((e) => {
-    e.preventDefault();
-    e.originalEvent.stopPropagation();
-
-    const pointMatch = points.find(p =>
-      isEqual(
-        p.map(l =>
-          l.toFixed(2)
-        ),
-        [e.lngLat.lng.toFixed(2), e.lngLat.lat.toFixed(2)]
-      )
-    );
-
-    if (pointMatch) {
-      setSelectedPoint(pointMatch);
-    }
-  }, [points]);
-
-  const onClickFinish = useCallback(() => {
-    setCompletedState(true);
+  const onMouseMove = useCallback((e) => {
+    setPointerLocation(e.lngLat);
   }, []);
 
-  const resetState = () => {
-    setPointState([]);
-    setPointerLocation(null);
-    map.off('click', nextClickResetsState.current);
-  };
+  useMapEventBinding('click', onClickLine, LAYER_IDS.LINES);
+  useMapEventBinding('click', onClickPoint, LAYER_IDS.POINTS);
+  useMapEventBinding('click', onClickLabel, LAYER_IDS.LABELS);
+  useMapEventBinding('click', onClickFill, LAYER_IDS.FILL);
 
-  const nextClickResetsState = useRef(onMapClickToReset);
-
-  const bindRulerMapEvents = useCallback(() => {
-    map.on('mousemove', onMouseMove);
-    map.on('click', onMapClick);
-    map.on('dblclick', onMapDblClick);
-  }, [map, onMapClick, onMapDblClick, onMouseMove]);
-
-  const unbindRulerMapEvents = useCallback(() => {
-    map.off('mousemove', onMouseMove);
-    map.off('click', onMapClick);
-    map.off('dblclick', onMapDblClick);
-  }, [map, onMapClick, onMapDblClick, onMouseMove]);
+  useMapEventBinding('mousemove', onMouseMove, null, drawing);
+  useMapEventBinding('dblclick', onMapDblClick, null, drawing);
+  useMapEventBinding('click', onMapClick, null, drawing);
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      const { key } = event;
-      if (key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        toggleActiveState();
-      }
-      if (key === 'Enter') {
-        event.preventDefault();
-        event.stopPropagation();
-        setCompletedState(true);document.removeEventListener('keydown', handleKeyDown);
-      }
-    };
-    if (active) {
-      document.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    dataContainer.current = data;
+  }, [dataContainer, data]);
 
-  }, [active, toggleActiveState]);
+  if (!showLayer) return null;
 
-  useEffect(() => {
-    if (completed) {
-      unbindRulerMapEvents();
-      map.on('click', nextClickResetsState.current);
-    } else {
-      bindRulerMapEvents();
-    }
-  }, [completed, bindRulerMapEvents, unbindRulerMapEvents, map]);
-
-  useEffect(() => {
-    setPickingMapLocationState(active && !completed);
-  }, [active, completed, setPickingMapLocationState]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(resetState, [active]);
-
-  useEffect(() => {
-    if (active) {
-      if (points.length === 1) {
-        mapInteractionTracker.track('Place Start of \'Measurement Tool\'');
-      } else if (points.length === 2) {
-        mapInteractionTracker.track('Place End of \'Measurement Tool\'');
-      }
-    }
-  }, [points]); // eslint-disable-line
-
-  useEffect(() => {
-    const onComponentUnmount = () => {
-      setActiveState(false);
-      unbindRulerMapEvents();
-    };
-
-    return () => onComponentUnmount();
-  }, []); // eslint-disable-line
-
-
-  useEffect(() => {
-    if (completed && points.length > 1) {
-      setSelectedPoint(points[points.length - 1]);
-    }
-  }, [completed, points, points.length]);
-
-
-  return <Fragment>
-    <div className={styles.buttons}>
-      {active && <Button variant='dark' size='sm' id='cancel-location-select'
-        onClick={toggleActiveState} type='button'>
-        {completed ? 'Close' : 'Cancel'}
-      </Button>}
-      <button type='button' title='Map ruler'
-        className={`${styles.button} ${active ? 'active' : ''}`}
-        onClick={toggleActiveState}>
-        <RulerIcon />
-      </button>
-    </div>
-    {active && <Fragment>
-      {points.length > 1 && <Fragment>
-        {!completed && <MemoizedPointPopup map={map} points={points} point={points[points.length - 1]} drawing={!completed} onClickFinish={onClickFinish} />}
-        {completed && !!selectedPoint && <MemoizedPointPopup map={map} points={points} point={selectedPoint} drawing={!completed} />}
-      </Fragment>}
-      <MapRulerLayer drawing={!completed} onPointClick={onPointClick} points={points} pointerLocation={pointerLocation}  />
-    </Fragment>}
-  </Fragment>;
+  return <>
+    {drawing && <CursorPopup coords={cursorPopupCoords} lineLength={lineLength} points={points} />}
+    <MapLayers data={data} />
+    {children}
+  </>;
 };
 
-export default connect(null, { setPickingMapLocationState })(memo(withMap(MapDrawingTools)));
+export default memo(withMap(MapDrawingTools));
 
+PropTypes.propTypes = {
+  points: PropTypes.array,
+};
 
-const PointPopup = (props) => {
-  const { drawing, map, onClickFinish, point, points } = props;
-  const pointIndex = points.findIndex(p => isEqual(p, point));
-  const isFirstPoint = pointIndex === 0;
-  const popupOffset = [0, -4];
-  const popupAnchorPosition = 'bottom';
+const CursorPopup = (props) => {
+  const { coords, points, lineLength } = props;
 
-  const distanceFromStart = useMemo(() => {
-    if (isFirstPoint) return null;
+  const popupClassName = `${styles.popup} ${styles.notDone}`;
+  const popupOffset = [-8, 0];
+  const popupAnchorPosition = 'right';
 
-    const clonedPoints = [...points];
-    clonedPoints.length = (pointIndex + 1);
-
-    if (!clonedPoints.length) return null;
-
-    return `${length(lineString(clonedPoints)).toFixed(2)}km`;
-
-  }, [isFirstPoint, pointIndex, points]);
-
-  const bearingFromPrev = useMemo(() => {
-    if (isFirstPoint) return null;
-
-    const prevPoint = points[pointIndex - 1];
-
-    if (!prevPoint || !point) return null;
-
-    return calcPositiveBearing(prevPoint, point).toFixed(2);
-  }, [isFirstPoint, point, pointIndex, points]);
-
-  const [popoverPlacement, setPopoverPlacement] = useState('auto');
-
-  useEffect(() => {
-    const updatePopoverPlacement = async () => {
-      const updatedPopoverPlacement = await calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
-      setPopoverPlacement(updatedPopoverPlacement);
-    };
-
-    updatePopoverPlacement();
-  }, [map, point]);
-
-  return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
-
-
-    {!drawing && <Fragment>
-      <GpsFormatToggle lng={point[0]} lat={point[1]} />
-      {points.length > 1 && !isFirstPoint && <Fragment>
-        <p>
-          <strong>Bearing:</strong> {bearingFromPrev}&deg; <br />
-          <strong>Distance from start:</strong> {distanceFromStart}
-        </p>
+  const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
+  const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
+  return <Popup className={popupClassName} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
+    {points.length === 0 && <p>Click to start</p>}
+    {!!points.length && <Fragment>
+      {showPromptForSecondPoint && <div>
+        <p>Select another point</p>
+      </div>}
+      {!showPromptForSecondPoint && <Fragment>
+        <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
+        <p>Distance: {lineLength}</p>
+        {!!points.length && <>
+          <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
+        </>}
       </Fragment>}
-      <AddReport
-        analyticsMetadata={{
-          category: MAP_INTERACTION_CATEGORY,
-          location: 'map ruler popup',
-        }}
-        reportData={{
-          location: {
-            latitude: point[1],
-            longitude: point[0],
-          }
-        }}
-        popoverPlacement={popoverPlacement}
-      />
     </Fragment>}
-    {
-      drawing && <p onClick={onClickFinish} className={styles.finishButton}>
-        <RulerIcon />
-        click here to finish
-      </p>}
   </Popup>;
 };
-const MemoizedPointPopup = memo(PointPopup);
 
-
-/* EVENTING
-
-  cursorContent
-  drawMode
-  onCancel
+/*
+  points,
+  drawing,
+  drawingMode,
   onChange
   onComplete
-
-*/
-
-/* 
-
-components
-
-map layer(s)
-  - polygon outline (linestring)
-  - polygon fill (poly)
-  - polygon auto-close line (linestring)
-  - event marker
-
-
-tooling
-  - click
-    - on map? place point
-    - on point
-      - valid? close polygon
-      - invalid? do nothing/show error?
-  - dblclick
-  - esc (undo one point)
-  - enter (finish/autocomplete)
+  onClickPoint
+  onClickFill
+  onClickLine
+  onClickLabel
 */
 
 
+/* how to show popup when completed
+  how to show popup when clicking individual point
+*/
