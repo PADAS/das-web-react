@@ -7,7 +7,7 @@ const { randomItemFromArray, randomInteger } = utils;
 
 const generateArrayofCoordinatePairs = (length = 5) =>
   Array.from({ length }, () =>
-    [Number.parseFloat(faker.address.latitude()), Number.parseFloat(faker.address.longitude())]
+    [Number.parseFloat(faker.address.longitude()) / 4, Number.parseFloat(faker.address.latitude()) / 4]
   );
 
 
@@ -15,7 +15,7 @@ const createPolygonFeatureCollection = () => {
   const numberOfPolygons = 1; // change this to randomInteger() when you want to support multi-feature featurecollections for the geometry prop
 
   const polygonCoordinateSets = Array.from({ length: numberOfPolygons }, () => {
-    let coordinates = generateArrayofCoordinatePairs(randomInteger(3));
+    let coordinates = generateArrayofCoordinatePairs(randomInteger(4, 8));
     coordinates = [[...coordinates, coordinates[0]]]; /* close the polygon by adding a final point identical to the first */
 
     return coordinates;
@@ -27,7 +27,7 @@ const createPolygonFeatureCollection = () => {
 const createLineStringFeatureCollection = () => {
   const numberOfLineStrings = 1;
 
-  const lineStringCoordinateSets = Array.from({ length: numberOfLineStrings }, () => generateArrayofCoordinatePairs(randomInteger(2)));
+  const lineStringCoordinateSets = Array.from({ length: numberOfLineStrings }, () => generateArrayofCoordinatePairs(randomInteger(2, 6)));
 
   return createFeatureCollectionOfGeometryTypeFromCoords(lineStringCoordinateSets, lineString);
 };

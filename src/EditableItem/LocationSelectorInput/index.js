@@ -8,7 +8,6 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
-import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
 import { calcGpsDisplayString } from '../../utils/location';
 import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
@@ -17,8 +16,8 @@ import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
 import { setModalVisibilityState } from '../../ducks/modals';
 
+import AreaTab from './AreaTab';
 import GpsInput from '../../GpsInput';
-import MapAreaPicker from '../../MapAreaPicker';
 import MapLocationPicker from '../../MapLocationPicker';
 import GeoLocator from '../../GeoLocator';
 import TextCopyBtn from '../../TextCopyBtn';
@@ -163,17 +162,11 @@ const LocationSelectorInput = ({
         ? <Popover className={popoverClassString}>
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
-              <div className={styles.locationAreaContent}>
-                <MapAreaPicker
-                  className={styles.createAreaButton}
-                  areaFor={locationFor}
-                  onAreaSelectCancel={onAreaSelectCancel}
-                  onAreaSelectStart={onAreaSelectStart}
-                >
-                  <PolygonIcon />
-                  Create report area
-                </MapAreaPicker>
-              </div>
+              <AreaTab
+                areaFor={locationFor}
+                onAreaSelectCancel={onAreaSelectCancel}
+                onAreaSelectStart={onAreaSelectStart}
+              />
             </Tab>
 
             <Tab eventKey="point" title="Point">

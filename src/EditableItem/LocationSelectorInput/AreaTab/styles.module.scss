@@ -1,0 +1,73 @@
+@import '../../../common/styles/vars/colors';
+
+.locationAreaContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  min-height: 6.875rem;
+
+  img {
+    margin-left: -0.5rem;
+  }
+}
+
+.geometryMeasurements {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+  color: $secondary-medium-gray;
+  
+  > * {
+    flex: 1;
+  }
+}
+
+.imageSource {
+  color: white;
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  margin-top: -1.75rem;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.geometryEditButtons {
+  margin-top: 0.5rem;
+
+  > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+
+    svg {
+      margin-right: 0.25rem;
+    }
+  }
+
+  .editAreaButton {
+    float: left;
+    margin-right: 0.5rem;
+    background-color: $light-gray-background;
+    color: $secondary-medium-gray;
+  }
+
+  .deleteAreaButton {
+    float: right;
+    background-color: rgba(208, 3, 27, 0.05);
+    color: $bright-red;
+  }
+}
+
+.createAreaButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    margin-right: 0.25rem;
+  }
+}
