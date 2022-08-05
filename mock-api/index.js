@@ -1,13 +1,14 @@
-const models = require('./models');
+// const { generateSubject } = require('./models');
+const { generateEventsList } = require('./models/events');
 
 // To make it work go to file: src/ducks/subjects.js
 // and change the full value for SUBJECTS_API_URL to 'http://localhost:9000/api/v1.0/subjects'
-const generateSubjectsData = () => {
+/* const generateSubjectsData = () => {
   const subjects = [];
 
   const number = 50;
   for (let i = 0; i < number; i++) {
-    subjects.push(models.generateSubject());
+    subjects.push(generateSubject());
   }
 
   return {
@@ -18,7 +19,8 @@ const generateSubjectsData = () => {
     },
   };
 };
-
+ */
 module.exports = () => ({
-  subjects: generateSubjectsData(),
+  // subjects: generateSubjectsData(),
+  events: generateEventsList(),
 });
