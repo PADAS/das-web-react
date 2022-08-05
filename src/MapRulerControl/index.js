@@ -40,10 +40,8 @@ const MapRulerControl = (props) => {
     setActiveState(newActiveState);
 
     if (newActiveState) {
-      setDrawingState(true);
       mapInteractionTracker.track('Click \'Measurement Tool\' button');
     } else {
-      setDrawingState(false);
       mapInteractionTracker.track('Dismiss \'Measurement Tool\'');
     }
 
@@ -127,6 +125,7 @@ const MapRulerControl = (props) => {
 
   useEffect(() => {
     setPoints([]);
+    setDrawingState(active);
   }, [active]);
 
   useEffect(() => {
@@ -192,7 +191,7 @@ const MapRulerControl = (props) => {
       {drawing && <MemoizedPointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <MemoizedPointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} onChange={onDrawChange} onClickPoint={onClickPoint} />}
+    {active && <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} onChange={onDrawChange} onClickPoint={onClickPoint} />}
   </>;
 };
 
