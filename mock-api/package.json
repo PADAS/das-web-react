@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@turf/turf": "^6.5.0",
     "faker": "^5.5.3"
+  },
+  "devDependencies": {
+    "json-server": "^0.17.0"
   }
 }
