@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { DRAWING_MODES } from '.';
 import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords } from './utils';
 
-
 export const useDrawToolGeoJson = (points = [], cursorCoords = null, drawMode = DRAWING_MODES.POLYGON) => {
   const drawnLinePoints = useMemo(() =>
     cursorCoords
@@ -18,12 +17,6 @@ export const useDrawToolGeoJson = (points = [], cursorCoords = null, drawMode = 
       ? [...drawnLinePoints, drawnLinePoints.at(0)]
       : null, [drawnLinePoints, shouldCalcPolygonData]);
 
-  const autoCompleteLinePoints = useMemo(() =>
-    shouldCalcPolygonData
-      ? [drawnLinePoints.at(0), drawnLinePoints.at(-1)]
-      : null
-  , [drawnLinePoints, shouldCalcPolygonData]);
-
   const geoJsonObject = useMemo(() => {
     if (drawnLinePoints.length < 2) return null;
 
@@ -31,17 +24,13 @@ export const useDrawToolGeoJson = (points = [], cursorCoords = null, drawMode = 
       drawnLineSegments: createLineSegmentGeoJsonForCoords(drawnLinePoints),
     };
 
-    if (autoCompleteLinePoints) {
-      data.autoCompleteLine = createLineSegmentGeoJsonForCoords(autoCompleteLinePoints);
-    }
-
     if (fillPolygonPoints) {
       data.fillPolygon = createFillPolygonForCoords(fillPolygonPoints);
     }
 
     return data;
 
-  }, [autoCompleteLinePoints, drawnLinePoints, fillPolygonPoints]);
+  }, [drawnLinePoints, fillPolygonPoints]);
 
   return geoJsonObject;
 };
