@@ -18,7 +18,7 @@ const STATIC_MAP_WIDTH = 300;
 const STATIC_MAP_HEGHT = 130;
 
 const AreaTab = ({ areaFor, onAreaSelectCancel, onAreaSelectStart }) => {
-  const hasGeometry = !!areaFor.geometry;
+  const hasGeometry = !!areaFor?.geometry;
 
   let contentRendered;
   if (hasGeometry) {
