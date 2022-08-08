@@ -1,6 +1,5 @@
-import React, { memo, useEffect } from 'react';
-
-import { withMap } from '../EarthRangerMap';
+import React, { memo, useContext, useEffect } from 'react';
+import { MapContext } from '../App';
 
 import { useMapLayer, useMapSource } from '../hooks';
 
@@ -23,8 +22,9 @@ const SOURCE_IDS = {
 const MapDrawingLayers = (props) => {
   const {
     data,
-    map,
   } = props;
+
+  const map = useContext(MapContext);
 
   useMapSource(SOURCE_IDS.LINE_SOURCE, data?.drawnLineSegments, { type: 'geojson' });
   useMapSource(SOURCE_IDS.FILL_SOURCE, data?.fillPolygon, { type: 'geojson' });
@@ -52,4 +52,4 @@ const MapDrawingLayers = (props) => {
   return null;
 };
 
-export default memo(withMap(MapDrawingLayers));
+export default memo(MapDrawingLayers);
