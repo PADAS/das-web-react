@@ -5,11 +5,16 @@ const utils = require('../utils');
 
 const { randomItemFromArray, randomInteger } = utils;
 
-const generateArrayofCoordinatePairs = (length = 5) =>
-  Array.from({ length }, () =>
-    [Number.parseFloat(faker.address.longitude()) / 4, Number.parseFloat(faker.address.latitude()) / 4]
-  );
+const generateArrayofCoordinatePairs = (length = 5) => {
+  const baseLat = Number.parseFloat(faker.address.latitude()) / 2;
+  const baseLon = Number.parseFloat(faker.address.longitude()) / 2;
 
+  const getRandomBetweenMinusOneAndOne = () => Math.random() * (Math.random() > 0.5 ? 1 : -1);
+
+  return Array.from({ length }, () =>
+    [baseLon + getRandomBetweenMinusOneAndOne(), baseLat + getRandomBetweenMinusOneAndOne()]
+  );
+};
 
 const createPolygonFeatureCollection = () => {
   const numberOfPolygons = 1; // change this to randomInteger() when you want to support multi-feature featurecollections for the geometry prop

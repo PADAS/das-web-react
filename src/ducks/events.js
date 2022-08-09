@@ -12,6 +12,8 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
+// TODO: Remove mock
+import { eventsWithGeometries } from '../__test-helpers/fixtures/events';
 
 export const EVENTS_API_URL = process.env.REACT_APP_MOCK_EVENTS_API === 'true' ? '/api/v1.0/activity/events/' : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -112,7 +114,9 @@ const fetchNamedFeedActionCreator = (name) => {
       ...config,
       cancelToken: cancelToken.token,
     })
-      .then((response) => {
+      // .then((response) => {
+      .then(() => {
+        const response = { data: { data: { results: eventsWithGeometries } } };
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
           dispatch(updateEventStore(...response.data.data.results));
 
@@ -431,9 +435,10 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   cancelMapEventsFetch();
 
-  const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-    cancelToken: generateNewCancelToken(),
-  });
+  // const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+  //   cancelToken: generateNewCancelToken(),
+  // });
+  const request = Promise.resolve({ data: { data: { results: eventsWithGeometries } } });
 
   return recursivePaginatedQuery(request, onEachRequest)
     .then((finalResults) =>
