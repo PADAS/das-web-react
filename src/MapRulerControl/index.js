@@ -15,7 +15,7 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddReport from '../AddReport';
-import { setPickingMapLocationState } from '../ducks/map-ui';
+import { setMapInteractionIsPickingLocation } from '../ducks/map-ui';
 import { calcPositiveBearing } from '../utils/location';
 
 import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
@@ -25,7 +25,7 @@ import styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
-  const { map, setPickingMapLocationState } = props;
+  const { map, setMapInteractionIsPickingLocation } = props;
 
   const [active, setActiveState] = useState(false);
   const [points, setPointState] = useState([]);
@@ -153,8 +153,8 @@ const MapRulerControl = (props) => {
   }, [completed]); // eslint-disable-line
 
   useEffect(() => {
-    setPickingMapLocationState(active && !completed);
-  }, [active, completed, setPickingMapLocationState]);
+    setMapInteractionIsPickingLocation(active && !completed);
+  }, [active, completed, setMapInteractionIsPickingLocation]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(resetState, [active]);
@@ -208,7 +208,7 @@ const MapRulerControl = (props) => {
   </Fragment>;
 };
 
-export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRulerControl)));
+export default connect(null, { setMapInteractionIsPickingLocation })(memo(withMap(MapRulerControl)));
 
 
 const PointPopup = (props) => {

@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import bbox from '@turf/bbox';
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
 import { ReactComponent as PolygonIcon } from '../../../common/images/icons/polygon.svg';
@@ -9,35 +10,35 @@ import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/tra
 
 import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
 
-import MapAreaPicker from '../../../MapAreaPicker';
-
 import styles from './styles.module.scss';
 
 const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 300;
 const STATIC_MAP_HEGHT = 130;
 
-const AreaTab = ({ areaFor, onAreaSelectCancel, onAreaSelectStart }) => {
-  const hasGeometry = !!areaFor?.geometry;
+const AreaTab = ({ onAreaSelectStart }) => {
+  const event = useSelector((state) => state.view.userMapInteraction.event);
+
+  const hasGeometry = !!event?.geometry;
 
   let contentRendered;
   if (hasGeometry) {
     // TODO: Set this value depending on the geojson properties
     const imageSource = 'desktop';
 
-    const areaForGeometryBbox = bbox(areaFor.geometry);
-    const minLon = areaForGeometryBbox[1];
-    const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, areaForGeometryBbox[0]);
-    const maxLon = areaForGeometryBbox[3];
-    const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, areaForGeometryBbox[2]);
+    const eventGeometryBbox = bbox(event.geometry);
+    const minLon = eventGeometryBbox[1];
+    const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[0]);
+    const maxLon = eventGeometryBbox[3];
+    const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[2]);
 
     const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
-    const areaForGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(areaFor.geometry))})`;
+    const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(event.geometry))})`;
     const areForGeometryBBOXEncoded = `[${minLon},${minLat},${maxLon},${maxLat}]`;
     const staticImageDimensions = `${STATIC_MAP_WIDTH}x${STATIC_MAP_HEGHT}`;
     const mapboxStaticImageAPIQuery = `access_token=${REACT_APP_MAPBOX_TOKEN}&logo=false&attribution=false`;
 
-    const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${areaForGeoJSONEncoded}/` +
+    const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
       `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
     contentRendered = <>
@@ -52,15 +53,15 @@ const AreaTab = ({ areaFor, onAreaSelectCancel, onAreaSelectStart }) => {
       <label className={styles.imageSource}>Created on {imageSource}</label>
 
       <div className={styles.geometryEditButtons}>
-        <MapAreaPicker
+        <Button
           className={styles.editAreaButton}
-          areaFor={areaFor}
-          onAreaSelectCancel={onAreaSelectCancel}
-          onAreaSelectStart={onAreaSelectStart}
+          onClick={onAreaSelectStart}
+          title="Place geometry on map"
+          type="button"
         >
           <PencilIcon />
           Edit Area
-        </MapAreaPicker>
+        </Button>
 
         <Button
           className={styles.deleteAreaButton}
@@ -74,22 +75,22 @@ const AreaTab = ({ areaFor, onAreaSelectCancel, onAreaSelectStart }) => {
       </div>
     </>;
   } else {
-    contentRendered = <MapAreaPicker
+    contentRendered = <Button
       className={styles.createAreaButton}
-      areaFor={areaFor}
-      onAreaSelectCancel={onAreaSelectCancel}
-      onAreaSelectStart={onAreaSelectStart}
+      onClick={onAreaSelectStart}
+      title="Place geometry on map"
+      type="button"
       >
       <PolygonIcon />
       Create report area
-    </MapAreaPicker>;
+    </Button>;
   }
 
   return <div className={styles.locationAreaContent}>{contentRendered}</div>;
 };
 
 AreaTab.propTypes = {
-  areaFor: PropTypes.object.isRequired,
+  event: PropTypes.object.isRequired,
   onAreaSelectCancel: PropTypes.func.isRequired,
   onAreaSelectStart: PropTypes.func.isRequired,
 };

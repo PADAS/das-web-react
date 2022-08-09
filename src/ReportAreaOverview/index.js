@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 const ReportAreaOverview = () => {
   const dispatch = useDispatch();
 
-  const event = useSelector((state) => state.view.pickingAreaOnMap.areaFor);
+  const event = useSelector((state) => state.view.userMapInteraction.event);
 
   const [isOpen, setIsOpen] = useState(true);
 

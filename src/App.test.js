@@ -91,8 +91,7 @@ describe('The main app view', () => {
             latitude: 2,
           },
         },
-        pickingAreaOnMap: { isPicking: false },
-        pickingLocationOnMap: false,
+        userMapInteraction: { isPickingArea: false, isPickingLocation: false },
         timeSliderState: {
           active: false,
           virtualDate: null,

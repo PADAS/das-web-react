@@ -134,7 +134,7 @@ describe('Map', () => {
         mapClusterConfig: {},
         mapImages: {},
         patrolTrackState: { pinned: [], visible: [] },
-        pickingAreaOnMap: {},
+        userMapInteraction: {},
         showMapNames: {},
         simplifyMapDataOnZoom: {},
         subjectTrackState: { pinned: [], visible: [] },
@@ -164,7 +164,7 @@ describe('Map', () => {
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
-    store.view.pickingLocationOnMap = true;
+    store.view.userMapInteraction.isPickingLocation = true;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>
@@ -179,7 +179,7 @@ describe('Map', () => {
   });
 
   test('does not show the EventFilter if user is picking an area on the map', async () => {
-    store.view.pickingAreaOnMap = { areaFor: {}, isPicking: true };
+    store.view.userMapInteraction = { event: {}, isPickingArea: true };
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>
@@ -208,7 +208,7 @@ describe('Map', () => {
   });
 
   test('shows the ReportAreaOverview', async () => {
-    store.view.pickingAreaOnMap = { areaFor: {}, isPicking: true };
+    store.view.userMapInteraction = { event: {}, isPickingArea: true };
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>
