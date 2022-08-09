@@ -29,13 +29,14 @@ const MapDrawingLayers = (props) => {
   useMapSource(SOURCE_IDS.LINE_SOURCE, data?.drawnLineSegments, { type: 'geojson' });
   useMapSource(SOURCE_IDS.FILL_SOURCE, data?.fillPolygon, { type: 'geojson' });
 
-  const circleLayer = useMapLayer(LAYER_IDS.POINTS, 'circle', SOURCE_IDS.LINE_SOURCE, circlePaint);
+
   useMapLayer(LAYER_IDS.LINES, 'line', SOURCE_IDS.LINE_SOURCE, linePaint, lineLayout);
   useMapLayer(LAYER_IDS.LABELS, 'symbol', SOURCE_IDS.LINE_SOURCE, symbolPaint, symbolLayout);
   useMapLayer(LAYER_IDS.FILL, 'fill', SOURCE_IDS.FILL_SOURCE, fillPaint, fillLayout);
+  const circleLayer = useMapLayer(LAYER_IDS.POINTS, 'circle', SOURCE_IDS.LINE_SOURCE, circlePaint);
 
   useEffect(() => {
-    if (circleLayer) {
+    if (map && circleLayer) {
       const onCircleMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
       const onCircleMouseLeave = () => map.getCanvas().style.cursor = '';
 

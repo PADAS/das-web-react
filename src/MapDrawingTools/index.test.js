@@ -3,10 +3,6 @@ import { render } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../App';
-
-
-
-
 import MapDrawingTools, { DRAWING_MODES } from './';
 
 describe('rendering', () => {

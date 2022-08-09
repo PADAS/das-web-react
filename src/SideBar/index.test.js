@@ -17,6 +17,7 @@ import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { MapContext } from '../App';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -98,7 +99,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -113,7 +116,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -127,7 +132,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -144,7 +151,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -161,7 +170,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -177,7 +188,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -199,7 +212,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -221,7 +236,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -241,7 +258,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -263,7 +282,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -280,7 +301,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -295,7 +318,9 @@ describe('SideBar', () => {
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -318,7 +343,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -335,7 +362,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -358,7 +387,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -381,7 +412,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>

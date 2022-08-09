@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
 import { calcPositiveBearing } from '../utils/location';
-import { withMap } from '../EarthRangerMap';
 
 import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
 import { useMapEventBinding } from '../hooks';
@@ -94,7 +93,7 @@ const MapDrawingTools = (props) => {
   </>;
 };
 
-export default memo(withMap(MapDrawingTools));
+export default memo(MapDrawingTools);
 
 PropTypes.propTypes = {
   points: PropTypes.array,
@@ -125,20 +124,3 @@ const CursorPopup = (props) => {
     </Fragment>}
   </Popup>;
 };
-
-/*
-  points,
-  drawing,
-  drawingMode,
-  onChange
-  onComplete
-  onClickPoint
-  onClickFill
-  onClickLine
-  onClickLabel
-*/
-
-
-/* how to show popup when completed
-  how to show popup when clicking individual point
-*/

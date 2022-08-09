@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContext } from 'react-mapbox-gl';
+import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
@@ -59,13 +59,15 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
   useEffect(() => {
     const args = [eventType, layerId, handlerFn].filter(item => !!item);
 
-    if (map && condition) {
-      map.on(...args);
-      return () => {
+    if (map) {
+      if (condition) {
+        map.on(...args);
+        return () => {
+          map.off(...args);
+        };
+      } else {
         map.off(...args);
-      };
-    } else {
-      map.off(...args);
+      }
     }
   }, [map, condition, eventType, layerId, handlerFn]);
 };
@@ -93,11 +95,13 @@ export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
 
   useEffect(() => {
     return () => {
-      setTimeout(() => {
-        map.getSource(sourceId) && map.removeSource(sourceId);
-      });
+      if (map) {
+        setTimeout(() => {
+          source && map.removeSource(sourceId);
+        });
+      }
     };
-  }, [sourceId, map]);
+  }, [sourceId, source, map]);
 
   return source;
 };
