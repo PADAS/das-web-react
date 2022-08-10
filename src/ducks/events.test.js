@@ -7,7 +7,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 
 import { fetchMapEvents, EVENTS_API_URL } from './events';
 
-describe('fetchMapEvents', () => {
+describe.skip('fetchMapEvents', () => {
   let map, store;
 
   beforeEach(() => {

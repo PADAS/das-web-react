@@ -9,6 +9,7 @@ import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
+import { report } from '../../__test-helpers/fixtures/reports';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 jest.mock('react-router-dom', () => ({
@@ -46,8 +47,7 @@ describe('LocationSelectorInput', () => {
     map = createMapMock();
     store = mockStore({
       view: {
-        showUserLocation: true,
-        userLocation: { coords: { latitude: 123, longitude: 456 } },
+        userMapInteraction: { event: report },
         userPreferences: {},
       },
     });
@@ -152,20 +152,6 @@ describe('LocationSelectorInput', () => {
 
     expect(onLocationChange).toHaveBeenCalledTimes(1);
     expect(onLocationChange).toHaveBeenCalledWith([987, 654]);
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
-    });
-  });
-
-  test('triggers onLocationChange with users coordinates if clicking use my location', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    const useMyLocationButton = await screen.getByTitle('Use my location');
-    userEvent.click(useMyLocationButton);
-
-    expect(onLocationChange).toHaveBeenCalledTimes(1);
-    expect(onLocationChange).toHaveBeenCalledWith([456, 123]);
     await waitFor(async () => {
       expect((await screen.queryByRole('tooltip'))).toBeNull();
     });
