@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Source } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
 import { featureCollection } from '@turf/helpers';
 import { useSelector } from 'react-redux';
@@ -24,6 +23,7 @@ import {
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
+import { useMapSource } from '../hooks';
 
 const {
   EVENT_SYMBOLS,
@@ -61,6 +61,7 @@ export const CLUSTER_CONFIG = {
   clusterRadius: 40,
 };
 
+const layerFilter = ['all', ['has', 'event_type'], ['!has', 'point_count']];
 
 const EventsLayer = ({
   bounceEventIDs,
@@ -83,24 +84,12 @@ const EventsLayer = ({
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
   const [mapEventFeatures, setMapEventFeatures] = useState(featureCollection([]));
 
-  useEffect(() => {
-    setEventsWithBounce({
-      ...eventFeatureCollection,
-      features: addBounceToEventMapFeatures(eventFeatureCollection.features, bounceEventIDs),
-    });
-  }, [bounceEventIDs, eventFeatureCollection]);
-
-  useEffect(() => {
-    setBounceIDs(bounceEventIDs);
-    setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
-  }, [bounceEventIDs]);
-
-  useEffect(() => {
-    setMapEventFeatures({
-      ...eventsWithBounce,
-      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature))),
-    });
-  }, [eventsWithBounce, map, mapImages]);
+  const onLayerInit = useCallback(() => setEventLayerIds([
+    EVENT_SYMBOLS,
+    `${EVENT_SYMBOLS}-labels`,
+    `${EVENT_SYMBOLS}-unclustered`,
+    `${EVENT_SYMBOLS}-unclustered-labels`,
+  ]), []);
 
   const onEventSymbolClick = useCallback((event) => {
     if (!clicking.current) {
@@ -131,17 +120,6 @@ const EventsLayer = ({
     }
   }, [animationState.frame, bounceIDs.length]);
 
-  useEffect(() => {
-    if (bounceIDs.length && animationState.isRendering) {
-      animationFrameID.current = window.requestAnimationFrame(() => updateBounceSineAnimation());
-    } else if (animationFrameID.current) {
-      window.cancelAnimationFrame(animationFrameID.current);
-    }
-
-    return () => {
-      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
-    };
-  }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
 
   const SCALE_ICON_IF_BOUNCED = useCallback((iconSize, iconScale) => [
     'match',
@@ -194,6 +172,7 @@ const EventsLayer = ({
     fontSize + animationState.scale * fontScale,
     fontSize,
   ], [animationState.scale]);
+
   const eventLabelLayout = useMemo(() => ({
     ...DEFAULT_SYMBOL_LAYOUT,
     'icon-allow-overlap': true,
@@ -208,7 +187,36 @@ const EventsLayer = ({
     ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
   }), [SCALE_FONT_IF_BOUNCED, mapUserLayoutConfigByLayerId]);
 
+  useEffect(() => {
+    if (bounceIDs.length && animationState.isRendering) {
+      animationFrameID.current = window.requestAnimationFrame(() => updateBounceSineAnimation());
+    } else if (animationFrameID.current) {
+      window.cancelAnimationFrame(animationFrameID.current);
+    }
 
+    return () => {
+      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
+    };
+  }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
+
+  useEffect(() => {
+    setEventsWithBounce({
+      ...eventFeatureCollection,
+      features: addBounceToEventMapFeatures(eventFeatureCollection.features, bounceEventIDs),
+    });
+  }, [bounceEventIDs, eventFeatureCollection]);
+
+  useEffect(() => {
+    setBounceIDs(bounceEventIDs);
+    setAnimationState({ frame: 1, isRendering: (bounceEventIDs.length > 0), scale: 0.0 });
+  }, [bounceEventIDs]);
+
+  useEffect(() => {
+    setMapEventFeatures({
+      ...eventsWithBounce,
+      features: eventsWithBounce.features.filter(feature => !map.hasImage(calcSvgImageIconId(feature))),
+    });
+  }, [eventsWithBounce, map, mapImages]);
 
   useEffect(() => {
     const addClusterIconToMap = () => {
@@ -220,34 +228,25 @@ const EventsLayer = ({
     addClusterIconToMap();
   }, [map]);
 
+  const geoJson = useMemo(() => ({
+    ...mapEventFeatures,
+    features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
+  }), [mapEventFeatures, shouldEventsBeClustered, showReportsOnMap]);
 
-  const sourceData = {
-    type: 'geojson',
-    data: {
-      ...mapEventFeatures,
-      features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
-    },
-  };
+  useMapSource('events-data-unclustered', geoJson);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
 
   return <>
-    <Source id='events-data-unclustered' geoJsonSource={sourceData} />
-
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
-        filter={['all', ['has', 'event_type'], ['!has', 'point_count']]}
+        filter={layerFilter}
         id={`${EVENT_SYMBOLS}-unclustered`}
         layout={eventIconLayout}
         minZoom={minZoom}
         onClick={onEventSymbolClick}
-        onInit={() => setEventLayerIds([
-          EVENT_SYMBOLS,
-          `${EVENT_SYMBOLS}-labels`,
-          `${EVENT_SYMBOLS}-unclustered`,
-          `${EVENT_SYMBOLS}-unclustered-labels`,
-        ])}
+        onInit={onLayerInit}
         sourceId='events-data-unclustered'
         textLayout={eventLabelLayout}
         textPaint={EVENTS_LAYER_TEXT_PAINT}
@@ -257,7 +256,7 @@ const EventsLayer = ({
       {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
-          filter={['all', ['has', 'event_type'], ['!has', 'point_count']]}
+          filter={layerFilter}
           id={EVENT_SYMBOLS}
           layout={eventIconLayout}
           minZoom={minZoom}

@@ -1,8 +1,8 @@
-import React, { memo, Fragment, useContext, useMemo, useEffect } from 'react';
-import { MapContext, Layer, Source } from 'react-mapbox-gl';
-
+import React, { memo, useContext, useMemo, useEffect } from 'react';
+import { MapContext } from '../App';
 
 import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS, MAX_ZOOM, MIN_ZOOM } from '../constants';
+import { useMapLayer, useMapSource } from '../hooks';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
 
@@ -14,12 +14,30 @@ const RASTER_SOURCE_OPTIONS = {
   'tileSize': 256,
 };
 
+const RenderFunction = ({ children }) => <>{children}</>;
+
+const SourceComponent = ({ id, tileUrl, sourceConfig }) => {
+  const config = useMemo(() => ({
+    ...RASTER_SOURCE_OPTIONS,
+    tiles: [
+      tileUrl,
+    ],
+    ...sourceConfig,
+  }), [sourceConfig, tileUrl]);
+
+  useMapSource(id, null, config);
+
+  return null;
+};
+
 const TileLayerRenderer = (props) => {
   const { layers, currentBaseLayer } = props;
 
-  const activeLayer = layers.find(({ id }) => id === currentBaseLayer.id);
-
   const map = useContext(MapContext);
+
+  const activeLayer = useMemo(() =>
+    layers.find(({ id }) => id === currentBaseLayer.id)
+  , [currentBaseLayer.id, layers]);
 
   const { mapConfig, sourceConfig } = useMemo(() =>
     calcConfigForMapAndSourceFromLayer(currentBaseLayer)
@@ -32,20 +50,22 @@ const TileLayerRenderer = (props) => {
     }
   }, [map, mapConfig]);
 
-  return <Fragment>
-    {layers
-      .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
-      .map(layer => <Source key={layer.id} id={`layer-source-${layer.id}`} tileJsonSource={{
-        ...RASTER_SOURCE_OPTIONS,
-        tiles: [
-          layer.attributes.url,
-        ],
-        ...sourceConfig,
-      }} >
-      </Source>)}
+  useMapLayer(
+    `tile-layer-${activeLayer?.id}`,
+    'raster',
+    `layer-source-${activeLayer?.id}`,
+    undefined,
+    undefined,
+    { before: FEATURE_FILLS, condition: !!activeLayer }
+  );
 
-    {!!activeLayer && <Layer before={FEATURE_FILLS} id={`tile-layer-${activeLayer.id}`} key={activeLayer.id} sourceId={`layer-source-${activeLayer.id}`} type="raster" />}
-  </Fragment>;
+  return layers
+    .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
+    .map(layer =>
+      <RenderFunction key={layer.id}>
+        <SourceComponent id={`layer-source-${layer.id}`} sourceConfig={sourceConfig} tileUrl={layer.attributes.url} />
+      </RenderFunction>
+    );
 };
 
 export default memo(TileLayerRenderer);

@@ -793,34 +793,3 @@ export default connect(mapStatetoProps, {
   updateHeatmapSubjects,
 }
 )(withMap(Map));
-
-// secret code burial ground
-// for future reference and potential experiments
-//  {/* <Source
-//           id='terrain_source'
-//           tileJsonSource={{
-//             type: 'vector',
-//             url: 'mapbox://mapbox.mapbox-terrain-v2'
-//           }}
-//         /> */}
-// {/* <Layer
-//           type='fill-extrusion'
-//           sourceLayer='contour'
-//           id='terrain_layer'
-//           sourceId='terrain_source'
-//           paint={{
-//             'fill-extrusion-color': [
-//               'interpolate',
-//               ['linear'],
-//               ['get', 'ele'],
-//               1000,
-//               '#FFF',
-//               1500,
-//               '#CCC',
-//               2000,
-//               '#AAA',
-//             ],
-//             'fill-extrusion-opacity': 1,
-//             'fill-extrusion-height': ["/", ['get', 'ele'], 1],
-//           }}
-//         /> */}

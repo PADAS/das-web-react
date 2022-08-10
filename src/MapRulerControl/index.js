@@ -149,7 +149,7 @@ const MapRulerControl = (props) => {
   }, [drawing, points.length]);
 
   useEffect(() => {
-    if (nextClickResetsState) {
+    if (map && nextClickResetsState) {
       const onMapClickToReset = (e) => {
         const isPointClick = !!map.queryRenderedFeatures(e.point, {
           layers: [LAYER_IDS.POINTS],

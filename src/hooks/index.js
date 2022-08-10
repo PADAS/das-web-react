@@ -4,6 +4,10 @@ import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
+import { MIN_ZOOM, MAX_ZOOM, LAYER_IDS } from '../constants';
+
+const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
+
 export const useFeatureFlag = flag =>
   useSelector(state =>
     !!state?.view?.systemConfig?.[flag]
@@ -74,22 +78,20 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
 
 export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   const map = useContext(MapContext);
-  let source = map.getSource(sourceId);
+  const source = map?.getSource(sourceId);
 
   useEffect(() => {
-    if (map) {
-      if (!source) {
-        map.addSource(sourceId, {
-          ...config,
-          data,
-        });
-      }
+    if (map && !source) {
+      map.addSource(sourceId, {
+        ...config,
+        data,
+      });
     }
   }, [sourceId, source, config, data, map]);
 
   useEffect(() => {
     if (source) {
-      source.setData(data);
+      source.setData?.(data);
     }
   }, [data, source]);
 
@@ -106,13 +108,19 @@ export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   return source;
 };
 
-export const useMapLayer = (layerId, type, sourceId, paint, layout, filter) => {
+export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
   const map = useContext(MapContext);
+  const layer = map?.getLayer(layerId);
 
-  const layer = map.getLayer(layerId);
+  const before = useMemoCompare(config?.before || TOPMOST_STYLE_LAYER);
+  const condition = useMemoCompare(config?.condition || true);
+  const filter = useMemoCompare(config?.filter);
+  const minzoom = useMemoCompare(config?.minZoom);
+  const maxzoom = useMemoCompare(config?.maxZoom);
 
   useEffect(() => {
-    if (map && !layer) {
+    if (condition && map && !layer) {
+      console.log('if (condition && map && !layer)');
       const source = map.getSource(sourceId);
 
       if (!!source) {
@@ -122,38 +130,81 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, filter) => {
           type,
           layout: layout || {},
           paint: paint || {},
-        });
+        }, before);
       }
     }
-  }, [layer, layerId, layout, map, sourceId, paint, type]);
+  }, [before, condition, layer, layerId, layout, map, sourceId, paint, type]);
 
   useEffect(() => {
-    if (layer && layout) {
+    if (condition && layer && layout) {
+      console.log('if (condition && layer && layout)');
       Object.entries(layout).forEach(([key, value]) => {
         layer.setLayoutProperty(key, value);
       });
     }
-  }, [layer, layout]);
+  }, [condition, layer, layout]);
 
   useEffect(() => {
-    if (layer && paint) {
+    if (condition && layer && paint) {
+      console.log('if (condition && layer && paint)');
       Object.entries(paint).forEach(([key, value]) => {
         layer.setPaintProperty(key, value);
       });
     }
-  }, [layer, paint]);
+  }, [condition, layer, paint]);
 
   useEffect(() => {
-    if (layer && filter) {
-      layer.setFilter(filter);
+    if (condition && map && layer) {
+      console.log('if (condition && map && layer)');
+      map.setFilter(layerId, filter);
     }
-  }, [filter, layer]);
+  }, [condition, filter, layer, layerId, map]);
+
+  useEffect(() => {
+    if (!condition && layer) {
+      console.log('if (!condition && layer)');
+      map.removeLayer(layerId);
+    }
+  }, [condition, layer, layerId, map]);
 
   useEffect(() => {
     return () => {
-      map.getLayer(layerId) && map.removeLayer(layerId);
+      if (map) {
+        map.getLayer(layerId) && map.removeLayer(layerId);
+      }
     };
   }, [layerId, map]);
 
+  useEffect(() => {
+    if (condition && map && layer && (minzoom || maxzoom)) {
+      console.log('if (condition && map && layer && (minzoom || maxzoom))');
+      map.setLayerZoomRange(layerId, (minzoom || MIN_ZOOM), (maxzoom || MAX_ZOOM));
+    }
+  }, [condition, layer, layerId, map, minzoom, maxzoom]);
+
+
+  useEffect(() => {
+    if (layer && map && before) {
+      console.log('if (layer && map && before)');
+      map.moveLayer(layerId, before);
+    }
+  }, [before, layer, layerId, map]);
+
   return layer;
+};
+
+
+const useMemoCompare = (next, compare = isEqual) => {
+  const previousRef = useRef();
+  const previous = previousRef.current;
+
+  const isEqual = compare(previous, next);
+
+  useEffect(() => {
+    if (!isEqual) {
+      previousRef.current = next;
+    }
+  }, [isEqual, next]);
+  // Finally, if equal then return the previous value
+  return isEqual ? previous : next;
 };

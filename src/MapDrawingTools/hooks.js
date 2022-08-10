@@ -14,7 +14,7 @@ export const useDrawToolGeoJson = (points = [], cursorCoords = null, drawMode = 
 
   const fillPolygonPoints = useMemo(() =>
     shouldCalcPolygonData
-      ? [...drawnLinePoints, drawnLinePoints.at(0)]
+      ? [...drawnLinePoints, drawnLinePoints[0]]
       : null, [drawnLinePoints, shouldCalcPolygonData]);
 
   const geoJsonObject = useMemo(() => {

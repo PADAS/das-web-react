@@ -21,7 +21,10 @@ const PatrolTrackLayer = (props) => {
   // eslint-disable-next-line no-unused-vars
   const { map, patrolData: { trackData, patrol }, showTrackTimepoints, trackTimeEnvelope, tracks, dispatch: _dispatch, onPointClick, ...rest } = props;
 
-  const trimmedTrackData = useMemo(() => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until), [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);
+  const trimmedTrackData = useMemo(() =>
+    !!trackData
+    && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until),
+  [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);

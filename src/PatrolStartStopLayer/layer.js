@@ -1,7 +1,5 @@
-import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-
-import { Source, Layer } from 'react-mapbox-gl';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
@@ -11,6 +9,7 @@ import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
+import { useMapLayer, useMapSource } from '../hooks';
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
 
@@ -44,6 +43,8 @@ const labelPaint = {
   'text-color': '#ffffff',
   'text-halo-color': 'rgba(0,0,0,0.7)',
 };
+
+const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
 const StartStopLayer = (props) => {
@@ -82,30 +83,23 @@ const StartStopLayer = (props) => {
     ].filter(val => !!val);
   }, [lines, points]);
 
-  const patrolPointsSourceData = useMemo(() => {
-    return {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: patrolPointFeatures,
-      }
-    };
-  }, [patrolPointFeatures]);
+  const patrolPointsSourceData = useMemo(() => ({
+    type: 'FeatureCollection',
+    features: patrolPointFeatures,
+  }), [patrolPointFeatures]);
+
+  const layerLabelPaint = useMemo(() => ({ ...labelPaint, 'icon-color': ['get', 'stroke'] }), []);
+  const layerSymbolPaint = useMemo(() => ({ ...symbolPaint, 'text-color': ['get', 'stroke'] }), []);
+  const layerLinePaint = useMemo(() => ({ ...linePaint, 'line-color': ['get', 'stroke'] }), []);
+
+  useMapSource(sourceId, patrolPointsSourceData);
+  useMapLayer(`${layerId}-lines`, 'line', sourceId, layerLinePaint, lineLayout);
 
   if (!points && !lines) return null;
 
-  const layerSymbolPaint = { ...symbolPaint, 'text-color': ['get', 'stroke'] };
-  const layerLabelPaint = { ...labelPaint, 'icon-color': ['get', 'stroke'] };
-
-  const layerLinePaint = { ...linePaint, 'line-color': ['get', 'stroke'] };
-
-  return <Fragment key={`${key}-${instanceId}`}>
-    <Source id={sourceId} geoJsonSource={patrolPointsSourceData} />
-    <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
-      id={layerId} filter={['==', ['geometry-type'], 'Point']}  {...rest}
-    />
-    <Layer sourceId={sourceId} id={`${layerId}-lines`} type='line' paint={layerLinePaint} layout={lineLayout} />
-  </Fragment>;
+  return <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
+      id={layerId} filter={symbolFilter}  {...rest}
+    />;
 };
 
 const makeMapStateToProps = () => {

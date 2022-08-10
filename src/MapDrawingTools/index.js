@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
@@ -14,6 +14,7 @@ import { useMapEventBinding } from '../hooks';
 import styles from './styles.module.scss';
 import MapLayers from './MapLayers';
 
+import { MapContext } from '../App';
 import { LAYER_IDS } from './MapLayers';
 
 export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
@@ -101,6 +102,7 @@ PropTypes.propTypes = {
 
 const CursorPopup = (props) => {
   const { coords, points, lineLength } = props;
+  const map = useContext(MapContext);
 
   const popupClassName = `${styles.popup} ${styles.notDone}`;
   const popupOffset = [-8, 0];
@@ -108,7 +110,7 @@ const CursorPopup = (props) => {
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
   const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
-  return <Popup className={popupClassName} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
+  return <Popup className={popupClassName} data-testid='drawing-tools-popup' map={map} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
     {points.length === 0 && <p>Click to start</p>}
     {!!points.length && <Fragment>
       {showPromptForSecondPoint && <div>

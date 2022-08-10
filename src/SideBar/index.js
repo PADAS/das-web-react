@@ -268,6 +268,4 @@ const SideBar = () => {
   </ErrorBoundary>;
 };
 
-SideBar.propTypes = { map: PropTypes.object.isRequired };
-
 export default memo(SideBar);

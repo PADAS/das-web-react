@@ -1,8 +1,8 @@
-import React, { Fragment, memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { point } from '@turf/helpers';
-import { Source, Layer } from 'react-mapbox-gl';
 
 import { SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
+import { useMapLayer, useMapSource } from '../hooks';
 
 const layout = {
   'icon-image': 'marker-icon',
@@ -13,18 +13,17 @@ const layout = {
 
 // eslint-disable-next-line no-unused-vars
 const MouseMarkerLayer = ({ map, location, ...rest }) => {
-  if (!location.lng || !location.lat) return null;
 
-  const sourceData = {
-    type: 'geojson',
-    data: point([location.lng, location.lat]),
-  };
+  const cursorPoint = useMemo(() => location?.lng ?
+    point([location.lng, location.lat])
+    : null
+  , [location.lat, location.lng]);
 
-  return <Fragment>
-    <Source id='mouse-marker-source' geoJsonSource={sourceData} />
-    <Layer sourceId='mouse-marker-source' type='symbol' layout={layout}  {...rest} />
-  </Fragment>;
 
+  useMapSource('mouse-marker-source', cursorPoint);
+  useMapLayer('mouse-marker-layer', 'symbol', 'mouse-marker-source', null, layout);
+
+  return null;
 };
 
 export default memo(MouseMarkerLayer);

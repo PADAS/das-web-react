@@ -1,6 +1,5 @@
-import React, { memo, Fragment, useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -11,6 +10,7 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
+import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
@@ -104,25 +104,24 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     onFeatureSymbolClick(geojson);
   };
 
-  const lineData = {
-    type: 'geojson',
-    data: lines,
-  };
+  const layerConfig = { minZoom };
 
-  const polygonData = {
-    type: 'geojson',
-    data: polygons,
-  };
+  useMapSource('feature-line-source', lines);
+  useMapSource('feature-polygon-source', polygons);
+  useMapSource('feature-symbol-source', symbols);
 
-  const symbolData = {
-    type: 'geojson',
-    data: symbols,
-  };
+  // (layerId, type, sourceId, paint, layout, filter, minzoom, maxzoom, condition = true)
+  useMapLayer(FEATURE_FILLS, 'fill', 'feature-polygon-source', fillPaint, fillLayout, layerConfig);
+  useMapLayer(FEATURE_LINES, 'line', 'feature-line-source', linePaint, lineLayout, layerConfig);
+  useMapLayer(FEATURE_SYMBOLS, 'symbol', 'feature-symbol-source', symbolPaint, layout, layerConfig);
 
-  return <Fragment>
-    <Source id='feature-line-source' geoJsonSource={lineData} />
-    <Source id='feature-polygon-source' geoJsonSource={polygonData} />
-    <Source id='feature-symbol-source' geoJsonSource={symbolData} />
+  useMapEventBinding('click', onSymbolClick, FEATURE_SYMBOLS);
+  useMapEventBinding('mouseenter', onSymbolMouseEnter, FEATURE_SYMBOLS);
+  useMapEventBinding('mouseleave', onSymbolMouseLeave, FEATURE_SYMBOLS);
+
+  return null;
+/*   
+  <Fragment>
 
     <Layer minZoom={minZoom} sourceId='feature-polygon-source' type='fill'
       id={FEATURE_FILLS} before={TOPMOST_STYLE_LAYER}
@@ -139,7 +138,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
       onClick={onSymbolClick} />
-  </Fragment>;
+  </Fragment>; */
 };
 
 FeatureLayer.propTypes = {

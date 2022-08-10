@@ -14,7 +14,7 @@ export const LAYER_IDS = {
   FILL: 'draw-layer-fill',
 };
 
-const SOURCE_IDS = {
+export const SOURCE_IDS = {
   LINE_SOURCE: 'map-line-source',
   FILL_SOURCE: 'map-fill-source',
 };
