@@ -3,19 +3,19 @@ import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { addModal } from '../ducks/modals';
+import { addModal } from '../../ducks/modals';
 import InformationModal from './InformationModal';
-import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
-import { report } from '../__test-helpers/fixtures/reports';
-import ReportAreaOverview from './';
+import { mockStore } from '../../__test-helpers/MockStore';
+import NavigationWrapper from '../../__test-helpers/navigationWrapper';
+import { report } from '../../__test-helpers/fixtures/reports';
+import ReportOverview from './';
 
-jest.mock('../ducks/modals', () => ({
-  ...jest.requireActual('../ducks/modals'),
+jest.mock('../../ducks/modals', () => ({
+  ...jest.requireActual('../../ducks/modals'),
   addModal: jest.fn(),
 }));
 
-describe('ReportAreaOverview', () => {
+describe('ReportOverview', () => {
   let addModalMock, store;
 
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('ReportAreaOverview', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportAreaOverview />
+          <ReportOverview />
         </NavigationWrapper>
       </Provider>
     );
@@ -48,7 +48,7 @@ describe('ReportAreaOverview', () => {
   });
 
   test('closes and opens the card', async () => {
-    const collapse = await screen.findByTestId('reportAreaOverview-collapse');
+    const collapse = await screen.findByTestId('ReportOverview-collapse');
 
     expect(collapse).toHaveClass('show');
 

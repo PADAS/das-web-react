@@ -52,7 +52,6 @@ canvas.mapboxgl-canvas {
 }
 
 $map-canvas: '.mapboxgl-canvas';
-$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
   --nav-height: 2.75rem;
@@ -97,11 +96,6 @@ body {
   flex-flow: column;
 
   &.picking-location {
-    #{$non-map-top-level-components} {
-      cursor: not-allowed !important;
-      pointer-events: none !important;
-    }
-
     .primary-nav,
     .map-legends,
     .map-controls-container,

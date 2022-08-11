@@ -1,0 +1,25 @@
+@import '../../common/styles/vars/colors';
+
+.footer {
+  z-index: 12;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4rem;
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.65) 100%);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 1.5rem;
+}
+
+.cancelButton {
+  background: transparent;
+  color: $secondary-medium-gray;
+  font-weight: bold;
+  border: none;
+  margin-right: 1rem;
+  cursor: pointer;
+}

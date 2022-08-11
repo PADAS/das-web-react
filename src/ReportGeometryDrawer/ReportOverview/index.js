@@ -2,18 +2,18 @@ import React, { memo, useCallback, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
-import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
-import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
+import { ReactComponent as InformationIcon } from '../../common/images/icons/information.svg';
 
-import { addModal } from '../ducks/modals';
+import { addModal } from '../../ducks/modals';
 
-import InformationModal from './InformationModal';
-import ReportListItem from '../ReportListItem';
+import InformationModal from './../InformationModal';
+import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const ReportAreaOverview = () => {
+const ReportOverview = () => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.userMapInteraction.event);
@@ -61,4 +61,4 @@ const ReportAreaOverview = () => {
   </div>;
 };
 
-export default memo(ReportAreaOverview);
+export default memo(ReportOverview);

@@ -1,6 +1,6 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/animations';
-@import '../common/styles/layout';
+@import '../../common/styles/vars/colors';
+@import '../../common/styles/animations';
+@import '../../common/styles/layout';
 
 .reportAreaOverview {
   @include fade-in;
