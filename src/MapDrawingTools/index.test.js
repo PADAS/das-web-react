@@ -28,6 +28,12 @@ describe('MapDrawingTools', () => {
   beforeEach(() => {
     map = createMapMock();
     drawing = true;
+
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe('with no point data', () => {
@@ -48,20 +54,33 @@ describe('MapDrawingTools', () => {
       points = [[1, 2], [2, 3], [3, 4], [1, 2]];
     });
 
-    fit('creating map layers and sources', async () => {
+    test('adding a source for the draw data', () => {
+      map.getSource.mockReturnValue(null);
+
       render(
         <MapContext.Provider value={map}>
           <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapContext.Provider>
       );
 
-      await waitFor(() => {
-        expect(map.addSource).toHaveBeenCalled();
-        expect(map.addLayer).toHaveBeenCalled();
-      });
+      expect(map.addSource).toHaveBeenCalled();
+      expect(map.addLayer).not.toHaveBeenCalled();
     });
 
-    test('firing #onChange when the map is clicked', () => {
+    test('adding a layer if the source exists', () => {
+      map.getSource.mockReturnValue({ whatever: 'yes' });
+
+      render(
+        <MapContext.Provider value={map}>
+          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+        </MapContext.Provider>
+      );
+
+      expect(map.addSource).not.toHaveBeenCalled();
+      expect(map.addLayer).toHaveBeenCalled();
+    });
+
+    test('firing #onChange when the map is clicked', async () => {
       const onChange = jest.fn();
 
       render(
@@ -72,25 +91,12 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onChange).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onChange).toHaveBeenCalled();
+      });
     });
 
-    test('only firing #onChange once on double click', () => {
-      const onChange = jest.fn();
-
-      render(
-        <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
-        </MapContext.Provider>
-      );
-
-      map.__test__.fireHandlers('dblclick', { lngLat: { lat: [2, 3], lng: [3, 4] } });
-
-      expect(onChange).toHaveBeenCalledTimes(1);
-
-    });
-
-    test('firing #onClickPoint when a drawn point is clicked', () => {
+    test('firing #onClickPoint when a drawn point is clicked', async () => {
       const onClickPoint = jest.fn();
 
       render(
@@ -101,10 +107,12 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', LAYER_IDS.POINTS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onClickPoint).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onClickPoint).toHaveBeenCalled();
+      });
     });
 
-    test('firing #onClickLine when a drawn line is clicked', () => {
+    test('firing #onClickLine when a drawn line is clicked', async () => {
       const onClickLine = jest.fn();
 
       render(
@@ -115,10 +123,12 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', LAYER_IDS.LINES, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onClickLine).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onClickLine).toHaveBeenCalled();
+      });
     });
 
-    test('firing #onClickFill when a drawn polyon\'s fill is clicked', () => {
+    test('firing #onClickFill when a drawn polyon\'s fill is clicked', async () => {
       const onClickFill = jest.fn();
 
       render(
@@ -129,10 +139,12 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', LAYER_IDS.FILL, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onClickFill).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onClickFill).toHaveBeenCalled();
+      });
     });
 
-    test('firing #onClickLabel when a drawn line\'s label is clicked', () => {
+    test('firing #onClickLabel when a drawn line\'s label is clicked', async () => {
       const onClickLabel = jest.fn();
 
       render(
@@ -143,10 +155,12 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', LAYER_IDS.LABELS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onClickLabel).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(onClickLabel).toHaveBeenCalled();
+      });
     });
 
-    test('drawing a polygon when the draw mode is for polygons', () => {
+    test('drawing a polygon when the draw mode is for polygons', async () => {
       const onChange = jest.fn();
 
       render(
@@ -157,39 +171,54 @@ describe('MapDrawingTools', () => {
 
       map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onChange).toHaveBeenCalledTimes(1);
-      console.log('the geojson', onChange.mock.calls[0][1]);
+      await waitFor(() => {
+        expect(onChange).toHaveBeenCalledTimes(1);
+
+        const [, callbackData] = onChange.mock.calls[0];
+
+        expect(callbackData?.drawnLineSegments?.type).toBe('FeatureCollection');
+        expect(callbackData?.fillPolygon?.geometry?.type).toBe('Polygon');
+      });
     });
 
-    test('drawing a line when the draw mode is for lines', () => {
+    test('drawing a line when the draw mode is for lines', async () => {
       const onChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
         </MapContext.Provider>
       );
 
       map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-      expect(onChange).toHaveBeenCalledTimes(1);
-      console.log('the geojson', onChange.mock.calls[0][1]);
+      await waitFor(() => {
+        expect(onChange).toHaveBeenCalledTimes(1);
+
+        const [, callbackData] = onChange.mock.calls[0];
+
+        expect(callbackData.fillPolygon).not.toBeDefined();
+        expect(callbackData?.drawnLineSegments?.type).toBe('FeatureCollection');
+      });
     });
   });
 
   describe('the cursor popup', () => {
     test('rendering a cursor popup with point details when drawing and the mouse is moved', async () => {
-      render(
+      const points = [[1, 2], [2, 3], [4, 5]];
+
+      const { container } = render(
         <MapContext.Provider value={map}>
           <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapContext.Provider>
       );
 
-      const popup = screen.findByTestId('drawing-tools-popup');
+      await waitFor(() => {
+        expect(container).toHaveTextContent('Bearing');
+        expect(container).toHaveTextContent('Distance');
+        expect(container).toHaveTextContent('Click to add a point');
+      });
 
-      expect(popup).toHaveTextContent('Bearing');
-      expect(popup).toHaveTextContent('Distance');
-      expect(popup).toHaveTextContent('Click to add a point');
     });
   });
 });
