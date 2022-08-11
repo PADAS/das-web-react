@@ -113,7 +113,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
   const layer = map?.getLayer(layerId);
 
   const before = useMemoCompare(config?.before || TOPMOST_STYLE_LAYER);
-  const condition = useMemoCompare(config.hasOwnProperty('condition') ? config.condition : true);
+  const condition = useMemoCompare(config.hasOwnProperty?.('condition') ? config.condition : true);
   const filter = useMemoCompare(config?.filter);
   const minzoom = useMemoCompare(config?.minZoom);
   const maxzoom = useMemoCompare(config?.maxZoom);
