@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, prettyDOM } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
@@ -27,10 +27,7 @@ jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),
 }));
-jest.mock('../hooks', () => ({
-  ...jest.requireActual('../hooks'),
-  useFeatureFlag: () => true,
-}));
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('SideBar', () => {
@@ -90,6 +87,9 @@ describe('SideBar', () => {
         hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
+        systemConfig: {
+          patrol_enabled: true,
+        },
       },
     };
   });
@@ -314,7 +314,7 @@ describe('SideBar', () => {
 
   test('closes the sidebar tabs when clicking the cross button', () => {
     const mockStoreInstance = mockStore(store);
-    render(
+    const { baseElement, container } = render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <MockSocketProvider>
@@ -325,6 +325,8 @@ describe('SideBar', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    console.log('HERE WE GO', prettyDOM(container.firstChild), prettyDOM(baseElement));
 
     expect(navigate).toHaveBeenCalledTimes(0);
 

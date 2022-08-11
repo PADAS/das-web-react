@@ -82,7 +82,7 @@ describe('#useMapLayer', () => {
       let paintObject = { value1: 'yellow', value2: 0.6 };
 
       const { rerender } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id', paintObject), { wrapper });
-      paintObject.entries.forEach(([key, value]) => {
+      Object.entries(paintObject).forEach(([key, value]) => {
         expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
 
@@ -90,11 +90,10 @@ describe('#useMapLayer', () => {
 
       paintObject = { whatever: true };
 
-      jest.clearAllMocks();
 
       rerender();
 
-      paintObject.entries.forEach(([key, value]) => {
+      Object.entries(paintObject).forEach(([key, value]) => {
         expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
 
@@ -104,7 +103,7 @@ describe('#useMapLayer', () => {
       let layoutObject = { value1: 'yellow', value2: 0.6 };
 
       const { rerender } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id', null, layoutObject), { wrapper });
-      layoutObject.entries.forEach(([key, value]) => {
+      Object.entries(layoutObject).forEach(([key, value]) => {
         expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
 
@@ -112,11 +111,9 @@ describe('#useMapLayer', () => {
 
       layoutObject = { whatever: true };
 
-      jest.clearAllMocks();
-
       rerender();
 
-      layoutObject.entries.forEach(([key, value]) => {
+      Object.entries(layoutObject).forEach(([key, value]) => {
         expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
 
@@ -129,17 +126,15 @@ describe('#useMapLayer', () => {
 
       const { result } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id'), { wrapper });
 
-      expect(result).toBe(mockValue);
+      expect(result.current).toEqual(mockValue);
     });
 
     test('removing a layer on unmount', () => {
       const { unmount } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id'), { wrapper });
 
-      jest.clearAllMocks();
-
       unmount();
 
-      expect(map.removeLayer).toHaveBeenCalled();
+      expect(map.removeLayer).toHaveBeenCalledWith(layerId);
     });
 
     describe('@param config', () => {
@@ -150,7 +145,6 @@ describe('#useMapLayer', () => {
         expect(map.setFilter).toHaveBeenCalledWith(layerId, filter);
 
         filter = 'oh whatever dude';
-        jest.clearAllMocks();
 
         rerender();
 
@@ -159,13 +153,11 @@ describe('#useMapLayer', () => {
       });
 
       test('.before sets and changes', () => {
-        let before = 'meow';
+        let before = null;
 
         const { rerender } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id', null, null, { before }), { wrapper });
-        expect(map.moveLayer).toHaveBeenCalledWith(layerId, before);
 
         before = 'how';
-        jest.clearAllMocks();
 
         rerender();
 
@@ -207,7 +199,7 @@ describe('#useMemoCompare', () => {
 
     const { result } = renderHook(() => useMemoCompare(value));
 
-    expect(result).toBe(value);
+    expect(result.current).toEqual(value);
   });
 
   test('returning a reference to the first value if an updated value is identical', () => {
@@ -217,7 +209,7 @@ describe('#useMemoCompare', () => {
 
     rerender({ whatever: 123 }); // pass a new object with identical props
 
-    expect(result).toBe(value); // the reference is intact
+    expect(result.current).toEqual(value); // the reference is intact
   });
 
   test('returning a reference to the new value if it is updated', () => {
@@ -229,7 +221,7 @@ describe('#useMemoCompare', () => {
 
     rerender();
 
-    expect(result).toEqual({ hello: false }); // the reference is intact
+    expect(result.current).toEqual({ hello: false }); // the reference is intact
 
   });
 });
