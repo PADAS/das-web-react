@@ -58,7 +58,7 @@
   width: 100%;
 
   .icon {
-    margin-right: 0;
+    margin: 0 0.5rem;
   }
 
   .locationCopyBtn {
@@ -121,4 +121,10 @@
     flex-flow: row;
     justify-content: space-between;
   }
+}
+
+.displayString {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
