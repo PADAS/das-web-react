@@ -29,6 +29,7 @@ let store = patrolDefaultStoreData;
 store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
 store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
+store.view.userMapInteraction = {};
 
 describe('PatrolDetailView', () => {
   let executeSaveActionsMock, navigate, useLocationMock, useSearchParamsMock, useNavigateMock;

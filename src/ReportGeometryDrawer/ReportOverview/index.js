@@ -41,7 +41,7 @@ const ReportOverview = () => {
       </div>
     </div>
 
-    <Collapse data-testid="reportAreaOverview-collapse" in={isOpen}>
+    <Collapse data-testid="reportOverview-collapse" in={isOpen}>
       <div className={styles.body}>
         <ReportListItem className={styles.reportItem} report={event} />
 

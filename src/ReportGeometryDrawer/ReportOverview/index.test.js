@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../../ducks/modals';
-import InformationModal from './InformationModal';
+import InformationModal from './../InformationModal';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
@@ -48,7 +48,7 @@ describe('ReportOverview', () => {
   });
 
   test('closes and opens the card', async () => {
-    const collapse = await screen.findByTestId('ReportOverview-collapse');
+    const collapse = await screen.findByTestId('reportOverview-collapse');
 
     expect(collapse).toHaveClass('show');
 
