@@ -89,7 +89,7 @@ const MapDrawingTools = (props) => {
 
   return <>
     {drawing && <CursorPopup coords={cursorPopupCoords} lineLength={lineLength} points={points} />}
-    <MapLayers data={data} />
+    <MapLayers drawnLineSegments={data?.drawnLineSegments} fillPolygon={data?.fillPolygon} />
     {children}
   </>;
 };

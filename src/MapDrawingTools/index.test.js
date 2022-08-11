@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../App';
@@ -48,15 +48,17 @@ describe('MapDrawingTools', () => {
       points = [[1, 2], [2, 3], [3, 4], [1, 2]];
     });
 
-    test('creating map layers and sources', () => {
+    fit('creating map layers and sources', async () => {
       render(
         <MapContext.Provider value={map}>
           <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapContext.Provider>
       );
 
-      expect(map.addSource).toHaveBeenCalled();
-      expect(map.addLayer).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(map.addSource).toHaveBeenCalled();
+        expect(map.addLayer).toHaveBeenCalled();
+      });
     });
 
     test('firing #onChange when the map is clicked', () => {

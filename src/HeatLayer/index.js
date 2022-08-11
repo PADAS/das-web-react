@@ -29,14 +29,9 @@ const HeatLayer = ({ heatmapStyles, points }) => {
   }), [heatmapStyles.intensity, latitude, heatmapStyles.radiusInMeters]);
 
   useMapSource(`heatmap-source-${idRef.current}`, points);
-  useMapLayer(`${HEATMAP_LAYER}-${idRef.current}`, 'heatmap', `heatmap-source-${idRef.current}`, paint);
+  useMapLayer(`${HEATMAP_LAYER}-${idRef.current}`, 'heatmap', `heatmap-source-${idRef.current}`, paint, null, { before: TOPMOST_STYLE_LAYER });
 
   return null;
-
-  /* return <Fragment>
-    <Source id={`heatmap-source-${idRef.current}`} geoJsonSource={sourceData} />;
-    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={TOPMOST_STYLE_LAYER} id={`${HEATMAP_LAYER}-${idRef.current}`} type='heatmap' />
-  </Fragment>; */
 };
 
 const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles });
