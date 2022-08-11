@@ -219,7 +219,7 @@ describe('#useMapLayer', () => {
       });
 
       describe('.condition', () => {
-        fit('adds and removes a layer when toggled', async () => {
+        test('adds and removes a layer when toggled', async () => {
           map.getLayer.mockReturnValue(undefined);
 
           const config = { condition: false };
