@@ -68,7 +68,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onChange).toHaveBeenCalled();
     });
@@ -82,7 +82,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('dblclick', { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('dblclick', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onChange).toHaveBeenCalledTimes(1);
 
@@ -97,7 +97,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', LAYER_IDS.POINTS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', LAYER_IDS.POINTS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onClickPoint).toHaveBeenCalled();
     });
@@ -111,7 +111,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', LAYER_IDS.LINES, { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', LAYER_IDS.LINES, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onClickLine).toHaveBeenCalled();
     });
@@ -125,7 +125,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', LAYER_IDS.FILL, { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', LAYER_IDS.FILL, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onClickFill).toHaveBeenCalled();
     });
@@ -139,7 +139,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', LAYER_IDS.LABELS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', LAYER_IDS.LABELS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onClickLabel).toHaveBeenCalled();
     });
@@ -153,7 +153,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onChange).toHaveBeenCalledTimes(1);
       console.log('the geojson', onChange.mock.calls[0][1]);
@@ -168,7 +168,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       expect(onChange).toHaveBeenCalledTimes(1);
       console.log('the geojson', onChange.mock.calls[0][1]);

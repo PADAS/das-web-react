@@ -27,6 +27,7 @@ export const createMapMock = (override = {}) => {
     project: jest.fn(),
     queryRenderedFeatures: jest.fn(),
     setLayoutProperty: jest.fn(),
+    setPaintProperty: jest.fn(),
     setTerrain: jest.fn(),
     fitBounds: jest.fn(),
     setZoom: jest.fn(),

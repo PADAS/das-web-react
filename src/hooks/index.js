@@ -120,7 +120,6 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 
   useEffect(() => {
     if (condition && map && !layer) {
-      console.log('if (condition && map && !layer)');
       const source = map.getSource(sourceId);
 
       if (!!source) {
@@ -137,32 +136,28 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 
   useEffect(() => {
     if (condition && layer && layout) {
-      console.log('if (condition && layer && layout)');
       Object.entries(layout).forEach(([key, value]) => {
-        layer.setLayoutProperty(key, value);
+        map.setLayoutProperty(layerId, key, value);
       });
     }
-  }, [condition, layer, layout]);
+  }, [condition, layer, layerId, layout, map]);
 
   useEffect(() => {
     if (condition && layer && paint) {
-      console.log('if (condition && layer && paint)');
       Object.entries(paint).forEach(([key, value]) => {
-        layer.setPaintProperty(key, value);
+        map.setPaintProperty(layerId, key, value);
       });
     }
-  }, [condition, layer, paint]);
+  }, [condition, map, layer, layerId, paint]);
 
   useEffect(() => {
     if (condition && map && layer) {
-      console.log('if (condition && map && layer)');
       map.setFilter(layerId, filter);
     }
   }, [condition, filter, layer, layerId, map]);
 
   useEffect(() => {
     if (!condition && layer) {
-      console.log('if (!condition && layer)');
       map.removeLayer(layerId);
     }
   }, [condition, layer, layerId, map]);
@@ -177,7 +172,6 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 
   useEffect(() => {
     if (condition && map && layer && (minzoom || maxzoom)) {
-      console.log('if (condition && map && layer && (minzoom || maxzoom))');
       map.setLayerZoomRange(layerId, (minzoom || MIN_ZOOM), (maxzoom || MAX_ZOOM));
     }
   }, [condition, layer, layerId, map, minzoom, maxzoom]);
@@ -185,7 +179,6 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 
   useEffect(() => {
     if (layer && map && before) {
-      console.log('if (layer && map && before)');
       map.moveLayer(layerId, before);
     }
   }, [before, layer, layerId, map]);
@@ -194,7 +187,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 };
 
 
-const useMemoCompare = (next, compare = isEqual) => {
+export const useMemoCompare = (next, compare = isEqual) => {
   const previousRef = useRef();
   const previous = previousRef.current;
 
@@ -205,6 +198,6 @@ const useMemoCompare = (next, compare = isEqual) => {
       previousRef.current = next;
     }
   }, [isEqual, next]);
-  // Finally, if equal then return the previous value
+
   return isEqual ? previous : next;
 };
