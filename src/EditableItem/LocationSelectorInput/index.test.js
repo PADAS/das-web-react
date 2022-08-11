@@ -189,4 +189,22 @@ describe('LocationSelectorInput', () => {
 
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
   });
+
+
+  test('hides the sidebar and the modal when choosing an area in the map', async () => {
+    const setLocationButton = await screen.getByTestId('set-location-button');
+    userEvent.click(setLocationButton);
+
+    expect(hideSideBar).toHaveBeenCalledTimes(0);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(0);
+
+    const placeAreaOnMapButton = await screen.getByTitle('Place geometry on map');
+    userEvent.click(placeAreaOnMapButton);
+
+    await waitFor(() => {
+      expect(hideSideBar).toHaveBeenCalledTimes(1);
+      expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+      expect(setModalVisibilityState).toHaveBeenCalledWith(false);
+    });
+  });
 });
