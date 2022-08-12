@@ -51,7 +51,7 @@ const App = (props) => {
     fetchSubjectGroups,
     fetchFeaturesets,
     fetchSystemStatus,
-    userMapInteraction,
+    mapLocationSelection,
     trackLength,
     setTrackLength,
     setDefaultCustomTrackLength,
@@ -130,7 +130,7 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage]);
 
-  const pickingAreaOrLocationOnMap = userMapInteraction.isPickingLocation || userMapInteraction.isPickingArea;
+  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
 
   return <div
     className={`App ${isDragging ? 'dragging' : ''} ${pickingAreaOrLocationOnMap ? 'picking-location' : ''}`}
@@ -168,14 +168,14 @@ const App = (props) => {
 };
 
 const mapStateToProps = ({
-  view: { trackLength, userMapInteraction, userLocation },
+  view: { trackLength, mapLocationSelection, userLocation },
   data: { user } },
 ) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
     trackLength,
-    userMapInteraction,
+    mapLocationSelection,
     lastSeenGeoPermSplashWarning: null,
     showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,
