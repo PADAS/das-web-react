@@ -7,10 +7,15 @@ import booleanContains from '@turf/boolean-contains';
 import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
-import { MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+
+const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
+
+const ICON_LAYER_ID = 'current-user-location-icon-layer';
+const CIRCLE_LAYER_ID = 'current-user-location-circle-layer';
 
 const framesPerSecond = 20;
 const initialOpacity = 1;
@@ -101,12 +106,12 @@ const UserCurrentLocationLayer = (props) => {
 
   const layerConfig = { minZoom: 6, condition: !!showLayer };
 
-  useMapSource('current-user-location-source', userLocationPoint);
+  useMapSource(CURRENT_USER_LOCATION_SOURCE, userLocationPoint);
 
-  useMapLayer('current-user-location-icon-layer', 'symbol', 'current-user-location-source', null, symbolLayout, layerConfig);
-  useMapLayer('current-user-location-circle-layer', 'circle', 'current-user-location-source', circlePaint, null, layerConfig);
+  useMapLayer(ICON_LAYER_ID, 'symbol', CURRENT_USER_LOCATION_SOURCE, null, symbolLayout, layerConfig);
+  useMapLayer(CIRCLE_LAYER_ID, 'circle', CURRENT_USER_LOCATION_SOURCE, circlePaint, null, layerConfig);
 
-  useMapEventBinding('click', onCurrentLocationIconClick, 'current-user-location-icon-layer');
+  useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
 
   return null;
 };

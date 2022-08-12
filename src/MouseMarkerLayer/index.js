@@ -1,8 +1,11 @@
 import React, { memo, useMemo } from 'react';
 import { point } from '@turf/helpers';
 
-import { SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
+import { SYMBOL_ICON_SIZE_EXPRESSION, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { useMapLayer, useMapSource } from '../hooks';
+
+const { MOUSE_MARKER_SOURCE } = SOURCE_IDS;
+const { MOUSE_MARKER_LAYER } = LAYER_IDS;
 
 const layout = {
   'icon-image': 'marker-icon',
@@ -20,8 +23,8 @@ const MouseMarkerLayer = ({ map, location, ...rest }) => {
   , [location.lat, location.lng]);
 
 
-  useMapSource('mouse-marker-source', cursorPoint);
-  useMapLayer('mouse-marker-layer', 'symbol', 'mouse-marker-source', null, layout);
+  useMapSource(MOUSE_MARKER_SOURCE, cursorPoint);
+  useMapLayer(MOUSE_MARKER_LAYER, 'symbol', MOUSE_MARKER_SOURCE, null, layout);
 
   return null;
 };

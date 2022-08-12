@@ -295,8 +295,7 @@ describe('ReportManager - ReportDetailView', () => {
     AddReportMock = ({ onAddReport }) => { // eslint-disable-line react/display-name
       useEffect(() => {
         onAddReport();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
+      }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
       return null;
     };

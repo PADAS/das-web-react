@@ -30,7 +30,7 @@ const {
   SUBJECT_SYMBOLS,
 } = LAYER_IDS;
 
-const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
+const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
 const ANIMATION_LENGTH_SECONDS = .25;
 const FRAMES_PER_SECOND = 6;
@@ -233,7 +233,7 @@ const EventsLayer = ({
     features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
   }), [mapEventFeatures, shouldEventsBeClustered, showReportsOnMap]);
 
-  useMapSource('events-data-unclustered', geoJson);
+  useMapSource(UNCLUSTERED_EVENTS_SOURCE, geoJson);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
 
@@ -247,7 +247,7 @@ const EventsLayer = ({
         minZoom={minZoom}
         onClick={onEventSymbolClick}
         onInit={onLayerInit}
-        sourceId='events-data-unclustered'
+        sourceId={UNCLUSTERED_EVENTS_SOURCE}
         textLayout={eventLabelLayout}
         textPaint={EVENTS_LAYER_TEXT_PAINT}
         type="symbol"

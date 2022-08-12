@@ -114,6 +114,7 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ISOCHRONE_LAYER: 'isochrone',
+  MOUSE_MARKER_LAYER: 'mouse-marker-layer',
 };
 
 export const SOURCE_IDS = {
@@ -124,6 +125,12 @@ export const SOURCE_IDS = {
   SUBJECT_SYMBOLS: 'subject-symbol-source',
   CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
   CLUSTERS_SOURCE_ID: 'clusters-source',
+  UNCLUSTERED_EVENTS_SOURCE: 'events-data-unclustered',
+  MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
+  MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
+  MAP_FEATURES_SYMBOLS_SOURCE: 'feature-symbol-source',
+  MOUSE_MARKER_SOURCE: 'mouse-marker-source',
+  CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
