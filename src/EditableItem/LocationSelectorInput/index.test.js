@@ -47,7 +47,7 @@ describe('LocationSelectorInput', () => {
     map = createMapMock();
     store = {
       view: {
-        userMapInteraction: { event: report },
+        mapLocationSelection: { event: report },
         userPreferences: {},
       },
     };
@@ -178,7 +178,7 @@ describe('LocationSelectorInput', () => {
 
 
   test('hides the sidebar and the modal when choosing an area in the map', async () => {
-    store.view.userMapInteraction.isPickingArea = true;
+    store.view.mapLocationSelection.isPickingArea = true;
 
     cleanup();
     render(

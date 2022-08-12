@@ -305,7 +305,7 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
 
 const INITIAL_PICKING_AREA_ON_MAP_STATE = { event: null, isPickingArea: false, isPickingLocation: false };
 
-export const userMapInteractionReducer = (state = INITIAL_PICKING_AREA_ON_MAP_STATE, action) => {
+export const mapLocationSelectionReducer = (state = INITIAL_PICKING_AREA_ON_MAP_STATE, action) => {
   switch (action.type) {
   case SET_MAP_INTERACTION_EVENT:
     return { ...state, event: action.payload.event };

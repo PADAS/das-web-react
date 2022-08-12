@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 const ReportOverview = () => {
   const dispatch = useDispatch();
 
-  const event = useSelector((state) => state.view.userMapInteraction.event);
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const [isOpen, setIsOpen] = useState(true);
 

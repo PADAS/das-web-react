@@ -41,7 +41,7 @@ store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
 );
 
 store.view.userPreferences = { gpsFormat };
-store.view.userMapInteraction = {};
+store.view.mapLocationSelection = {};
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>

@@ -1,11 +1,14 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import area from '@turf/area';
+import { convertArea } from '@turf/helpers';
 import debounceRender from 'react-debounce-render';
+import length from '@turf/length';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
 
@@ -41,17 +44,29 @@ const LocationSelectorInput = ({
 }) => {
   const dispatch = useDispatch();
 
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
   const map = useContext(MapContext);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const displayString = location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder;
+  const hasGeometry = !!event?.geometry;
+
+  let displayString = placeholder;
+  if (hasGeometry) {
+    const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
+    const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
+    const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+    displayString = `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
+  } else if (location) {
+    displayString = calcGpsDisplayString(location[1], location[0], gpsFormat);
+  }
+
   const popoverClassString = ENABLE_EVENT_GEOMETRY
     ? popoverClassName ? `${styles.newGpsPopover} ${popoverClassName}` : styles.newGpsPopover
     : popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
@@ -85,7 +100,7 @@ const LocationSelectorInput = ({
   }, []);
 
   // Area
-  const isPickingArea = useSelector((state) => state.view.userMapInteraction.isPickingArea);
+  const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
 
   const onAreaSelectStart = useCallback(() => {
     dispatch(setMapInteractionIsPickingArea(true));
@@ -149,7 +164,7 @@ const LocationSelectorInput = ({
       ref={locationInputAnchorRef}
     >
       <LocationIcon className={styles.icon} />
-      <span style={!location ? { marginRight: 'auto' } : {}}>{displayString}</span>
+      <span className={styles.displayString}>{displayString}</span>
       {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
     </div>
 
