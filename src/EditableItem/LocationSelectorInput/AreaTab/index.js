@@ -18,7 +18,7 @@ const STATIC_MAP_WIDTH = 300;
 const STATIC_MAP_HEGHT = 130;
 
 const AreaTab = ({ onAreaSelectStart }) => {
-  const event = useSelector((state) => state.view.userMapInteraction.event);
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const hasGeometry = !!event?.geometry;
 

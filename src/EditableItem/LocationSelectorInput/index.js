@@ -44,7 +44,7 @@ const LocationSelectorInput = ({
 }) => {
   const dispatch = useDispatch();
 
-  const event = useSelector((state) => state.view.userMapInteraction.event);
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
   const map = useContext(MapContext);

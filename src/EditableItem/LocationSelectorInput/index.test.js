@@ -47,7 +47,7 @@ describe('LocationSelectorInput', () => {
     map = createMapMock();
     store = mockStore({
       view: {
-        userMapInteraction: { event: report },
+        mapLocationSelection: { event: report },
         userPreferences: {},
       },
     });

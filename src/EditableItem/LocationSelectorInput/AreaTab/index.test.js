@@ -25,7 +25,7 @@ describe('AreaTab', () => {
   const onAreaSelectStart = jest.fn();
   let store;
   beforeEach(() => {
-    store = mockStore({ view: { userMapInteraction: { event: report } } });
+    store = mockStore({ view: { mapLocationSelection: { event: report } } });
   });
 
   afterEach(() => {
