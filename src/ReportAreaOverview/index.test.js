@@ -22,7 +22,7 @@ describe('ReportAreaOverview', () => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
 
-    store = { data: { eventTypes: [], patrolTypes: [] }, view: { userMapInteraction: { event: report } } };
+    store = { data: { eventTypes: [], patrolTypes: [] }, view: { mapLocationSelection: { event: report } } };
 
     render(
       <Provider store={mockStore(store)}>

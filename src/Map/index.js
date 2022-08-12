@@ -131,7 +131,7 @@ const Map = ({
   updateHeatmapSubjects,
   updatePatrolTrackState,
   updateTrackState,
-  userMapInteraction,
+  mapLocationSelection,
 }) => {
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
@@ -142,7 +142,7 @@ const Map = ({
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
 
-  const pickingAreaOrLocationOnMap = userMapInteraction.isPickingLocation || userMapInteraction.isPickingArea;
+  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
 
   useEffect(() => {
     const lnglat = new URLSearchParams(location.search).get('lnglat');
@@ -658,7 +658,7 @@ const Map = ({
         </div>
       </DelayedUnmount>
 
-      <DelayedUnmount isMounted={userMapInteraction.isPickingArea}>
+      <DelayedUnmount isMounted={mapLocationSelection.isPickingArea}>
         <ReportAreaOverview />
       </DelayedUnmount>
 
@@ -735,7 +735,7 @@ const mapStatetoProps = (state) => {
     homeMap,
     mapIsLocked,
     patrolTrackState,
-    userMapInteraction,
+    mapLocationSelection,
     popup,
     subjectTrackState,
     heatmapSubjectIDs,
@@ -775,7 +775,7 @@ const mapStatetoProps = (state) => {
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
-    userMapInteraction,
+    mapLocationSelection,
   });
 };
 
