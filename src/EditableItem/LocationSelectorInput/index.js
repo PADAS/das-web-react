@@ -100,18 +100,18 @@ const LocationSelectorInput = ({
   }, []);
 
   // Area
+  const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
+
   const onAreaSelectStart = useCallback(() => {
-    dispatch(setModalVisibilityState(false));
-    dispatch(hideSideBar());
     dispatch(setMapInteractionIsPickingArea(true));
 
     mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
-  const onAreaSelectCancel = useCallback(() => {
-    dispatch(setModalVisibilityState(true));
-    dispatch(showSideBar());
-  }, [dispatch]);
+  useEffect(() => {
+    dispatch(setModalVisibilityState(!isPickingArea));
+    dispatch(isPickingArea ? hideSideBar() : showSideBar());
+  }, [dispatch, isPickingArea]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
