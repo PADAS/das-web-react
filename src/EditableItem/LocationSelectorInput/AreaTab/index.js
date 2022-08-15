@@ -17,79 +17,78 @@ const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 300;
 const STATIC_MAP_HEGHT = 130;
 
+const GeometryPreview = ({ event, onAreaSelectStart }) => {
+  // TODO: Set this value depending on the geojson properties
+  const imageSource = 'desktop';
+
+  const eventGeometryBbox = bbox(event.geometry);
+  const minLon = eventGeometryBbox[0];
+  const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[1]);
+  const maxLon = eventGeometryBbox[2];
+  const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[3]);
+
+  const eventGeoJsonRightHandRule = rewind(event.geometry);
+
+  const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
+  const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(eventGeoJsonRightHandRule))})`;
+  const areForGeometryBBOXEncoded = `[${minLon},${minLat},${maxLon},${maxLat}]`;
+  const staticImageDimensions = `${STATIC_MAP_WIDTH}x${STATIC_MAP_HEGHT}`;
+  const mapboxStaticImageAPIQuery = `padding=10&access_token=${REACT_APP_MAPBOX_TOKEN}&logo=false&attribution=false`;
+
+  const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
+    `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
+
+  return <>
+    <div className={styles.geometryMeasurements}>
+      <div>Area: 0m</div>
+
+      <div>Perimeter: 0m</div>
+    </div>
+
+    <img alt="Static map with geometry" src={mapboxStaticImageSource} />
+
+    <label className={styles.imageSource}>Created on {imageSource}</label>
+
+    <div className={styles.geometryEditButtons}>
+      <Button
+        className={styles.editAreaButton}
+        onClick={onAreaSelectStart}
+        title="Place geometry on map"
+        type="button"
+      >
+        <PencilIcon />
+        Edit Area
+      </Button>
+
+      <Button
+        className={styles.deleteAreaButton}
+        onClick={() => {}} // TODO: implement once drawing mechanism is ready
+        title="Delete area button"
+        type="button"
+      >
+        <TrashCanIcon />
+        Delete Area
+      </Button>
+    </div>
+  </>;
+};
+
 const AreaTab = ({ onAreaSelectStart }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
-  const hasGeometry = !!event?.geometry;
-
-  let contentRendered;
-  if (hasGeometry) {
-    // TODO: Set this value depending on the geojson properties
-    const imageSource = 'desktop';
-
-    const eventGeometryBbox = bbox(event.geometry);
-    const minLon = eventGeometryBbox[0];
-    const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[1]);
-    const maxLon = eventGeometryBbox[2];
-    const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[3]);
-
-    const eventGeoJsonRightHandRule = rewind(event.geometry);
-
-    const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
-    const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(eventGeoJsonRightHandRule))})`;
-    const areForGeometryBBOXEncoded = `[${minLon},${minLat},${maxLon},${maxLat}]`;
-    const staticImageDimensions = `${STATIC_MAP_WIDTH}x${STATIC_MAP_HEGHT}`;
-    const mapboxStaticImageAPIQuery = `padding=10&access_token=${REACT_APP_MAPBOX_TOKEN}&logo=false&attribution=false`;
-
-    const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
-      `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
-
-    contentRendered = <>
-      <div className={styles.geometryMeasurements}>
-        <div>Area: 0m</div>
-
-        <div>Perimeter: 0m</div>
-      </div>
-
-      <img alt="Static map with geometry" src={mapboxStaticImageSource} />
-
-      <label className={styles.imageSource}>Created on {imageSource}</label>
-
-      <div className={styles.geometryEditButtons}>
-        <Button
-          className={styles.editAreaButton}
-          onClick={onAreaSelectStart}
-          title="Place geometry on map"
-          type="button"
+  return <div className={styles.locationAreaContent}>
+    {!!event?.geometry
+      ? <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} />
+      :<Button
+        className={styles.createAreaButton}
+        onClick={onAreaSelectStart}
+        title="Place geometry on map"
+        type="button"
         >
-          <PencilIcon />
-          Edit Area
-        </Button>
-
-        <Button
-          className={styles.deleteAreaButton}
-          onClick={() => {}} // TODO: implement once drawing mechanism is ready
-          title="Delete area button"
-          type="button"
-        >
-          <TrashCanIcon />
-          Delete Area
-        </Button>
-      </div>
-    </>;
-  } else {
-    contentRendered = <Button
-      className={styles.createAreaButton}
-      onClick={onAreaSelectStart}
-      title="Place geometry on map"
-      type="button"
-      >
-      <PolygonIcon />
-      Create report area
-    </Button>;
-  }
-
-  return <div className={styles.locationAreaContent}>{contentRendered}</div>;
+        <PolygonIcon />
+        Create report area
+      </Button>}
+  </div>;
 };
 
 AreaTab.propTypes = { onAreaSelectStart: PropTypes.func.isRequired };

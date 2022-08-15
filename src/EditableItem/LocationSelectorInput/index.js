@@ -33,6 +33,18 @@ const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
+const calculateInputDisplayString = (event, gpsFormat, location, placeholder) => {
+  if (!!event?.geometry) {
+    const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
+    const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
+    const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+    return `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
+  } else if (location) {
+    return calcGpsDisplayString(location[1], location[0], gpsFormat);
+  }
+  return placeholder;
+};
+
 const LocationSelectorInput = ({
   className,
   copyable = true,
@@ -55,17 +67,7 @@ const LocationSelectorInput = ({
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const hasGeometry = !!event?.geometry;
-
-  let displayString = placeholder;
-  if (hasGeometry) {
-    const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
-    const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
-    const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
-    displayString = `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
-  } else if (location) {
-    displayString = calcGpsDisplayString(location[1], location[0], gpsFormat);
-  }
+  const displayString = calculateInputDisplayString(event, gpsFormat, location, placeholder);
 
   const popoverClassString = ENABLE_EVENT_GEOMETRY
     ? popoverClassName ? `${styles.newGpsPopover} ${popoverClassName}` : styles.newGpsPopover
