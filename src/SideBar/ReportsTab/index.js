@@ -12,7 +12,7 @@ import { getCurrentIdFromURL } from '../../utils/navigation';
 import { getFeedEvents } from '../../selectors';
 import { openModalForReport } from '../../utils/events';
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
-import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
+import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage, fetchEventFeedCancelToken } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
@@ -71,17 +71,23 @@ const ReportsTab = ({
   const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
   const geoResrictedUserLocationCoords = useMemo(() => userIsGeoPermRestricted && userLocationCoords, [userIsGeoPermRestricted, userLocationCoords]);
 
-  const loadFeedEvents = useCallback(debounce((silent = false) => { /* eslint-disable-line */
-    if (!silent) setEventLoadState(true);
+  const loadFeedEvents = useCallback(debounce((silent = false) => { /* eslint-disable-line react-hooks/exhaustive-deps */
+    if (eventParams.current) {
 
-    const paramString = objectToParamString(eventParams.current);
+      if (!silent) setEventLoadState(true);
 
-    fetchEventFeed({}, paramString)
-      .finally(() => {
-        setEventLoadState(false);
-      });
+      const paramString = objectToParamString(eventParams.current);
 
-  }, 100), [fetchEventFeed]);
+      fetchEventFeed({}, paramString)
+        .finally(() => {
+          setEventLoadState(false);
+        });
+
+      return () => {
+        fetchEventFeedCancelToken.cancel();
+      };
+    }
+  }), [fetchEventFeed]);
 
   useEffect(() => {
     if (geoResrictedUserLocationCoords) {
