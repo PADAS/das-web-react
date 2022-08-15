@@ -102,11 +102,20 @@ body {
       pointer-events: none !important;
     }
 
+    .primary-nav,
+    .map-legends,
+    .map-controls-container,
     .floating-report-filter,
     .mapboxgl-ctrl-bottom-right,
     .mapboxgl-ctrl-scale,
     .mapbox-zoom-ctrl {
       display: none !important;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      .map-legends {
+        display: block !important;
+      }
     }
   }
 

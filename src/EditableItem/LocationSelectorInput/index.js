@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import debounceRender from 'react-debounce-render';
 import Overlay from 'react-bootstrap/Overlay';
@@ -12,13 +13,13 @@ import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon
 
 import { calcGpsDisplayString } from '../../utils/location';
 import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
-import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
+import { setMapInteractionIsPickingArea } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 import GpsInput from '../../GpsInput';
-import MapAreaPicker from '../../MapAreaPicker';
 import MapLocationPicker from '../../MapLocationPicker';
 import GeoLocator from '../../GeoLocator';
 import TextCopyBtn from '../../TextCopyBtn';
@@ -28,6 +29,7 @@ import styles from './styles.module.scss';
 const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const LocationSelectorInput = ({
   className,
@@ -87,6 +89,9 @@ const LocationSelectorInput = ({
   const onAreaSelectStart = useCallback(() => {
     dispatch(setModalVisibilityState(false));
     dispatch(hideSideBar());
+    dispatch(setMapInteractionIsPickingArea(true));
+
+    mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
   const onAreaSelectCancel = useCallback(() => {
@@ -163,14 +168,15 @@ const LocationSelectorInput = ({
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
               <div className={styles.locationAreaContent}>
-                <MapAreaPicker
+                <Button
                   className={styles.createAreaButton}
-                  onAreaSelectCancel={onAreaSelectCancel}
-                  onAreaSelectStart={onAreaSelectStart}
+                  onClick={onAreaSelectStart}
+                  title="Place geometry on map"
+                  type="button"
                 >
                   <PolygonIcon />
                   Create report area
-                </MapAreaPicker>
+                </Button>
               </div>
             </Tab>
 

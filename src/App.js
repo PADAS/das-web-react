@@ -51,7 +51,7 @@ const App = (props) => {
     fetchSubjectGroups,
     fetchFeaturesets,
     fetchSystemStatus,
-    pickingLocationOnMap,
+    mapLocationSelection,
     trackLength,
     setTrackLength,
     setDefaultCustomTrackLength,
@@ -130,8 +130,11 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage]);
 
+  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
+
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingAreaOrLocationOnMap ? 'picking-location' : ''}`}
+    data-testid="app-wrapper"
     onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
@@ -142,7 +145,7 @@ const App = (props) => {
       <Nav map={map} />
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
         {!!map && <SideBar map={map} />}
         <ModalRenderer map={map} />
       </div>
@@ -164,12 +167,15 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, pickingLocationOnMap, userLocation }, data: { user } }) => {
+const mapStateToProps = ({
+  view: { trackLength, mapLocationSelection, userLocation },
+  data: { user } },
+) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
     trackLength,
-    pickingLocationOnMap,
+    mapLocationSelection,
     lastSeenGeoPermSplashWarning: null,
     showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,
