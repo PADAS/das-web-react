@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -69,10 +69,7 @@ const PathNormalizationRouteComponent = ({ location }) => {
   return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
 };
 
-const root = createRoot(document.getElementById('root'));
-
-
-root.render(
+ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
