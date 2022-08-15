@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen, within, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 
 import { newPatrol, overduePatrol, scheduledPatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -42,6 +41,7 @@ store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
 );
 
 store.view.userPreferences = { gpsFormat };
+store.view.mapLocationSelection = {};
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>

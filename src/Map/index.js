@@ -76,7 +76,7 @@ import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
-import ReportAreaOverview from '../ReportAreaOverview';
+import ReportGeometryDrawer from '../ReportGeometryDrawer';
 
 import './Map.scss';
 
@@ -658,9 +658,7 @@ const Map = ({
         </div>
       </DelayedUnmount>
 
-      <DelayedUnmount isMounted={mapLocationSelection.isPickingArea}>
-        <ReportAreaOverview />
-      </DelayedUnmount>
+      {mapLocationSelection.isPickingArea && <ReportGeometryDrawer />}
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >
