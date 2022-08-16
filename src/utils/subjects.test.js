@@ -2,8 +2,6 @@ import { subjectIsStatic, getSubjectDefaultDeviceProperty, addDefaultStatusValue
 import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 
 
-import '@testing-library/jest-dom/extend-expect';
-
 describe('Determining if a subject is static', () => {
   const knownStaticSubject = staticSubjectFeature;
   const knownMovingSubject = subjectFeatureWithOneDeviceProp;

@@ -36,6 +36,7 @@ import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
+import { MapContext } from '../App';
 
 import PatrolsTab from './PatrolsTab';
 import ReportsTab from './ReportsTab';
@@ -50,7 +51,7 @@ import styles from './styles.module.scss';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
-const SideBar = ({ map }) => {
+const SideBar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const SideBar = ({ map }) => {
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
+  const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
@@ -265,7 +267,5 @@ const SideBar = ({ map }) => {
     </aside>
   </ErrorBoundary>;
 };
-
-SideBar.propTypes = { map: PropTypes.object.isRequired };
 
 export default memo(SideBar);

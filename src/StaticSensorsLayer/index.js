@@ -64,7 +64,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
       const onSourceData = ({ sourceDataType, sourceId }) => {
         if (sourceId === currentSourceId
           && sourceDataType !== 'metadata') {
-          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId] });
+          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId, currentLayerId] });
           addFeatureCollectionImagesToMap(featureCollection(features), { sdf: true });
         }
       };
@@ -74,7 +74,7 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
         map.off('sourcedata', onSourceData);
       };
     }
-  }, [currentBackgroundLayerId, map, currentSourceId]);
+  }, [currentBackgroundLayerId, currentLayerId, map, currentSourceId]);
 
   /* add the marker's background image on load */
   useEffect(() => {

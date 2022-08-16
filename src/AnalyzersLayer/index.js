@@ -1,9 +1,8 @@
-import React, { memo } from 'react';
-import { Source, Layer } from 'react-mapbox-gl';
-
+import React, { memo, useMemo } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
+import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING,
   ANALYZER_LINES_CRITICAL, SUBJECT_SYMBOLS } = LAYER_IDS;
@@ -63,68 +62,68 @@ const AnalyzerLayer = (
     onAnalyzerGroupExit(e, hoverStateIds);
   };
 
-  const warningLinesData = {
-    type: 'geojson',
-    data: warningLines,
-  };
+  const layerConfig = useMemo(() => ({
+    before: SUBJECT_SYMBOLS,
+    minZoom,
+    condition: !!isSubjectSymbolsLayerReady,
+  }), [isSubjectSymbolsLayerReady, minZoom]);
 
-  const criticalLinesData = {
-    type: 'geojson',
-    data: criticalLines,
-  };
+  useMapSource(ANALYZER_POLYS_WARNING_SOURCE, warningPolys);
+  useMapLayer(
+    ANALYZER_POLYS_WARNING,
+    'line',
+    ANALYZER_POLYS_WARNING_SOURCE,
+    linePaint,
+    undefined,
+    layerConfig,
+  );
 
-  const warningPolysData = {
-    type: 'geojson',
-    data: warningPolys,
-  };
+  useMapSource(ANALYZER_POLYS_CRITICAL_SOURCE, criticalPolys);
+  useMapLayer(
+    ANALYZER_POLYS_CRITICAL,
+    'line',
+    ANALYZER_POLYS_CRITICAL_SOURCE,
+    criticalLinePaint, lineLayout,
+    layerConfig,
+  );
 
-  const criticalPolysData = {
-    type: 'geojson',
-    data: criticalPolys,
-  };
+  useMapSource(ANALYZER_LINES_WARNING_SOURCE, warningLines);
+  useMapLayer(
+    ANALYZER_LINES_WARNING,
+    'line',
+    ANALYZER_LINES_WARNING_SOURCE,
+    linePaint,
+    lineLayout,
+    layerConfig,
+  );
 
-  return <>
-    <Source id={ANALYZER_POLYS_WARNING_SOURCE} geoJsonSource={warningPolysData} />
-    <Source id={ANALYZER_POLYS_CRITICAL_SOURCE} geoJsonSource={criticalPolysData} />
-    <Source id={ANALYZER_LINES_CRITICAL_SOURCE} geoJsonSource={warningLinesData} />
-    <Source id={ANALYZER_LINES_WARNING_SOURCE} geoJsonSource={criticalLinesData} />
+  useMapSource(ANALYZER_LINES_CRITICAL_SOURCE, criticalLines);
+  useMapLayer(
+    ANALYZER_LINES_CRITICAL,
+    'line',
+    ANALYZER_LINES_CRITICAL_SOURCE,
+    criticalLinePaint,
+    lineLayout,
+    layerConfig,
+  );
 
-    {/* due to a bug in mapboxgl, we need to treat polys as lines, to 
-     get a dotted border line to appear*/}
+  // (eventType = 'click', handlerFn = noop, layerId = null, condition = true)
+  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_LINES_WARNING);
+  useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_LINES_CRITICAL);
 
-    <Layer minZoom={minZoom} sourceId={ANALYZER_POLYS_WARNING_SOURCE} type='line'
-      id={ANALYZER_POLYS_WARNING}
-      paint={linePaint}
-      onMouseEnter={onAnalyzerFeatureEnter}
-      onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerFeatureClick} />
+  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_LINES_WARNING);
+  useMapEventBinding('mouseleave', onAnalyzerFeatureExit, ANALYZER_LINES_CRITICAL);
 
-    {isSubjectSymbolsLayerReady && <>
-      <Layer minZoom={minZoom} sourceId={ANALYZER_POLYS_CRITICAL_SOURCE} type='line'
-        before={SUBJECT_SYMBOLS}
-        id={ANALYZER_POLYS_CRITICAL}
-        paint={criticalLinePaint} layout={lineLayout}
-        onMouseEnter={onAnalyzerFeatureEnter}
-        onMouseLeave={onAnalyzerFeatureExit}
-        onClick={onAnalyzerFeatureClick} />
+  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_POLYS_WARNING);
+  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_POLYS_CRITICAL);
+  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_LINES_WARNING);
+  useMapEventBinding('click', onAnalyzerFeatureClick, ANALYZER_LINES_CRITICAL);
 
-      <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_CRITICAL_SOURCE} type='line'
-        before={SUBJECT_SYMBOLS}
-        id={ANALYZER_LINES_WARNING}
-        paint={linePaint} layout={lineLayout}
-        onMouseEnter={onAnalyzerFeatureEnter}
-        onMouseLeave={onAnalyzerFeatureExit}
-        onClick={onAnalyzerFeatureClick} />
-
-      <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_WARNING_SOURCE} type='line'
-        before={SUBJECT_SYMBOLS}
-        id={ANALYZER_LINES_CRITICAL}
-        paint={criticalLinePaint} layout={lineLayout}
-        onMouseEnter={onAnalyzerFeatureEnter}
-        onMouseLeave={onAnalyzerFeatureExit}
-        onClick={onAnalyzerFeatureClick} />
-    </>}
-  </>;
+  return null;
 };
 
 export default memo(withMapViewConfig(AnalyzerLayer));

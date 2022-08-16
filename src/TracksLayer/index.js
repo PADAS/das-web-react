@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, Fragment } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -14,6 +14,14 @@ const ARROW_IMG_ID = 'track_arrow';
 
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
+
+const LayerComponent = ({ data, map, onPointClick, showTimepoints }) => {
+  const linePaint = useMemo(() => ({
+    'line-opacity': data.patrolTrackShown ? 0.4 : 1,
+  }), [data.patrolTrackShown]);
+
+  return <TrackLayer linePaint={linePaint} map={map} onPointClick={onPointClick} showTimepoints={showTimepoints} trackData={data} />;
+};
 
 const TracksLayer = (props) => {
   const { map, onPointClick, showTimepoints, trackData } = props;
@@ -32,11 +40,10 @@ const TracksLayer = (props) => {
 
   if (!trackData.length) return null;
 
-  return <Fragment>{trackData.map(data => {
-    const linePaint = data.patrolTrackShown ? { 'line-opacity': 0.4 } : {};
-
-    return <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} linePaint={linePaint} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />;
-  })}</Fragment>;
+  return trackData
+    .map((data) =>
+      <LayerComponent data={data} key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} />
+    );
 };
 
 const mapStateToProps = (state) => ({
