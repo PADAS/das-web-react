@@ -185,7 +185,7 @@ const MapRulerControl = (props) => {
       {drawing && <PointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <PointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} onChange={onDrawChange} onClickPoint={onClickPoint} />}
+    {active && <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} onChange={onDrawChange} onClickPoint={onClickPoint} />}
   </>;
 };
 
