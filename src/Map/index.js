@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
@@ -79,6 +79,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import ReportGeometryDrawer from '../ReportGeometryDrawer';
 
 import './Map.scss';
+import { useMapEventBinding } from '../hooks';
 
 const {
   ENABLE_REPORT_NEW_UI,
@@ -168,13 +169,14 @@ const Map = ({
     showPopup('dropped-marker', { location, coordinates });
   }, [showPopup]);
 
-  const onMapMoveStart = useCallback(() => {
+  const cancelMapDataRequests = useCallback(() => {
     mapSubjectsFetchCancelToken.cancel();
     cancelMapEventsFetch();
   }, []);
 
   const mapEventsFetch = useCallback(() => {
     cancelMapEventsFetch();
+
     return fetchMapEvents(map)
       .catch((e) => console.warn('error fetching map events', e));
   }
@@ -219,16 +221,13 @@ const Map = ({
   ]);
 
   const fetchMapData = useCallback(() => {
-    onMapMoveStart();
+    cancelMapDataRequests();
 
     return Promise.all([mapEventsFetch(), fetchMapSubjectsFromTimeslider()])
       .catch((e) => console.warn('error loading map data', e))
       .finally(() => {});
-  }, [mapEventsFetch, fetchMapSubjectsFromTimeslider, onMapMoveStart]);
+  }, [mapEventsFetch, fetchMapSubjectsFromTimeslider, cancelMapDataRequests]);
 
-  const onMapMoveEnd = useCallback(() => {
-    fetchMapData();
-  }, [fetchMapData]);
 
   const onMapZoom = debounce(() => {
     if (popup?.type === 'multi-layer-select') {
@@ -312,7 +311,6 @@ const Map = ({
     window.map = map;
 
     onMapLoad(map);
-    // fetchMapData();
   }, [homeMap, onMapLoad]);
 
   const onShowClusterSelectPopup = useCallback((layers, coordinates) => {
@@ -419,7 +417,7 @@ const Map = ({
     fetchMapData();
   }, [fetchMapData]);
 
-  const onMapClick = withLocationPickerState((map, event) => {
+  const onMapClick = useMemo(() => withLocationPickerState((event) => {
     const clickedLayersOfInterest = uniqBy(
       map.queryRenderedFeatures(
         event.point,
@@ -462,21 +460,9 @@ const Map = ({
     }
 
     hideUnpinnedTrackLayers(map, event);
-  });
-
-  // Workaround to lame issue with React Mapbox GL: https://github.com/alex3165/react-mapbox-gl/issues/963
-  const onMoveStartRef = useRef(onMapMoveStart);
-  const onMoveEndRef = useRef(onMapMoveEnd);
-  const onZoomRef = useRef(onMapZoom);
-  const onMapClickRef = useRef(onMapClick);
-  const onMapLoadedRef = useRef(setMap);
+  }), [currentAnalyzerIds, map, withLocationPickerState, handleMultiFeaturesAtSameLocationClick, hidePopup, hideUnpinnedTrackLayers, popup]);
 
   useEffect(() => { return () => { clearEventData(); clearSubjectData();}; }, [clearEventData, clearSubjectData]); // map data cleanup
-  useEffect(() => { onMoveStartRef.current = onMapMoveStart; }, [onMapMoveStart]);
-  useEffect(() => { onMoveEndRef.current = onMapMoveEnd; }, [onMapMoveEnd]);
-  useEffect(() => { onZoomRef.current = onMapZoom; }, [onMapZoom]);
-  useEffect(() => { onMapClickRef.current = onMapClick; }, [onMapClick]);
-  useEffect(() => { onMapLoadedRef.current = setMap; }, [setMap]);
 
   const setTrackLengthToEventFilterLowerValue = useCallback(() => {
     setTrackLength(differenceInCalendarDays(new Date(), eventFilter.filter.date_range.lower));
@@ -587,8 +573,12 @@ const Map = ({
     }
   }, [location, navigate]);
 
-  if (!maps.length) return null;
+  useMapEventBinding('movestart', cancelMapDataRequests);
+  useMapEventBinding('moveend', fetchMapData);
+  useMapEventBinding('zoom', onMapZoom);
+  useMapEventBinding('click', onMapClick);
 
+  if (!maps.length) return null;
 
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
@@ -607,11 +597,7 @@ const Map = ({
       <MapSettingsControl />
       <TimeSliderMapControl />
     </>}
-    onMoveStart={(...args) => onMoveStartRef.current(...args)}
-    onMoveEnd={(...args) => onMoveEndRef.current(...args)}
-    onZoom={(...args) => onZoomRef.current(...args)}
-    onClick={(...args) => onMapClickRef.current(...args)}
-    onMapLoaded={(...args) => onMapLoadedRef.current(...args)}
+    onMapLoaded={setMap}
     >
     {map && <>
       {children}

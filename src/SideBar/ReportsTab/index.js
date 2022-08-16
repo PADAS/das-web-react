@@ -56,7 +56,9 @@ const ReportsTab = ({
   const [loadingEventFeed, setEventLoadState] = useState(true);
   const [loadingEventById, setLoadingEventById] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
-  const eventParams = useRef(null);
+  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
+
+  const eventParams = useRef(calcEventFilterForRequest({ params: { exclude_contained: shouldExcludeContained }, format: 'object' }, feedSort));
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
@@ -68,25 +70,17 @@ const ReportsTab = ({
     setFeedSort(DEFAULT_EVENT_SORT);
   }, []);
 
-  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
   const geoResrictedUserLocationCoords = useMemo(() => userIsGeoPermRestricted && userLocationCoords, [userIsGeoPermRestricted, userLocationCoords]);
 
-  const loadFeedEvents = useCallback(debounce((silent = false) => { /* eslint-disable-line react-hooks/exhaustive-deps */
-    if (eventParams.current) {
+  const loadFeedEvents = useMemo(() => debounce((silent = false) => {
+    if (!silent) setEventLoadState(true);
 
-      if (!silent) setEventLoadState(true);
+    const paramString = objectToParamString(eventParams.current);
 
-      const paramString = objectToParamString(eventParams.current);
-
-      fetchEventFeed({}, paramString)
-        .finally(() => {
-          setEventLoadState(false);
-        });
-
-      return () => {
-        fetchEventFeedCancelToken.cancel();
-      };
-    }
+    return fetchEventFeed({}, paramString)
+      .finally(() => {
+        setEventLoadState(false);
+      });
   }), [fetchEventFeed]);
 
   useEffect(() => {
@@ -99,6 +93,10 @@ const ReportsTab = ({
 
     loadFeedEvents(true);
 
+    return () => {
+      fetchEventFeedCancelToken.cancel();
+    };
+
   }, [geoResrictedUserLocationCoords, loadFeedEvents]);
 
   useEffect(() => {
@@ -108,11 +106,14 @@ const ReportsTab = ({
     }
 
     eventParams.current = {
-      ...eventParams.current,
       ...calcEventFilterForRequest({ params, format: 'object' }, feedSort)
     };
 
     loadFeedEvents();
+
+    return () => {
+      fetchEventFeedCancelToken.cancel();
+    };
 
   }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
 

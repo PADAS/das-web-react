@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor, prettyDOM } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
@@ -314,7 +314,7 @@ describe('SideBar', () => {
 
   test('closes the sidebar tabs when clicking the cross button', () => {
     const mockStoreInstance = mockStore(store);
-    const { baseElement, container } = render(
+    render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <MockSocketProvider>
@@ -325,8 +325,6 @@ describe('SideBar', () => {
         </NavigationWrapper>
       </Provider>
     );
-
-    console.log('HERE WE GO', prettyDOM(container.firstChild), prettyDOM(baseElement));
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
