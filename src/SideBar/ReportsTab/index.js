@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import cloneDeep from 'lodash/cloneDeep';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
@@ -103,6 +104,10 @@ const ReportsTab = ({
     const params = {};
     if (shouldExcludeContained) {
       params.exclude_contained = true;
+    }
+
+    if (eventParams.current.location) {
+      params.location = cloneDeep(eventParams.current.location);
     }
 
     eventParams.current = {
