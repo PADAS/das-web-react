@@ -22,7 +22,8 @@
 }
 
 .newGpsPopover {
-  width: 19rem;
+  max-width: 18.5rem;
+  width: 18.5rem;
   border: none;
   border-radius: 0;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.25);
@@ -57,7 +58,7 @@
   width: 100%;
 
   .icon {
-    margin-right: 0;
+    margin: 0 0.5rem;
   }
 
   .locationCopyBtn {
@@ -85,24 +86,6 @@
       color: #333;
       border-bottom: 0.25rem solid $bright-blue;
     }
-  }
-}
-
-.locationAreaContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 6.875rem;
-}
-
-.createAreaButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    margin-right: 0.25rem;
   }
 }
 
@@ -138,4 +121,11 @@
     flex-flow: row;
     justify-content: space-between;
   }
+}
+
+.displayString {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-right: auto;
 }

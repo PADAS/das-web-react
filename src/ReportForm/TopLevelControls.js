@@ -1,24 +1,34 @@
-import React, { memo, useMemo } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useEffect, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 
-import DatePicker from '../DatePicker';
-import ReportedBySelect from '../ReportedBySelect';
-
-import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
+import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import { setMapInteractionEvent } from '../ducks/map-ui';
 
-import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import DatePicker from '../DatePicker';
+import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
+import ReportedBySelect from '../ReportedBySelect';
 
 import styles from './styles.module.scss';
 
-const ReportFormTopLevelControls = (props) => {
-  const { map, readonly, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report } = props;
+const ReportFormTopLevelControls = ({
+  readonly,
+  onReportDateChange,
+  menuContainerRef,
+  onReportedByChange,
+  onReportLocationChange,
+  report,
+}) => {
+  const dispatch = useDispatch();
 
   const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
 
+  useEffect(() => {
+    dispatch(setMapInteractionEvent(report));
+  }, [dispatch, report]);
 
   return <div className={`${styles.reportControls} ${readonly ? styles.readonly : ''}`}>
     {canShowReportedBy && <label>
@@ -26,6 +36,7 @@ const ReportFormTopLevelControls = (props) => {
       <span>Reported by:</span>
       <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} menuRef={menuContainerRef} />
     </label>}
+
     <label>
       <ClockIcon className={styles.icon} />
       <span>Report time:</span>
@@ -42,18 +53,9 @@ const ReportFormTopLevelControls = (props) => {
         disableCustomInput={true}
       />
     </label>
-    <LocationSelectorInput map={map} location={reportLocation} onLocationChange={onReportLocationChange} />
+
+    <LocationSelectorInput location={reportLocation} onLocationChange={onReportLocationChange} />
   </div>;
 };
 
-const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat } } }) => ({
-  gpsFormat,
-  showUserLocation,
-});
-
-
-export default connect(mapStateToProps, null)(
-  memo(
-    ReportFormTopLevelControls
-  )
-);
+export default memo(ReportFormTopLevelControls);

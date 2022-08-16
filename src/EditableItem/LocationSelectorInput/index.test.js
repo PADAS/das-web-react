@@ -9,6 +9,7 @@ import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
+import { report } from '../../__test-helpers/fixtures/reports';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 jest.mock('react-router-dom', () => ({
@@ -44,16 +45,15 @@ describe('LocationSelectorInput', () => {
     showSideBar.mockImplementation(showSideBarMock);
 
     map = createMapMock();
-    store = mockStore({
+    store = {
       view: {
-        showUserLocation: true,
-        userLocation: { coords: { latitude: 123, longitude: 456 } },
+        mapLocationSelection: { event: report },
         userPreferences: {},
       },
-    });
+    };
 
     render(
-      <Provider store={store}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapContext.Provider value={map}>
             <LocationSelectorInput label="label" map={map} onLocationChange={onLocationChange} />
@@ -111,14 +111,14 @@ describe('LocationSelectorInput', () => {
     userEvent.click(setLocationButton);
 
     expect(hideSideBar).toHaveBeenCalledTimes(0);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(0);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
 
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
     userEvent.click(placeMarkerOnMapButton);
 
     await waitFor(() => {
       expect(hideSideBar).toHaveBeenCalledTimes(1);
-      expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+      expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
       expect(setModalVisibilityState).toHaveBeenCalledWith(false);
     });
   });
@@ -130,13 +130,13 @@ describe('LocationSelectorInput', () => {
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
     userEvent.click(placeMarkerOnMapButton);
 
-    expect(showSideBar).toHaveBeenCalledTimes(0);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+    expect(showSideBar).toHaveBeenCalledTimes(1);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
 
     userEvent.keyboard('{Escape}');
 
     await waitFor(() => {
-      expect(showSideBar).toHaveBeenCalled();
+      expect(showSideBar).toHaveBeenCalledTimes(3);
       expect(setModalVisibilityState).toHaveBeenCalledWith(true);
     });
   });
@@ -157,20 +157,6 @@ describe('LocationSelectorInput', () => {
     });
   });
 
-  test('triggers onLocationChange with users coordinates if clicking use my location', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    const useMyLocationButton = await screen.getByTitle('Use my location');
-    userEvent.click(useMyLocationButton);
-
-    expect(onLocationChange).toHaveBeenCalledTimes(1);
-    expect(onLocationChange).toHaveBeenCalledWith([456, 123]);
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
-    });
-  });
-
   test('renders the label', async () => {
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('label');
   });
@@ -178,7 +164,7 @@ describe('LocationSelectorInput', () => {
   test('renders the label default value', async () => {
     cleanup();
     render(
-      <Provider store={store}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapContext.Provider value={map}>
             <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
@@ -192,19 +178,21 @@ describe('LocationSelectorInput', () => {
 
 
   test('hides the sidebar and the modal when choosing an area in the map', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
+    store.view.mapLocationSelection.isPickingArea = true;
 
-    expect(hideSideBar).toHaveBeenCalledTimes(0);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(0);
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapContext.Provider value={map}>
+            <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
+          </MapContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
 
-    const placeAreaOnMapButton = await screen.getByTitle('Place geometry on map');
-    userEvent.click(placeAreaOnMapButton);
-
-    await waitFor(() => {
-      expect(hideSideBar).toHaveBeenCalledTimes(1);
-      expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
-      expect(setModalVisibilityState).toHaveBeenCalledWith(false);
-    });
+    expect(hideSideBar).toHaveBeenCalledTimes(1);
+    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
+    expect(setModalVisibilityState).toHaveBeenCalledWith(false);
   });
 });

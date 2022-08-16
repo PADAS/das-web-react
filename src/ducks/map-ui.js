@@ -30,7 +30,9 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
-const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
+const SET_MAP_INTERACTION_EVENT = 'SET_MAP_INTERACTION_EVENT';
+const SET_MAP_INTERACTION_IS_PICKING_AREA = 'SET_MAP_INTERACTION_IS_PICKING_AREA';
+const SET_MAP_INTERACTION_IS_PICKING_LOCATION = 'SET_MAP_INTERACTION_IS_PICKING_LOCATION';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
@@ -161,9 +163,19 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
-export const setPickingMapLocationState = (isPicking) => ({
-  type: SET_PICKING_MAP_LOCATION_STATE,
-  payload: isPicking,
+export const setMapInteractionEvent = (event) => ({
+  type: SET_MAP_INTERACTION_EVENT,
+  payload: { event },
+});
+
+export const setMapInteractionIsPickingArea = (isPickingArea) => ({
+  type: SET_MAP_INTERACTION_IS_PICKING_AREA,
+  payload: { isPickingArea },
+});
+
+export const setMapInteractionIsPickingLocation = (isPickingLocation) => ({
+  type: SET_MAP_INTERACTION_IS_PICKING_LOCATION,
+  payload: { isPickingLocation },
 });
 
 export const updateTrackState = (update) => ({
@@ -291,12 +303,22 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
   return state;
 }, INITIAL_TRACK_STATE);
 
-export const pickingLocationOnMapReducer = (state = false, action) => {
-  const { type, payload } = action;
-  if (type === SET_PICKING_MAP_LOCATION_STATE) {
-    return payload;
+const INITIAL_PICKING_AREA_ON_MAP_STATE = { event: null, isPickingArea: false, isPickingLocation: false };
+
+export const mapLocationSelectionReducer = (state = INITIAL_PICKING_AREA_ON_MAP_STATE, action) => {
+  switch (action.type) {
+  case SET_MAP_INTERACTION_EVENT:
+    return { ...state, event: action.payload.event };
+
+  case SET_MAP_INTERACTION_IS_PICKING_AREA:
+    return { ...state, isPickingArea: action.payload.isPickingArea };
+
+  case SET_MAP_INTERACTION_IS_PICKING_LOCATION:
+    return { ...state, isPickingLocation: action.payload.isPickingLocation };
+
+  default:
+    return state;
   }
-  return state;
 };
 
 export const displayUserLocationReducer = (state = true, action) => {
