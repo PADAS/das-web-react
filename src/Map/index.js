@@ -144,16 +144,8 @@ const Map = ({
 
   const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
 
-  useEffect(() => {
-    const lnglat = new URLSearchParams(location.search).get('lnglat');
-    if (lnglat) {
-      lngLatFromParams.current = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
-      const newLocation = { ...location };
-
-      delete newLocation.search;
-      navigate(newLocation);
-    }
-  }, [location, navigate]);
+  const timeSliderActive = timeSliderState.active;
+  const enableEventClustering = timeSliderActive ? false : true;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 
@@ -181,9 +173,11 @@ const Map = ({
     cancelMapEventsFetch();
   }, []);
 
-  const mapEventsFetch = useCallback(() =>
-    fetchMapEvents(map)
-      .catch((e) => console.warn('error fetching map events', e))
+  const mapEventsFetch = useCallback(() => {
+    cancelMapEventsFetch();
+    return fetchMapEvents(map)
+      .catch((e) => console.warn('error fetching map events', e));
+  }
   , [fetchMapEvents, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
@@ -200,9 +194,9 @@ const Map = ({
       .map(({ id }) => id));
   }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
 
+
   const fetchMapSubjectsFromTimeslider = useCallback(() => {
     const args = [map];
-    const timeSliderActive = timeSliderState.active;
 
     if (timeSliderActive) {
       const { lower: updated_since, upper: updated_until } = eventFilter.filter.date_range;
@@ -215,12 +209,13 @@ const Map = ({
         ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
         : Promise.resolve(latestMapSubjects))
       .catch(() => {});
-  }, [
+  },
+  [
     eventFilter.filter.date_range,
     fetchMapSubjectTracksForTimeslider,
     fetchMapSubjects,
     map,
-    timeSliderState.active,
+    timeSliderActive,
   ]);
 
   const fetchMapData = useCallback(() => {
@@ -231,13 +226,9 @@ const Map = ({
       .finally(() => {});
   }, [mapEventsFetch, fetchMapSubjectsFromTimeslider, onMapMoveStart]);
 
-  const debouncedFetchMapData = debounce(fetchMapData, 500);
-
-  const debouncedFetchMapEvents = debounce(mapEventsFetch, 300);
-
   const onMapMoveEnd = useCallback(() => {
-    debouncedFetchMapData();
-  }, [debouncedFetchMapData]);
+    fetchMapData();
+  }, [fetchMapData]);
 
   const onMapZoom = debounce(() => {
     if (popup?.type === 'multi-layer-select') {
@@ -321,8 +312,8 @@ const Map = ({
     window.map = map;
 
     onMapLoad(map);
-    debouncedFetchMapData();
-  }, [debouncedFetchMapData, homeMap, onMapLoad]);
+    // fetchMapData();
+  }, [homeMap, onMapLoad]);
 
   const onShowClusterSelectPopup = useCallback((layers, coordinates) => {
     showPopup('cluster-select', {
@@ -425,8 +416,8 @@ const Map = ({
   });
 
   const onSleepDetected = useCallback(() => {
-    debouncedFetchMapData();
-  }, [debouncedFetchMapData]);
+    fetchMapData();
+  }, [fetchMapData]);
 
   const onMapClick = withLocationPickerState((map, event) => {
     const clickedLayersOfInterest = uniqBy(
@@ -498,10 +489,7 @@ const Map = ({
 
   useEffect(() => {
     fetchBaseLayers();
-    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      setTrackLengthToEventFilterLowerValue();
-    }
-  }, [fetchBaseLayers, setTrackLengthToEventFilterLowerValue, trackLengthOrigin]);
+  }, [fetchBaseLayers]);
 
   useEffect(() => {
     if (!!map) {
@@ -512,60 +500,50 @@ const Map = ({
   }, [homeMap, map]);
 
   useEffect(() => {
+    if (map) {
+      mapEventsFetch();
+    }
+  }, [eventFilter, mapEventsFetch, map]);
+
+  useEffect(() => {
     if (!!map) {
       socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
-      if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-        setTrackLengthToEventFilterLowerValue();
-      }
-      debouncedFetchMapEvents();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventFilter, map]);
+
+  }, [eventFilter, map, socket]);
 
   useEffect(() => {
-    if (!!map) {
-      socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, patrolFilter]);
-
-  useEffect(() => {
-    if (!!map && trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       setTrackLengthToEventFilterLowerValue();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, trackLengthOrigin]);
+  }, [trackLengthOrigin, setTrackLengthToEventFilterLowerValue]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map && socket) {
+      socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
+    }
+  }, [map, patrolFilter, socket]);
+
+  useEffect(() => {
+    if (map) {
       onTrackLengthChange();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, trackLength]);
+  }, [map, onTrackLengthChange, trackLength]);
 
   useEffect(() => {
-    if (!!map) {
+    if (map) {
       fetchMapData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, timeSliderState.active]);
-
-  useEffect(() => {
-    if (!!map && showReportHeatmap) {
-      onSubjectHeatmapClose();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, showReportHeatmap]);
+  }, [fetchMapData, map, timeSliderState.active]);
 
   useEffect(() => {
     if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
       onCloseReportHeatmap();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, heatmapSubjectIDs]);
+  }, [map, heatmapSubjectIDs.length, showReportHeatmap, onCloseReportHeatmap]);
 
   useEffect(() => {
-    if (!!map && !!timeSliderState.active && !!popup) {
+    if (map && !!timeSliderState.active && !!popup) {
       if (popup.type === 'subject') {
         const subjectMatch = mapSubjectFeatureCollection.features
           .find(item => item.properties.id === popup.data.properties.id);
@@ -586,24 +564,32 @@ const Map = ({
   }, [map, timeSliderState.virtualDate]);
 
   useEffect(() => {
-    if (!!map) {
-      if (!!popup) {
-        const { type } = popup;
+    if (!!map && !!popup) {
+      const { type } = popup;
 
-        if (type === 'feature-symbol' && hiddenFeatureIDs.includes(popup.data.properties.id)) {
-          hidePopup(popup.id);
-        }
-        if (type === 'analyzer-config' && hiddenAnalyzerIDs.includes(popup.data.analyzerId)) {
-          hidePopup(popup.id);
-        }
+      if (type === 'feature-symbol' && hiddenFeatureIDs.includes(popup.data.properties.id)) {
+        hidePopup(popup.id);
+      }
+      if (type === 'analyzer-config' && hiddenAnalyzerIDs.includes(popup.data.analyzerId)) {
+        hidePopup(popup.id);
       }
     }
-  });
+  }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
+
+  useEffect(() => {
+    const lnglat = new URLSearchParams(location.search).get('lnglat');
+    if (lnglat) {
+      lngLatFromParams.current = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
+      const newLocation = { ...location };
+
+      delete newLocation.search;
+      navigate(newLocation);
+    }
+  }, [location, navigate]);
 
   if (!maps.length) return null;
 
-  const timeSliderActive = timeSliderState.active;
-  const enableEventClustering = timeSliderActive ? false : true;
+
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
