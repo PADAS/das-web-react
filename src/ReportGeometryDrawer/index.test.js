@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { setMapInteractionIsPickingArea } from '../ducks/map-ui';
+import { setMapAreaSelection } from '../ducks/map-ui';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
@@ -11,15 +11,15 @@ import ReportGeometryDrawer from './';
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
-  setMapInteractionIsPickingArea: jest.fn(),
+  setMapAreaSelection: jest.fn(),
 }));
 
 describe('ReportGeometryDrawer', () => {
-  let setMapInteractionIsPickingAreaMock, store;
+  let setMapAreaSelectionMock, store;
 
   beforeEach(() => {
-    setMapInteractionIsPickingAreaMock = jest.fn(() => () => {});
-    setMapInteractionIsPickingArea.mockImplementation(setMapInteractionIsPickingAreaMock);
+    setMapAreaSelectionMock = jest.fn(() => () => {});
+    setMapAreaSelection.mockImplementation(setMapAreaSelectionMock);
 
     store = {
       data: { eventTypes: [], patrolTypes: [] },
@@ -39,12 +39,12 @@ describe('ReportGeometryDrawer', () => {
     jest.restoreAllMocks();
   });
 
-  test('triggers setMapInteractionIsPickingArea with false parameter if user press escape', async () => {
-    expect(setMapInteractionIsPickingArea).toHaveBeenCalledTimes(0);
+  test('triggers setMapAreaSelection with false parameter if user press escape', async () => {
+    expect(setMapAreaSelection).toHaveBeenCalledTimes(0);
 
     userEvent.keyboard('{Escape}');
 
-    expect(setMapInteractionIsPickingArea).toHaveBeenCalledTimes(1);
-    expect(setMapInteractionIsPickingArea).toHaveBeenCalledWith(false);
+    expect(setMapAreaSelection).toHaveBeenCalledTimes(1);
+    expect(setMapAreaSelection).toHaveBeenCalledWith(false);
   });
 });

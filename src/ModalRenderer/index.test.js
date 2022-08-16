@@ -70,7 +70,7 @@ describe('ModalRenderer', () => {
   });
 
   test('does not remove the modal when pressing escape if user is picking location', async () => {
-    store.view.mapLocationSelection.isPickingLocation = true;
+    store.view.mapLocationSelection.isPickingPoint = true;
 
     cleanup();
     render(

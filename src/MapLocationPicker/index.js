@@ -1,6 +1,6 @@
 import React, { memo, useRef } from 'react';
 import { connect } from 'react-redux';
-import { setMapInteractionIsPickingLocation } from '../ducks/map-ui';
+import { setMapPointSelection } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
@@ -22,7 +22,7 @@ const unbindExternal = (map, eventType, func) => {
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLocationPicker = (props) => {
-  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setMapInteractionIsPickingLocation, showCancelButton, wrapperClassName } = props;
+  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setMapPointSelection, showCancelButton, wrapperClassName } = props;
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
@@ -43,21 +43,21 @@ const MapLocationPicker = (props) => {
   };
 
   const onCancel = () => {
-    setMapInteractionIsPickingLocation(false);
+    setMapPointSelection(false);
     unbindMapEvents();
     onLocationSelectCancel();
     mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
   const onSelect = (e) => {
-    setMapInteractionIsPickingLocation(false);
+    setMapPointSelection(false);
     unbindMapEvents();
     onLocationSelect(e);
     mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
   const onSelectStart = () => {
-    setMapInteractionIsPickingLocation(true);
+    setMapPointSelection(true);
     bindMapEvents();
     onLocationSelectStart();
     mapInteractionTracker.track('Click \'Drop Marker\' button');
@@ -78,7 +78,7 @@ const MapLocationPicker = (props) => {
   </div>;
 };
 
-export default connect(null, { setMapInteractionIsPickingLocation })(withMap(memo(MapLocationPicker)));
+export default connect(null, { setMapPointSelection })(withMap(memo(MapLocationPicker)));
 
 MapLocationPicker.defaultProps = {
   className: '',

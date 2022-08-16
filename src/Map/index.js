@@ -143,7 +143,7 @@ const Map = ({
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
 
-  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
+  const isPickingLocationOnMap = mapLocationSelection.isPickingPoint || mapLocationSelection.isPickingArea;
 
   const timeSliderActive = timeSliderState.active;
   const enableEventClustering = timeSliderActive ? false : true;
@@ -236,10 +236,10 @@ const Map = ({
   }, 100);
 
   const withLocationPickerState = useCallback((func) => (...args) => {
-    if (!pickingAreaOrLocationOnMap) {
+    if (!isPickingLocationOnMap) {
       return func(...args);
     }
-  }, [pickingAreaOrLocationOnMap]);
+  }, [isPickingLocationOnMap]);
 
   const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
     if (event?.originalEvent?.cancelBubble) return;
@@ -624,7 +624,7 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!currentTab && !pickingAreaOrLocationOnMap}>
+      <DelayedUnmount isMounted={!currentTab && !isPickingLocationOnMap}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>

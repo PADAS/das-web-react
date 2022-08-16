@@ -164,7 +164,7 @@ describe('Map', () => {
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
-    store.view.mapLocationSelection.isPickingLocation = true;
+    store.view.mapLocationSelection.isPickingPoint = true;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>

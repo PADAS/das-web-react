@@ -17,7 +17,7 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
-import { setMapInteractionIsPickingArea } from '../../ducks/map-ui';
+import { MAP_LOCATION_SELECTION_MODES, setMapAreaSelection } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 import AreaTab from './AreaTab';
@@ -105,7 +105,7 @@ const LocationSelectorInput = ({
   const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
 
   const onAreaSelectStart = useCallback(() => {
-    dispatch(setMapInteractionIsPickingArea(true));
+    dispatch(setMapAreaSelection(true, MAP_LOCATION_SELECTION_MODES.FULLSCREEN));
 
     mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);

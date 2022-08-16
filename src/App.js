@@ -130,10 +130,10 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage]);
 
-  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
+  const isPickingLocationOnMap = mapLocationSelection.isPickingPoint || mapLocationSelection.isPickingArea;
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingAreaOrLocationOnMap ? 'picking-location' : ''}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${isPickingLocationOnMap ? `picking-location-${mapLocationSelection.mode}` : ''}`}
     data-testid="app-wrapper"
     onDrop={onDrop}
     onDragLeave={finishDrag}
