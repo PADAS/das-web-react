@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import cloneDeep from 'lodash/cloneDeep';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
@@ -12,7 +13,7 @@ import { getCurrentIdFromURL } from '../../utils/navigation';
 import { getFeedEvents } from '../../selectors';
 import { openModalForReport } from '../../utils/events';
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
-import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
+import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage, fetchEventFeedCancelToken } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
@@ -56,7 +57,9 @@ const ReportsTab = ({
   const [loadingEventFeed, setEventLoadState] = useState(true);
   const [loadingEventById, setLoadingEventById] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
-  const eventParams = useRef(null);
+  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
+
+  const eventParams = useRef(calcEventFilterForRequest({ params: { exclude_contained: shouldExcludeContained }, format: 'object' }, feedSort));
 
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
@@ -68,20 +71,18 @@ const ReportsTab = ({
     setFeedSort(DEFAULT_EVENT_SORT);
   }, []);
 
-  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
   const geoResrictedUserLocationCoords = useMemo(() => userIsGeoPermRestricted && userLocationCoords, [userIsGeoPermRestricted, userLocationCoords]);
 
-  const loadFeedEvents = useCallback(debounce((silent = false) => { /* eslint-disable-line */
+  const loadFeedEvents = useMemo(() => debounce((silent = false) => {
     if (!silent) setEventLoadState(true);
 
     const paramString = objectToParamString(eventParams.current);
 
-    fetchEventFeed({}, paramString)
+    return fetchEventFeed({}, paramString)
       .finally(() => {
         setEventLoadState(false);
       });
-
-  }, 100), [fetchEventFeed]);
+  }), [fetchEventFeed]);
 
   useEffect(() => {
     if (geoResrictedUserLocationCoords) {
@@ -93,6 +94,10 @@ const ReportsTab = ({
 
     loadFeedEvents(true);
 
+    return () => {
+      fetchEventFeedCancelToken.cancel();
+    };
+
   }, [geoResrictedUserLocationCoords, loadFeedEvents]);
 
   useEffect(() => {
@@ -101,12 +106,19 @@ const ReportsTab = ({
       params.exclude_contained = true;
     }
 
+    if (eventParams.current.location) {
+      params.location = cloneDeep(eventParams.current.location);
+    }
+
     eventParams.current = {
-      ...eventParams.current,
       ...calcEventFilterForRequest({ params, format: 'object' }, feedSort)
     };
 
     loadFeedEvents();
+
+    return () => {
+      fetchEventFeedCancelToken.cancel();
+    };
 
   }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
 

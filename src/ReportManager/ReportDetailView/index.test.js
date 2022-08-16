@@ -292,7 +292,7 @@ describe('ReportManager - ReportDetailView', () => {
   test('triggers onAddReport', async () => {
     const onAddReport = jest.fn();
 
-    AddReportMock = ({ onAddReport }) => { // eslint-disable-line react/display-name
+    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         onAddReport();
       }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -326,7 +326,7 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddReportMock = ({ formProps }) => { // eslint-disable-line react/display-name
+    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -369,7 +369,7 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddReportMock = ({ formProps }) => { // eslint-disable-line react/display-name
+    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps

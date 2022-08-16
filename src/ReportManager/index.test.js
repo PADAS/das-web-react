@@ -92,7 +92,7 @@ describe('ReportManager', () => {
   });
 
   test('shows the added report when clicking the add report button', async () => {
-    AddReportMock = ({ onAddReport }) => { // eslint-disable-line
+    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         onAddReport();
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +118,7 @@ describe('ReportManager', () => {
   });
 
   test('hides the added report when clicking the cancel button', async () => {
-    AddReportMock = ({ onAddReport }) => { // eslint-disable-line react/display-name
+    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         const formProps = {};
         const reportData = {};
