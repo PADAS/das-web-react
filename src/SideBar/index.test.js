@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, prettyDOM } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
@@ -17,6 +17,7 @@ import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
+import { MapContext } from '../App';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -26,10 +27,7 @@ jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),
 }));
-jest.mock('../hooks', () => ({
-  ...jest.requireActual('../hooks'),
-  useFeatureFlag: () => true,
-}));
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('SideBar', () => {
@@ -89,6 +87,9 @@ describe('SideBar', () => {
         hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
+        systemConfig: {
+          patrol_enabled: true,
+        },
       },
     };
   });
@@ -98,7 +99,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -113,7 +116,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -127,7 +132,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -144,7 +151,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -161,7 +170,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -177,7 +188,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -199,7 +212,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -221,7 +236,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -241,7 +258,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -263,7 +282,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -280,7 +301,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -291,15 +314,19 @@ describe('SideBar', () => {
 
   test('closes the sidebar tabs when clicking the cross button', () => {
     const mockStoreInstance = mockStore(store);
-    render(
+    const { baseElement, container } = render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
     );
+
+    console.log('HERE WE GO', prettyDOM(container.firstChild), prettyDOM(baseElement));
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
@@ -318,7 +345,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -335,7 +364,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -358,7 +389,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>
@@ -381,7 +414,9 @@ describe('SideBar', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MockSocketProvider>
-            <SideBar map={map} />
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
           </MockSocketProvider>
         </NavigationWrapper>
       </Provider>

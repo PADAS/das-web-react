@@ -44,7 +44,7 @@ jest.mock('../ducks/popup', () => ({
 jest.mock('react-mapbox-gl', () => ({
   ...jest.requireActual('react-mapbox-gl'),
   __esModule: true,
-  default: () => ({ children }) => <div>{children}</div>,
+  default: () => ({ children }) => <div>{children}</div>, /* eslint-disable-line react/display-name */
 }));
 
 jest.mock('../ducks/map-ui', () => ({

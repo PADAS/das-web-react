@@ -10,6 +10,7 @@ export const createMapMock = (override = {}) => {
     setFilter: jest.fn(),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
+    moveLayer: jest.fn(),
     removeLayer: jest.fn(),
     on: jest.fn(),
     once: jest.fn(),
@@ -27,6 +28,7 @@ export const createMapMock = (override = {}) => {
     project: jest.fn(),
     queryRenderedFeatures: jest.fn(),
     setLayoutProperty: jest.fn(),
+    setPaintProperty: jest.fn(),
     setTerrain: jest.fn(),
     fitBounds: jest.fn(),
     setZoom: jest.fn(),
@@ -57,7 +59,11 @@ export const createMapMock = (override = {}) => {
           /* skip the optional layerName arg if it hasn't been passed */
           const func = !!layerId ? rest[1] : rest[0];
 
-          func(eventObj);
+          func(
+            createMockMapInteractionEvent(
+              eventObj
+            )
+          );
         });
       },
     }
@@ -65,3 +71,12 @@ export const createMapMock = (override = {}) => {
 
   return mockMap;
 };
+
+
+const createMockMapInteractionEvent = (data) => ({
+  preventDefault: jest.fn(),
+  originalEvent: {
+    stopPropagation: jest.fn(),
+  },
+  ...data,
+});

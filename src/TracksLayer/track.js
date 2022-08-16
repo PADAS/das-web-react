@@ -1,15 +1,10 @@
-import React, { memo, useMemo, Fragment } from 'react';
+import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
-import debounceRender from 'react-debounce-render';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
+import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
-
-const DebouncedLayer = debounceRender(Layer, 200);
-const DebouncedSource = debounceRender(Source, 200);
-
 const trackLayerLinePaint = {
   'line-color': [
     'case',
@@ -42,7 +37,12 @@ const timepointLayerPaint = {
   ],
 };
 
-const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch, ...rest }) => {
+const trackSourceConfig = {
+  tolerance: 1.5,
+  type: 'geojson',
+};
+
+const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch }) => {
   const trackLinePaint = useMemo(() => ({
     ...trackLayerLinePaint,
     ...linePaint,
@@ -55,25 +55,11 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
 
   const layerBefore = useMemo(() => before || SUBJECT_SYMBOLS, [before]);
 
-
   const { track: trackCollection, points: trackPointCollection } = trackData;
   const trackId = id || trackCollection.features[0].properties.id;
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
-
-  const trackSourceConfig = useMemo(() => ({
-    tolerance: 1.5,
-    type: 'geojson',
-    data: trackCollection,
-  }), [trackCollection]);
-
-  const trackPointSourceConfig = useMemo(() => ({
-    type: 'geojson',
-    data: trackPointCollection,
-  }), [trackPointCollection]);
-
-  if (!trackData.track) return null;
 
   const sourceId = `track-source-${trackId}`;
   const pointSourceId = `${sourceId}-points`;
@@ -81,9 +67,18 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
-  return <Fragment>
-    <Source id={sourceId} geoJsonSource={trackSourceConfig} />
-    <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
+  useMapSource(sourceId, trackCollection, trackSourceConfig);
+  useMapSource(pointSourceId, trackPointCollection);
+
+  useMapLayer(layerId, 'line', sourceId, trackLinePaint, trackLineLayout, { before: layerBefore });
+  useMapLayer(pointLayerId, 'symbol', pointSourceId, timepointLayerPaint, timepointLayerLayout, { before: layerBefore, condition: showTimepoints });
+
+  useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
+  useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
+  useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
+
+  return null;
+  /* return <Fragment>
 
     <Layer sourceId={sourceId} type='line' before={layerBefore}
       paint={trackLinePaint} layout={trackLineLayout} id={layerId} {...rest} />
@@ -93,7 +88,7 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
       onMouseLeave={onSymbolMouseLeave}
       onClick={onPointClick} layout={timepointLayerLayout} paint={timepointLayerPaint} id={pointLayerId} {...rest} />}
 
-  </Fragment>;
+  </Fragment>; */
 };
 
 export default memo(TrackLayer);

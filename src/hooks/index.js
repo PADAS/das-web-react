@@ -1,6 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
+import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
+import noop from 'lodash/noop';
+
+import { MIN_ZOOM, MAX_ZOOM, LAYER_IDS } from '../constants';
+
+const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
@@ -48,4 +54,150 @@ export const useDeepCompareEffect = (callback, dependencies) => {
       callback();
     }
   }, [callback, dependencies]);
+};
+
+
+export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerId = null, condition = true) => {
+  const map = useContext(MapContext);
+
+  useEffect(() => {
+    const args = [eventType, layerId, handlerFn].filter(item => !!item);
+
+    if (map) {
+      if (condition) {
+        map.on(...args);
+        return () => {
+          map.off(...args);
+        };
+      } else {
+        map.off(...args);
+      }
+    }
+  }, [map, condition, eventType, layerId, handlerFn]);
+};
+
+export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
+  const map = useContext(MapContext);
+  const source = map?.getSource(sourceId);
+
+  useEffect(() => {
+    if (map && !source) {
+      map.addSource(sourceId, {
+        ...config,
+        data,
+      });
+    }
+  }, [sourceId, source, config, data, map]);
+
+  useEffect(() => {
+    if (source) {
+      source.setData?.(data);
+    }
+  }, [data, source]);
+
+  useEffect(() => {
+    return () => {
+      if (map) {
+        setTimeout(() => {
+          source && map.removeSource(sourceId);
+        });
+      }
+    };
+  }, [sourceId, source, map]);
+
+  return source;
+};
+
+export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
+  const map = useContext(MapContext);
+  const layer = map?.getLayer(layerId);
+
+  const before = useMemoCompare(config?.before || TOPMOST_STYLE_LAYER);
+  const condition = useMemoCompare(config?.hasOwnProperty('condition') ? config.condition : true);
+  const filter = useMemoCompare(config?.filter);
+  const minzoom = useMemoCompare(config?.minZoom);
+  const maxzoom = useMemoCompare(config?.maxZoom);
+
+  useEffect(() => {
+    if (condition && map && !layer) {
+      const source = map.getSource(sourceId);
+
+      if (!!source) {
+        map.addLayer({
+          id: layerId,
+          source: sourceId,
+          type,
+          layout: layout || {},
+          paint: paint || {},
+        }, before);
+      }
+    }
+  }, [before, condition, layer, layerId, layout, map, sourceId, paint, type]);
+
+  useEffect(() => {
+    if (condition && layer && layout) {
+      Object.entries(layout).forEach(([key, value]) => {
+        map.setLayoutProperty(layerId, key, value);
+      });
+    }
+  }, [condition, layer, layerId, layout, map]);
+
+  useEffect(() => {
+    if (condition && layer && paint) {
+      Object.entries(paint).forEach(([key, value]) => {
+        map.setPaintProperty(layerId, key, value);
+      });
+    }
+  }, [condition, map, layer, layerId, paint]);
+
+  useEffect(() => {
+    if (condition && map && layer) {
+      map.setFilter(layerId, filter);
+    }
+  }, [condition, filter, layer, layerId, map]);
+
+  useEffect(() => {
+    if (!condition && layer) {
+      map.removeLayer(layerId);
+    }
+  }, [condition, layer, layerId, map]);
+
+  useEffect(() => {
+    return () => {
+      if (map) {
+        map.getLayer(layerId) && map.removeLayer(layerId);
+      }
+    };
+  }, [layerId, map]);
+
+  useEffect(() => {
+    if (condition && map && layer && (minzoom || maxzoom)) {
+      map.setLayerZoomRange(layerId, (minzoom || MIN_ZOOM), (maxzoom || MAX_ZOOM));
+    }
+  }, [condition, layer, layerId, map, minzoom, maxzoom]);
+
+
+  useEffect(() => {
+    if (layer && map && before) {
+      map.moveLayer(layerId, before);
+    }
+  }, [before, layer, layerId, map]);
+
+  return layer;
+};
+
+
+export const useMemoCompare = (next, compare = isEqual) => {
+  const previousRef = useRef();
+  const previous = previousRef.current;
+
+  const isEqual = compare(previous, next);
+
+  useEffect(() => {
+    if (!isEqual) {
+      previousRef.current = next;
+    }
+  }, [isEqual, next]);
+
+  return isEqual ? previous : next;
 };
