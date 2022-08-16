@@ -1,6 +1,7 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import ModalRenderer from './';
@@ -20,6 +21,7 @@ describe('ModalRenderer', () => {
     removeModal.mockImplementation(removeModalMock);
     store = {
       view: {
+        mapLocationSelection: {},
         modals: {
           modals: [{
             content: () => <div title="content-component" />,
@@ -57,5 +59,28 @@ describe('ModalRenderer', () => {
 
   test('renders the content of the modal in the array', async () => {
     expect(screen.findByTitle('content-component')).toBeTruthy();
+  });
+
+  test('removes the modal when pressing escape', async () => {
+    expect(removeModal).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(removeModal).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not remove the modal when pressing escape if user is picking location', async () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <ModalRenderer map={map} />
+      </Provider>
+    );
+
+    userEvent.keyboard('{Escape}');
+
+    expect(removeModal).toHaveBeenCalledTimes(0);
   });
 });

@@ -1,24 +1,27 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import area from '@turf/area';
+import { convertArea } from '@turf/helpers';
 import debounceRender from 'react-debounce-render';
+import length from '@turf/length';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
-import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
 import { calcGpsDisplayString } from '../../utils/location';
 import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
-import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
+import { setMapInteractionIsPickingArea } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
+import AreaTab from './AreaTab';
 import GpsInput from '../../GpsInput';
-import MapAreaPicker from '../../MapAreaPicker';
 import MapLocationPicker from '../../MapLocationPicker';
 import GeoLocator from '../../GeoLocator';
 import TextCopyBtn from '../../TextCopyBtn';
@@ -28,6 +31,19 @@ import styles from './styles.module.scss';
 const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const calculateInputDisplayString = (event, gpsFormat, location, placeholder) => {
+  if (!!event?.geometry) {
+    const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
+    const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
+    const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+    return `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
+  } else if (location) {
+    return calcGpsDisplayString(location[1], location[0], gpsFormat);
+  }
+  return placeholder;
+};
 
 const LocationSelectorInput = ({
   className,
@@ -40,17 +56,19 @@ const LocationSelectorInput = ({
 }) => {
   const dispatch = useDispatch();
 
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
   const map = useContext(MapContext);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const displayString = location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder;
+  const displayString = calculateInputDisplayString(event, gpsFormat, location, placeholder);
+
   const popoverClassString = ENABLE_EVENT_GEOMETRY
     ? popoverClassName ? `${styles.newGpsPopover} ${popoverClassName}` : styles.newGpsPopover
     : popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
@@ -84,15 +102,18 @@ const LocationSelectorInput = ({
   }, []);
 
   // Area
+  const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
+
   const onAreaSelectStart = useCallback(() => {
-    dispatch(setModalVisibilityState(false));
-    dispatch(hideSideBar());
+    dispatch(setMapInteractionIsPickingArea(true));
+
+    mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
-  const onAreaSelectCancel = useCallback(() => {
-    dispatch(setModalVisibilityState(true));
-    dispatch(showSideBar());
-  }, [dispatch]);
+  useEffect(() => {
+    dispatch(setModalVisibilityState(!isPickingArea));
+    dispatch(isPickingArea ? hideSideBar() : showSideBar());
+  }, [dispatch, isPickingArea]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -145,7 +166,7 @@ const LocationSelectorInput = ({
       ref={locationInputAnchorRef}
     >
       <LocationIcon className={styles.icon} />
-      <span style={!location ? { marginRight: 'auto' } : {}}>{displayString}</span>
+      <span className={styles.displayString}>{displayString}</span>
       {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
     </div>
 
@@ -162,16 +183,7 @@ const LocationSelectorInput = ({
         ? <Popover className={popoverClassString}>
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
-              <div className={styles.locationAreaContent}>
-                <MapAreaPicker
-                  className={styles.createAreaButton}
-                  onAreaSelectCancel={onAreaSelectCancel}
-                  onAreaSelectStart={onAreaSelectStart}
-                >
-                  <PolygonIcon />
-                  Create report area
-                </MapAreaPicker>
-              </div>
+              <AreaTab onAreaSelectStart={onAreaSelectStart} />
             </Tab>
 
             <Tab eventKey="point" title="Point">

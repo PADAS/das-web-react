@@ -7,10 +7,11 @@ import { withMap } from '../EarthRangerMap';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
-import { useMapEventBinding } from '../hooks';
+import { setMapInteractionIsPickingLocation } from '../ducks/map-ui';
 
 import PointPopup from './PointPopup';
-import { setPickingMapLocationState } from '../ducks/map-ui';
+
+import { useMapEventBinding } from '../hooks';
 
 import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
@@ -20,7 +21,7 @@ import styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
-  const { map, setPickingMapLocationState } = props;
+  const { map, setMapInteractionIsPickingLocation } = props;
 
   const [active, setActiveState] = useState(false);
   const [drawing, setDrawingState] = useState(false);
@@ -106,8 +107,8 @@ const MapRulerControl = (props) => {
   useMapEventBinding('dblclick', onFinish, null, drawing);
 
   useEffect(() => {
-    setPickingMapLocationState(active && drawing);
-  }, [active, drawing, setPickingMapLocationState]);
+    setMapInteractionIsPickingLocation(active && drawing);
+  }, [active, drawing, setMapInteractionIsPickingLocation]);
 
   useEffect(() => {
     const onComponentUnmount = () => {
@@ -189,6 +190,6 @@ const MapRulerControl = (props) => {
   </>;
 };
 
-export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRulerControl)));
+export default connect(null, { setMapInteractionIsPickingLocation })(memo(withMap(MapRulerControl)));
 
 

@@ -28,14 +28,8 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
-import {
-  updateTrackState,
-  updateHeatmapSubjects,
-  setReportHeatmapVisibility,
-} from '../ducks/map-ui';
-import { addModal } from '../ducks/modals';
+import { setReportHeatmapVisibility, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { addUserNotification } from '../ducks/user-notifications';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
@@ -82,6 +76,7 @@ import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
+import ReportGeometryDrawer from '../ReportGeometryDrawer';
 
 import './Map.scss';
 
@@ -121,7 +116,6 @@ const Map = ({
   onMapLoad,
   patrolFilter,
   patrolTrackState,
-  pickingLocationOnMap,
   popup,
   setReportHeatmapVisibility,
   setTrackLength,
@@ -137,6 +131,7 @@ const Map = ({
   updateHeatmapSubjects,
   updatePatrolTrackState,
   updateTrackState,
+  mapLocationSelection,
 }) => {
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
@@ -146,6 +141,8 @@ const Map = ({
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
+
+  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
 
   useEffect(() => {
     const lnglat = new URLSearchParams(location.search).get('lnglat');
@@ -249,10 +246,10 @@ const Map = ({
   }, 100);
 
   const withLocationPickerState = useCallback((func) => (...args) => {
-    if (!pickingLocationOnMap) {
+    if (!pickingAreaOrLocationOnMap) {
       return func(...args);
     }
-  }, [pickingLocationOnMap]);
+  }, [pickingAreaOrLocationOnMap]);
 
   const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
     if (event?.originalEvent?.cancelBubble) return;
@@ -655,11 +652,13 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!currentTab}>
+      <DelayedUnmount isMounted={!currentTab && !pickingAreaOrLocationOnMap}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>
       </DelayedUnmount>
+
+      {mapLocationSelection.isPickingArea && <ReportGeometryDrawer />}
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >
@@ -734,6 +733,7 @@ const mapStatetoProps = (state) => {
     homeMap,
     mapIsLocked,
     patrolTrackState,
+    mapLocationSelection,
     popup,
     subjectTrackState,
     heatmapSubjectIDs,
@@ -773,18 +773,17 @@ const mapStatetoProps = (state) => {
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
+    mapLocationSelection,
   });
 };
 
 export default connect(mapStatetoProps, {
-  addUserNotification,
   clearEventData,
   clearSubjectData,
   fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
   hidePopup,
-  addModal,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,

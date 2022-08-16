@@ -16,7 +16,7 @@ import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer,
+  mapDataZoomSimplificationReducer, mapLocationSelectionReducer, printTitleReducer,
   displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
   displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
 } from '../ducks/map-ui';
@@ -113,7 +113,7 @@ const rootReducer = combineReducers({
     mapClusterConfig: persistReducer(mapClusterStorageConfig, mapClusterConfigReducer),
     modals: modalsReducer,
     drawer: drawerReducer,
-    pickingLocationOnMap: pickingLocationOnMapReducer,
+    mapLocationSelection: mapLocationSelectionReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,

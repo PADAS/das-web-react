@@ -32,6 +32,9 @@ export const createMapMock = (override = {}) => {
     setTerrain: jest.fn(),
     fitBounds: jest.fn(),
     setZoom: jest.fn(),
+    getStyle: jest.fn(),
+    setMaxZoom: jest.fn(),
+    setMinZoom: jest.fn(),
     ...override,
     __test__: {
       fireHandlers: (handlerName, ...rest) => {

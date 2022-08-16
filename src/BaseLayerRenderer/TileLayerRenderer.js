@@ -36,8 +36,8 @@ const TileLayerRenderer = (props) => {
   const map = useContext(MapContext);
 
   const activeLayer = useMemo(() =>
-    layers.find(({ id }) => id === currentBaseLayer.id)
-  , [currentBaseLayer.id, layers]);
+    layers.find(({ id }) => id === currentBaseLayer?.id)
+  , [currentBaseLayer?.id, layers]);
 
   const { mapConfig, sourceConfig } = useMemo(() =>
     calcConfigForMapAndSourceFromLayer(currentBaseLayer)
