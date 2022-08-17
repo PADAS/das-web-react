@@ -14,7 +14,7 @@ describe('FriendlyFilterString', () => {
 
   test('prints a friendly string for a non-filtered case', async () => {
     render(<FriendlyFilterString
-      dateRange={{ lower: '2022-02-15T06:00:00.000Z', upper: '2022-03-15T06:00:00.000Z' }}
+      dateRange={{ lower: '2022-02-15T10:00:00.000Z', upper: '2022-03-15T06:00:00.000Z' }}
       totalFeedCount={20}
     />);
 
@@ -25,7 +25,7 @@ describe('FriendlyFilterString', () => {
 
   test('prints a friendly string for a filtered case', async () => {
     render(<FriendlyFilterString
-      dateRange={{ lower: '2022-02-18T06:00:00.000Z', upper: '2022-03-18T12:00:00.000Z' }}
+      dateRange={{ lower: '2022-02-18T10:00:00.000Z', upper: '2022-03-18T12:00:00.000Z' }}
       isFiltered
       totalFeedCount={7}
     />);
@@ -37,7 +37,7 @@ describe('FriendlyFilterString', () => {
 
   test('prints a friendly string for a sorted case', async () => {
     render(<FriendlyFilterString
-      dateRange={{ lower: '2022-01-22T06:00:00.000Z', upper: '2022-02-22T12:00:00.000Z' }}
+      dateRange={{ lower: '2022-01-22T10:00:00.000Z', upper: '2022-02-22T12:00:00.000Z' }}
       isFiltered
       sortConfig={[SORT_DIRECTION.up, EVENT_SORT_OPTIONS[1]]}
       totalFeedCount={50}
