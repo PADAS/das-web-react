@@ -17,7 +17,7 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
-import { setMapInteractionIsPickingArea } from '../../ducks/map-ui';
+import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 import AreaTab from './AreaTab';
@@ -102,18 +102,19 @@ const LocationSelectorInput = ({
   }, []);
 
   // Area
-  const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
+  const isDrawingEventGeometry = useSelector((state) => state.view.mapLocationSelection.isPickingLocation
+    && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
 
   const onAreaSelectStart = useCallback(() => {
-    dispatch(setMapInteractionIsPickingArea(true));
+    dispatch(setIsPickingLocation(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY));
 
     mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(setModalVisibilityState(!isPickingArea));
-    dispatch(isPickingArea ? hideSideBar() : showSideBar());
-  }, [dispatch, isPickingArea]);
+    dispatch(setModalVisibilityState(!isDrawingEventGeometry));
+    dispatch(isDrawingEventGeometry ? hideSideBar() : showSideBar());
+  }, [dispatch, isDrawingEventGeometry]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
