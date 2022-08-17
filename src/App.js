@@ -19,6 +19,7 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { getCurrentTabFromURL } from './utils/navigation';
+import { MAP_LOCATION_SELECTION_MODES } from './ducks/map-ui';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -33,6 +34,11 @@ import './App.scss';
 import { showToast } from './utils/toast';
 
 export const MapContext = createContext(null);
+
+const MAP_LOCATION_SELECTION_MODE_CLASS_MAP = {
+  [MAP_LOCATION_SELECTION_MODES.DEFAULT]: 'picking-location-default',
+  [MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY]: 'picking-location-fullscreen',
+};
 
 // use this block to do direct map event binding.
 // useful for API gaps between react-mapbox-gl and mapbox-gl.
@@ -130,10 +136,12 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage]);
 
-  const isPickingLocationOnMap = mapLocationSelection.isPickingPoint || mapLocationSelection.isPickingArea;
+  const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation
+    ? `picking-location-${MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]}`
+    : '';
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${isPickingLocationOnMap ? `picking-location-${mapLocationSelection.mode}` : ''}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
     data-testid="app-wrapper"
     onDrop={onDrop}
     onDragLeave={finishDrag}

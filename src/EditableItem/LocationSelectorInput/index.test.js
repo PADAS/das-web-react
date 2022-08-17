@@ -175,24 +175,4 @@ describe('LocationSelectorInput', () => {
 
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
   });
-
-
-  test('hides the sidebar and the modal when choosing an area in the map', async () => {
-    store.view.mapLocationSelection.isPickingArea = true;
-
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(hideSideBar).toHaveBeenCalledTimes(1);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
-    expect(setModalVisibilityState).toHaveBeenCalledWith(false);
-  });
 });

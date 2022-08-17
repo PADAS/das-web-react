@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { setMapAreaSelection } from '../ducks/map-ui';
+import { setIsPickingLocation } from '../ducks/map-ui';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -17,7 +17,7 @@ const ReportGeometryDrawer = () => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        dispatch(setMapAreaSelection(false));
+        dispatch(setIsPickingLocation(false));
       }
     };
 

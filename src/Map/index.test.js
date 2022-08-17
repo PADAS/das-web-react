@@ -7,7 +7,12 @@ import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
 import { fetchBaseLayers } from '../ducks/layers';
 import { hidePopup, showPopup } from '../ducks/popup';
-import { setReportHeatmapVisibility, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import {
+  MAP_LOCATION_SELECTION_MODES,
+  setReportHeatmapVisibility,
+  updateHeatmapSubjects,
+  updateTrackState
+} from '../ducks/map-ui';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -164,7 +169,7 @@ describe('Map', () => {
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
-    store.view.mapLocationSelection.isPickingPoint = true;
+    store.view.mapLocationSelection.isPickingLocation = true;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>
@@ -178,22 +183,8 @@ describe('Map', () => {
     expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
   });
 
-  test('does not show the EventFilter if user is picking an area on the map', async () => {
-    store.view.mapLocationSelection = { event: {}, isPickingArea: true };
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapboxMapContext.Provider value={map}>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapboxMapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
-
-    expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
-  });
-
-  test('does not show the ReportAreaOverview if user is picking an area on the map', async () => {
+  test('does not show the ReportAreaOverview if user is drawing a geometry on the map', async () => {
+    store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>
@@ -208,7 +199,11 @@ describe('Map', () => {
   });
 
   test('shows the ReportAreaOverview', async () => {
-    store.view.mapLocationSelection = { event: {}, isPickingArea: true };
+    store.view.mapLocationSelection = {
+      event: {},
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
+    };
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapboxMapContext.Provider value={map}>

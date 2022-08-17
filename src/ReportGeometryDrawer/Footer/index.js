@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch } from 'react-redux';
 
-import { setMapAreaSelection } from '../../ducks/map-ui';
+import { setIsPickingLocation } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
@@ -10,7 +10,7 @@ const Footer = ({ disableSaveButton, onSave }) => {
   const dispatch = useDispatch();
 
   const onClickCancel = useCallback(() => {
-    dispatch(setMapAreaSelection(false));
+    dispatch(setIsPickingLocation(false));
   }, [dispatch]);
 
   return <div className={styles.footer}>
