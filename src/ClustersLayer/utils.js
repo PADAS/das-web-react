@@ -189,7 +189,7 @@ export const addNewClusterMarkers = (
         clustersSource
       );
       const onMouseOver = () => renderClusterPolygon(clusterFeatureCollection);
-      const onMouseLeave = () => removeClusterPolygon;
+      const onMouseLeave = () => removeClusterPolygon();
 
       let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
@@ -199,7 +199,7 @@ export const addNewClusterMarkers = (
         onMouseLeave,
       );
 
-      marker = new mapboxgl.Marker({ element: newClusterHTMLMarkerContainer })
+      marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
     }
