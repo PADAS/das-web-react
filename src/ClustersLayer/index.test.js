@@ -45,21 +45,22 @@ jest.mock('../selectors/subjects', () => ({
 jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
 
 describe('ClustersLayer', () => {
-  const removeClusterPolygon = jest.fn();
-  afterEach(() => {
-    jest.restoreAllMocks();
+  let getClusterExpansionZoomMock, removeClusterPolygon;
+
+  beforeEach(() => {
+    getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
+    removeClusterPolygon = jest.fn();
   });
 
-  describe('ClustersLayer', () => {
-    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(), setData = jest.fn();
-    let map, useClusterBufferPolygonMock, getClusterExpansionZoomMock;
+  describe('the map layer', () => {
+    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(),
+      setData = jest.fn();
+    let map, useClusterBufferPolygonMock;
     beforeEach(() => {
       jest.useFakeTimers();
 
       useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
       useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
-
-      getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
 
       map = createMapMock();
       map.queryRenderedFeatures.mockImplementation(() => [
@@ -94,6 +95,7 @@ describe('ClustersLayer', () => {
     afterEach(() => {
       jest.runOnlyPendingTimers();
       jest.useRealTimers();
+      jest.restoreAllMocks();
 
       mapMarkers.length = 0;
     });
@@ -329,6 +331,7 @@ describe('ClustersLayer', () => {
 
   describe('onClusterClick', () => {
     const clusterCoordinates = {};
+    let map;
     const clusterFeatures = [
       { properties: { id: '1', content_type: 'observations.subject' } },
       { properties: { id: '2', event_type: 'jenaeonefield' } },
@@ -339,13 +342,18 @@ describe('ClustersLayer', () => {
     ];
     const clusterHash = 'abcd';
     const clusterMarkerHashMapRef = { current: { abcd: { id: '1' } } };
-    const map = { easeTo: jest.fn(), getZoom: () => CLUSTER_CLICK_ZOOM_THRESHOLD - 1 };
+
     const onShowClusterSelectPopup = jest.fn();
-    const source = {
-      getClusterExpansionZoom: (clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1),
-    };
+
+    beforeEach(() => {
+      map = createMapMock();
+
+    });
 
     test('zooms to cluster coordinates if the current zoom is less than the threshold', () => {
+      map.getSource.mockReturnValue({ getClusterExpansionZoom: getClusterExpansionZoomMock });
+      map.getZoom.mockReturnValue(CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
+
       onClusterClick(
         clusterCoordinates,
         clusterFeatures,
@@ -353,7 +361,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
-        source
+        CLUSTERS_SOURCE_ID
       )();
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
@@ -361,7 +369,8 @@ describe('ClustersLayer', () => {
     });
 
     test('triggers onShowClusterSelectPopup if the current zoom is equal or greater than the threshold', () => {
-      map.getZoom = () => CLUSTER_CLICK_ZOOM_THRESHOLD + 1;
+      map.getZoom.mockReturnValue(CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
+
       onClusterClick(
         clusterCoordinates,
         clusterFeatures,
@@ -369,7 +378,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
-        source
+        CLUSTERS_SOURCE_ID
       )();
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);

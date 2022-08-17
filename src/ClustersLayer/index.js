@@ -76,7 +76,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     subjectFeatureCollection.features,
   ]);
 
-  const updateClusterMarkersCallback = useCallback(async (source) => {
+  const updateClusterMarkersCallback = useCallback(async () => {
 
     const {
       renderedClusterHashes,
@@ -88,7 +88,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
     clusterMarkerHashMapRef.current = addNewClusterMarkers(
       clusterMarkerHashMapRef,
-      source,
+      CLUSTERS_SOURCE_ID,
       map,
       mapImages,
       removeClusterPolygon,
@@ -101,7 +101,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const onSourceData = useMemo(() => (event) => {
     if (event.sourceId === CLUSTERS_SOURCE_ID) {
-      updateClusterMarkersCallback(event.source);
+      updateClusterMarkersCallback();
     }
   }, [updateClusterMarkersCallback]);
 

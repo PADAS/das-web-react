@@ -111,13 +111,13 @@ export const onClusterClick = (
   clusterMarkerHashMapRef,
   map,
   onShowClusterSelectPopup,
-  source
+  sourceId
 ) => () => {
   if (!clusterMarkerHashMapRef.current[clusterHash]) return;
 
   const mapZoom = map.getZoom();
   if (mapZoom < CLUSTER_CLICK_ZOOM_THRESHOLD) {
-    source.getClusterExpansionZoom(
+    map.getSource(sourceId).getClusterExpansionZoom(
       clusterMarkerHashMapRef.current[clusterHash].id,
       (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom: zoom + 0.1 })
     );
@@ -158,7 +158,7 @@ export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPo
 
 export const addNewClusterMarkers = (
   clusterMarkerHashMapRef,
-  clustersSource,
+  sourceId,
   map,
   mapImages,
   removeClusterPolygon,
@@ -186,7 +186,7 @@ export const addNewClusterMarkers = (
         clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
-        clustersSource
+        sourceId
       );
       const onMouseOver = () => renderClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
