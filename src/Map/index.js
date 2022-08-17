@@ -122,7 +122,6 @@ const Map = ({
   setTrackLength,
   showPopup,
   showReportHeatmap,
-  showReportsOnMap,
   showTrackTimepoints,
   socket,
   subjectTrackState,
@@ -220,13 +219,21 @@ const Map = ({
     timeSliderActive,
   ]);
 
+  const debouncedFetchEventsAndSubjects = useMemo(() =>
+    debounce(() =>
+      Promise.all(
+        [mapEventsFetch(), fetchMapSubjectsFromTimeslider()]
+      )
+        .catch((e) =>
+          console.warn('error loading map data', e)
+        ), 100)
+  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
 
-    return Promise.all([mapEventsFetch(), fetchMapSubjectsFromTimeslider()])
-      .catch((e) => console.warn('error loading map data', e))
-      .finally(() => {});
-  }, [mapEventsFetch, fetchMapSubjectsFromTimeslider, cancelMapDataRequests]);
+    return debouncedFetchEventsAndSubjects();
+  }, [debouncedFetchEventsAndSubjects, cancelMapDataRequests]);
 
 
   const onMapZoom = debounce(() => {
@@ -604,15 +611,13 @@ const Map = ({
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
-        <EventsLayer
+      <EventsLayer
           enableClustering={enableEventClustering}
           mapImages={mapImages}
           onEventClick={onEventSymbolClick}
           onClusterClick={onClusterClick}
           bounceEventIDs={bounceEventIDs}
         />
-      </DelayedUnmount>
 
       <SubjectsLayer mapImages={mapImages} onSubjectClick={onMapSubjectClick} />
 

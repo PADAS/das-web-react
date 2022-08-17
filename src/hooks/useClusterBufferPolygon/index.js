@@ -10,11 +10,11 @@ import { MapContext } from '../../App';
 const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguration, sourceId) => {
   const map = useContext(MapContext);
 
-  const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
+  const [clusterBufferPolygon] = useState(featureCollection([]));
+  const source = map.getSource(sourceId);
 
   const renderClusterPolygon = useCallback((clusterFeatureCollection) => {
-    const clusterGeometryIsSet = !!clusterBufferPolygon?.geometry?.coordinates?.length;
-    if (!clusterGeometryIsSet && map.getZoom() < CLUSTERS_MAX_ZOOM) {
+    if (source && map.getZoom() < CLUSTERS_MAX_ZOOM) {
       if (clusterFeatureCollection?.features?.length > 2) {
         try {
           const concaved = concave(clusterFeatureCollection);
@@ -22,19 +22,18 @@ const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguratio
 
           const buffered = buffer(concaved, 0.2);
           const simplified = simplify(buffered, { tolerance: 0.005 });
-          setClusterBufferPolygon(simplified);
+          source.setData(simplified);
         } catch (error) {}
       } else {
-        setClusterBufferPolygon(featureCollection([]));
+        source.setData(featureCollection([]));
       }
     }
-  }, [clusterBufferPolygon, map]);
+  }, [map, source]);
 
-  const removeClusterPolygon = useCallback(() => setClusterBufferPolygon(featureCollection([])), []);
+  const removeClusterPolygon = useCallback(() => source?.setData(featureCollection([])), [source]);
 
   useEffect(() => {
     if (map) {
-      const source = map.getSource(sourceId);
       if (source) {
         source.setData(clusterBufferPolygon);
       } else {
@@ -46,9 +45,9 @@ const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguratio
         map.addLayer(layerConfiguration);
       }
     }
-  }, [clusterBufferPolygon, map, layerConfiguration, layerId, sourceConfiguration, sourceId]);
+  }, [clusterBufferPolygon, map, layerConfiguration, layerId, sourceConfiguration, source, sourceId]);
 
-  return { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon };
+  return { removeClusterPolygon, renderClusterPolygon };
 };
 
 export default useClusterBufferPolygon;

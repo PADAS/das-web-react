@@ -34,7 +34,6 @@ jest.mock('mapbox-gl', () => {
   };
   return { ...jest.requireActual('mapbox-gl'), Marker };
 });
-jest.mock('lodash/debounce', () => jest.fn(debouncedFunction => debouncedFunction));
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
   getMapEventFeatureCollectionWithVirtualDate: () => mockEventFeatureCollection,
@@ -108,6 +107,8 @@ describe('ClustersLayer', () => {
     test('each marker has three icons and a number indicating how many features it has', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
+      jest.runAllTimers();
+
       await waitFor(() => {
         expect(mapMarkers[0].childNodes).toHaveLength(4);
         expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
@@ -128,17 +129,20 @@ describe('ClustersLayer', () => {
     test('renders a cluster buffer polygon when user hovers a cluster', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
+
       expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
 
       await waitFor(() => {
         mapMarkers[0].dispatchEvent(new Event('mouseover'));
       });
 
+      jest.runAllTimers();
       expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
 
       expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
 
@@ -147,6 +151,7 @@ describe('ClustersLayer', () => {
         mapMarkers[0].dispatchEvent(new Event('mouseleave'));
       });
 
+      jest.runAllTimers();
       expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
     });
 

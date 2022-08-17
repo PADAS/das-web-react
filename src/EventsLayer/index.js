@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import debounceRender from 'react-debounce-render';
 import { featureCollection } from '@turf/helpers';
 import { useSelector } from 'react-redux';
 
@@ -294,4 +293,4 @@ EventsLayer.propTypes = {
   onEventClick: PropTypes.func.isRequired,
 };
 
-export default debounceRender(memo(withMapViewConfig(withMap(EventsLayer))), 16.6666); /* debounce updates a bit without throttlling below 60fps */
+export default memo(withMapViewConfig(withMap(EventsLayer)));

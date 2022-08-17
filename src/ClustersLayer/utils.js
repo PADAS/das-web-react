@@ -3,9 +3,9 @@ import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { hashCode } from '../utils/string';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
+
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
@@ -140,9 +140,7 @@ export const getRenderedClustersData = async (clustersSource, map) => {
   }));
   const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
 
-  const renderedClusterHashes = renderedClusterFeatures.map(
-    (clusterFeatures) => hashCode(clusterFeatures.map(clusterFeature => clusterFeature.properties.id).join(''))
-  );
+  const renderedClusterHashes = renderedClusterIds;
 
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
 };
@@ -181,27 +179,29 @@ export const addNewClusterMarkers = (
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
+      const onClick = onClusterClick(
+        clusterPoint.geometry.coordinates,
+        clusterFeatures,
+        clusterHash,
+        clusterMarkerHashMapRef,
+        map,
+        onShowClusterSelectPopup,
+        clustersSource
+      );
+      const onMouseOver = () => renderClusterPolygon(clusterFeatureCollection);
+      const onMouseLeave = () => removeClusterPolygon;
+
       let newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
         mapImages,
-        onClusterClick(
-          clusterPoint.geometry.coordinates,
-          clusterFeatures,
-          clusterHash,
-          clusterMarkerHashMapRef,
-          map,
-          onShowClusterSelectPopup,
-          clustersSource
-        ),
-        () => renderClusterPolygon(clusterFeatureCollection),
-        () => removeClusterPolygon()
+        onClick,
+        onMouseOver,
+        onMouseLeave,
       );
 
-      marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
+      marker = new mapboxgl.Marker({ element: newClusterHTMLMarkerContainer })
         .setLngLat(clusterPoint.geometry.coordinates)
         .addTo(map);
-
-      newClusterHTMLMarkerContainer = null; // forcing garbage collection
     }
 
     renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
@@ -210,33 +210,3 @@ export const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-export const updateClusterMarkers = async (
-  clusterMarkerHashMapRef,
-  onShowClusterSelectPopup,
-  map,
-  mapImages,
-  removeClusterPolygon,
-  renderClusterPolygon,
-  source
-) => {
-  const {
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-  } = await getRenderedClustersData(source, map);
-
-  removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
-
-  clusterMarkerHashMapRef.current = addNewClusterMarkers(
-    clusterMarkerHashMapRef,
-    source,
-    map,
-    mapImages,
-    removeClusterPolygon,
-    renderClusterPolygon,
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-    onShowClusterSelectPopup
-  );
-};
