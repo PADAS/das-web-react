@@ -90,9 +90,15 @@ export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   }, [sourceId, source, config, data, map]);
 
   useEffect(() => {
+    let timeout;
     if (source) {
-      source.setData?.(data);
+      timeout = window.setTimeout(() => {
+        source.setData?.(data);
+      });
     }
+    return () => {
+      window.clearTimeout(timeout);
+    };
   }, [data, source]);
 
   useEffect(() => {

@@ -50,7 +50,7 @@ const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
 const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
 
 const FETCH_MAP_EVENTS_START = 'FETCH_MAP_EVENTS_START';
-const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
+const FETCH_MAP_EVENTS_COMPLETE = 'FETCH_MAP_EVENTS_COMPLETE';
 const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
@@ -426,7 +426,11 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     payload: { bbox },
   });
 
-  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+  let resultsToDate = [];
+  const onEachRequest = onePageOfResults => {
+    resultsToDate = [...resultsToDate, ...onePageOfResults];
+    dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+  };
 
   cancelMapEventsFetch();
 
@@ -434,19 +438,27 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     cancelToken: generateNewCancelToken(),
   });
 
+
   return recursivePaginatedQuery(request, onEachRequest)
     .then((finalResults) =>
-      finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+      finalResults && dispatch(fetchMapEventsComplete(finalResults)) /* guard clause for canceled requests */
     )
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
+
+      if (isCancel(error)) {
+        dispatch(fetchMapEventsComplete([]));
+      } else {
+        dispatch(fetchMapEventsComplete(resultsToDate));
+      }
+
       return Promise.reject(error);
     });
 };
 
-const fetchMapEventsSucess = results => (dispatch) => {
+const fetchMapEventsComplete = results => (dispatch) => {
   dispatch({
-    type: FETCH_MAP_EVENTS_SUCCESS,
+    type: FETCH_MAP_EVENTS_COMPLETE,
     payload: results,
   });
   dispatch(updateEventStore(...results));
@@ -655,7 +667,7 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
       events: union(extractEventIDs(payload), state.events),
     };
   }
-  if (type === FETCH_MAP_EVENTS_SUCCESS) {
+  if (type === FETCH_MAP_EVENTS_COMPLETE) {
     return {
       ...state,
       events: extractEventIDs(payload),
