@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { setMapInteractionIsPickingArea } from '../ducks/map-ui';
+import { setIsPickingLocation } from '../ducks/map-ui';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -39,7 +39,7 @@ const ReportGeometryDrawer = () => {
         setGeometryPoints([...geometryPoints, geometryPoints[geometryPoints.length - 1]]);
         return setIsDrawing(false);
       case 'Escape':
-        return dispatch(setMapInteractionIsPickingArea(false));
+        return dispatch(setIsPickingLocation(false));
       default:
         return;
       }

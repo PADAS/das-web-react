@@ -12,11 +12,8 @@ const ModalRenderer = ({ map }) => {
   const dispatch = useDispatch();
 
   const canShowModals = useSelector((state) => state.view.modals.canShowModals);
-  const isPickingArea = useSelector((state) => state.view.mapLocationSelection.isPickingArea);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const modals = useSelector((state) => state.view.modals.modals);
-
-  const pickingAreaOrLocationOnMap = isPickingLocation || isPickingArea;
 
   return !!modals.length && <div
     className={styles.modalBackdrop}
@@ -29,7 +26,7 @@ const ModalRenderer = ({ map }) => {
         const showModal = forceShowModal || canShowModals;
 
         const onHideModal = () => {
-          if (!pickingAreaOrLocationOnMap) {
+          if (!isPickingLocation) {
             dispatch(removeModal(id));
           }
         };

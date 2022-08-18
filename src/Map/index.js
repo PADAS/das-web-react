@@ -28,7 +28,12 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
-import { setReportHeatmapVisibility, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import {
+  MAP_LOCATION_SELECTION_MODES,
+  setReportHeatmapVisibility,
+  updateHeatmapSubjects,
+  updateTrackState
+} from '../ducks/map-ui';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
@@ -143,10 +148,10 @@ const Map = ({
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
 
-  const pickingAreaOrLocationOnMap = mapLocationSelection.isPickingLocation || mapLocationSelection.isPickingArea;
-
   const timeSliderActive = timeSliderState.active;
   const enableEventClustering = timeSliderActive ? false : true;
+  const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
+    && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 
@@ -236,10 +241,10 @@ const Map = ({
   }, 100);
 
   const withLocationPickerState = useCallback((func) => (...args) => {
-    if (!pickingAreaOrLocationOnMap) {
+    if (!mapLocationSelection.isPickingLocation) {
       return func(...args);
     }
-  }, [pickingAreaOrLocationOnMap]);
+  }, [mapLocationSelection.isPickingLocation]);
 
   const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
     if (event?.originalEvent?.cancelBubble) return;
@@ -624,13 +629,13 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!currentTab && !pickingAreaOrLocationOnMap}>
+      <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>
       </DelayedUnmount>
 
-      {mapLocationSelection.isPickingArea && <ReportGeometryDrawer />}
+      {isDrawingEventGeometry && <ReportGeometryDrawer />}
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >

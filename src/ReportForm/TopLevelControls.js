@@ -5,7 +5,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
-import { setMapInteractionEvent } from '../ducks/map-ui';
+import { setMapLocationSelectionEvent } from '../ducks/map-ui';
 
 import DatePicker from '../DatePicker';
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
@@ -27,7 +27,7 @@ const ReportFormTopLevelControls = ({
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
 
   useEffect(() => {
-    dispatch(setMapInteractionEvent(report));
+    dispatch(setMapLocationSelectionEvent(report));
   }, [dispatch, report]);
 
   return <div className={`${styles.reportControls} ${readonly ? styles.readonly : ''}`}>

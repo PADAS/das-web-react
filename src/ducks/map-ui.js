@@ -30,9 +30,8 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
-const SET_MAP_INTERACTION_EVENT = 'SET_MAP_INTERACTION_EVENT';
-const SET_MAP_INTERACTION_IS_PICKING_AREA = 'SET_MAP_INTERACTION_IS_PICKING_AREA';
-const SET_MAP_INTERACTION_IS_PICKING_LOCATION = 'SET_MAP_INTERACTION_IS_PICKING_LOCATION';
+const SET_MAP_LOCATION_SELECTION_EVENT = 'SET_MAP_LOCATION_SELECTION_EVENT';
+const SET_IS_PICKING_LOCATION = 'SET_IS_PICKING_LOCATION';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
@@ -163,19 +162,16 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
-export const setMapInteractionEvent = (event) => ({
-  type: SET_MAP_INTERACTION_EVENT,
+export const MAP_LOCATION_SELECTION_MODES = { EVENT_GEOMETRY: 'eventGeometry', DEFAULT: 'default' };
+
+export const setMapLocationSelectionEvent = (event) => ({
+  type: SET_MAP_LOCATION_SELECTION_EVENT,
   payload: { event },
 });
 
-export const setMapInteractionIsPickingArea = (isPickingArea) => ({
-  type: SET_MAP_INTERACTION_IS_PICKING_AREA,
-  payload: { isPickingArea },
-});
-
-export const setMapInteractionIsPickingLocation = (isPickingLocation) => ({
-  type: SET_MAP_INTERACTION_IS_PICKING_LOCATION,
-  payload: { isPickingLocation },
+export const setIsPickingLocation = (isPickingLocation, mode = MAP_LOCATION_SELECTION_MODES.DEFAULT) => ({
+  type: SET_IS_PICKING_LOCATION,
+  payload: { isPickingLocation, mode },
 });
 
 export const updateTrackState = (update) => ({
@@ -303,18 +299,19 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
   return state;
 }, INITIAL_TRACK_STATE);
 
-const INITIAL_PICKING_AREA_ON_MAP_STATE = { event: null, isPickingArea: false, isPickingLocation: false };
+const INITIAL_MAP_LOCATION_SELECTION_STATE = {
+  event: null,
+  isPickingLocation: false,
+  mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+};
 
-export const mapLocationSelectionReducer = (state = INITIAL_PICKING_AREA_ON_MAP_STATE, action) => {
+export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTION_STATE, action) => {
   switch (action.type) {
-  case SET_MAP_INTERACTION_EVENT:
+  case SET_MAP_LOCATION_SELECTION_EVENT:
     return { ...state, event: action.payload.event };
 
-  case SET_MAP_INTERACTION_IS_PICKING_AREA:
-    return { ...state, isPickingArea: action.payload.isPickingArea };
-
-  case SET_MAP_INTERACTION_IS_PICKING_LOCATION:
-    return { ...state, isPickingLocation: action.payload.isPickingLocation };
+  case SET_IS_PICKING_LOCATION:
+    return { ...state, isPickingLocation: action.payload.isPickingLocation, mode: action.payload.mode };
 
   default:
     return state;
