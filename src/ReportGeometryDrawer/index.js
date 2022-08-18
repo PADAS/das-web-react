@@ -1,14 +1,30 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setMapInteractionIsPickingArea } from '../ducks/map-ui';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
+import MapDrawingTools from '../MapDrawingTools';
 
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
-  // TODO: Add drawing mechanism here
+
+  // TODO: Set the current event polygon by default
+  const [geometryPoints, setGeometryPoints] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(true);
+
+  const onChangeGeometry = useCallback((newPoints) => {
+    setGeometryPoints(newPoints);
+  }, []);
+
+  const onClickGeometryLine = useCallback(() => {
+    console.log('Line clicked');
+  }, []);
+
+  const onClickGeometryPoint = useCallback(() => {
+    console.log('Point clicked');
+  }, []);
 
   const onSaveGeometry = useCallback(() => {
 
@@ -16,19 +32,34 @@ const ReportGeometryDrawer = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        dispatch(setMapInteractionIsPickingArea(false));
+      switch (event.key) {
+      case 'Backspace':
+        return setGeometryPoints(geometryPoints.slice(0, -1));
+      case 'Enter':
+        setGeometryPoints([...geometryPoints, geometryPoints[geometryPoints.length - 1]]);
+        return setIsDrawing(false);
+      case 'Escape':
+        return dispatch(setMapInteractionIsPickingArea(false));
+      default:
+        return;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch]);
+  }, [dispatch, geometryPoints]);
 
   return <>
     <ReportOverview />
-    <Footer disableSaveButton={true} onSave={onSaveGeometry} />
+    <MapDrawingTools
+      drawing={isDrawing}
+      onChange={onChangeGeometry}
+      onClickLine={onClickGeometryLine}
+      onClickPoint={onClickGeometryPoint}
+      points={geometryPoints}
+    />
+    <Footer disableSaveButton={!geometryPoints.length} onSave={onSaveGeometry} />
   </>;
 };
 

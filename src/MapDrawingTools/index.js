@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
@@ -35,6 +35,7 @@ const MapDrawingTools = (props) => {
     points,
     onClickLine = noop,
     onClickLabel = noop,
+    renderPopupInstructions = noop,
   } = props;
 
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -88,7 +89,12 @@ const MapDrawingTools = (props) => {
   if (!showLayer) return null;
 
   return <>
-    {drawing && <CursorPopup coords={cursorPopupCoords} lineLength={lineLength} points={points} />}
+    {drawing && <CursorPopup
+      coords={cursorPopupCoords}
+      lineLength={lineLength}
+      points={points}
+      render={renderPopupInstructions}
+    />}
     <MapLayers drawnLineSegments={data?.drawnLineSegments} fillPolygon={data?.fillPolygon} />
     {children}
   </>;
@@ -100,29 +106,30 @@ PropTypes.propTypes = {
   points: PropTypes.array,
 };
 
-const CursorPopup = (props) => {
-  const { coords, points, lineLength } = props;
+const CursorPopup = ({ coords, lineLength, points, render }) => {
   const map = useContext(MapContext);
-
-  const popupClassName = `${styles.popup} ${styles.notDone}`;
-  const popupOffset = [-8, 0];
-  const popupAnchorPosition = 'right';
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
   const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
-  return <Popup className={popupClassName} data-testid='drawing-tools-popup' map={map} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
-    {points.length === 0 && <p>Click to start</p>}
-    {!!points.length && <Fragment>
-      {showPromptForSecondPoint && <div>
-        <p>Select another point</p>
-      </div>}
-      {!showPromptForSecondPoint && <Fragment>
+
+  return <Popup
+    className={`${styles.popup} ${styles.notDone}`}
+    data-testid='drawing-tools-popup'
+    map={map}
+    offset={[-8, 0]}
+    coordinates={coords}
+    anchor="right"
+    >
+    {points.length === 0 && <p>Click to add a point</p>}
+
+    {!!points.length && <>
+      {!showPromptForSecondPoint && <>
         <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
+
         <p>Distance: {lineLength}</p>
-        {!!points.length && <>
-          <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
-        </>}
-      </Fragment>}
-    </Fragment>}
+
+        {render()}
+      </>}
+    </>}
   </Popup>;
 };
