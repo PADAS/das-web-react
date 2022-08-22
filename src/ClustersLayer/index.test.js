@@ -34,7 +34,6 @@ jest.mock('mapbox-gl', () => {
   };
   return { ...jest.requireActual('mapbox-gl'), Marker };
 });
-jest.mock('lodash/debounce', () => jest.fn(debouncedFunction => debouncedFunction));
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
   getMapEventFeatureCollectionWithVirtualDate: () => mockEventFeatureCollection,
@@ -46,13 +45,16 @@ jest.mock('../selectors/subjects', () => ({
 jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
 
 describe('ClustersLayer', () => {
-  const removeClusterPolygon = jest.fn();
-  afterEach(() => {
-    jest.restoreAllMocks();
+  let getClusterExpansionZoomMock, removeClusterPolygon;
+
+  beforeEach(() => {
+    getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
+    removeClusterPolygon = jest.fn();
   });
 
-  describe('ClustersLayer', () => {
-    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(), setData = jest.fn();
+  describe('the map layer', () => {
+    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(),
+      setData = jest.fn();
     let map, useClusterBufferPolygonMock;
     beforeEach(() => {
       jest.useFakeTimers();
@@ -66,7 +68,7 @@ describe('ClustersLayer', () => {
         { properties: { cluster_id: mockClusterIds[1] } },
       ]);
       map.getSource.mockImplementation(() => ({
-        getClusterExpansionZoom: jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1)),
+        getClusterExpansionZoom: getClusterExpansionZoomMock,
         getClusterLeaves: (clusterId, limit, offset, callback) => {
           switch (clusterId) {
           case mockClusterIds[0]:
@@ -93,6 +95,7 @@ describe('ClustersLayer', () => {
     afterEach(() => {
       jest.runOnlyPendingTimers();
       jest.useRealTimers();
+      jest.restoreAllMocks();
 
       mapMarkers.length = 0;
     });
@@ -107,6 +110,8 @@ describe('ClustersLayer', () => {
 
     test('each marker has three icons and a number indicating how many features it has', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      jest.runAllTimers();
 
       await waitFor(() => {
         expect(mapMarkers[0].childNodes).toHaveLength(4);
@@ -128,17 +133,20 @@ describe('ClustersLayer', () => {
     test('renders a cluster buffer polygon when user hovers a cluster', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
+
       expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
 
       await waitFor(() => {
         mapMarkers[0].dispatchEvent(new Event('mouseover'));
       });
 
+      jest.runAllTimers();
       expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
 
       expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
 
@@ -147,17 +155,23 @@ describe('ClustersLayer', () => {
         mapMarkers[0].dispatchEvent(new Event('mouseleave'));
       });
 
-      expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
+      jest.runAllTimers();
+
+      await waitFor(() => {
+        expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
+      });
     });
 
     test('zooms to a cluster if user clicks it while zoom is too far', async () => {
-      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID, source: { getClusterExpansionZoom: getClusterExpansionZoomMock } });
 
       expect(map.easeTo).toHaveBeenCalledTimes(0);
 
       await waitFor(() => {
         mapMarkers[0].dispatchEvent(new Event('click'));
       });
+
+      jest.runAllTimers();
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
@@ -169,7 +183,7 @@ describe('ClustersLayer', () => {
     test('triggers the onShowClusterSelectPopup action when user clicks a cluster if zoom is close enough', async () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
 
-      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID, source: { getClusterExpansionZoom: getClusterExpansionZoomMock } });
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(0);
 
@@ -317,6 +331,7 @@ describe('ClustersLayer', () => {
 
   describe('onClusterClick', () => {
     const clusterCoordinates = {};
+    let map;
     const clusterFeatures = [
       { properties: { id: '1', content_type: 'observations.subject' } },
       { properties: { id: '2', event_type: 'jenaeonefield' } },
@@ -327,13 +342,18 @@ describe('ClustersLayer', () => {
     ];
     const clusterHash = 'abcd';
     const clusterMarkerHashMapRef = { current: { abcd: { id: '1' } } };
-    const map = { easeTo: jest.fn(), getZoom: () => CLUSTER_CLICK_ZOOM_THRESHOLD - 1 };
+
     const onShowClusterSelectPopup = jest.fn();
-    const source = {
-      getClusterExpansionZoom: (clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1),
-    };
+
+    beforeEach(() => {
+      map = createMapMock();
+
+    });
 
     test('zooms to cluster coordinates if the current zoom is less than the threshold', () => {
+      map.getSource.mockReturnValue({ getClusterExpansionZoom: getClusterExpansionZoomMock });
+      map.getZoom.mockReturnValue(CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
+
       onClusterClick(
         clusterCoordinates,
         clusterFeatures,
@@ -341,7 +361,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
-        source
+        CLUSTERS_SOURCE_ID
       )();
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
@@ -349,7 +369,8 @@ describe('ClustersLayer', () => {
     });
 
     test('triggers onShowClusterSelectPopup if the current zoom is equal or greater than the threshold', () => {
-      map.getZoom = () => CLUSTER_CLICK_ZOOM_THRESHOLD + 1;
+      map.getZoom.mockReturnValue(CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
+
       onClusterClick(
         clusterCoordinates,
         clusterFeatures,
@@ -357,7 +378,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
-        source
+        CLUSTERS_SOURCE_ID
       )();
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
