@@ -52,7 +52,6 @@ canvas.mapboxgl-canvas {
 }
 
 $map-canvas: '.mapboxgl-canvas';
-$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
   --nav-height: 2.75rem;
@@ -96,16 +95,30 @@ body {
   display: flex;
   flex-flow: column;
 
-  &.picking-location {
-    #{$non-map-top-level-components} {
-      cursor: not-allowed !important;
-      pointer-events: none !important;
-    }
-
+  &.picking-location-default {
+    .floating-report-filter,
     .mapboxgl-ctrl-bottom-right,
     .mapboxgl-ctrl-scale,
     .mapbox-zoom-ctrl {
       display: none !important;
+    }
+  }
+
+  &.picking-location-fullscreen {
+    .primary-nav,
+    .map-legends,
+    .map-controls-container,
+    .floating-report-filter,
+    .mapboxgl-ctrl-bottom-right,
+    .mapboxgl-ctrl-scale,
+    .mapbox-zoom-ctrl {
+      display: none !important;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      .map-legends {
+        display: block !important;
+      }
     }
   }
 

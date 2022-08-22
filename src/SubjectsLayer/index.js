@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { featureCollection } from '@turf/helpers';
 import PropTypes from 'prop-types';
-import { Source } from 'react-mapbox-gl';
 import { useSelector } from 'react-redux';
 
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
@@ -9,11 +8,29 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { useMapSource } from '../hooks';
 
-const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
+
+const unclusteredFilter = [
+  'all',
+  ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+  ['!=', 'is_static', true],
+];
+
+const clusteredFilter = [
+  'all',
+  ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+  ['!=', 'is_static', true],
+  ['!has', 'point_count']
+];
+
+const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
+const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
 
 const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
@@ -21,6 +38,13 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
   const [subjectLayerIds, setSubjectLayerIds] = useState([]);
+
+  const onInit = useCallback(() => setSubjectLayerIds([
+    SUBJECT_SYMBOLS,
+    `${SUBJECT_SYMBOLS}-labels`,
+    `${SUBJECT_SYMBOLS}-unclustered`,
+    `${SUBJECT_SYMBOLS}-unclustered-labels`,
+  ]), []);
 
   useEffect(() => {
     if (!!subjectFeatureCollection?.features?.length) {
@@ -37,43 +61,27 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
     onSubjectClick(({ event, layer: clickedLayer }));
   }, [subjectLayerIds, map, onSubjectClick]);
 
-  const sourceData = {
-    type: 'geojson',
-    data: {
-      ...mapSubjectFeatures,
-      features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
-    },
-  };
+
+  const unclusteredData = useMemo(() => ({
+    ...mapSubjectFeatures,
+    features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
+  }), [mapSubjectFeatures, shouldSubjectsBeClustered]);
+
+  useMapSource(UNCLUSTERED_SOURCE_ID, unclusteredData);
 
   return <>
-    <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-
     <LabeledPatrolSymbolLayer
-      filter={[
-        'all',
-        ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
-        ['!=', 'is_static', true],
-      ]}
-      id={`${SUBJECT_SYMBOLS}-unclustered`}
+      filter={unclusteredFilter}
+      id={UNCLUSTERED_LAYER_ID}
       onClick={onSubjectSymbolClick}
-      onInit={() => setSubjectLayerIds([
-        SUBJECT_SYMBOLS,
-        `${SUBJECT_SYMBOLS}-labels`,
-        `${SUBJECT_SYMBOLS}-unclustered`,
-        `${SUBJECT_SYMBOLS}-unclustered-labels`,
-      ])}
-      sourceId="subject-symbol-source"
+      onInit={onInit}
+      sourceId={UNCLUSTERED_SOURCE_ID}
       type="symbol"
     />
 
     {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
       <LabeledPatrolSymbolLayer
-        filter={[
-          'all',
-          ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
-          ['!=', 'is_static', true],
-          ['!has', 'point_count']
-        ]}
+        filter={clusteredFilter}
         id={SUBJECT_SYMBOLS}
         onClick={onSubjectSymbolClick}
         sourceId={CLUSTERS_SOURCE_ID}

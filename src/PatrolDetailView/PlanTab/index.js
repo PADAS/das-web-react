@@ -187,7 +187,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           label=''
           className={styles.locationInput}
           copyable={isMediumLayoutOrLarger ? true : false}
-          iconPlacement='input'
           location={startLocation}
           onLocationChange={(value) => onLocationChange(value, START_KEY)}
           placeholder='Set Location'
@@ -230,7 +229,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           label=''
           className={styles.locationInput}
           copyable={isMediumLayoutOrLarger ? true : false}
-          iconPlacement='input'
           location={endLocation}
           onLocationChange={(value) => onLocationChange(value, END_KEY)}
           placeholder='Set Location'

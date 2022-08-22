@@ -57,6 +57,8 @@ const JiraSupportWidget = () => {
 
         observer.observe(supportiFrameDocument, DEFAULT_OBSERVER_CONFIG);
 
+        setTimeout(callback, 300);
+
         return () => {
           observer.disconnect();
         };

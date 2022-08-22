@@ -1,29 +1,30 @@
-import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
-import debounce from 'lodash/debounce';
+import React, { useContext, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import mapboxgl from 'mapbox-gl';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
+import { connect, useSelector } from 'react-redux';
+
+import { featureCollection } from '@turf/helpers';
 
 import { MapContext } from '../App';
-import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
-import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { showPopup } from '../ducks/popup';
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 
-import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
+import { backgroundLayerStyles, labelLayerStyles, calcDynamicBackgroundLayerLayout, calcDynamicLabelLayerLayoutStyles } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 
-const { CLUSTERS_SOURCE_ID, STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
-const LAYER_TYPE = 'symbol';
-const SOURCE_PREFIX = `${STATIC_SENSOR}-source`;
-const LAYER_ID = STATIC_SENSOR;
-const PREFIX_ID = SECOND_STATIC_SENSOR_PREFIX;
-const RENDER_STATIC_SENSORS_DEBOUNCE_TIME = 25;
+const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
+
+const { SUBJECT_SYMBOLS, CLUSTERS_SOURCE_ID } = SOURCE_IDS;
+
+export const DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER = [
+  'all',
+  ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+  ['==', 'is_static', true],
+  ['!has', 'point_count'],
+];
 
 const IMAGE_DATA = {
   id: 'popup-background',
@@ -35,104 +36,47 @@ const IMAGE_DATA = {
   }
 };
 
-const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
+const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER];
 
-const renderStaticSensors = (
-  clickedLayerID,
-  createLayer,
-  isTimeSliderActive,
-  map,
-  onLayerClick,
-  sensorsWithDefaultValue,
-  setLayerVisibility,
-  shouldSubjectsBeClustered
-) => {
-  if (map) {
-    let renderedStaticSensors = [];
-    if (shouldSubjectsBeClustered && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
-      renderedStaticSensors = map
-        .queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
-        .map((feature) => feature?.properties?.id);
-    }
-
-    sensorsWithDefaultValue?.features?.forEach((feature, index) => {
-      const layerID = `${LAYER_ID}${feature.properties.id}`;
-      const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
-      const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
-      const source = map.getSource(sourceId);
-
-      if (shouldSubjectsBeClustered
-        && !renderedStaticSensors.includes(feature.properties.id)
-        && !isTimeSliderActive) {
-        return map.getLayer(layerID) && setLayerVisibility(layerID, false);
-      }
-
-      if (source) {
-        source.setData(sourceData);
-      } else {
-        map.addSource(sourceId, {
-          type: 'geojson',
-          data: sourceData,
-        });
-      }
-
-      if (map.getLayer(layerID)) return (!popup.isOpen() && clickedLayerID !== layerID) && setLayerVisibility(layerID);
-
-      createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
-      createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
-      map.on('click', layerID, onLayerClick);
-    });
-  }
-};
-
-const debouncedRenderStaticSensors = debounce(renderStaticSensors, RENDER_STATIC_SENSORS_DEBOUNCE_TIME);
-
-const StaticSensorsLayer = ({
-  staticSensors = {},
-  isTimeSliderActive,
-  shouldSubjectsBeClustered,
-  showMapNames,
-  showPopup,
-  simplifyMapDataOnZoom: { enabled: isDataInMapSimplified },
-}) => {
+const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
-  const [clickedLayerID, setClickedLayerID] = useState('');
-  const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
+  const [layerFilter, setLayerFilter] = useState(DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER);
 
-  const addDefaultStatusValue = useCallback((features = []) => {
-    return features.map(feature => {
-      const { properties } = feature;
-      const defaultProperty = getSubjectDefaultDeviceProperty(feature);
+  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
+  const [currentLayerId, currentInactiveLayerId] = shouldSubjectsBeClustered ? [layerIds[0], layerIds[1]] :[layerIds[1], layerIds[0]];
+  const currentBackgroundLayerId = `${currentLayerId}_BACKGROUND`;
 
-      let featureWithDefaultValue;
-      featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
-      featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
+  const dynamicBackgroundLayerLayoutProps = useMemo(() =>
+    calcDynamicBackgroundLayerLayout(isDataInMapSimplified, showMapStaticSubjectsNames),
+  [isDataInMapSimplified, showMapStaticSubjectsNames]);
 
-      if (!isEmpty(defaultProperty)) {
-        const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
-        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value}${propertyUnitsLabel}`);
+  const dynamicLabelLayerLayoutProps = useMemo(() =>
+    calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive),
+  [isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive]);
+
+
+  /* watch the source data for updates, and add potential new icon images to the map if necessary */
+  useEffect(() => {
+    if (map && !!map.getLayer(currentBackgroundLayerId)) {
+      const onSourceData = ({ sourceDataType, sourceId }) => {
+        if (sourceId === currentSourceId
+          && sourceDataType !== 'metadata') {
+          const features = map.queryRenderedFeatures({ layers: [currentBackgroundLayerId, currentLayerId] });
+          addFeatureCollectionImagesToMap(featureCollection(features), { sdf: true });
+        }
       };
+      map.on('sourcedata', onSourceData);
 
-      if (!properties?.image?.length) {
-        featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;
-      }
-
-      return featureWithDefaultValue;
-    });
-  }, [isDataInMapSimplified, isTimeSliderActive, showMapStaticSubjectsNames]);
-
-  useEffect(() => {
-    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
-  }, [addDefaultStatusValue, staticSensors]);
-
-  useEffect(() => {
-    if (!!staticSensors?.features?.length) {
-      addFeatureCollectionImagesToMap(staticSensors, { sdf: true });
+      return () => {
+        map.off('sourcedata', onSourceData);
+      };
     }
-  }, [staticSensors]);
+  }, [currentBackgroundLayerId, currentLayerId, map, currentSourceId]);
 
+  /* add the marker's background image on load */
   useEffect(() => {
     if (map) {
       map.loadImage(LayerBackground, (error, image) =>
@@ -141,110 +85,133 @@ const StaticSensorsLayer = ({
     }
   }, [map]);
 
-  const setLayerVisibility = useCallback((layerID, isVisible = true) => {
-    const backgroundLayerID = layerID.replace(PREFIX_ID, '');
-    const visibility = isVisible ? 'visible' : 'none';
-    if (map.getLayer(backgroundLayerID)) {
-      map.setLayoutProperty(backgroundLayerID, 'visibility', visibility);
-      map.setLayoutProperty(`${PREFIX_ID}${backgroundLayerID}`, 'visibility', visibility);
-    }
-  }, [map]);
+  const createPopup = useCallback((feature) => {
 
-  const showPopupForStationarySubject = useCallback((layer) => {
-    const { geometry, properties } = layer;
-
-    const handleMapClick = () => {
-      setClickedLayerID('');
-      setLayerVisibility(layer.layer.id);
-    };
+    const { geometry, properties } = feature;
 
     showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
-      offset: [0, -8],
+      offset: [0, 0],
     } });
+
+    const handleMapClick = (event) => {
+      const stationarySubjectAtPoint = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+
+      const newFilter = !!stationarySubjectAtPoint ?  [
+        ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+        ['!=', 'id', stationarySubjectAtPoint.properties.id]
+      ] : DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER;
+
+      setLayerFilter(newFilter);
+    };
+
     setTimeout(() => map.once('click', handleMapClick));
 
-  }, [map, setLayerVisibility, showPopup]);
-
-  const onLayerClick = useCallback((event) => {
-    if (event?.originalEvent?.cancelBubble) return;
-
-    event?.preventDefault();
-    event?.originalEvent?.stopPropagation();
-
-    const clickedLayer = getStaticSensorLayer(event);
-
-    const clickedLayerID = clickedLayer.layer.id;
-    setClickedLayerID(clickedLayerID.replace(PREFIX_ID, ''));
-    showPopupForStationarySubject(clickedLayer);
-    setLayerVisibility(clickedLayerID, false);
-  }, [getStaticSensorLayer, showPopupForStationarySubject, setClickedLayerID, setLayerVisibility]);
-
-  const createLayer = useCallback((layerID, sourceId, layout, paint) => {
-    if (!map.getLayer(layerID)) {
-      map.addLayer({
-        id: layerID,
-        source: sourceId,
-        type: LAYER_TYPE,
-        layout: layout,
-        paint: paint
-      });
-
-      map.on('mouseenter', layerID, () => map.getCanvas().style.cursor = 'pointer');
-      map.on('mouseleave', layerID, () => map.getCanvas().style.cursor = '');
-    }
-  }, [map]);
-
-  const debouncedRenderStaticSensorsCallback = useCallback(() => {
-    debouncedRenderStaticSensors(
-      clickedLayerID,
-      createLayer,
-      isTimeSliderActive,
-      map,
-      onLayerClick,
-      sensorsWithDefaultValue,
-      setLayerVisibility,
-      shouldSubjectsBeClustered
-    );
-  }, [
-    clickedLayerID,
-    createLayer,
-    isTimeSliderActive,
-    map,
-    onLayerClick,
-    sensorsWithDefaultValue,
-    setLayerVisibility,
-    shouldSubjectsBeClustered,
-  ]);
-
-  useEffect(() => {
-    debouncedRenderStaticSensorsCallback();
-  }, [debouncedRenderStaticSensorsCallback, isDataInMapSimplified]);
+  }, [currentBackgroundLayerId, map, showPopup]);
 
   // Renderless layer to query unclustered static sensors
+
+  /* adding the map layers */
   useEffect(() => {
-    if (map
-      && !!map.getSource(CLUSTERS_SOURCE_ID)
-      && !map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
-      map.addLayer({
-        id: UNCLUSTERED_STATIC_SENSORS_LAYER,
-        source: CLUSTERS_SOURCE_ID,
-        type: 'circle',
-        paint: { 'circle-radius': 0 },
-        filter: [
-          'all',
-          ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
-          ['==', 'is_static', true],
-          ['!has', 'point_count'],
-        ],
+    if (map && !!map.getSource(currentSourceId)) {
+      if (!map.getLayer(currentLayerId)) {
+        map.addLayer({
+          id: currentLayerId,
+          source: currentSourceId,
+          type: 'symbol',
+          layout: labelLayerStyles.layout,
+          paint: labelLayerStyles.paint,
+          filter: layerFilter,
+        });
+        map.addLayer({
+          id: currentBackgroundLayerId,
+          source: currentSourceId,
+          type: 'symbol',
+          layout: backgroundLayerStyles.layout,
+          paint: backgroundLayerStyles.paint,
+          filter: layerFilter,
+        }, currentLayerId);
+      }
+      if (map.getLayer(currentInactiveLayerId)) {
+        map.removeLayer(currentInactiveLayerId);
+      }
+    }
+  }, [map, currentInactiveLayerId, layerFilter, currentBackgroundLayerId, currentLayerId, currentSourceId]);
+
+  /* updating the stationary subject layers when the filter changes */
+  useEffect(() => {
+    if (map) {
+      map.setFilter(currentBackgroundLayerId, layerFilter);
+      map.setFilter(currentLayerId, layerFilter);
+    }
+  }, [layerFilter, map, currentBackgroundLayerId, currentLayerId]);
+
+  /* layer interaction handlers. click and hover. */
+  useEffect(() => {
+    if (map) {
+      const onLayerClick = (event) => {
+        event.preventDefault();
+
+        const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+
+        if (feature) {
+          const newFilter = [
+            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+            ['!=', 'id', feature.properties.id]
+          ];
+
+          setLayerFilter(newFilter);
+
+          createPopup(feature);
+        }
+      };
+
+      const onLayerMouseEnter = () => {
+        map.getCanvas().style.cursor = 'pointer';
+      };
+
+      const onLayerMouseLeave = () => {
+        map.getCanvas().style.cursor = '';
+      };
+
+      map.on('click', currentBackgroundLayerId, onLayerClick);
+
+      map.on('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
+
+      map.on('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
+
+      return () => {
+        map.off('click', currentBackgroundLayerId, onLayerClick);
+
+        map.off('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
+
+        map.off('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
+      };
+    }
+  }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
+
+  /* updating layer layout properties when the map view config changes */
+  useEffect(() => {
+    if (map && !!map.getLayer(currentLayerId)) {
+      Object.entries(dynamicLabelLayerLayoutProps).forEach(([key, value]) => {
+        map.setLayoutProperty(currentLayerId, key, value);
       });
     }
-  }, [map]);
+  }, [currentLayerId, dynamicLabelLayerLayoutProps, map]);
+
+  /* updating layer layout properties when the map view config changes */
+  useEffect(() => {
+    if (map && !!map.getLayer(currentBackgroundLayerId)) {
+      Object.entries(dynamicBackgroundLayerLayoutProps).forEach(([key, value]) => {
+        map.setLayoutProperty(currentBackgroundLayerId, key, value);
+      });
+    }
+  }, [currentBackgroundLayerId, dynamicBackgroundLayerLayoutProps, map]);
+
 
   return null;
 };
 
 const mapStatetoProps = (state) => ({
-  shouldSubjectsBeClustered: getShouldSubjectsBeClustered(state),
   showMapNames: state.view.showMapNames,
   simplifyMapDataOnZoom: state.view.simplifyMapDataOnZoom,
 });
@@ -252,6 +219,5 @@ const mapStatetoProps = (state) => ({
 export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
-  staticSensors: PropTypes.object.isRequired,
   isTimeSliderActive: PropTypes.bool,
 };

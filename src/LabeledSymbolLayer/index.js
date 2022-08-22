@@ -1,15 +1,15 @@
-import React, { Fragment, memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { Layer } from 'react-mapbox-gl';
+import { useMapEventBinding, useMapLayer } from '../hooks';
 
 const LabeledSymbolLayer = (
-  { before, paint, layout, textPaint, textLayout, id, map, mapUserLayoutConfigByLayerId, minZoom, onClick, onInit,
-    onMouseEnter, onMouseLeave, ...rest }
+  { before, paint, layout, textPaint, textLayout, id, sourceId, map, mapUserLayoutConfigByLayerId, onClick, onInit,
+    onMouseEnter, onMouseLeave, filter }
 ) => {
   const textLayerId = `${id}-labels`;
 
@@ -28,29 +28,13 @@ const LabeledSymbolLayer = (
   };
 
   const handleClick = useCallback((e) => {
-    onClick && onClick(e);
+    onClick?.(e);
   }, [onClick]);
 
-  const unbindClick = useCallback(() => {
-    map.off('click', id, handleClick);
-    map.off('click', textLayerId, handleClick);
-  }, [handleClick, id, map, textLayerId]);
-
-  const bindClick = useCallback(() => {
-    map.on('click', id, handleClick);
-    map.on('click', textLayerId, handleClick);
-  }, [handleClick, id, map, textLayerId]);
 
   useEffect(() => {
     onInit([id, textLayerId]);
-  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
-
-
-  useEffect(() => {
-    unbindClick();
-    bindClick();
-    return unbindClick;
-  }, [bindClick, handleClick, id, map, onClick, textLayerId, unbindClick]);
+  }, [id, onInit, textLayerId]);
 
 
   const labelLayout = {
@@ -84,13 +68,21 @@ const LabeledSymbolLayer = (
     ...paint,
   };
 
-  return id && <Fragment>
-    <Layer id={id} before={before} layout={symbolLayout} minZoom={minZoom} type='symbol'
-      paint={symbolPaint} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...rest} />
-    <Layer before={id} id={textLayerId} layout={labelLayout} minZoom={minZoom} type='symbol'
-      onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
-      paint={labelPaint} {...rest} />
-  </Fragment>;
+  const layerConfig = { before, filter };
+
+  useMapEventBinding('click', handleClick, id);
+  useMapEventBinding('click', handleClick, textLayerId);
+
+  useMapEventBinding('mouseenter', handleMouseEnter, id);
+  useMapEventBinding('mouseenter', handleMouseEnter, textLayerId);
+
+  useMapEventBinding('mouseleave', handleMouseLeave, id);
+  useMapEventBinding('mouseleave', handleMouseLeave, textLayerId);
+
+  useMapLayer(id, 'symbol', sourceId, symbolPaint, symbolLayout, layerConfig);
+  useMapLayer(textLayerId, 'symbol', sourceId, labelPaint, labelLayout, layerConfig);
+
+  return null;
 };
 
 export default memo(withMapViewConfig(withMap(LabeledSymbolLayer)));

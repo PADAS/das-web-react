@@ -14,6 +14,8 @@ import colorVariables from '../common/styles/vars/colors.module.scss';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { EVENT_API_URL } from '../ducks/events';
 
+import { calcTopRatedReportAndTypeForCollection } from './event-types';
+
 const ReportFormModal = lazy(() => import('../ReportFormModal'));
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
@@ -189,8 +191,17 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featu
 };
 
 export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
-  if (event.geojson) {
+  if (event?.geojson?.properties?.image) {
     event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
+  }
+  if (event?.geojson?.features) {
+    event.geojson.features = event.geojson.features.map(feature => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        image: calcUrlForImage(feature.properties.image),
+      }
+    }));
   }
 };
 
@@ -293,6 +304,23 @@ export const addPatrolSegmentToEvent = (segment_id, event_id) => {
     .catch(function (error) {
       console.warn('add segment error', error);
     });
+};
+
+export const calcDisplayPriorityForReport = (report, eventTypes) => {
+  if (!!report.priority) return report.priority;
+
+  if (report.is_collection) {
+    const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+    if (!topRatedReportAndType) return report.priority;
+
+    return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
+      topRatedReportAndType.related_event.priority
+      : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
+        topRatedReportAndType.event_type.default_priority
+        : report.priority;
+  }
+
+  return report.priority;
 };
 
 export const PRIORITY_COLOR_MAP = {

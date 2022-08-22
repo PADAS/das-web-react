@@ -88,7 +88,7 @@ const BaseLayerControl = (props) => {
             const logoSrc = renderLayerLogoSrc(layer);
 
             return <li key={`${layer.id}`}>
-              <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer.id ? styles.active : ''}>
+              <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer?.id ? styles.active : ''}>
                 <img src={logoSrc} alt={`${layer.name} logo`} />
                 {layer.name}
               </button>

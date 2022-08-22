@@ -1,16 +1,21 @@
-import React, { memo, useMemo, Fragment, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
 import booleanContains from '@turf/boolean-contains';
 
 import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
-import { MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
+import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+
+const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
+
+const ICON_LAYER_ID = 'current-user-location-icon-layer';
+const CIRCLE_LAYER_ID = 'current-user-location-circle-layer';
 
 const framesPerSecond = 20;
 const initialOpacity = 1;
@@ -53,9 +58,9 @@ const UserCurrentLocationLayer = (props) => {
     strokeWidth: initialStrokeWidth,
   });
 
-  const onCurrentLocationIconClick = () => {
+  const onCurrentLocationIconClick = useCallback(() => {
     onIconClick(userLocation);
-  };
+  }, [onIconClick, userLocation]);
 
   useEffect(() => {
     if (map && !map.hasImage('current-location-icon')) {
@@ -81,32 +86,34 @@ const UserCurrentLocationLayer = (props) => {
     };
   }, [animationState, showLayer]);
 
-  const sourceData = useMemo(() => {
-    if (!showLayer) return null;
+  const userLocationPoint = useMemo(() => showLayer && userLocation?.coords?.longitude
+    ? point([
+      userLocation.coords.longitude,
+      userLocation.coords.latitude,
+    ])
+    : null
+  , [showLayer, userLocation?.coords]);
 
-    return {
-      type: 'geojson',
-      data: point([
-        userLocation.coords.longitude,
-        userLocation.coords.latitude,
-      ]),
-    };
-  }, [showLayer, userLocation]);
+  const circlePaint = useMemo(() => ({
+    'circle-radius': animationState.radius,
+    'circle-radius-transition': { duration: 0 },
+    'circle-opacity-transition': { duration: 0 },
+    'circle-color': 'rgba(0,0,0,0)',
+    'circle-stroke-color': '#007cbf',
+    'circle-stroke-width': animationState.strokeWidth,
+    'circle-stroke-opacity': animationState.opacity,
+  }), [animationState.radius, animationState.strokeWidth, animationState.opacity]);
 
+  const layerConfig = { minZoom: 6, condition: !!showLayer };
 
-  return showLayer && <Fragment>
-    <Source id='current-user-location' geoJsonSource={sourceData} />
-    <Layer minZoom={6} sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
-    <Layer minZoom={6} sourceId='current-user-location' paint={{
-      'circle-radius': animationState.radius,
-      'circle-radius-transition': { duration: 0 },
-      'circle-opacity-transition': { duration: 0 },
-      'circle-color': 'rgba(0,0,0,0)',
-      'circle-stroke-color': '#007cbf',
-      'circle-stroke-width': animationState.strokeWidth,
-      'circle-stroke-opacity': animationState.opacity,
-    }} type="circle" />
-  </Fragment>;
+  useMapSource(CURRENT_USER_LOCATION_SOURCE, userLocationPoint);
+
+  useMapLayer(ICON_LAYER_ID, 'symbol', CURRENT_USER_LOCATION_SOURCE, null, symbolLayout, layerConfig);
+  useMapLayer(CIRCLE_LAYER_ID, 'circle', CURRENT_USER_LOCATION_SOURCE, circlePaint, null, layerConfig);
+
+  useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
+
+  return null;
 };
 
 const mapStateToProps = (state) => ({

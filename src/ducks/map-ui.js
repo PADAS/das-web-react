@@ -30,7 +30,8 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
-const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
+const SET_MAP_LOCATION_SELECTION_EVENT = 'SET_MAP_LOCATION_SELECTION_EVENT';
+const SET_IS_PICKING_LOCATION = 'SET_IS_PICKING_LOCATION';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
@@ -161,9 +162,16 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
-export const setPickingMapLocationState = (isPicking) => ({
-  type: SET_PICKING_MAP_LOCATION_STATE,
-  payload: isPicking,
+export const MAP_LOCATION_SELECTION_MODES = { EVENT_GEOMETRY: 'eventGeometry', DEFAULT: 'default' };
+
+export const setMapLocationSelectionEvent = (event) => ({
+  type: SET_MAP_LOCATION_SELECTION_EVENT,
+  payload: { event },
+});
+
+export const setIsPickingLocation = (isPickingLocation, mode = MAP_LOCATION_SELECTION_MODES.DEFAULT) => ({
+  type: SET_IS_PICKING_LOCATION,
+  payload: { isPickingLocation, mode },
 });
 
 export const updateTrackState = (update) => ({
@@ -291,12 +299,23 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
   return state;
 }, INITIAL_TRACK_STATE);
 
-export const pickingLocationOnMapReducer = (state = false, action) => {
-  const { type, payload } = action;
-  if (type === SET_PICKING_MAP_LOCATION_STATE) {
-    return payload;
+const INITIAL_MAP_LOCATION_SELECTION_STATE = {
+  event: null,
+  isPickingLocation: false,
+  mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+};
+
+export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTION_STATE, action) => {
+  switch (action.type) {
+  case SET_MAP_LOCATION_SELECTION_EVENT:
+    return { ...state, event: action.payload.event };
+
+  case SET_IS_PICKING_LOCATION:
+    return { ...state, isPickingLocation: action.payload.isPickingLocation, mode: action.payload.mode };
+
+  default:
+    return state;
   }
-  return state;
 };
 
 export const displayUserLocationReducer = (state = true, action) => {

@@ -144,10 +144,6 @@
   &:focus {
     border: none;
   }
-  
-  & > :not(.patrolDetailView) {
-    width: var(--sidebar-width);
-  }
 
   .mapLayers {
     background-color: white;
