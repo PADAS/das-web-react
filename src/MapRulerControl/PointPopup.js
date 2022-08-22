@@ -43,7 +43,7 @@ const PointPopup = (props) => {
     return calcPositiveBearing(prevPoint, point).toFixed(2);
   }, [isFirstPoint, point, pointIndex, points]);
 
-  const [popoverPlacement, setPopoverPlacement] = useState('auto');
+  const [popoverPlacement, setPopoverPlacement] = useState('top');
 
   useEffect(() => {
     const updatePopoverPlacement = async () => {

@@ -98,7 +98,7 @@ const PopupLayer = ({ popup, map, ...rest }) => {
   const { id, type, data } = popup;
   const { coordinates, popupAttrsOverride = {} } = data;
 
-  const [popoverPlacement, setPopoverPlacement] = useState('auto');
+  const [popoverPlacement, setPopoverPlacement] = useState('top');
   useEffect(() => {
     const updatePopoverPlacement = async () => {
       const updatedPopoverPlacement = await calculatePopoverPlacement(map, {

@@ -103,11 +103,11 @@ export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
 
   useEffect(() => {
     return () => {
-      if (map) {
-        setTimeout(() => {
-          source && map.removeSource(sourceId);
-        });
-      }
+      setTimeout(() => {
+        if (map) {
+          source && map?.removeSource?.(sourceId);
+        }
+      });
     };
   }, [sourceId, source, map]);
 
@@ -169,11 +169,15 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
   }, [condition, layer, layerId, map]);
 
   useEffect(() => {
-    return () => {
-      if (map) {
-        map.getLayer(layerId) && map.removeLayer(layerId);
-      }
-    };
+    if (map) {
+      return () => {
+        try {
+          map.getLayer(layerId) && map.removeLayer(layerId);
+        } catch (e) {
+          console.warn(`error removing map layer ${layerId}`, e);
+        }
+      };
+    }
   }, [layerId, map]);
 
   useEffect(() => {
