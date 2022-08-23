@@ -30,6 +30,7 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
+const SET_MAP_LOCATION_SELECTION_DATA = 'SET_MAP_LOCATION_SELECTION_DATA';
 const SET_MAP_LOCATION_SELECTION_EVENT = 'SET_MAP_LOCATION_SELECTION_EVENT';
 const SET_IS_PICKING_LOCATION = 'SET_IS_PICKING_LOCATION';
 
@@ -163,6 +164,11 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 };
 
 export const MAP_LOCATION_SELECTION_MODES = { EVENT_GEOMETRY: 'eventGeometry', DEFAULT: 'default' };
+
+export const setMapLocationSelectionData = (locationData) => ({
+  type: SET_MAP_LOCATION_SELECTION_DATA,
+  payload: { locationData },
+});
 
 export const setMapLocationSelectionEvent = (event) => ({
   type: SET_MAP_LOCATION_SELECTION_EVENT,
@@ -302,6 +308,7 @@ export const subjectTrackReducer = globallyResettableReducer((state, action) => 
 const INITIAL_MAP_LOCATION_SELECTION_STATE = {
   event: null,
   isPickingLocation: false,
+  locationData: null,
   mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
 };
 
@@ -311,7 +318,14 @@ export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTI
     return { ...state, event: action.payload.event };
 
   case SET_IS_PICKING_LOCATION:
-    return { ...state, isPickingLocation: action.payload.isPickingLocation, mode: action.payload.mode };
+    return {
+      ...state,
+      isPickingLocation: action.payload.isPickingLocation,
+      mode: action.payload.mode,
+    };
+
+  case SET_MAP_LOCATION_SELECTION_DATA:
+    return { ...state, locationData: action.payload.locationData };
 
   default:
     return state;

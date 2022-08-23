@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { setIsPickingLocation } from '../ducks/map-ui';
+import { setIsPickingLocation, setMapLocationSelectionData } from '../ducks/map-ui';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -12,32 +12,25 @@ const ReportGeometryDrawer = () => {
 
   // TODO: Set the current event polygon by default
   const [geometryPoints, setGeometryPoints] = useState([]);
+  const [geoJson, setGeoJson] = useState(null);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const onChangeGeometry = useCallback((newPoints) => {
-    setGeometryPoints(newPoints);
-  }, []);
+  const onChangeGeometry = useCallback((newPoints) => setGeometryPoints(newPoints), []);
 
-  const onClickGeometryLine = useCallback(() => {
-    console.log('Line clicked');
-  }, []);
-
-  const onClickGeometryPoint = useCallback(() => {
-    console.log('Point clicked');
-  }, []);
+  const onGeoJsonChange = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
 
   const onSaveGeometry = useCallback(() => {
-
-  }, []);
+    dispatch(setMapLocationSelectionData(geoJson));
+    dispatch(setIsPickingLocation(false));
+  }, [dispatch, geoJson]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       switch (event.key) {
       case 'Backspace':
-        return setGeometryPoints(geometryPoints.slice(0, -1));
+        return isDrawing && geometryPoints.length && setGeometryPoints(geometryPoints.slice(0, -1));
       case 'Enter':
-        setGeometryPoints([...geometryPoints, geometryPoints[geometryPoints.length - 1]]);
-        return setIsDrawing(false);
+        return geometryPoints.length > 2 && setIsDrawing(false);
       case 'Escape':
         return dispatch(setIsPickingLocation(false));
       default:
@@ -48,18 +41,17 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, geometryPoints]);
+  }, [dispatch, geometryPoints, isDrawing]);
 
   return <>
     <ReportOverview />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
-      onClickLine={onClickGeometryLine}
-      onClickPoint={onClickGeometryPoint}
+      onGeoJsonChange={onGeoJsonChange}
       points={geometryPoints}
     />
-    <Footer disableSaveButton={!geometryPoints.length} onSave={onSaveGeometry} />
+    <Footer disableSaveButton={isDrawing} onSave={onSaveGeometry} />
   </>;
 };
 

@@ -25,8 +25,18 @@ export const symbolPaint = {
 };
 
 export const circlePaint = {
-  'circle-radius': 5,
-  'circle-color': 'orange',
+  'circle-radius': [
+    'case',
+    ['==', ['get', 'midpointCenter'], true],
+    5,
+    7,
+  ],
+  'circle-color': [
+    'case',
+    ['==', ['get', 'midpointCenter'], true],
+    'white',
+    'orange',
+  ],
 };
 
 export const fillLayout = { visibility: 'visible' };
