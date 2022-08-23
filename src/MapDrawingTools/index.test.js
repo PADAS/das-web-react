@@ -220,7 +220,7 @@ describe('MapDrawingTools', () => {
 
     });
 
-    test('renders the render prop', async () => {
+    test('renders a popup when given a popup render function', async () => {
       const points = [[1, 2], [2, 3], [4, 5]];
 
       const { container } = render(
@@ -229,7 +229,7 @@ describe('MapDrawingTools', () => {
             drawing={drawing}
             drawingMode={DRAWING_MODES.POLYGON}
             points={points}
-            renderPopupInstructions={() => <div>Cursor popup rendering stuff</div>}
+            renderCursorPopup={() => <div>Cursor popup rendering stuff</div>}
           />
         </MapContext.Provider>
       );

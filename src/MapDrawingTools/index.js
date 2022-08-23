@@ -35,7 +35,7 @@ const MapDrawingTools = (props) => {
     points,
     onClickLine = noop,
     onClickLabel = noop,
-    renderPopupInstructions = noop,
+    renderCursorPopup = noop,
   } = props;
 
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -93,7 +93,7 @@ const MapDrawingTools = (props) => {
       coords={cursorPopupCoords}
       lineLength={lineLength}
       points={points}
-      render={renderPopupInstructions}
+      render={renderCursorPopup}
     />}
     <MapLayers drawnLineSegments={data?.drawnLineSegments} fillPolygon={data?.fillPolygon} />
     {children}
