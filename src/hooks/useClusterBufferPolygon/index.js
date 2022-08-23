@@ -1,20 +1,36 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import buffer from '@turf/buffer';
 import concave from '@turf/concave';
 import { featureCollection } from '@turf/helpers';
 import simplify from '@turf/simplify';
 
-import { CLUSTERS_MAX_ZOOM } from '../../constants';
+import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
 import { MapContext } from '../../App';
+import { useMapLayer, useMapSource } from '..';
 
-const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguration, sourceId) => {
-  const map = useContext(MapContext);
+const { CLUSTER_BUFFER_POLYGON_LAYER_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
+const { CLUSTER_BUFFER_POLYGON_SOURCE_ID } = SOURCE_IDS;
 
+const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
+  before: CLUSTERS_LAYER_ID,
+  maxZoom: CLUSTERS_MAX_ZOOM - 1,
+};
+
+const CLUSTER_BUFFER_POLYGON_PAINT = {
+  'fill-color': 'rgba(60, 120, 40, 0.4)',
+  'fill-outline-color': 'rgba(20, 100, 25, 1)',
+};
+
+const useClusterBufferPolygon = () => {
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
 
+  const map = useContext(MapContext);
+  const source = useMapSource(CLUSTER_BUFFER_POLYGON_SOURCE_ID, clusterBufferPolygon);
+
+  useMapLayer(CLUSTER_BUFFER_POLYGON_LAYER_ID, 'fill', CLUSTER_BUFFER_POLYGON_SOURCE_ID, CLUSTER_BUFFER_POLYGON_PAINT, null, CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION);
+
   const renderClusterPolygon = useCallback((clusterFeatureCollection) => {
-    const clusterGeometryIsSet = !!clusterBufferPolygon?.geometry?.coordinates?.length;
-    if (!clusterGeometryIsSet && map.getZoom() < CLUSTERS_MAX_ZOOM) {
+    if (source && map.getZoom() < CLUSTERS_MAX_ZOOM) {
       if (clusterFeatureCollection?.features?.length > 2) {
         try {
           const concaved = concave(clusterFeatureCollection);
@@ -28,27 +44,11 @@ const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguratio
         setClusterBufferPolygon(featureCollection([]));
       }
     }
-  }, [clusterBufferPolygon, map]);
+  }, [map, source]);
 
-  const removeClusterPolygon = useCallback(() => setClusterBufferPolygon(featureCollection([])), []);
+  const removeClusterPolygon = useCallback(() => source?.setData(featureCollection([])), [source]);
 
-  useEffect(() => {
-    if (map) {
-      const source = map.getSource(sourceId);
-      if (source) {
-        source.setData(clusterBufferPolygon);
-      } else {
-        map.addSource(sourceId, { ...sourceConfiguration, data: clusterBufferPolygon });
-      }
-
-      const layer = map.getLayer(layerId);
-      if (!layer) {
-        map.addLayer(layerConfiguration);
-      }
-    }
-  }, [clusterBufferPolygon, map, layerConfiguration, layerId, sourceConfiguration, sourceId]);
-
-  return { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon };
+  return { removeClusterPolygon, renderClusterPolygon };
 };
 
 export default useClusterBufferPolygon;
