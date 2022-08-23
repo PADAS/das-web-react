@@ -121,6 +121,7 @@ const MapDrawingTools = ({
       render={renderPopupInstructions}
     />}
     <MapLayers
+      draggedPoint={draggedPoint}
       drawing={drawing}
       drawnLineSegments={data?.drawnLineSegments}
       fillPolygon={data?.fillPolygon}

@@ -19,7 +19,14 @@ export const SOURCE_IDS = {
   FILL_SOURCE: 'map-fill-source',
 };
 
-const MapDrawingLayers = ({ drawing, drawnLineSegments, fillPolygon, isHoveringGeometry, setIsHoveringGeometry }) => {
+const MapDrawingLayers = ({
+  draggedPoint,
+  drawing,
+  drawnLineSegments,
+  fillPolygon,
+  isHoveringGeometry,
+  setIsHoveringGeometry,
+}) => {
   const map = useContext(MapContext);
 
   const [isHoveringPolygonFill, setIsHoveringPolygonFill] = useState(false);
@@ -29,7 +36,7 @@ const MapDrawingLayers = ({ drawing, drawnLineSegments, fillPolygon, isHoveringG
   useMapSource(SOURCE_IDS.FILL_SOURCE, fillPolygon, { type: 'geojson' });
 
   useMapLayer(LAYER_IDS.LABELS, 'symbol', SOURCE_IDS.LINE_SOURCE, symbolPaint, symbolLayout, {
-    condition: drawing || !isHoveringGeometry,
+    condition: drawing || !isHoveringGeometry || draggedPoint,
   });
   useMapLayer(LAYER_IDS.LINES, 'line', SOURCE_IDS.LINE_SOURCE, linePaint, lineLayout);
   const fillLayer = useMapLayer(LAYER_IDS.FILL, 'fill', SOURCE_IDS.FILL_SOURCE, fillPaint, fillLayout);
