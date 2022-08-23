@@ -35,6 +35,8 @@ import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
+import OpenTelemetry from './OpenTelemetry';
+
 
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
@@ -70,24 +72,25 @@ const PathNormalizationRouteComponent = ({ location }) => {
 };
 
 ReactDOM.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor} >
-      <BrowserRouter>
-        <NavigationContextProvider>
-          <RequestConfigManager />
+  <>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor} >
+        <BrowserRouter>
+          <NavigationContextProvider>
+            <RequestConfigManager />
 
-          <Suspense fallback={<LoadingOverlay />}>
-            <Routes>
-              <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
+            <Suspense fallback={<LoadingOverlay />}>
+              <Routes>
+                <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
 
-              <Route
+                <Route
                 path={`${REACT_APP_ROUTE_PREFIX}eula`}
                 element={<RequireAccessToken>
                   <EulaPageWithTracker />
                 </RequireAccessToken>}
               />
 
-              <Route
+                <Route
                 path={`${REACT_APP_ROUTE_PREFIX}*`}
                 element={<RequireAccessToken>
                   <RequireEulaConfirmation>
@@ -96,19 +99,21 @@ ReactDOM.render(
                 </RequireAccessToken>}
               />
 
-              <Route path="*" element={<PathNormalizationRouteComponent />} />
-            </Routes>
-          </Suspense>
-        </NavigationContextProvider>
-      </BrowserRouter>
+                <Route path="*" element={<PathNormalizationRouteComponent />} />
+              </Routes>
+            </Suspense>
+          </NavigationContextProvider>
+        </BrowserRouter>
 
-      <DetectOffline />
-    </PersistGate>
+        <DetectOffline />
+      </PersistGate>
 
-    <GeoLocationWatcher />
+      <GeoLocationWatcher />
 
-    <JiraSupportWidget />
-  </Provider>
+      <JiraSupportWidget />
+    </Provider>
+    <OpenTelemetry />
+  </>
   , document.getElementById('root'));
 
 registerServiceWorker();
