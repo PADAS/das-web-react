@@ -192,7 +192,7 @@ const MapRulerControl = (props) => {
       points={points}
       onChange={onDrawChange}
       onClickPoint={onClickPoint}
-      renderPopupInstructions={() => !!points.length && <>
+      renderCursorPopup={() => !!points.length && <>
         <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
       </>}
     />}

@@ -35,7 +35,7 @@ const MapDrawingTools = ({
   onClickPoint = noop,
   onGeoJsonChange = noop,
   points,
-  renderPopupInstructions = noop,
+  renderCursorPopup = noop,
 }) => {
   const map = useContext(MapContext);
 
@@ -122,7 +122,7 @@ const MapDrawingTools = ({
       coords={cursorPopupCoords}
       lineLength={lineLength}
       points={points}
-      render={renderPopupInstructions}
+      render={renderCursorPopup}
     />}
     <MapLayers
       draggedPoint={draggedPoint}
