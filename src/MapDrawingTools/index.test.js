@@ -7,7 +7,6 @@ import MapDrawingTools, { DRAWING_MODES } from './';
 
 import { LAYER_IDS } from './MapLayers';
 
-
 describe('rendering', () => {
   test('rendering without crashing', () => {
     let points = [];
@@ -51,7 +50,7 @@ describe('MapDrawingTools', () => {
 
   describe('with point data', () => {
     beforeEach(() => {
-      points = [[1, 2], [2, 3], [3, 4], [1, 2]];
+      points = [[1, 2], [2, 3], [3, 4]];
     });
 
     test('adding a source for the draw data', () => {
@@ -161,44 +160,49 @@ describe('MapDrawingTools', () => {
     });
 
     test('drawing a polygon when the draw mode is for polygons', async () => {
-      const onChange = jest.fn();
+      const onGeoJsonChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingTools onGeoJsonChange={onGeoJsonChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapContext.Provider>
       );
 
-      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
-
       await waitFor(() => {
-        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(onGeoJsonChange).toHaveBeenCalled();
 
-        const [, callbackData] = onChange.mock.calls[0];
+        const [callbackData] = onGeoJsonChange.mock.calls[0];
 
-        expect(callbackData?.drawnLineSegments?.type).toBe('FeatureCollection');
-        expect(callbackData?.fillPolygon?.geometry?.type).toBe('Polygon');
+        expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
+        expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
+        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(4);
+        expect(callbackData.drawnLineSegments.type).toBe('FeatureCollection');
+        expect(callbackData.drawnLineSegments.features).toHaveLength(4);
+        expect(callbackData.fillPolygon.geometry.type).toBe('Polygon');
       });
     });
 
     test('drawing a line when the draw mode is for lines', async () => {
-      const onChange = jest.fn();
+      const onGeoJsonChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
+          <MapDrawingTools onGeoJsonChange={onGeoJsonChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
         </MapContext.Provider>
       );
 
-      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
-
       await waitFor(() => {
-        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(onGeoJsonChange).toHaveBeenCalled();
 
-        const [, callbackData] = onChange.mock.calls[0];
+        const [callbackData] = onGeoJsonChange.mock.calls[0];
 
-        expect(callbackData.fillPolygon).not.toBeDefined();
-        expect(callbackData?.drawnLineSegments?.type).toBe('FeatureCollection');
+        expect(callbackData.fillPolygon.type).toBe('FeatureCollection');
+        expect(callbackData.fillPolygon.features).toHaveLength(0);
+        expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
+        expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
+        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(4);
+        expect(callbackData.drawnLineSegments.type).toBe('FeatureCollection');
+        expect(callbackData.drawnLineSegments.features).toHaveLength(3);
       });
     });
   });
