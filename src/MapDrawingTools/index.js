@@ -76,7 +76,7 @@ const MapDrawingTools = ({
 
   const onMouseDownPoint = useCallback((event) => {
     const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-      .find((point) => point.properties.midpoint);
+      .find((point) => !point.properties.midpointCenter);
     if (clickedPoint) {
       event.preventDefault();
 
@@ -88,9 +88,13 @@ const MapDrawingTools = ({
   const onMouseUp = useCallback(() => {
     if (draggedPoint) {
       const newPoints = [...points];
-      newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
-      onChange(newPoints);
+      if (draggedPoint.properties.midpoint) {
+        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
+      } else {
+        newPoints[draggedPoint.properties.pointIndex] = cursorPopupCoords;
+      }
 
+      onChange(newPoints);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
@@ -123,6 +127,7 @@ const MapDrawingTools = ({
     <MapLayers
       draggedPoint={draggedPoint}
       drawing={drawing}
+      drawnLinePoints={data?.drawnLinePoints}
       drawnLineSegments={data?.drawnLineSegments}
       fillPolygon={data?.fillPolygon}
       isHoveringGeometry={isHoveringGeometry}

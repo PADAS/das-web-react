@@ -6,7 +6,7 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 
 import { DRAWING_MODES } from '.';
-import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords } from './utils';
+import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords, createPointsGeoJsonForCoords } from './utils';
 
 export const useDrawToolGeoJson = (
   points = [],
@@ -25,31 +25,45 @@ export const useDrawToolGeoJson = (
     }
 
     if (draggedPoint) {
-      vertexCoordinates.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorCoords);
+      if (draggedPoint.properties.midpoint) {
+        vertexCoordinates.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorCoords);
+      } else {
+        vertexCoordinates[draggedPoint.properties.pointIndex] = cursorCoords;
+      }
     }
 
     if (drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2) {
-      vertexCoordinates.push(points[0]);
+      vertexCoordinates.push(vertexCoordinates[0]);
     }
 
     return vertexCoordinates;
   }, [cursorCoords, draggedPoint, drawMode, drawing, points]);
 
   return useMemo(() => {
-    const data = { drawnLineSegments: featureCollection([]), fillPolygon: featureCollection([]) };
-
-    // Line segments feature
-    if (vertexCoordinates.length >= 2) {
-      data.drawnLineSegments = createLineSegmentGeoJsonForCoords(vertexCoordinates);
+    const data = {
+      drawnLinePoints: featureCollection([]),
+      drawnLineSegments: featureCollection([]),
+      fillPolygon: featureCollection([]),
     };
 
+    const shouldCalculateLinesData = vertexCoordinates.length >= 2;
     const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2;
 
-    // Polygon fill feature
+    const isPolygonClosed = shouldCalculatePolygonData
+      && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
+
+    // Line segments and vertex points
+    if (shouldCalculateLinesData) {
+      data.drawnLineSegments = createLineSegmentGeoJsonForCoords(vertexCoordinates);
+      data.drawnLinePoints = createPointsGeoJsonForCoords(isPolygonClosed
+        ? vertexCoordinates.slice(0, -1)
+        : vertexCoordinates);
+    };
+
+    // Polygon fill
     if (shouldCalculatePolygonData) {
       const fillPolygonCoords = [...vertexCoordinates];
 
-      const isPolygonClosed = isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
       if (!isPolygonClosed) {
         fillPolygonCoords.push(vertexCoordinates[0]);
       }
@@ -57,7 +71,7 @@ export const useDrawToolGeoJson = (
       data.fillPolygon = createFillPolygonForCoords(fillPolygonCoords);
     }
 
-    // Midpoints at the center of each polygon line
+    // Points at the middle of each polygon line
     if (shouldCalculatePolygonData && !drawing && !draggedPoint && polygonHover) {
       const drawnLineMidpointFeatures = vertexCoordinates.reduce((accumulator, coordinates, index) => {
         if (index !== vertexCoordinates.length - 1) {
@@ -72,8 +86,8 @@ export const useDrawToolGeoJson = (
         return accumulator;
       }, []);
 
-      data.drawnLineSegments = featureCollection([
-        ...data.drawnLineSegments.features,
+      data.drawnLinePoints = featureCollection([
+        ...data.drawnLinePoints.features,
         ...featureCollection(drawnLineMidpointFeatures).features,
         ...featureCollection(drawnLineMidpointFeatures.map((midpoint) => ({
           ...midpoint,
