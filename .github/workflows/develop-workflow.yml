@@ -11,8 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+      # - run: yarn install
         with:
           node-version: 14
+      - run: yarn --ignore-scripts
       - run: yarn test-ci
       - run: yarn rebuild node-sass
       - run: CI=false yarn build
