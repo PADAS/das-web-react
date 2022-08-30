@@ -186,7 +186,16 @@ const MapRulerControl = (props) => {
       {drawing && <PointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <PointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} onChange={onDrawChange} onClickPoint={onClickPoint} />}
+    {active && <MapDrawingTools
+      drawing={drawing}
+      drawingMode={DRAWING_MODES.LINE}
+      points={points}
+      onChange={onDrawChange}
+      onClickPoint={onClickPoint}
+      renderCursorPopup={() => !!points.length && <>
+        <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
+      </>}
+    />}
   </>;
 };
 

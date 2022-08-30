@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../App';
@@ -216,9 +216,27 @@ describe('MapDrawingTools', () => {
       await waitFor(() => {
         expect(container).toHaveTextContent('Bearing');
         expect(container).toHaveTextContent('Distance');
-        expect(container).toHaveTextContent('Click to add a point');
       });
 
+    });
+
+    test('renders a popup when given a popup render function', async () => {
+      const points = [[1, 2], [2, 3], [4, 5]];
+
+      const { container } = render(
+        <MapContext.Provider value={map}>
+          <MapDrawingTools
+            drawing={drawing}
+            drawingMode={DRAWING_MODES.POLYGON}
+            points={points}
+            renderCursorPopup={() => <div>Cursor popup rendering stuff</div>}
+          />
+        </MapContext.Provider>
+      );
+
+      await waitFor(() => {
+        expect(container).toHaveTextContent('Cursor popup rendering stuff');
+      });
     });
   });
 });
