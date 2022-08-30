@@ -64,7 +64,7 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, (...args) => tracks(...args), (...args) => getTimeSliderState(...args)],
+  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[FEATURE_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
 
