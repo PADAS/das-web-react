@@ -16,5 +16,5 @@ jobs:
           node-version: 14
       - run: yarn --ignore-scripts
       - run: yarn test-ci
-      - run: yarn rebuild node-sass
+      - run: npm rebuild node-sass
       - run: CI=false yarn build
