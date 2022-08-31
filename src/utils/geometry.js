@@ -11,5 +11,6 @@ export const validateEventPolygonPoints = (points) => {
     return false;
   }
 
+  // now ensure it doesn't kink
   return !kinks(shape)?.features?.length;
 };

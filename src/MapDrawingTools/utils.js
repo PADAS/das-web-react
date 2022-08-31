@@ -2,6 +2,8 @@ import { lineString, polygon } from '@turf/helpers';
 import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
 
+import { validateEventPolygonPoints } from '../utils/geometry';
+
 export const createLineSegmentGeoJsonForCoords = (coords) => {
   const lineSegments = lineSegment(lineString(coords));
 
@@ -22,4 +24,8 @@ export const createLineSegmentGeoJsonForCoords = (coords) => {
   return lineSegments;
 };
 
-export const createFillPolygonForCoords = (coords) => polygon([coords]);
+export const createFillPolygonForCoords = (coords) => {
+  const isValid = validateEventPolygonPoints(coords);
+
+  return isValid && polygon([coords]);
+};
