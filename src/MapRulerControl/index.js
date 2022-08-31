@@ -188,7 +188,7 @@ const MapRulerControl = (props) => {
     </>}
     {active && <MapDrawingTools
       drawing={drawing}
-      drawingMode={DRAWING_MODES.POLYGON}
+      drawingMode={DRAWING_MODES.LINE}
       points={points}
       onChange={onDrawChange}
       onClickPoint={onClickPoint}
