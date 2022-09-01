@@ -10,11 +10,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      # - run: yarn install
+
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
+          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 14
-      - run: yarn --ignore-scripts
-      - run: yarn test-ci
-      - run: npm rebuild node-sass
-      - run: CI=false yarn build
+
+      - name: Install dependencies
+        run: yarn --ignore-scripts
+
+      - name: Run tests
+        run: yarn test-ci
+
+      - name: Rebuild Node SASS
+        run: npm rebuild node-sass
+
+      - name: Yarn build
+        run: CI=false yarn build
+
+      - name: Build docker image
+        run: make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
+
+      # TODO: Probar construir y lanzar la imagen
+      # TODO: Dar permiso para lanzar a kubernetes
+      # TODO: Probar integración
