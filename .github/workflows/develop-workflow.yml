@@ -44,17 +44,17 @@ jobs:
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
 
-      - name: Terraform config outputs
+      - name: Terraform config outputs & cluster
         run: |-
           cd terraform && terraform init
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
-
-      - name: Configure cluster connectivity
-        run: |-
           gcloud container clusters get-credentials das-dev --zone us-west1-a
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(terraform output cluster_proxy_endpoint)" || false
           echo "$(terraform output cluster_b64_encoded_proxy_ca_certificate)"
+
+      - name: Configure cluster connectivity
+        run: |-
           # echo "$(terraform output cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
           # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           # kubectl get pods -n stage
