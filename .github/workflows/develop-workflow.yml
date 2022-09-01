@@ -54,11 +54,7 @@ jobs:
         run: |-
           gcloud container clusters get-credentials das-dev --zone us-west1-a
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(terraform output cluster_proxy_endpoint)" || false
-          # echo "$(cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate)" > proxy.crt.b64
-          cd terraform && echo "$(terraform output cluster_b64_encoded_proxy_ca_certificate)" | base64 -d
-          cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate | base64 -d
-          # echo "$(cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
-          # cat proxy.crt.b64 | base64 -d > proxy.crt
+          echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           kubectl get pods -n stage
 
