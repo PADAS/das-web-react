@@ -40,7 +40,9 @@ jobs:
         run: CI=false yarn build
 
       - name: Build docker image
-        run: make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
+        run: |-
+          gcloud auth configure-docker
+          make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
 
       # TODO: Probar construir y lanzar la imagen
       # TODO: Dar permiso para lanzar a kubernetes
