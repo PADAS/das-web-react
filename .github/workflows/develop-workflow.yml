@@ -44,7 +44,7 @@ jobs:
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
           cd terraform && terraform init
-          terraform output cluster_proxy_endpoint
+          cd terraform && terraform output cluster_proxy_endpoint
 
       # TODO: Dar permiso para lanzar a kubernetes
       # TODO: Probar integración
