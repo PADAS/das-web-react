@@ -52,7 +52,7 @@ jobs:
 
       - name: Allowlist IP address
         run: |-
-          gcloud compute firewall-rules create \"k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}\" --allow=\"tcp:443\" --description=\"for GitHub Actions... delete by: $(date --date='tomorrow')\" --direction=INGRESS --network=\"default\" --priority=899 --source-ranges=\"$(curl --silent ifconfig.me)/32\" --target-tags=\"k8s-proxy\" --project=\"earthranger-78ca55ca" --quiet
+          gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
 
       - name: Configure cluster connectivity
         run: |-
@@ -65,7 +65,7 @@ jobs:
       - name: Remove ip address
         if: always()
         run: |-
-          gcloud compute firewall-rules delete \"k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}\" --project=\"earthranger-78ca55ca" --quiet
+          gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
 
       # TODO: Dar permiso para lanzar a kubernetes
       # TODO: Probar integración
