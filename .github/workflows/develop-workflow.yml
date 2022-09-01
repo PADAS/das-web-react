@@ -54,10 +54,11 @@ jobs:
         run: |-
           gcloud container clusters get-credentials das-dev --zone us-west1-a
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(terraform output cluster_proxy_endpoint)" || false
-          echo "$(cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate)" > proxy.crt.b64
+          # echo "$(cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate)" > proxy.crt.b64
+          cd terraform && echo "$(terraform output cluster_b64_encoded_proxy_ca_certificate)" | base64 -d
+          cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate | base64 -d
           # echo "$(cd terraform && terraform output cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
-          # echo "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN3ekNDQWF1Z0F3SUJBZ0lRRHpJTElESTlnZTk4UHVlbHNEam9UakFOQmdrcWhraUc5dzBCQVFzRkFEQU0KTVFvd0NBWURWUVFERXdFZ01CNFhEVEl5TURneE5qQTJOVFkwTTFvWERUSXlNVEV4TkRBMk5UWTBNMW93RERFSwpNQWdHQTFVRUF4TUJJRENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFNTzdTbEtvCk9qTHRvV2N2TFZVKy9WUnZHanBkL0ZMSlhiSG13dEt6aVlMbC9Hd3FwbVlDbjhWdFBVWlBaWTZRVzBFSFJzRVQKKzMxSEpySkg3bmNMMkRqVjVqMVU4VnpoeEE0YVpvM2paUmJNNzVBdW1pZDA3ZXVabVpRdW9rK3AzRkxTbE1vVgpiVnV2WXpzYnJKRVpGTWsvdStoUzF1MXMyLy8zdkoxZWRGd1ZSMGhRNUo3OUJuU0ZiVlVpYTlhRVBBYVVoUnRhClN4dXJpZnp3Ui93SXc4TnhKOVJzL0FLWmNocG9QSmlzQW1zaVBJL1p0VndNQWphQU1FWXBLNWdMdm96WDFSSU4KanlsYVcvNXptek5qQk8yc2FjUjd0VFNzK1JZendOMHEyYStQWmtSMjB3WVhvcSs2M21HQU45VkE3dHFTdVd4RAp5K0FJMlI0MkYzSXdBWlVDQXdFQUFhTWhNQjh3REFZRFZSMFRBUUgvQkFJd0FEQVBCZ05WSFJFRUNEQUdod1FpClVrRVhNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUF6aVA5SEIvVy96dExvY1FYcDNmS3dUaFk5SnFhNEV6a0IKaGRiUmVISUFPSTQrNFFaZ3pzcGRRUGF2TUFuV3pEbDFwMXhzSlFGZzBEUUMrb2hvVXlnYmMrYUpWWERsZjl1eQp0cnNTeXJMUmtFbHpnaVpKUUU1ZDhxMDVWajhDOEgzUnRQSnhkdWpNU283QkhXZnUzS2YrRmtEYmgvaGRyb0JJCnhaem5abjQ5aFc3bEVNVkFLSWdWeE1WRDNPanZvdlJEVEhSS0JKNEpxWnBDeUFGNHlqdGR0UG9ZVlZSU25QUnoKOTNjZ0ZjZjZJd3h3VEgzL01uSlBKOUVTQnhIcy9tZmg4WWt2RUZPKzcvdkZiZXN6dHJUd2VaQUZxQ09YVFJBUQp1bEw1SGo3NjBQQlhKS2dCV3B6Ui9VQ1ZsclhDTlF5TFJTTTZDMUpscDJieWNicW04MzBQCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K" | base64 -d
-          cat proxy.crt.b64 | base64 -d > proxy.crt
+          # cat proxy.crt.b64 | base64 -d > proxy.crt
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           kubectl get pods -n stage
 
