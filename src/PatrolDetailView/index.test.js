@@ -6,6 +6,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import { PatrolsTabContext } from '../SideBar/PatrolsTab';
@@ -46,9 +47,11 @@ describe('PatrolDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
-            <PatrolDetailView />
-          </PatrolsTabContext.Provider>
+          <MapDrawingToolsContextProvider>
+            <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+              <PatrolDetailView />
+            </PatrolsTabContext.Provider>
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );
@@ -66,9 +69,11 @@ describe('PatrolDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
-            <PatrolDetailView />
-          </PatrolsTabContext.Provider>
+          <MapDrawingToolsContextProvider>
+            <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+              <PatrolDetailView />
+            </PatrolsTabContext.Provider>
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );
@@ -173,9 +178,11 @@ describe('PatrolDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
-            <PatrolDetailView />
-          </PatrolsTabContext.Provider>
+          <MapDrawingToolsContextProvider>
+            <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+              <PatrolDetailView />
+            </PatrolsTabContext.Provider>
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );

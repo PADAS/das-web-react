@@ -17,7 +17,8 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
-import { MAP_LOCATION_SELECTION_MODES, setMapLocationSelectionData, setIsPickingLocation } from '../../ducks/map-ui';
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 import AreaTab from './AreaTab';
@@ -59,9 +60,9 @@ const LocationSelectorInput = ({
   const event = useSelector((state) => state.view.mapLocationSelection.event);
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
-  const locationData = useSelector((state) => state.view.mapLocationSelection.locationData);
 
   const map = useContext(MapContext);
+  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
@@ -79,10 +80,10 @@ const LocationSelectorInput = ({
   const onClickLocation = useCallback(() => setIsPopoverOpen(!isPopoverOpen), [isPopoverOpen]);
 
   const onHidePopover = useCallback(() => {
-    if (!isPickingLocation && !locationData) {
+    if (!isPickingLocation && !mapDrawingData) {
       setIsPopoverOpen(false);
     }
-  }, [isPickingLocation, locationData]);
+  }, [isPickingLocation, mapDrawingData]);
 
   const onLabelKeyDown = useCallback((event) => {
     if (event.key === 'Escape' && isPopoverOpen) {
@@ -123,11 +124,11 @@ const LocationSelectorInput = ({
   }, [dispatch, isDrawingEventGeometry]);
 
   useEffect(() => {
-    if (locationData) {
-      console.log('Save this location data to the report: ', locationData);
-      dispatch(setMapLocationSelectionData(null));
+    if (mapDrawingData) {
+      console.log('Save this location data to the report: ', mapDrawingData);
+      setMapDrawingData(null);
     }
-  }, [dispatch, locationData]);
+  }, [dispatch, mapDrawingData, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);

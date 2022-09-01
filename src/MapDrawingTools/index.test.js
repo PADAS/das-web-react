@@ -160,18 +160,20 @@ describe('MapDrawingTools', () => {
     });
 
     test('drawing a polygon when the draw mode is for polygons', async () => {
-      const onGeoJsonChange = jest.fn();
+      const onChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onGeoJsonChange={onGeoJsonChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
         </MapContext.Provider>
       );
 
-      await waitFor(() => {
-        expect(onGeoJsonChange).toHaveBeenCalled();
+      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-        const [callbackData] = onGeoJsonChange.mock.calls[0];
+      await waitFor(() => {
+        expect(onChange).toHaveBeenCalled();
+
+        const [, callbackData] = onChange.mock.calls[0];
 
         expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
         expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
@@ -183,18 +185,20 @@ describe('MapDrawingTools', () => {
     });
 
     test('drawing a line when the draw mode is for lines', async () => {
-      const onGeoJsonChange = jest.fn();
+      const onChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onGeoJsonChange={onGeoJsonChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
+          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
         </MapContext.Provider>
       );
 
-      await waitFor(() => {
-        expect(onGeoJsonChange).toHaveBeenCalled();
+      map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
-        const [callbackData] = onGeoJsonChange.mock.calls[0];
+      await waitFor(() => {
+        expect(onChange).toHaveBeenCalled();
+
+        const [, callbackData] = onChange.mock.calls[0];
 
         expect(callbackData.fillPolygon.type).toBe('FeatureCollection');
         expect(callbackData.fillPolygon.features).toHaveLength(0);

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
@@ -33,11 +33,12 @@ const MapDrawingTools = ({
   onClickLabel = noop,
   onClickLine = noop,
   onClickPoint = noop,
-  onGeoJsonChange = noop,
   points,
   renderCursorPopup = noop,
 }) => {
   const map = useContext(MapContext);
+
+  const dataContainer = useRef();
 
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
@@ -58,7 +59,7 @@ const MapDrawingTools = ({
     const { lngLat } = e;
     e.preventDefault();
     e.originalEvent.stopPropagation();
-    onChange([...points, [lngLat.lng, lngLat.lat]]);
+    onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
   }, 100), [onChange, points]);
 
   const onMapDblClick = useCallback((e) => {
@@ -94,7 +95,7 @@ const MapDrawingTools = ({
         newPoints[draggedPoint.properties.pointIndex] = cursorPopupCoords;
       }
 
-      onChange(newPoints);
+      onChange(newPoints, dataContainer.current);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
@@ -112,8 +113,8 @@ const MapDrawingTools = ({
   useMapEventBinding('click', onMapClick, null, drawing);
 
   useEffect(() => {
-    onGeoJsonChange(data);
-  }, [data, onGeoJsonChange]);
+    dataContainer.current = data;
+  }, [data]);
 
   if (!showLayer) return null;
 

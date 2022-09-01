@@ -19,6 +19,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { createMapMock } from '../__test-helpers/mocks';
 import Map from './';
 import { MapContext } from '../App';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
@@ -157,11 +158,13 @@ describe('Map', () => {
   test('shows the EventFilter', async () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <MapboxMapContext.Provider value={map}>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapboxMapContext.Provider>
+        <MapDrawingToolsContextProvider>
+          <MapboxMapContext.Provider value={map}>
+            <MapContext.Provider value={map}>
+              <Map map={map} socket={mockedSocket} />
+            </MapContext.Provider>
+          </MapboxMapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 
@@ -172,11 +175,13 @@ describe('Map', () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <MapboxMapContext.Provider value={map}>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapboxMapContext.Provider>
+        <MapDrawingToolsContextProvider>
+          <MapboxMapContext.Provider value={map}>
+            <MapContext.Provider value={map}>
+              <Map map={map} socket={mockedSocket} />
+            </MapContext.Provider>
+          </MapboxMapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 
@@ -187,11 +192,13 @@ describe('Map', () => {
     store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <MapboxMapContext.Provider value={map}>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapboxMapContext.Provider>
+        <MapDrawingToolsContextProvider>
+          <MapboxMapContext.Provider value={map}>
+            <MapContext.Provider value={map}>
+              <Map map={map} socket={mockedSocket} />
+            </MapContext.Provider>
+          </MapboxMapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 
@@ -206,11 +213,13 @@ describe('Map', () => {
     };
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <MapboxMapContext.Provider value={map}>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapboxMapContext.Provider>
+        <MapDrawingToolsContextProvider>
+          <MapboxMapContext.Provider value={map}>
+            <MapContext.Provider value={map}>
+              <Map map={map} socket={mockedSocket} />
+            </MapContext.Provider>
+          </MapboxMapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 

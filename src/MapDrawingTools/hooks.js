@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
-import along from '@turf/along';
 import { featureCollection } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
-import length from '@turf/length';
-import { lineString } from '@turf/helpers';
+import midpoint from '@turf/midpoint';
 
 import { DRAWING_MODES } from '.';
 import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords, createPointsGeoJsonForCoords } from './utils';
@@ -72,27 +70,27 @@ export const useDrawToolGeoJson = (
     }
 
     // Points at the middle of each polygon line
-    if (shouldCalculatePolygonData && !drawing && !draggedPoint && polygonHover) {
+    const shouldRenderMidpoints = shouldCalculatePolygonData && !drawing && !draggedPoint && polygonHover;
+    if (shouldRenderMidpoints) {
       const drawnLineMidpointFeatures = vertexCoordinates.reduce((accumulator, coordinates, index) => {
         if (index !== vertexCoordinates.length - 1) {
-          var line = lineString([coordinates, vertexCoordinates[index + 1]]);
-          var lineLength = length(line);
-          var midpoint = along(line, lineLength / 2);
+          const midpointFeature = midpoint(coordinates, vertexCoordinates[index + 1]);
+          midpointFeature.properties = { midpointIndex: index, midpoint: true };
 
-          midpoint.properties = { midpointIndex: index, midpoint: true };
-
-          return [...accumulator, midpoint];
+          return [...accumulator, midpointFeature];
         }
         return accumulator;
       }, []);
 
+      const midpointCenters = drawnLineMidpointFeatures.map((midpoint) => ({
+        ...midpoint,
+        properties: { midpointCenter: true },
+      }));
+
       data.drawnLinePoints = featureCollection([
         ...data.drawnLinePoints.features,
         ...featureCollection(drawnLineMidpointFeatures).features,
-        ...featureCollection(drawnLineMidpointFeatures.map((midpoint) => ({
-          ...midpoint,
-          properties: { midpointCenter: true },
-        }))).features,
+        ...featureCollection(midpointCenters).features,
       ]);
     }
 

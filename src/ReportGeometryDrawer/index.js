@@ -1,7 +1,8 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { setIsPickingLocation, setMapLocationSelectionData } from '../ducks/map-ui';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import { setIsPickingLocation } from '../ducks/map-ui';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -10,19 +11,23 @@ import MapDrawingTools from '../MapDrawingTools';
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
+
+  const geoJson = useRef();
+
   // TODO: Set the current event polygon by default
   const [geometryPoints, setGeometryPoints] = useState([]);
-  const [geoJson, setGeoJson] = useState(null);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const onChangeGeometry = useCallback((newPoints) => setGeometryPoints(newPoints), []);
-
-  const onGeoJsonChange = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
+  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
+    setGeometryPoints(newPoints);
+    geoJson.current = newGeoJson;
+  }, []);
 
   const onSaveGeometry = useCallback(() => {
-    dispatch(setMapLocationSelectionData(geoJson));
+    setMapDrawingData(geoJson.current);
     dispatch(setIsPickingLocation(false));
-  }, [dispatch, geoJson]);
+  }, [dispatch, setMapDrawingData]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -45,12 +50,7 @@ const ReportGeometryDrawer = () => {
 
   return <>
     <ReportOverview />
-    <MapDrawingTools
-      drawing={isDrawing}
-      onChange={onChangeGeometry}
-      onGeoJsonChange={onGeoJsonChange}
-      points={geometryPoints}
-    />
+    <MapDrawingTools drawing={isDrawing} onChange={onChangeGeometry} points={geometryPoints} />
     <Footer disableSaveButton={isDrawing} onSave={onSaveGeometry} />
   </>;
 };

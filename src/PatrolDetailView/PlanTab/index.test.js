@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
+import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol, scheduledPatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { GPS_FORMATS } from '../../utils/location';
@@ -45,14 +46,18 @@ store.view.mapLocationSelection = {};
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>
-    <PlanTab patrolForm={overduePatrol} />
+    <MapDrawingToolsContextProvider>
+      <PlanTab patrolForm={overduePatrol} />
+    </MapDrawingToolsContextProvider>
   </Provider>);
 });
 
 describe('Tracked by input', () => {
   test('it should show the name of the tracking subject for patrols that already exist', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={overduePatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={overduePatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     const reportedBySelect = await screen.getByTestId('reported-by-select');
@@ -68,7 +73,9 @@ describe('Tracked by input', () => {
 
   test('it should show the field empty for new patrols', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={newPatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={newPatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     const reportedBySelect = await screen.getByTestId('reported-by-select');
@@ -83,7 +90,9 @@ describe('Tracked by input', () => {
 describe('Objective input', () => {
   test('it should show the objective for patrols that already exist', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={overduePatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={overduePatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     const objectiveInput = await screen.getByTestId('patrol-objective-input');
@@ -92,7 +101,9 @@ describe('Objective input', () => {
 
   test('it should show the field empty for new patrols', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={newPatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={newPatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     const objectiveInput = await screen.getByTestId('patrol-objective-input');
@@ -103,7 +114,9 @@ describe('Objective input', () => {
 describe('location inputs', () => {
   test('it should show the start and end location inputs', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={scheduledPatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={scheduledPatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     expect(await screen.getByTestId('planTab-start-location')).toBeDefined();
@@ -112,7 +125,9 @@ describe('location inputs', () => {
 
   test('it should show the placeholder for empty values', async () => {
     render(<Provider store={mockStore(store)}>
-      <PlanTab patrolForm={overduePatrol} />
+      <MapDrawingToolsContextProvider>
+        <PlanTab patrolForm={overduePatrol} />
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     expect(await screen.findByText('Start Location')).toBeDefined();
