@@ -58,7 +58,7 @@ jobs:
       - name: Configure cluster connectivity
         run: |-
           export SITE=${GITHUB_REF#refs/heads/}
-          if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]') fi
+          if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
           echo ${SITE}
           # gcloud container clusters get-credentials das-dev --zone us-west1-a
           # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
