@@ -1,9 +1,10 @@
 name: Frontend build
-on: [push]
-# on:
-#   push:
-#     branches:
-#       - "develop"
+on:
+  push:
+    branches:
+      - "das-2-*-*"
+      - "ERA-*"
+      - "develop"
 jobs:
   build:
     permissions:
@@ -56,11 +57,15 @@ jobs:
 
       - name: Configure cluster connectivity
         run: |-
-          gcloud container clusters get-credentials das-dev --zone us-west1-a
-          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
-          echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
-          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
-          kubectl get pods -n stage
+          export SITE=${GITHUB_REF#refs/heads/}
+          if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]') fi
+          echo ${SITE}
+          # gcloud container clusters get-credentials das-dev --zone us-west1-a
+          # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
+          # echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
+          # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
+          # kubectl set image -n ${site} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}/${GITHUB_SHA}
+
 
       - name: Remove ip address
         if: always()
