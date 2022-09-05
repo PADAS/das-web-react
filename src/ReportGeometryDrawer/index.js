@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
@@ -19,15 +19,14 @@ const ReportGeometryDrawer = () => {
 
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
-  const geoJson = useRef();
-
   // TODO: Set the current event polygon by default
+  const [geoJson, setGeoJson] = useState(null);
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
+  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {;
     setGeometryPoints(newPoints);
-    geoJson.current = newGeoJson;
+    setGeoJson(newGeoJson);
   }, []);
 
   const onClickPoint = useCallback((event) => {
@@ -42,9 +41,9 @@ const ReportGeometryDrawer = () => {
   }, [geometryPoints, map]);
 
   const onSaveGeometry = useCallback(() => {
-    setMapDrawingData(geoJson.current);
+    setMapDrawingData(geoJson);
     dispatch(setIsPickingLocation(false));
-  }, [dispatch, setMapDrawingData]);
+  }, [dispatch, geoJson, setMapDrawingData]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -66,7 +65,10 @@ const ReportGeometryDrawer = () => {
   }, [dispatch, geometryPoints, isDrawing]);
 
   return <>
-    <ReportOverview />
+    <ReportOverview
+      area={geoJson?.fillLabelPoint?.properties?.areaLabel}
+      perimeter={geoJson?.drawnLineSegments?.properties?.lengthLabel}
+    />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}

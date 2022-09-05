@@ -47,12 +47,6 @@ const MapDrawingTools = ({
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
   const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
 
-  const lineLength = useMemo(() => {
-    if (!data?.drawnLineSegments) return null;
-
-    return `${length(data.drawnLineSegments).toFixed(2)}km`;
-  }, [data?.drawnLineSegments]);
-
   const showLayer = pointerLocation || points.length;
 
   const onMapClick = useCallback(debounce((e) => {
@@ -116,12 +110,18 @@ const MapDrawingTools = ({
     dataContainer.current = data;
   }, [data]);
 
+  useEffect(() => {
+    if (!drawing) {
+      onChange(points, dataContainer.current);
+    }
+  }, [drawing, onChange, points]);
+
   if (!showLayer) return null;
 
   return <>
     {drawing && <CursorPopup
       coords={cursorPopupCoords}
-      lineLength={lineLength}
+      lineLength={data?.drawnLineSegments?.properties?.length}
       points={points}
       render={renderCursorPopup}
     />}

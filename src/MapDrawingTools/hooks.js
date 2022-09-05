@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
-import area from '@turf/area';
-import centroid from '@turf/centroid';
-import { convertArea, featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 import midpoint from '@turf/midpoint';
 
 import { DRAWING_MODES } from '.';
-import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords, createPointsGeoJsonForCoords } from './utils';
+import {
+  createLineSegmentGeoJsonForCoords,
+  createFillPolygonForCoords,
+  createPointsGeoJsonForCoords,
+  createLabelPointForPolygon,
+} from './utils';
 
 const POINTS_IN_A_LINE = 2;
 
@@ -73,19 +76,7 @@ export const useDrawToolGeoJson = (
       }
 
       data.fillPolygon = createFillPolygonForCoords(fillPolygonCoords);
-
-      const fillPolygonCentroid = centroid(data.fillPolygon);
-      const polygonArea = convertArea(area(data.fillPolygon), 'meters', 'kilometers');
-      const areaLabel = `${polygonArea.toFixed(2)}km²`;
-
-      data.fillLabelPoint = {
-        ...fillPolygonCentroid,
-        properties: {
-          ...fillPolygonCentroid.properties,
-          area: polygonArea,
-          areaLabel,
-        }
-      };
+      data.fillLabelPoint = createLabelPointForPolygon(data.fillPolygon);
     }
 
     // Points at the middle of each polygon line

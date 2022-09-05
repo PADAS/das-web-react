@@ -13,7 +13,7 @@ import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const ReportOverview = () => {
+const ReportOverview = ({ area, perimeter }) => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
@@ -49,11 +49,11 @@ const ReportOverview = () => {
 
         <div className={styles.measurements}>
           <div>
-            Area: 0m
+            {`Area: ${area || '0km²'}`}
           </div>
 
           <div>
-            Perimeter: 0m
+            {`Perimeter: ${perimeter || '0km'}`}
           </div>
         </div>
       </div>
