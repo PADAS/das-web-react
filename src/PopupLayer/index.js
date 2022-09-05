@@ -53,7 +53,7 @@ const templates = {
   'dropped-marker': {
     Component: DroppedMarkerPopup,
     popupAttrs: {
-      className: droppedMarkerPopupStyles.popup,
+      className: `${droppedMarkerPopupStyles.popup} dropped-marker-popup`,
       anchor: 'bottom',
       offset: [0, -26],
     }

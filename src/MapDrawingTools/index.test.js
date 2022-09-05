@@ -179,7 +179,7 @@ describe('MapDrawingTools', () => {
         expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
         expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(4);
         expect(callbackData.drawnLineSegments.type).toBe('FeatureCollection');
-        expect(callbackData.drawnLineSegments.features).toHaveLength(4);
+        expect(callbackData.drawnLineSegments.features).toHaveLength(3);
         expect(callbackData.fillPolygon.geometry.type).toBe('Polygon');
       });
     });

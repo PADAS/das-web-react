@@ -138,7 +138,7 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation
-    ? `picking-location-${MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]}`
+    ? MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]
     : '';
 
   return <div

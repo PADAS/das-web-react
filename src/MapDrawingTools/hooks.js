@@ -6,6 +6,8 @@ import midpoint from '@turf/midpoint';
 import { DRAWING_MODES } from '.';
 import { createLineSegmentGeoJsonForCoords, createFillPolygonForCoords, createPointsGeoJsonForCoords } from './utils';
 
+const POINTS_IN_A_LINE = 2;
+
 export const useDrawToolGeoJson = (
   points = [],
   drawing,
@@ -30,7 +32,7 @@ export const useDrawToolGeoJson = (
       }
     }
 
-    if (drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2) {
+    if (!drawing && drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > POINTS_IN_A_LINE) {
       vertexCoordinates.push(vertexCoordinates[0]);
     }
 
@@ -44,8 +46,9 @@ export const useDrawToolGeoJson = (
       fillPolygon: featureCollection([]),
     };
 
-    const shouldCalculateLinesData = vertexCoordinates.length >= 2;
-    const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2;
+    const shouldCalculateLinesData = vertexCoordinates.length >= POINTS_IN_A_LINE;
+    const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON
+      && vertexCoordinates.length > POINTS_IN_A_LINE;
 
     const isPolygonClosed = shouldCalculatePolygonData
       && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);

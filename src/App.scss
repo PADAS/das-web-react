@@ -105,8 +105,8 @@ body {
   }
 
   &.picking-location-fullscreen {
-    .primary-nav,
     .map-legends,
+    .dropped-marker-popup,
     .map-controls-container,
     .floating-report-filter,
     .mapboxgl-ctrl-bottom-right,
