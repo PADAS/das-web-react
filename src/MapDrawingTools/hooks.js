@@ -30,7 +30,7 @@ export const useDrawToolGeoJson = (
       }
     }
 
-    if (drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2) {
+    if (!drawing && drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > 2) {
       vertexCoordinates.push(vertexCoordinates[0]);
     }
 
