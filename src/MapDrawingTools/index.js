@@ -157,7 +157,7 @@ const CursorPopup = ({ coords, lineLength, points, render }) => {
     map={map}
     offset={[-8, 0]}
     coordinates={coords}
-    anchor="right"
+    anchor="left"
     >
     {points.length === 0 && <p>Click to add a point</p>}
 
