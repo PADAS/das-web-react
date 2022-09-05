@@ -102,7 +102,7 @@ const MapDrawingTools = ({
 
   useMapEventBinding('click', onClickLine, LAYER_IDS.LINES);
   useMapEventBinding('click', onClickPoint, LAYER_IDS.POINTS);
-  useMapEventBinding('click', onClickLabel, LAYER_IDS.LABELS);
+  useMapEventBinding('click', onClickLabel, LAYER_IDS.LINE_LABELS);
   useMapEventBinding('click', onClickFill, LAYER_IDS.FILL);
 
   useMapEventBinding('mousedown', onMouseDownPoint, LAYER_IDS.POINTS, !drawing);
@@ -130,6 +130,7 @@ const MapDrawingTools = ({
       drawing={drawing}
       drawnLinePoints={data?.drawnLinePoints}
       drawnLineSegments={data?.drawnLineSegments}
+      fillLabelPoint={data?.fillLabelPoint}
       fillPolygon={data?.fillPolygon}
       isHoveringGeometry={isHoveringGeometry}
       setIsHoveringGeometry={setIsHoveringGeometry}

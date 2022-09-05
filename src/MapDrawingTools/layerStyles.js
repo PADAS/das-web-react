@@ -11,12 +11,20 @@ export const lineLayout = {
   'line-cap': 'round',
 };
 
-export const symbolLayout = {
+export const lineSymbolLayout = {
   'text-allow-overlap': true,
   'icon-allow-overlap': true,
   'symbol-placement': 'line-center',
   'text-font': ['Open Sans Regular'],
   'text-field': ['get', 'lengthLabel'],
+};
+
+export const polygonSymbolLayout = {
+  'text-allow-overlap': true,
+  'icon-allow-overlap': true,
+  'symbol-placement': 'point',
+  'text-font': ['Open Sans Regular'],
+  'text-field': ['get', 'areaLabel'],
 };
 
 export const symbolPaint = {

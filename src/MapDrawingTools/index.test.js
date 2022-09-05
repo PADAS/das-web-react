@@ -152,7 +152,7 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      map.__test__.fireHandlers('click', LAYER_IDS.LABELS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
+      map.__test__.fireHandlers('click', LAYER_IDS.LINE_LABELS, { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       await waitFor(() => {
         expect(onClickLabel).toHaveBeenCalled();
