@@ -24,25 +24,28 @@ export const DRAWING_MODES = {
   LINE: 'line',
 };
 
-const MapDrawingTools = (props) => {
-  const {
-    children,
-    drawing = true,
-    drawingMode = DRAWING_MODES.POLYGON,
-    onChange = noop,
-    onClickPoint = noop,
-    onClickFill = noop,
-    points,
-    onClickLine = noop,
-    onClickLabel = noop,
-    renderCursorPopup = noop,
-  } = props;
+const MapDrawingTools = ({
+  children,
+  drawing = true,
+  drawingMode = DRAWING_MODES.POLYGON,
+  onChange = noop,
+  onClickFill = noop,
+  onClickLabel = noop,
+  onClickLine = noop,
+  onClickPoint = noop,
+  points,
+  renderCursorPopup = noop,
+}) => {
+  const map = useContext(MapContext);
 
+  const dataContainer = useRef();
+
+  const [draggedPoint, setDraggedPoint] = useState(null);
+  const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
   const [pointerLocation, setPointerLocation] = useState(null);
 
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
-  const data = useDrawToolGeoJson(points, (drawing && cursorPopupCoords), drawingMode);
-  const dataContainer = useRef(data);
+  const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
 
   const lineLength = useMemo(() => {
     if (!data?.drawnLineSegments) return null;
@@ -59,7 +62,6 @@ const MapDrawingTools = (props) => {
     onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
   }, 100), [onChange, points]);
 
-
   const onMapDblClick = useCallback((e) => {
     onMapClick(e);
 
@@ -73,18 +75,46 @@ const MapDrawingTools = (props) => {
     setPointerLocation(e.lngLat);
   }, []);
 
+  const onMouseDownPoint = useCallback((event) => {
+    const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
+      .find((point) => !point.properties.midpointCenter);
+    if (clickedPoint) {
+      event.preventDefault();
+
+      map.getCanvas().style.cursor = 'grab';
+      setDraggedPoint(clickedPoint);
+    }
+  }, [map]);
+
+  const onMouseUp = useCallback(() => {
+    if (draggedPoint) {
+      const newPoints = [...points];
+      if (draggedPoint.properties.midpoint) {
+        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
+      } else {
+        newPoints[draggedPoint.properties.pointIndex] = cursorPopupCoords;
+      }
+
+      onChange(newPoints, dataContainer.current);
+      setDraggedPoint(null);
+    }
+  }, [cursorPopupCoords, draggedPoint, onChange, points]);
+
   useMapEventBinding('click', onClickLine, LAYER_IDS.LINES);
   useMapEventBinding('click', onClickPoint, LAYER_IDS.POINTS);
   useMapEventBinding('click', onClickLabel, LAYER_IDS.LABELS);
   useMapEventBinding('click', onClickFill, LAYER_IDS.FILL);
 
-  useMapEventBinding('mousemove', onMouseMove, null, drawing);
+  useMapEventBinding('mousedown', onMouseDownPoint, LAYER_IDS.POINTS, !drawing);
+  useMapEventBinding('mouseup', onMouseUp, null, !drawing);
+
+  useMapEventBinding('mousemove', onMouseMove, null);
   useMapEventBinding('dblclick', onMapDblClick, null, drawing);
   useMapEventBinding('click', onMapClick, null, drawing);
 
   useEffect(() => {
     dataContainer.current = data;
-  }, [dataContainer, data]);
+  }, [data]);
 
   if (!showLayer) return null;
 
@@ -95,7 +125,15 @@ const MapDrawingTools = (props) => {
       points={points}
       render={renderCursorPopup}
     />}
-    <MapLayers drawnLineSegments={data?.drawnLineSegments} fillPolygon={data?.fillPolygon} />
+    <MapLayers
+      draggedPoint={draggedPoint}
+      drawing={drawing}
+      drawnLinePoints={data?.drawnLinePoints}
+      drawnLineSegments={data?.drawnLineSegments}
+      fillPolygon={data?.fillPolygon}
+      isHoveringGeometry={isHoveringGeometry}
+      setIsHoveringGeometry={setIsHoveringGeometry}
+    />
     {children}
   </>;
 };
@@ -118,7 +156,7 @@ const CursorPopup = ({ coords, lineLength, points, render }) => {
     map={map}
     offset={[-8, 0]}
     coordinates={coords}
-    anchor="right"
+    anchor="left"
     >
     {points.length === 0 && <p>Click to add a point</p>}
 

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import ReportGeometryDrawer from './';
 
 jest.mock('../ducks/map-ui', () => ({
@@ -29,7 +30,9 @@ describe('ReportGeometryDrawer', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportGeometryDrawer />
+          <MapDrawingToolsContextProvider>
+            <ReportGeometryDrawer />
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );

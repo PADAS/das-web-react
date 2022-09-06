@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../../App';
+import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
@@ -55,9 +56,11 @@ describe('LocationSelectorInput', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput label="label" map={map} onLocationChange={onLocationChange} />
-          </MapContext.Provider>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput label="label" map={map} onLocationChange={onLocationChange} />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );
@@ -166,9 +169,11 @@ describe('LocationSelectorInput', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
-          </MapContext.Provider>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     );

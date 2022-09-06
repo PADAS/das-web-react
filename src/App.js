@@ -19,6 +19,7 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { getCurrentTabFromURL } from './utils/navigation';
+import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES } from './ducks/map-ui';
 
 import Drawer from './Drawer';
@@ -137,7 +138,7 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation
-    ? `picking-location-${MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]}`
+    ? MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]
     : '';
 
   return <div
@@ -148,28 +149,30 @@ const App = (props) => {
     onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
-      <PrintTitle />
+      <MapDrawingToolsContextProvider>
+        <PrintTitle />
 
-      <Nav map={map} />
+        <Nav map={map} />
 
-      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-        {!!map && <SideBar map={map} />}
-        <ModalRenderer map={map} />
-      </div>
+        <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+          {!!map && <SideBar map={map} />}
+          <ModalRenderer map={map} />
+        </div>
 
-      <div style={{
-        display: 'none',
-        height: 0,
-        width: 0,
-      }}>
-        <ReportTypeIconSprite id="reportTypeIconSprite" />
-        <EarthRangerLogoSprite />
-      </div>
+        <div style={{
+          display: 'none',
+          height: 0,
+          width: 0,
+        }}>
+          <ReportTypeIconSprite id="reportTypeIconSprite" />
+          <EarthRangerLogoSprite />
+        </div>
 
-      <Drawer />
+        <Drawer />
 
-      <ServiceWorkerWatcher />
+        <ServiceWorkerWatcher />
+      </MapDrawingToolsContextProvider>
     </MapContext.Provider>
     <ToastContainer transition={Slide} />
   </div>;

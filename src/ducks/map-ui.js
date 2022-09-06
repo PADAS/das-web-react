@@ -311,7 +311,11 @@ export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTI
     return { ...state, event: action.payload.event };
 
   case SET_IS_PICKING_LOCATION:
-    return { ...state, isPickingLocation: action.payload.isPickingLocation, mode: action.payload.mode };
+    return {
+      ...state,
+      isPickingLocation: action.payload.isPickingLocation,
+      mode: action.payload.mode,
+    };
 
   default:
     return state;

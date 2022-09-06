@@ -17,6 +17,7 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
@@ -58,8 +59,10 @@ const LocationSelectorInput = ({
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const map = useContext(MapContext);
+  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
@@ -76,7 +79,11 @@ const LocationSelectorInput = ({
 
   const onClickLocation = useCallback(() => setIsPopoverOpen(!isPopoverOpen), [isPopoverOpen]);
 
-  const onHidePopover = useCallback(() => setIsPopoverOpen(false), []);
+  const onHidePopover = useCallback(() => {
+    if (!isPickingLocation && !mapDrawingData) {
+      setIsPopoverOpen(false);
+    }
+  }, [isPickingLocation, mapDrawingData]);
 
   const onLabelKeyDown = useCallback((event) => {
     if (event.key === 'Escape' && isPopoverOpen) {
@@ -115,6 +122,13 @@ const LocationSelectorInput = ({
     dispatch(setModalVisibilityState(!isDrawingEventGeometry));
     dispatch(isDrawingEventGeometry ? hideSideBar() : showSideBar());
   }, [dispatch, isDrawingEventGeometry]);
+
+  useEffect(() => {
+    if (mapDrawingData) {
+      console.log('Save this location data to the report: ', mapDrawingData);
+      setMapDrawingData(null);
+    }
+  }, [dispatch, mapDrawingData, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
