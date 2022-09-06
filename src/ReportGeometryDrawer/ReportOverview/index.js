@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
+import PropTypes from 'prop-types';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -59,6 +60,16 @@ const ReportOverview = ({ area, perimeter }) => {
       </div>
     </Collapse>
   </div>;
+};
+
+ReportOverview.defaultProps = {
+  area: '0km²',
+  perimeter: '0km',
+};
+
+ReportOverview.propTypes = {
+  area: PropTypes.string,
+  perimeter: PropTypes.string,
 };
 
 export default memo(ReportOverview);

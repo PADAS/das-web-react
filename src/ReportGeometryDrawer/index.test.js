@@ -97,4 +97,18 @@ describe('ReportGeometryDrawer', () => {
     expect(setMapDrawingData).toHaveBeenCalledTimes(1);
     expect(setMapDrawingData.mock.calls[0][0]).toHaveProperty('drawnLinePoints');
   });
+
+  test('assigns the area and perimeter to the report overview', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    jest.advanceTimersByTime(60000);
+
+    userEvent.keyboard('{Enter}');
+
+    expect((await screen.findByText('Area: 3598.00km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 305.13km'))).toBeDefined();
+  });
 });

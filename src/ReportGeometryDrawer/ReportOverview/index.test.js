@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../../ducks/modals';
@@ -63,5 +63,24 @@ describe('ReportOverview', () => {
     await waitFor(() => {
       expect(collapse).toHaveClass('show');
     });
+  });
+
+  test('renders default values for area and perimeter', async () => {
+    expect((await screen.findByText('Area: 0km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 0km'))).toBeDefined();
+  });
+
+  test('renders the given values for area and perimeter', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportOverview area="5km²" perimeter="10km" />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Area: 5km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 10km'))).toBeDefined();
   });
 });
