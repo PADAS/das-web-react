@@ -24,13 +24,15 @@ const ReportGeometryDrawer = () => {
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {;
+  const isGeometryAValidPolygon = geometryPoints.length > 2;
+
+  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
     setGeometryPoints(newPoints);
     setGeoJson(newGeoJson);
   }, []);
 
   const onClickPoint = useCallback((event) => {
-    if (geometryPoints.length > 2) {
+    if (isGeometryAValidPolygon) {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
@@ -38,7 +40,7 @@ const ReportGeometryDrawer = () => {
         setIsDrawing(false);
       }
     }
-  }, [geometryPoints, map]);
+  }, [geometryPoints, isGeometryAValidPolygon, map]);
 
   const onSaveGeometry = useCallback(() => {
     setMapDrawingData(geoJson);
@@ -51,7 +53,7 @@ const ReportGeometryDrawer = () => {
       case 'Backspace':
         return isDrawing && geometryPoints.length && setGeometryPoints(geometryPoints.slice(0, -1));
       case 'Enter':
-        return geometryPoints.length > 2 && setIsDrawing(false);
+        return isGeometryAValidPolygon && setIsDrawing(false);
       case 'Escape':
         return dispatch(setIsPickingLocation(false));
       default:
@@ -62,7 +64,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, geometryPoints, isDrawing]);
+  }, [dispatch, geometryPoints, isDrawing, isGeometryAValidPolygon]);
 
   return <>
     <ReportOverview
