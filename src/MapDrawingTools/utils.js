@@ -1,4 +1,4 @@
-import { lineString, polygon } from '@turf/helpers';
+import { featureCollection, lineString, point, polygon } from '@turf/helpers';
 import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
 
@@ -22,5 +22,10 @@ export const createLineSegmentGeoJsonForCoords = (coords) => {
   return lineSegments;
 };
 
-export const createFillPolygonForCoords = (coords) =>
-  polygon([coords]);
+export const createFillPolygonForCoords = (coords) => polygon([coords]);
+
+export const createPointsGeoJsonForCoords = (coords) => {
+  const points = coords.map((coordinates, index) => point(coordinates, { pointIndex: index }));
+
+  return featureCollection(points);
+};

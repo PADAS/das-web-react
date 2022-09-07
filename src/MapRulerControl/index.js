@@ -42,7 +42,7 @@ const MapRulerControl = (props) => {
 
   }, [active]);
 
-  const onDrawChange = useCallback((points, _geoJsonData) => {
+  const onDrawChange = useCallback((points) => {
     setPoints(() => points);
   }, []);
 
