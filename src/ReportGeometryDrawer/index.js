@@ -91,6 +91,7 @@ const ReportGeometryDrawer = () => {
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
+      onCompleteDrawing={onChangeGeometry}
       points={mapDrawingData?.geometryPoints || []}
     />
     <Footer disableSaveButton={isDrawing} onSave={onSaveGeometry} />
