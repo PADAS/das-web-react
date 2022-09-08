@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
-import length from '@turf/length';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
@@ -33,6 +32,7 @@ const MapDrawingTools = ({
   onClickLabel = noop,
   onClickLine = noop,
   onClickPoint = noop,
+  onCompleteDrawing = noop,
   points,
   renderCursorPopup = noop,
 }) => {
@@ -112,9 +112,9 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     if (!drawing) {
-      onChange(points, dataContainer.current);
+      onCompleteDrawing(points, dataContainer.current);
     }
-  }, [drawing, onChange, points]);
+  }, [drawing, onCompleteDrawing, points]);
 
   if (!showLayer) return null;
 
