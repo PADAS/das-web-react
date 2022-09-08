@@ -51,6 +51,7 @@ const LocationSelectorInput = ({
   copyable = true,
   label,
   location,
+  onGeometryChange,
   onLocationChange,
   placeholder,
   popoverClassName,
@@ -118,17 +119,22 @@ const LocationSelectorInput = ({
     mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
+  const onDeleteArea = useCallback(() => {
+    setMapDrawingData(null);
+    onGeometryChange?.(null);
+  }, [onGeometryChange, setMapDrawingData]);
+
   useEffect(() => {
     dispatch(setModalVisibilityState(!isDrawingEventGeometry));
     dispatch(isDrawingEventGeometry ? hideSideBar() : showSideBar());
   }, [dispatch, isDrawingEventGeometry]);
 
   useEffect(() => {
-    if (mapDrawingData) {
-      console.log('Save this location data to the report: ', mapDrawingData);
+    if (mapDrawingData?.finished) {
+      onGeometryChange?.(mapDrawingData.geoJson.fillPolygon);
       setMapDrawingData(null);
     }
-  }, [dispatch, mapDrawingData, setMapDrawingData]);
+  }, [dispatch, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -198,7 +204,7 @@ const LocationSelectorInput = ({
         ? <Popover className={popoverClassString}>
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
-              <AreaTab onAreaSelectStart={onAreaSelectStart} />
+              <AreaTab onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
             </Tab>
 
             <Tab eventKey="point" title="Point">
@@ -248,6 +254,7 @@ LocationSelectorInput.defaultProps = {
   copyable: true,
   label: 'Location:',
   location: null,
+  onGeometryChange: null,
   placeholder: 'Click here to set location',
   popoverClassName: '',
 };
@@ -258,6 +265,7 @@ LocationSelectorInput.propTypes = {
   label: PropTypes.string,
   location: PropTypes.arrayOf(PropTypes.number),
   map: PropTypes.object.isRequired,
+  onGeometryChange: PropTypes.func,
   onLocationChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   popoverClassName: PropTypes.string,
