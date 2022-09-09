@@ -177,7 +177,7 @@ describe('MapDrawingTools', () => {
 
         expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
         expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
-        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(4);
+        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(6);
         expect(callbackData.drawnLineSegments.type).toBe('FeatureCollection');
         expect(callbackData.drawnLineSegments.features).toHaveLength(3);
         expect(callbackData.fillPolygon.geometry.type).toBe('Polygon');
@@ -204,7 +204,7 @@ describe('MapDrawingTools', () => {
         expect(callbackData.fillPolygon.features).toHaveLength(0);
         expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
         expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
-        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(4);
+        expect(callbackData.drawnLinePoints.features.filter((feature) => !feature.properties.midpoint)).toHaveLength(6);
         expect(callbackData.drawnLineSegments.type).toBe('FeatureCollection');
         expect(callbackData.drawnLineSegments.features).toHaveLength(3);
       });

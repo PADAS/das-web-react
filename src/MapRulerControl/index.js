@@ -43,8 +43,10 @@ const MapRulerControl = (props) => {
   }, [active]);
 
   const onDrawChange = useCallback((points) => {
-    setPoints(() => points);
-  }, []);
+    if (drawing || points.length > 1) {
+      setPoints(() => points);
+    }
+  }, [drawing]);
 
   const onClickPoint = useCallback((e) => { // KEEP
     if (!drawing) {
