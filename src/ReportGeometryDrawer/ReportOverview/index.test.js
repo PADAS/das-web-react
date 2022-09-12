@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../../ducks/modals';
@@ -16,7 +16,7 @@ jest.mock('../../ducks/modals', () => ({
 }));
 
 describe('ReportOverview', () => {
-  let addModalMock, store;
+  let addModalMock, rerender, store;
 
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
@@ -24,13 +24,13 @@ describe('ReportOverview', () => {
 
     store = { data: { eventTypes: [], patrolTypes: [] }, view: { mapLocationSelection: { event: report } } };
 
-    render(
+    ({ rerender } = render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportOverview />
         </NavigationWrapper>
       </Provider>
-    );
+    ));
   });
 
   afterEach(() => {
@@ -71,8 +71,7 @@ describe('ReportOverview', () => {
   });
 
   test('renders the given values for area and perimeter', async () => {
-    cleanup();
-    render(
+    rerender(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportOverview area="5km²" perimeter="10km" />
