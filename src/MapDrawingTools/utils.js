@@ -4,9 +4,6 @@ import { convertArea, featureCollection, lineString, point, polygon } from '@tur
 import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
 import midpoint from '@turf/midpoint';
-import throttle from 'lodash/throttle';
-
-const LABEL_POINT_FOR_POLYGON_CALCULATION_THROTLE_TIME = 150;
 
 export const createLineSegmentGeoJsonForCoords = (coords) => {
   const lineSegments = lineSegment(lineString(coords));
@@ -32,7 +29,7 @@ export const createLineSegmentGeoJsonForCoords = (coords) => {
 
 export const createFillPolygonGeoJsonForCoords = (coords) => polygon([coords]);
 
-export const createLabelPointGeoJsonForPolygon = throttle((polygon) => {
+export const createLabelPointGeoJsonForPolygon = (polygon) => {
   const polygonCenterOfMass = centerOfMass(polygon);
   const polygonArea = convertArea(area(polygon), 'meters', 'kilometers');
   const areaLabel = `${polygonArea.toFixed(2)}km²`;
@@ -45,7 +42,7 @@ export const createLabelPointGeoJsonForPolygon = throttle((polygon) => {
       areaLabel,
     }
   };
-}, LABEL_POINT_FOR_POLYGON_CALCULATION_THROTLE_TIME);
+};
 
 export const createPointsGeoJsonForCoords = (coords, isDrawing) => {
   const points = coords.map((coordinates, index) => point(coordinates, { point: true, pointIndex: index }));
