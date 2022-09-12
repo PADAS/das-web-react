@@ -1,10 +1,12 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
+
+import { validateEventPolygonPoints } from '../utils/geometry';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -34,6 +36,10 @@ const ReportGeometryDrawer = () => {
       setGeoJson(newGeoJson);
     }
   }, [isDrawing]);
+
+  const disableSaveButton = useMemo(() =>
+    isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
+  , [geometryPoints, isDrawing]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -80,7 +86,7 @@ const ReportGeometryDrawer = () => {
       onCompleteDrawing={onChangeGeometry}
       points={geometryPoints}
     />
-    <Footer disableSaveButton={isDrawing} onSave={onSaveGeometry} />
+    <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
   </>;
 };
 
