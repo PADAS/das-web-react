@@ -1,8 +1,12 @@
 import area from '@turf/area';
-import centroid from '@turf/centroid';
+import centerOfMass from '@turf/center-of-mass';
 import { convertArea, featureCollection, lineString, point, polygon } from '@turf/helpers';
 import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
+import midpoint from '@turf/midpoint';
+import throttle from 'lodash/throttle';
+
+const LABEL_POINT_FOR_POLYGON_CALCULATION_THROTLE_TIME = 150;
 
 export const createLineSegmentGeoJsonForCoords = (coords) => {
   const lineSegments = lineSegment(lineString(coords));
@@ -26,25 +30,49 @@ export const createLineSegmentGeoJsonForCoords = (coords) => {
   return lineSegments;
 };
 
-export const createFillPolygonForCoords = (coords) => polygon([coords]);
+export const createFillPolygonGeoJsonForCoords = (coords) => polygon([coords]);
 
-export const createPointsGeoJsonForCoords = (coords) => {
-  const points = coords.map((coordinates, index) => point(coordinates, { pointIndex: index }));
-
-  return featureCollection(points);
-};
-
-export const createLabelPointForPolygon = (polygon) => {
-  const polygonCentroid = centroid(polygon);
+export const createLabelPointGeoJsonForPolygon = throttle((polygon) => {
+  const polygonCenterOfMass = centerOfMass(polygon);
   const polygonArea = convertArea(area(polygon), 'meters', 'kilometers');
   const areaLabel = `${polygonArea.toFixed(2)}km²`;
 
   return  {
-    ...polygonCentroid,
+    ...polygonCenterOfMass,
     properties: {
-      ...polygonCentroid.properties,
+      ...polygonCenterOfMass.properties,
       area: polygonArea,
       areaLabel,
     }
   };
+}, LABEL_POINT_FOR_POLYGON_CALCULATION_THROTLE_TIME);
+
+export const createPointsGeoJsonForCoords = (coords, isDrawing) => {
+  const points = coords.map((coordinates, index) => point(coordinates, { point: true, pointIndex: index }));
+
+  if (isDrawing) {
+    points.pop(); // Remove the point below the cursor
+
+    points[0].properties = { ...points[0].properties, initialPoint: true };
+  }
+
+  const pointHovers = points.map((point) => ({ ...point, properties: { pointHover: true } }));
+
+  return featureCollection([ ...pointHovers, ...points ]);
+};
+
+export const createMidpointsGeoJsonForCoords = (coords) => {
+  const midpoints = coords.reduce((accumulator, coordinates, index) => {
+    if (index !== coords.length - 1) {
+      const midpointFeature = midpoint(coordinates, coords[index + 1]);
+      midpointFeature.properties = { midpoint: true, midpointIndex: index };
+
+      return [...accumulator, midpointFeature];
+    }
+    return accumulator;
+  }, []);
+
+  const midpointHovers = midpoints.map((midpoint) => ({ ...midpoint, properties: { pointHover: true } }));
+
+  return featureCollection([ ...midpointHovers, ...midpoints ]);
 };

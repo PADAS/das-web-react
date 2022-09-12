@@ -1,31 +1,30 @@
 import { useMemo } from 'react';
 import { featureCollection } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
-import midpoint from '@turf/midpoint';
 
-import { DRAWING_MODES } from '.';
 import {
+  createFillPolygonGeoJsonForCoords,
+  createLabelPointGeoJsonForPolygon,
   createLineSegmentGeoJsonForCoords,
-  createFillPolygonForCoords,
+  createMidpointsGeoJsonForCoords,
   createPointsGeoJsonForCoords,
-  createLabelPointForPolygon,
 } from './utils';
+import { DRAWING_MODES } from '.';
 
 const POINTS_IN_A_LINE = 2;
 
 export const useDrawToolGeoJson = (
   points = [],
-  drawing,
+  isDrawing,
   cursorCoords = null,
   drawMode = DRAWING_MODES.POLYGON,
   polygonHover = false,
   draggedPoint = null
 ) => {
-  // This calculates the array of coordinates of the vertices [[lng1, lat1], [lng2, lat2], ...]
   const vertexCoordinates = useMemo(() => {
     const vertexCoordinates = [...points];
 
-    if (drawing && cursorCoords) {
+    if (isDrawing && cursorCoords) {
       vertexCoordinates.push(cursorCoords);
     }
 
@@ -37,12 +36,12 @@ export const useDrawToolGeoJson = (
       }
     }
 
-    if (!drawing && drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > POINTS_IN_A_LINE) {
+    if (!isDrawing && drawMode === DRAWING_MODES.POLYGON && vertexCoordinates.length > POINTS_IN_A_LINE) {
       vertexCoordinates.push(vertexCoordinates[0]);
     }
 
     return vertexCoordinates;
-  }, [cursorCoords, draggedPoint, drawMode, drawing, points]);
+  }, [cursorCoords, draggedPoint, drawMode, isDrawing, points]);
 
   return useMemo(() => {
     const data = {
@@ -55,19 +54,19 @@ export const useDrawToolGeoJson = (
     const shouldCalculateLinesData = vertexCoordinates.length >= POINTS_IN_A_LINE;
     const shouldCalculatePolygonData = drawMode === DRAWING_MODES.POLYGON
       && vertexCoordinates.length > POINTS_IN_A_LINE;
+    const shouldCalculateMidpointsData = shouldCalculatePolygonData && !isDrawing && !draggedPoint && polygonHover;
 
     const isPolygonClosed = shouldCalculatePolygonData
       && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
 
-    // Line segments and vertex points
     if (shouldCalculateLinesData) {
       data.drawnLineSegments = createLineSegmentGeoJsonForCoords(vertexCoordinates);
-      data.drawnLinePoints = createPointsGeoJsonForCoords(isPolygonClosed
-        ? vertexCoordinates.slice(0, -1)
-        : vertexCoordinates);
+      data.drawnLinePoints = createPointsGeoJsonForCoords(
+        isPolygonClosed ? vertexCoordinates.slice(0, -1) : vertexCoordinates,
+        isDrawing
+      );
     };
 
-    // Polygon fill
     if (shouldCalculatePolygonData) {
       const fillPolygonCoords = [...vertexCoordinates];
 
@@ -75,35 +74,17 @@ export const useDrawToolGeoJson = (
         fillPolygonCoords.push(vertexCoordinates[0]);
       }
 
-      data.fillPolygon = createFillPolygonForCoords(fillPolygonCoords);
-      data.fillLabelPoint = createLabelPointForPolygon(data.fillPolygon);
+      data.fillPolygon = createFillPolygonGeoJsonForCoords(fillPolygonCoords);
+      data.fillLabelPoint = createLabelPointGeoJsonForPolygon(data.fillPolygon);
     }
 
-    // Points at the middle of each polygon line
-    const shouldRenderMidpoints = shouldCalculatePolygonData && !drawing && !draggedPoint && polygonHover;
-    if (shouldRenderMidpoints) {
-      const drawnLineMidpointFeatures = vertexCoordinates.reduce((accumulator, coordinates, index) => {
-        if (index !== vertexCoordinates.length - 1) {
-          const midpointFeature = midpoint(coordinates, vertexCoordinates[index + 1]);
-          midpointFeature.properties = { midpointIndex: index, midpoint: true };
-
-          return [...accumulator, midpointFeature];
-        }
-        return accumulator;
-      }, []);
-
-      const midpointCenters = drawnLineMidpointFeatures.map((midpoint) => ({
-        ...midpoint,
-        properties: { midpointCenter: true },
-      }));
-
+    if (shouldCalculateMidpointsData) {
       data.drawnLinePoints = featureCollection([
         ...data.drawnLinePoints.features,
-        ...featureCollection(drawnLineMidpointFeatures).features,
-        ...featureCollection(midpointCenters).features,
+        ...createMidpointsGeoJsonForCoords(vertexCoordinates).features,
       ]);
     }
 
     return data;
-  }, [draggedPoint, drawMode, drawing, vertexCoordinates, polygonHover]);
+  }, [draggedPoint, drawMode, isDrawing, vertexCoordinates, polygonHover]);
 };

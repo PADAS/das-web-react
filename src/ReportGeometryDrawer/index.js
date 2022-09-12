@@ -27,8 +27,12 @@ const ReportGeometryDrawer = () => {
   const isGeometryAValidPolygon = mapDrawingData?.geometryPoints?.length > 2;
 
   const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
-    setMapDrawingData({ geometryPoints: newPoints, geoJson: newGeoJson });
-  }, [setMapDrawingData]);
+    const isNewGeometryAValidPolygon = newPoints.length > 2;
+
+    if (isDrawing || isNewGeometryAValidPolygon) {
+      setMapDrawingData({ geometryPoints: newPoints, geoJson: newGeoJson });
+    }
+  }, [isDrawing, setMapDrawingData]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -49,11 +53,6 @@ const ReportGeometryDrawer = () => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       switch (event.key) {
-      case 'Backspace':
-        return isDrawing && mapDrawingData?.geometryPoints?.length && setMapDrawingData(
-          { ...mapDrawingData,
-            geometryPoints: mapDrawingData.geometryPoints.slice(0, -1),
-          });
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
       case 'Escape':
