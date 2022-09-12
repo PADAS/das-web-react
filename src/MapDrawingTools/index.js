@@ -144,11 +144,14 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     dataContainer.current = data;
+  }, [data]);
 
+  useEffect(() => {
     if (!drawing) {
+      console.log('updating area');
       onCompleteDrawing(points, dataContainer.current);
     }
-  }, [data, drawing, onCompleteDrawing, points]);
+  }, [data?.fillLabelPoint?.properties?.areaLabel, drawing, onCompleteDrawing, points]);
 
   if (!showLayer) return null;
 
