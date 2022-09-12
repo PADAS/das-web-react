@@ -62,10 +62,10 @@ const MapDrawingTools = ({
     } else {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
-      const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-        .find((point) => !point.properties.midpointCenter);
-      if (clickedPoint) {
-        map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: clickedPoint.id }, { selected: true });
+      const selectedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
+        .find((point) => !point.properties.pointHover);
+      if (selectedPoint) {
+        map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: selectedPoint.id }, { selected: true });
       }
     }
   }, MAP_CLICK_DEBOUNCE_TIME), [drawing, map, onChange, points]);
@@ -84,7 +84,7 @@ const MapDrawingTools = ({
 
   const onMouseDownPoint = useCallback((event) => {
     const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-      .find((point) => !point.properties.midpointCenter);
+      .find((point) => !point.properties.pointHover);
     if (clickedPoint) {
       event.preventDefault();
 
