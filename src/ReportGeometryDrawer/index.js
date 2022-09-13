@@ -37,6 +37,8 @@ const ReportGeometryDrawer = () => {
     }
   }, [isDrawing]);
 
+  const onCompleteDrawing = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
+
   const disableSaveButton = useMemo(() =>
     isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
   , [geometryPoints, isDrawing]);
@@ -83,7 +85,7 @@ const ReportGeometryDrawer = () => {
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      onCompleteDrawing={onChangeGeometry}
+      onCompleteDrawing={onCompleteDrawing}
       points={geometryPoints}
     />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />

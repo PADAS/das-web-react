@@ -148,10 +148,14 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     if (!drawing) {
-      onCompleteDrawing(points, dataContainer.current);
+      onCompleteDrawing(dataContainer.current);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drawing]);
+  }, [
+    data?.fillLabelPoint?.properties?.areaLabel,
+    data?.drawnLineSegments?.properties?.lengthLabel,
+    drawing,
+    onCompleteDrawing,
+  ]);
 
   if (!showLayer) return null;
 
