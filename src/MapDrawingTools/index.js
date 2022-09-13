@@ -148,10 +148,10 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     if (!drawing) {
-      console.log('updating area');
       onCompleteDrawing(points, dataContainer.current);
     }
-  }, [data?.fillLabelPoint?.properties?.areaLabel, drawing, onCompleteDrawing, points]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawing]);
 
   if (!showLayer) return null;
 
