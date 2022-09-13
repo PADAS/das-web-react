@@ -28,20 +28,15 @@ const ReportGeometryDrawer = () => {
 
   const isGeometryAValidPolygon = geometryPoints.length > 2;
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
+  const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
-    console.log('onChangeGeometry: ', newGeoJson?.fillLabelPoint?.properties?.areaLabel);
 
     if (isDrawing || isNewGeometryAValidPolygon) {
       setGeometryPoints(newPoints);
-      setGeoJson(newGeoJson);
     }
   }, [isDrawing]);
 
-  const onCompleteDrawing = useCallback((newGeoJson) => {
-    console.log('onCompleteDrawing: ', newGeoJson?.fillLabelPoint?.properties?.areaLabel);
-    setGeoJson(newGeoJson);
-  }, []);
+  const onGeoJsonChange = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
 
   const disableSaveButton = useMemo(() =>
     isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
@@ -89,7 +84,7 @@ const ReportGeometryDrawer = () => {
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      onCompleteDrawing={onCompleteDrawing}
+      onGeoJsonChange={onGeoJsonChange}
       points={geometryPoints}
     />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
