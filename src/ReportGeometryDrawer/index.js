@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import { createLabelPointGeoJsonForPolygon } from '../MapDrawingTools/utils';
 import { setIsPickingLocation } from '../ducks/map-ui';
 
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -28,19 +29,26 @@ const ReportGeometryDrawer = () => {
 
   const isGeometryAValidPolygon = geometryPoints.length > 2;
 
-  const onChangeGeometry = useCallback((newPoints) => {
+  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
 
     if (isDrawing || isNewGeometryAValidPolygon) {
       setGeometryPoints(newPoints);
+      setGeoJson(newGeoJson);
     }
   }, [isDrawing]);
-
-  const onGeoJsonChange = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
 
   const disableSaveButton = useMemo(() =>
     isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
   , [geometryPoints, isDrawing]);
+
+  const polygonArea = useMemo(() => {
+    if (geoJson?.fillPolygon?.geometry?.type === 'Polygon') {
+      const labelPoint = createLabelPointGeoJsonForPolygon(geoJson.fillPolygon);
+      return labelPoint.properties.areaLabel;
+    }
+    return null;
+  }, [geoJson?.fillPolygon]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -77,14 +85,13 @@ const ReportGeometryDrawer = () => {
 
   return <>
     <ReportOverview
-      area={geoJson?.fillLabelPoint?.properties?.areaLabel}
+      area={polygonArea}
       perimeter={geoJson?.drawnLineSegments?.properties?.lengthLabel}
     />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      onGeoJsonChange={onGeoJsonChange}
       points={geometryPoints}
     />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />

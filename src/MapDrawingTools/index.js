@@ -34,7 +34,6 @@ const MapDrawingTools = ({
   onClickLabel = noop,
   onClickLine = noop,
   onClickPoint = noop,
-  onGeoJsonChange = noop,
   points,
   renderCursorPopup = noop,
 }) => {
@@ -58,7 +57,7 @@ const MapDrawingTools = ({
       event.originalEvent.stopPropagation();
 
       const { lngLat } = event;
-      onChange([...points, [lngLat.lng, lngLat.lat]]);
+      onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
     } else {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
@@ -104,7 +103,7 @@ const MapDrawingTools = ({
         newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
       }
 
-      onChange(newPoints);
+      onChange(newPoints, dataContainer.current);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
@@ -125,14 +124,17 @@ const MapDrawingTools = ({
     const handleKeyDown = (event) => {
       if (event.key === 'Backspace') {
         if (drawing && points.length) {
-          return onChange(points.slice(0, -1));
+          return onChange(points.slice(0, -1), dataContainer.current);
         }
 
         const selectedPoint = map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
           .find((point) => !!point.state?.selected);
         if (!drawing && selectedPoint) {
           map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
-          return onChange(points.filter((_, index) => index !== selectedPoint.properties.pointIndex));
+          return onChange(
+            points.filter((_, index) => index !== selectedPoint.properties.pointIndex),
+            dataContainer.current
+          );
         }
       }
     };
@@ -144,9 +146,14 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     dataContainer.current = data;
+  }, [data]);
 
-    onGeoJsonChange(data);
-  }, [data, onGeoJsonChange]);
+  useEffect(() => {
+    if (!drawing) {
+      onChange(points, dataContainer.current);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawing, onChange]);
 
   if (!showLayer) return null;
 
