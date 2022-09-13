@@ -30,6 +30,7 @@ const ReportGeometryDrawer = () => {
 
   const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
+    console.log('onChangeGeometry: ', newGeoJson?.fillLabelPoint?.properties?.areaLabel);
 
     if (isDrawing || isNewGeometryAValidPolygon) {
       setGeometryPoints(newPoints);
@@ -37,7 +38,10 @@ const ReportGeometryDrawer = () => {
     }
   }, [isDrawing]);
 
-  const onCompleteDrawing = useCallback((newGeoJson) => setGeoJson(newGeoJson), []);
+  const onCompleteDrawing = useCallback((newGeoJson) => {
+    console.log('onCompleteDrawing: ', newGeoJson?.fillLabelPoint?.properties?.areaLabel);
+    setGeoJson(newGeoJson);
+  }, []);
 
   const disableSaveButton = useMemo(() =>
     isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])

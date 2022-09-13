@@ -12,13 +12,13 @@ import {
 } from './utils';
 import { DRAWING_MODES } from '.';
 
-const POLYGON_AREA_CALCULATION_THROTLE_TIME = 50;
+const POLYGON_AREA_CALCULATION_THROTLE_TIME = 150;
 const POINTS_IN_A_LINE = 2;
 
-const createLabelPointGeoJsonForPolygonThrottled = throttle(
-  createLabelPointGeoJsonForPolygon,
-  POLYGON_AREA_CALCULATION_THROTLE_TIME
-);
+// const createLabelPointGeoJsonForPolygonThrottled = throttle(
+//   createLabelPointGeoJsonForPolygon,
+//   POLYGON_AREA_CALCULATION_THROTLE_TIME
+// );
 
 export const useDrawToolGeoJson = (
   points = [],
@@ -82,7 +82,7 @@ export const useDrawToolGeoJson = (
       }
 
       data.fillPolygon = createFillPolygonGeoJsonForCoords(fillPolygonCoords);
-      data.fillLabelPoint = createLabelPointGeoJsonForPolygonThrottled(data.fillPolygon);
+      data.fillLabelPoint = createLabelPointGeoJsonForPolygon(data.fillPolygon);
     }
 
     if (shouldCalculateMidpointsData) {

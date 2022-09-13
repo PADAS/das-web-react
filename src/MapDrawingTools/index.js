@@ -49,6 +49,8 @@ const MapDrawingTools = ({
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
   const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
 
+  console.log('data: ', data?.fillLabelPoint?.properties?.areaLabel);
+
   const showLayer = pointerLocation || points.length;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,6 +60,7 @@ const MapDrawingTools = ({
       event.originalEvent.stopPropagation();
 
       const { lngLat } = event;
+      console.log('onMapClick: ', dataContainer.current?.fillLabelPoint?.properties?.areaLabel);
       onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
     } else {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
@@ -104,6 +107,7 @@ const MapDrawingTools = ({
         newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
       }
 
+      console.log('onMouseUp: ', dataContainer.current?.fillLabelPoint?.properties?.areaLabel);
       onChange(newPoints, dataContainer.current);
       setDraggedPoint(null);
     }
@@ -125,14 +129,19 @@ const MapDrawingTools = ({
     const handleKeyDown = (event) => {
       if (event.key === 'Backspace') {
         if (drawing && points.length) {
-          return onChange(points.slice(0, -1));
+          console.log('Backspace 1: ', dataContainer.current?.fillLabelPoint?.properties?.areaLabel);
+          return onChange(points.slice(0, -1), dataContainer.current);
         }
 
         const selectedPoint = map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
           .find((point) => !!point.state?.selected);
         if (!drawing && selectedPoint) {
           map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
-          return onChange(points.filter((_, index) => index !== selectedPoint.properties.pointIndex));
+          console.log('Backspace 2: ', dataContainer.current?.fillLabelPoint?.properties?.areaLabel);
+          return onChange(
+            points.filter((_, index) => index !== selectedPoint.properties.pointIndex),
+            dataContainer.current
+          );
         }
       }
     };
@@ -148,6 +157,7 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     if (!drawing) {
+      console.log('Effect: ', dataContainer.current?.fillLabelPoint?.properties?.areaLabel);
       onCompleteDrawing(dataContainer.current);
     }
   }, [
