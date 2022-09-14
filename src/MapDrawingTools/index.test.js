@@ -4,6 +4,7 @@ import { createMapMock } from '../__test-helpers/mocks';
 
 import { MapContext } from '../App';
 import MapDrawingTools, { DRAWING_MODES } from './';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
 
 import { LAYER_IDS } from './MapLayers';
 
@@ -15,7 +16,11 @@ describe('rendering', () => {
 
     render(
       <MapContext.Provider value={map}>
-        <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+        <MapDrawingToolsContextProvider>
+          <MapDrawingToolsContextProvider>
+          </MapDrawingToolsContextProvider>
+          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+        </MapDrawingToolsContextProvider>
       </MapContext.Provider>
     );
   });
@@ -42,7 +47,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
     });
@@ -58,7 +65,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -71,7 +80,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -84,7 +95,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -100,7 +113,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onClickPoint={onClickPoint} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools onClickPoint={onClickPoint} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -116,7 +131,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onClickLine={onClickLine} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools onClickLine={onClickLine} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -132,7 +149,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onClickFill={onClickFill} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools onClickFill={onClickFill} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -148,7 +167,9 @@ describe('MapDrawingTools', () => {
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onClickLabel={onClickLabel} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools onClickLabel={onClickLabel} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -160,20 +181,23 @@ describe('MapDrawingTools', () => {
     });
 
     test('drawing a polygon when the draw mode is for polygons', async () => {
-      const onChange = jest.fn();
+      const setMapDrawingData = jest.fn(), onChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContext.Provider value={{ setMapDrawingData  }}>
+            <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContext.Provider>
         </MapContext.Provider>
       );
 
       map.__test__.fireHandlers('click', { lngLat: { lat: [2, 3], lng: [3, 4] } });
 
       await waitFor(() => {
+        expect(setMapDrawingData).toHaveBeenCalled();
         expect(onChange).toHaveBeenCalled();
 
-        const [, callbackData] = onChange.mock.calls[0];
+        const callbackData = setMapDrawingData.mock.calls[0][0];
 
         expect(callbackData.drawnLinePoints.type).toBe('FeatureCollection');
         expect(callbackData.drawnLinePoints.features.filter((feature) => feature.properties.midpoint)).toHaveLength(0);
@@ -185,11 +209,13 @@ describe('MapDrawingTools', () => {
     });
 
     test('drawing a line when the draw mode is for lines', async () => {
-      const onChange = jest.fn();
+      const setMapDrawingData = jest.fn(), onChange = jest.fn();
 
       render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
+          <MapDrawingToolsContext.Provider value={{ setMapDrawingData  }}>
+            <MapDrawingTools onChange={onChange} drawing={drawing} drawingMode={DRAWING_MODES.LINE} points={points} />
+          </MapDrawingToolsContext.Provider>
         </MapContext.Provider>
       );
 
@@ -197,8 +223,9 @@ describe('MapDrawingTools', () => {
 
       await waitFor(() => {
         expect(onChange).toHaveBeenCalled();
+        expect(setMapDrawingData).toHaveBeenCalled();
 
-        const [, callbackData] = onChange.mock.calls[0];
+        const callbackData = setMapDrawingData.mock.calls[0][0];
 
         expect(callbackData.fillPolygon.type).toBe('FeatureCollection');
         expect(callbackData.fillPolygon.features).toHaveLength(0);
@@ -217,7 +244,9 @@ describe('MapDrawingTools', () => {
 
       const { container } = render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 
@@ -233,12 +262,14 @@ describe('MapDrawingTools', () => {
 
       const { container } = render(
         <MapContext.Provider value={map}>
-          <MapDrawingTools
-            drawing={drawing}
-            drawingMode={DRAWING_MODES.POLYGON}
-            points={points}
-            renderCursorPopup={() => <div>Cursor popup rendering stuff</div>}
-          />
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools
+              drawing={drawing}
+              drawingMode={DRAWING_MODES.POLYGON}
+              points={points}
+              renderCursorPopup={() => <div>Cursor popup rendering stuff</div>}
+            />
+          </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       );
 

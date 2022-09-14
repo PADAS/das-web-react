@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import { featureCollection } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 import throttle from 'lodash/throttle';
@@ -11,8 +11,10 @@ import {
   createPointsGeoJsonForCoords,
 } from './utils';
 import { DRAWING_MODES } from '.';
+import { MapDrawingToolsContext } from './ContextProvider';
 
 const POLYGON_AREA_CALCULATION_THROTLE_TIME = 150;
+const MAP_DRAWING_DATA_UPDATE_THROTLE_TIME = 150;
 const POINTS_IN_A_LINE = 2;
 
 const createLabelPointGeoJsonForPolygonThrottled = throttle(
@@ -28,6 +30,8 @@ export const useDrawToolGeoJson = (
   polygonHover = false,
   draggedPoint = null
 ) => {
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
+
   const vertexCoordinates = useMemo(() => {
     const vertexCoordinates = [...points];
 
@@ -50,7 +54,7 @@ export const useDrawToolGeoJson = (
     return vertexCoordinates;
   }, [cursorCoords, draggedPoint, drawMode, isDrawing, points]);
 
-  return useMemo(() => {
+  const geoJson = useMemo(() => {
     const data = {
       drawnLinePoints: featureCollection([]),
       drawnLineSegments: featureCollection([]),
@@ -94,4 +98,14 @@ export const useDrawToolGeoJson = (
 
     return data;
   }, [draggedPoint, drawMode, isDrawing, vertexCoordinates, polygonHover]);
+
+  const setMapDrawingDataThrottledRef = useRef(throttle((newGeoJson) => {
+    setMapDrawingData(newGeoJson);
+  }, MAP_DRAWING_DATA_UPDATE_THROTLE_TIME));
+
+  useEffect(() => {
+    setMapDrawingDataThrottledRef.current(geoJson);
+  }, [geoJson]);
+
+  return geoJson;
 };

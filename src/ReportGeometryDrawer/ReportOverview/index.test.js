@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../../ducks/modals';
 import InformationModal from './../InformationModal';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
@@ -27,7 +28,9 @@ describe('ReportOverview', () => {
     ({ rerender } = render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportOverview />
+          <MapDrawingToolsContextProvider>
+            <ReportOverview />
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
     ));
@@ -71,10 +74,24 @@ describe('ReportOverview', () => {
   });
 
   test('renders the given values for area and perimeter', async () => {
+    const mapDrawingData = {
+      fillLabelPoint: {
+        properties: {
+          areaLabel: '5km²',
+        },
+      },
+      drawnLineSegments: {
+        properties: {
+          lengthLabel: '10km',
+        },
+      },
+    };
     rerender(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportOverview area="5km²" perimeter="10km" />
+          <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+            <ReportOverview />
+          </MapDrawingToolsContext.Provider>
         </NavigationWrapper>
       </Provider>
     );

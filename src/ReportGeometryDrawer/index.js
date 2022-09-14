@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
 
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -21,49 +20,46 @@ const ReportGeometryDrawer = () => {
 
   const map = useContext(MapContext);
 
-  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
-
   // TODO: Set the current event polygon by default
+  const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const isGeometryAValidPolygon = mapDrawingData?.geometryPoints?.length > 2;
+  const isGeometryAValidPolygon = geometryPoints.length > 2;
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
+  const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
 
     if (isDrawing || isNewGeometryAValidPolygon) {
-      setMapDrawingData({ geometryPoints: newPoints, geoJson: newGeoJson });
+      setGeometryPoints(newPoints);
     }
-  }, [isDrawing, setMapDrawingData]);
+  }, [isDrawing]);
 
   const disableSaveButton = useMemo(() => {
     let validPolygonPoints = false;
-    if (mapDrawingData?.geometryPoints?.length) {
+    if (geometryPoints?.length) {
       validPolygonPoints = !validateEventPolygonPoints([
-        ...mapDrawingData?.geometryPoints,
-        mapDrawingData?.geometryPoints[0]
+        ...geometryPoints,
+        geometryPoints[0]
       ]);
     }
 
     return isDrawing || validPolygonPoints;
-  }
-  , [isDrawing, mapDrawingData?.geometryPoints]);
+  }, [geometryPoints, isDrawing]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
-        setTimeout(() => setMapDrawingData(mapDrawingData), TIMEOUT_TO_REMOVE_REDUNDANT_POINT);
+        setTimeout(() => setGeometryPoints(geometryPoints), TIMEOUT_TO_REMOVE_REDUNDANT_POINT);
         setIsDrawing(false);
       }
     }
-  }, [isGeometryAValidPolygon, map, mapDrawingData, setMapDrawingData]);
+  }, [geometryPoints, isGeometryAValidPolygon, map]);
 
   const onSaveGeometry = useCallback(() => {
-    setMapDrawingData({ ...mapDrawingData, finished: true });
     dispatch(setIsPickingLocation(false));
-  }, [dispatch, mapDrawingData, setMapDrawingData]);
+  }, [dispatch]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -80,33 +76,27 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon, mapDrawingData, setMapDrawingData]);
+  }, [dispatch, isDrawing, isGeometryAValidPolygon]);
 
   useEffect(() => {
     if (event?.geometry) {
       if (event.geometry.type === 'FeatureCollection') {
-        setMapDrawingData({ geometryPoints: event.geometry.features[0].geometry.coordinates[0].slice(0, -1) });
+        setGeometryPoints(event.geometry.features[0].geometry.coordinates[0].slice(0, -1));
       } else {
-        setMapDrawingData({ geometryPoints: event.geometry.geometry.coordinates[0].slice(0, -1) });
+        setGeometryPoints(event.geometry.geometry.coordinates[0].slice(0, -1));
       }
 
       setIsDrawing(false);
-    } else {
-      setMapDrawingData(null);
     }
-  }, [event.geometry, setMapDrawingData]);
+  }, [event.geometry]);
 
   return <>
-    <ReportOverview
-      area={mapDrawingData?.geoJson?.fillLabelPoint?.properties?.areaLabel}
-      perimeter={mapDrawingData?.geoJson?.drawnLineSegments?.properties?.lengthLabel}
-    />
+    <ReportOverview />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      onCompleteDrawing={onChangeGeometry}
-      points={mapDrawingData?.geometryPoints || []}
+      points={geometryPoints}
     />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
   </>;

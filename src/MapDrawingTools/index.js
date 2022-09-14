@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
@@ -34,13 +34,10 @@ const MapDrawingTools = ({
   onClickLabel = noop,
   onClickLine = noop,
   onClickPoint = noop,
-  onCompleteDrawing = noop,
   points,
   renderCursorPopup = noop,
 }) => {
   const map = useContext(MapContext);
-
-  const dataContainer = useRef();
 
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
@@ -58,7 +55,7 @@ const MapDrawingTools = ({
       event.originalEvent.stopPropagation();
 
       const { lngLat } = event;
-      onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
+      onChange([...points, [lngLat.lng, lngLat.lat]]);
     } else {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
@@ -104,7 +101,7 @@ const MapDrawingTools = ({
         newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
       }
 
-      onChange(newPoints, dataContainer.current);
+      onChange(newPoints);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
@@ -141,14 +138,6 @@ const MapDrawingTools = ({
 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [drawing, map, onChange, points]);
-
-  useEffect(() => {
-    dataContainer.current = data;
-
-    if (!drawing) {
-      onCompleteDrawing(points, dataContainer.current);
-    }
-  }, [data, drawing, onCompleteDrawing, points]);
 
   if (!showLayer) return null;
 
