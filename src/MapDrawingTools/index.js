@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
@@ -39,8 +39,6 @@ const MapDrawingTools = ({
 }) => {
   const map = useContext(MapContext);
 
-  const dataContainer = useRef();
-
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -57,7 +55,7 @@ const MapDrawingTools = ({
       event.originalEvent.stopPropagation();
 
       const { lngLat } = event;
-      onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
+      onChange([...points, [lngLat.lng, lngLat.lat]]);
     } else {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
@@ -103,7 +101,7 @@ const MapDrawingTools = ({
         newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
       }
 
-      onChange(newPoints, dataContainer.current);
+      onChange(newPoints);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
@@ -124,17 +122,14 @@ const MapDrawingTools = ({
     const handleKeyDown = (event) => {
       if (event.key === 'Backspace') {
         if (drawing && points.length) {
-          return onChange(points.slice(0, -1), dataContainer.current);
+          return onChange(points.slice(0, -1));
         }
 
         const selectedPoint = map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
           .find((point) => !!point.state?.selected);
         if (!drawing && selectedPoint) {
           map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
-          return onChange(
-            points.filter((_, index) => index !== selectedPoint.properties.pointIndex),
-            dataContainer.current
-          );
+          return onChange(points.filter((_, index) => index !== selectedPoint.properties.pointIndex));
         }
       }
     };
@@ -143,17 +138,6 @@ const MapDrawingTools = ({
 
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [drawing, map, onChange, points]);
-
-  useEffect(() => {
-    dataContainer.current = data;
-  }, [data]);
-
-  useEffect(() => {
-    if (!drawing) {
-      onChange(points, dataContainer.current);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drawing, onChange]);
 
   if (!showLayer) return null;
 

@@ -3,8 +3,6 @@ import { useDispatch } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
-import { createLabelPointGeoJsonForPolygon } from '../MapDrawingTools/utils';
 import { setIsPickingLocation } from '../ducks/map-ui';
 
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -20,35 +18,23 @@ const ReportGeometryDrawer = () => {
 
   const map = useContext(MapContext);
 
-  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
-
   // TODO: Set the current event polygon by default
-  const [geoJson, setGeoJson] = useState(null);
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2;
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
+  const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
 
     if (isDrawing || isNewGeometryAValidPolygon) {
       setGeometryPoints(newPoints);
-      setGeoJson(newGeoJson);
     }
   }, [isDrawing]);
 
   const disableSaveButton = useMemo(() =>
     isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
   , [geometryPoints, isDrawing]);
-
-  const polygonArea = useMemo(() => {
-    if (geoJson?.fillPolygon?.geometry?.type === 'Polygon') {
-      const labelPoint = createLabelPointGeoJsonForPolygon(geoJson.fillPolygon);
-      return labelPoint.properties.areaLabel;
-    }
-    return null;
-  }, [geoJson?.fillPolygon]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -62,9 +48,8 @@ const ReportGeometryDrawer = () => {
   }, [geometryPoints, isGeometryAValidPolygon, map]);
 
   const onSaveGeometry = useCallback(() => {
-    setMapDrawingData(geoJson);
     dispatch(setIsPickingLocation(false));
-  }, [dispatch, geoJson, setMapDrawingData]);
+  }, [dispatch]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -84,10 +69,7 @@ const ReportGeometryDrawer = () => {
   }, [dispatch, geometryPoints, isDrawing, isGeometryAValidPolygon]);
 
   return <>
-    <ReportOverview
-      area={polygonArea}
-      perimeter={geoJson?.drawnLineSegments?.properties?.lengthLabel}
-    />
+    <ReportOverview />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
