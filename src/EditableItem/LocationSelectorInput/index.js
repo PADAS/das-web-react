@@ -124,11 +124,11 @@ const LocationSelectorInput = ({
   }, [dispatch, isDrawingEventGeometry]);
 
   useEffect(() => {
-    if (mapDrawingData) {
+    if (!isPickingLocation && mapDrawingData) {
       console.log('Save this location data to the report: ', mapDrawingData);
       setMapDrawingData(null);
     }
-  }, [dispatch, mapDrawingData, setMapDrawingData]);
+  }, [dispatch, isPickingLocation, mapDrawingData, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);

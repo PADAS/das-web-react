@@ -11,12 +11,20 @@ export const lineLayout = {
   'line-cap': 'round',
 };
 
-export const symbolLayout = {
+export const lineSymbolLayout = {
   'text-allow-overlap': true,
   'icon-allow-overlap': true,
   'symbol-placement': 'line-center',
   'text-font': ['Open Sans Regular'],
   'text-field': ['get', 'lengthLabel'],
+};
+
+export const polygonSymbolLayout = {
+  'text-allow-overlap': true,
+  'icon-allow-overlap': true,
+  'symbol-placement': 'point',
+  'text-font': ['Open Sans Regular'],
+  'text-field': ['get', 'areaLabel'],
 };
 
 export const symbolPaint = {
@@ -27,15 +35,50 @@ export const symbolPaint = {
 export const circlePaint = {
   'circle-radius': [
     'case',
-    ['==', ['get', 'midpointCenter'], true],
+    ['==', ['get', 'pointHover'], true],
+    11,
     5,
-    7,
   ],
+
   'circle-color': [
     'case',
-    ['==', ['get', 'midpointCenter'], true],
+    [
+      'any',
+      ['==', ['get', 'midpoint'], true],
+      ['==', ['get', 'pointHover'], true],
+    ],
     'white',
     'orange',
+  ],
+
+  'circle-stroke-color': [
+    'case',
+    [
+      'any',
+      ['==', ['get', 'initialPoint'], true],
+      ['==', ['feature-state', 'selected'], true],
+    ],
+    'white',
+    'orange',
+  ],
+
+  'circle-opacity': [
+    'case',
+    ['==', ['get', 'pointHover'], true],
+    [
+      'case',
+      ['==', ['feature-state', 'isHovering'], true],
+      0.5,
+      0,
+    ],
+    1,
+  ],
+
+  'circle-stroke-width': [
+    'case',
+    ['==', ['get', 'pointHover'], true],
+    0,
+    2,
   ],
 };
 

@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../../ducks/modals';
 import InformationModal from './../InformationModal';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
@@ -16,7 +17,7 @@ jest.mock('../../ducks/modals', () => ({
 }));
 
 describe('ReportOverview', () => {
-  let addModalMock, store;
+  let addModalMock, rerender, store;
 
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
@@ -24,13 +25,15 @@ describe('ReportOverview', () => {
 
     store = { data: { eventTypes: [], patrolTypes: [] }, view: { mapLocationSelection: { event: report } } };
 
-    render(
+    ({ rerender } = render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportOverview />
+          <MapDrawingToolsContextProvider>
+            <ReportOverview />
+          </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
-    );
+    ));
   });
 
   afterEach(() => {
@@ -63,5 +66,37 @@ describe('ReportOverview', () => {
     await waitFor(() => {
       expect(collapse).toHaveClass('show');
     });
+  });
+
+  test('renders default values for area and perimeter', async () => {
+    expect((await screen.findByText('Area: 0km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 0km'))).toBeDefined();
+  });
+
+  test('renders the given values for area and perimeter', async () => {
+    const mapDrawingData = {
+      fillLabelPoint: {
+        properties: {
+          areaLabel: '5km²',
+        },
+      },
+      drawnLineSegments: {
+        properties: {
+          lengthLabel: '10km',
+        },
+      },
+    };
+    rerender(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+            <ReportOverview />
+          </MapDrawingToolsContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Area: 5km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 10km'))).toBeDefined();
   });
 });

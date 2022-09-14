@@ -1,4 +1,5 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
+import PropTypes from 'prop-types';
 import Collapse from 'react-bootstrap/Collapse';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -7,6 +8,7 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/a
 import { ReactComponent as InformationIcon } from '../../common/images/icons/information.svg';
 
 import { addModal } from '../../ducks/modals';
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
 import InformationModal from './../InformationModal';
 import ReportListItem from '../../ReportListItem';
@@ -17,6 +19,8 @@ const ReportOverview = () => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
+
+  const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isOpen, setIsOpen] = useState(true);
 
@@ -49,16 +53,26 @@ const ReportOverview = () => {
 
         <div className={styles.measurements}>
           <div>
-            Area: 0m
+            {`Area: ${mapDrawingData?.fillLabelPoint?.properties?.areaLabel || '0km²'}`}
           </div>
 
           <div>
-            Perimeter: 0m
+            {`Perimeter: ${mapDrawingData?.drawnLineSegments?.properties?.lengthLabel || '0km'}`}
           </div>
         </div>
       </div>
     </Collapse>
   </div>;
+};
+
+ReportOverview.defaultProps = {
+  area: '0km²',
+  perimeter: '0km',
+};
+
+ReportOverview.propTypes = {
+  area: PropTypes.string,
+  perimeter: PropTypes.string,
 };
 
 export default memo(ReportOverview);
