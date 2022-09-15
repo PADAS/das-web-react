@@ -440,9 +440,9 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
 
   return recursivePaginatedQuery(request, onEachRequest)
-    .then((finalResults) =>
-      finalResults && dispatch(fetchMapEventsComplete(finalResults)) /* guard clause for canceled requests */
-    )
+    .then((finalResults) => {
+      finalResults && dispatch(fetchMapEventsComplete(finalResults));
+    })
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
 

@@ -21,6 +21,7 @@ export const SOURCE_IDS = {
 };
 
 const MapDrawingLayers = ({
+  displayConfig,
   draggedPoint,
   drawing,
   drawnLinePoints,

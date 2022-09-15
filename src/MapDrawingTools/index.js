@@ -1,10 +1,12 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import length from '@turf/length';
-import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
+
+import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
 
 import { calcPositiveBearing } from '../utils/location';
 
@@ -26,6 +28,7 @@ export const DRAWING_MODES = {
 
 const MapDrawingTools = ({
   children,
+  displayConfig,
   drawing = true,
   drawingMode = DRAWING_MODES.POLYGON,
   onChange = noop,
@@ -126,6 +129,7 @@ const MapDrawingTools = ({
       render={renderCursorPopup}
     />}
     <MapLayers
+      displayConfig={displayConfig}
       draggedPoint={draggedPoint}
       drawing={drawing}
       drawnLinePoints={data?.drawnLinePoints}
@@ -141,7 +145,17 @@ const MapDrawingTools = ({
 export default memo(MapDrawingTools);
 
 PropTypes.propTypes = {
+  displayConfig: mapDrawToolsDisplayConfigPropType,
+  children: childrenPropType,
+  drawing: PropTypes.bool,
+  drawingMode: PropTypes.oneOf(Object.values(DRAWING_MODES)),
+  onChange: PropTypes.func,
+  onClickFill: PropTypes.func,
+  onClickLabel: PropTypes.func,
+  onClickLine: PropTypes.func,
+  onClickPoint: PropTypes.func,
   points: PropTypes.array,
+  renderCursorPopup: PropTypes.func,
 };
 
 const CursorPopup = ({ coords, lineLength, points, render }) => {

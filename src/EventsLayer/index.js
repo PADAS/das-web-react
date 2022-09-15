@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import { addMapImage } from '../utils/map';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
+import EventGeometryLayer from '../EventGeometryLayer';
+
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
@@ -60,7 +62,12 @@ export const CLUSTER_CONFIG = {
   clusterRadius: 40,
 };
 
-const layerFilter = ['all', ['has', 'event_type'], ['!has', 'point_count']];
+const symbolLayerFilter = [
+  'all',
+  ['has', 'event_type'],
+  ['==', ['has', 'point_count'], false],
+  ['==', ['geometry-type'], 'Point'],
+];
 
 const EventsLayer = ({
   bounceEventIDs,
@@ -240,7 +247,7 @@ const EventsLayer = ({
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
-        filter={layerFilter}
+        filter={symbolLayerFilter}
         id={`${EVENT_SYMBOLS}-unclustered`}
         layout={eventIconLayout}
         minZoom={minZoom}
@@ -255,7 +262,7 @@ const EventsLayer = ({
       {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
-          filter={layerFilter}
+          filter={symbolLayerFilter}
           id={EVENT_SYMBOLS}
           layout={eventIconLayout}
           minZoom={minZoom}
@@ -266,6 +273,8 @@ const EventsLayer = ({
           type="symbol"
         />
       </>}
+
+      <EventGeometryLayer />
     </>}
 
     {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer

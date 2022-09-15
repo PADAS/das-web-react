@@ -13,7 +13,7 @@ import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DateTime from '../DateTime';
 
-import CustomPropTypes from '../proptypes';
+import { analyticsMetadata } from '../proptypes';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -141,7 +141,7 @@ const EditableItemHeader = (props) => {
 export default memo(EditableItemHeader);
 
 EditableItemHeader.propTypes = {
-  analyticsMetadata: CustomPropTypes.analyticsMetadata,
+  analyticsMetadata,
   afterMenuToggle: PropTypes.func,
   data: PropTypes.object,
   title: PropTypes.string,
