@@ -37,15 +37,15 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing]);
 
   const disableSaveButton = useMemo(() => {
-    let validPolygonPoints = false;
+    let invalidPolygonPoints = false;
     if (geometryPoints?.length) {
-      validPolygonPoints = !validateEventPolygonPoints([
+      invalidPolygonPoints = !validateEventPolygonPoints([
         ...geometryPoints,
         geometryPoints[0]
       ]);
     }
 
-    return isDrawing || validPolygonPoints;
+    return isDrawing || invalidPolygonPoints;
   }, [geometryPoints, isDrawing]);
 
   const onClickPoint = useCallback((event) => {

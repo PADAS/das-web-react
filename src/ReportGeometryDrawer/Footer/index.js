@@ -1,9 +1,10 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useDispatch } from 'react-redux';
 
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
@@ -11,9 +12,12 @@ import styles from './styles.module.scss';
 const Footer = ({ disableSaveButton, onSave }) => {
   const dispatch = useDispatch();
 
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
+
   const onClickCancel = useCallback(() => {
+    setMapDrawingData(null);
     dispatch(setIsPickingLocation(false));
-  }, [dispatch]);
+  }, [dispatch, setMapDrawingData]);
 
   return <div className={styles.footer}>
     <Button className={styles.cancelButton} onClick={onClickCancel} type="button" variant="secondary">
