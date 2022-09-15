@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import bbox from '@turf/bbox';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
@@ -11,7 +12,9 @@ import Footer from './Footer';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
+const SIDEBAR_WIDTH_PIXELS = 512;
 const TIMEOUT_TO_REMOVE_REDUNDANT_POINT = 150;
+const VERTICAL_POLYGON_PADDING = 100;
 
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
@@ -20,7 +23,6 @@ const ReportGeometryDrawer = () => {
 
   const map = useContext(MapContext);
 
-  // TODO: Set the current event polygon by default
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
@@ -80,15 +82,19 @@ const ReportGeometryDrawer = () => {
 
   useEffect(() => {
     if (event?.geometry) {
-      if (event.geometry.type === 'FeatureCollection') {
-        setGeometryPoints(event.geometry.features[0].geometry.coordinates[0].slice(0, -1));
-      } else {
-        setGeometryPoints(event.geometry.geometry.coordinates[0].slice(0, -1));
-      }
+      const eventPolygon = event.geometry.type === 'FeatureCollection'
+        ? event.geometry.features[0]
+        : event.geometry;
 
+      map.fitBounds(
+        bbox(eventPolygon),
+        { padding: { top: VERTICAL_POLYGON_PADDING, right: SIDEBAR_WIDTH_PIXELS, bottom: VERTICAL_POLYGON_PADDING } }
+      );
+
+      setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1));
       setIsDrawing(false);
     }
-  }, [event.geometry]);
+  }, [event.geometry, map]);
 
   return <>
     <ReportOverview />

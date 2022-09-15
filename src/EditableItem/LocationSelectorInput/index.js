@@ -130,11 +130,11 @@ const LocationSelectorInput = ({
   }, [dispatch, isDrawingEventGeometry]);
 
   useEffect(() => {
-    if (mapDrawingData?.finished) {
-      onGeometryChange?.(mapDrawingData.geoJson.fillPolygon);
+    if (!isPickingLocation && mapDrawingData) {
+      onGeometryChange?.(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
     }
-  }, [dispatch, mapDrawingData, onGeometryChange, setMapDrawingData]);
+  }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -194,7 +194,7 @@ const LocationSelectorInput = ({
     <Overlay
       container={locationInputLabelRef.current}
       onHide={onHidePopover}
-      placement="bottom"
+      placement={ENABLE_EVENT_GEOMETRY ? 'auto' : 'bottom'}
       rootClose
       shouldUpdatePosition={true}
       show={isPopoverOpen}
@@ -264,7 +264,6 @@ LocationSelectorInput.propTypes = {
   copyable: PropTypes.bool,
   label: PropTypes.string,
   location: PropTypes.arrayOf(PropTypes.number),
-  map: PropTypes.object.isRequired,
   onGeometryChange: PropTypes.func,
   onLocationChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,

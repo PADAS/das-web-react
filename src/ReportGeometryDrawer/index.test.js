@@ -72,10 +72,10 @@ describe('ReportGeometryDrawer', () => {
 
     const saveButton = await screen.findByText('Save');
 
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toHaveClass('disabled');
 
     userEvent.keyboard('{Enter}');
 
-    expect(saveButton).not.toHaveAttribute('disabled');
+    expect(saveButton).not.toHaveClass('disabled');
   });
 });
