@@ -1,10 +1,11 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
+
+import { validateEventPolygonPoints } from '../utils/geometry';
 
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
@@ -17,20 +18,23 @@ const ReportGeometryDrawer = () => {
 
   const map = useContext(MapContext);
 
-  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
-
-  const geoJson = useRef();
-
   // TODO: Set the current event polygon by default
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2;
 
-  const onChangeGeometry = useCallback((newPoints, newGeoJson) => {
-    setGeometryPoints(newPoints);
-    geoJson.current = newGeoJson;
-  }, []);
+  const onChangeGeometry = useCallback((newPoints) => {
+    const isNewGeometryAValidPolygon = newPoints.length > 2;
+
+    if (isDrawing || isNewGeometryAValidPolygon) {
+      setGeometryPoints(newPoints);
+    }
+  }, [isDrawing]);
+
+  const disableSaveButton = useMemo(() =>
+    isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
+  , [geometryPoints, isDrawing]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -44,15 +48,12 @@ const ReportGeometryDrawer = () => {
   }, [geometryPoints, isGeometryAValidPolygon, map]);
 
   const onSaveGeometry = useCallback(() => {
-    setMapDrawingData(geoJson.current);
     dispatch(setIsPickingLocation(false));
-  }, [dispatch, setMapDrawingData]);
+  }, [dispatch]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       switch (event.key) {
-      case 'Backspace':
-        return isDrawing && geometryPoints.length && setGeometryPoints(geometryPoints.slice(0, -1));
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
       case 'Escape':
@@ -75,7 +76,7 @@ const ReportGeometryDrawer = () => {
       onClickPoint={onClickPoint}
       points={geometryPoints}
     />
-    <Footer disableSaveButton={isDrawing} onSave={onSaveGeometry} />
+    <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
   </>;
 };
 

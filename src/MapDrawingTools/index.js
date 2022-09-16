@@ -1,9 +1,8 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
-import length from '@turf/length';
 import isEqual from 'react-fast-compare';
 
 import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
@@ -17,7 +16,7 @@ import styles from './styles.module.scss';
 import MapLayers from './MapLayers';
 
 import { MapContext } from '../App';
-import { LAYER_IDS } from './MapLayers';
+import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
 
 export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
@@ -25,6 +24,8 @@ export const DRAWING_MODES = {
   POLYGON: 'polygon',
   LINE: 'line',
 };
+
+const MAP_CLICK_DEBOUNCE_TIME = 100;
 
 const MapDrawingTools = ({
   children,
@@ -41,8 +42,6 @@ const MapDrawingTools = ({
 }) => {
   const map = useContext(MapContext);
 
-  const dataContainer = useRef();
-
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -50,20 +49,26 @@ const MapDrawingTools = ({
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
   const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
 
-  const lineLength = useMemo(() => {
-    if (!data?.drawnLineSegments) return null;
-
-    return `${length(data.drawnLineSegments).toFixed(2)}km`;
-  }, [data?.drawnLineSegments]);
-
   const showLayer = pointerLocation || points.length;
 
-  const onMapClick = useCallback(debounce((e) => {
-    const { lngLat } = e;
-    e.preventDefault();
-    e.originalEvent.stopPropagation();
-    onChange([...points, [lngLat.lng, lngLat.lat]], dataContainer.current);
-  }, 100), [onChange, points]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onMapClick = useCallback(debounce((event) => {
+    if (drawing) {
+      event.preventDefault();
+      event.originalEvent.stopPropagation();
+
+      const { lngLat } = event;
+      onChange([...points, [lngLat.lng, lngLat.lat]]);
+    } else {
+      map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
+
+      const selectedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
+        .find((point) => !point.properties.pointHover);
+      if (selectedPoint) {
+        map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: selectedPoint.id }, { selected: true });
+      }
+    }
+  }, MAP_CLICK_DEBOUNCE_TIME), [drawing, map, onChange, points]);
 
   const onMapDblClick = useCallback((e) => {
     onMapClick(e);
@@ -71,7 +76,6 @@ const MapDrawingTools = ({
     e.preventDefault();
     e.originalEvent.stopPropagation();
     onMapClick.cancel();
-
   }, [onMapClick]);
 
   const onMouseMove = useCallback((e) => {
@@ -80,11 +84,13 @@ const MapDrawingTools = ({
 
   const onMouseDownPoint = useCallback((event) => {
     const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-      .find((point) => !point.properties.midpointCenter);
+      .find((point) => !point.properties.pointHover);
     if (clickedPoint) {
       event.preventDefault();
 
       map.getCanvas().style.cursor = 'grab';
+      map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
+
       setDraggedPoint(clickedPoint);
     }
   }, [map]);
@@ -92,20 +98,20 @@ const MapDrawingTools = ({
   const onMouseUp = useCallback(() => {
     if (draggedPoint) {
       const newPoints = [...points];
-      if (draggedPoint.properties.midpoint) {
-        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
-      } else {
+      if (draggedPoint.properties.point) {
         newPoints[draggedPoint.properties.pointIndex] = cursorPopupCoords;
+      } else {
+        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
       }
 
-      onChange(newPoints, dataContainer.current);
+      onChange(newPoints);
       setDraggedPoint(null);
     }
   }, [cursorPopupCoords, draggedPoint, onChange, points]);
 
   useMapEventBinding('click', onClickLine, LAYER_IDS.LINES);
   useMapEventBinding('click', onClickPoint, LAYER_IDS.POINTS);
-  useMapEventBinding('click', onClickLabel, LAYER_IDS.LABELS);
+  useMapEventBinding('click', onClickLabel, LAYER_IDS.LINE_LABELS);
   useMapEventBinding('click', onClickFill, LAYER_IDS.FILL);
 
   useMapEventBinding('mousedown', onMouseDownPoint, LAYER_IDS.POINTS, !drawing);
@@ -113,18 +119,35 @@ const MapDrawingTools = ({
 
   useMapEventBinding('mousemove', onMouseMove, null);
   useMapEventBinding('dblclick', onMapDblClick, null, drawing);
-  useMapEventBinding('click', onMapClick, null, drawing);
+  useMapEventBinding('click', onMapClick, null);
 
   useEffect(() => {
-    dataContainer.current = data;
-  }, [data]);
+    const handleKeyDown = (event) => {
+      if (event.key === 'Backspace') {
+        if (drawing && points.length) {
+          return onChange(points.slice(0, -1));
+        }
+
+        const selectedPoint = map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
+          .find((point) => !!point.state?.selected);
+        if (!drawing && selectedPoint) {
+          map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
+          return onChange(points.filter((_, index) => index !== selectedPoint.properties.pointIndex));
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [drawing, map, onChange, points]);
 
   if (!showLayer) return null;
 
   return <>
     {drawing && <CursorPopup
       coords={cursorPopupCoords}
-      lineLength={lineLength}
+      lineLength={data?.drawnLineSegments?.properties?.length}
       points={points}
       render={renderCursorPopup}
     />}
@@ -134,6 +157,7 @@ const MapDrawingTools = ({
       drawing={drawing}
       drawnLinePoints={data?.drawnLinePoints}
       drawnLineSegments={data?.drawnLineSegments}
+      fillLabelPoint={data?.fillLabelPoint}
       fillPolygon={data?.fillPolygon}
       isHoveringGeometry={isHoveringGeometry}
       setIsHoveringGeometry={setIsHoveringGeometry}

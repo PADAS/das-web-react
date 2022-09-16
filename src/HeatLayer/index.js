@@ -9,7 +9,7 @@ import { metersToPixelsAtMaxZoom } from '../utils/map';
 import { uuid } from '../utils/string';
 import { useMapLayer, useMapSource } from '../hooks';
 
-const { HEATMAP_LAYER, TOPMOST_STYLE_LAYER } = LAYER_IDS;
+const { HEATMAP_LAYER, SKY_LAYER } = LAYER_IDS;
 
 const HeatLayer = ({ heatmapStyles, points }) => {
   const idRef = useRef(uuid());
@@ -29,7 +29,7 @@ const HeatLayer = ({ heatmapStyles, points }) => {
   }), [heatmapStyles.intensity, latitude, heatmapStyles.radiusInMeters]);
 
   useMapSource(`heatmap-source-${idRef.current}`, points);
-  useMapLayer(`${HEATMAP_LAYER}-${idRef.current}`, 'heatmap', `heatmap-source-${idRef.current}`, paint, null, { before: TOPMOST_STYLE_LAYER });
+  useMapLayer(`${HEATMAP_LAYER}-${idRef.current}`, 'heatmap', `heatmap-source-${idRef.current}`, paint, null, { before: SKY_LAYER });
 
   return null;
 };

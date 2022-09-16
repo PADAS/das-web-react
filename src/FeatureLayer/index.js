@@ -12,7 +12,7 @@ import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, TOPMOST_STYLE_LAYER } = LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SKY_LAYER } = LAYER_IDS;
 
 const { MAP_FEATURES_LINES_SOURCE, MAP_FEATURES_POLYGONS_SOURCE, MAP_FEATURES_SYMBOLS_SOURCE } = SOURCE_IDS;
 
@@ -106,7 +106,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     onFeatureSymbolClick(geojson);
   };
 
-  const layerConfig = { minZoom, before: TOPMOST_STYLE_LAYER };
+  const layerConfig = { minZoom, before: SKY_LAYER };
 
   useMapSource(MAP_FEATURES_LINES_SOURCE, lines);
   useMapSource(MAP_FEATURES_POLYGONS_SOURCE, polygons);

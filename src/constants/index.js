@@ -93,6 +93,7 @@ export const BREAKPOINTS = {
 export const LAYER_IDS = {
   EVENT_GEOMERY_LAYER_ID: 'event-geometry-layer',
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
+  SKY_LAYER: 'sky',
   CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
   CLUSTERS_LAYER_ID: 'clusters-layer',
   FEATURE_FILLS: 'feature-fills',

@@ -9,7 +9,7 @@ import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import ReportGeometryDrawer from './';
 
 jest.mock('../ducks/map-ui', () => ({
@@ -77,24 +77,5 @@ describe('ReportGeometryDrawer', () => {
     userEvent.keyboard('{Enter}');
 
     expect(saveButton).not.toHaveAttribute('disabled');
-  });
-
-  test('sets the map drawing data in context when user clicks save', async () => {
-    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
-    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
-    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
-
-    userEvent.keyboard('{Enter}');
-
-    expect(setMapDrawingData).toHaveBeenCalledTimes(0);
-
-    const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
-
-    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
-    expect(setMapDrawingData.mock.calls[0][0]).toHaveProperty('drawnLinePoints');
   });
 });
