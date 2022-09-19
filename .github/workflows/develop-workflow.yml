@@ -72,5 +72,4 @@ jobs:
         run: |-
           gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
 
-      # TODO: Dar permiso para lanzar a kubernetes
       # TODO: Probar integración
