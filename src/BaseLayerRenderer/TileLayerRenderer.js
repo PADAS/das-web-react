@@ -51,7 +51,7 @@ const TileLayerRenderer = (props) => {
   }, [map, mapConfig]);
 
   useMapLayer(
-    'tile-layer',
+    `tile-layer-${activeLayer?.id}`,
     'raster',
     `layer-source-${activeLayer?.id}`,
     undefined,
