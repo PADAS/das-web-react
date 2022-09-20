@@ -65,10 +65,15 @@ jobs:
             echo "Site doesn't exist, skipping deploy."
             exit 0
           fi
+          echo "Getting credentials"
           gcloud container clusters get-credentials das-dev --zone us-west1-a
+          echo "Configuring cluster"
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
+          echo "Downloading the certificate"
           echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
+          echo "Setting cluster with certificate"
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
+          echo "Updating the image"
           kubectl set image -n ${site} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}/${GITHUB_SHA}
 
 
