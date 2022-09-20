@@ -37,9 +37,14 @@ jobs:
       - name: Validate existence of env
         id: validate_env
         run: 
+          echo "::set-output name=site_exists::true"
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
-          if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
+          export SITE_EXISTS=$(if wget -q --method=HEAD https://${SITE}.pamdas.org; then echo "true"; else echo "false"; fi)
+          echo ${SITE_EXISTS}
+          if [[ "${SITE_EXISTS}" = "false" ]]; then
+            echo "::set-output name=site_exists::false"
+          fi
 
       - name: Rebuild Node SASS
         if: steps.validate_env.outputs.site_exists
