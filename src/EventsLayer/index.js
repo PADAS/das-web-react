@@ -244,6 +244,8 @@ const EventsLayer = ({
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
 
   return <>
+    <EventGeometryLayer />
+
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
@@ -273,8 +275,6 @@ const EventsLayer = ({
           type="symbol"
         />
       </>}
-
-      <EventGeometryLayer />
     </>}
 
     {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer

@@ -3,13 +3,15 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { SOURCE_IDS, LAYER_IDS } from '../constants';
-import { useMapLayer } from '../hooks';
+import { useMapLayer, useMapSource } from '../hooks';
+
+import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 
 import { PRIORITY_COLOR_MAP } from '../utils/events';
 
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 
-const { EVENT_GEOMERY_LAYER_ID } = LAYER_IDS;
+const { EVENT_GEOMERY_LAYER_ID, SKY_LAYER } = LAYER_IDS;
 
 const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
@@ -31,12 +33,12 @@ const paint = {
     noPrio,
   ],
   'fill-opacity': 0.6,
-  'fill-outline-color': 'blue',
 };
 
 const EventGeometryLayer = () => {
   const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
+  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
 
   const layerConfig = {
     condition: showReportsOnMap,
@@ -44,8 +46,7 @@ const EventGeometryLayer = () => {
     [
       'all',
       ['has', 'event_type'],
-      ['==', ['has', 'point_count'], false],
-      ['==', ['geometry-type'], 'Point'],
+      ['==', ['geometry-type'], 'Polygon'],
     ],
   };
 
@@ -54,23 +55,25 @@ const EventGeometryLayer = () => {
     condition: showReportsOnMap && !shouldEventsBeClustered,
   };
 
+  useMapSource('whatever-the-source-may-be', eventFeatureCollection);
+
   useMapLayer(
     EVENT_GEOMERY_LAYER_ID,
     'fill',
-    CLUSTERS_SOURCE_ID,
+    'whatever-the-source-may-be',
     paint,
     layout,
     layerConfig,
   );
 
-  useMapLayer(
-    EVENT_GEOMERY_LAYER_ID,
+  /*   useMapLayer(
+    `${EVENT_GEOMERY_LAYER_ID}-unclustered`,
     'fill',
     UNCLUSTERED_EVENTS_SOURCE,
     paint,
     layout,
     unclusteredLayerConfig,
-  );
+  ); */
 
   return null;
 };

@@ -39,6 +39,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+
   const clustersSourceData = useMemo(() => featureCollection(
     [
       ...(shouldEventsBeClustered ? eventFeatureCollection.features : []),

@@ -20,7 +20,7 @@ const addItemPropsToFeatureByKey = (item, feature, key) => {
   return {
     ...feature,
     properties: {
-      ...item,
+      ...clone,
       ...feature.properties,
     }
   };
@@ -130,12 +130,25 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
 };
 
 export const addTitleWithDateToGeoJson = (geojson, title) => {
-  const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
-  return (geojson.properties.display_title = displayTitle) && geojson;
+  const addTitle = (feature) => {
+    const displayTitle = feature.properties.datetime ? title + '\n' + formatEventSymbolDate(feature.properties.datetime) : title;
+    return (feature.properties.display_title = displayTitle) && feature;
+  };
+
+  if (geojson.type === 'FeatureCollection') {
+    return {
+      ...geojson,
+      features: geojson.features.map(feature => addTitle(feature)),
+    };
+  }
+  return addTitle(geojson);
 };
 
-const setUpEventGeoJson = (events, eventTypes) =>
-  events
+const setUpEventGeoJson = (events, eventTypes) => {
+  const key = 'geojson';
+
+  return events
+    .filter (event => !!event[key])
     .map(event => {
       const key = 'geojson';
 
@@ -144,6 +157,7 @@ const setUpEventGeoJson = (events, eventTypes) =>
 
       return addTitleWithDateToGeoJson(withProps[key], displayTitle);
     });
+};
 
 export const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1

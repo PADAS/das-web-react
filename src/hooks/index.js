@@ -184,8 +184,8 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
 
 
   useEffect(() => {
-    if (layer && map && before) {
-      map.moveLayer(layerId, before);
+    if (layerId && map && before) {
+      map.getLayer(layerId) && map.moveLayer(layerId, before);
     }
   }, [before, layer, layerId, map]);
 

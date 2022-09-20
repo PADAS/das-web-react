@@ -22,7 +22,7 @@ const ReportGeometryDrawer = () => {
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const isGeometryAValidPolygon = geometryPoints.length > 2;
+  const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
@@ -33,8 +33,8 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing]);
 
   const disableSaveButton = useMemo(() =>
-    isDrawing || !validateEventPolygonPoints([...geometryPoints, geometryPoints[0]])
-  , [geometryPoints, isDrawing]);
+    isDrawing || !isGeometryAValidPolygon
+  , [isGeometryAValidPolygon, isDrawing]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
