@@ -74,7 +74,8 @@ jobs:
           echo "Setting cluster with certificate"
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           echo "Updating the image"
-          kubectl set image -n ${site} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}/${GITHUB_SHA}
+          echo "gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"
+          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}:${GITHUB_SHA}
 
 
       - name: Remove ip address
