@@ -34,31 +34,45 @@ jobs:
       - name: Run tests
         run: yarn test-ci
 
+      - name: Validate existence of env
+        id: validate_env
+        run: |-
+          export SITE=${GITHUB_REF#refs/heads/}
+          if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
+          if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
+
       - name: Rebuild Node SASS
+        if: steps.validate_env.outputs.site_exists == true
         run: npm rebuild node-sass
 
       - name: Yarn build
+        if: steps.validate_env.outputs.site_exists == true
         run: CI=false yarn build
 
       - name: Build docker image
+        if: steps.validate_env.outputs.site_exists == true
         run: |-
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
 
       - name: Terraform config outputs & cluster
+        if: steps.validate_env.outputs.site_exists == true
         run: |-
           cd terraform && terraform init
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
       - name: Allowlist IP address
+        if: steps.validate_env.outputs.site_exists == true
         run: |-
           gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
 
       - name: 'Set up Cloud SDK'
+        if: steps.validate_env.outputs.site_exists == true
         uses: 'google-github-actions/setup-gcloud@v0'
 
       - name: Configure cluster connectivity
+        if: steps.validate_env.outputs.site_exists == true
         run: |-
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
@@ -83,5 +97,6 @@ jobs:
 
       - name: Remove ip address
         if: always()
+        continue-on-error: true
         run: |-
           gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
