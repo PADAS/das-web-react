@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Install dependencies
         run: yarn --ignore-scripts
@@ -55,6 +55,9 @@ jobs:
         run: |-
           gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
 
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
       - name: Configure cluster connectivity
         run: |-
           export SITE=${GITHUB_REF#refs/heads/}
@@ -75,7 +78,7 @@ jobs:
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           echo "Updating the image"
           echo "gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"
-          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}:${GITHUB_SHA}
+          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${SITE}:${GITHUB_SHA}
 
 
       - name: Remove ip address
