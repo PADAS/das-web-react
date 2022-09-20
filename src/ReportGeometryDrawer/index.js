@@ -12,7 +12,6 @@ import Footer from './Footer';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
-const SIDEBAR_WIDTH_PIXELS = 512;
 const TIMEOUT_TO_REMOVE_REDUNDANT_POINT = 150;
 const VERTICAL_POLYGON_PADDING = 100;
 
@@ -86,10 +85,7 @@ const ReportGeometryDrawer = () => {
         ? event.geometry.features[0]
         : event.geometry;
 
-      map.fitBounds(
-        bbox(eventPolygon),
-        { padding: { top: VERTICAL_POLYGON_PADDING, right: SIDEBAR_WIDTH_PIXELS, bottom: VERTICAL_POLYGON_PADDING } }
-      );
+      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
       setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1));
       setIsDrawing(false);
