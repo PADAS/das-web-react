@@ -39,7 +39,7 @@ jobs:
         run: 
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
-          if wget -q --method=HEAD "https://${SITE}.pamdas.org"; then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
+          if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
 
       - name: Rebuild Node SASS
         if: steps.validate_env.outputs.site_exists
