@@ -41,9 +41,6 @@ jobs:
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
           if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
 
-      - name: Check output
-        run: echo "The output is ${{ steps.validate_env.outputs.site_exists }}"
-
       - name: Rebuild Node SASS
         if: steps.validate_env.outputs.site_exists == 'true'
         run: npm rebuild node-sass
