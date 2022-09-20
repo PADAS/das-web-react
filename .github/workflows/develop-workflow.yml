@@ -59,18 +59,20 @@ jobs:
         run: |-
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
-          echo ${SITE}
-          # gcloud container clusters get-credentials das-dev --zone us-west1-a
-          # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
-          # echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
-          # kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
-          # kubectl set image -n ${site} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}/${GITHUB_SHA}
+          export SITE_EXISTS=$(if wget -q --method=HEAD https://${SITE}.pamdas.org; then echo "true"; else echo "false"; fi)
+          echo ${SITE_EXISTS}
+          if [[ "${SITE_EXISTS}" = "false" ]]; then
+            echo "Site doesn't exist, skipping deploy."
+            exit 0
+          fi
+          gcloud container clusters get-credentials das-dev --zone us-west1-a
+          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
+          echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
+          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
+          kubectl set image -n ${site} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}/${GITHUB_SHA}
 
 
       - name: Remove ip address
         if: always()
         run: |-
           gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
-
-      # TODO: Dar permiso para lanzar a kubernetes
-      # TODO: Probar integración
