@@ -13,7 +13,7 @@ import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/cl
 
 const { EVENT_GEOMERY_LAYER_ID, SKY_LAYER } = LAYER_IDS;
 
-const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
+const { EVENT_GEOMETRY } = SOURCE_IDS;
 
 const noPrio = PRIORITY_COLOR_MAP[0].base;
 const lowPrio = PRIORITY_COLOR_MAP[100].base;
@@ -37,7 +37,6 @@ const paint = {
 
 const EventGeometryLayer = () => {
   const showReportsOnMap = useSelector(getShowReportsOnMap);
-  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
   const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
 
   const layerConfig = {
@@ -50,12 +49,7 @@ const EventGeometryLayer = () => {
     ],
   };
 
-  const unclusteredLayerConfig = {
-    ...layerConfig,
-    condition: showReportsOnMap && !shouldEventsBeClustered,
-  };
-
-  useMapSource('whatever-the-source-may-be', eventFeatureCollection);
+  useMapSource(EVENT_GEOMETRY, eventFeatureCollection);
 
   useMapLayer(
     EVENT_GEOMERY_LAYER_ID,
@@ -65,15 +59,6 @@ const EventGeometryLayer = () => {
     layout,
     layerConfig,
   );
-
-  /*   useMapLayer(
-    `${EVENT_GEOMERY_LAYER_ID}-unclustered`,
-    'fill',
-    UNCLUSTERED_EVENTS_SOURCE,
-    paint,
-    layout,
-    unclusteredLayerConfig,
-  ); */
 
   return null;
 };
