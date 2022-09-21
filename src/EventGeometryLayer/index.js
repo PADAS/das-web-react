@@ -1,6 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
 
 import { SOURCE_IDS, LAYER_IDS } from '../constants';
 import { useMapLayer, useMapSource } from '../hooks';
@@ -9,9 +8,9 @@ import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events
 
 import { PRIORITY_COLOR_MAP } from '../utils/events';
 
-import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
+import { getShowReportsOnMap } from '../selectors/clusters';
 
-const { EVENT_GEOMERY_LAYER_ID, SKY_LAYER } = LAYER_IDS;
+const { EVENT_GEOMERY_LAYER_ID } = LAYER_IDS;
 
 const { EVENT_GEOMETRY } = SOURCE_IDS;
 

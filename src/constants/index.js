@@ -127,6 +127,7 @@ export const SOURCE_IDS = {
   SUBJECT_SYMBOLS: 'subject-symbol-source',
   CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
   CLUSTERS_SOURCE_ID: 'clusters-source',
+  EVENT_GEOMETRY: 'event-geometry-source',
   UNCLUSTERED_EVENTS_SOURCE: 'events-data-unclustered',
   MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
