@@ -174,7 +174,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
         try {
           map.getLayer(layerId) && map.removeLayer(layerId);
         } catch (error) {
-          console.warn('map unmount error', error);
+          // console.warn('map unmount error', error);
         }
       }
     };
