@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { setIsPickingLocation } from '../ducks/map-ui';
-
+import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
 import Footer from './Footer';
@@ -58,9 +58,13 @@ const ReportGeometryDrawer = () => {
     }
   }, [geometryPoints, isGeometryAValidPolygon, map]);
 
+  const onDoubleClick = useCallback(() => isGeometryAValidPolygon && setIsDrawing(false), [isGeometryAValidPolygon]);
+
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
+
+  useMapEventBinding('dblclick', onDoubleClick, null, isDrawing);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
