@@ -171,7 +171,11 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
   useEffect(() => {
     return () => {
       if (map) {
-        map.getLayer(layerId) && map.removeLayer(layerId);
+        try {
+          map.getLayer(layerId) && map.removeLayer(layerId);
+        } catch (error) {
+          // console.warn('map unmount error', error);
+        }
       }
     };
   }, [layerId, map]);
