@@ -18,6 +18,7 @@ const ReportFormTopLevelControls = ({
   onReportDateChange,
   menuContainerRef,
   onReportedByChange,
+  onReportGeometryChange,
   onReportLocationChange,
   report,
 }) => {
@@ -54,7 +55,11 @@ const ReportFormTopLevelControls = ({
       />
     </label>
 
-    <LocationSelectorInput location={reportLocation} onLocationChange={onReportLocationChange} />
+    <LocationSelectorInput
+      location={reportLocation}
+      onGeometryChange={onReportGeometryChange}
+      onLocationChange={onReportLocationChange}
+    />
   </div>;
 };
 
