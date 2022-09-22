@@ -5,7 +5,7 @@ import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING,
-  ANALYZER_LINES_CRITICAL, SUBJECT_SYMBOLS } = LAYER_IDS;
+  ANALYZER_LINES_CRITICAL, SKY_LAYER } = LAYER_IDS;
 const { ANALYZER_POLYS_WARNING_SOURCE, ANALYZER_POLYS_CRITICAL_SOURCE,
   ANALYZER_LINES_CRITICAL_SOURCE, ANALYZER_LINES_WARNING_SOURCE } = SOURCE_IDS;
 
@@ -63,7 +63,7 @@ const AnalyzerLayer = (
   };
 
   const layerConfig = useMemo(() => ({
-    before: SUBJECT_SYMBOLS,
+    before: SKY_LAYER,
     minZoom,
     condition: !!isSubjectSymbolsLayerReady,
   }), [isSubjectSymbolsLayerReady, minZoom]);
