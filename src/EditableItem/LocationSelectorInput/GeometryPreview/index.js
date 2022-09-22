@@ -9,7 +9,6 @@ import rewind from '@turf/rewind';
 import { useSelector } from 'react-redux';
 
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
-import { ReactComponent as PolygonIcon } from '../../../common/images/icons/polygon.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
 import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
@@ -17,10 +16,12 @@ import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
 import styles from './styles.module.scss';
 
 const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
-const STATIC_MAP_WIDTH = 300;
+const STATIC_MAP_WIDTH = 296;
 const STATIC_MAP_HEGHT = 130;
 
-const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
+const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
+
   // TODO: Set this value depending on the geojson properties
   const imageSource = 'desktop';
 
@@ -45,11 +46,11 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
   const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
 
-  return <>
+  return <div className={styles.locationAreaContent}>
     <div className={styles.geometryMeasurements}>
-      <div>{`Area: ${geometryAreaTruncated}km²`}</div>
+      <div>Area: <span className={styles.measureValue}>{`${geometryAreaTruncated}km²`}</span></div>
 
-      <div>{`Perimeter: ${geometryPerimeterTruncated}km`}</div>
+      <div>Perimeter: <span className={styles.measureValue}>{`${geometryPerimeterTruncated}km`}</span></div>
     </div>
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
@@ -77,27 +78,12 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
         Delete Area
       </Button>
     </div>
-  </>;
-};
-
-const AreaTab = ({ onAreaSelectStart, onDeleteArea }) => {
-  const event = useSelector((state) => state.view.mapLocationSelection.event);
-
-  return <div className={styles.locationAreaContent}>
-    {!!event?.geometry
-      ? <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
-      : <Button
-        className={styles.createAreaButton}
-        onClick={onAreaSelectStart}
-        title="Place geometry on map"
-        type="button"
-        >
-        <PolygonIcon />
-        Create report area
-      </Button>}
   </div>;
 };
 
-AreaTab.propTypes = { onAreaSelectStart: PropTypes.func.isRequired };
+GeometryPreview.propTypes = {
+  onAreaSelectStart: PropTypes.func.isRequired,
+  onDeleteArea: PropTypes.func.isRequired,
+};
 
-export default memo(AreaTab);
+export default memo(GeometryPreview);

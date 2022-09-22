@@ -6,14 +6,13 @@ import length from '@turf/length';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
+import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
 import { calcGpsDisplayString } from '../../utils/location';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, GEOMETRY_TYPES } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
@@ -21,7 +20,7 @@ import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
 
-import AreaTab from './AreaTab';
+import GeometryPreview from './GeometryPreview';
 import GpsInput from '../../GpsInput';
 import MapLocationPicker from '../../MapLocationPicker';
 import GeoLocator from '../../GeoLocator';
@@ -34,7 +33,7 @@ const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const calculateInputDisplayString = (event, gpsFormat, location, placeholder) => {
+const calculateInputDisplayString = (event, gpsFormat, location, placeholder, geometryType) => {
   if (!!event?.geometry) {
     const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
     const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
@@ -43,12 +42,20 @@ const calculateInputDisplayString = (event, gpsFormat, location, placeholder) =>
   } else if (location) {
     return calcGpsDisplayString(location[1], location[0], gpsFormat);
   }
+  else if (!placeholder) {
+    if (geometryType === GEOMETRY_TYPES.POLYGON) {
+      return 'Set report area';
+    } else {
+      return 'Click here to set location';
+    }
+  }
   return placeholder;
 };
 
 const LocationSelectorInput = ({
   className,
   copyable = true,
+  geometryType,
   label,
   location,
   onGeometryChange,
@@ -71,43 +78,12 @@ const LocationSelectorInput = ({
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const displayString = calculateInputDisplayString(event, gpsFormat, location, placeholder);
+  const displayString = calculateInputDisplayString(event, gpsFormat, location, placeholder, geometryType);
 
   const popoverClassString = ENABLE_EVENT_GEOMETRY
     ? popoverClassName ? `${styles.newGpsPopover} ${popoverClassName}` : styles.newGpsPopover
     : popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
-
-  const onClickLocation = useCallback(() => setIsPopoverOpen(!isPopoverOpen), [isPopoverOpen]);
-
-  const onHidePopover = useCallback(() => {
-    if (!isPickingLocation && !mapDrawingData) {
-      setIsPopoverOpen(false);
-    }
-  }, [isPickingLocation, mapDrawingData]);
-
-  const onLabelKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isPopoverOpen) {
-      setIsPopoverOpen(false);
-    }
-  }, [isPopoverOpen]);
-
-  const stopEventBubbling = useCallback((event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  }, []);
-
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (!!popoverContentRef.current && !popoverContentRef.current.contains(event.target)) {
-        setIsPopoverOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
 
   // Area
   const isDrawingEventGeometry = useSelector((state) => state.view.mapLocationSelection.isPickingLocation
@@ -120,6 +96,7 @@ const LocationSelectorInput = ({
   }, [dispatch]);
 
   const onDeleteArea = useCallback(() => {
+    setIsPopoverOpen(false);
     setMapDrawingData(null);
     onGeometryChange?.(null);
   }, [onGeometryChange, setMapDrawingData]);
@@ -172,6 +149,44 @@ const LocationSelectorInput = ({
     }
   }, []);
 
+  // Global
+  const onClickLocation = useCallback(() => {
+    if (geometryType === GEOMETRY_TYPES.POLYGON && !event?.geometry) {
+      onAreaSelectStart();
+    } else {
+      setIsPopoverOpen(!isPopoverOpen);
+    }
+  }, [event?.geometry, geometryType, isPopoverOpen, onAreaSelectStart]);
+
+  const onHidePopover = useCallback(() => {
+    if (!isPickingLocation && !mapDrawingData) {
+      setIsPopoverOpen(false);
+    }
+  }, [isPickingLocation, mapDrawingData]);
+
+  const onLabelKeyDown = useCallback((event) => {
+    if (event.key === 'Escape' && isPopoverOpen) {
+      setIsPopoverOpen(false);
+    }
+  }, [isPopoverOpen]);
+
+  const stopEventBubbling = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!!popoverContentRef.current && !popoverContentRef.current.contains(event.target)) {
+        setIsPopoverOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
   return <label
     className={`${styles.locationSelectionLabel} ${className}`}
     onClick={stopEventBubbling}
@@ -186,7 +201,9 @@ const LocationSelectorInput = ({
       onClick={onClickLocation}
       ref={locationInputAnchorRef}
     >
-      <LocationIcon className={styles.icon} />
+      {geometryType === GEOMETRY_TYPES.POLYGON
+        ? <PolygonIcon className={styles.icon} />
+        : <LocationIcon className={styles.icon} />}
       <span className={styles.displayString}>{displayString}</span>
       {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
     </div>
@@ -200,14 +217,11 @@ const LocationSelectorInput = ({
       show={isPopoverOpen}
       target={locationInputAnchorRef.current}
     >
-      {ENABLE_EVENT_GEOMETRY
-        ? <Popover className={popoverClassString}>
-          <Tabs className={styles.locationTabs} defaultActiveKey="area">
-            <Tab eventKey="area" title="Area">
-              <AreaTab onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
-            </Tab>
-
-            <Tab eventKey="point" title="Point">
+      <Popover placement='bottom' className={popoverClassString}>
+        {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
+          {geometryType === GEOMETRY_TYPES.POLYGON ?
+            <GeometryPreview onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
+            : <>
               <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={onGpsInputKeydown} />
               <div className={styles.locationButtons}>
                 <MapLocationPicker
@@ -222,27 +236,10 @@ const LocationSelectorInput = ({
                   onSuccess={onGeoLocationSuccess}
                 />}
               </div>
-            </Tab>
-          </Tabs>
-        </Popover>
-      : <Popover placement='bottom' className={popoverClassString}>
-        {isPopoverOpen && <div ref={popoverContentRef}>
-          <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={onGpsInputKeydown} />
-          <div className={styles.locationButtons}>
-            <MapLocationPicker
-              map={map}
-              onLocationSelectStart={onLocationSelectStart}
-              onLocationSelectCancel={onLocationSelectCancel}
-              onLocationSelect={onLocationSelect}
-            />
-            {!!showUserLocation && <GeoLocator
-              className={styles.geoLocator}
-              onStart={onGeoLocationStart}
-              onSuccess={onGeoLocationSuccess}
-            />}
-          </div>
+            </>
+          }
         </div>}
-      </Popover>}
+      </Popover>
     </Overlay>
   </label>;
 };
@@ -255,7 +252,7 @@ LocationSelectorInput.defaultProps = {
   label: 'Location:',
   location: null,
   onGeometryChange: null,
-  placeholder: 'Click here to set location',
+  placeholder: null,
   popoverClassName: '',
 };
 

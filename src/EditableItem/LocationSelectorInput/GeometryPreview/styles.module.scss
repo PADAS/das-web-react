@@ -7,10 +7,6 @@
   justify-content: center;
   width: 100%;
   min-height: 6.875rem;
-
-  img {
-    margin-left: -0.5rem;
-  }
 }
 
 .geometryMeasurements {
@@ -23,6 +19,11 @@
   
   > * {
     flex: 1;
+  }
+
+  .measureValue {
+    color: black;
+    font-weight: bold;
   }
 }
 
@@ -60,15 +61,5 @@
   .deleteAreaButton {
     background-color: rgba(208, 3, 27, 0.05);
     color: $bright-red;
-  }
-}
-
-.createAreaButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    margin-right: 0.25rem;
   }
 }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, GEOMETRY_TYPES, TAB_KEYS } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
@@ -475,6 +475,12 @@ const ReportForm = (props) => {
     reportTracker.track(`Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
   }, [report, reportTracker, startSubmitForm]);
 
+  useEffect(() => {
+    if (schema.geometry_type === GEOMETRY_TYPES.POLYGON && report.location) {
+      updateStateReport({ ...report, location: null });
+    }
+  }, [report, schema.geometry_type]);
+
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
@@ -513,6 +519,7 @@ const ReportForm = (props) => {
       </IncidentReportsList>}
       {!is_collection && <Fragment>
         <ReportFormTopLevelControls
+          geometryType={schema.geometry_type}
           map={map}
           report={report}
           readonly={schema.readonly}

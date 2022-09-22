@@ -209,13 +209,29 @@ describe('LocationSelectorInput', () => {
   });
 
   test('sets is picking location to true if user starts to create an area', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput
+                geometryType="Polygon"
+                label="label"
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
-    const placeGeometryOnMapButton = await screen.getByTitle('Place geometry on map');
-    userEvent.click(placeGeometryOnMapButton);
+    const setLocationButton = await screen.getByTestId('set-location-button');
+    userEvent.click(setLocationButton);
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
   });
@@ -230,6 +246,7 @@ describe('LocationSelectorInput', () => {
           <MapDrawingToolsContextProvider>
             <MapContext.Provider value={map}>
               <LocationSelectorInput
+                geometryType="Polygon"
                 map={map}
                 onGeometryChange={onGeometryChange}
                 onLocationChange={onLocationChange}
