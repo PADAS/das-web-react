@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -21,6 +22,7 @@ const ReportGeometryDrawer = () => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const map = useContext(MapContext);
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
@@ -72,6 +74,7 @@ const ReportGeometryDrawer = () => {
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
       case 'Escape':
+        setMapDrawingData(null);
         return dispatch(setIsPickingLocation(false));
       default:
         return;
