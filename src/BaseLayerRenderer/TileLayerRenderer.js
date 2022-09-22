@@ -6,7 +6,7 @@ import { useMapLayer, useMapSource } from '../hooks';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
 
-const { FEATURE_FILLS } = LAYER_IDS;
+const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 const RASTER_SOURCE_OPTIONS = {
   'type': 'raster',
@@ -56,7 +56,7 @@ const TileLayerRenderer = (props) => {
     `layer-source-${activeLayer?.id}`,
     undefined,
     undefined,
-    { before: FEATURE_FILLS, condition: !!activeLayer }
+    { before: TOPMOST_STYLE_LAYER, condition: !!activeLayer }
   );
 
   return layers

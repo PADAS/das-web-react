@@ -13,7 +13,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { useMapSource } from '../hooks';
 
-const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS, SKY_LAYER } = LAYER_IDS;
 const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const unclusteredFilter = [
@@ -71,6 +71,7 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
 
   return <>
     <LabeledPatrolSymbolLayer
+      before={SKY_LAYER}
       filter={unclusteredFilter}
       id={UNCLUSTERED_LAYER_ID}
       onClick={onSubjectSymbolClick}
@@ -81,6 +82,7 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
 
     {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
       <LabeledPatrolSymbolLayer
+        before={SKY_LAYER}
         filter={clusteredFilter}
         id={SUBJECT_SYMBOLS}
         onClick={onSubjectSymbolClick}
