@@ -5,7 +5,7 @@ import { featureCollection } from '@turf/helpers';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
@@ -37,16 +37,26 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const eventFeatureCollectionByType = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+
+  const combinedEventFeatures = useMemo(() => {
+    const propsToConsider = ['Point', 'PolygonCentersOfMass'];
+
+    return propsToConsider.reduce((accumulator, prop) => {
+      if (!eventFeatureCollectionByType[prop]) return accumulator;
+      return [...accumulator, ...eventFeatureCollectionByType[prop].features];
+    }, []);
+  }
+  , [eventFeatureCollectionByType]);
 
   const clustersSourceData = useMemo(() => featureCollection(
     [
-      ...(shouldEventsBeClustered ? eventFeatureCollection.features : []),
+      ...(shouldEventsBeClustered ? combinedEventFeatures : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
     ]
   ), [
-    eventFeatureCollection.features,
+    combinedEventFeatures,
     shouldEventsBeClustered,
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,

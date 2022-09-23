@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
 import HeatmapLegend from '../HeatmapLegend';
 
 
@@ -26,7 +26,16 @@ const ReportsHeatmapLegend = ({ reports, onClose, eventFilter: { filter: { date_
 };
 
 const mapStateToProps = (state) => ({
-  reports: getMapEventFeatureCollectionWithVirtualDate(state),
+  reports: () => {
+    const byType = getMapEventFeatureCollectionByTypeWithVirtualDate(state);
+
+    return ['Point', 'PolygonCentersOfMass']
+      .reduce((array, type) =>
+        byType[type]
+          ? [...array, ...byType[type]]
+          : array,
+      []);
+  },
   eventFilter: state.data.eventFilter,
 });
 

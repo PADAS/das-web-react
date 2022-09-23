@@ -58,9 +58,15 @@ export const displayTitleForEvent = (event, eventTypes) => {
   return eventTypeTitleForEvent(event, eventTypes);
 };
 
-export const getCoordinatesForEvent = evt => evt.geojson
-  && evt.geojson.geometry
-  && evt.geojson.geometry.coordinates;
+export const getCoordinatesForEvent = event => {
+  if (event?.geojson?.type === 'Polygon') {
+    return event.geojson.geometry.coordinates
+      .reduce((accumulator, shape) =>
+        [...accumulator, ...shape]
+      , []);
+  }
+  return event?.geojson?.geometry?.coordinates;
+};
 
 export const getIdForEvent = evt => evt.id;
 

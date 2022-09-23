@@ -14,6 +14,7 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
+  DEVELOPMENT_FEATURE_FLAGS,
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
@@ -21,15 +22,18 @@ import {
   MAX_ZOOM,
   MAP_ICON_SCALE,
 } from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import { useMapSource } from '../hooks';
 
 const {
   EVENT_SYMBOLS,
+  EVENT_GEOMETRY_LAYER,
   SUBJECT_SYMBOLS,
 } = LAYER_IDS;
+
+const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
@@ -77,9 +81,21 @@ const EventsLayer = ({
   minZoom,
   onEventClick,
 }) => {
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const eventFeatureCollectionByType = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate);
   const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
+
+  const combinedEventFeatureCollection = useMemo(() => {
+    const propsToConsider = ['Point', 'PolygonCentersOfMass'];
+
+    return featureCollection(
+      propsToConsider.reduce((accumulator, prop) => {
+        if (!eventFeatureCollectionByType[prop]) return accumulator;
+        return [...accumulator, ...eventFeatureCollectionByType[prop].features];
+      }, [])
+    );
+  }
+  , [eventFeatureCollectionByType]);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);
@@ -95,6 +111,7 @@ const EventsLayer = ({
     `${EVENT_SYMBOLS}-labels`,
     `${EVENT_SYMBOLS}-unclustered`,
     `${EVENT_SYMBOLS}-unclustered-labels`,
+    EVENT_GEOMETRY_LAYER,
   ]), []);
 
   const onEventSymbolClick = useCallback((event) => {
@@ -207,10 +224,10 @@ const EventsLayer = ({
 
   useEffect(() => {
     setEventsWithBounce({
-      ...eventFeatureCollection,
-      features: addBounceToEventMapFeatures(eventFeatureCollection.features, bounceEventIDs),
+      ...combinedEventFeatureCollection,
+      features: addBounceToEventMapFeatures(combinedEventFeatureCollection.features, bounceEventIDs),
     });
-  }, [bounceEventIDs, eventFeatureCollection]);
+  }, [bounceEventIDs, combinedEventFeatureCollection]);
 
   useEffect(() => {
     setBounceIDs(bounceEventIDs);
@@ -242,9 +259,10 @@ const EventsLayer = ({
   useMapSource(UNCLUSTERED_EVENTS_SOURCE, geoJson);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
+  const isClustersSourceReady = !!map.getSource(CLUSTERS_SOURCE_ID);
+  const isEventsLayerReady = !!map.getLayer(EVENT_SYMBOLS);
 
   return <>
-    <EventGeometryLayer />
 
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
@@ -261,7 +279,7 @@ const EventsLayer = ({
         type="symbol"
       />
 
-      {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
+      {isClustersSourceReady && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
           filter={symbolLayerFilter}
@@ -275,10 +293,12 @@ const EventsLayer = ({
           type="symbol"
         />
       </>}
+
+      {ENABLE_EVENT_GEOMETRY && isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
 
-    {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventFeatureCollection}
+    {!!combinedEventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
+      reportFeatureCollection={combinedEventFeatureCollection}
     />}
   </>;
 };
