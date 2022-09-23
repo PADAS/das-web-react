@@ -106,6 +106,34 @@ describe('LocationSelectorInput', () => {
     expect((await screen.findByRole('tooltip'))).toBeDefined();
   });
 
+  test('starts to create an area when clicking location with polygon geomtryType', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput
+                geometryType="Polygon"
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+
+    const setLocationButton = await screen.getByTestId('set-location-button');
+    userEvent.click(setLocationButton);
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+    expect((await screen.queryByRole('tooltip'))).toBeNull();
+  });
+
   test('closes the popover when clicking location again', async () => {
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
@@ -208,6 +236,34 @@ describe('LocationSelectorInput', () => {
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
   });
 
+  test('renders the placeholder default value for location', async () => {
+    expect((await screen.findByText('Click here to set location'))).toBeDefined();
+    expect((await screen.findByText('marker-feed.svg'))).toBeDefined();
+  });
+
+  test('renders the placeholder default value for area', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput
+                geometryType="Polygon"
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Set report area'))).toBeDefined();
+    expect((await screen.findByText('polygon.svg'))).toBeDefined();
+  });
+
   test('sets is picking location to true if user starts to create an area', async () => {
     cleanup();
     render(
@@ -267,6 +323,9 @@ describe('LocationSelectorInput', () => {
 
     expect(onGeometryChange).toHaveBeenCalledTimes(1);
     expect(onGeometryChange).toHaveBeenCalledWith(null);
+    await waitFor(async () => {
+      expect((await screen.queryByRole('tooltip'))).toBeNull();
+    });
   });
 
   test('saves the report area if user is not picking location and there is data in the drawing map context', async () => {
