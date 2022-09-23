@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -91,6 +91,26 @@ describe('ReportGeometryDrawer', () => {
     userEvent.keyboard('{Enter}');
 
     expect(saveButton).not.toHaveClass('disabled');
+  });
+
+  test('enables the save button if user double clicks the map after drawing a valid polygon', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    jest.advanceTimersByTime(60000);
+
+    const saveButton = await screen.findByText('Save');
+
+    expect(saveButton).toHaveClass('disabled');
+
+    map.__test__.fireHandlers('dblclick', { lngLat: { lng: 87, lat: 55 } });
+    jest.advanceTimersByTime(60000);
+
+    await waitFor(() => {
+      expect(saveButton).not.toHaveClass('disabled');
+    });
   });
 
   test('disables the save button if user closes an invalid polygon', async () => {
