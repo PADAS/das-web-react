@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DEVELOPMENT_FEATURE_FLAGS, GEOMETRY_TYPES, TAB_KEYS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS, VALID_EVENT_GEOMETRY_TYPES } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
@@ -476,7 +476,7 @@ const ReportForm = (props) => {
   }, [report, reportTracker, startSubmitForm]);
 
   useEffect(() => {
-    if (schema.geometry_type === GEOMETRY_TYPES.POLYGON && report.location) {
+    if (schema.geometry_type === VALID_EVENT_GEOMETRY_TYPES.POLYGON && report.location) {
       updateStateReport({ ...report, location: null });
     }
   }, [report, schema.geometry_type]);

@@ -12,7 +12,7 @@ import { ReactComponent as LocationIcon } from '../../common/images/icons/marker
 import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
 import { calcGpsDisplayString } from '../../utils/location';
-import { DEVELOPMENT_FEATURE_FLAGS, GEOMETRY_TYPES } from '../../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
@@ -43,7 +43,7 @@ const calculateInputDisplayString = (event, gpsFormat, location, placeholder, ge
     return calcGpsDisplayString(location[1], location[0], gpsFormat);
   }
   else if (!placeholder) {
-    if (geometryType === GEOMETRY_TYPES.POLYGON) {
+    if (geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON) {
       return 'Set report area';
     } else {
       return 'Click here to set location';
@@ -151,7 +151,7 @@ const LocationSelectorInput = ({
 
   // Global
   const onClickLocation = useCallback(() => {
-    if (geometryType === GEOMETRY_TYPES.POLYGON && !event?.geometry) {
+    if (geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON && !event?.geometry) {
       onAreaSelectStart();
     } else {
       setIsPopoverOpen(!isPopoverOpen);
@@ -201,7 +201,7 @@ const LocationSelectorInput = ({
       onClick={onClickLocation}
       ref={locationInputAnchorRef}
     >
-      {geometryType === GEOMETRY_TYPES.POLYGON
+      {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
         ? <PolygonIcon className={styles.icon} />
         : <LocationIcon className={styles.icon} />}
       <span className={styles.displayString}>{displayString}</span>
@@ -219,7 +219,7 @@ const LocationSelectorInput = ({
     >
       <Popover placement='bottom' className={popoverClassString}>
         {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
-          {geometryType === GEOMETRY_TYPES.POLYGON ?
+          {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON ?
             <GeometryPreview onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
             : <>
               <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={onGpsInputKeydown} />

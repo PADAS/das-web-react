@@ -316,7 +316,7 @@ export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 export const ASCENDING_SORT_ORDER = 'asc';
 export const DESCENDING_SORT_ORDER = 'desc';
 
-export const GEOMETRY_TYPES = {
+export const VALID_EVENT_GEOMETRY_TYPES = {
   POLYGON: 'Polygon',
   POINT: 'Point',
 };
