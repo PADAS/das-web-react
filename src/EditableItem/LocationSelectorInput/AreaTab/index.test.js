@@ -22,7 +22,7 @@ describe('AreaTab', () => {
     }
   };
 
-  const onAreaSelectStart = jest.fn();
+  const onAreaSelectStart = jest.fn(), onDeleteArea = jest.fn();
   let store;
   beforeEach(() => {
     store = mockStore({ view: { mapLocationSelection: { event: report } } });
@@ -87,5 +87,35 @@ describe('AreaTab', () => {
     userEvent.click(editAreaButton);
 
     expect(onAreaSelectStart).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers onDeleteArea when pressing the delete button', async () => {
+    report.geometry = geometryExample;
+
+    render(
+      <Provider store={store}>
+        <AreaTab onDeleteArea={onDeleteArea} />
+      </Provider>
+    );
+
+    expect(onDeleteArea).toHaveBeenCalledTimes(0);
+
+    const deleteAreaButton = await screen.findByTitle('Delete area button');
+    userEvent.click(deleteAreaButton);
+
+    expect(onDeleteArea).toHaveBeenCalledTimes(1);
+  });
+
+  test('calculates and shows the area and perimeter of the geometry', async () => {
+    report.geometry = geometryExample;
+
+    render(
+      <Provider store={store}>
+        <AreaTab onDeleteArea={onDeleteArea} />
+      </Provider>
+    );
+
+    expect((await screen.findByText('Area: 6666984.03km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 10700.51km'))).toBeDefined();
   });
 });

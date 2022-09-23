@@ -51,6 +51,7 @@ const LocationSelectorInput = ({
   copyable = true,
   label,
   location,
+  onGeometryChange,
   onLocationChange,
   placeholder,
   popoverClassName,
@@ -118,6 +119,11 @@ const LocationSelectorInput = ({
     mapInteractionTracker.track('Geometry selection on map started');
   }, [dispatch]);
 
+  const onDeleteArea = useCallback(() => {
+    setMapDrawingData(null);
+    onGeometryChange?.(null);
+  }, [onGeometryChange, setMapDrawingData]);
+
   useEffect(() => {
     dispatch(setModalVisibilityState(!isDrawingEventGeometry));
     dispatch(isDrawingEventGeometry ? hideSideBar() : showSideBar());
@@ -125,10 +131,10 @@ const LocationSelectorInput = ({
 
   useEffect(() => {
     if (!isPickingLocation && mapDrawingData) {
-      console.log('Save this location data to the report: ', mapDrawingData);
+      onGeometryChange?.(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
     }
-  }, [dispatch, isPickingLocation, mapDrawingData, setMapDrawingData]);
+  }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
   // Location
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -188,7 +194,7 @@ const LocationSelectorInput = ({
     <Overlay
       container={locationInputLabelRef.current}
       onHide={onHidePopover}
-      placement="bottom"
+      placement={ENABLE_EVENT_GEOMETRY ? 'auto' : 'bottom'}
       rootClose
       shouldUpdatePosition={true}
       show={isPopoverOpen}
@@ -198,7 +204,7 @@ const LocationSelectorInput = ({
         ? <Popover className={popoverClassString}>
           <Tabs className={styles.locationTabs} defaultActiveKey="area">
             <Tab eventKey="area" title="Area">
-              <AreaTab onAreaSelectStart={onAreaSelectStart} />
+              <AreaTab onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
             </Tab>
 
             <Tab eventKey="point" title="Point">
@@ -248,6 +254,7 @@ LocationSelectorInput.defaultProps = {
   copyable: true,
   label: 'Location:',
   location: null,
+  onGeometryChange: null,
   placeholder: 'Click here to set location',
   popoverClassName: '',
 };
@@ -257,7 +264,7 @@ LocationSelectorInput.propTypes = {
   copyable: PropTypes.bool,
   label: PropTypes.string,
   location: PropTypes.arrayOf(PropTypes.number),
-  map: PropTypes.object.isRequired,
+  onGeometryChange: PropTypes.func,
   onLocationChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   popoverClassName: PropTypes.string,

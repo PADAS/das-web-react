@@ -1,6 +1,9 @@
 import React, { memo } from 'react';
+import area from '@turf/area';
 import bbox from '@turf/bbox';
 import Button from 'react-bootstrap/Button';
+import { convertArea } from '@turf/helpers';
+import length from '@turf/length';
 import PropTypes from 'prop-types';
 import rewind from '@turf/rewind';
 import { useSelector } from 'react-redux';
@@ -17,7 +20,7 @@ const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 300;
 const STATIC_MAP_HEGHT = 130;
 
-const GeometryPreview = ({ event, onAreaSelectStart }) => {
+const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   // TODO: Set this value depending on the geojson properties
   const imageSource = 'desktop';
 
@@ -38,11 +41,15 @@ const GeometryPreview = ({ event, onAreaSelectStart }) => {
   const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
     `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
+  const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
+  const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
+  const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+
   return <>
     <div className={styles.geometryMeasurements}>
-      <div>Area: 0m</div>
+      <div>{`Area: ${geometryAreaTruncated}km²`}</div>
 
-      <div>Perimeter: 0m</div>
+      <div>{`Perimeter: ${geometryPerimeterTruncated}km`}</div>
     </div>
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
@@ -62,7 +69,7 @@ const GeometryPreview = ({ event, onAreaSelectStart }) => {
 
       <Button
         className={styles.deleteAreaButton}
-        onClick={() => {}} // TODO: implement once drawing mechanism is ready
+        onClick={onDeleteArea}
         title="Delete area button"
         type="button"
       >
@@ -73,13 +80,13 @@ const GeometryPreview = ({ event, onAreaSelectStart }) => {
   </>;
 };
 
-const AreaTab = ({ onAreaSelectStart }) => {
+const AreaTab = ({ onAreaSelectStart, onDeleteArea }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   return <div className={styles.locationAreaContent}>
     {!!event?.geometry
-      ? <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} />
-      :<Button
+      ? <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
+      : <Button
         className={styles.createAreaButton}
         onClick={onAreaSelectStart}
         title="Place geometry on map"
