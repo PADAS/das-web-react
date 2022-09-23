@@ -85,7 +85,7 @@ const LocationSelectorInput = ({
     : popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
 
-  // Area
+  // Geometries
   const isDrawingEventGeometry = useSelector((state) => state.view.mapLocationSelection.isPickingLocation
     && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
 
@@ -96,9 +96,9 @@ const LocationSelectorInput = ({
   }, [dispatch]);
 
   const onDeleteArea = useCallback(() => {
-    setIsPopoverOpen(false);
     setMapDrawingData(null);
     onGeometryChange?.(null);
+    setIsPopoverOpen(false);
   }, [onGeometryChange, setMapDrawingData]);
 
   useEffect(() => {
@@ -113,7 +113,7 @@ const LocationSelectorInput = ({
     }
   }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
-  // Location
+  // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
   const onLocationSelectStart = useCallback(() => {
