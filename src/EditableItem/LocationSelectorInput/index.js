@@ -41,13 +41,10 @@ const calculateInputDisplayString = (event, gpsFormat, location, placeholder, ge
     return `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
   } else if (location) {
     return calcGpsDisplayString(location[1], location[0], gpsFormat);
-  }
-  else if (!placeholder) {
-    if (geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON) {
-      return 'Set report area';
-    } else {
-      return 'Click here to set location';
-    }
+  } else if (!placeholder && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON) {
+    return 'Set report area';
+  } else if (!placeholder) {
+    return 'Click here to set location';
   }
   return placeholder;
 };
@@ -150,7 +147,7 @@ const LocationSelectorInput = ({
   }, []);
 
   // Global
-  const onClickLocation = useCallback(() => {
+  const onClickLocationControl = useCallback(() => {
     if (geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON && !event?.geometry) {
       onAreaSelectStart();
     } else {
@@ -198,7 +195,7 @@ const LocationSelectorInput = ({
     <div
       className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`}
       data-testid="set-location-button"
-      onClick={onClickLocation}
+      onClick={onClickLocationControl}
       ref={locationInputAnchorRef}
     >
       {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
