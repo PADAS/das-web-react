@@ -5,7 +5,6 @@ on:
       - "das-2-*-*"
       - "ERA-*"
       - "develop"
-      - "fix-workflow"
 jobs:
   build:
     permissions:
@@ -41,17 +40,17 @@ jobs:
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
           if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
-      #TODO: Return these values to true
+
       - name: Rebuild Node SASS
-        if: steps.validate_env.outputs.site_exists == 'false'
+        if: steps.validate_env.outputs.site_exists == 'true'
         run: npm rebuild node-sass
 
       - name: Yarn build
-        if: steps.validate_env.outputs.site_exists == 'false'
+        if: steps.validate_env.outputs.site_exists == 'true'
         run: CI=false yarn build
 
       - name: Build docker image
-        if: steps.validate_env.outputs.site_exists == 'false'
+        if: steps.validate_env.outputs.site_exists == 'true'
         run: |-
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
