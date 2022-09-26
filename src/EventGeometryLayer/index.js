@@ -1,5 +1,6 @@
 import React  from 'react';
 import { useSelector } from 'react-redux';
+import { featureCollection } from '@turf/helpers';
 
 import { SOURCE_IDS, LAYER_IDS } from '../constants';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
@@ -40,7 +41,7 @@ const paint = {
 
 const EventGeometryLayer = ({ onClick }) => {
   const showReportsOnMap = useSelector(getShowReportsOnMap);
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate).Polygon;
+  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate)?.Polygon ?? featureCollection([]);
   const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
