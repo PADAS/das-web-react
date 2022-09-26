@@ -34,6 +34,9 @@ jobs:
       - name: Run tests
         run: yarn test-ci
 
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
       - name: Validate existence of env
         id: validate_env
         run: |-
@@ -72,10 +75,6 @@ jobs:
         if: steps.validate_env.outputs.site_exists == 'true'
         run: |-
           gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
-
-      - name: 'Set up Cloud SDK'
-        if: steps.validate_env.outputs.site_exists == 'true'
-        uses: 'google-github-actions/setup-gcloud@v0'
 
       - name: Configure cluster connectivity
         if: steps.validate_env.outputs.site_exists == 'true'
