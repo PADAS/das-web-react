@@ -12,6 +12,7 @@ import { ReactComponent as PencilIcon } from '../../../common/images/icons/penci
 import { ReactComponent as PolygonIcon } from '../../../common/images/icons/polygon.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
+import { truncateFloatingNumber } from '../../../utils/math';
 import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
 
 import styles from './styles.module.scss';
@@ -46,8 +47,8 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
     `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
   const geometryArea = convertArea(area(eventPolygon), 'meters', 'kilometers');
-  const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
-  const geometryPerimeterTruncated = Math.floor(length(eventPolygon) * 100) / 100;
+  const geometryAreaTruncated = truncateFloatingNumber(geometryArea, 2);
+  const geometryPerimeterTruncated = truncateFloatingNumber(length(eventPolygon), 2);
 
   return <>
     <div className={styles.geometryMeasurements}>
