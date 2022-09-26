@@ -425,6 +425,8 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   const eventFilterParamString = calcEventFilterForRequest({ params });
 
+  cancelMapEventsFetch();
+
   dispatch({
     type: FETCH_MAP_EVENTS_START,
     payload: { bbox },
@@ -435,8 +437,6 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     resultsToDate = [...resultsToDate, ...onePageOfResults];
     dispatch(fetchMapEventsPageSuccess(onePageOfResults));
   };
-
-  cancelMapEventsFetch();
 
   const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
     cancelToken: generateNewCancelToken(),

@@ -131,7 +131,7 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
 
 export const addTitleWithDateToGeoJson = (geojson, title) => {
   const addTitle = (feature) => {
-    const displayTitle = feature.properties.datetime ? title + '\n' + formatEventSymbolDate(feature.properties.datetime) : title;
+    const displayTitle = feature.properties.time ? title + '\n' + formatEventSymbolDate(feature.properties.time) : title;
     return (feature.properties.display_title = displayTitle) && feature;
   };
 
