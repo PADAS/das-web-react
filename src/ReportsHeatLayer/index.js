@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
 import HeatLayer from '../HeatLayer';
 
-const ReportsHeatLayer = ({ reports }) => <HeatLayer points={reports} />;
+const ReportsHeatLayer = ({ reports }) => reports?.features?.length && <HeatLayer points={reports} />;
 
 const mapStateToProps = state => ({
   reports: () => {
