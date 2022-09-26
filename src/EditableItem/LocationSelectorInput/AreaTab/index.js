@@ -24,13 +24,17 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   // TODO: Set this value depending on the geojson properties
   const imageSource = 'desktop';
 
-  const eventGeometryBbox = bbox(event.geometry);
+  const eventPolygon = event.geometry.type === 'FeatureCollection'
+    ? event.geometry.features[0]
+    : event.geometry;
+
+  const eventGeometryBbox = bbox(eventPolygon);
   const minLon = eventGeometryBbox[0];
   const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[1]);
   const maxLon = eventGeometryBbox[2];
   const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[3]);
 
-  const eventGeoJsonRightHandRule = rewind(event.geometry);
+  const eventGeoJsonRightHandRule = rewind(eventPolygon);
 
   const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
   const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(eventGeoJsonRightHandRule))})`;
@@ -41,9 +45,9 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
     `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
-  const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
+  const geometryArea = convertArea(area(eventPolygon), 'meters', 'kilometers');
   const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
-  const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+  const geometryPerimeterTruncated = Math.floor(length(eventPolygon) * 100) / 100;
 
   return <>
     <div className={styles.geometryMeasurements}>
