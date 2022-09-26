@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../../App';
-import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
@@ -12,6 +12,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { setModalVisibilityState } from '../../ducks/modals';
+import { setIsPickingLocation } from '../../ducks/map-ui';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -34,9 +35,28 @@ jest.mock('../../ducks/modals', () => ({
   setModalVisibilityState: jest.fn(),
 }));
 
+jest.mock('../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../ducks/map-ui'),
+  setIsPickingLocation: jest.fn(),
+}));
+
 describe('LocationSelectorInput', () => {
-  const onLocationChange = jest.fn();
-  let map, hideSideBarMock, setModalVisibilityStateMock, showSideBarMock, store;
+  const geometryExample = {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [6.657425, 9.301125],
+          [-40.668725, 5.047775],
+          [5.0602, -13.74975]
+        ]
+      ]
+    }
+  };
+
+  const onLocationChange = jest.fn(), onGeometryChange = jest.fn();
+  let map, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
   beforeEach(() => {
     hideSideBarMock = jest.fn(() => () => {});
     hideSideBar.mockImplementation(hideSideBarMock);
@@ -44,6 +64,8 @@ describe('LocationSelectorInput', () => {
     setModalVisibilityState.mockImplementation(setModalVisibilityStateMock);
     showSideBarMock = jest.fn(() => () => {});
     showSideBar.mockImplementation(showSideBarMock);
+    setIsPickingLocationMock = jest.fn(() => () => {});
+    setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
 
     map = createMapMock();
     store = {
@@ -58,7 +80,12 @@ describe('LocationSelectorInput', () => {
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
             <MapContext.Provider value={map}>
-              <LocationSelectorInput label="label" map={map} onLocationChange={onLocationChange} />
+              <LocationSelectorInput
+                label="label"
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
             </MapContext.Provider>
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
@@ -179,5 +206,76 @@ describe('LocationSelectorInput', () => {
     );
 
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
+  });
+
+  test('sets is picking location to true if user starts to create an area', async () => {
+    const setLocationButton = await screen.getByTestId('set-location-button');
+    userEvent.click(setLocationButton);
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+
+    const placeGeometryOnMapButton = await screen.getByTitle('Place geometry on map');
+    userEvent.click(placeGeometryOnMapButton);
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+  });
+
+  test('deletes the report area if user clicks delete area button', async () => {
+    report.geometry = geometryExample;
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
+            </MapContext.Provider>
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const setLocationButton = await screen.getByTestId('set-location-button');
+    userEvent.click(setLocationButton);
+
+    expect(onGeometryChange).toHaveBeenCalledTimes(0);
+
+    const deleteAreaButton = await screen.getByTitle('Delete area button');
+    userEvent.click(deleteAreaButton);
+
+    expect(onGeometryChange).toHaveBeenCalledTimes(1);
+    expect(onGeometryChange).toHaveBeenCalledWith(null);
+  });
+
+  test('saves the report area if user is not picking location and there is data in the drawing map context', async () => {
+    const fillPolygon = { type: 'Feature' };
+    const setMapDrawingData = jest.fn();
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
+            <MapContext.Provider value={map}>
+              <LocationSelectorInput
+                map={map}
+                onGeometryChange={onGeometryChange}
+                onLocationChange={onLocationChange}
+              />
+            </MapContext.Provider>
+          </MapDrawingToolsContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(onGeometryChange).toHaveBeenCalledTimes(1);
+    expect(onGeometryChange).toHaveBeenCalledWith(fillPolygon);
+    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
+    expect(setMapDrawingData).toHaveBeenCalledWith(null);
   });
 });

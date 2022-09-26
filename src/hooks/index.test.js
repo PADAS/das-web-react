@@ -185,6 +185,8 @@ describe('#useMapLayer', () => {
 
         const { rerender } = renderHook(() => useMapLayer(layerId, 'string', 'whatever-source-id', null, null, { before }), { wrapper });
 
+        expect(map.moveLayer).not.toHaveBeenCalled();
+
         before = 'how';
 
         rerender();

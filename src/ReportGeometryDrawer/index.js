@@ -1,10 +1,12 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import bbox from '@turf/bbox';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
-
+import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
 import Footer from './Footer';
@@ -12,13 +14,16 @@ import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
 const TIMEOUT_TO_REMOVE_REDUNDANT_POINT = 150;
+const VERTICAL_POLYGON_PADDING = 100;
 
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
-  const map = useContext(MapContext);
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
 
-  // TODO: Set the current event polygon by default
+  const map = useContext(MapContext);
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
+
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
 
@@ -47,9 +52,13 @@ const ReportGeometryDrawer = () => {
     }
   }, [geometryPoints, isGeometryAValidPolygon, map]);
 
+  const onDoubleClick = useCallback(() => isGeometryAValidPolygon && setIsDrawing(false), [isGeometryAValidPolygon]);
+
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
+
+  useMapEventBinding('dblclick', onDoubleClick, null, isDrawing);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -57,6 +66,7 @@ const ReportGeometryDrawer = () => {
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
       case 'Escape':
+        setMapDrawingData(null);
         return dispatch(setIsPickingLocation(false));
       default:
         return;
@@ -66,7 +76,20 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, geometryPoints, isDrawing, isGeometryAValidPolygon]);
+  }, [dispatch, isDrawing, isGeometryAValidPolygon]);
+
+  useEffect(() => {
+    if (event?.geometry) {
+      const eventPolygon = event.geometry.type === 'FeatureCollection'
+        ? event.geometry.features[0]
+        : event.geometry;
+
+      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
+
+      setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1));
+      setIsDrawing(false);
+    }
+  }, [event.geometry, map]);
 
   return <>
     <ReportOverview />

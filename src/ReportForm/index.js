@@ -289,6 +289,11 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [report, reportTracker]);
 
+  const onReportGeometryChange = useCallback((geometry) => {
+    updateStateReport({ ...report, geometry });
+    reportTracker.track('Change Report Geometry');
+  }, [report, reportTracker]);
+
   const onReportLocationChange = useCallback((location) => {
     const updatedLocation = !!location
       ? {
@@ -514,6 +519,7 @@ const ReportForm = (props) => {
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange} />
         <ReportFormBody
           ref={formRef}
