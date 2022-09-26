@@ -55,7 +55,6 @@ jobs:
       - name: Upload to bucket
         if: steps.validate_env.outputs.site_exists == 'true'
         run: |-
-          gcloud auth list
           gsutil cp -r build/static gs://er-static/
 
       - name: Build docker image
