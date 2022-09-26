@@ -5,6 +5,7 @@ on:
       - "das-2-*-*"
       - "ERA-*"
       - "develop"
+      - "fix-workflow"
 jobs:
   build:
     permissions:
