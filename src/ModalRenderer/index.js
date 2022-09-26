@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import ImageModal from '../ImageModal';
 import { removeModal } from '../ducks/modals';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
@@ -12,7 +13,10 @@ const ModalRenderer = ({ map }) => {
   const dispatch = useDispatch();
 
   const canShowModals = useSelector((state) => state.view.modals.canShowModals);
-  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
+  const isPickingLocationPoint = useSelector((state) =>
+    state.view.mapLocationSelection.isPickingLocation
+    && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.DEFAULT
+  );
   const modals = useSelector((state) => state.view.modals.modals);
 
   return !!modals.length && <div
@@ -26,7 +30,7 @@ const ModalRenderer = ({ map }) => {
         const showModal = forceShowModal || canShowModals;
 
         const onHideModal = () => {
-          if (!isPickingLocation) {
+          if (!isPickingLocationPoint) {
             dispatch(removeModal(id));
           }
         };
