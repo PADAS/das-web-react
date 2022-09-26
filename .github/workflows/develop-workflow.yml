@@ -54,6 +54,8 @@ jobs:
         run: |-
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
+          ls build/static
+          gsutil cp -r build/static gs://er-static/
 
       - name: Terraform config outputs & cluster
         if: steps.validate_env.outputs.site_exists == 'true'
