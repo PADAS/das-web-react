@@ -26,7 +26,7 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const imageSource = 'desktop';
 
   const eventPolygon = event.geometry.type === 'FeatureCollection'
-    ? event.geometry.features[0]
+    ? event.geometry.features.find((feature) => feature.geometry.type === 'Polygon')
     : event.geometry;
 
   const eventGeometryBbox = bbox(eventPolygon);
