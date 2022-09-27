@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
+import { truncateFloatingNumber } from '../../../utils/math';
 import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
 
 import styles from './styles.module.scss';
@@ -25,13 +26,17 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
   // TODO: Set this value depending on the geojson properties
   const imageSource = 'desktop';
 
-  const eventGeometryBbox = bbox(event.geometry);
+  const eventPolygon = event.geometry.type === 'FeatureCollection'
+    ? event.geometry.features.find((feature) => feature.geometry.type === 'Polygon')
+    : event.geometry;
+
+  const eventGeometryBbox = bbox(eventPolygon);
   const minLon = eventGeometryBbox[0];
   const minLat = Math.max(-MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[1]);
   const maxLon = eventGeometryBbox[2];
   const maxLat = Math.min(MAPBOX_MAXIMUM_LATITUDE, eventGeometryBbox[3]);
 
-  const eventGeoJsonRightHandRule = rewind(event.geometry);
+  const eventGeoJsonRightHandRule = rewind(eventPolygon);
 
   const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
   const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(eventGeoJsonRightHandRule))})`;
@@ -42,9 +47,9 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
   const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
     `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
-  const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
-  const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
-  const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+  const geometryArea = convertArea(area(eventPolygon), 'meters', 'kilometers');
+  const geometryAreaTruncated = truncateFloatingNumber(geometryArea, 2);
+  const geometryPerimeterTruncated = truncateFloatingNumber(length(eventPolygon), 2);
 
   return <div className={styles.locationAreaContent}>
     <div className={styles.geometryMeasurements}>

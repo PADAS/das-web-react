@@ -19,6 +19,7 @@ import { MapContext } from '../../App';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
+import { truncateFloatingNumber } from '../../utils/math';
 
 import GeometryPreview from './GeometryPreview';
 import GpsInput from '../../GpsInput';
@@ -36,8 +37,8 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const calculateInputDisplayString = (event, gpsFormat, location, placeholder, geometryType) => {
   if (!!event?.geometry) {
     const geometryArea = convertArea(area(event.geometry), 'meters', 'kilometers');
-    const geometryAreaTruncated = Math.floor(geometryArea * 100) / 100;
-    const geometryPerimeterTruncated = Math.floor(length(event.geometry) * 100) / 100;
+    const geometryAreaTruncated = truncateFloatingNumber(geometryArea, 2);
+    const geometryPerimeterTruncated = truncateFloatingNumber(length(event.geometry), 2);
     return `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
   } else if (location) {
     return calcGpsDisplayString(location[1], location[0], gpsFormat);
