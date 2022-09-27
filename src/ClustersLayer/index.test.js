@@ -84,7 +84,7 @@ describe('ClustersLayer', () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
       render(
-        <Provider store={mockStore({ data: {}, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { reports: true, subjects: true } } })}>
+        <Provider store={mockStore({ data: { mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } }, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { reports: true, subjects: true } } })}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>

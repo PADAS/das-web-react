@@ -6,12 +6,15 @@ import { useSelector } from 'react-redux';
 import { addMapImage } from '../utils/map';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
+import EventGeometryLayer from '../EventGeometryLayer';
+
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
+  DEVELOPMENT_FEATURE_FLAGS,
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
@@ -19,15 +22,18 @@ import {
   MAX_ZOOM,
   MAP_ICON_SCALE,
 } from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import { useMapSource } from '../hooks';
 
 const {
   EVENT_SYMBOLS,
+  EVENT_GEOMETRY_LAYER,
   SUBJECT_SYMBOLS,
 } = LAYER_IDS;
+
+const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
@@ -60,7 +66,12 @@ export const CLUSTER_CONFIG = {
   clusterRadius: 40,
 };
 
-const layerFilter = ['all', ['has', 'event_type'], ['!has', 'point_count']];
+const symbolLayerFilter = [
+  'all',
+  ['has', 'event_type'],
+  ['==', ['has', 'point_count'], false],
+  ['==', ['geometry-type'], 'Point'],
+];
 
 const EventsLayer = ({
   bounceEventIDs,
@@ -70,7 +81,7 @@ const EventsLayer = ({
   minZoom,
   onEventClick,
 }) => {
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
   const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
 
@@ -88,6 +99,7 @@ const EventsLayer = ({
     `${EVENT_SYMBOLS}-labels`,
     `${EVENT_SYMBOLS}-unclustered`,
     `${EVENT_SYMBOLS}-unclustered-labels`,
+    EVENT_GEOMETRY_LAYER,
   ]), []);
 
   const onEventSymbolClick = useCallback((event) => {
@@ -200,10 +212,10 @@ const EventsLayer = ({
 
   useEffect(() => {
     setEventsWithBounce({
-      ...eventFeatureCollection,
-      features: addBounceToEventMapFeatures(eventFeatureCollection.features, bounceEventIDs),
+      ...eventPointFeatureCollection,
+      features: addBounceToEventMapFeatures(eventPointFeatureCollection.features, bounceEventIDs),
     });
-  }, [bounceEventIDs, eventFeatureCollection]);
+  }, [bounceEventIDs, eventPointFeatureCollection]);
 
   useEffect(() => {
     setBounceIDs(bounceEventIDs);
@@ -235,12 +247,15 @@ const EventsLayer = ({
   useMapSource(UNCLUSTERED_EVENTS_SOURCE, geoJson);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
+  const isClustersSourceReady = !!map.getSource(CLUSTERS_SOURCE_ID);
+  const isEventsLayerReady = !!map.getLayer(EVENT_SYMBOLS);
 
   return <>
+
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
-        filter={layerFilter}
+        filter={symbolLayerFilter}
         id={`${EVENT_SYMBOLS}-unclustered`}
         layout={eventIconLayout}
         minZoom={minZoom}
@@ -252,10 +267,10 @@ const EventsLayer = ({
         type="symbol"
       />
 
-      {!!map.getSource(CLUSTERS_SOURCE_ID) && <>
+      {isClustersSourceReady && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
-          filter={layerFilter}
+          filter={symbolLayerFilter}
           id={EVENT_SYMBOLS}
           layout={eventIconLayout}
           minZoom={minZoom}
@@ -266,10 +281,12 @@ const EventsLayer = ({
           type="symbol"
         />
       </>}
+
+      {ENABLE_EVENT_GEOMETRY && isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
 
-    {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={eventFeatureCollection}
+    {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
+      reportFeatureCollection={eventPointFeatureCollection}
     />}
   </>;
 };

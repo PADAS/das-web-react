@@ -58,9 +58,15 @@ export const displayTitleForEvent = (event, eventTypes) => {
   return eventTypeTitleForEvent(event, eventTypes);
 };
 
-export const getCoordinatesForEvent = evt => evt.geojson
-  && evt.geojson.geometry
-  && evt.geojson.geometry.coordinates;
+export const getCoordinatesForEvent = event => {
+  if (event?.geojson?.type === 'Polygon') {
+    return event.geojson.geometry.coordinates
+      .reduce((accumulator, shape) =>
+        [...accumulator, ...shape]
+      , []);
+  }
+  return event?.geojson?.geometry?.coordinates;
+};
 
 export const getIdForEvent = evt => evt.id;
 
@@ -172,13 +178,13 @@ export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualD
   }),
 });
 
-export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance, filterNegative = false) => {
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance) => {
   return {
     ...featureCollection,
     features: featureCollection.features
       .reduce((accumulator, item) => {
         const diff = (new Date(virtualDate || new Date())  - new Date(item.properties.time));
-        if (filterNegative && diff < 0) return accumulator;
+        if (diff < 0) return accumulator;
         return [...accumulator, {
           ...item,
           properties: {

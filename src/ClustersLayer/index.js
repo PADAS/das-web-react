@@ -5,7 +5,7 @@ import { featureCollection } from '@turf/helpers';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
@@ -37,15 +37,17 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
   const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+
+
   const clustersSourceData = useMemo(() => featureCollection(
     [
-      ...(shouldEventsBeClustered ? eventFeatureCollection.features : []),
+      ...(shouldEventsBeClustered ? eventPointFeatureCollection.features : []),
       ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
     ]
   ), [
-    eventFeatureCollection.features,
+    eventPointFeatureCollection,
     shouldEventsBeClustered,
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,

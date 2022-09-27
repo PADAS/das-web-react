@@ -91,6 +91,7 @@ export const BREAKPOINTS = {
 };
 
 export const LAYER_IDS = {
+  EVENT_GEOMETRY_LAYER: 'event-geometry-layer',
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
   SKY_LAYER: 'sky',
   CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
@@ -126,6 +127,7 @@ export const SOURCE_IDS = {
   SUBJECT_SYMBOLS: 'subject-symbol-source',
   CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
   CLUSTERS_SOURCE_ID: 'clusters-source',
+  EVENT_GEOMETRY: 'event-geometry-source',
   UNCLUSTERED_EVENTS_SOURCE: 'events-data-unclustered',
   MAP_FEATURES_LINES_SOURCE: 'feature-line-source',
   MAP_FEATURES_POLYGONS_SOURCE: 'feature-polygon-source',
@@ -143,7 +145,8 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
 export const LAYER_PICKER_IDS = [
   LAYER_IDS.ANALYZER_POLYS_WARNING_SOURCE, LAYER_IDS.ANALYZER_POLYS_CRITICAL_SOURCE,
   LAYER_IDS.ANALYZER_LINES_CRITICAL_SOURCE, LAYER_IDS.ANALYZER_LINES_WARNING_SOURCE,
-  LAYER_IDS.EVENT_SYMBOLS, LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`
+  LAYER_IDS.EVENT_SYMBOLS, LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`,
+  LAYER_IDS.EVENT_GEOMETRY_LAYER,
 ];
 
 export const FEATURE_FLAGS = {
@@ -321,4 +324,10 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
   ENABLE_REPORT_NEW_UI: process.env.REACT_APP_ENABLE_REPORT_NEW_UI === 'true',
   ENABLE_GEOPERMISSION_UI: process.env.REACT_APP_ENABLE_GEOPERMISSION_UI === 'true',
   ENABLE_EVENT_GEOMETRY: process.env.REACT_APP_ENABLE_EVENT_GEOMETRY === 'true',
+};
+
+
+export const VALID_EVENT_GEOMETRY_TYPES = {
+  POINT: 'Point',
+  POLYGON: 'Polygon',
 };

@@ -179,8 +179,6 @@ const Map = ({
   }, []);
 
   const mapEventsFetch = useCallback(() => {
-    cancelMapEventsFetch();
-
     return fetchMapEvents(map)
       .catch((e) => console.warn('error fetching map events', e));
   }
@@ -270,19 +268,23 @@ const Map = ({
     mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
-  const onEventSymbolClick = withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
-    if (clickEvent?.originalEvent?.cancelBubble) return;
+  const onEventSymbolClick = withLocationPickerState(
+    ({ event: clickEvent, layer: { properties } }) => {
+      setTimeout(() => {
+        if (clickEvent?.originalEvent?.cancelBubble) return;
 
-    const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+        const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
-    mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
+        mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
-    if (ENABLE_REPORT_NEW_UI) {
-      navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
-    } else {
-      openModalForReport(event, map);
+        if (ENABLE_REPORT_NEW_UI) {
+          navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
+        } else {
+          openModalForReport(event, map);
+        }
+      }, 50);
     }
-  });
+  );
 
   const handleMultiFeaturesAtSameLocationClick = useCallback((event, layers) => {
     showPopup('multi-layer-select', {
@@ -430,6 +432,9 @@ const Map = ({
   }, [fetchMapData]);
 
   const onMapClick = useMemo(() => withLocationPickerState((event) => {
+    event.preventDefault();
+    event.originalEvent.stopPropagation();
+
     const clickedLayersOfInterest = uniqBy(
       map.queryRenderedFeatures(
         event.point,

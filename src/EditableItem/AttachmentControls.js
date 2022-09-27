@@ -7,7 +7,7 @@ import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
 // import { trackEvent } from '../utils/analytics';
 
-import CustomPropTypes from '../proptypes';
+import { analyticsMetadata } from '../proptypes';
 
 import NoteModal from '../NoteModal';
 
@@ -110,7 +110,7 @@ AttachmentControls.defaultProps = {
 };
 
 AttachmentControls.propTypes = {
-  analyticsMetaData: CustomPropTypes.analyticsMetadata,
+  analyticsMetadata,
   allowMultipleFiles: PropTypes.bool,
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,

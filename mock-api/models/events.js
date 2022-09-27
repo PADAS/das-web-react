@@ -1,4 +1,5 @@
 const { lineString, polygon, featureCollection } =  require('@turf/helpers');
+const rewind = require('@turf/rewind');
 const faker = require('faker/locale/en');
 
 const utils = require('../utils');
@@ -47,11 +48,13 @@ const createMixedGeometryFeatureCollection = () => {
 const createFeatureCollectionOfGeometryTypeFromCoords = (arrayOfCoords = [], geometryType = polygon) =>
   featureCollection(
     arrayOfCoords.map(coords =>
-      geometryType(coords)
+      rewind(
+        geometryType(coords, { datetime: new Date().toISOString() })
+      )
     )
   );
 
-const geometryOptions = [createPolygonFeatureCollection, createLineStringFeatureCollection, createMixedGeometryFeatureCollection, null];
+const geometryOptions = [createPolygonFeatureCollection/* , createLineStringFeatureCollection, createMixedGeometryFeatureCollection */, null];
 const priorityOptions = [
   { value: 0, label: 'Gray' },
   { value: 100, label: 'Green' },

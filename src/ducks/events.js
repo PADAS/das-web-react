@@ -12,7 +12,11 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
-export const EVENTS_API_URL = /* process.env.REACT_APP_MOCK_EVENTS_API === 'true' ? '/api/v1.0/activity/events/' : */ `${API_URL}activity/events`;
+export const EVENTS_API_URL = (
+  process.env.REACT_APP_MOCK_EVENTS_API === 'true'
+  && process.env.NODE_ENV === 'development'
+) ? '/api/v1.0/activity/events/'
+  : `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
@@ -421,6 +425,8 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   const eventFilterParamString = calcEventFilterForRequest({ params });
 
+  cancelMapEventsFetch();
+
   dispatch({
     type: FETCH_MAP_EVENTS_START,
     payload: { bbox },
@@ -432,17 +438,15 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
     dispatch(fetchMapEventsPageSuccess(onePageOfResults));
   };
 
-  cancelMapEventsFetch();
-
   const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
     cancelToken: generateNewCancelToken(),
   });
 
 
   return recursivePaginatedQuery(request, onEachRequest)
-    .then((finalResults) =>
-      finalResults && dispatch(fetchMapEventsComplete(finalResults)) /* guard clause for canceled requests */
-    )
+    .then((finalResults) => {
+      finalResults && dispatch(fetchMapEventsComplete(finalResults));
+    })
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
 

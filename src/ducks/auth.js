@@ -40,7 +40,9 @@ const postAuthSuccess = response => (dispatch) => {
 
 export const clearAuth = () => dispatch => {
   return new Promise((resolve) => {
-
+    if (window.map) {
+      window.map.setStyle(null);
+    }
     deleteAuthTokenCookie();
     deleteTemporaryAccessTokenCookie();
     setTimeout(() => {

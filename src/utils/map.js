@@ -12,6 +12,43 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
+const addItemPropsToFeatureByKey = (item, feature, key) => {
+  const toDelete = ['geojson', 'location', 'geometry', key];
+  const clone = { ...item };
+  toDelete.forEach((item) => delete clone[item]);
+
+  return {
+    ...feature,
+    properties: {
+      ...clone,
+      ...feature.properties,
+    }
+  };
+};
+
+export const addPropsToGeoJsonByKey = (item, key) => {
+  if (!item[key]) return item;
+
+  const isCollection = item[key].type === 'FeatureCollection';
+
+  if (isCollection) {
+    return {
+      ...item,
+      [key]: {
+        ...item[key],
+        features: item[key].features.map((feature => addItemPropsToFeatureByKey(item, feature, key)))
+      }
+    };
+  }
+
+  return {
+    ...item,
+    [key]: addItemPropsToFeatureByKey(item, item[key], key),
+  };
+};
+
+
+
 export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
   let timeoutRemaining = MAX_TIMEOUT;
 
@@ -40,6 +77,7 @@ export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125)
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
   const clone2 = { ...item };
+
   delete clone2[key];
   return {
     ...clone,
@@ -84,13 +122,6 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
   return Promise.all(images).then(results => results);
 };
 
-const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
-  item[key] = item[key] || {};
-  item[key].properties = item[key].properties || {};
-  item[key].properties.id = item.id;
-  return item;
-});
-
 export const filterInactiveRadiosFromCollection = (subjects) => {
   if (subjects && subjects.features.length) {
     return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
@@ -99,17 +130,34 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
 };
 
 export const addTitleWithDateToGeoJson = (geojson, title) => {
-  const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
-  return (geojson.properties.display_title = displayTitle) && geojson;
+  const addTitle = (feature) => {
+    const displayTitle = feature.properties.time ? title + '\n' + formatEventSymbolDate(feature.properties.time) : title;
+    return (feature.properties.display_title = displayTitle) && feature;
+  };
+
+  if (geojson.type === 'FeatureCollection') {
+    return {
+      ...geojson,
+      features: geojson.features.map(feature => addTitle(feature)),
+    };
+  }
+  return addTitle(geojson);
 };
 
-const setUpEventGeoJson = (events, eventTypes) =>
-  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event =>
-    copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
-    const displayTitle = title || getEventTypeTitle(eventTypes, event_type);
-    return addTitleWithDateToGeoJson(geojson, displayTitle);
-  }
-  );
+const setUpEventGeoJson = (events, eventTypes) => {
+  const key = 'geojson';
+
+  return events
+    .filter (event => !!event[key])
+    .map(event => {
+      const key = 'geojson';
+
+      const withProps = addPropsToGeoJsonByKey(event, key);
+      const displayTitle = withProps.title || getEventTypeTitle(eventTypes, withProps.event_type);
+
+      return addTitleWithDateToGeoJson(withProps[key], displayTitle);
+    });
+};
 
 export const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
@@ -119,25 +167,38 @@ export const getEventTypeTitle = (event_types, event_type) => {
 };
 
 const setUpSubjectGeoJson = subjects =>
-  addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position')
-    .map(subject =>
-      copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')
-    )
-    .map(({ last_position: geojson }) =>
-      geojson
-    );
+  subjects
+    .map(subject => {
+      const key = 'last_position';
 
-const featureCollectionFromGeoJson = geojson_collection =>
-  featureCollection(
-    geojson_collection
-      .filter(({ geometry, properties }) => !!geometry && !!properties)
-      .map(({ geometry, properties }) =>
-        feature(geometry, properties)
-      )
+      return addPropsToGeoJsonByKey(subject, key)[key];
+    });
+
+const featureCollectionFromGeoJson = geojson_array => {
+  const flattened = geojson_array.reduce((array, item) => {
+    if (item.type === 'FeatureCollection') {
+      return [
+        ...array,
+        ...item.features
+      ];
+    }
+    return [
+      ...array,
+      item
+    ];
+  }, []);
+
+  return featureCollection(flattened);
+};
+
+export const createFeatureCollectionFromSubjects = subjects =>
+  featureCollectionFromGeoJson(
+    setUpSubjectGeoJson(subjects)
   );
-
-export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
-export const createFeatureCollectionFromEvents = (events, eventTypes) => featureCollectionFromGeoJson(setUpEventGeoJson(events, eventTypes));
+export const createFeatureCollectionFromEvents = (events, eventTypes) =>
+  featureCollectionFromGeoJson(
+    setUpEventGeoJson(events, eventTypes)
+  );
 
 export const pointIsInMapBounds = (coords, map) => {
   const bounds = map.getBounds();
