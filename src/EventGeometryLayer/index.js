@@ -37,7 +37,7 @@ const layout = {};
 const paint = {
   'fill-color': PRIORITY_COLOR_EXPRESSION,
   'fill-outline-color': PRIORITY_COLOR_EXPRESSION,
-  'fill-opacity': 0.65,
+  'fill-opacity': 0.4,
 };
 
 const EventGeometryLayer = ({ onClick }) => {
