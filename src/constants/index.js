@@ -330,9 +330,3 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
   ENABLE_GEOPERMISSION_UI: process.env.REACT_APP_ENABLE_GEOPERMISSION_UI === 'true',
   ENABLE_EVENT_GEOMETRY: process.env.REACT_APP_ENABLE_EVENT_GEOMETRY === 'true',
 };
-
-
-export const VALID_EVENT_GEOMETRY_TYPES = {
-  POINT: 'Point',
-  POLYGON: 'Polygon',
-};
