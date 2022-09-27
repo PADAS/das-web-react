@@ -159,6 +159,7 @@ export const eventWithPatrol = {
 
 export const events = [event1, event2, eventWithoutPatrol, eventWithPatrol];
 
+
 export const eventsWithGeometries = [
   {
     id: '3662f167-37f6-4c75-9d93-673f436aa1a6',
@@ -271,44 +272,39 @@ export const eventsWithGeometries = [
     is_contained_in: [],
     sort_at: '2022-08-08T23:27:00.304Z',
     geojson: {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Polygon',
-            coordinates: [
-              [
-                [
-                  58.31891231904782,
-                  -32.95903350246844
-                ],
-                [
-                  58.47630823380208,
-                  -32.59422031588628
-                ],
-                [
-                  58.62248893060512,
-                  -32.69629040415761
-                ],
-                [
-                  57.291173483506896,
-                  -33.91600187660145
-                ],
-                [
-                  56.81251637929487,
-                  -33.02717890265869
-                ],
-                [
-                  58.31891231904782,
-                  -32.95903350246844
-                ]
-              ]
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [
+              58.31891231904782,
+              -32.95903350246844
+            ],
+            [
+              58.47630823380208,
+              -32.59422031588628
+            ],
+            [
+              58.62248893060512,
+              -32.69629040415761
+            ],
+            [
+              57.291173483506896,
+              -33.91600187660145
+            ],
+            [
+              56.81251637929487,
+              -33.02717890265869
+            ],
+            [
+              58.31891231904782,
+              -32.95903350246844
             ]
-          }
-        }
-      ]
+          ]
+        ]
+      }
     },
     patrol_segments: [],
     updated_at: '2022-08-08T23:27:00.304Z',
@@ -2964,3 +2960,6 @@ export const eventsWithGeometries = [
     updates: []
   }
 ];
+
+export const eventWithPoint = eventsWithGeometries[0];
+export const eventWithPolygon = eventsWithGeometries[1];
