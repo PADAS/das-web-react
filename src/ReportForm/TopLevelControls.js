@@ -14,18 +14,19 @@ import ReportedBySelect from '../ReportedBySelect';
 import styles from './styles.module.scss';
 
 const ReportFormTopLevelControls = ({
-  readonly,
-  onReportDateChange,
+  geometryType,
   menuContainerRef,
+  onReportDateChange,
   onReportedByChange,
   onReportGeometryChange,
   onReportLocationChange,
+  readonly,
   report,
 }) => {
   const dispatch = useDispatch();
 
-  const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
+  const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(report));
@@ -56,6 +57,7 @@ const ReportFormTopLevelControls = ({
     </label>
 
     <LocationSelectorInput
+      geometryType={geometryType}
       location={reportLocation}
       onGeometryChange={onReportGeometryChange}
       onLocationChange={onReportLocationChange}
