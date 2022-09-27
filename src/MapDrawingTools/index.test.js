@@ -252,7 +252,7 @@ describe('MapDrawingTools', () => {
 
       await waitFor(() => {
         expect(container).toHaveTextContent('Bearing');
-        expect(container).toHaveTextContent('Distance');
+        expect(container).toHaveTextContent('Total length');
       });
 
     });
