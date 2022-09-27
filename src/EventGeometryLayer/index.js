@@ -1,4 +1,5 @@
-import React  from 'react';
+import React, { useContext }  from 'react';
+import { MapContext } from '../App';
 import { useSelector } from 'react-redux';
 import { featureCollection } from '@turf/helpers';
 
@@ -44,6 +45,8 @@ const EventGeometryLayer = ({ onClick }) => {
   const eventFeatureCollection = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate)?.Polygon ?? featureCollection([]);
   const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
 
+  const map = useContext(MapContext);
+
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
   const currentGeometryBeingEdited = isDrawingEventGeometry ?
@@ -57,6 +60,9 @@ const EventGeometryLayer = ({ onClick }) => {
     minZoom: 4,
   };
 
+  const onMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
+  const onMouseLeave = () => map.getCanvas().style.cursor = '';
+
   useMapSource(EVENT_GEOMETRY, eventFeatureCollection);
 
   useMapLayer(
@@ -69,6 +75,8 @@ const EventGeometryLayer = ({ onClick }) => {
   );
 
   useMapEventBinding('click', onClick, EVENT_GEOMETRY_LAYER);
+  useMapEventBinding('mouseenter', onMouseEnter, EVENT_GEOMETRY_LAYER);
+  useMapEventBinding('mouseleave', onMouseLeave, EVENT_GEOMETRY_LAYER);
 
   return null;
 };

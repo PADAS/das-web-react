@@ -22,7 +22,7 @@ import {
   MAX_ZOOM,
   MAP_ICON_SCALE,
 } from '../constants';
-import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
+import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import { useMapSource } from '../hooks';
@@ -81,21 +81,9 @@ const EventsLayer = ({
   minZoom,
   onEventClick,
 }) => {
-  const eventFeatureCollectionByType = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate);
+  const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
   const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
-
-  const combinedEventFeatureCollection = useMemo(() => {
-    const propsToConsider = ['Point', 'PolygonCentersOfMass'];
-
-    return featureCollection(
-      propsToConsider.reduce((accumulator, prop) => {
-        if (!eventFeatureCollectionByType[prop]) return accumulator;
-        return [...accumulator, ...eventFeatureCollectionByType[prop].features];
-      }, [])
-    );
-  }
-  , [eventFeatureCollectionByType]);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);
@@ -224,10 +212,10 @@ const EventsLayer = ({
 
   useEffect(() => {
     setEventsWithBounce({
-      ...combinedEventFeatureCollection,
-      features: addBounceToEventMapFeatures(combinedEventFeatureCollection.features, bounceEventIDs),
+      ...eventPointFeatureCollection,
+      features: addBounceToEventMapFeatures(eventPointFeatureCollection.features, bounceEventIDs),
     });
-  }, [bounceEventIDs, combinedEventFeatureCollection]);
+  }, [bounceEventIDs, eventPointFeatureCollection]);
 
   useEffect(() => {
     setBounceIDs(bounceEventIDs);
@@ -297,8 +285,8 @@ const EventsLayer = ({
       {ENABLE_EVENT_GEOMETRY && isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
 
-    {!!combinedEventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
-      reportFeatureCollection={combinedEventFeatureCollection}
+    {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
+      reportFeatureCollection={eventPointFeatureCollection}
     />}
   </>;
 };

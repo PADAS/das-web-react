@@ -55,3 +55,16 @@ export const getMapEventFeatureCollectionByTypeWithVirtualDate = createSelector(
     return mappedByType;
   }
 );
+
+export const getMapEventSymbolPointsWithVirtualDate = createSelector(
+  [getMapEventFeatureCollectionByTypeWithVirtualDate],
+  (featureCollectionsByType = {}) =>
+    featureCollection(
+      ['Point', 'PolygonCentersOfMass']
+        .reduce((accumulator, prop) =>
+          !featureCollectionsByType[prop]
+            ? accumulator
+            : [...accumulator, ...featureCollectionsByType[prop].features]
+        , [])
+    )
+);

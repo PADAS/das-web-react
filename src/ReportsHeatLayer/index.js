@@ -1,24 +1,15 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
+import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import HeatLayer from '../HeatLayer';
 
-const ReportsHeatLayer = ({ reports }) => reports?.features?.length && <HeatLayer points={reports} />;
+const ReportsHeatLayer = () => {
+  const reports = useSelector(getMapEventSymbolPointsWithVirtualDate);
 
-const mapStateToProps = state => ({
-  reports: () => {
-    const byType = getMapEventFeatureCollectionByTypeWithVirtualDate(state);
+  return reports?.features?.length && <HeatLayer points={reports} />;
+};
 
-    return ['Point', 'PolygonCentersOfMass']
-      .reduce((array, type) =>
-        byType[type]
-          ? [...array, ...byType[type]]
-          : array,
-      []);
-  },
-});
-
-export default connect(mapStateToProps, null)(memo(ReportsHeatLayer));
+export default memo(ReportsHeatLayer);
 
 /* points */

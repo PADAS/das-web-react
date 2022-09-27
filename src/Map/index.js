@@ -275,7 +275,7 @@ const Map = ({
 
         const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
-        mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
+        mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
         if (ENABLE_REPORT_NEW_UI) {
           navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
