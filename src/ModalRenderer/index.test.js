@@ -7,6 +7,7 @@ import { createMapMock } from '../__test-helpers/mocks';
 import ModalRenderer from './';
 import { mockStore } from '../__test-helpers/MockStore';
 import { removeModal } from '../ducks/modals';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
@@ -71,6 +72,7 @@ describe('ModalRenderer', () => {
 
   test('does not remove the modal when pressing escape if user is picking location', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
+    store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.DEFAULT;
 
     cleanup();
     render(
