@@ -290,7 +290,7 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [report, reportTracker]);
 
-  const onReportGeometryChange = useCallback((geometry) => {
+  const onEventGeometryChange = useCallback((geometry) => {
     updateStateReport({ ...report, geometry });
     reportTracker.track('Change Report Geometry');
   }, [report, reportTracker]);
@@ -528,11 +528,12 @@ const ReportForm = (props) => {
           geometryType={schema.geometry_type}
           map={map}
           report={report}
+          originalEvent={originalReport}
           readonly={schema.readonly}
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
-          onReportGeometryChange={onReportGeometryChange}
+          onEventGeometryChange={onEventGeometryChange}
           onReportLocationChange={onReportLocationChange} />
         <ReportFormBody
           ref={formRef}

@@ -8,11 +8,11 @@ import PropTypes from 'prop-types';
 import rewind from '@turf/rewind';
 import { useSelector } from 'react-redux';
 
-import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
-import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
+import { ReactComponent as PencilIcon } from '../../common/images/icons/pencil.svg';
+import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 
-import { truncateFloatingNumber } from '../../../utils/math';
-import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
+import { truncateFloatingNumber } from '../../utils/math';
+import { REACT_APP_MAPBOX_TOKEN } from '../../constants';
 
 import styles from './styles.module.scss';
 

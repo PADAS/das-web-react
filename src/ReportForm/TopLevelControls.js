@@ -1,14 +1,17 @@
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import { DATEPICKER_DEFAULT_CONFIG, VALID_EVENT_GEOMETRY_TYPES } from '../constants';
 import { setMapLocationSelectionEvent } from '../ducks/map-ui';
+
+import { FormDataContext } from '../EditableItem/context';
 
 import DatePicker from '../DatePicker';
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
+import AreaSelectorInput from './AreaSelectorInput';
 import ReportedBySelect from '../ReportedBySelect';
 
 import styles from './styles.module.scss';
@@ -18,12 +21,14 @@ const ReportFormTopLevelControls = ({
   menuContainerRef,
   onReportDateChange,
   onReportedByChange,
-  onReportGeometryChange,
+  onEventGeometryChange,
   onReportLocationChange,
   readonly,
-  report,
+  originalEvent,
 }) => {
   const dispatch = useDispatch();
+
+  const report = useContext(FormDataContext);
 
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
   const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
@@ -56,12 +61,17 @@ const ReportFormTopLevelControls = ({
       />
     </label>
 
-    <LocationSelectorInput
-      geometryType={geometryType}
-      location={reportLocation}
-      onGeometryChange={onReportGeometryChange}
-      onLocationChange={onReportLocationChange}
-    />
+
+    {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+      ? <AreaSelectorInput
+        originalEvent={originalEvent}
+        onGeometryChange={onEventGeometryChange}
+        />
+      : <LocationSelectorInput
+        location={reportLocation}
+        onLocationChange={onReportLocationChange}
+        />
+    }
   </div>;
 };
 
