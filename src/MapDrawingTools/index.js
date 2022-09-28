@@ -184,7 +184,7 @@ PropTypes.propTypes = {
   renderCursorPopup: PropTypes.func,
 };
 
-const DefaultCursorPopup = ({ coords, lineLength, points, children }) => {
+const DefaultCursorPopup = ({ coords, lineLength, points }) => {
   const map = useContext(MapContext);
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
@@ -208,7 +208,6 @@ const DefaultCursorPopup = ({ coords, lineLength, points, children }) => {
       </>}
       <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
     </>}
-    {children}
   </Popup>;
 };
 
