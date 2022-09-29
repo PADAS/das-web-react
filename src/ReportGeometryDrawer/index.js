@@ -1,13 +1,16 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import bbox from '@turf/bbox';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
-import { REPORT_GEOMETRY_UNDOABLE_NAMESPACE, setGeometryPoints } from '../ducks/report-geometry';
+import reportGeometryReducer, {
+  REPORT_GEOMETRY_UNDOABLE_NAMESPACE,
+  setGeometryPoints,
+} from '../ducks/report-geometry';
 import { setIsPickingLocation } from '../ducks/map-ui';
-import { reset, undo } from '../reducers/undoable';
+import undoableReducer, { calcInitialUndoableState, reset, undo } from '../reducers/undoable';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
@@ -22,39 +25,46 @@ const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
-  const geometryPoints = useSelector((state) => state.view.reportGeometry.current.points);
-  const canUndo = useSelector((state) => !!state.view.reportGeometry.past.length);
+
+  const [reportGeometry, dispatchReportGeometry] = useReducer(
+    undoableReducer(reportGeometryReducer, REPORT_GEOMETRY_UNDOABLE_NAMESPACE),
+    calcInitialUndoableState(reportGeometryReducer)
+  );
 
   const map = useContext(MapContext);
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isDrawing, setIsDrawing] = useState(true);
 
-  const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
+  const canUndo = !!reportGeometry.past.length;
+  const points = reportGeometry.current.points;
+
+  const isGeometryAValidPolygon = points.length > 2
+    && validateEventPolygonPoints([...points, points[0]]);
 
   const onClickDiscard = useCallback(() => {
-    dispatch(setGeometryPoints([]));
+    dispatchReportGeometry(setGeometryPoints([]));
     setIsDrawing(true);
-  }, [dispatch]);
+  }, []);
 
   const onUndo = useCallback(() => {
     if (canUndo) {
-      dispatch(undo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE));
+      dispatchReportGeometry(undo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE));
 
-      const undoingDiscard = geometryPoints.length === 0;
+      const undoingDiscard = points.length === 0;
       if (undoingDiscard) {
         setIsDrawing(false);
       }
     }
-  }, [canUndo, dispatch, geometryPoints.length]);
+  }, [canUndo, points]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;
 
     if (isDrawing || isNewGeometryAPolygon) {
-      dispatch(setGeometryPoints(newPoints));
+      dispatchReportGeometry(setGeometryPoints(newPoints));
     }
-  }, [dispatch, isDrawing]);
+  }, [isDrawing]);
 
   const disableSaveButton = useMemo(() =>
     isDrawing || !isGeometryAValidPolygon
@@ -65,11 +75,14 @@ const ReportGeometryDrawer = () => {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
-        setTimeout(() => dispatch(setGeometryPoints(geometryPoints)), TIMEOUT_TO_REMOVE_REDUNDANT_POINT);
+        setTimeout(
+          () => dispatchReportGeometry(setGeometryPoints(points)),
+          TIMEOUT_TO_REMOVE_REDUNDANT_POINT
+        );
         setIsDrawing(false);
       }
     }
-  }, [dispatch, geometryPoints, isGeometryAValidPolygon, map]);
+  }, [isGeometryAValidPolygon, map, points]);
 
   const onDoubleClick = useCallback(() => isGeometryAValidPolygon && setIsDrawing(false), [isGeometryAValidPolygon]);
 
@@ -107,24 +120,22 @@ const ReportGeometryDrawer = () => {
 
       map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
-      dispatch(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
-      setTimeout(() => dispatch(reset(REPORT_GEOMETRY_UNDOABLE_NAMESPACE)));
+      dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
+      setTimeout(() => dispatchReportGeometry(reset(REPORT_GEOMETRY_UNDOABLE_NAMESPACE)));
       setIsDrawing(false);
     }
-  }, [dispatch, event.geometry, map]);
+  }, [event.geometry, map]);
 
   useEffect(() => {
-    const isGeometryAPolygon = geometryPoints.length > 2;
+    const isGeometryAPolygon = points.length > 2;
     if (!isDrawing && !isGeometryAPolygon) {
       setIsDrawing(true);
     }
-  }, [geometryPoints.length, isDrawing]);
-
-  useEffect(() => () => dispatch(setGeometryPoints([])), [dispatch]);
+  }, [isDrawing, points]);
 
   return <>
     <ReportOverview
-      isDiscardButtonDisabled={!geometryPoints.length}
+      isDiscardButtonDisabled={!points.length}
       isUndoButtonDisabled={!canUndo}
       onClickDiscard={onClickDiscard}
       onClickUndo={onUndo}
@@ -133,7 +144,7 @@ const ReportGeometryDrawer = () => {
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      points={geometryPoints}
+      points={points}
     />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
   </>;

@@ -11,24 +11,10 @@ import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportGeometryDrawer from './';
-import { setGeometryPoints } from '../ducks/report-geometry';
-import { reset, undo } from '../reducers/undoable';
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
   setIsPickingLocation: jest.fn(),
-}));
-
-jest.mock('../ducks/report-geometry', () => ({
-  ...jest.requireActual('../ducks/report-geometry'),
-  setGeometryPoints: jest.fn(),
-}));
-
-jest.mock('../reducers/undoable', () => ({
-  ...jest.requireActual('../reducers/undoable'),
-  __esModule: true,
-  reset: jest.fn(),
-  undo: jest.fn(),
 }));
 
 describe('ReportGeometryDrawer', () => {
@@ -47,25 +33,19 @@ describe('ReportGeometryDrawer', () => {
   };
 
   const setMapDrawingData = jest.fn();
-  let map, resetMock, setIsPickingLocationMock, setGeometryPointsMock, store, undoMock;
+  let map, setIsPickingLocationMock, store;
 
   beforeEach(() => {
     jest.useFakeTimers();
 
     setIsPickingLocationMock = jest.fn(() => () => {});
     setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
-    setGeometryPointsMock = jest.fn(() => () => {});
-    setGeometryPoints.mockImplementation(setGeometryPointsMock);
-    resetMock = jest.fn(() => () => {});
-    reset.mockImplementation(resetMock);
-    undoMock = jest.fn(() => () => {});
-    undo.mockImplementation(undoMock);
 
     map = createMapMock();
 
     store = {
       data: { eventTypes: [], patrolTypes: [] },
-      view: { mapLocationSelection: { event: report }, reportGeometry: { current: { points: [] }, past: [] } },
+      view: { mapLocationSelection: { event: report } },
     };
   });
 
@@ -97,8 +77,6 @@ describe('ReportGeometryDrawer', () => {
   });
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55]];
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -110,6 +88,13 @@ describe('ReportGeometryDrawer', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    jest.advanceTimersByTime(60000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -121,8 +106,6 @@ describe('ReportGeometryDrawer', () => {
   });
 
   test('enables the save button if user double clicks the map after drawing a valid polygon', async () => {
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55]];
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -134,6 +117,13 @@ describe('ReportGeometryDrawer', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    jest.advanceTimersByTime(60000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -150,8 +140,6 @@ describe('ReportGeometryDrawer', () => {
   test('disables the save button if user closes an invalid polygon', async () => {
     map.queryRenderedFeatures.mockImplementation(() => []);
 
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55], [86, 52]];
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -163,6 +151,15 @@ describe('ReportGeometryDrawer', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    jest.advanceTimersByTime(60000);
+    map.__test__.fireHandlers('click', { lngLat: { lng: 86, lat: 52 } });
+    jest.advanceTimersByTime(60000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -190,80 +187,5 @@ describe('ReportGeometryDrawer', () => {
 
     expect(map.fitBounds).toHaveBeenCalledTimes(1);
     expect(map.fitBounds.mock.calls[0][0]).toEqual([-40.668725, -13.74975, 6.657425, 9.301125]);
-  });
-
-  test('cleans the polygon if user clicks discard', async () => {
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55]];
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(setGeometryPoints).toHaveBeenCalledTimes(1);
-
-    const discardButton = await screen.findByText('Discard');
-    userEvent.click(discardButton);
-
-    expect(setGeometryPoints).toHaveBeenCalledTimes(2);
-    expect(setGeometryPoints).toHaveBeenCalledWith([]);
-  });
-
-  test('triggers undo', async () => {
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55]];
-    store.view.reportGeometry.past = [{ points: [[87, 84], [88, 54]] }];
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(undo).toHaveBeenCalledTimes(0);
-
-    const undoButton = await screen.findByText('Undo');
-    userEvent.click(undoButton);
-
-    expect(undo).toHaveBeenCalledTimes(1);
-  });
-
-  test('triggers undo if user clicks backspace while drawing', async () => {
-    map.queryRenderedFeatures.mockImplementation(() => []);
-
-    report.geometry = null;
-
-    store.view.reportGeometry.current.points = [[87, 84], [88, 54], [88, 55]];
-    store.view.reportGeometry.past = [{ points: [[87, 84], [88, 54]] }];
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(undo).toHaveBeenCalledTimes(0);
-
-    userEvent.keyboard('{Backspace}');
-
-    expect(undo).toHaveBeenCalledTimes(1);
   });
 });
