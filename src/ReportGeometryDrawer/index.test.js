@@ -45,7 +45,7 @@ describe('ReportGeometryDrawer', () => {
 
     store = {
       data: { eventTypes: [], patrolTypes: [] },
-      view: { mapLocationSelection: { event: report } },
+      view: { mapLocationSelection: { event: report }, modals: { modals: [] } },
     };
 
     render(

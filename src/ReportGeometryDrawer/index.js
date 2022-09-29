@@ -20,6 +20,7 @@ const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const modals = useSelector((state) => state.view.modals.modals);
 
   const map = useContext(MapContext);
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
@@ -65,9 +66,15 @@ const ReportGeometryDrawer = () => {
       switch (event.key) {
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
+
       case 'Escape':
-        setMapDrawingData(null);
-        return dispatch(setIsPickingLocation(false));
+        const isAModalOpen = modals.some((modal) => modal.forceShowModal);
+        if (!isAModalOpen) {
+          setMapDrawingData(null);
+          return dispatch(setIsPickingLocation(false));
+        }
+        return;
+
       default:
         return;
       }
@@ -76,7 +83,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon]);
+  }, [dispatch, isDrawing, isGeometryAValidPolygon, modals, setMapDrawingData]);
 
   useEffect(() => {
     if (event?.geometry) {
