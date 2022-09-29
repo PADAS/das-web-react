@@ -17,6 +17,7 @@ jest.mock('../../ducks/modals', () => ({
 }));
 
 describe('ReportOverview', () => {
+  const onClickDiscard = jest.fn(), onClickUndo = jest.fn();
   let addModalMock, rerender, store;
 
   beforeEach(() => {
@@ -29,7 +30,12 @@ describe('ReportOverview', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
-            <ReportOverview />
+            <ReportOverview
+              isDiscardButtonDisabled={false}
+              isUndoButtonDisabled={false}
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
@@ -90,7 +96,12 @@ describe('ReportOverview', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
-            <ReportOverview />
+            <ReportOverview
+              isDiscardButtonDisabled={false}
+              isUndoButtonDisabled={false}
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
           </MapDrawingToolsContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -98,5 +109,79 @@ describe('ReportOverview', () => {
 
     expect((await screen.findByText('Area: 5km²'))).toBeDefined();
     expect((await screen.findByText('Perimeter: 10km'))).toBeDefined();
+  });
+
+  test('triggers onClickUndo', async () => {
+    expect(onClickUndo).toHaveBeenCalledTimes(0);
+
+    const undoButton = await screen.findByText('Undo');
+    userEvent.click(undoButton);
+
+    expect(onClickUndo).toHaveBeenCalledTimes(1);
+  });
+
+  test('disables undo button', async () => {
+    rerender(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <ReportOverview
+              isDiscardButtonDisabled={false}
+              isUndoButtonDisabled
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Undo'))).toHaveProperty('disabled');
+  });
+
+  test('shows the undo button tooltip', async () => {
+    expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+    const undoButton = await screen.findByText('Undo');
+    userEvent.hover(undoButton);
+
+    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Reverse your last action');
+  });
+
+  test('triggers onClickDiscard', async () => {
+    expect(onClickDiscard).toHaveBeenCalledTimes(0);
+
+    const discardButton = await screen.findByText('Discard');
+    userEvent.click(discardButton);
+
+    expect(onClickDiscard).toHaveBeenCalledTimes(1);
+  });
+
+  test('disables discard button', async () => {
+    rerender(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapDrawingToolsContextProvider>
+            <ReportOverview
+              isDiscardButtonDisabled
+              isUndoButtonDisabled={false}
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
+          </MapDrawingToolsContextProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Discard'))).toHaveProperty('disabled');
+  });
+
+  test('shows the discard button tooltip', async () => {
+    expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+    const discardButton = await screen.findByText('Discard');
+    userEvent.hover(discardButton);
+
+    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Remove all points');
   });
 });

@@ -32,7 +32,7 @@ const ReportGeometryDrawer = () => {
 
   const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
 
-  const onClickRestart = useCallback(() => {
+  const onClickDiscard = useCallback(() => {
     dispatch(setGeometryPoints([]));
     setIsDrawing(true);
   }, [dispatch]);
@@ -41,8 +41,8 @@ const ReportGeometryDrawer = () => {
     if (canUndo) {
       dispatch(undo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE));
 
-      const undoingRestart = geometryPoints.length === 0;
-      if (undoingRestart) {
+      const undoingDiscard = geometryPoints.length === 0;
+      if (undoingDiscard) {
         setIsDrawing(false);
       }
     }
@@ -88,7 +88,7 @@ const ReportGeometryDrawer = () => {
         setMapDrawingData(null);
         return dispatch(setIsPickingLocation(false));
       case 'Backspace':
-        return onUndo();
+        return isDrawing && onUndo();
       default:
         return;
       }
@@ -97,7 +97,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon, onUndo, setMapDrawingData]);
+  }, [dispatch, isDrawing, isGeometryAValidPolygon, map, onUndo, setMapDrawingData]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -124,9 +124,9 @@ const ReportGeometryDrawer = () => {
 
   return <>
     <ReportOverview
-      isRestartButtonDisabled={!geometryPoints.length}
+      isDiscardButtonDisabled={!geometryPoints.length}
       isUndoButtonDisabled={!canUndo}
-      onClickRestart={onClickRestart}
+      onClickDiscard={onClickDiscard}
       onClickUndo={onUndo}
     />
     <MapDrawingTools

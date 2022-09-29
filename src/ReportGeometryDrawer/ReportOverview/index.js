@@ -20,7 +20,7 @@ import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const ReportOverview = ({ isRestartButtonDisabled, isUndoButtonDisabled, onClickRestart, onClickUndo }) => {
+const ReportOverview = ({ isDiscardButtonDisabled, isUndoButtonDisabled, onClickDiscard, onClickUndo }) => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
@@ -89,15 +89,15 @@ const ReportOverview = ({ isRestartButtonDisabled, isUndoButtonDisabled, onClick
             overlay={(props) => <Tooltip {...props}>Remove all points</Tooltip>}
           >
             <Button
-              className={styles.restartButton}
-              disabled={isRestartButtonDisabled}
-              onClick={onClickRestart}
+              className={styles.discardButton}
+              disabled={isDiscardButtonDisabled}
+              onClick={onClickDiscard}
               onFocus={(event) => event.target.blur()}
               type="button"
               variant="secondary"
             >
               <TrashCanIcon />
-              Restart
+              Discard
             </Button>
           </OverlayTrigger>
         </div>
@@ -107,9 +107,9 @@ const ReportOverview = ({ isRestartButtonDisabled, isUndoButtonDisabled, onClick
 };
 
 ReportOverview.propTypes = {
-  isRestartButtonDisabled: PropTypes.bool.isRequired,
+  isDiscardButtonDisabled: PropTypes.bool.isRequired,
   isUndoButtonDisabled: PropTypes.bool.isRequired,
-  onClickRestart: PropTypes.func.isRequired,
+  onClickDiscard: PropTypes.func.isRequired,
   onClickUndo: PropTypes.func.isRequired,
 };
 

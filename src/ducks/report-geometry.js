@@ -12,7 +12,7 @@ export const setGeometryPoints = (points) => (dispatch) => dispatch({
 });
 
 // reducer
-const INITIAL_STATE = { points: [] };
+export const INITIAL_STATE = { points: [] };
 
 const reportGeometryReducer = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {

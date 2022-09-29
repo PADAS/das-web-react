@@ -22,7 +22,6 @@ const undoableReducer = (reducer, namespace) => {
   return (state = initialState, action) => {
     const { past, current, future } = state;
 
-
     if (action.type ===  `UNDO_${namespace}`) {
       const previous = past[past.length - 1];
       const newPast = past.slice(0, past.length - 1);
