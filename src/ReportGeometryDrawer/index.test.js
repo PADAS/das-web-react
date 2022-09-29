@@ -76,6 +76,29 @@ describe('ReportGeometryDrawer', () => {
     expect(setIsPickingLocation).toHaveBeenCalledWith(false);
   });
 
+  test('does not trigger setIsPickingLocation if user press escape while a forced modal is open', async () => {
+    store.view.modals.modals = [{ forceShowModal: true }];
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapContext.Provider value={map}>
+            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+              <ReportGeometryDrawer />
+            </MapDrawingToolsContext.Provider>
+          </MapContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+  });
+
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
     jest.advanceTimersByTime(60000);
