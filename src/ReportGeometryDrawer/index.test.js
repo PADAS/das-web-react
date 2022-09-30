@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { addModal } from '../ducks/modals';
 import { createMapMock } from '../__test-helpers/mocks';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { MapContext } from '../App';
@@ -11,6 +12,11 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import ReportGeometryDrawer from './';
+
+jest.mock('../ducks/modals', () => ({
+  ...jest.requireActual('../ducks/modals'),
+  addModal: jest.fn(),
+}));
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
@@ -33,11 +39,12 @@ describe('ReportGeometryDrawer', () => {
   };
 
   const setMapDrawingData = jest.fn();
-  let map, setIsPickingLocationMock, store;
-
+  let addModalMock, map, setIsPickingLocationMock, store;
   beforeEach(() => {
     jest.useFakeTimers();
 
+    addModalMock = jest.fn(() => () => {});
+    addModal.mockImplementation(addModalMock);
     setIsPickingLocationMock = jest.fn(() => () => {});
     setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
 
@@ -67,16 +74,24 @@ describe('ReportGeometryDrawer', () => {
     jest.restoreAllMocks();
   });
 
-  // test('triggers setIsPickingLocation with false parameter if user press escape', async () => {
-  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+  test('opens the cancellation confirmation modal when pressing Escape', async () => {
+    expect(addModal).toHaveBeenCalledTimes(0);
 
-  //   userEvent.keyboard('{Escape}');
+    userEvent.keyboard('{Escape}');
 
-  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-  //   expect(setIsPickingLocation).toHaveBeenCalledWith(false);
-  // });
+    expect(addModal).toHaveBeenCalledTimes(1);
+  });
 
-  test('does not trigger setIsPickingLocation if user press escape while a forced modal is open', async () => {
+  test('opens the cancellation confirmation modal when clicking Cancel', async () => {
+    expect(addModal).toHaveBeenCalledTimes(0);
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect(addModal).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not open the modal if there is another forced modal open', async () => {
     store.view.modals.modals = [{ forceShowModal: true }];
 
     cleanup();
@@ -92,11 +107,11 @@ describe('ReportGeometryDrawer', () => {
       </Provider>
     );
 
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+    expect(addModal).toHaveBeenCalledTimes(0);
 
     userEvent.keyboard('{Escape}');
 
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+    expect(addModal).toHaveBeenCalledTimes(0);
   });
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
