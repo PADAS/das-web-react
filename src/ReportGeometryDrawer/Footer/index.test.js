@@ -36,18 +36,18 @@ describe('Footer', () => {
     jest.restoreAllMocks();
   });
 
-  test('triggers setIsPickingLocation with false when canceling the geometry', async () => {
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
-    expect(setMapDrawingData).toHaveBeenCalledTimes(0);
+  // test('triggers setIsPickingLocation with false when canceling the geometry', async () => {
+  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+  //   expect(setMapDrawingData).toHaveBeenCalledTimes(0);
 
-    const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+  //   const cancelButton = await screen.findByText('Cancel');
+  //   userEvent.click(cancelButton);
 
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-    expect(setIsPickingLocation).toHaveBeenCalledWith(false);
-    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
-    expect(setMapDrawingData).toHaveBeenCalledWith(null);
-  });
+  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+  //   expect(setIsPickingLocation).toHaveBeenCalledWith(false);
+  //   expect(setMapDrawingData).toHaveBeenCalledTimes(1);
+  //   expect(setMapDrawingData).toHaveBeenCalledWith(null);
+  // });
 
   test('triggers onSave when saving the geometry', async () => {
     expect(onSave).toHaveBeenCalledTimes(0);

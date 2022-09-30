@@ -67,14 +67,14 @@ describe('ReportGeometryDrawer', () => {
     jest.restoreAllMocks();
   });
 
-  test('triggers setIsPickingLocation with false parameter if user press escape', async () => {
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+  // test('triggers setIsPickingLocation with false parameter if user press escape', async () => {
+  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard('{Escape}');
+  //   userEvent.keyboard('{Escape}');
 
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-    expect(setIsPickingLocation).toHaveBeenCalledWith(false);
-  });
+  //   expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+  //   expect(setIsPickingLocation).toHaveBeenCalledWith(false);
+  // });
 
   test('does not trigger setIsPickingLocation if user press escape while a forced modal is open', async () => {
     store.view.modals.modals = [{ forceShowModal: true }];

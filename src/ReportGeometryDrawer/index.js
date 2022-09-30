@@ -2,6 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useState } fr
 import bbox from '@turf/bbox';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { addModal } from '../ducks/modals';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
@@ -9,6 +10,7 @@ import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
+import CancelationConfirmationModal from './CancelationConfirmationModal';
 import Footer from './Footer';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
@@ -29,6 +31,13 @@ const ReportGeometryDrawer = () => {
   const [isDrawing, setIsDrawing] = useState(true);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
+
+  const onCancel = useCallback(() => {
+    const isAModalOpen = modals.some((modal) => modal.forceShowModal);
+    if (!isAModalOpen) {
+      dispatch(addModal({ content: CancelationConfirmationModal, forceShowModal: true }));
+    }
+  }, [dispatch, modals]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
@@ -68,12 +77,7 @@ const ReportGeometryDrawer = () => {
         return isGeometryAValidPolygon && setIsDrawing(false);
 
       case 'Escape':
-        const isAModalOpen = modals.some((modal) => modal.forceShowModal);
-        if (!isAModalOpen) {
-          setMapDrawingData(null);
-          return dispatch(setIsPickingLocation(false));
-        }
-        return;
+        return onCancel();
 
       default:
         return;
@@ -83,7 +87,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon, modals, setMapDrawingData]);
+  }, [dispatch, isDrawing, isGeometryAValidPolygon, modals, onCancel, setMapDrawingData]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -106,7 +110,7 @@ const ReportGeometryDrawer = () => {
       onClickPoint={onClickPoint}
       points={geometryPoints}
     />
-    <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
+    <Footer disableSaveButton={disableSaveButton} onCancel={onCancel} onSave={onSaveGeometry} />
   </>;
 };
 
