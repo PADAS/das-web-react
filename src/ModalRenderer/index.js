@@ -23,26 +23,25 @@ const ModalRenderer = () => {
     >
     <Suspense fallback={null}>
       {modals.map((item) => {
-        const { content: ContentComponent, backdrop = 'static', forceShowModal = false, id, modalProps, ...rest } = item;
-        const showModal = forceShowModal || canShowModals;
+        const { content: ContentComponent, backdrop = 'static', id, modalProps, ...rest } = item;
 
         const onHideModal = () => {
-          if (!isPickingLocation || forceShowModal) {
+          if (!isPickingLocation) {
             dispatch(removeModal(id));
           }
         };
 
         return !!ContentComponent && <Modal
           backdrop={backdrop}
-          backdropClassName={showModal ? styles.show : styles.hide}
+          backdropClassName={canShowModals ? styles.show : styles.hide}
           centered
-          dialogClassName={showModal ? styles.show : styles.hide}
+          dialogClassName={canShowModals ? styles.show : styles.hide}
           enforceFocus={false}
           key={id}
           show
           style={{
-            display: showModal ? 'block' : 'none',
-            opacity: showModal ? '1' : '0',
+            display: canShowModals ? 'block' : 'none',
+            opacity: canShowModals ? '1' : '0',
             transition: 'opacity 0.3s linear, display 0 linear 0.3s,'
           }}
           {...modalProps}
