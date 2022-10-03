@@ -16,6 +16,10 @@
   font-size: 0.875rem;
   margin: 0.5rem 0;
   color: $secondary-medium-gray;
+
+  img {
+    width: 100%;
+  }
   
   > * {
     flex: 1;

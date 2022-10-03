@@ -9,19 +9,19 @@ import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ReactComponent as PolygonIcon } from '../common/images/icons/polygon.svg';
+import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { hideSideBar, showSideBar } from '../ducks/side-bar';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
-import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../ducks/map-ui';
-import { setModalVisibilityState } from '../ducks/modals';
-import { truncateFloatingNumber } from '../utils/math';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { hideSideBar, showSideBar } from '../../ducks/side-bar';
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
+import { setModalVisibilityState } from '../../ducks/modals';
+import { truncateFloatingNumber } from '../../utils/math';
 
-import { FormDataContext } from '../EditableItem/context';
+import { FormDataContext } from '../../EditableItem/context';
 
-import GeometryPreview from './GeometryPreview';
-import TextCopyBtn from '../TextCopyBtn';
+import GeometryPreview from '../GeometryPreview';
+import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
