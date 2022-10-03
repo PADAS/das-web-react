@@ -91,28 +91,25 @@ describe('ReportGeometryDrawer', () => {
     expect(addModal).toHaveBeenCalledTimes(1);
   });
 
-  test('does not open the modal if there is another forced modal open', async () => {
-    store.view.modals.modals = [{ forceShowModal: true }];
+  test('shows the information modal', async () => {
+    expect((await screen.queryByText('Creating A Report Area'))).toBeNull();
 
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
 
-    expect(addModal).toHaveBeenCalledTimes(0);
-
-    userEvent.keyboard('{Escape}');
-
-    expect(addModal).toHaveBeenCalledTimes(0);
+    expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
   });
+
+  // test('does not trigger setIsPickingLocation if user press escape while a modal is open', async () => {
+  //   const informationIcon = await screen.findByText('information.svg');
+  //   userEvent.click(informationIcon);
+
+  //   expect(addModal).toHaveBeenCalledTimes(0);
+
+  //   userEvent.keyboard('{Escape}');
+
+  //   expect(addModal).toHaveBeenCalledTimes(0);
+  // });
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });

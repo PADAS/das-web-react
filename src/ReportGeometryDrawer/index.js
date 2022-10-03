@@ -5,13 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addModal } from '../ducks/modals';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
 import CancelationConfirmationModal from './CancelationConfirmationModal';
 import Footer from './Footer';
+import InformationModal from './InformationModal';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
@@ -22,22 +22,21 @@ const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
-  const modals = useSelector((state) => state.view.modals.modals);
 
   const map = useContext(MapContext);
-  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
+  const [showInformationModal, setShowInformationModal] = useState(false);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
 
   const onCancel = useCallback(() => {
-    const isAModalOpen = modals.some((modal) => modal.forceShowModal);
+    const isAModalOpen = showInformationModal;
     if (!isAModalOpen) {
       dispatch(addModal({ content: CancelationConfirmationModal, forceShowModal: true }));
     }
-  }, [dispatch, modals]);
+  }, [dispatch, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
@@ -68,6 +67,10 @@ const ReportGeometryDrawer = () => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
 
+  const onShowInformationModal = useCallback(() => setShowInformationModal(true), []);
+
+  const onHideInformationModal = useCallback(() => setShowInformationModal(false), []);
+
   useMapEventBinding('dblclick', onDoubleClick, null, isDrawing);
 
   useEffect(() => {
@@ -87,7 +90,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon, modals, onCancel, setMapDrawingData]);
+  }, [isGeometryAValidPolygon, onCancel]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -103,13 +106,14 @@ const ReportGeometryDrawer = () => {
   }, [event.geometry, map]);
 
   return <>
-    <ReportOverview />
+    <ReportOverview onShowInformationModal={onShowInformationModal} />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
       points={geometryPoints}
     />
+    <InformationModal onHide={onHideInformationModal} show={showInformationModal} />
     <Footer disableSaveButton={disableSaveButton} onCancel={onCancel} onSave={onSaveGeometry} />
   </>;
 };
