@@ -6,13 +6,7 @@ import userEvent from '@testing-library/user-event';
 import CancelationConfirmationModal from './';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { removeModal } from '../../ducks/modals';
 import { setIsPickingLocation } from '../../ducks/map-ui';
-
-jest.mock('../../ducks/modals', () => ({
-  ...jest.requireActual('../../ducks/modals'),
-  removeModal: jest.fn(),
-}));
 
 jest.mock('../../ducks/map-ui', () => ({
   ...jest.requireActual('../../ducks/map-ui'),
@@ -20,12 +14,10 @@ jest.mock('../../ducks/map-ui', () => ({
 }));
 
 describe('CancelationConfirmationModal', () => {
-  const setMapDrawingData = jest.fn();
-  let removeModalMock, setIsPickingLocationMock, store;
+  const onHide = jest.fn(), setMapDrawingData = jest.fn();
+  let setIsPickingLocationMock, store;
 
   beforeEach(() => {
-    removeModalMock = jest.fn(() => () => {});
-    removeModal.mockImplementation(removeModalMock);
     setIsPickingLocationMock = jest.fn(() => () => {});
     setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
 
@@ -34,7 +26,7 @@ describe('CancelationConfirmationModal', () => {
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-          <CancelationConfirmationModal id="123" />
+          <CancelationConfirmationModal onHide={onHide} show />
         </MapDrawingToolsContext.Provider>
       </Provider>
     );
@@ -45,29 +37,27 @@ describe('CancelationConfirmationModal', () => {
   });
 
   test('closes the modal without canceling picking a location if user clicks continue editing', async () => {
-    expect(removeModal).toHaveBeenCalledTimes(0);
+    expect(onHide).toHaveBeenCalledTimes(0);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
     expect(setMapDrawingData).toHaveBeenCalledTimes(0);
 
     const continueEditingButton = await screen.findByText('Continue Editing');
     userEvent.click(continueEditingButton);
 
-    expect(removeModal).toHaveBeenCalledTimes(1);
-    expect(removeModal).toHaveBeenCalledWith('123');
+    expect(onHide).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
     expect(setMapDrawingData).toHaveBeenCalledTimes(0);
   });
 
   test('closes the modal and cancels picking a location if user clicks discard', async () => {
-    expect(removeModal).toHaveBeenCalledTimes(0);
+    expect(onHide).toHaveBeenCalledTimes(0);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
     expect(setMapDrawingData).toHaveBeenCalledTimes(0);
 
     const discartButton = await screen.findByText('Discard');
     userEvent.click(discartButton);
 
-    expect(removeModal).toHaveBeenCalledTimes(1);
-    expect(removeModal).toHaveBeenCalledWith('123');
+    expect(onHide).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(false);
     expect(setMapDrawingData).toHaveBeenCalledTimes(1);

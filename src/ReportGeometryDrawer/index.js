@@ -1,10 +1,11 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import bbox from '@turf/bbox';
+import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { addModal } from '../ducks/modals';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -24,19 +25,36 @@ const ReportGeometryDrawer = () => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const map = useContext(MapContext);
+  const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
+  const [showCancellationConfirmationModal, setShowCancellationConfirmationModal] = useState(false);
   const [showInformationModal, setShowInformationModal] = useState(false);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
 
   const onCancel = useCallback(() => {
+    let originalPoints = [];
+    if (event?.geometry) {
+      const eventPolygon = event.geometry.type === 'FeatureCollection'
+        ? event.geometry.features[0]
+        : event.geometry;
+
+      originalPoints = eventPolygon.geometry.coordinates[0].slice(0, -1);
+    }
+
+    const didUserMakeChanges = !isEqual(geometryPoints, originalPoints);
     const isAModalOpen = showInformationModal;
     if (!isAModalOpen) {
-      dispatch(addModal({ content: CancelationConfirmationModal, forceShowModal: true }));
+      if (didUserMakeChanges) {
+        setShowCancellationConfirmationModal(true);
+      } else {
+        setMapDrawingData(null);
+        dispatch(setIsPickingLocation(false));
+      }
     }
-  }, [dispatch, showInformationModal]);
+  }, [dispatch, event.geometry, geometryPoints, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAValidPolygon = newPoints.length > 2;
@@ -66,6 +84,8 @@ const ReportGeometryDrawer = () => {
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
+
+  const onHideCancellationConfirmationModal = useCallback(() => setShowCancellationConfirmationModal(false), []);
 
   const onShowInformationModal = useCallback(() => setShowInformationModal(true), []);
 
@@ -114,6 +134,10 @@ const ReportGeometryDrawer = () => {
       points={geometryPoints}
     />
     <InformationModal onHide={onHideInformationModal} show={showInformationModal} />
+    <CancelationConfirmationModal
+      onHide={onHideCancellationConfirmationModal}
+      show={showCancellationConfirmationModal}
+    />
     <Footer disableSaveButton={disableSaveButton} onCancel={onCancel} onSave={onSaveGeometry} />
   </>;
 };
