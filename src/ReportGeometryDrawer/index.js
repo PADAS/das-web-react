@@ -10,7 +10,7 @@ import reportGeometryReducer, {
   setGeometryPoints,
 } from '../ducks/report-geometry';
 import { setIsPickingLocation } from '../ducks/map-ui';
-import undoableReducer, { calcInitialUndoableState, reset, undo } from '../reducers/undoable';
+import undoableReducer, { reset, undo } from '../reducers/undoable';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
@@ -28,7 +28,7 @@ const ReportGeometryDrawer = () => {
 
   const [reportGeometry, dispatchReportGeometry] = useReducer(
     undoableReducer(reportGeometryReducer, REPORT_GEOMETRY_UNDOABLE_NAMESPACE),
-    calcInitialUndoableState(reportGeometryReducer)
+    { past: [], current: { points: [] }, future: [] }
   );
 
   const map = useContext(MapContext);
@@ -51,12 +51,16 @@ const ReportGeometryDrawer = () => {
     if (canUndo) {
       dispatchReportGeometry(undo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE));
 
+      console.log(reportGeometry.past);
+      const isPastGeometryAPolygon = reportGeometry.past[reportGeometry.past.length - 1].points.length > 2;
       const undoingDiscard = points.length === 0;
-      if (undoingDiscard) {
+      if (!isPastGeometryAPolygon) {
+        setIsDrawing(true);
+      } else if (undoingDiscard) {
         setIsDrawing(false);
       }
     }
-  }, [canUndo, points]);
+  }, [canUndo, points.length, reportGeometry.past]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;
@@ -125,13 +129,6 @@ const ReportGeometryDrawer = () => {
       setIsDrawing(false);
     }
   }, [event.geometry, map]);
-
-  useEffect(() => {
-    const isGeometryAPolygon = points.length > 2;
-    if (!isDrawing && !isGeometryAPolygon) {
-      setIsDrawing(true);
-    }
-  }, [isDrawing, points]);
 
   return <>
     <ReportOverview
