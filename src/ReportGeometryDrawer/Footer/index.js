@@ -9,7 +9,7 @@ import { setIsPickingLocation } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
-const Footer = ({ disableSaveButton, onSave }) => {
+const Footer = ({ isDrawing, isGeometryAValidPolygon, onSave }) => {
   const dispatch = useDispatch();
 
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
@@ -19,6 +19,11 @@ const Footer = ({ disableSaveButton, onSave }) => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch, setMapDrawingData]);
 
+  const disableSaveButton = isDrawing || !isGeometryAValidPolygon;
+  const tooltipText = isDrawing
+    ? 'Only closed shapes can be saved'
+    : 'Segments of the shape cannot intersect';
+
   return <div className={styles.footer}>
     <Button className={styles.cancelButton} onClick={onClickCancel} type="button" variant="secondary">
       Cancel
@@ -26,7 +31,7 @@ const Footer = ({ disableSaveButton, onSave }) => {
 
     <OverlayTrigger
       placement="top"
-      overlay={(props) => disableSaveButton ? <Tooltip {...props}>Only closed shapes can be saved</Tooltip> : <div />}
+      overlay={(props) => disableSaveButton ? <Tooltip {...props}>{tooltipText}</Tooltip> : <div />}
     >
       {/* Custom disable styles since Bootstrap OverlayTrigger component stops working (this is a known issue) */}
       <Button

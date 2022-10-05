@@ -26,7 +26,7 @@ describe('Footer', () => {
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-          <Footer onSave={onSave} />
+          <Footer isDrawing={false} isGeometryAValidPolygon onSave={onSave} />
         </MapDrawingToolsContext.Provider>
       </Provider>
     );
@@ -58,12 +58,12 @@ describe('Footer', () => {
     expect(onSave).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the save button tooltip if it is disabled', async () => {
+  test('shows the save button tooltip if polygon is not closed', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-          <Footer disableSaveButton={true} onSave={onSave} />
+          <Footer isDrawing isGeometryAValidPolygon onSave={onSave} />
         </MapDrawingToolsContext.Provider>
       </Provider>
     );
@@ -75,12 +75,29 @@ describe('Footer', () => {
     expect((await screen.findByRole('tooltip'))).toHaveTextContent('Only closed shapes can be saved');
   });
 
-  test('shows the save button tooltip if it is enabled', async () => {
+  test('shows the save button tooltip if polygon is not valid', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-          <Footer disableSaveButton={false} onSave={onSave} />
+          <Footer isDrawing={false} isGeometryAValidPolygon={false} onSave={onSave} />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+    expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.hover(saveButton);
+
+    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Segments of the shape cannot intersect');
+  });
+
+  test('does not show the save button tooltip if there is a valid closed polygon', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+          <Footer isDrawing={false} isGeometryAValidPolygon onSave={onSave} />
         </MapDrawingToolsContext.Provider>
       </Provider>
     );

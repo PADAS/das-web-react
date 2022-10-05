@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import bbox from '@turf/bbox';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -65,10 +65,6 @@ const ReportGeometryDrawer = () => {
       dispatchReportGeometry(setGeometryPoints(newPoints));
     }
   }, [isDrawing]);
-
-  const disableSaveButton = useMemo(() =>
-    isDrawing || !isGeometryAValidPolygon
-  , [isGeometryAValidPolygon, isDrawing]);
 
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
@@ -146,7 +142,7 @@ const ReportGeometryDrawer = () => {
       onClickPoint={onClickPoint}
       points={points}
     />
-    <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
+    <Footer isDrawing={isDrawing} isGeometryAValidPolygon={isGeometryAValidPolygon} onSave={onSaveGeometry} />
   </>;
 };
 
