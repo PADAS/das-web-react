@@ -6,10 +6,10 @@ import userEvent from '@testing-library/user-event';
 import { createMapMock } from '../__test-helpers/mocks';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { MapContext } from '../App';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
-import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import ReportGeometryDrawer from './';
 
 jest.mock('../ducks/map-ui', () => ({
@@ -61,8 +61,6 @@ describe('ReportGeometryDrawer', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -77,7 +75,7 @@ describe('ReportGeometryDrawer', () => {
 
   test('opens the cancellation confirmation modal when pressing Escape if user made a change', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     expect((await screen.queryByText('Discard Changes'))).toBeNull();
 
@@ -88,7 +86,7 @@ describe('ReportGeometryDrawer', () => {
 
   test('opens the cancellation confirmation modal when clicking Cancel if user made a change', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     expect((await screen.queryByText('Discard Changes'))).toBeNull();
 
@@ -122,11 +120,11 @@ describe('ReportGeometryDrawer', () => {
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -139,18 +137,18 @@ describe('ReportGeometryDrawer', () => {
 
   test('enables the save button if user double clicks the map after drawing a valid polygon', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
     expect(saveButton).toHaveClass('disabled');
 
     map.__test__.fireHandlers('dblclick', { lngLat: { lng: 87, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     await waitFor(() => {
       expect(saveButton).not.toHaveClass('disabled');
@@ -160,14 +158,27 @@ describe('ReportGeometryDrawer', () => {
   test('disables the save button if user closes an invalid polygon', async () => {
     map.queryRenderedFeatures.mockImplementation(() => []);
 
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MapContext.Provider value={map}>
+            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+              <ReportGeometryDrawer />
+            </MapDrawingToolsContext.Provider>
+          </MapContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 86, lat: 52 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -178,10 +189,9 @@ describe('ReportGeometryDrawer', () => {
     expect(saveButton).toHaveClass('disabled');
   });
 
-  test('moves the map to geometry bbox if the event has already on', async () => {
+  test('moves the map to geometry bbox if the event has already one', async () => {
     report.geometry = geometryExample;
 
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>

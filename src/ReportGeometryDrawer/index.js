@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import bbox from '@turf/bbox';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import reportGeometryReducer, { reset, setGeometryPoints, undo } from '../ducks/report-geometry';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
@@ -24,15 +25,44 @@ const ReportGeometryDrawer = () => {
 
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
+  const [reportGeometry, dispatchReportGeometry] = useReducer(
+    reportGeometryReducer,
+    { past: [], current: { points: [] }, future: [] }
+  );
+
   const map = useContext(MapContext);
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
-  const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
   const [showCancellationConfirmationModal, setShowCancellationConfirmationModal] = useState(false);
   const [showInformationModal, setShowInformationModal] = useState(false);
 
-  const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
+  const canUndo = !!reportGeometry.past.length;
+  const points = reportGeometry.current.points;
+
+  const isGeometryAValidPolygon = points.length > 2
+    && validateEventPolygonPoints([...points, points[0]]);
+
+  const onClickDiscard = useCallback(() => {
+    dispatchReportGeometry(setGeometryPoints([]));
+    setIsDrawing(true);
+  }, []);
+
+  const onUndo = useCallback(() => {
+    if (canUndo) {
+      dispatchReportGeometry(undo());
+
+      const isPastGeometryAPolygon = reportGeometry.past.at(-1).points.length > 2;
+      if (!isPastGeometryAPolygon && !isDrawing) {
+        return setIsDrawing(true);
+      }
+
+      const undoingDiscard = points.length === 0;
+      if (undoingDiscard && isPastGeometryAPolygon && isDrawing) {
+        return setIsDrawing(false);
+      }
+    }
+  }, [canUndo, isDrawing, points.length, reportGeometry.past]);
 
   const onCancel = useCallback(() => {
     let originalPoints = [];
@@ -44,7 +74,7 @@ const ReportGeometryDrawer = () => {
       originalPoints = eventPolygon.geometry.coordinates[0].slice(0, -1);
     }
 
-    const didUserMakeChanges = !isEqual(geometryPoints, originalPoints);
+    const didUserMakeChanges = !isEqual(points, originalPoints);
     const isAModalOpen = showInformationModal;
     if (!isAModalOpen) {
       if (didUserMakeChanges) {
@@ -54,13 +84,13 @@ const ReportGeometryDrawer = () => {
         dispatch(setIsPickingLocation(false));
       }
     }
-  }, [dispatch, event.geometry, geometryPoints, setMapDrawingData, showInformationModal]);
+  }, [dispatch, event.geometry, points, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
-    const isNewGeometryAValidPolygon = newPoints.length > 2;
+    const isNewGeometryAPolygon = newPoints.length > 2;
 
-    if (isDrawing || isNewGeometryAValidPolygon) {
-      setGeometryPoints(newPoints);
+    if (isDrawing || isNewGeometryAPolygon) {
+      dispatchReportGeometry(setGeometryPoints(newPoints));
     }
   }, [isDrawing]);
 
@@ -73,11 +103,14 @@ const ReportGeometryDrawer = () => {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
-        setTimeout(() => setGeometryPoints(geometryPoints), TIMEOUT_TO_REMOVE_REDUNDANT_POINT);
+        setTimeout(
+          () => dispatchReportGeometry(setGeometryPoints(points)),
+          TIMEOUT_TO_REMOVE_REDUNDANT_POINT
+        );
         setIsDrawing(false);
       }
     }
-  }, [geometryPoints, isGeometryAValidPolygon, map]);
+  }, [isGeometryAValidPolygon, map, points]);
 
   const onDoubleClick = useCallback(() => isGeometryAValidPolygon && setIsDrawing(false), [isGeometryAValidPolygon]);
 
@@ -102,6 +135,9 @@ const ReportGeometryDrawer = () => {
       case 'Escape':
         return onCancel();
 
+      case 'Backspace':
+        return isDrawing && onUndo();
+
       default:
         return;
       }
@@ -110,7 +146,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isGeometryAValidPolygon, onCancel]);
+  }, [isDrawing, isGeometryAValidPolygon, onCancel, onUndo]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -120,18 +156,25 @@ const ReportGeometryDrawer = () => {
 
       map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
-      setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1));
+      dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
+      setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
   }, [event.geometry, map]);
 
   return <>
-    <ReportOverview onShowInformationModal={onShowInformationModal} />
+    <ReportOverview
+      isDiscardButtonDisabled={!points.length}
+      isUndoButtonDisabled={!canUndo}
+      onClickDiscard={onClickDiscard}
+      onClickUndo={onUndo}
+      onShowInformationModal={onShowInformationModal}
+    />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
-      points={geometryPoints}
+      points={points}
     />
     <InformationModal onHide={onHideInformationModal} show={showInformationModal} />
     <CancelationConfirmationModal
