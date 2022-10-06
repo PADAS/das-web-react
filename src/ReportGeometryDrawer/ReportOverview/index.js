@@ -18,6 +18,9 @@ import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
+const TOOLTIP_SHOW_TIME = 500;
+const TOOLTIP_HIDE_TIME = 150;
+
 const ReportOverview = ({
   isDiscardButtonDisabled,
   isUndoButtonDisabled,
@@ -66,8 +69,9 @@ const ReportOverview = ({
 
         <div className={styles.buttons}>
           <OverlayTrigger
-            placement="bottom"
+            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Reverse your last action</Tooltip>}
+            placement="bottom"
           >
             <Button
               className={styles.undoButton}
@@ -83,8 +87,9 @@ const ReportOverview = ({
           </OverlayTrigger>
 
           <OverlayTrigger
-            placement="bottom"
+            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Remove all points</Tooltip>}
+            placement="bottom"
           >
             <Button
               className={styles.discardButton}

@@ -6,12 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
-import reportGeometryReducer, {
-  REPORT_GEOMETRY_UNDOABLE_NAMESPACE,
-  setGeometryPoints,
-} from '../ducks/report-geometry';
+import reportGeometryReducer, { reset, setGeometryPoints, undo } from '../ducks/report-geometry';
 import { setIsPickingLocation } from '../ducks/map-ui';
-import undoableReducer, { reset, undo } from '../reducers/undoable';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
@@ -30,7 +26,7 @@ const ReportGeometryDrawer = () => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const [reportGeometry, dispatchReportGeometry] = useReducer(
-    undoableReducer(reportGeometryReducer, REPORT_GEOMETRY_UNDOABLE_NAMESPACE),
+    reportGeometryReducer,
     { past: [], current: { points: [] }, future: [] }
   );
 
@@ -54,18 +50,19 @@ const ReportGeometryDrawer = () => {
 
   const onUndo = useCallback(() => {
     if (canUndo) {
-      dispatchReportGeometry(undo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE));
+      dispatchReportGeometry(undo());
 
-      console.log(reportGeometry.past);
-      const isPastGeometryAPolygon = reportGeometry.past[reportGeometry.past.length - 1].points.length > 2;
+      const isPastGeometryAPolygon = reportGeometry.past.at(-1).points.length > 2;
+      if (!isPastGeometryAPolygon && !isDrawing) {
+        return setIsDrawing(true);
+      }
+
       const undoingDiscard = points.length === 0;
-      if (!isPastGeometryAPolygon) {
-        setIsDrawing(true);
-      } else if (undoingDiscard) {
-        setIsDrawing(false);
+      if (undoingDiscard && isPastGeometryAPolygon && isDrawing) {
+        return setIsDrawing(false);
       }
     }
-  }, [canUndo, points.length, reportGeometry.past]);
+  }, [canUndo, isDrawing, points.length, reportGeometry.past]);
 
   const onCancel = useCallback(() => {
     let originalPoints = [];
@@ -160,7 +157,7 @@ const ReportGeometryDrawer = () => {
       map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
       dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
-      setTimeout(() => dispatchReportGeometry(reset(REPORT_GEOMETRY_UNDOABLE_NAMESPACE)));
+      setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
   }, [event.geometry, map]);
