@@ -8,7 +8,18 @@ import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS, VALID_EVENT_GEOMETRY_TYPES } from 
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, calcDisplayPriorityForReport, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
+import {
+  addPatrolSegmentToEvent,
+  calcDisplayPriorityForReport,
+  calcGeometryTypeForReport,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
+  createNewIncidentCollection,
+  openModalForReport,
+  displayTitleForEvent,
+  eventTypeTitleForEvent,
+  generateErrorListForApiResponseDetails,
+} from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
@@ -76,6 +87,10 @@ const ReportForm = (props) => {
 
   const displayPriority = useMemo(() =>
     calcDisplayPriorityForReport(report, eventTypes)
+  , [eventTypes, report]);
+
+  const geometryType = useMemo(() =>
+    calcGeometryTypeForReport(report, eventTypes)
   , [eventTypes, report]);
 
   const handleSaveError = useCallback((e) => {
@@ -525,7 +540,7 @@ const ReportForm = (props) => {
       </IncidentReportsList>}
       {!is_collection && <Fragment>
         <ReportFormTopLevelControls
-          geometryType={schema.geometry_type}
+          geometryType={geometryType}
           map={map}
           report={report}
           originalEvent={originalReport}
