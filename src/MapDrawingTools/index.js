@@ -38,7 +38,7 @@ const MapDrawingTools = ({
   onClickLine = noop,
   onClickPoint = noop,
   points,
-  renderCursorPopup = noop,
+  renderCursorPopup = defaultCursorPopupRenderFn,
 }) => {
   const map = useContext(MapContext);
 
@@ -142,14 +142,13 @@ const MapDrawingTools = ({
   if (!showLayer) return null;
 
   return <>
-    <CursorPopup
-      coords={cursorPopupCoords}
-      drawing={drawing}
-      isHoveringMidpoint={isHoveringMidpoint}
-      lineLength={data?.drawnLineSegments?.properties?.lengthLabel}
-      points={points}
-      render={renderCursorPopup}
-    />
+    {renderCursorPopup({
+      coords: cursorPopupCoords,
+      drawing,
+      isHoveringMidpoint,
+      lineLength: data?.drawnLineSegments?.properties?.lengthLabel,
+      points,
+    })}
     <MapLayers
       displayConfig={displayConfig}
       draggedPoint={draggedPoint}
@@ -182,7 +181,7 @@ PropTypes.propTypes = {
   renderCursorPopup: PropTypes.func,
 };
 
-const CursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points, render }) => {
+const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => {
   const map = useContext(MapContext);
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
@@ -204,11 +203,18 @@ const CursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points, 
           <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
 
           <p>Distance: {lineLength}</p>
-
-          {render()}
         </>}
+        <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
       </>}
     </> : <span>Click &amp; drag to add a point</span>
     }
   </Popup> : null;
 };
+
+const defaultCursorPopupRenderFn = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => <DefaultCursorPopup
+  coords={coords}
+  drawing={drawing}
+  isHoveringMidpoint={isHoveringMidpoint}
+  lineLength={lineLength}
+  points={points}
+/>;
