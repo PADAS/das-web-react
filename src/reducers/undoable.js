@@ -6,6 +6,10 @@ export const redo = (namespace) => ({
   type: `REDO_${namespace}`,
 });
 
+export const reset = (namespace) => ({
+  type: `RESET_${namespace}`,
+});
+
 export const calcInitialUndoableState = (reducer) => ({
   past: [],
   current: reducer(undefined, {}),
@@ -17,7 +21,6 @@ const undoableReducer = (reducer, namespace) => {
 
   return (state = initialState, action) => {
     const { past, current, future } = state;
-
 
     if (action.type ===  `UNDO_${namespace}`) {
       const previous = past[past.length - 1];
@@ -37,6 +40,10 @@ const undoableReducer = (reducer, namespace) => {
         current: next,
         future: newFuture
       };
+    }
+
+    if (action.type === `RESET_${namespace}`) {
+      return { past: [], current, future: [] };
     }
 
     const newPresent = reducer(current, action);

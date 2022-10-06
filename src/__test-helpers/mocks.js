@@ -12,6 +12,7 @@ export const createMapMock = (override = {}) => {
     addLayer: jest.fn(),
     moveLayer: jest.fn(),
     removeLayer: jest.fn(),
+    removeFeatureState: jest.fn(),
     on: jest.fn(),
     once: jest.fn(),
     off: jest.fn(),

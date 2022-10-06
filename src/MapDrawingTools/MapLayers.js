@@ -41,6 +41,7 @@ const MapDrawingLayers = ({
   fillPolygon,
   isHoveringGeometry,
   setIsHoveringGeometry,
+  setIsHoveringMidpoint,
 }) => {
   const map = useContext(MapContext);
 
@@ -66,26 +67,31 @@ const MapDrawingLayers = ({
     setIsHoveringCircle(true);
 
     const hoveredPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-      .find((point) => point.properties.pointHover);
+      .find((point) => point.properties.pointHover || point.properties.midpointHover);
     if (hoveredPoint) {
       map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: hoveredPoint.id }, { isHovering: true });
     }
 
+    if (hoveredPoint.properties.midpointHover) {
+      setIsHoveringMidpoint(true);
+    }
+
     map.getCanvas().style.cursor = 'pointer';
-  }, [map]);
+  }, [map, setIsHoveringMidpoint]);
 
   const onCircleMouseLeave = useCallback(() => {
     setIsHoveringCircle(false);
+    setIsHoveringMidpoint(false);
 
     map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
-      .filter((point) => point.properties.pointHover)
+      .filter((point) => point.properties.pointHover || point.properties.midpointHover)
       .forEach((point) => map.setFeatureState(
         { source: SOURCE_IDS.POINT_SOURCE, id: point.id },
         { isHovering: false })
       );
 
     map.getCanvas().style.cursor = '';
-  }, [map]);
+  }, [map, setIsHoveringMidpoint]);
 
   const onFillMouseEnter = useCallback(() => setIsHoveringPolygonFill(true), []);
 
