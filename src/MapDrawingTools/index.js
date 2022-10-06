@@ -204,7 +204,7 @@ const DefaultCursorPopup = ({ coords, lineLength, points }) => {
       {!showPromptForSecondPoint && <>
         <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
 
-        <p>Total length: {lineLength}</p>
+        <p>Distance: {lineLength}</p>
       </>}
       <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
     </>}
