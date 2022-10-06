@@ -8,7 +8,7 @@ describe('Footer', () => {
   const onCancel = jest.fn(), onSave = jest.fn();
   let rerender;
   beforeEach(() => {
-    ({ rerender } = render(<Footer onCancel={onCancel} onSave={onSave} />));
+    ({ rerender } = render(<Footer isDrawing={false} isGeometryAValidPolygon onCancel={onCancel} onSave={onSave} />));
   });
 
   afterEach(() => {
@@ -34,7 +34,7 @@ describe('Footer', () => {
   });
 
   test('shows the save button tooltip if it is disabled', async () => {
-    rerender(<Footer disableSaveButton onCancel={onCancel} onSave={onSave} />);
+    rerender(<Footer isDrawing isGeometryAValidPolygon onCancel={onCancel} onSave={onSave} />);
 
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
@@ -44,7 +44,20 @@ describe('Footer', () => {
     expect((await screen.findByRole('tooltip'))).toHaveTextContent('Only closed shapes can be saved');
   });
 
-  test('shows the save button tooltip if it is enabled', async () => {
+  test('shows the save button tooltip if polygon is not valid', async () => {
+    rerender(<Footer isDrawing={false} isGeometryAValidPolygon={false} onCancel={onCancel} onSave={onSave} />);
+
+    expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.hover(saveButton);
+
+    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Segments of the shape cannot intersect');
+  });
+
+  test('does not show the save button tooltip if there is a valid closed polygon', async () => {
+    rerender(<Footer isDrawing={false} isGeometryAValidPolygon onCancel={onCancel} onSave={onSave} />);
+
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
     const saveButton = await screen.findByText('Save');

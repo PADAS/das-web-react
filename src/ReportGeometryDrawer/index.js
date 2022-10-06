@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useReducer, useState } from 'react';
 import bbox from '@turf/bbox';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
@@ -94,10 +94,6 @@ const ReportGeometryDrawer = () => {
     }
   }, [isDrawing]);
 
-  const disableSaveButton = useMemo(() =>
-    isDrawing || !isGeometryAValidPolygon
-  , [isGeometryAValidPolygon, isDrawing]);
-
   const onClickPoint = useCallback((event) => {
     if (isGeometryAValidPolygon) {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
@@ -181,7 +177,7 @@ const ReportGeometryDrawer = () => {
       onHide={onHideCancellationConfirmationModal}
       show={showCancellationConfirmationModal}
     />
-    <Footer disableSaveButton={disableSaveButton} onCancel={onCancel} onSave={onSaveGeometry} />
+    <Footer isDrawing={isDrawing} isGeometryAValidPolygon={isGeometryAValidPolygon} onCancel={onCancel} onSave={onSaveGeometry} />
   </>;
 };
 

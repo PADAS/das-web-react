@@ -35,7 +35,11 @@ export const symbolPaint = {
 export const circlePaint = {
   'circle-radius': [
     'case',
-    ['==', ['get', 'pointHover'], true],
+    [
+      'any',
+      ['==', ['get', 'pointHover'], true],
+      ['==', ['get', 'midpointHover'], true],
+    ],
     11,
     5,
   ],
@@ -46,6 +50,7 @@ export const circlePaint = {
       'any',
       ['==', ['get', 'midpoint'], true],
       ['==', ['get', 'pointHover'], true],
+      ['==', ['get', 'midpointHover'], true],
     ],
     'white',
     'orange',
@@ -64,7 +69,11 @@ export const circlePaint = {
 
   'circle-opacity': [
     'case',
-    ['==', ['get', 'pointHover'], true],
+    [
+      'any',
+      ['==', ['get', 'pointHover'], true],
+      ['==', ['get', 'midpointHover'], true],
+    ],
     [
       'case',
       ['==', ['feature-state', 'isHovering'], true],
@@ -76,7 +85,11 @@ export const circlePaint = {
 
   'circle-stroke-width': [
     'case',
-    ['==', ['get', 'pointHover'], true],
+    [
+      'any',
+      ['==', ['get', 'pointHover'], true],
+      ['==', ['get', 'midpointHover'], true],
+    ],
     0,
     2,
   ],

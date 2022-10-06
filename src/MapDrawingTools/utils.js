@@ -69,7 +69,7 @@ export const createMidpointsGeoJsonForCoords = (coords) => {
     return accumulator;
   }, []);
 
-  const midpointHovers = midpoints.map((midpoint) => ({ ...midpoint, properties: { pointHover: true } }));
+  const midpointHovers = midpoints.map((midpoint) => ({ ...midpoint, properties: { midpointHover: true } }));
 
   return featureCollection([ ...midpointHovers, ...midpoints ]);
 };

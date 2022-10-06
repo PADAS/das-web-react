@@ -43,7 +43,8 @@ const MapDrawingTools = ({
   const map = useContext(MapContext);
 
   const [draggedPoint, setDraggedPoint] = useState(null);
-  const [isHoveringGeometry, setIsHoveringGeometry] = useState(null);
+  const [isHoveringGeometry, setIsHoveringGeometry] = useState(false);
+  const [isHoveringMidpoint, setIsHoveringMidpoint] = useState(false);
   const [pointerLocation, setPointerLocation] = useState(null);
 
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
@@ -63,7 +64,7 @@ const MapDrawingTools = ({
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
       const selectedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-        .find((point) => !point.properties.pointHover);
+        .find((point) => !point.properties.pointHover && !point.properties.midpointHover);
       if (selectedPoint) {
         map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: selectedPoint.id }, { selected: true });
       }
@@ -84,7 +85,7 @@ const MapDrawingTools = ({
 
   const onMouseDownPoint = useCallback((event) => {
     const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-      .find((point) => !point.properties.pointHover);
+      .find((point) => !point.properties.pointHover && !point.properties.midpointHover);
     if (clickedPoint) {
       event.preventDefault();
 
@@ -141,14 +142,13 @@ const MapDrawingTools = ({
   if (!showLayer) return null;
 
   return <>
-    {drawing
-      &&
-      renderCursorPopup({
-        coords: cursorPopupCoords,
-        lineLength: data?.drawnLineSegments?.properties?.lengthLabel,
-        points,
-      })
-    }
+    {renderCursorPopup({
+      coords: cursorPopupCoords,
+      drawing,
+      isHoveringMidpoint,
+      lineLength: data?.drawnLineSegments?.properties?.lengthLabel,
+      points,
+    })}
     <MapLayers
       displayConfig={displayConfig}
       draggedPoint={draggedPoint}
@@ -159,6 +159,7 @@ const MapDrawingTools = ({
       fillPolygon={data?.fillPolygon}
       isHoveringGeometry={isHoveringGeometry}
       setIsHoveringGeometry={setIsHoveringGeometry}
+      setIsHoveringMidpoint={setIsHoveringMidpoint}
     />
     {children}
   </>;
@@ -180,13 +181,13 @@ PropTypes.propTypes = {
   renderCursorPopup: PropTypes.func,
 };
 
-const DefaultCursorPopup = ({ coords, lineLength, points }) => {
+const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => {
   const map = useContext(MapContext);
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
   const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
 
-  return <Popup
+  return drawing || isHoveringMidpoint ? <Popup
     className={`${styles.popup} ${styles.notDone}`}
     data-testid='drawing-tools-popup'
     map={map}
@@ -194,17 +195,26 @@ const DefaultCursorPopup = ({ coords, lineLength, points }) => {
     coordinates={coords}
     anchor="left"
     >
-    {points.length === 0 && <p>Click to add a point</p>}
+    {drawing ? <>
+      {points.length === 0 && <p>Click to add a point</p>}
 
-    {!!points.length && <>
-      {!showPromptForSecondPoint && <>
-        <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
+      {!!points.length && <>
+        {!showPromptForSecondPoint && <>
+          <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
 
-        <p>Distance: {lineLength}</p>
+          <p>Distance: {lineLength}</p>
+        </>}
+        <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
       </>}
-      <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
-    </>}
-  </Popup>;
+    </> : <span>Click &amp; drag to add a point</span>
+    }
+  </Popup> : null;
 };
 
-const defaultCursorPopupRenderFn = ({ coords, lineLength, points }) => <DefaultCursorPopup coords={coords} lineLength={lineLength} points={points} />;
+const defaultCursorPopupRenderFn = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => <DefaultCursorPopup
+  coords={coords}
+  drawing={drawing}
+  isHoveringMidpoint={isHoveringMidpoint}
+  lineLength={lineLength}
+  points={points}
+/>;
