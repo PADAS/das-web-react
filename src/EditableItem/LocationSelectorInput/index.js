@@ -40,7 +40,7 @@ const calculateInputDisplayString = (event, gpsFormat, location, placeholder, ge
     const geometryAreaTruncated = truncateFloatingNumber(geometryArea, 2);
     const geometryPerimeterTruncated = truncateFloatingNumber(length(event.geometry), 2);
     return `${geometryAreaTruncated} km² area, ${geometryPerimeterTruncated} km perimeter`;
-  } else if (location) {
+  } else if (location && geometryType !== VALID_EVENT_GEOMETRY_TYPES.POLYGON) {
     return calcGpsDisplayString(location[1], location[0], gpsFormat);
   } else if (!placeholder && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON) {
     return 'Set report area';

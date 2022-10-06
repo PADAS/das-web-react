@@ -4,7 +4,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
@@ -12,17 +12,22 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 import { ReactComponent as UndoArrowIcon } from '../../common/images/icons/undo-arrow.svg';
 
-import { addModal } from '../../ducks/modals';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
-import InformationModal from './../InformationModal';
 import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const ReportOverview = ({ isDiscardButtonDisabled, isUndoButtonDisabled, onClickDiscard, onClickUndo }) => {
-  const dispatch = useDispatch();
+const TOOLTIP_SHOW_TIME = 500;
+const TOOLTIP_HIDE_TIME = 150;
 
+const ReportOverview = ({
+  isDiscardButtonDisabled,
+  isUndoButtonDisabled,
+  onClickDiscard,
+  onClickUndo,
+  onShowInformationModal,
+}) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
@@ -32,12 +37,8 @@ const ReportOverview = ({ isDiscardButtonDisabled, isUndoButtonDisabled, onClick
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();
 
-    dispatch(addModal({
-      content: InformationModal,
-      forceShowModal: true,
-      modalProps: { className: styles.modal },
-    }));
-  }, [dispatch]);
+    onShowInformationModal();
+  }, [onShowInformationModal]);
 
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={() => setIsOpen(!isOpen)}>
@@ -68,8 +69,9 @@ const ReportOverview = ({ isDiscardButtonDisabled, isUndoButtonDisabled, onClick
 
         <div className={styles.buttons}>
           <OverlayTrigger
-            placement="bottom"
+            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Reverse your last action</Tooltip>}
+            placement="bottom"
           >
             <Button
               className={styles.undoButton}
@@ -85,8 +87,9 @@ const ReportOverview = ({ isDiscardButtonDisabled, isUndoButtonDisabled, onClick
           </OverlayTrigger>
 
           <OverlayTrigger
-            placement="bottom"
+            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Remove all points</Tooltip>}
+            placement="bottom"
           >
             <Button
               className={styles.discardButton}
@@ -111,6 +114,7 @@ ReportOverview.propTypes = {
   isUndoButtonDisabled: PropTypes.bool.isRequired,
   onClickDiscard: PropTypes.func.isRequired,
   onClickUndo: PropTypes.func.isRequired,
+  onShowInformationModal: PropTypes.func.isRequired,
 };
 
 export default memo(ReportOverview);

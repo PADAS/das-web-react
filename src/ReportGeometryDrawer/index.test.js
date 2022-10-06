@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -34,7 +34,6 @@ describe('ReportGeometryDrawer', () => {
 
   const setMapDrawingData = jest.fn();
   let map, setIsPickingLocationMock, store;
-
   beforeEach(() => {
     jest.useFakeTimers();
 
@@ -45,17 +44,9 @@ describe('ReportGeometryDrawer', () => {
 
     store = {
       data: { eventTypes: [], patrolTypes: [] },
-      view: { mapLocationSelection: { event: report } },
+      view: { mapLocationSelection: { event: report }, modals: { modals: [] } },
     };
-  });
 
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-  });
-
-  test('triggers setIsPickingLocation with false parameter if user press escape', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -67,34 +58,73 @@ describe('ReportGeometryDrawer', () => {
         </NavigationWrapper>
       </Provider>
     );
+  });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('shows the information modal', async () => {
+    expect((await screen.queryByText('Creating A Report Area'))).toBeNull();
+
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
+
+    expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
+  });
+
+  test('opens the cancellation confirmation modal when pressing Escape if user made a change', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(1000);
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    userEvent.keyboard('{Escape}');
+
+    expect((await screen.findByText('Discard Changes'))).toBeDefined();
+  });
+
+  test('opens the cancellation confirmation modal when clicking Cancel if user made a change', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(1000);
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect((await screen.findByText('Discard Changes'))).toBeDefined();
+  });
+
+  test('does not open the cancellation confirmation modal if user did not make a change', async () => {
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
     userEvent.keyboard('{Escape}');
 
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(false);
   });
 
-  test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
+  test('does not open the cancellation confirmation modal if there is another modal showing', async () => {
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
 
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    userEvent.keyboard('{Escape}');
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+  });
+
+  test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -106,31 +136,19 @@ describe('ReportGeometryDrawer', () => {
   });
 
   test('enables the save button if user double clicks the map after drawing a valid polygon', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
     expect(saveButton).toHaveClass('disabled');
 
     map.__test__.fireHandlers('dblclick', { lngLat: { lng: 87, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     await waitFor(() => {
       expect(saveButton).not.toHaveClass('disabled');
@@ -140,6 +158,7 @@ describe('ReportGeometryDrawer', () => {
   test('disables the save button if user closes an invalid polygon', async () => {
     map.queryRenderedFeatures.mockImplementation(() => []);
 
+    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -153,13 +172,13 @@ describe('ReportGeometryDrawer', () => {
     );
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 54 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
     map.__test__.fireHandlers('click', { lngLat: { lng: 86, lat: 52 } });
-    jest.advanceTimersByTime(60000);
+    jest.advanceTimersByTime(1000);
 
     const saveButton = await screen.findByText('Save');
 
@@ -187,5 +206,7 @@ describe('ReportGeometryDrawer', () => {
 
     expect(map.fitBounds).toHaveBeenCalledTimes(1);
     expect(map.fitBounds.mock.calls[0][0]).toEqual([-40.668725, -13.74975, 6.657425, 9.301125]);
+
+    report.geometry = null;
   });
 });

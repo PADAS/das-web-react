@@ -1,16 +1,15 @@
 import React, { memo } from 'react';
 import Modal from 'react-bootstrap/Modal';
+import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
 
-const { Header, Title, Body } = Modal;
+const InformationModal = ({ onHide, show }) => <Modal onHide={onHide} show={show}>
+  <Modal.Header closeButton>
+    <Modal.Title>Creating A Report Area</Modal.Title>
+  </Modal.Header>
 
-const InformationModal = () => <>
-  <Header closeButton>
-    <Title>Creating A Report Area</Title>
-  </Header>
-
-  <Body className={styles.body}>
+  <Modal.Body className={styles.body}>
     <h3>Adding points</h3>
     <p>Click anywhere on the map to add the points of a report area.</p>
 
@@ -22,7 +21,12 @@ const InformationModal = () => <>
 
     <h3>Adding points to an area</h3>
     <p>Hover over a segment of the report area then click and drag the new point to the desired location.</p>
-  </Body>
-</>;
+  </Modal.Body>
+</Modal>;
+
+InformationModal.propTypes = {
+  onHide: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired,
+};
 
 export default memo(InformationModal);

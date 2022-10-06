@@ -1,3 +1,5 @@
+import undoableReducer, { reset as undoableReset, undo as undoableUndo } from '../reducers/undoable';
+
 export const REPORT_GEOMETRY_UNDOABLE_NAMESPACE = 'REPORT_GEOMETRY_UNDOABLE_NAMESPACE';
 
 // actions
@@ -8,6 +10,10 @@ export const setGeometryPoints = (points) => ({
   type: SET_GEOMETRY_POINTS,
   payload: { points },
 });
+
+export const reset = () => undoableReset(REPORT_GEOMETRY_UNDOABLE_NAMESPACE);
+
+export const undo = () => undoableUndo(REPORT_GEOMETRY_UNDOABLE_NAMESPACE);
 
 // reducer
 export const INITIAL_STATE = { points: [] };
@@ -22,4 +28,4 @@ const reportGeometryReducer = (state = INITIAL_STATE, action = {}) => {
   }
 };
 
-export default reportGeometryReducer;
+export default undoableReducer(reportGeometryReducer, REPORT_GEOMETRY_UNDOABLE_NAMESPACE);
