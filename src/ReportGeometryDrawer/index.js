@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import bbox from '@turf/bbox';
+import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
@@ -14,7 +15,9 @@ import undoableReducer, { reset, undo } from '../reducers/undoable';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
+import CancelationConfirmationModal from './CancelationConfirmationModal';
 import Footer from './Footer';
+import InformationModal from './InformationModal';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
@@ -35,6 +38,8 @@ const ReportGeometryDrawer = () => {
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isDrawing, setIsDrawing] = useState(true);
+  const [showCancellationConfirmationModal, setShowCancellationConfirmationModal] = useState(false);
+  const [showInformationModal, setShowInformationModal] = useState(false);
 
   const canUndo = !!reportGeometry.past.length;
   const points = reportGeometry.current.points;
@@ -61,6 +66,28 @@ const ReportGeometryDrawer = () => {
       }
     }
   }, [canUndo, points.length, reportGeometry.past]);
+
+  const onCancel = useCallback(() => {
+    let originalPoints = [];
+    if (event?.geometry) {
+      const eventPolygon = event.geometry.type === 'FeatureCollection'
+        ? event.geometry.features[0]
+        : event.geometry;
+
+      originalPoints = eventPolygon.geometry.coordinates[0].slice(0, -1);
+    }
+
+    const didUserMakeChanges = !isEqual(points, originalPoints);
+    const isAModalOpen = showInformationModal;
+    if (!isAModalOpen) {
+      if (didUserMakeChanges) {
+        setShowCancellationConfirmationModal(true);
+      } else {
+        setMapDrawingData(null);
+        dispatch(setIsPickingLocation(false));
+      }
+    }
+  }, [dispatch, event.geometry, points, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;
@@ -94,6 +121,12 @@ const ReportGeometryDrawer = () => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
 
+  const onHideCancellationConfirmationModal = useCallback(() => setShowCancellationConfirmationModal(false), []);
+
+  const onShowInformationModal = useCallback(() => setShowInformationModal(true), []);
+
+  const onHideInformationModal = useCallback(() => setShowInformationModal(false), []);
+
   useMapEventBinding('dblclick', onDoubleClick, null, isDrawing);
 
   useEffect(() => {
@@ -101,11 +134,13 @@ const ReportGeometryDrawer = () => {
       switch (event.key) {
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
+
       case 'Escape':
-        setMapDrawingData(null);
-        return dispatch(setIsPickingLocation(false));
+        return onCancel();
+
       case 'Backspace':
         return isDrawing && onUndo();
+
       default:
         return;
       }
@@ -114,7 +149,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon, map, onUndo, setMapDrawingData]);
+  }, [isDrawing, isGeometryAValidPolygon, onCancel, onUndo]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -136,6 +171,7 @@ const ReportGeometryDrawer = () => {
       isUndoButtonDisabled={!canUndo}
       onClickDiscard={onClickDiscard}
       onClickUndo={onUndo}
+      onShowInformationModal={onShowInformationModal}
     />
     <MapDrawingTools
       drawing={isDrawing}
@@ -143,7 +179,12 @@ const ReportGeometryDrawer = () => {
       onClickPoint={onClickPoint}
       points={points}
     />
-    <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
+    <InformationModal onHide={onHideInformationModal} show={showInformationModal} />
+    <CancelationConfirmationModal
+      onHide={onHideCancellationConfirmationModal}
+      show={showCancellationConfirmationModal}
+    />
+    <Footer disableSaveButton={disableSaveButton} onCancel={onCancel} onSave={onSaveGeometry} />
   </>;
 };
 

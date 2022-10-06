@@ -141,7 +141,7 @@ describe('Map', () => {
         mapImages: {},
         patrolTrackState: { pinned: [], visible: [] },
         mapLocationSelection: {},
-        reportGeometry: { current: { points: [] }, past: [] },
+        modals: { modals: [] },
         showMapNames: {},
         simplifyMapDataOnZoom: {},
         subjectTrackState: { pinned: [], visible: [] },
