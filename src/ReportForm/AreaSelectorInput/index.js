@@ -1,9 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import isEqual from 'react-fast-compare';
-import area from '@turf/area';
-import { convertArea, convertLength } from '@turf/helpers';
+
 import debounceRender from 'react-debounce-render';
-import length from '@turf/length';
+
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
@@ -16,7 +14,7 @@ import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
 import { setModalVisibilityState } from '../../ducks/modals';
-import { truncateFloatingNumber } from '../../utils/math';
+import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
 import { FormDataContext } from '../../EditableItem/context';
 
@@ -27,47 +25,7 @@ import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const placeholder = 'Set report area';
-
-const calculateAreaDisplayString = (eventGeo, originalEventGeo) => {
-  if (eventGeo) {
-    const geometryHasBeenEdited = !isEqual(eventGeo, originalEventGeo);
-
-    const prefix = geometryHasBeenEdited ? '~' : '';
-
-    const areaValue = geometryHasBeenEdited
-      ? area(eventGeo)
-      : eventGeo?.features?.[0]?.properties?.area ?? 0;
-
-    const perimeterLengthValue = geometryHasBeenEdited
-      ? length(eventGeo)
-      : eventGeo?.features?.[0]?.properties?.perimeter ?? 0;
-
-
-    const geometryAreaTruncated = truncateFloatingNumber(
-      convertArea(
-        areaValue,
-        'meters',
-        'kilometers'
-      ),
-      2
-    );
-
-    const geometryPerimeterTruncated = truncateFloatingNumber(
-      convertLength(
-        perimeterLengthValue,
-        geometryHasBeenEdited ? 'kilometers' : 'meters',
-        'kilometers'
-      ),
-      2
-    );
-
-    return `${prefix}${geometryAreaTruncated} km² area, ${prefix}${geometryPerimeterTruncated} km perimeter`;
-  }
-
-  return placeholder;
-
-};
+const INPUT_PLACEHOLDER = 'Set report area';
 
 const AreaSelectorInput = ({
   onGeometryChange,
@@ -85,12 +43,13 @@ const AreaSelectorInput = ({
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const displayString = useMemo(() =>
-    calculateAreaDisplayString(event?.geometry, originalEvent?.geometry)
-  , [event?.geometry, originalEvent?.geometry]
-  );
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
-  const shouldShowCopyButton = displayString !== placeholder;
+  const displayString = event?.geometry
+    ? `${areaDisplayString} km² area, ${perimeterDisplayString} km perimeter`
+    : INPUT_PLACEHOLDER;
+
+  const shouldShowCopyButton = displayString !== INPUT_PLACEHOLDER;
 
   const isDrawingEventGeometry = useSelector((state) => isPickingLocation
     && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);

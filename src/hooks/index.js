@@ -4,9 +4,7 @@ import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
-import { MIN_ZOOM, MAX_ZOOM, LAYER_IDS } from '../constants';
-
-const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
+import { MIN_ZOOM, MAX_ZOOM } from '../constants';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>

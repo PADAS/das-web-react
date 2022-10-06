@@ -1,9 +1,6 @@
 import React, { memo } from 'react';
-import area from '@turf/area';
 import bbox from '@turf/bbox';
 import Button from 'react-bootstrap/Button';
-import { convertArea } from '@turf/helpers';
-import length from '@turf/length';
 import PropTypes from 'prop-types';
 import rewind from '@turf/rewind';
 import { useSelector } from 'react-redux';
@@ -11,8 +8,9 @@ import { useSelector } from 'react-redux';
 import { ReactComponent as PencilIcon } from '../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 
-import { truncateFloatingNumber } from '../../utils/math';
 import { REACT_APP_MAPBOX_TOKEN } from '../../constants';
+
+import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
 import styles from './styles.module.scss';
 
@@ -22,6 +20,7 @@ const STATIC_MAP_HEGHT = 130;
 
 const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   // TODO: Set this value depending on the geojson properties
   const imageSource = 'desktop';
@@ -47,15 +46,13 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
   const mapboxStaticImageSource = `${mapboxStaticImagesAPIURL}/${eventGeoJSONEncoded}/` +
     `${areForGeometryBBOXEncoded}/${staticImageDimensions}?${mapboxStaticImageAPIQuery}`;
 
-  const geometryArea = convertArea(area(eventPolygon), 'meters', 'kilometers');
-  const geometryAreaTruncated = truncateFloatingNumber(geometryArea, 2);
-  const geometryPerimeterTruncated = truncateFloatingNumber(length(eventPolygon), 2);
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
   return <div className={styles.locationAreaContent}>
     <div className={styles.geometryMeasurements}>
-      <div>Area: <span className={styles.measureValue}>{`${geometryAreaTruncated}km²`}</span></div>
+      <div>Area: <span className={styles.measureValue}>{`${areaDisplayString}km²`}</span></div>
 
-      <div>Perimeter: <span className={styles.measureValue}>{`${geometryPerimeterTruncated}km`}</span></div>
+      <div>Perimeter: <span className={styles.measureValue}>{`${perimeterDisplayString}km`}</span></div>
     </div>
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
