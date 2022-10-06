@@ -34,7 +34,6 @@ describe('ReportGeometryDrawer', () => {
 
   const setMapDrawingData = jest.fn();
   let map, setIsPickingLocationMock, store;
-
   beforeEach(() => {
     jest.useFakeTimers();
 
@@ -67,15 +66,6 @@ describe('ReportGeometryDrawer', () => {
     jest.restoreAllMocks();
   });
 
-  test('triggers setIsPickingLocation with false parameter if user press escape', async () => {
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
-
-    userEvent.keyboard('{Escape}');
-
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-    expect(setIsPickingLocation).toHaveBeenCalledWith(false);
-  });
-
   test('shows the information modal', async () => {
     expect((await screen.queryByText('Creating A Report Area'))).toBeNull();
 
@@ -85,15 +75,49 @@ describe('ReportGeometryDrawer', () => {
     expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
   });
 
-  test('does not trigger setIsPickingLocation if user press escape while a modal is open', async () => {
-    const informationIcon = await screen.findByText('information.svg');
-    userEvent.click(informationIcon);
+  test('opens the cancellation confirmation modal when pressing Escape if user made a change', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
 
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    userEvent.keyboard('{Escape}');
+
+    expect((await screen.findByText('Discard Changes'))).toBeDefined();
+  });
+
+  test('opens the cancellation confirmation modal when clicking Cancel if user made a change', async () => {
+    map.__test__.fireHandlers('click', { lngLat: { lng: 87, lat: 54 } });
+    jest.advanceTimersByTime(60000);
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect((await screen.findByText('Discard Changes'))).toBeDefined();
+  });
+
+  test('does not open the cancellation confirmation modal if user did not make a change', async () => {
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
     userEvent.keyboard('{Escape}');
 
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
+    expect(setIsPickingLocation).toHaveBeenCalledWith(false);
+  });
+
+  test('does not open the cancellation confirmation modal if there is another modal showing', async () => {
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
+
+    userEvent.keyboard('{Escape}');
+
+    expect((await screen.queryByText('Discard Changes'))).toBeNull();
   });
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {
@@ -172,5 +196,7 @@ describe('ReportGeometryDrawer', () => {
 
     expect(map.fitBounds).toHaveBeenCalledTimes(1);
     expect(map.fitBounds.mock.calls[0][0]).toEqual([-40.668725, -13.74975, 6.657425, 9.301125]);
+
+    report.geometry = null;
   });
 });
