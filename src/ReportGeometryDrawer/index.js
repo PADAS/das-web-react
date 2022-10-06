@@ -10,6 +10,7 @@ import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
 import Footer from './Footer';
+import InformationModal from './InformationModal';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
@@ -26,6 +27,7 @@ const ReportGeometryDrawer = () => {
 
   const [geometryPoints, setGeometryPoints] = useState([]);
   const [isDrawing, setIsDrawing] = useState(true);
+  const [showInformationModal, setShowInformationModal] = useState(false);
 
   const isGeometryAValidPolygon = geometryPoints.length > 2 && validateEventPolygonPoints([...geometryPoints, geometryPoints[0]]);
 
@@ -58,6 +60,10 @@ const ReportGeometryDrawer = () => {
     dispatch(setIsPickingLocation(false));
   }, [dispatch]);
 
+  const onShowInformationModal = useCallback(() => setShowInformationModal(true), []);
+
+  const onHideInformationModal = useCallback(() => setShowInformationModal(false), []);
+
   useMapEventBinding('dblclick', onDoubleClick, null, isDrawing);
 
   useEffect(() => {
@@ -65,9 +71,15 @@ const ReportGeometryDrawer = () => {
       switch (event.key) {
       case 'Enter':
         return isGeometryAValidPolygon && setIsDrawing(false);
+
       case 'Escape':
-        setMapDrawingData(null);
-        return dispatch(setIsPickingLocation(false));
+        const isAModalOpen = showInformationModal;
+        if (!isAModalOpen) {
+          setMapDrawingData(null);
+          return dispatch(setIsPickingLocation(false));
+        }
+        return;
+
       default:
         return;
       }
@@ -76,7 +88,7 @@ const ReportGeometryDrawer = () => {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [dispatch, isDrawing, isGeometryAValidPolygon]);
+  }, [dispatch, isGeometryAValidPolygon, setMapDrawingData, showInformationModal]);
 
   useEffect(() => {
     if (event?.geometry) {
@@ -92,13 +104,14 @@ const ReportGeometryDrawer = () => {
   }, [event.geometry, map]);
 
   return <>
-    <ReportOverview />
+    <ReportOverview onShowInformationModal={onShowInformationModal} />
     <MapDrawingTools
       drawing={isDrawing}
       onChange={onChangeGeometry}
       onClickPoint={onClickPoint}
       points={geometryPoints}
     />
+    <InformationModal onHide={onHideInformationModal} show={showInformationModal} />
     <Footer disableSaveButton={disableSaveButton} onSave={onSaveGeometry} />
   </>;
 };

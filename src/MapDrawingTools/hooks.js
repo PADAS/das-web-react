@@ -107,5 +107,7 @@ export const useDrawToolGeoJson = (
     setMapDrawingDataThrottledRef.current(geoJson);
   }, [geoJson]);
 
+  useEffect(() => () => setMapDrawingDataThrottledRef.current.cancel(), []);
+
   return geoJson;
 };

@@ -45,7 +45,7 @@ describe('ReportGeometryDrawer', () => {
 
     store = {
       data: { eventTypes: [], patrolTypes: [] },
-      view: { mapLocationSelection: { event: report } },
+      view: { mapLocationSelection: { event: report }, modals: { modals: [] } },
     };
 
     render(
@@ -74,6 +74,26 @@ describe('ReportGeometryDrawer', () => {
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(false);
+  });
+
+  test('shows the information modal', async () => {
+    expect((await screen.queryByText('Creating A Report Area'))).toBeNull();
+
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
+
+    expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
+  });
+
+  test('does not trigger setIsPickingLocation if user press escape while a modal is open', async () => {
+    const informationIcon = await screen.findByText('information.svg');
+    userEvent.click(informationIcon);
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
   });
 
   test('enables the save button if user clicks enter after drawing a valid polygon', async () => {

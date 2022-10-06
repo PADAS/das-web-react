@@ -157,7 +157,7 @@ const App = (props) => {
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
           {!!map && <SideBar map={map} />}
-          <ModalRenderer map={map} />
+          <ModalRenderer />
         </div>
 
         <div style={{

@@ -1,23 +1,19 @@
 import React, { memo, useCallback, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import Collapse from 'react-bootstrap/Collapse';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as InformationIcon } from '../../common/images/icons/information.svg';
 
-import { addModal } from '../../ducks/modals';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
-import InformationModal from './../InformationModal';
 import ReportListItem from '../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const ReportOverview = () => {
-  const dispatch = useDispatch();
-
+const ReportOverview = ({ onShowInformationModal }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
@@ -27,12 +23,8 @@ const ReportOverview = () => {
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();
 
-    dispatch(addModal({
-      content: InformationModal,
-      forceShowModal: true,
-      modalProps: { className: styles.modal },
-    }));
-  }, [dispatch]);
+    onShowInformationModal();
+  }, [onShowInformationModal]);
 
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={() => setIsOpen(!isOpen)}>
@@ -65,14 +57,8 @@ const ReportOverview = () => {
   </div>;
 };
 
-ReportOverview.defaultProps = {
-  area: '0km²',
-  perimeter: '0km',
-};
-
 ReportOverview.propTypes = {
-  area: PropTypes.string,
-  perimeter: PropTypes.string,
+  onShowInformationModal: PropTypes.func.isRequired,
 };
 
 export default memo(ReportOverview);
