@@ -148,7 +148,6 @@ const Map = ({
   const lngLatFromParams = useRef();
 
   const timeSliderActive = timeSliderState.active;
-  const enableEventClustering = timeSliderActive ? false : true;
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
@@ -622,7 +621,6 @@ const Map = ({
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
       <EventsLayer
-          enableClustering={enableEventClustering}
           mapImages={mapImages}
           onEventClick={onEventSymbolClick}
           onClusterClick={onClusterClick}
@@ -635,7 +633,7 @@ const Map = ({
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer isTimeSliderActive={timeSliderActive}/>
+      <StaticSensorsLayer />
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 

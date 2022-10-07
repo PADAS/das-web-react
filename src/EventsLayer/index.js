@@ -293,7 +293,6 @@ const EventsLayer = ({
 
 EventsLayer.defaultProps = {
   bounceEventIDs: [],
-  enableClustering: true, // Old events-only-clustering implementation
   mapImages: {},
   onClusterClick: () => {},
   onEventClick: () => {},
@@ -301,7 +300,6 @@ EventsLayer.defaultProps = {
 
 EventsLayer.propTypes = {
   bounceEventIDs: PropTypes.string,
-  enableClustering: PropTypes.bool, // Old events-only-clustering implementation
   map: PropTypes.object.isRequired,
   mapImages: PropTypes.object,
   mapUserLayoutConfigByLayerId: PropTypes.func,
