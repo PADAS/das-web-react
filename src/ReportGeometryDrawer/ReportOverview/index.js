@@ -27,7 +27,9 @@ const ReportOverview = () => {
 
   const [isOpen, setIsOpen] = useState(true);
 
-  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, { geojson: mapDrawingData?.fillPolygon });
+  console.log({ mapDrawingData });
+
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings({ geometry: mapDrawingData?.fillPolygon }, originalEvent);
 
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();

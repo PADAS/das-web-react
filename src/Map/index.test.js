@@ -206,8 +206,17 @@ describe('Map', () => {
   });
 
   test('shows the ReportAreaOverview', async () => {
+    const mockEvent = {
+      id: 'hello',
+      geometry: null,
+    };
+
+    store.data.eventStore = {
+      [mockEvent.id]: mockEvent
+    };
+
     store.view.mapLocationSelection = {
-      event: {},
+      event: mockEvent,
       isPickingLocation: true,
       mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
     };

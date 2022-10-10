@@ -1,4 +1,6 @@
 
+import isEqual from 'react-fast-compare';
+
 import { convertArea, convertLength, polygon } from '@turf/helpers';
 import kinks from '@turf/kinks';
 import area from '@turf/area';
@@ -20,21 +22,51 @@ export const validateEventPolygonPoints = (points) => {
   return !kinks(shape)?.features?.length;
 };
 
-export const calcEventGeoMeasurementDisplayStrings = (eventGeo, geometryHasBeenEdited) => {
-  const perimeterDisplayString = calculatePerimeterDisplayString(eventGeo, geometryHasBeenEdited);
-  const areaDisplayString = calculateAreaDisplayString(eventGeo, geometryHasBeenEdited);
+export const calcEventGeoMeasurementDisplayStrings = (event, originalEvent) => {
+  const getComparisonCoords = eventObj =>
+    eventObj?.geometry?.features?.[0]?.geometry?.coordinates
+    || eventObj?.geometry?.geometry?.coordinates;
+
+  const eventGeoCoords = getComparisonCoords(event);
+  const originalEventGeoCoords = getComparisonCoords(originalEvent);
+
+  const geometryHasBeenEdited = !isEqual(eventGeoCoords, originalEventGeoCoords);
+
+  const eventGeo = event?.geometry;
+  const originalEventGeo = originalEvent?.geometry;
+
+  const perimeterDisplayString = calculatePerimeterDisplayString(eventGeo, originalEventGeo, geometryHasBeenEdited);
+  const areaDisplayString = calculateAreaDisplayString(eventGeo, originalEventGeo, geometryHasBeenEdited);
 
   return [perimeterDisplayString, areaDisplayString];
 };
 
-const calculateAreaDisplayString = (eventGeo, hasBeenEdited) => {
-  if (!eventGeo) return `${0}`;
+const calculateAreaDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) => {
+  console.log('!eventGeo', !eventGeo);
+  console.log('!originalEventGeo', !originalEventGeo);
+  console.log('hasBeenEdited', hasBeenEdited);
 
-  let value = truncateFloatingNumber(
+  let value;
+
+  if (!hasBeenEdited) {
+    if (!originalEventGeo) return `${0}`;
+    value = originalEventGeo?.features?.[0]?.properties?.area
+      ?? originalEventGeo?.properties?.area;
+  }
+
+  console.log({ value });
+
+  if (!value) {
+    if (!eventGeo) return `${0}`;
+
+    value = area(eventGeo);
+  }
+
+  console.log({ value });
+
+  value = truncateFloatingNumber(
     convertArea(
-      (hasBeenEdited
-        ? area(eventGeo)
-        : eventGeo?.features?.[0]?.properties?.area ?? 0),
+      value,
       'meters',
       'kilometers',
     ),
@@ -46,15 +78,26 @@ const calculateAreaDisplayString = (eventGeo, hasBeenEdited) => {
   return value;
 };
 
-const calculatePerimeterDisplayString = (eventGeo, hasBeenEdited) => {
-  if (!eventGeo) return `${0}`;
+const calculatePerimeterDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) => {
+  let value;
 
-  let value = truncateFloatingNumber(
+  if (!hasBeenEdited) {
+    if (!originalEventGeo) return `${0}`;
+
+    value = originalEventGeo?.features?.[0]?.properties?.perimeter
+    ?? originalEventGeo?.properties?.perimeter;
+  }
+
+  if (!value) {
+    if (!eventGeo) return `${0}`;
+
+    value = length(eventGeo) * 1000;
+  }
+
+  value = truncateFloatingNumber(
     convertLength(
-      (hasBeenEdited
-        ? length(eventGeo)
-        : eventGeo?.features?.[0]?.properties?.perimeter ?? 0),
-      hasBeenEdited ? 'kilometers' : 'meters',
+      value,
+      'meters',
       'kilometers',
     ),
     2,

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { addModal } from '../../ducks/modals';
 import InformationModal from './../InformationModal';
@@ -16,16 +17,48 @@ jest.mock('../../ducks/modals', () => ({
   addModal: jest.fn(),
 }));
 
+const mockGeometry = {
+  type: 'Feature',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [0, 0.1], [0.1, 0.2], [0.2, 0.3], [0, 0.1],
+      ],
+    ],
+  },
+  properties: {
+    perimeter: 62900,
+    area: 37748000,
+  },
+};
+
 describe('ReportOverview', () => {
-  let addModalMock, rerender, store;
+  let addModalMock, store;
+
+  let mockReport;
+
 
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
 
-    store = { data: { eventTypes: [], patrolTypes: [] }, view: { mapLocationSelection: { event: report } } };
+    mockReport = cloneDeep(report);
+    mockReport.location = null;
+    mockReport.geometry = mockGeometry;
 
-    ({ rerender } = render(
+    store = {
+      data: {
+        eventStore: { [mockReport.id]: mockReport },
+        eventTypes: [],
+        patrolTypes: []
+      },
+      view: {
+        mapLocationSelection: { event: mockReport }
+      },
+    };
+
+    render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
@@ -33,7 +66,7 @@ describe('ReportOverview', () => {
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
       </Provider>
-    ));
+    );
   });
 
   afterEach(() => {
@@ -75,28 +108,22 @@ describe('ReportOverview', () => {
 
   test('renders the given values for area and perimeter', async () => {
     const mapDrawingData = {
-      fillLabelPoint: {
-        properties: {
-          areaLabel: '5km²',
-        },
-      },
-      drawnLineSegments: {
-        properties: {
-          lengthLabel: '10km',
-        },
-      },
+      fillPolygon: mockGeometry,
     };
-    rerender(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+
+    cleanup();
+
+    render(
+      <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
             <ReportOverview />
-          </MapDrawingToolsContext.Provider>
-        </NavigationWrapper>
-      </Provider>
+          </NavigationWrapper>
+        </Provider>
+      </MapDrawingToolsContext.Provider>
     );
 
-    expect((await screen.findByText('Area: 5km²'))).toBeDefined();
-    expect((await screen.findByText('Perimeter: 10km'))).toBeDefined();
+    expect((await screen.findByText('Area: 37.74km²'))).toBeDefined();
+    expect((await screen.findByText('Perimeter: 62.89km'))).toBeDefined();
   });
 });

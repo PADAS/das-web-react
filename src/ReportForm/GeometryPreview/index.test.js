@@ -25,7 +25,7 @@ describe('GeometryPreview', () => {
       }
     };;
 
-    store = mockStore({ view: { mapLocationSelection: { event: report } } });
+    store = mockStore({ data: { eventStore: { [report.id]: report } }, view: { mapLocationSelection: { event: report } } });
   });
 
   afterEach(() => {

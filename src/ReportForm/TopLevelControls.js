@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
@@ -6,8 +6,6 @@ import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon
 
 import { DATEPICKER_DEFAULT_CONFIG, VALID_EVENT_GEOMETRY_TYPES, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setMapLocationSelectionEvent } from '../ducks/map-ui';
-
-import { FormDataContext } from '../EditableItem/context';
 
 import DatePicker from '../DatePicker';
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
@@ -27,11 +25,11 @@ const ReportFormTopLevelControls = ({
   onEventGeometryChange,
   onReportLocationChange,
   readonly,
+  report,
   originalEvent,
 }) => {
   const dispatch = useDispatch();
 
-  const report = useContext(FormDataContext);
 
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
   const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
@@ -67,6 +65,7 @@ const ReportFormTopLevelControls = ({
 
     {ENABLE_EVENT_GEOMETRY && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
       ? <AreaSelectorInput
+        event={report}
         originalEvent={originalEvent}
         onGeometryChange={onEventGeometryChange}
         />

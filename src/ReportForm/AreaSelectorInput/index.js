@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import debounceRender from 'react-debounce-render';
 
@@ -16,8 +16,6 @@ import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/
 import { setModalVisibilityState } from '../../ducks/modals';
 import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
-import { FormDataContext } from '../../EditableItem/context';
-
 import GeometryPreview from '../GeometryPreview';
 import TextCopyBtn from '../../TextCopyBtn';
 
@@ -29,11 +27,11 @@ const INPUT_PLACEHOLDER = 'Set report area';
 
 const AreaSelectorInput = ({
   onGeometryChange,
+  event,
   originalEvent,
 }) => {
   const dispatch = useDispatch();
 
-  const event = useContext(FormDataContext);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
 
@@ -161,5 +159,6 @@ AreaSelectorInput.defaultProps = {
 
 AreaSelectorInput.propTypes = {
   onGeometryChange: PropTypes.func,
-  originalEvent: PropTypes.object,
+  originalEvent: PropTypes.object.isRequired,
+  event: PropTypes.object.isRequired,
 };

@@ -71,6 +71,8 @@ describe('The AreaSelector input', () => {
     setIsPickingLocationMock = jest.fn(() => () => {});
     setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
     map = createMapMock();
+    report = eventWithPolygon;
+
     store = {
       view: {
         mapLocationSelection: { event: report, isPickingLocation: false },
@@ -78,15 +80,20 @@ describe('The AreaSelector input', () => {
       },
       data: {
         eventType: [],
+        eventStore: {
+          [report.id]: report,
+        }
       },
     };
     onGeometryChange = jest.fn();
 
-    report = eventWithPolygon;
   });
 
   describe('with no area provided', () => {
+    const withNoGeo = { id: 'whatever', geometry: null };
+
     test('starts picking an area on the map as soon as it\'s open', async () => {
+
       render(
         <Provider store={mockStore(store)}>
           <NavigationWrapper>
@@ -94,22 +101,22 @@ describe('The AreaSelector input', () => {
               <MapDrawingToolsContextProvider>
                 <MapContext.Provider value={map}>
                   <AreaSelectorInput
-                geometryType="Polygon"
-                label="label"
-                map={map}
-                onGeometryChange={onGeometryChange}
+                    event={withNoGeo}
+                    originalEvent={withNoGeo}
+                    map={map}
+                    onGeometryChange={onGeometryChange}
               />
                 </MapContext.Provider>
               </MapDrawingToolsContextProvider>
-            </ FormDataContext.Provider>
+            </FormDataContext.Provider>
           </NavigationWrapper>
         </Provider>
       );
 
       expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
-      const setLocationButton = await screen.getByTestId(CONTROL_SELECTOR);
-      userEvent.click(setLocationButton);
+      const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
+      userEvent.click(setAreaButton);
 
       await waitFor(() => {
         expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
@@ -124,9 +131,10 @@ describe('The AreaSelector input', () => {
               <MapDrawingToolsContextProvider>
                 <MapContext.Provider value={map}>
                   <AreaSelectorInput
-                geometryType="Polygon"
-                map={map}
-                onGeometryChange={onGeometryChange}
+                    event={withNoGeo}
+                    originalEvent={withNoGeo}
+                    map={map}
+                    onGeometryChange={onGeometryChange}
 
               />
                 </MapContext.Provider>
@@ -153,9 +161,10 @@ describe('The AreaSelector input', () => {
               <MapDrawingToolsContextProvider>
                 <MapContext.Provider value={map}>
                   <AreaSelectorInput
-              geometryType="Polygon"
-              map={map}
-              onGeometryChange={onGeometryChange}
+                    event={report}
+                    originalEvent={report}
+                    map={map}
+                    onGeometryChange={onGeometryChange}
             />
                 </MapContext.Provider>
               </MapDrawingToolsContextProvider>
@@ -164,8 +173,8 @@ describe('The AreaSelector input', () => {
         </Provider>
       );
 
-      const setLocationButton = await screen.getByTestId(CONTROL_SELECTOR);
-      userEvent.click(setLocationButton);
+      const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
+      userEvent.click(setAreaButton);
 
       expect(onGeometryChange).toHaveBeenCalledTimes(0);
 
