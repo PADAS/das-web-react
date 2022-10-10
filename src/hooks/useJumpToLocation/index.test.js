@@ -56,7 +56,7 @@ describe('useJumpToLocation', () => {
       expect(map.fitBounds).toHaveBeenCalledWith({
         _ne: { lat: 21.75709101172957, lng: -104.19557197413907 },
         _sw: { lat: 20.75709101172957, lng: -105.19557197413907 },
-      }, { linear: true, padding: {}, speed: 200 });
+      }, { linear: true, padding: { top: 12, right: 12, bottom: 12, left: 12 }, speed: 200 });
     });
   });
 
@@ -79,7 +79,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: {},
+        padding: { top: 12, right: 12, bottom: 12, left: 12 },
         speed: 200,
         zoom: 12,
       });
@@ -105,7 +105,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: {},
+        padding: { top: 12, right: 12, bottom: 12, left: 12 },
         speed: 200,
         zoom: 12,
       });
@@ -161,7 +161,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { left: 512 },
+        padding: { top: 12, right: 12, bottom: 12, left: 362 },
         speed: 200,
         zoom: 12,
       });
@@ -190,14 +190,14 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { left: 736 },
+        padding: { top: 12, right: 12, bottom: 12, left: 736 },
         speed: 200,
         zoom: 12,
       });
     });
   });
 
-  test('does not set padding with the sidebar open if it is a small device', async () => {
+  test('uses standard padding with the sidebar open if it is a small device', async () => {
     useRouterLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
     useMatchMediaMock = jest.fn(() => false);
@@ -221,7 +221,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: {},
+        padding: { top: 12, right: 12, bottom: 12, left: 12 },
         speed: 200,
         zoom: 12,
       });

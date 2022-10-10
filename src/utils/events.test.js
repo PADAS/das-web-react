@@ -1,4 +1,6 @@
-import { calcDisplayPriorityForReport } from './events';
+import { calcDisplayPriorityForReport, getCoordinatesForEvent } from './events';
+import { eventWithPoint } from '../__test-helpers/fixtures/events';
+import { eventWithPolygon } from '../__test-helpers/fixtures/events';
 
 import * as eventTypeUtils from './event-types';
 
@@ -71,4 +73,24 @@ describe('#calcDisplayPriorityForReport', () => {
     expect(result).toBe(300);
   });
 
+});
+
+describe('#getCoordinatesForEvent', () => {
+  test('getting single point coordinates', () => {
+    const result = getCoordinatesForEvent(eventWithPoint);
+    console.log({ result });
+    expect(result).toEqual([18.714, 5.8676]);
+  });
+
+  test('getting polygon coordinates', () => {
+    const result = getCoordinatesForEvent(eventWithPolygon);
+    expect(result).toEqual([
+      [ 58.31891231904782, -32.95903350246844 ],
+      [ 58.47630823380208, -32.59422031588628 ],
+      [ 58.62248893060512, -32.69629040415761 ],
+      [ 57.291173483506896, -33.91600187660145 ],
+      [ 56.81251637929487, -33.02717890265869 ],
+      [ 58.31891231904782, -32.95903350246844 ]
+    ]);
+  });
 });

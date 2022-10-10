@@ -60,8 +60,7 @@
 
 .separator {
   border-bottom: 1px solid #DDD;
-  margin-top: 0.5rem;
-  margin-left: -0.5rem;
+  margin: 0.5rem 0 0.5rem -0.5rem;
   width: calc(100% + 1rem);
 
   @media (min-width: $md-layout-width-min) {
@@ -96,4 +95,30 @@
       }
     }
   }
+}
+
+.buttons {
+  display: flex;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
+  svg {
+    margin-right: 0.25rem;
+  }
+}
+
+.undoButton {
+  color: $secondary-medium-gray;
+  background-color: $light-gray-background;
+  margin-right: 0.5rem;
+}
+
+.discardButton {
+  background-color: rgba(208, 3, 27, 0.05);
+  color: $bright-red;
 }

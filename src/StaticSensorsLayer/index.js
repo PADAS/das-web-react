@@ -1,5 +1,4 @@
 import React, { useContext, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { connect, useSelector } from 'react-redux';
 
 import { featureCollection } from '@turf/helpers';
@@ -38,7 +37,7 @@ const IMAGE_DATA = {
 
 const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER];
 
-const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
+const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
@@ -54,8 +53,8 @@ const StaticSensorsLayer = ({ isTimeSliderActive, showMapNames, simplifyMapDataO
   [isDataInMapSimplified, showMapStaticSubjectsNames]);
 
   const dynamicLabelLayerLayoutProps = useMemo(() =>
-    calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive),
-  [isDataInMapSimplified, showMapStaticSubjectsNames, isTimeSliderActive]);
+    calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames),
+  [isDataInMapSimplified, showMapStaticSubjectsNames]);
 
 
   /* watch the source data for updates, and add potential new icon images to the map if necessary */
@@ -217,7 +216,3 @@ const mapStatetoProps = (state) => ({
 });
 
 export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
-
-StaticSensorsLayer.propTypes = {
-  isTimeSliderActive: PropTypes.bool,
-};

@@ -59,7 +59,7 @@ export const displayTitleForEvent = (event, eventTypes) => {
 };
 
 export const getCoordinatesForEvent = event => {
-  if (event?.geojson?.type === 'Polygon') {
+  if (event?.geojson?.geometry?.type === 'Polygon') {
     return event.geojson.geometry.coordinates
       .reduce((accumulator, shape) =>
         [...accumulator, ...shape]

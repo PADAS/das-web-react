@@ -159,6 +159,7 @@ export const eventWithPatrol = {
 
 export const events = [event1, event2, eventWithoutPatrol, eventWithPatrol];
 
+
 export const eventsWithGeometries = [
   {
     id: '3662f167-37f6-4c75-9d93-673f436aa1a6',
@@ -2959,3 +2960,6 @@ export const eventsWithGeometries = [
     updates: []
   }
 ];
+
+export const eventWithPoint = eventsWithGeometries[0];
+export const eventWithPolygon = eventsWithGeometries[1];

@@ -1,0 +1,23 @@
+@import '../../common/styles/vars/colors';
+
+.message {
+  font-size: 1.125 rem;
+  color: $off-black;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+
+  .continueEditingButton {
+    background-color: white;
+    border: none;
+    color: $secondary-medium-gray;
+    margin-right: 0.5rem;
+  }
+
+  .discardButton {
+    background-color: $bright-red;
+    border: none;
+  }
+}

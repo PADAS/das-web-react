@@ -172,7 +172,8 @@ const setUpSubjectGeoJson = subjects =>
       const key = 'last_position';
 
       return addPropsToGeoJsonByKey(subject, key)[key];
-    });
+    })
+    .filter((subject) => !!subject);
 
 const featureCollectionFromGeoJson = geojson_array => {
   const flattened = geojson_array.reduce((array, item) => {

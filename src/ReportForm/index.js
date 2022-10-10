@@ -306,7 +306,7 @@ const ReportForm = (props) => {
   }, [report, reportTracker]);
 
   const onEventGeometryChange = useCallback((geometry) => {
-    updateStateReport({ ...report, geometry });
+    updateStateReport({ ...report, geometry, location: null });
     reportTracker.track('Change Report Geometry');
   }, [report, reportTracker]);
 
