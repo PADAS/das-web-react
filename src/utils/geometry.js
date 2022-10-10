@@ -8,6 +8,11 @@ import length from '@turf/length';
 
 import { truncateFloatingNumber } from './math';
 
+const UNIT_LABELS = {
+  'meters': 'm',
+  'kilometers': 'km',
+};
+
 export const validateEventPolygonPoints = (points) => {
   let shape;
 
@@ -42,64 +47,68 @@ export const calcEventGeoMeasurementDisplayStrings = (event, originalEvent) => {
 };
 
 const calculateAreaDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) => {
-  console.log('!eventGeo', !eventGeo);
-  console.log('!originalEventGeo', !originalEventGeo);
-  console.log('hasBeenEdited', hasBeenEdited);
-
-  let value;
+  let value, unit = 'meters';
 
   if (!hasBeenEdited) {
-    if (!originalEventGeo) return `${0}`;
+    if (!originalEventGeo) return `${0}km²`;
     value = originalEventGeo?.features?.[0]?.properties?.area
       ?? originalEventGeo?.properties?.area;
   }
 
   if (!value) {
-    if (!eventGeo) return `${0}`;
+    if (!eventGeo) return `${0}km²`;
 
     value = area(eventGeo) * 1000;
+  }
+
+  if (value > 10000) {
+    unit = 'kilometers';
   }
 
   value = truncateFloatingNumber(
     convertArea(
       value,
       'meters',
-      'kilometers',
+      unit,
     ),
     2,
   );
 
   if (hasBeenEdited) value = `~${value}`;
 
-  return value;
+  return `${value}${UNIT_LABELS[unit]}²`;
 };
 
 const calculatePerimeterDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) => {
-  let value;
+  let value, unit = 'meters';
 
   if (!hasBeenEdited) {
-    if (!originalEventGeo) return `${0}`;
+    if (!originalEventGeo) return `${0}km`;
 
     value = originalEventGeo?.features?.[0]?.properties?.perimeter
     ?? originalEventGeo?.properties?.perimeter;
   }
 
   if (!value) {
-    if (!eventGeo) return `${0}`;
+    if (!eventGeo) return `${0}km`;
 
     value = length(eventGeo) * 1000;
+  }
+
+  if (value > 100) {
+    unit = 'kilometers';
   }
 
   value = truncateFloatingNumber(
     convertLength(
       value,
       'meters',
-      'kilometers',
+      unit,
     ),
     2,
   );
 
   if (hasBeenEdited) value = `~${value}`;
 
-  return value;
+  return `${value}${UNIT_LABELS[unit]}`;
 };

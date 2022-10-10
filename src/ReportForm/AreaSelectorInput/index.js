@@ -44,7 +44,7 @@ const AreaSelectorInput = ({
   const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
   const displayString = event?.geometry
-    ? `${areaDisplayString} km² area, ${perimeterDisplayString} km perimeter`
+    ? `${areaDisplayString} area, ${perimeterDisplayString} perimeter`
     : INPUT_PLACEHOLDER;
 
   const shouldShowCopyButton = displayString !== INPUT_PLACEHOLDER;

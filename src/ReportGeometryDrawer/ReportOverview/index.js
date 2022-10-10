@@ -60,11 +60,11 @@ const ReportOverview = () => {
 
         <div className={styles.measurements}>
           <div>
-            {`Area: ${areaDisplayString}km²`}
+            {`Area: ${areaDisplayString}`}
           </div>
 
           <div>
-            {`Perimeter: ${perimeterDisplayString}km`}
+            {`Perimeter: ${perimeterDisplayString}`}
           </div>
         </div>
       </div>

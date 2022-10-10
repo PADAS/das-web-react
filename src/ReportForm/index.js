@@ -494,13 +494,13 @@ const ReportForm = (props) => {
   useEffect(() => {
     if (
       reportIsNew
-      && schema.geometry_type === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+      && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
       && report.location
     ) {
       updateStateReport({ ...report, location: null });
     }
 
-  }, [reportIsNew, schema.geometry_type, report]);
+  }, [reportIsNew, geometryType, report]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];

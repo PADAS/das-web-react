@@ -50,9 +50,9 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
 
   return <div className={styles.locationAreaContent}>
     <div className={styles.geometryMeasurements}>
-      <div>Area: <span className={styles.measureValue}>{`${areaDisplayString}km²`}</span></div>
+      <div>Area: <span className={styles.measureValue}>{areaDisplayString}</span></div>
 
-      <div>Perimeter: <span className={styles.measureValue}>{`${perimeterDisplayString}km`}</span></div>
+      <div>Perimeter: <span className={styles.measureValue}>{perimeterDisplayString}</span></div>
     </div>
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
