@@ -14,6 +14,37 @@ import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 
+const MAX_ABSOLUTE_LONGITUDE = 180;
+const WORLD_TOTAL_LONGITUDE = 360;
+
+export const fixAntimeridianCrossing = (trackFeatureCollection) => {
+  if (!trackFeatureCollection?.features?.length) return trackFeatureCollection;
+
+  trackFeatureCollection.features = trackFeatureCollection.features.map((feature) => {
+    if (feature?.geometry?.type !== 'LineString') return feature;
+
+    feature.geometry.coordinates = feature.geometry.coordinates.map((coordinates, index) => {
+      if (index !== 0) {
+        const longitudeDifference = coordinates[0] - feature.geometry.coordinates[index - 1][0];
+
+        if (longitudeDifference > MAX_ABSOLUTE_LONGITUDE) {
+          return [coordinates[0] - WORLD_TOTAL_LONGITUDE, coordinates[1]];
+        }
+
+        if (longitudeDifference < -MAX_ABSOLUTE_LONGITUDE) {
+          return [coordinates[0] + WORLD_TOTAL_LONGITUDE, coordinates[1]];
+        }
+      }
+
+      return coordinates;
+    });
+
+    return feature;
+  });
+
+  return trackFeatureCollection;
+};
+
 export const convertTrackFeatureCollectionToPoints = feature => {
   if (!feature.features.length) return featureCollection([]);
 

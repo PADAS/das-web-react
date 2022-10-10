@@ -78,17 +78,6 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
   useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
 
   return null;
-  /* return <Fragment>
-
-    <Layer sourceId={sourceId} type='line' before={layerBefore}
-      paint={trackLinePaint} layout={trackLineLayout} id={layerId} {...rest} />
-
-    {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={layerBefore}
-      onMouseEnter={onSymbolMouseEnter}
-      onMouseLeave={onSymbolMouseLeave}
-      onClick={onPointClick} layout={timepointLayerLayout} paint={timepointLayerPaint} id={pointLayerId} {...rest} />}
-
-  </Fragment>; */
 };
 
 export default memo(TrackLayer);

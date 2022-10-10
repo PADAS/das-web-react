@@ -4,7 +4,12 @@ import isEqual from 'react-fast-compare';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
-import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints, trackHasDataWithinTimeRange } from '../utils/tracks';
+import {
+  addSocketStatusUpdateToTrack,
+  convertTrackFeatureCollectionToPoints,
+  fixAntimeridianCrossing,
+  trackHasDataWithinTimeRange,
+} from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -45,10 +50,11 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
       const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
-        const asPoints = convertTrackFeatureCollectionToPoints(response.data.data);
+        const trackFeatureCollection = fixAntimeridianCrossing(response.data.data);
+        const asPoints = convertTrackFeatureCollectionToPoints(trackFeatureCollection);
 
         accumulator[ids[index]] = {
-          track: response.data.data,
+          track: trackFeatureCollection,
           points: asPoints,
           fetchedDateRange: dateParams,
         };
