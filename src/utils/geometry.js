@@ -54,15 +54,11 @@ const calculateAreaDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) =
       ?? originalEventGeo?.properties?.area;
   }
 
-  console.log({ value });
-
   if (!value) {
     if (!eventGeo) return `${0}`;
 
-    value = area(eventGeo);
+    value = area(eventGeo) * 1000;
   }
-
-  console.log({ value });
 
   value = truncateFloatingNumber(
     convertArea(
