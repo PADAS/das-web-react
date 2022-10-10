@@ -58,7 +58,7 @@ const calculateAreaDisplayString = (eventGeo, originalEventGeo, hasBeenEdited) =
   if (!value) {
     if (!eventGeo) return `${0}km²`;
 
-    value = area(eventGeo) * 1000;
+    value = area(eventGeo);
   }
 
   if (value > 10000) {

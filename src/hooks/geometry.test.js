@@ -93,7 +93,7 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
     const { result: { current } } = renderHook(() => useEventGeoMeasurementDisplayStrings(event, originalEvent), { wrapper });
 
     const [perimeterDisplayString, areaDisplayString] = current;
-    expect(areaDisplayString).toBe('~55763.97km²');
+    expect(areaDisplayString).toBe('~55.76km²');
     expect(perimeterDisplayString).toBe('~55.05km');
   });
 
