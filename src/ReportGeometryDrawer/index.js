@@ -95,7 +95,7 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing]);
 
   const onClickPoint = useCallback((event) => {
-    if (isGeometryAValidPolygon) {
+    if (isDrawing) {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
@@ -106,9 +106,9 @@ const ReportGeometryDrawer = () => {
         setIsDrawing(false);
       }
     }
-  }, [isGeometryAValidPolygon, map, points]);
+  }, [isDrawing, map, points]);
 
-  const onDoubleClick = useCallback(() => isGeometryAValidPolygon && setIsDrawing(false), [isGeometryAValidPolygon]);
+  const onDoubleClick = useCallback(() => setIsDrawing(false), []);
 
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
@@ -126,7 +126,7 @@ const ReportGeometryDrawer = () => {
     const handleKeyDown = (event) => {
       switch (event.key) {
       case 'Enter':
-        return isGeometryAValidPolygon && setIsDrawing(false);
+        return setIsDrawing(false);
 
       case 'Escape':
         return onCancel();
