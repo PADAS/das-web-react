@@ -23,7 +23,7 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   // TODO: Set this value depending on the geojson properties
-  const imageSource = 'desktop';
+  // const imageSource = 'desktop';
 
   const eventPolygon = event.geometry.type === 'FeatureCollection'
     ? event.geometry.features.find((feature) => feature.geometry.type === 'Polygon')
@@ -57,7 +57,7 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
 
-    <label className={styles.imageSource}>Created on {imageSource}</label>
+    {/* <label className={styles.imageSource}>Created on {imageSource}</label> */}
 
     <div className={styles.geometryEditButtons}>
       <Button
