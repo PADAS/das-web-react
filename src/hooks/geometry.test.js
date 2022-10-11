@@ -3,8 +3,6 @@ import { renderHook } from '@testing-library/react-hooks';
 
 import { useEventGeoMeasurementDisplayStrings } from './geometry';
 
-console.log({ renderHook });
-
 const mockGeometry = {
   'type': 'Feature',
   'properties': {
@@ -43,9 +41,7 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
     const event = { id: 'hello', geometry: mockGeometry };
     const originalEvent = { ...event };
 
-    const { result: { current } } = renderHook(() => useEventGeoMeasurementDisplayStrings(event, originalEvent), { wrapper });
-
-    const [perimeterDisplayString, areaDisplayString] = current;
+    const { result: { current: [perimeterDisplayString, areaDisplayString] } } = renderHook(() => useEventGeoMeasurementDisplayStrings(event, originalEvent), { wrapper });
 
     expect(perimeterDisplayString).toBe('62.89km');
     expect(areaDisplayString).toBe('0.37km²');
@@ -90,9 +86,8 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
       }
     };
 
-    const { result: { current } } = renderHook(() => useEventGeoMeasurementDisplayStrings(event, originalEvent), { wrapper });
+    const { result: { current: [perimeterDisplayString, areaDisplayString] } } = renderHook(() => useEventGeoMeasurementDisplayStrings(event, originalEvent), { wrapper });
 
-    const [perimeterDisplayString, areaDisplayString] = current;
     expect(areaDisplayString).toBe('~55.76km²');
     expect(perimeterDisplayString).toBe('~55.05km');
   });
@@ -100,11 +95,51 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
   test('returning 0 when there is no report geometry to render', () => {
     const withNoGeo = { id: 'hello', geometry: null };
 
-    const { result: { current } } = renderHook(() => useEventGeoMeasurementDisplayStrings(withNoGeo, withNoGeo), { wrapper });
-
-    const [perimeterDisplayString, areaDisplayString] = current;
+    const { result: { current: [perimeterDisplayString, areaDisplayString] } } = renderHook(() => useEventGeoMeasurementDisplayStrings(withNoGeo, withNoGeo), { wrapper });
 
     expect(perimeterDisplayString).toBe('0km');
     expect(areaDisplayString).toBe('0km²');
+  });
+
+  test('using meters as the unit for small areas and lengths', () => {
+    let geometry = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [
+              -104.08357165065672,
+              20.49214874439909
+            ],
+            [
+              -104.08357120256102,
+              20.49220937141014
+            ],
+            [
+              -104.08322023208088,
+              20.492247999370306
+            ],
+            [
+              -104.08316697643782,
+              20.492134600378463
+            ],
+            [
+              -104.08357165065672,
+              20.49214874439909
+            ]
+          ]
+        ]
+      }
+    };
+
+    const originalEvent = { id: 'hello', geometry: null };
+    const updatedEvent = { ...originalEvent, geometry };
+
+    const { result: { current: [perimeterDisplayString, areaDisplayString] } } = renderHook(() => useEventGeoMeasurementDisplayStrings(updatedEvent, originalEvent), { wrapper });
+
+    expect(perimeterDisplayString).toBe('~99.5m');
+    expect(areaDisplayString).toBe('~385.36m²');
   });
 });
