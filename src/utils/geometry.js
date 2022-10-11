@@ -8,7 +8,7 @@ import length from '@turf/length';
 
 import { truncateFloatingNumber } from './math';
 
-const UNIT_LABELS = {
+export const UNIT_LABELS = {
   'meters': 'm',
   'kilometers': 'km',
 };

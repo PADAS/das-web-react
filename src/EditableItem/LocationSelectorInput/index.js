@@ -1,7 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-// import area from '@turf/area';
 import debounceRender from 'react-debounce-render';
-// import length from '@turf/length';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
