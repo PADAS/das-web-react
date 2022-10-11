@@ -60,7 +60,7 @@ const AreaSelectorInput = ({
 
   const onDeleteArea = useCallback(() => {
     setMapDrawingData(null);
-    onGeometryChange?.(null);
+    onGeometryChange(null);
     setIsPopoverOpen(false);
   }, [onGeometryChange, setMapDrawingData]);
 
@@ -71,7 +71,7 @@ const AreaSelectorInput = ({
 
   useEffect(() => {
     if (!isPickingLocation && mapDrawingData) {
-      onGeometryChange?.(mapDrawingData.fillPolygon);
+      onGeometryChange(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
     }
   }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
@@ -158,7 +158,7 @@ AreaSelectorInput.defaultProps = {
 };
 
 AreaSelectorInput.propTypes = {
-  onGeometryChange: PropTypes.func,
+  onGeometryChange: PropTypes.func.isRequired,
   originalEvent: PropTypes.object.isRequired,
   event: PropTypes.object.isRequired,
 };
