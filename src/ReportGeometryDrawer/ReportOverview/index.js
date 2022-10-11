@@ -37,8 +37,6 @@ const ReportOverview = ({
 
   const [isOpen, setIsOpen] = useState(true);
 
-  console.log({ mapDrawingData });
-
   const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings({ geometry: mapDrawingData?.fillPolygon }, originalEvent);
 
   const onClickInformationIcon = useCallback((event) => {
