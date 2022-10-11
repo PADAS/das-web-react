@@ -124,7 +124,7 @@ const MapDrawingTools = ({
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Backspace') {
+      if (event.key === 'Backspace' || event.key === 'Delete') {
         const selectedPoint = map.queryRenderedFeatures({ layers: [LAYER_IDS.POINTS] })
           .find((point) => !!point.state?.selected);
         if (!drawing && selectedPoint) {
