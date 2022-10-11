@@ -11,7 +11,6 @@ import { calcGpsDisplayString } from '../../utils/location';
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
-import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { setModalVisibilityState } from '../../ducks/modals';
 
 import GpsInput from '../../GpsInput';
@@ -41,10 +40,8 @@ const LocationSelectorInput = ({
   const dispatch = useDispatch();
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const map = useContext(MapContext);
-  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
@@ -57,13 +54,6 @@ const LocationSelectorInput = ({
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
 
-  // Geometries
-
-  useEffect(() => {
-    if (!isPickingLocation && mapDrawingData) {
-      setMapDrawingData(null);
-    }
-  }, [isPickingLocation, mapDrawingData, setMapDrawingData]);
 
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -105,12 +95,6 @@ const LocationSelectorInput = ({
   const onClickLocationControl = useCallback(() => {
     setIsPopoverOpen(!isPopoverOpen);
   }, [isPopoverOpen]);
-
-  const onHidePopover = useCallback(() => {
-    if (!isPickingLocation && !mapDrawingData) {
-      setIsPopoverOpen(false);
-    }
-  }, [isPickingLocation, mapDrawingData]);
 
   const onLabelKeyDown = useCallback((event) => {
     if (event.key === 'Escape' && isPopoverOpen) {
@@ -157,7 +141,6 @@ const LocationSelectorInput = ({
 
     <Overlay
       container={locationInputLabelRef.current}
-      onHide={onHidePopover}
       placement='bottom'
       rootClose
       shouldUpdatePosition={true}
