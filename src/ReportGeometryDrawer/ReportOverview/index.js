@@ -16,6 +16,8 @@ import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
 import ReportListItem from '../../ReportListItem';
 
+import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
+
 import styles from './styles.module.scss';
 
 const TOOLTIP_SHOW_TIME = 500;
@@ -29,10 +31,13 @@ const ReportOverview = ({
   onShowInformationModal,
 }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isOpen, setIsOpen] = useState(true);
+
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings({ geometry: mapDrawingData?.fillPolygon }, originalEvent);
 
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();
@@ -57,11 +62,11 @@ const ReportOverview = ({
 
         <div className={styles.measurements}>
           <div>
-            {`Area: ${mapDrawingData?.fillLabelPoint?.properties?.areaLabel || '0km²'}`}
+            {`Area: ${areaDisplayString}`}
           </div>
 
           <div>
-            {`Perimeter: ${mapDrawingData?.drawnLineSegments?.properties?.lengthLabel || '0km'}`}
+            {`Perimeter: ${perimeterDisplayString}`}
           </div>
         </div>
 

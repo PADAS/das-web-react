@@ -5,6 +5,8 @@ import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
 import midpoint from '@turf/midpoint';
 
+import { UNIT_LABELS } from '../utils/geometry';
+
 export const createLineSegmentGeoJsonForCoords = (coords) => {
   const lineSegments = lineSegment(lineString(coords));
 
@@ -30,9 +32,19 @@ export const createLineSegmentGeoJsonForCoords = (coords) => {
 export const createFillPolygonGeoJsonForCoords = (coords) => polygon([coords]);
 
 export const createLabelPointGeoJsonForPolygon = (polygon) => {
+  let unit = 'meters';
+
   const polygonCenterOfMass = centerOfMass(polygon);
-  const polygonArea = convertArea(area(polygon), 'meters', 'kilometers');
-  const areaLabel = `${polygonArea.toFixed(2)}km²`;
+  const areaInMeters = area(polygon);
+
+  if (areaInMeters > 10000) {
+    unit = 'kilometers';
+  }
+
+  const polygonArea = convertArea(area(polygon), 'meters', unit);
+
+
+  const areaLabel = `${polygonArea.toFixed(2)}${UNIT_LABELS[unit]}²`;
 
   return  {
     ...polygonCenterOfMass,
