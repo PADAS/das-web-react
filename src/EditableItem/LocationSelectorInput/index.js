@@ -40,6 +40,7 @@ const LocationSelectorInput = ({
   const dispatch = useDispatch();
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const map = useContext(MapContext);
 
@@ -107,6 +108,12 @@ const LocationSelectorInput = ({
     event.stopPropagation();
   }, []);
 
+  const onHidePopover = useCallback(() => {
+    if (!isPickingLocation) {
+      setIsPopoverOpen(false);
+    }
+  }, [isPickingLocation]);
+
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (!!popoverContentRef.current && !popoverContentRef.current.contains(event.target)) {
@@ -141,6 +148,7 @@ const LocationSelectorInput = ({
 
     <Overlay
       container={locationInputLabelRef.current}
+      onHide={onHidePopover}
       placement='bottom'
       rootClose
       shouldUpdatePosition={true}
