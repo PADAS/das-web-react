@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import GeometryPreview from './';
-import { mockStore } from '../../../__test-helpers/MockStore';
-import { report } from '../../../__test-helpers/fixtures/reports';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('GeometryPreview', () => {
   const onAreaSelectStart = jest.fn(), onDeleteArea = jest.fn();
@@ -19,13 +19,14 @@ describe('GeometryPreview', () => {
           [
             [6.657425, 9.301125],
             [-40.668725, 5.047775],
-            [5.0602, -13.74975]
+            [5.0602, -13.74975],
+            [6.657425, 9.301125],
           ]
         ]
       }
     };;
 
-    store = mockStore({ view: { mapLocationSelection: { event: report } } });
+    store = mockStore({ data: { eventStore: { [report.id]: report } }, view: { mapLocationSelection: { event: report } } });
   });
 
   afterEach(() => {
@@ -41,7 +42,7 @@ describe('GeometryPreview', () => {
 
     expect((await screen.findByAltText('Static map with geometry'))).toBeDefined();
     expect((await screen.findByAltText('Static map with geometry')))
-      .toHaveAttribute('src', 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(%7B%22type%22:%22Feature%22,%22properties%22:%7B%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B6.657425,9.301125%5D,%5B-40.668725,5.047775%5D,%5B5.0602,-13.74975%5D%5D%5D%7D%7D)/[-40.668725,-13.74975,6.657425,9.301125]/296x130?padding=10&access_token=pk.eyJ1IjoidmpvZWxtIiwiYSI6ImNrdW15MXczdTFnaWcyb3A4NjN2dzVzdWcifQ.jYrSffOGKKPxXDJoxwtNfQ&logo=false&attribution=false');
+      .toHaveAttribute('src', 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(%7B%22type%22:%22Feature%22,%22properties%22:%7B%7D,%22geometry%22:%7B%22type%22:%22Polygon%22,%22coordinates%22:%5B%5B%5B6.657425,9.301125%5D,%5B-40.668725,5.047775%5D,%5B5.0602,-13.74975%5D,%5B6.657425,9.301125%5D%5D%5D%7D%7D)/[-40.668725,-13.74975,6.657425,9.301125]/296x130?padding=10&access_token=pk.eyJ1IjoidmpvZWxtIiwiYSI6ImNrdW15MXczdTFnaWcyb3A4NjN2dzVzdWcifQ.jYrSffOGKKPxXDJoxwtNfQ&logo=false&attribution=false');
     expect((await screen.findByTitle('Place geometry on map'))).toHaveTextContent('Edit Area');
   });
 
@@ -83,6 +84,6 @@ describe('GeometryPreview', () => {
     );
 
     expect((await screen.findByText('6666984.03km²'))).toBeDefined();
-    expect((await screen.findByText('10700.51km'))).toBeDefined();
+    expect((await screen.findByText('13269.71km'))).toBeDefined();
   });
 });

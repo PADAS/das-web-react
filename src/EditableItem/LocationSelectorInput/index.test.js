@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../../App';
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
@@ -19,10 +19,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/reports' }),
 }));
 
-jest.mock('../../constants', () => ({
-  ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_EVENT_GEOMETRY: true },
-}));
 
 jest.mock('../../ducks/side-bar', () => ({
   ...jest.requireActual('../../ducks/side-bar'),
@@ -41,21 +37,7 @@ jest.mock('../../ducks/map-ui', () => ({
 }));
 
 describe('LocationSelectorInput', () => {
-  const geometryExample = {
-    type: 'Feature',
-    geometry: {
-      type: 'Polygon',
-      coordinates: [
-        [
-          [6.657425, 9.301125],
-          [-40.668725, 5.047775],
-          [5.0602, -13.74975]
-        ]
-      ]
-    }
-  };
-
-  const onLocationChange = jest.fn(), onGeometryChange = jest.fn();
+  const onLocationChange = jest.fn();
   let map, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
   beforeEach(() => {
     hideSideBarMock = jest.fn(() => () => {});
@@ -83,7 +65,6 @@ describe('LocationSelectorInput', () => {
               <LocationSelectorInput
                 label="label"
                 map={map}
-                onGeometryChange={onGeometryChange}
                 onLocationChange={onLocationChange}
               />
             </MapContext.Provider>
@@ -104,34 +85,6 @@ describe('LocationSelectorInput', () => {
     userEvent.click(setLocationButton);
 
     expect((await screen.findByRole('tooltip'))).toBeDefined();
-  });
-
-  test('starts to create an area when clicking location with polygon geomtryType', async () => {
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
-                geometryType="Polygon"
-                map={map}
-                onGeometryChange={onGeometryChange}
-                onLocationChange={onLocationChange}
-              />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
-
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
   });
 
   test('closes the popover when clicking location again', async () => {
@@ -168,15 +121,16 @@ describe('LocationSelectorInput', () => {
     const setLocationButton = await screen.getByTestId('set-location-button');
     userEvent.click(setLocationButton);
 
-    expect(hideSideBar).toHaveBeenCalledTimes(0);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(hideSideBar).toHaveBeenCalledTimes(0);
+    });
 
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
     userEvent.click(placeMarkerOnMapButton);
 
     await waitFor(() => {
-      expect(hideSideBar).toHaveBeenCalledTimes(1);
-      expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
+      expect(hideSideBar).toHaveBeenCalled();
+      expect(setModalVisibilityState).toHaveBeenCalled();
       expect(setModalVisibilityState).toHaveBeenCalledWith(false);
     });
   });
@@ -188,13 +142,15 @@ describe('LocationSelectorInput', () => {
     const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
     userEvent.click(placeMarkerOnMapButton);
 
-    expect(showSideBar).toHaveBeenCalledTimes(1);
-    expect(setModalVisibilityState).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(hideSideBar).toHaveBeenCalledTimes(1);
+      expect(setModalVisibilityState).toHaveBeenCalledWith(false);
+    });
 
     userEvent.keyboard('{Escape}');
 
     await waitFor(() => {
-      expect(showSideBar).toHaveBeenCalledTimes(3);
+      expect(showSideBar).toHaveBeenCalled();
       expect(setModalVisibilityState).toHaveBeenCalledWith(true);
     });
   });
@@ -236,122 +192,4 @@ describe('LocationSelectorInput', () => {
     expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
   });
 
-  test('renders the placeholder default value for location', async () => {
-    expect((await screen.findByText('Click here to set location'))).toBeDefined();
-    expect((await screen.findByText('marker-feed.svg'))).toBeDefined();
-  });
-
-  test('renders the placeholder default value for area', async () => {
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
-                geometryType="Polygon"
-                map={map}
-                onGeometryChange={onGeometryChange}
-                onLocationChange={onLocationChange}
-              />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect((await screen.findByText('Set report area'))).toBeDefined();
-    expect((await screen.findByText('polygon.svg'))).toBeDefined();
-  });
-
-  test('sets is picking location to true if user starts to create an area', async () => {
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
-                geometryType="Polygon"
-                label="label"
-                map={map}
-                onGeometryChange={onGeometryChange}
-                onLocationChange={onLocationChange}
-              />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
-
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
-  });
-
-  test('deletes the report area if user clicks delete area button', async () => {
-    report.geometry = geometryExample;
-
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
-                geometryType="Polygon"
-                map={map}
-                onGeometryChange={onGeometryChange}
-                onLocationChange={onLocationChange}
-              />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    expect(onGeometryChange).toHaveBeenCalledTimes(0);
-
-    const deleteAreaButton = await screen.getByTitle('Delete area button');
-    userEvent.click(deleteAreaButton);
-
-    expect(onGeometryChange).toHaveBeenCalledTimes(1);
-    expect(onGeometryChange).toHaveBeenCalledWith(null);
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
-    });
-  });
-
-  test('saves the report area if user is not picking location and there is data in the drawing map context', async () => {
-    const fillPolygon = { type: 'Feature' };
-    const setMapDrawingData = jest.fn();
-
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
-                map={map}
-                onGeometryChange={onGeometryChange}
-                onLocationChange={onLocationChange}
-              />
-            </MapContext.Provider>
-          </MapDrawingToolsContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(onGeometryChange).toHaveBeenCalledTimes(1);
-    expect(onGeometryChange).toHaveBeenCalledWith(fillPolygon);
-    expect(setMapDrawingData).toHaveBeenCalledTimes(1);
-    expect(setMapDrawingData).toHaveBeenCalledWith(null);
-  });
 });
