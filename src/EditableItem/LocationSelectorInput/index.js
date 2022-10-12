@@ -13,7 +13,7 @@ import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon
 
 import { calcGpsDisplayString } from '../../utils/location';
 import { DEVELOPMENT_FEATURE_FLAGS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
-import { EVENT_REPORT_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
@@ -32,7 +32,6 @@ import styles from './styles.module.scss';
 const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const calculateInputDisplayString = (event, gpsFormat, location, placeholder, geometryType) => {
   if (!!event?.geometry) {
@@ -90,13 +89,21 @@ const LocationSelectorInput = ({
   const onAreaSelectStart = useCallback(() => {
     dispatch(setIsPickingLocation(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY));
 
-    mapInteractionTracker.track('Geometry selection on map started');
-  }, [dispatch]);
+    if (!event?.geometry) {
+      eventReportTracker.track('Click set area to add area to report');
+    } else if (event?.geometry?.properties?.provenance === 'desktop') {
+      eventReportTracker.track('Edit an event geometry generated in ER Web');
+    } else if (event?.geometry?.properties?.provenance === 'mobile') {
+      eventReportTracker.track('Edit an event geometry generated in ER Mobile');
+    }
+  }, [dispatch, event?.geometry]);
 
   const onDeleteArea = useCallback(() => {
     setMapDrawingData(null);
     onGeometryChange?.(null);
     setIsPopoverOpen(false);
+
+    eventReportTracker.track('Area deleted');
   }, [onGeometryChange, setMapDrawingData]);
 
   useEffect(() => {
@@ -108,8 +115,14 @@ const LocationSelectorInput = ({
     if (!isPickingLocation && mapDrawingData) {
       onGeometryChange?.(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
+
+      if (!event?.geometry) {
+        eventReportTracker.track('New area saved');
+      } else {
+        eventReportTracker.track('Edits to an area saved');
+      }
     }
-  }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
+  }, [event?.geometry, isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -117,6 +130,8 @@ const LocationSelectorInput = ({
   const onLocationSelectStart = useCallback(() => {
     dispatch(setModalVisibilityState(false));
     dispatch(hideSideBar());
+
+    eventReportTracker.track('Click set location to add report point');
   }, [dispatch]);
 
   const onLocationSelectCancel = useCallback(() => {
