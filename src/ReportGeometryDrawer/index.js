@@ -23,7 +23,11 @@ const VERTICAL_POLYGON_PADDING = 100;
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
-  const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const event = useSelector((state) =>
+    state.view.mapLocationSelection.event.id
+      ? state.data.eventStore[state.view.mapLocationSelection.event.id]
+      : state.view.mapLocationSelection.event
+  );
 
   const [reportGeometry, dispatchReportGeometry] = useReducer(
     reportGeometryReducer,
@@ -84,7 +88,7 @@ const ReportGeometryDrawer = () => {
         dispatch(setIsPickingLocation(false));
       }
     }
-  }, [dispatch, event.geometry, points, setMapDrawingData, showInformationModal]);
+  }, [dispatch, event?.geometry, points, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;
