@@ -132,6 +132,7 @@ const ReportGeometryDrawer = () => {
         return onCancel();
 
       case 'Backspace':
+      case 'Delete':
         return isDrawing && onUndo();
 
       default:
