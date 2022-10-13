@@ -44,7 +44,7 @@ describe('ReportGeometryDrawer', () => {
     map.queryRenderedFeatures.mockImplementation(() => []);
 
     store = {
-      data: { eventTypes: [], patrolTypes: [] },
+      data: { eventStore: { [report.id]: report }, eventTypes: [], patrolTypes: [] },
       view: { mapLocationSelection: { event: report }, modals: { modals: [] } },
     };
 

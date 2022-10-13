@@ -35,7 +35,7 @@ export const GA_EVENT_CATEGORIES = {
 };
 
 export const MIN_ZOOM = 2.5;
-export const MAX_ZOOM = 18;
+export const MAX_ZOOM = 20;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;

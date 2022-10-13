@@ -4,26 +4,32 @@ import { useDispatch } from 'react-redux';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import { DATEPICKER_DEFAULT_CONFIG, VALID_EVENT_GEOMETRY_TYPES, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setMapLocationSelectionEvent } from '../ducks/map-ui';
 
 import DatePicker from '../DatePicker';
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
+import AreaSelectorInput from './AreaSelectorInput';
 import ReportedBySelect from '../ReportedBySelect';
 
 import styles from './styles.module.scss';
+
+
+const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const ReportFormTopLevelControls = ({
   geometryType,
   menuContainerRef,
   onReportDateChange,
   onReportedByChange,
-  onReportGeometryChange,
+  onEventGeometryChange,
   onReportLocationChange,
   readonly,
   report,
+  originalEvent,
 }) => {
   const dispatch = useDispatch();
+
 
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
   const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
@@ -56,12 +62,18 @@ const ReportFormTopLevelControls = ({
       />
     </label>
 
-    <LocationSelectorInput
-      geometryType={geometryType}
-      location={reportLocation}
-      onGeometryChange={onReportGeometryChange}
-      onLocationChange={onReportLocationChange}
-    />
+
+    {ENABLE_EVENT_GEOMETRY && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+      ? <AreaSelectorInput
+        event={report}
+        originalEvent={originalEvent}
+        onGeometryChange={onEventGeometryChange}
+        />
+      : <LocationSelectorInput
+        location={reportLocation}
+        onLocationChange={onReportLocationChange}
+        />
+    }
   </div>;
 };
 
