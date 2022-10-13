@@ -56,14 +56,14 @@ const ReportOverview = ({
     eventReportTracker.track('Clicks the collapse/ expand button');
   }, [isOpen]);
 
-  const onClickUndo = useCallback(() => {
-    onClickUndoCallback();
+  const onClickUndo = useCallback((...args) => {
+    onClickUndoCallback(...args);
 
     eventReportTracker.track('Clicks undo while drawing area');
   }, [onClickUndoCallback]);
 
-  const onClickDiscard = useCallback(() => {
-    onClickDiscardCallback();
+  const onClickDiscard = useCallback((...args) => {
+    onClickDiscardCallback(...args);
 
     eventReportTracker.track('Clicks discard while drawing area');
   }, [onClickDiscardCallback]);
