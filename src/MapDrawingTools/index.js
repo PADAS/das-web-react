@@ -5,18 +5,17 @@ import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
 
-import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
-
+import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
-
+import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
+import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
+import { MapContext } from '../App';
 import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
-import { useMapEventBinding } from '../hooks';
+import { useMapEventBinding, useMatchMedia } from '../hooks';
 
-import styles from './styles.module.scss';
 import MapLayers from './MapLayers';
 
-import { MapContext } from '../App';
-import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
+import styles from './styles.module.scss';
 
 export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
@@ -41,6 +40,8 @@ const MapDrawingTools = ({
   renderCursorPopup = defaultCursorPopupRenderFn,
 }) => {
   const map = useContext(MapContext);
+
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(false);
@@ -157,7 +158,7 @@ const MapDrawingTools = ({
   if (!showLayer) return null;
 
   return <>
-    {renderCursorPopup({
+    {isMediumLayoutOrLarger && renderCursorPopup({
       coords: cursorPopupCoords,
       drawing,
       isHoveringMidpoint,
