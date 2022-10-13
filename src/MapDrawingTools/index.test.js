@@ -31,6 +31,7 @@ describe('MapDrawingTools', () => {
 
   beforeEach(() => {
     map = createMapMock();
+    map.queryRenderedFeatures.mockReturnValue([]);
     drawing = true;
 
     jest.useFakeTimers();
