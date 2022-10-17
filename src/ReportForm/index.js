@@ -150,6 +150,10 @@ const ReportForm = (props) => {
       .then((results) => {
         onSaveSuccess(results);
 
+        if (report.geometry) {
+          reportTracker.track('Event with an area created');
+        }
+
         if (report.is_collection && toSubmit.state) {
           return Promise.all(report.contains
             .map(contained => contained.related_event.id)

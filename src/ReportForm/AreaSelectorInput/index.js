@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
 
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
@@ -21,7 +21,7 @@ import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const INPUT_PLACEHOLDER = 'Set report area';
 
@@ -55,13 +55,21 @@ const AreaSelectorInput = ({
   const onAreaSelectStart = useCallback(() => {
     dispatch(setIsPickingLocation(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY));
 
-    mapInteractionTracker.track('Geometry selection on map started');
-  }, [dispatch]);
+    if (!event?.geometry) {
+      eventReportTracker.track('Click set area to add area to report');
+    } else if (event?.geometry?.properties?.provenance === 'desktop') {
+      eventReportTracker.track('Edit an event geometry generated in ER Web');
+    } else if (event?.geometry?.properties?.provenance === 'mobile') {
+      eventReportTracker.track('Edit an event geometry generated in ER Mobile');
+    }
+  }, [dispatch, event?.geometry]);
 
   const onDeleteArea = useCallback(() => {
     setMapDrawingData(null);
     onGeometryChange(null);
     setIsPopoverOpen(false);
+
+    eventReportTracker.track('Area deleted');
   }, [onGeometryChange, setMapDrawingData]);
 
   useEffect(() => {
@@ -73,8 +81,14 @@ const AreaSelectorInput = ({
     if (!isPickingLocation && mapDrawingData) {
       onGeometryChange(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
+
+      if (!event?.geometry) {
+        eventReportTracker.track('New event area completed');
+      } else {
+        eventReportTracker.track('Existing event area edited');
+      }
     }
-  }, [isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
+  }, [event?.geometry, isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 
   const onClickAreaControl = useCallback(() => {
     if (!event?.geometry) {

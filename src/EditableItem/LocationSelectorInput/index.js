@@ -55,13 +55,14 @@ const LocationSelectorInput = ({
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
 
-
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
   const onLocationSelectStart = useCallback(() => {
     dispatch(setModalVisibilityState(false));
     dispatch(hideSideBar());
+
+    eventReportTracker.track('Click set location to add report point');
   }, [dispatch]);
 
   const onLocationSelectCancel = useCallback(() => {
