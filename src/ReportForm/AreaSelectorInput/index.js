@@ -83,9 +83,9 @@ const AreaSelectorInput = ({
       setMapDrawingData(null);
 
       if (!event?.geometry) {
-        eventReportTracker.track('New area saved');
+        eventReportTracker.track('New event area completed');
       } else {
-        eventReportTracker.track('Edits to an area saved');
+        eventReportTracker.track('Existing event area edited');
       }
     }
   }, [event?.geometry, isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
