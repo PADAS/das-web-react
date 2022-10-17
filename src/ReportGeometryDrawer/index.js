@@ -23,11 +23,7 @@ const VERTICAL_POLYGON_PADDING = 100;
 const ReportGeometryDrawer = () => {
   const dispatch = useDispatch();
 
-  const event = useSelector((state) =>
-    state.view.mapLocationSelection.event.id
-      ? state.data.eventStore[state.view.mapLocationSelection.event.id]
-      : state.view.mapLocationSelection.event
-  );
+  const event = useSelector((state) => state.view.mapLocationSelection.event);
 
   const [reportGeometry, dispatchReportGeometry] = useReducer(
     reportGeometryReducer,
