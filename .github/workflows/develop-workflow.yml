@@ -43,9 +43,6 @@ jobs:
       - name: "Make version"
         run: ci-helpers/makeversion.py
 
-      - name: "Test change"
-        run: cat package.json
-
       - name: Install dependencies
         run: yarn --ignore-scripts
 
