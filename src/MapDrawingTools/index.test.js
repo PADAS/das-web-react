@@ -5,8 +5,14 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { MapContext } from '../App';
 import MapDrawingTools, { DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
+import { useMatchMedia } from '../hooks';
 
 import { LAYER_IDS } from './MapLayers';
+
+jest.mock('../hooks', () => ({
+  ...jest.requireActual('../hooks'),
+  useMatchMedia: jest.fn(),
+}));
 
 describe('rendering', () => {
   test('rendering without crashing', () => {
@@ -27,9 +33,12 @@ describe('rendering', () => {
 });
 
 describe('MapDrawingTools', () => {
-  let points, drawing, map;
+  let points, drawing, map, useMatchMediaMock;
 
   beforeEach(() => {
+    useMatchMediaMock = jest.fn(() => true);
+    useMatchMedia.mockImplementation(useMatchMediaMock);
+
     map = createMapMock();
     map.queryRenderedFeatures.mockReturnValue([]);
     drawing = true;
@@ -276,6 +285,29 @@ describe('MapDrawingTools', () => {
 
       await waitFor(() => {
         expect(container).toHaveTextContent('Cursor popup rendering stuff');
+      });
+    });
+
+    test('does not render the popup in small screens', async () => {
+      useMatchMediaMock = jest.fn(() => false);
+      useMatchMedia.mockImplementation(useMatchMediaMock);
+      const points = [[1, 2], [2, 3], [4, 5]];
+
+      const { container } = render(
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <MapDrawingTools
+              drawing={drawing}
+              drawingMode={DRAWING_MODES.POLYGON}
+              points={points}
+              renderCursorPopup={() => <div>Cursor popup rendering stuff</div>}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      );
+
+      await waitFor(() => {
+        expect(container).not.toHaveTextContent('Cursor popup rendering stuff');
       });
     });
   });
