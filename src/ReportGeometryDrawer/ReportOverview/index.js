@@ -12,11 +12,16 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 import { ReactComponent as UndoArrowIcon } from '../../common/images/icons/undo-arrow.svg';
 
+import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
 import ReportListItem from '../../ReportListItem';
 
+import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
+
 import styles from './styles.module.scss';
+
+const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const TOOLTIP_SHOW_TIME = 500;
 const TOOLTIP_HIDE_TIME = 150;
@@ -24,24 +29,47 @@ const TOOLTIP_HIDE_TIME = 150;
 const ReportOverview = ({
   isDiscardButtonDisabled,
   isUndoButtonDisabled,
-  onClickDiscard,
-  onClickUndo,
+  onClickDiscard: onClickDiscardCallback,
+  onClickUndo: onClickUndoCallback,
   onShowInformationModal,
 }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
+  const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isOpen, setIsOpen] = useState(true);
 
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings({ geometry: mapDrawingData?.fillPolygon }, originalEvent);
+
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();
 
     onShowInformationModal();
+
+    eventReportTracker.track('Click info button in report area map');
   }, [onShowInformationModal]);
 
+  const onClickHeader = useCallback(() => {
+    setIsOpen(!isOpen);
+
+    eventReportTracker.track('Clicks the collapse/ expand button');
+  }, [isOpen]);
+
+  const onClickUndo = useCallback((...args) => {
+    onClickUndoCallback(...args);
+
+    eventReportTracker.track('Clicks undo while drawing area');
+  }, [onClickUndoCallback]);
+
+  const onClickDiscard = useCallback((...args) => {
+    onClickDiscardCallback(...args);
+
+    eventReportTracker.track('Clicks discard while drawing area');
+  }, [onClickDiscardCallback]);
+
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
-    <div className={styles.header} onClick={() => setIsOpen(!isOpen)}>
+    <div className={styles.header} onClick={onClickHeader}>
       <h2>Create Report Area</h2>
 
       <div className={styles.actions}>
@@ -57,11 +85,11 @@ const ReportOverview = ({
 
         <div className={styles.measurements}>
           <div>
-            {`Area: ${mapDrawingData?.fillLabelPoint?.properties?.areaLabel || '0km²'}`}
+            {`Area: ${areaDisplayString}`}
           </div>
 
           <div>
-            {`Perimeter: ${mapDrawingData?.drawnLineSegments?.properties?.lengthLabel || '0km'}`}
+            {`Perimeter: ${perimeterDisplayString}`}
           </div>
         </div>
 
