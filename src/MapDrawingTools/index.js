@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import debounce from 'lodash/debounce';
@@ -47,6 +47,10 @@ const MapDrawingTools = ({
   const [isHoveringMidpoint, setIsHoveringMidpoint] = useState(false);
   const [pointerLocation, setPointerLocation] = useState(null);
 
+  const setDraggedPointDebouncedRef = useRef(debounce((clickedPoint) => {
+    setDraggedPoint(clickedPoint);
+  }, MAP_CLICK_DEBOUNCE_TIME));
+
   const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
   const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
 
@@ -92,11 +96,13 @@ const MapDrawingTools = ({
       map.getCanvas().style.cursor = 'grab';
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
-      setDraggedPoint(clickedPoint);
+      setDraggedPointDebouncedRef.current(clickedPoint);
     }
   }, [map]);
 
   const onMouseUp = useCallback(() => {
+    setDraggedPointDebouncedRef.current.cancel();
+
     if (draggedPoint) {
       const newPoints = [...points];
       if (draggedPoint.properties.point) {
