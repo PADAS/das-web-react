@@ -52,8 +52,19 @@ const MapDrawingTools = ({
     setDraggedPoint(clickedPoint);
   }, MAP_CLICK_DEBOUNCE_TIME));
 
-  const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
-  const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
+  const cursorPopupCoords = useMemo(
+    () => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1],
+    [pointerLocation, points]
+  );
+  const data = useDrawToolGeoJson(
+    points,
+    drawing,
+    cursorPopupCoords,
+    drawingMode,
+    isHoveringGeometry,
+    draggedPoint,
+    isMediumLayoutOrLarger
+  );
 
   const showLayer = pointerLocation || points.length;
 
