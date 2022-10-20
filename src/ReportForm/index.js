@@ -117,6 +117,10 @@ const ReportForm = (props) => {
           ...originalReport.event_details,
           ...(!!changes && changes.event_details),
         },
+        location: {
+          ...originalReport.location,
+          ...(!!changes && changes.location),
+        }
       };
 
       /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
