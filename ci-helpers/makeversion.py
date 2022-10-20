@@ -4,9 +4,9 @@ import os
 import json
 
 def update_package():
-    branch=os.environ.get('CIRCLE_BRANCH', 'na')
-    build_number = os.environ.get('CIRCLE_BUILD_NUM', 'na')
-    build_sha1 = os.environ.get('CIRCLE_SHA1', 'na')
+    branch=os.environ.get('BUILD_BRANCH', 'na')
+    build_number = os.environ.get('BUILD_NUMBER', 'na')
+    build_sha1 = os.environ.get('BUILD_SHA', 'na')
     
     with open('package.json', 'r') as fo:
         package_data = json.load(fo)
