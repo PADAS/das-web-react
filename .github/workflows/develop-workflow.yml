@@ -5,6 +5,13 @@ on:
       - "das-2-*-*"
       - "ERA-*"
       - "develop"
+
+env:
+  BUILD_BRANCH: ${{ github.ref_name }}
+  BUILD_NUMBER: ${{ github.run_number }}
+  BUILD_SHA: ${{ github.sha }}
+
+
 jobs:
   build:
     permissions:
@@ -27,6 +34,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 14
+
+      - name: "Configure python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: "Make version"
+        run: ci-helpers/makeversion.py
 
       - name: Install dependencies
         run: yarn --ignore-scripts
@@ -95,8 +110,8 @@ jobs:
           echo "Setting cluster with certificate"
           kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
           echo "Updating the image"
-          echo "gcr.io/padas-app/circleci/das-web-react/${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"
-          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${SITE}:${GITHUB_SHA}
+          if [[ ${SITE} == "stage" ]]; then export IMAGE="${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"; else export IMAGE="${SITE}:${GITHUB_SHA}"; fi
+          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${IMAGE}
 
 
       - name: Remove ip address
