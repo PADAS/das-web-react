@@ -105,6 +105,7 @@ const Map = ({
   clearEventData,
   clearSubjectData,
   eventFilter,
+  eventStore,
   fetchBaseLayers,
   fetchMapEvents,
   fetchMapSubjects,
@@ -279,7 +280,8 @@ const Map = ({
         if (ENABLE_REPORT_NEW_UI) {
           navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
         } else {
-          openModalForReport(event, map);
+          const fromStore = eventStore[event.id];
+          openModalForReport(fromStore, map);
         }
       }, 50);
     }
@@ -711,7 +713,7 @@ const Map = ({
 
 const mapStatetoProps = (state) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, user, eventTypes, patrolFilter } = data;
+  const { maps, tracks, eventFilter, eventStore, user, eventTypes, patrolFilter } = data;
   const {
     hiddenAnalyzerIDs,
     hiddenFeatureIDs,
@@ -745,6 +747,7 @@ const mapStatetoProps = (state) => {
     popup,
     user,
     eventFilter,
+    eventStore,
     patrolFilter,
     subjectTrackState,
     showTrackTimepoints,
