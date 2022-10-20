@@ -26,7 +26,7 @@ describe('GeometryPreview', () => {
       }
     };;
 
-    store = mockStore({ data: { eventStore: { [report.id]: report } }, view: { mapLocationSelection: { event: report } } });
+    store = mockStore({ data: { eventStore: { [report.id]: report } } });
   });
 
   afterEach(() => {
@@ -36,7 +36,7 @@ describe('GeometryPreview', () => {
   test('renders the preview geometry preview', async () => {
     render(
       <Provider store={store}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} />
+        <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={report} />
       </Provider>
     );
 
@@ -49,7 +49,7 @@ describe('GeometryPreview', () => {
   test('triggers onAreaSelectStart when pressing the edit area button', async () => {
     render(
       <Provider store={store}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} />
+        <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={report} />
       </Provider>
     );
 
@@ -64,7 +64,7 @@ describe('GeometryPreview', () => {
   test('triggers onDeleteArea when pressing the delete button', async () => {
     render(
       <Provider store={store}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview onDeleteArea={onDeleteArea} event={report} />
       </Provider>
     );
 
@@ -79,7 +79,7 @@ describe('GeometryPreview', () => {
   test('calculates and shows the area and perimeter of the geometry', async () => {
     render(
       <Provider store={store}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview onDeleteArea={onDeleteArea} event={report} />
       </Provider>
     );
 

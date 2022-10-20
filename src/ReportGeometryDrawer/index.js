@@ -84,7 +84,7 @@ const ReportGeometryDrawer = () => {
         dispatch(setIsPickingLocation(false));
       }
     }
-  }, [dispatch, event.geometry, points, setMapDrawingData, showInformationModal]);
+  }, [dispatch, event?.geometry, points, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;

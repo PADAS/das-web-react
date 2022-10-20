@@ -18,8 +18,7 @@ const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 296;
 const STATIC_MAP_HEGHT = 130;
 
-const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
-  const event = useSelector((state) => state.view.mapLocationSelection.event);
+const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   // TODO: Set this value depending on the geojson properties
@@ -84,6 +83,7 @@ const GeometryPreview = ({ onAreaSelectStart, onDeleteArea }) => {
 };
 
 GeometryPreview.propTypes = {
+  event: PropTypes.object.isRequired,
   onAreaSelectStart: PropTypes.func.isRequired,
   onDeleteArea: PropTypes.func.isRequired,
 };
