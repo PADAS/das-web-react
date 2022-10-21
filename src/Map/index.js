@@ -269,11 +269,9 @@ const Map = ({
   });
 
   const onEventSymbolClick = withLocationPickerState(
-    ({ event: clickEvent, layer: { properties } }) => {
+    ({ event: clickEvent, layer: { properties: event } }) => {
       setTimeout(() => {
         if (clickEvent?.originalEvent?.cancelBubble) return;
-
-        const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
