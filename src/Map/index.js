@@ -14,7 +14,6 @@ import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/e
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
