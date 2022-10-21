@@ -174,7 +174,7 @@ const AreaSelectorInput = ({
     >
       <Popover placement='bottom' className={styles.newGpsPopover}>
         {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
-          <GeometryPreview onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
+          <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={event} onDeleteArea={onDeleteArea} />
         </div>}
       </Popover>
     </Overlay>

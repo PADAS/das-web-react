@@ -26,7 +26,7 @@ describe('GeometryPreview', () => {
       }
     };;
 
-    store = { data: { eventStore: { [report.id]: report } }, view: { mapLocationSelection: { event: report } } };
+    store = { data: { eventStore: { [report.id]: report } } };
   });
 
   afterEach(() => {
@@ -36,7 +36,7 @@ describe('GeometryPreview', () => {
   test('renders the preview geometry preview', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} />
+        <GeometryPreview event={report} onAreaSelectStart={onAreaSelectStart} />
       </Provider>
     );
 
@@ -49,7 +49,7 @@ describe('GeometryPreview', () => {
   test('triggers onAreaSelectStart when pressing the edit area button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} />
+        <GeometryPreview event={report} onAreaSelectStart={onAreaSelectStart} />
       </Provider>
     );
 
@@ -64,7 +64,7 @@ describe('GeometryPreview', () => {
   test('triggers onDeleteArea when pressing the delete button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
@@ -79,7 +79,7 @@ describe('GeometryPreview', () => {
   test('calculates and shows the area and perimeter of the geometry', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
@@ -91,7 +91,7 @@ describe('GeometryPreview', () => {
     report.geometry.properties = { provenance: 'web' };
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
@@ -102,7 +102,7 @@ describe('GeometryPreview', () => {
     report.geometry.properties = { provenance: 'mobile' };
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
@@ -113,7 +113,7 @@ describe('GeometryPreview', () => {
     report.geometry.properties = { provenance: null };
     render(
       <Provider store={mockStore(store)}>
-        <GeometryPreview onDeleteArea={onDeleteArea} />
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 

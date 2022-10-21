@@ -17,7 +17,6 @@ import InformationModal from './InformationModal';
 import ReportOverview from './ReportOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
-const TIMEOUT_TO_REMOVE_REDUNDANT_POINT = 150;
 const VERTICAL_POLYGON_PADDING = 100;
 
 const ReportGeometryDrawer = () => {
@@ -84,7 +83,7 @@ const ReportGeometryDrawer = () => {
         dispatch(setIsPickingLocation(false));
       }
     }
-  }, [dispatch, event.geometry, points, setMapDrawingData, showInformationModal]);
+  }, [dispatch, event?.geometry, points, setMapDrawingData, showInformationModal]);
 
   const onChangeGeometry = useCallback((newPoints) => {
     const isNewGeometryAPolygon = newPoints.length > 2;
@@ -99,14 +98,10 @@ const ReportGeometryDrawer = () => {
       const isInitialPointClicked = !!map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
         .find((point) => point.properties.pointIndex === 0);
       if (isInitialPointClicked) {
-        setTimeout(
-          () => dispatchReportGeometry(setGeometryPoints(points)),
-          TIMEOUT_TO_REMOVE_REDUNDANT_POINT
-        );
         setIsDrawing(false);
       }
     }
-  }, [isDrawing, map, points]);
+  }, [isDrawing, map]);
 
   const onDoubleClick = useCallback(() => setIsDrawing(false), []);
 

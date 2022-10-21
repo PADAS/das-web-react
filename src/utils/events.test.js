@@ -78,7 +78,6 @@ describe('#calcDisplayPriorityForReport', () => {
 describe('#getCoordinatesForEvent', () => {
   test('getting single point coordinates', () => {
     const result = getCoordinatesForEvent(eventWithPoint);
-    console.log({ result });
     expect(result).toEqual([18.714, 5.8676]);
   });
 

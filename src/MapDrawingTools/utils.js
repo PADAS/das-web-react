@@ -56,13 +56,17 @@ export const createLabelPointGeoJsonForPolygon = (polygon) => {
   };
 };
 
-export const createPointsGeoJsonForCoords = (coords, isDrawing) => {
+export const createPointsGeoJsonForCoords = (coords, isDrawing, isMediumLayoutOrLarger) => {
   const points = coords.map((coordinates, index) => point(coordinates, { point: true, pointIndex: index }));
 
   if (isDrawing) {
-    points.pop(); // Remove the point below the cursor
+    if (isMediumLayoutOrLarger) {
+      points.pop(); // Remove the point below the cursor
+    }
 
-    points[0].properties = { ...points[0].properties, initialPoint: true };
+    if (!!points.length) {
+      points[0].properties = { ...points[0].properties, initialPoint: true };
+    }
   }
 
   const pointHovers = points.map((point) => ({ ...point, properties: { pointHover: true } }));
