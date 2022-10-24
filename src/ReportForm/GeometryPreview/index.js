@@ -44,7 +44,6 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
   const provenanceLabel = useMemo(() => {
-    console.log(eventPolygon);
     const provenance = eventPolygon?.properties?.provenance;
     if (!provenance) {
       return null;
