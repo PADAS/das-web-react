@@ -1,4 +1,5 @@
 import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -142,7 +143,7 @@ const ReportForm = (props) => {
       }
     }
 
-    if (toSubmit.hasOwnProperty('location') && !toSubmit.location) {
+    if (toSubmit.hasOwnProperty('location') && (!toSubmit.location || isEmpty(toSubmit.location))) {
       toSubmit.location = null;
     }
 
