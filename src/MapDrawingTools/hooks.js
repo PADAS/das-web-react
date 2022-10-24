@@ -28,14 +28,15 @@ export const useDrawToolGeoJson = (
   cursorCoords = null,
   drawMode = DRAWING_MODES.POLYGON,
   polygonHover = false,
-  draggedPoint = null
+  draggedPoint = null,
+  isMediumLayoutOrLarger = true
 ) => {
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const vertexCoordinates = useMemo(() => {
     const vertexCoordinates = [...points];
 
-    if (isDrawing && cursorCoords) {
+    if (isDrawing && isMediumLayoutOrLarger && cursorCoords) {
       vertexCoordinates.push(cursorCoords);
     }
 
@@ -52,7 +53,7 @@ export const useDrawToolGeoJson = (
     }
 
     return vertexCoordinates;
-  }, [cursorCoords, draggedPoint, drawMode, isDrawing, points]);
+  }, [cursorCoords, draggedPoint, drawMode, isDrawing, isMediumLayoutOrLarger, points]);
 
   const geoJson = useMemo(() => {
     const data = {
@@ -70,12 +71,14 @@ export const useDrawToolGeoJson = (
     const isPolygonClosed = shouldCalculatePolygonData
       && isEqual(vertexCoordinates[0], vertexCoordinates[vertexCoordinates.length - 1]);
 
+    data.drawnLinePoints = createPointsGeoJsonForCoords(
+      isPolygonClosed ? vertexCoordinates.slice(0, -1) : vertexCoordinates,
+      isDrawing,
+      isMediumLayoutOrLarger
+    );
+
     if (shouldCalculateLinesData) {
       data.drawnLineSegments = createLineSegmentGeoJsonForCoords(vertexCoordinates);
-      data.drawnLinePoints = createPointsGeoJsonForCoords(
-        isPolygonClosed ? vertexCoordinates.slice(0, -1) : vertexCoordinates,
-        isDrawing
-      );
     };
 
     if (shouldCalculatePolygonData) {

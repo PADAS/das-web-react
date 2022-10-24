@@ -23,6 +23,7 @@ import styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
+const GEOMETRY_PROVENANCE_WEB = 'web';
 const INPUT_PLACEHOLDER = 'Set report area';
 
 const AreaSelectorInput = ({
@@ -57,10 +58,10 @@ const AreaSelectorInput = ({
 
     if (!event?.geometry) {
       eventReportTracker.track('Click set area to add area to report');
-    } else if (event?.geometry?.properties?.provenance === 'desktop') {
-      eventReportTracker.track('Edit an event geometry generated in ER Web');
-    } else if (event?.geometry?.properties?.provenance === 'mobile') {
-      eventReportTracker.track('Edit an event geometry generated in ER Mobile');
+    } else if (event?.geometry?.properties?.provenance) {
+      eventReportTracker.track(`Edit an event geometry generated in ER ${event?.geometry?.properties?.provenance}`);
+    } else {
+      eventReportTracker.track('Edit an event geometry');
     }
   }, [dispatch, event?.geometry]);
 
@@ -79,14 +80,30 @@ const AreaSelectorInput = ({
 
   useEffect(() => {
     if (!isPickingLocation && mapDrawingData) {
-      onGeometryChange(mapDrawingData.fillPolygon);
       setMapDrawingData(null);
 
+      let geoJson;
       if (!event?.geometry) {
+        geoJson = {
+          ...mapDrawingData.fillPolygon,
+          properties: { provenance: GEOMETRY_PROVENANCE_WEB },
+        };
+
         eventReportTracker.track('New event area completed');
       } else {
+        const eventPolygon = event.geometry.type === 'FeatureCollection'
+          ? event.geometry.features.find((feature) => feature.geometry.type === 'Polygon')
+          : event.geometry;
+
+        geoJson = {
+          ...mapDrawingData.fillPolygon,
+          properties: { provenance: eventPolygon?.properties?.provenance },
+        };
+
         eventReportTracker.track('Existing event area edited');
       }
+
+      onGeometryChange(geoJson);
     }
   }, [event?.geometry, isPickingLocation, mapDrawingData, onGeometryChange, setMapDrawingData]);
 

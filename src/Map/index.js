@@ -14,7 +14,6 @@ import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/e
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
@@ -105,6 +104,7 @@ const Map = ({
   clearEventData,
   clearSubjectData,
   eventFilter,
+  eventStore,
   fetchBaseLayers,
   fetchMapEvents,
   fetchMapSubjects,
@@ -268,18 +268,17 @@ const Map = ({
   });
 
   const onEventSymbolClick = withLocationPickerState(
-    ({ event: clickEvent, layer: { properties } }) => {
+    ({ event: clickEvent, layer: { properties: event } }) => {
       setTimeout(() => {
         if (clickEvent?.originalEvent?.cancelBubble) return;
-
-        const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
         if (ENABLE_REPORT_NEW_UI) {
           navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
         } else {
-          openModalForReport(event, map);
+          const fromStore = eventStore[event.id];
+          openModalForReport(fromStore, map);
         }
       }, 50);
     }
@@ -711,7 +710,7 @@ const Map = ({
 
 const mapStatetoProps = (state) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, user, eventTypes, patrolFilter } = data;
+  const { maps, tracks, eventFilter, eventStore, user, eventTypes, patrolFilter } = data;
   const {
     hiddenAnalyzerIDs,
     hiddenFeatureIDs,
@@ -745,6 +744,7 @@ const mapStatetoProps = (state) => {
     popup,
     user,
     eventFilter,
+    eventStore,
     patrolFilter,
     subjectTrackState,
     showTrackTimepoints,

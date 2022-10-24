@@ -26,7 +26,7 @@ describe('GeometryPreview', () => {
       }
     };;
 
-    store = mockStore({ data: { eventStore: { [report.id]: report } } });
+    store = { data: { eventStore: { [report.id]: report } } };
   });
 
   afterEach(() => {
@@ -35,8 +35,8 @@ describe('GeometryPreview', () => {
 
   test('renders the preview geometry preview', async () => {
     render(
-      <Provider store={store}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={report} />
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onAreaSelectStart={onAreaSelectStart} />
       </Provider>
     );
 
@@ -48,8 +48,8 @@ describe('GeometryPreview', () => {
 
   test('triggers onAreaSelectStart when pressing the edit area button', async () => {
     render(
-      <Provider store={store}>
-        <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={report} />
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onAreaSelectStart={onAreaSelectStart} />
       </Provider>
     );
 
@@ -63,8 +63,8 @@ describe('GeometryPreview', () => {
 
   test('triggers onDeleteArea when pressing the delete button', async () => {
     render(
-      <Provider store={store}>
-        <GeometryPreview onDeleteArea={onDeleteArea} event={report} />
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
@@ -78,12 +78,46 @@ describe('GeometryPreview', () => {
 
   test('calculates and shows the area and perimeter of the geometry', async () => {
     render(
-      <Provider store={store}>
-        <GeometryPreview onDeleteArea={onDeleteArea} event={report} />
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
       </Provider>
     );
 
     expect((await screen.findByText('6666984.03km²'))).toBeDefined();
     expect((await screen.findByText('13269.71km'))).toBeDefined();
+  });
+
+  test('shows the provenance label if it is defined', async () => {
+    report.geometry.properties = { provenance: 'web' };
+    render(
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
+      </Provider>
+    );
+
+    expect((await screen.findByText('Created on EarthRanger web'))).toBeDefined();
+  });
+
+  test('shows different values of provenance', async () => {
+    report.geometry.properties = { provenance: 'mobile' };
+    render(
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
+      </Provider>
+    );
+
+    expect((await screen.findByText('Created on EarthRanger mobile'))).toBeDefined();
+  });
+
+  test('does not show the provenance label if it is not defined', async () => {
+    report.geometry.properties = { provenance: null };
+    render(
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} onDeleteArea={onDeleteArea} />
+      </Provider>
+    );
+
+    expect((await screen.queryByText('Created on EarthRanger web'))).toBeNull();
+    expect((await screen.queryByText('Created on EarthRanger mobile'))).toBeNull();
   });
 });

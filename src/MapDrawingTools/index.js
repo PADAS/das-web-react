@@ -5,18 +5,17 @@ import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
 
-import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
-
+import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
-
+import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
+import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
+import { MapContext } from '../App';
 import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
-import { useMapEventBinding } from '../hooks';
+import { useMapEventBinding, useMatchMedia } from '../hooks';
 
-import styles from './styles.module.scss';
 import MapLayers from './MapLayers';
 
-import { MapContext } from '../App';
-import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
+import styles from './styles.module.scss';
 
 export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
@@ -42,6 +41,8 @@ const MapDrawingTools = ({
 }) => {
   const map = useContext(MapContext);
 
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+
   const [draggedPoint, setDraggedPoint] = useState(null);
   const [isHoveringGeometry, setIsHoveringGeometry] = useState(false);
   const [isHoveringMidpoint, setIsHoveringMidpoint] = useState(false);
@@ -51,26 +52,36 @@ const MapDrawingTools = ({
     setDraggedPoint(clickedPoint);
   }, MAP_CLICK_DEBOUNCE_TIME));
 
-  const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
-  const data = useDrawToolGeoJson(points, drawing, cursorPopupCoords, drawingMode, isHoveringGeometry, draggedPoint);
+  const cursorPopupCoords = useMemo(
+    () => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1],
+    [pointerLocation, points]
+  );
+  const data = useDrawToolGeoJson(
+    points,
+    drawing,
+    cursorPopupCoords,
+    drawingMode,
+    isHoveringGeometry,
+    draggedPoint,
+    isMediumLayoutOrLarger
+  );
 
   const showLayer = pointerLocation || points.length;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onMapClick = useCallback(debounce((event) => {
-    if (drawing) {
-      event.preventDefault();
-      event.originalEvent.stopPropagation();
+    event.preventDefault();
+    event.originalEvent.stopPropagation();
 
-      const { lngLat } = event;
-      onChange([...points, [lngLat.lng, lngLat.lat]]);
-    } else {
+    const clickedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
+      .find((point) => !point.properties.pointHover && !point.properties.midpointHover);
+    if (drawing && !clickedPoint) {
+      onChange([...points, [event.lngLat.lng, event.lngLat.lat]]);
+    } else if (!drawing) {
       map.removeFeatureState({ source: SOURCE_IDS.POINT_SOURCE });
 
-      const selectedPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.POINTS] })
-        .find((point) => !point.properties.pointHover && !point.properties.midpointHover);
-      if (selectedPoint) {
-        map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: selectedPoint.id }, { selected: true });
+      if (clickedPoint) {
+        map.setFeatureState({ source: SOURCE_IDS.POINT_SOURCE, id: clickedPoint.id }, { selected: true });
       }
     }
   }, MAP_CLICK_DEBOUNCE_TIME), [drawing, map, onChange, points]);
@@ -83,8 +94,8 @@ const MapDrawingTools = ({
     onMapClick.cancel();
   }, [onMapClick]);
 
-  const onMouseMove = useCallback((e) => {
-    setPointerLocation(e.lngLat);
+  const onMouseMove = useCallback((event) => {
+    setPointerLocation(event.lngLat);
   }, []);
 
   const onMouseDownPoint = useCallback((event) => {
@@ -100,21 +111,34 @@ const MapDrawingTools = ({
     }
   }, [map]);
 
-  const onMouseUp = useCallback(() => {
+  const onTouchStartPoint = useCallback((event) => {
+    setPointerLocation(event.lngLat);
+    onMouseDownPoint(event);
+  }, [onMouseDownPoint]);
+
+  const onMouseUp = useCallback((event) => {
     setDraggedPointDebouncedRef.current.cancel();
 
     if (draggedPoint) {
       const newPoints = [...points];
       if (draggedPoint.properties.point) {
-        newPoints[draggedPoint.properties.pointIndex] = cursorPopupCoords;
+        newPoints[draggedPoint.properties.pointIndex] = [event.lngLat.lng, event.lngLat.lat];
       } else {
-        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, cursorPopupCoords);
+        newPoints.splice(draggedPoint.properties.midpointIndex + 1, 0, [event.lngLat.lng, event.lngLat.lat]);
       }
 
       onChange(newPoints);
       setDraggedPoint(null);
     }
-  }, [cursorPopupCoords, draggedPoint, onChange, points]);
+  }, [draggedPoint, onChange, points]);
+
+  const onTouchEndPoint = useCallback((event) => {
+    setPointerLocation(null);
+
+    if (!drawing) {
+      onMouseUp(event);
+    }
+  }, [drawing, onMouseUp]);
 
   useMapEventBinding('click', onClickLine, LAYER_IDS.LINES);
   useMapEventBinding('click', onClickPoint, LAYER_IDS.POINTS);
@@ -122,9 +146,12 @@ const MapDrawingTools = ({
   useMapEventBinding('click', onClickFill, LAYER_IDS.FILL);
 
   useMapEventBinding('mousedown', onMouseDownPoint, LAYER_IDS.POINTS, !drawing);
+  useMapEventBinding('touchstart', onTouchStartPoint, LAYER_IDS.POINTS, !drawing);
   useMapEventBinding('mouseup', onMouseUp, null, !drawing);
+  useMapEventBinding('touchend', onTouchEndPoint, null);
 
   useMapEventBinding('mousemove', onMouseMove, null);
+  useMapEventBinding('touchmove', onMouseMove, null, !drawing);
   useMapEventBinding('dblclick', onMapDblClick, null, drawing);
   useMapEventBinding('click', onMapClick, null);
 
@@ -148,7 +175,7 @@ const MapDrawingTools = ({
   if (!showLayer) return null;
 
   return <>
-    {renderCursorPopup({
+    {isMediumLayoutOrLarger && renderCursorPopup({
       coords: cursorPopupCoords,
       drawing,
       isHoveringMidpoint,
