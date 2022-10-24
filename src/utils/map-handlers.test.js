@@ -1,19 +1,19 @@
 import { withMultiLayerHandlerAwareness } from './map-handlers';
 
+import { createMapMock, createMockMapInteractionEvent } from '../__test-helpers/mocks';
+
 
 describe('#withMultiLayerHandlerAwareness | higher-order function for multi-feature-layer selection', () => {
-  let spy, fakeFn, wrapped, mockEventObject;
+  let spy, map, fakeFn, wrapped, mockEventObject;
 
   const execute = () => wrapped(mockEventObject);
-  const executeAndRunPendingTimers = () => {
-
-    execute();
-
-    jest.runOnlyPendingTimers();
-  };
 
   beforeEach(() => {
     jest.useFakeTimers();
+
+    map = createMapMock();
+
+    map.queryRenderedFeatures.mockReturnValue([]);
 
     spy = jest.fn();
 
@@ -21,9 +21,8 @@ describe('#withMultiLayerHandlerAwareness | higher-order function for multi-feat
       spy(event);
     };
 
-    wrapped = withMultiLayerHandlerAwareness(fakeFn);
-    mockEventObject = {};
-
+    wrapped = withMultiLayerHandlerAwareness(map, fakeFn);
+    mockEventObject = createMockMapInteractionEvent();
   });
 
   afterEach(() => {
@@ -32,29 +31,21 @@ describe('#withMultiLayerHandlerAwareness | higher-order function for multi-feat
   });
 
 
-  test('debouncing the handler function', () => {
+  test('if the clicked point has one or fewer layers of interest, execute as normal', () => {
+    execute();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    map.queryRenderedFeatures.mockReturnValue([{ properties: { id: 1 } }]);
+
+    execute();
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  test('if the clicked point has more than one layer of interest, do not execute the function', () => {
+    map.queryRenderedFeatures.mockReturnValue([{ properties: { id: 1 } }, { properties: { id: 2 } }]);
+
     execute();
     expect(spy).not.toHaveBeenCalled();
-
-    jest.runOnlyPendingTimers();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  test('if the event object does not have a .singleLayerSelected property, execute as normal', () => {
-    executeAndRunPendingTimers();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  test('if the event object has a .singleLayerSelected property, execute only if singleLayerSelected == true', () => {
-    mockEventObject.singleLayerSelected = false;
-
-    executeAndRunPendingTimers();
-    expect(spy).not.toHaveBeenCalled();
-
-    mockEventObject.singleLayerSelected = true;
-
-    executeAndRunPendingTimers();
-    expect(spy).toHaveBeenCalled();
 
   });
 });

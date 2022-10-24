@@ -1,12 +1,25 @@
-import debounce from 'lodash/debounce';
+import uniqBy from 'lodash/uniqBy';
 
-export const withMultiLayerHandlerAwareness = fn => (event = {}) => {
-  const PROP = 'singleLayerSelected';
-  const DEBOUNCE_TIME = 50;
+import { LAYER_PICKER_IDS } from '../constants';
 
-  return debounce(() => {
-    if (event.hasOwnProperty(PROP) && !event[PROP]) return null;
+export const queryMultiLayerClickFeatures = (map, event) => {
+  const clickedLayersOfInterest = uniqBy(
+    map.queryRenderedFeatures(
+      event.point,
+      { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) }
+    ),
+    layer => layer.properties.id
+  );
 
-    return fn(event);
-  }, DEBOUNCE_TIME);
+  console.log({ clickedLayersOfInterest });
+
+  return clickedLayersOfInterest;
+};
+
+export const withMultiLayerHandlerAwareness = (map, fn) => (event) => {
+  const multiSelectLayers = queryMultiLayerClickFeatures(map, event);
+
+  if (multiSelectLayers.length > 1) return null;
+
+  return fn(event);
 };

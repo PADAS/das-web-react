@@ -8,6 +8,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
@@ -56,10 +57,13 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
     setMapSubjectFeatures({ ...subjectFeatureCollection });
   }, [subjectFeatureCollection, mapImages]);
 
-  const onSubjectSymbolClick = useCallback((event) => {
-    const clickedLayer = map.queryRenderedFeatures(event.point, { layers: subjectLayerIds })[0];
-    onSubjectClick(({ event, layer: clickedLayer }));
-  }, [subjectLayerIds, map, onSubjectClick]);
+  const onSubjectSymbolClick = useMemo(() =>
+    withMultiLayerHandlerAwareness(
+      map,
+      (event) => {
+        const clickedLayer = map.queryRenderedFeatures(event.point, { layers: subjectLayerIds })[0];
+        onSubjectClick(({ event, layer: clickedLayer }));
+      }), [subjectLayerIds, map, onSubjectClick]);
 
 
   const unclusteredData = useMemo(() => ({
