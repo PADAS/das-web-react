@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import bbox from '@turf/bbox';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
@@ -9,7 +9,6 @@ import { ReactComponent as PencilIcon } from '../../common/images/icons/pencil.s
 import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
 
 import { REACT_APP_MAPBOX_TOKEN } from '../../constants';
-
 import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
 import styles from './styles.module.scss';
@@ -20,9 +19,6 @@ const STATIC_MAP_HEGHT = 130;
 
 const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
-
-  // TODO: Set this value depending on the geojson properties
-  // const imageSource = 'desktop';
 
   const eventPolygon = event.geometry.type === 'FeatureCollection'
     ? event.geometry.features.find((feature) => feature.geometry.type === 'Polygon')
@@ -47,6 +43,14 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
 
   const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
+  const provenanceLabel = useMemo(() => {
+    const provenance = eventPolygon?.properties?.provenance;
+    if (!provenance) {
+      return null;
+    }
+    return `Created on EarthRanger ${provenance}`;
+  }, [eventPolygon?.properties?.provenance]);
+
   return <div className={styles.locationAreaContent}>
     <div className={styles.geometryMeasurements}>
       <div>Area: <span className={styles.measureValue}>{areaDisplayString}</span></div>
@@ -56,7 +60,7 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
 
     <img alt="Static map with geometry" src={mapboxStaticImageSource} />
 
-    {/* <label className={styles.imageSource}>Created on {imageSource}</label> */}
+    {!!provenanceLabel && <label className={styles.imageSource}>{provenanceLabel}</label>}
 
     <div className={styles.geometryEditButtons}>
       <Button

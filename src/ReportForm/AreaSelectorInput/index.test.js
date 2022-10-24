@@ -188,7 +188,7 @@ describe('The AreaSelector input', () => {
       });
     });
 
-    test('saving the report area if user is not picking location and there is data in the drawing map context', async () => {
+    test('saving a new report area adds the provenance property', async () => {
       const fillPolygon = { type: 'Feature' };
       const setMapDrawingData = jest.fn();
 
@@ -210,10 +210,43 @@ describe('The AreaSelector input', () => {
       );
 
       expect(onGeometryChange).toHaveBeenCalledTimes(1);
+      expect(onGeometryChange).toHaveBeenCalledWith({
+        ...fillPolygon,
+        properties: { provenance: 'web' },
+      });
+      expect(setMapDrawingData).toHaveBeenCalledTimes(1);
+      expect(setMapDrawingData).toHaveBeenCalledWith(null);
+    });
+
+    test('saving an existing report area keeps the provenance property', async () => {
+      const fillPolygon = { type: 'Feature', properties: { provenance: 'mobile' } };
+      const setMapDrawingData = jest.fn();
+
+      render(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <FormDataContext.Provider value={report}>
+              <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
+                <MapContext.Provider value={map}>
+                  <AreaSelectorInput
+                    event={{
+                      ...report,
+                      geometry: fillPolygon,
+                    }}
+                    map={map}
+                    onGeometryChange={onGeometryChange}
+                  />
+                </MapContext.Provider>
+              </MapDrawingToolsContext.Provider>
+            </FormDataContext.Provider>
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      expect(onGeometryChange).toHaveBeenCalledTimes(1);
       expect(onGeometryChange).toHaveBeenCalledWith(fillPolygon);
       expect(setMapDrawingData).toHaveBeenCalledTimes(1);
       expect(setMapDrawingData).toHaveBeenCalledWith(null);
-
     });
   });
 
