@@ -22,7 +22,8 @@ const addItemPropsToFeatureByKey = (item, feature, key) => {
     properties: {
       ...clone,
       ...feature.properties,
-    }
+      id: clone?.id ?? feature?.properties?.id, // preserving original ID in case of integration interference
+    },
   };
 };
 
