@@ -69,7 +69,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
         const imageinStore = mapImages[calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)];
         const imgSrc = imageinStore ?
           imageinStore.image.src
-          : calcUrlForImage(layer.properties.image);
+          : calcUrlForImage(layer.properties.image || layer.properties.image_url);
 
         return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
           <img

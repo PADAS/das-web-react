@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { combineReducers } from 'redux';
-import debounce from 'lodash/debounce';
 
 import { API_URL, DAS_HOST, FEATURE_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
