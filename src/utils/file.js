@@ -1,15 +1,5 @@
-import { post, get } from 'axios';
+import { get } from 'axios';
 import { Buffer } from 'buffer';
-
-export const uploadFile = (url, file, progressHandler = () => null) => {
-  const formData = new FormData();
-  formData.append('file', file, file.name);
-  return post(url, formData, {
-    onUploadProgress(event) {
-      progressHandler(event);
-    },
-  });
-};
 
 export const convertFileListToArray = (list) => {
   const array = [];
