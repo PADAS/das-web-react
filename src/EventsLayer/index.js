@@ -12,6 +12,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
+import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
   DEVELOPMENT_FEATURE_FLAGS,
@@ -102,18 +103,23 @@ const EventsLayer = ({
     EVENT_GEOMETRY_LAYER,
   ]), []);
 
-  const onEventSymbolClick = useCallback((event) => {
-    if (!clicking.current) {
-      clicking.current = true;
+  const onEventSymbolClick = useMemo(() =>
+    withMultiLayerHandlerAwareness(
+      map,
+      (event) => {
+        if (!clicking.current) {
+          clicking.current = true;
 
-      const clickedLayer = map.queryRenderedFeatures(event.point, { layers: eventLayerIds })[0];
-      onEventClick({ event, layer: clickedLayer });
+          const clickedLayer = map.queryRenderedFeatures(event.point, { layers: eventLayerIds })[0];
+          onEventClick({ event, layer: clickedLayer });
 
-      setTimeout(() => {
-        clicking.current = false;
-      });
-    }
-  }, [eventLayerIds, map, onEventClick]);
+          setTimeout(() => {
+            clicking.current = false;
+          });
+        }
+
+      }
+    ), [eventLayerIds, map, onEventClick]);
 
   const updateBounceSineAnimation = useCallback(() => {
     let currFrame = animationState.frame;

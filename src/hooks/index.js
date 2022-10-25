@@ -61,16 +61,13 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
   useEffect(() => {
     const args = [eventType, layerId, handlerFn].filter(item => !!item);
 
-    if (map) {
-      if (condition) {
-        map.on(...args);
-        return () => {
-          map.off(...args);
-        };
-      } else {
-        map.off(...args);
-      }
+    if (map && condition) {
+      map.on(...args);
     }
+
+    return () => {
+      map?.off?.(...args);
+    };
   }, [map, condition, eventType, layerId, handlerFn]);
 };
 

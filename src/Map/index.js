@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
-import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
@@ -21,6 +20,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
+import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -40,7 +40,6 @@ import useNavigate from '../hooks/useNavigate';
 import {
   DEVELOPMENT_FEATURE_FLAGS,
   LAYER_IDS,
-  LAYER_PICKER_IDS,
   MAX_ZOOM,
   TAB_KEYS,
 } from '../constants';
@@ -250,28 +249,27 @@ const Map = ({
     }
   }, [mapLocationSelection.isPickingLocation]);
 
-  const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
-    if (event?.originalEvent?.cancelBubble) return;
+  const onSelectSubject = withLocationPickerState(
+    async ({ layer }) => {
+      const { geometry, properties } = layer;
+      const { id, tracks_available } = properties;
 
-    const { geometry, properties } = layer;
-    const { id, tracks_available } = properties;
+      window.setTimeout(() => showPopup('subject', { geometry, properties, coordinates: geometry.coordinates }));
 
-    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+      await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
-    await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
+      if (tracks_available) {
+        updateTrackState({ visible: [...subjectTrackState.visible, id] });
+      }
 
-    if (tracks_available) {
-      updateTrackState({ visible: [...subjectTrackState.visible, id] });
+      mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
     }
+  );
 
-    mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
-  });
 
-  const onEventSymbolClick = withLocationPickerState(
-    ({ event: clickEvent, layer: { properties: event } }) => {
+  const onSelectEvent = withLocationPickerState(
+    ({ layer: { properties: event } }) => {
       setTimeout(() => {
-        if (clickEvent?.originalEvent?.cancelBubble) return;
-
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
         if (ENABLE_REPORT_NEW_UI) {
@@ -288,10 +286,10 @@ const Map = ({
     showPopup('multi-layer-select', {
       layers,
       coordinates: [event.lngLat.lng, event.lngLat.lat],
-      onSelectSubject: onMapSubjectClick,
-      onSelectEvent: onEventSymbolClick,
+      onSelectSubject: onSelectSubject,
+      onSelectEvent: onSelectEvent,
     });
-  }, [onEventSymbolClick, onMapSubjectClick, showPopup]);
+  }, [onSelectEvent, onSelectSubject, showPopup]);
 
   const hideUnpinnedTrackLayers = useCallback((map, event) => {
     const { visible } = subjectTrackState;
@@ -329,10 +327,10 @@ const Map = ({
     showPopup('cluster-select', {
       layers,
       coordinates,
-      onSelectEvent: onEventSymbolClick,
-      onSelectSubject: onMapSubjectClick,
+      onSelectEvent: onSelectEvent,
+      onSelectSubject: onSelectSubject,
     });
-  }, [onEventSymbolClick, onMapSubjectClick, showPopup]);
+  }, [onSelectEvent, onSelectSubject, showPopup]);
 
   const onClusterClick = withLocationPickerState(({ point }) => {
     const features = map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
@@ -415,15 +413,19 @@ const Map = ({
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
   }, [map, popup?.type]);
 
-  const onAnalyzerFeatureClick = withLocationPickerState((e) => {
-    const features = getAnalyzerFeaturesAtPoint(map, e.point);
-    setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, true);
-    const properties = features[0].properties;
-    const geometry = e.lngLat;
-    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, analyzerFeatures);
+  const onAnalyzerFeatureClick = withLocationPickerState(
+    withMultiLayerHandlerAwareness(
+      map,
+      (e) => {
+        const features = getAnalyzerFeaturesAtPoint(map, e.point);
+        setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, true);
+        const properties = features[0].properties;
+        const geometry = e.lngLat;
+        const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, analyzerFeatures);
 
-    showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
-  });
+        showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
+      })
+  );
 
   const onSleepDetected = useCallback(() => {
     fetchMapData();
@@ -433,14 +435,9 @@ const Map = ({
     event.preventDefault();
     event.originalEvent.stopPropagation();
 
-    const clickedLayersOfInterest = uniqBy(
-      map.queryRenderedFeatures(
-        event.point,
-        { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) }
-      ),
-      layer => layer.properties.id
-    );
-    let shouldHidePopup = true, clusterFeaturesAtPoint = [];
+    const clickedLayersOfInterest = queryMultiLayerClickFeatures(map, event);
+
+    let shouldHidePopup = true;
 
     const clusterApproxGeometry = [
       [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
@@ -453,15 +450,9 @@ const Map = ({
 
     shouldHidePopup = !clustersAtPoint.length;
 
-    if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
-      event.originalEvent.cancelBubble = true;
-    }
-
     if (clickedLayersOfInterest.length > 1) {
-      if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
-        handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-        shouldHidePopup = false;
-      }
+      handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+      shouldHidePopup = false;
     }
 
     if (popup) {
@@ -621,12 +612,12 @@ const Map = ({
 
       <EventsLayer
           mapImages={mapImages}
-          onEventClick={onEventSymbolClick}
+          onEventClick={onSelectEvent}
           onClusterClick={onClusterClick}
           bounceEventIDs={bounceEventIDs}
         />
 
-      <SubjectsLayer mapImages={mapImages} onSubjectClick={onMapSubjectClick} />
+      <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
 
       <MapImagesLayer map={map} />
 

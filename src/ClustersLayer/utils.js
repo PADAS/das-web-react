@@ -85,7 +85,7 @@ export const createClusterHTMLMarker = (
     let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
-      featureImageHTML.src = feature.properties.image;
+      featureImageHTML.src = feature.properties.image || feature.properties.image_url;
     }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
     if (subjectIsStatic(feature)) {
@@ -112,7 +112,10 @@ export const onClusterClick = (
   map,
   onShowClusterSelectPopup,
   sourceId
-) => () => {
+) => (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
   if (!clusterMarkerHashMapRef.current[clusterHash]) return;
 
   const mapZoom = map.getZoom();
