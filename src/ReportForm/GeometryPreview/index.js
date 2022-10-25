@@ -3,6 +3,7 @@ import bbox from '@turf/bbox';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import rewind from '@turf/rewind';
+import simplify from '@turf/simplify';
 import { useSelector } from 'react-redux';
 
 import { ReactComponent as PencilIcon } from '../../common/images/icons/pencil.svg';
@@ -32,8 +33,10 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
 
   const eventGeoJsonRightHandRule = rewind(eventPolygon);
 
+  const simplified = simplify(eventGeoJsonRightHandRule, { tolerance: .0001 });
+
   const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
-  const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(eventGeoJsonRightHandRule))})`;
+  const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(simplified))})`;
   const areForGeometryBBOXEncoded = `[${minLon},${minLat},${maxLon},${maxLat}]`;
   const staticImageDimensions = `${STATIC_MAP_WIDTH}x${STATIC_MAP_HEGHT}`;
   const mapboxStaticImageAPIQuery = `padding=10&access_token=${REACT_APP_MAPBOX_TOKEN}&logo=false&attribution=false`;
