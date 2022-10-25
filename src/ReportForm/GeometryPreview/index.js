@@ -33,11 +33,7 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
 
   const eventGeoJsonRightHandRule = rewind(eventPolygon);
 
-  console.log('full coords length', eventGeoJsonRightHandRule?.geometry?.coordinates?.[0]?.[0]?.length);
-
   const simplified = simplify(eventGeoJsonRightHandRule, { tolerance: .0001 });
-
-  console.log('simplified coords length', simplified?.geometry?.coordinates?.[0]?.[0]?.length);
 
   const mapboxStaticImagesAPIURL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
   const eventGeoJSONEncoded = `geojson(${encodeURI(JSON.stringify(simplified))})`;
