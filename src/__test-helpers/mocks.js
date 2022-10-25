@@ -73,11 +73,15 @@ export const createMapMock = (override = {}) => {
   return mockMap;
 };
 
+export const createMockInteractionEvent = (data) => ({
+  preventDefault: jest.fn(),
+  stopPropagation: jest.fn(),
+  ...data,
+});
+
 
 export const createMockMapInteractionEvent = (data) => ({
   preventDefault: jest.fn(),
-  originalEvent: {
-    stopPropagation: jest.fn(),
-  },
+  originalEvent: createMockInteractionEvent(),
   ...data,
 });

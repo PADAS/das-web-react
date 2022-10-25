@@ -11,8 +11,6 @@ export const queryMultiLayerClickFeatures = (map, event) => {
     layer => layer.properties.id
   );
 
-  console.log({ clickedLayersOfInterest });
-
   return clickedLayersOfInterest;
 };
 

@@ -12,7 +12,7 @@ import {
 } from './utils';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, SOURCE_IDS } from '../constants';
 import ClustersLayer from '.';
-import { createMapMock } from '../__test-helpers/mocks';
+import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 import { MapContext } from '../App';
 import {
@@ -331,7 +331,7 @@ describe('ClustersLayer', () => {
 
   describe('onClusterClick', () => {
     const clusterCoordinates = {};
-    let map;
+    let map, clickEvent;
     const clusterFeatures = [
       { properties: { id: '1', content_type: 'observations.subject' } },
       { properties: { id: '2', event_type: 'jenaeonefield' } },
@@ -347,6 +347,7 @@ describe('ClustersLayer', () => {
 
     beforeEach(() => {
       map = createMapMock();
+      clickEvent = createMockInteractionEvent();
 
     });
 
@@ -362,7 +363,7 @@ describe('ClustersLayer', () => {
         map,
         onShowClusterSelectPopup,
         CLUSTERS_SOURCE_ID
-      )();
+      )(clickEvent);
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({ center: clusterCoordinates, zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1 });
@@ -379,7 +380,7 @@ describe('ClustersLayer', () => {
         map,
         onShowClusterSelectPopup,
         CLUSTERS_SOURCE_ID
-      )();
+      )(clickEvent);
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
       expect(onShowClusterSelectPopup).toHaveBeenCalledWith(clusterFeatures, clusterCoordinates);

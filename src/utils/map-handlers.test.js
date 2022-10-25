@@ -1,4 +1,4 @@
-import { withMultiLayerHandlerAwareness } from './map-handlers';
+import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from './map-handlers';
 
 import { createMapMock, createMockMapInteractionEvent } from '../__test-helpers/mocks';
 
@@ -47,5 +47,29 @@ describe('#withMultiLayerHandlerAwareness | higher-order function for multi-feat
     execute();
     expect(spy).not.toHaveBeenCalled();
 
+  });
+});
+
+describe('#queryMultiLayerClickFeatures', () => {
+  test('fetching unique layers by ID', () => {
+    const map = createMapMock();
+    const event = createMockMapInteractionEvent({ point: { x: 1, y: 2 } });
+
+    map.queryRenderedFeatures.mockReturnValue([
+      { properties: { id: 'whatever' } },
+      { properties: { id: 'neat' } },
+      { properties: { id: 'hello' } },
+      { properties: { id: 'whatever' } },
+      { properties: { id: 'yes' } },
+    ]);
+
+
+    const result = queryMultiLayerClickFeatures(map, event);
+    expect(result).toEqual([
+      { properties: { id: 'whatever' } },
+      { properties: { id: 'neat' } },
+      { properties: { id: 'hello' } },
+      { properties: { id: 'yes' } },
+    ]);
   });
 });

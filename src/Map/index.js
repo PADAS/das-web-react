@@ -20,12 +20,11 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
-import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
+import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
-import { queryMultiLayerClickFeatures } from '../utils/map-handlers';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import {
