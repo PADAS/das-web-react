@@ -164,10 +164,14 @@ const ReportForm = (props) => {
             .map(contained => contained.related_event.id)
             .map(id => setEventState(id, toSubmit.state)));
         }
+
+        const createdReport = results.length ? results[0] : results;
+        fetchEvent(createdReport.data.data.id);
+
         return results;
       })
       .catch(handleSaveError);
-  }, [filesToUpload, handleSaveError, notesToAdd, onSaveSuccess, originalReport, report, reportIsNew, reportTracker, setEventState]);
+  }, [fetchEvent, filesToUpload, handleSaveError, notesToAdd, onSaveSuccess, originalReport, report, reportIsNew, reportTracker, setEventState]);
 
   useEffect(() => {
     if (!initialized) {
