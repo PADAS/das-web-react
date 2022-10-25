@@ -112,7 +112,10 @@ export const onClusterClick = (
   map,
   onShowClusterSelectPopup,
   sourceId
-) => () => {
+) => (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
   if (!clusterMarkerHashMapRef.current[clusterHash]) return;
 
   const mapZoom = map.getZoom();
