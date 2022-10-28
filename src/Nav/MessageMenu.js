@@ -65,12 +65,12 @@ const MessageMenu = (props) => {
 
   if (!canShowMessageMenu) return null;
 
-  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
+  return <Dropdown align="end" onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle>
       <ChatIcon className={styles.messageIcon} />
       {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
-    <Menu className={styles.messageMenu}>
+    <Menu>
       <MessagesModal showClose={false} onSelectSubject={onSelectSubject} selectedSubject={selectedSubject} />
 
     </Menu>

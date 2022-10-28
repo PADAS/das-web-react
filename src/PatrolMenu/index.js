@@ -82,7 +82,7 @@ const PatrolMenu = (props) => {
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  return  <Dropdown alignRight className={styles.kebabMenu} {...rest}>
+  return  <Dropdown align="end" className={styles.kebabMenu} {...rest}>
     <Toggle as="button" className={styles.kebabToggle}>
       <KebabMenuIcon />
     </Toggle>

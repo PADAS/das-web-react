@@ -38,6 +38,11 @@ h6 {
   font-size: $font-size-h6;
 }
 
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: #fff;
+}
 
 $toastify-mq: only screen and (min-width: 481px); // using pixel values here, which is gross, but so we can have alignment with the media query boundaries from Toastify.
 
@@ -73,11 +78,28 @@ $toastify-mq: only screen and (min-width: 481px); // using pixel values here, wh
 .modal-header {
   background: $popover-header-color;
   color: white;
+  align-items: flex-start;
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: 0.3rem;
+  border-top-right-radius: 0.3rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
 
-  .close {
-    color: white;
+  .btn-close {
+    filter: brightness(0) invert(1);
     opacity: 1;
   }
+}
+
+.modal-footer {
+  align-items: center;
+  border-bottom-left-radius: 0.3rem;
+  border-bottom-right-radius: 0.3rem;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
 }
 
 .modal-backdrop {
