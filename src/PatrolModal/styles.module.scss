@@ -16,7 +16,7 @@ $container-padding: 1rem;
 .headerPopover {
   &[class*=bs-popover] {
     max-width: unset;
-    z-index: 2000;
+    z-index: 1055;
   }
   [class*=popover-header] {
     @include popoverTitle;
