@@ -136,18 +136,18 @@ describe('calculatePopoverPlacement', () => {
     expect(await calculatePopoverPlacement(map, { lat: -2.55, lng: 37.6 })).toBe('bottom');
   });
 
-  test('returns "auto" by default', async () => {
+  test('returns "bottom" by default', async () => {
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2, lng: 39 },
       _sw: { lat: -3, lng: 37 },
     }));
-    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 38 })).toBe('auto');
+    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 38 })).toBe('bottom');
 
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2.5, lng: 38 },
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('auto');
+    expect(await calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('bottom');
   });
 });

@@ -117,7 +117,8 @@ const LocationSelectorInput = ({
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (!!popoverContentRef.current && !popoverContentRef.current.contains(event.target)) {
+      if (!!popoverContentRef.current && !popoverContentRef.current.contains(event.target)
+        && !locationInputAnchorRef.current.contains(event.target)) {
         setIsPopoverOpen(false);
       }
     };

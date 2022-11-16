@@ -310,7 +310,7 @@ const AddReport = forwardRef(({
           {iconComponent || <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
+        <Overlay show={popoverOpen} container={containerRef.current} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
           <AddReportPopover onClickReportType={startEditNewReport} />
         </Overlay>
       </div>

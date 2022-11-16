@@ -10,7 +10,7 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from 
 
 import styles from './styles.module.scss';
 
-const { Label, Control } = Form;
+const { Label, Check } = Form;
 
 const RANGE_INPUT_ATTRS = {
   min: 1,
@@ -78,11 +78,11 @@ const TrackLengthControls = (props) => {
   return <Form className={styles.form} onSubmit={e => e.preventDefault()}>
     <h6>Track Length:</h6>
     <Label htmlFor='filter' className={styles.label}>
-      <Control onChange={onOriginChange} id='filter' checked={isSelected(TRACK_LENGTH_ORIGINS.eventFilter)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.eventFilter} type='radio' name='track-length-method' />
+      <Check onChange={onOriginChange} id='filter' checked={isSelected(TRACK_LENGTH_ORIGINS.eventFilter)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.eventFilter} type='radio' name='track-length-method' />
       <span>Match report filter &quot;from&quot; date ({eventFilterDateRangeLength} days)</span>
     </Label>
     <Label htmlFor='custom-length' className={styles.label}>
-      <Control onChange={onOriginChange} id='custom-length' checked={isSelected(TRACK_LENGTH_ORIGINS.customLength)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.customLength} type='radio' name='track-length-method' />
+      <Check onChange={onOriginChange} id='custom-length' checked={isSelected(TRACK_LENGTH_ORIGINS.customLength)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.customLength} type='radio' name='track-length-method' />
       <span>Custom length</span>
       <div className={styles.rangeControls}>
         <input type='range' {...RANGE_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeSlider} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} value={customLengthValue} onChange={onRangeInputChange} />

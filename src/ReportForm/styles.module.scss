@@ -353,7 +353,7 @@ button.addToIncidentBtn {
 .headerPopover {
   &[class*=bs-popover] {
     max-width: unset;
-    z-index: 1050;
+    z-index: 1055;
   }
   [class*=popover-header] {
     @include popoverTitle;
@@ -376,7 +376,7 @@ button.addToIncidentBtn {
     }
   }
   + [class*=modal-backdrop] + [role=dialog] {
-    z-index: 1050;
+    z-index: 1055;
   }
 }
 

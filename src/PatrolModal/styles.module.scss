@@ -16,7 +16,7 @@ $container-padding: 1rem;
 .headerPopover {
   &[class*=bs-popover] {
     max-width: unset;
-    z-index: 1050;
+    z-index: 2000;
   }
   [class*=popover-header] {
     @include popoverTitle;
@@ -39,7 +39,7 @@ $container-padding: 1rem;
     }
   }
   + [class*=modal-backdrop] + [role=dialog] {
-    z-index: 1050;
+    z-index: 1055;
   }
 }
 

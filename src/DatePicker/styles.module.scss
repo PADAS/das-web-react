@@ -63,7 +63,7 @@
   }
 
   > span {
-    &[class*=placeholder] {
+    .placeholder {
       color: $secondary-medium-light-gray;
     }
   }
