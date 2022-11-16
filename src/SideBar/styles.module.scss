@@ -276,6 +276,9 @@
 
 .sidebarEventFeed {
   margin-top: 0.75rem;
+  [class*=titleContainer] {
+    max-width: 20.5rem;
+  }
 }
 
 .mapLayerFooter {
