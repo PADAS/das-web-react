@@ -5,6 +5,7 @@ on:
       - "das-2-*-*"
       - "ERA-*"
       - "develop"
+      - "new-report-ui"
 
 env:
   BUILD_BRANCH: ${{ github.ref_name }}
