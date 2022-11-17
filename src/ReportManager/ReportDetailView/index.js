@@ -217,6 +217,14 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Reported By');
   }, [reportForm, reportTracker, setReportForm]);
 
+  const onPriorityChange = useCallback(({ value: priority }) => {
+    setReportForm({
+      ...reportForm,
+      priority,
+    });
+    reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
+  }, [reportForm, reportTracker]);
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -350,7 +358,7 @@ const ReportDetailView = ({
           <div className={styles.content}>
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
-                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} />
+                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} onPriorityChange={onPriorityChange} />
               </QuickLinks.Section>
 
               {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}

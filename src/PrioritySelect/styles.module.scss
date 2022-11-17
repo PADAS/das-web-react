@@ -1,0 +1,34 @@
+@import '../common/styles/vars/colors';
+
+
+.priorityItem{
+  display: flex;
+  align-items: center;
+
+  .circle{
+    width: .75rem;
+    height: .75rem;
+    border-radius: 50%;
+    margin-right: 0.3rem;
+    background: $no-priority;
+  }
+
+  .highPriority {
+    background: $high-priority;
+  }
+
+  .mediumPriority {
+    background: $medium-priority;
+  }
+
+  .lowPriority {
+    background: $low-priority;
+  }
+}
+
+.control{
+  border: none !important;;
+  min-height: 0 !important;
+}
+
+

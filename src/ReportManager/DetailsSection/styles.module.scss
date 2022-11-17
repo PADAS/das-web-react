@@ -24,14 +24,25 @@
   }
 }
 
-.trackedByLabel {
+.label {
   margin-top: 0.5rem;
-  width: 45%;
+  width: 90%;
   position: relative;
   color: $secondary-medium-gray;
   font-size: 0.875rem;
   
   > div {
     margin-top: 0.187rem;
+  }
+}
+
+.formContainer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .column{
+    width: 100%;
   }
 }
