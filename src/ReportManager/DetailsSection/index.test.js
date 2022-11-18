@@ -3,14 +3,19 @@ import { Provider } from 'react-redux';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { createMapMock } from '../../__test-helpers/mocks';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { GPS_FORMATS } from '../../utils/location';
+import { MapContext } from '../../App';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
+import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
 
+let map;
 const onReportedByChange = jest.fn(), onReportGeometryChange = jest.fn(), onReportLocationChange = jest.fn();
 const store = {
   data: {
@@ -45,11 +50,17 @@ const store = {
 };
 
 describe('ReportManager - DetailsSection', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+
+    map = createMapMock();
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  test('shows the field empty for reports without tracking subject', async () => {
+  test('shows the reported by field empty for reports without tracking subject', async () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
@@ -63,13 +74,12 @@ describe('ReportManager - DetailsSection', () => {
     );
 
     const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const placeholderText = within(reportedBySelect).queryByText('Reported by...');
 
     expect(() => within(reportedBySelect).getByTestId('select-single-value')).toThrow();
-    expect(placeholderText).toBeDefined();
+    expect(within(reportedBySelect).queryByText('Reported by...')).toBeDefined();
   });
 
-  test('shows the name of the tracking subject for saved reports', async () => {
+  test('shows the name of the tracking subject in reported by for saved reports', async () => {
     const reportedBy = {
       id: '1234',
       name: 'Canek',
@@ -131,5 +141,119 @@ describe('ReportManager - DetailsSection', () => {
 
     expect(onReportedByChange).toHaveBeenCalledTimes(1);
     expect(onReportedByChange.mock.calls[0][0].id).toBe('1234');
+  });
+
+  test('shows the location selector if the geometry type of the report is point', async () => {
+    report.location = null;
+
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POINT };
+      }
+      return eventType;
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContextProvider>
+          <DetailsSection
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContextProvider>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Click here to set location'))).toBeDefined();
+  });
+
+  test('triggers the onReportLocationChange callback when the user chooses a location in map', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POINT };
+      }
+      return eventType;
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <DetailsSection
+              onReportedByChange={onReportedByChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              originalReport={report}
+              reportForm={report}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const setLocationButton = await screen.findByTestId('set-location-button');
+    userEvent.click(setLocationButton);
+    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
+    userEvent.click(placeMarkerOnMapButton);
+
+    expect(onReportLocationChange).toHaveBeenCalledTimes(0);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+
+    expect(onReportLocationChange).toHaveBeenCalledTimes(1);
+    expect(onReportLocationChange).toHaveBeenCalledWith([88, 55]);
+  });
+
+  test('shows the area selector if the geometry type of the report is polygon', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContextProvider>
+          <DetailsSection
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContextProvider>
+      </Provider>
+    );
+
+    expect((await screen.findByText('Set report area'))).toBeDefined();
+  });
+
+  test('triggers the onReportGeometryChange callback when redux state suggests a geometry selection', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
+          <DetailsSection
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
   });
 });

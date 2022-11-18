@@ -26,9 +26,7 @@ const DetailsSection = ({
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
-  const geometryType = useMemo(() =>
-    calcGeometryTypeForReport(reportForm, eventTypes)
-  , [eventTypes, reportForm]);
+  const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
 
   const reportLocation = useMemo(
     () => !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null,
@@ -87,6 +85,8 @@ const DetailsSection = ({
 
 DetailsSection.propTypes = {
   onReportedByChange: PropTypes.func.isRequired,
+  onReportGeometryChange: PropTypes.func.isRequired,
+  onReportLocationChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
 };
