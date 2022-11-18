@@ -16,7 +16,7 @@ import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/
 import { setModalVisibilityState } from '../../ducks/modals';
 import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
-import GeometryPreview from '../GeometryPreview';
+import GeometryPreview from './GeometryPreview';
 import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';

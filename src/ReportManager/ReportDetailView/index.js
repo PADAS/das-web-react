@@ -217,6 +217,20 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Reported By');
   }, [reportForm, reportTracker, setReportForm]);
 
+  const onReportGeometryChange = useCallback((geometry) => {
+    setReportForm({ ...reportForm, geometry, location: null });
+
+    reportTracker.track('Change Report Geometry');
+  }, [reportForm, reportTracker]);
+
+  const onReportLocationChange = useCallback((location) => {
+    const updatedLocation = !!location ? { latitude: location[1], longitude: location[0] } : null;
+
+    setReportForm({ ...reportForm, location: updatedLocation });
+
+    reportTracker.track('Change Report Location');
+  }, [reportForm, reportTracker]);
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -350,7 +364,13 @@ const ReportDetailView = ({
           <div className={styles.content}>
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
-                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} />
+                <DetailsSection
+                  onReportedByChange={onReportedByChange}
+                  onReportGeometryChange={onReportGeometryChange}
+                  onReportLocationChange={onReportLocationChange}
+                  originalReport={originalReport}
+                  reportForm={reportForm}
+                />
               </QuickLinks.Section>
 
               {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
