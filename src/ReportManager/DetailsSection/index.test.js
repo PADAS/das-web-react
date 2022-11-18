@@ -4,13 +4,14 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { GPS_FORMATS } from '../../utils/location';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
 import DetailsSection from './';
 
-const onReportedByChange = jest.fn();
+const onReportedByChange = jest.fn(), onReportGeometryChange = jest.fn(), onReportLocationChange = jest.fn();
 const store = {
   data: {
     subjectStore: {},
@@ -36,7 +37,11 @@ const store = {
       },
     }
   },
-  view: { sideBar: {} },
+  view: {
+    mapLocationSelection: { isPickingLocation: false },
+    sideBar: {},
+    userPreferences: { gpsFormat: GPS_FORMATS.DEG },
+  },
 };
 
 describe('ReportManager - DetailsSection', () => {
@@ -47,7 +52,13 @@ describe('ReportManager - DetailsSection', () => {
   test('shows the field empty for reports without tracking subject', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <DetailsSection onReportedByChange={onReportedByChange} reportedBy={report.reported_by} />
+        <DetailsSection
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          originalReport={report}
+          reportForm={report}
+        />
       </Provider>
     );
 
@@ -67,7 +78,13 @@ describe('ReportManager - DetailsSection', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportedBy} />
+        <DetailsSection
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          originalReport={report}
+          reportForm={{ ...report, reported_by: reportedBy }}
+        />
       </Provider>
     );
 
@@ -93,7 +110,13 @@ describe('ReportManager - DetailsSection', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportedBy} />
+        <DetailsSection
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          originalReport={report}
+          reportForm={{ ...report, reported_by: reportedBy }}
+        />
       </Provider>
     );
 

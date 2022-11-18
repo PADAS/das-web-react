@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 
 import AddReport from '../AddReport';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
+import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -59,7 +60,11 @@ describe('ReportManager', () => {
           },
         },
       },
-      view: { sideBar: {} },
+      view: {
+        mapLocationSelection: { isPickingLocation: false },
+        sideBar: {},
+        userPreferences: { gpsFormat: GPS_FORMATS.DEG },
+      },
     };
   });
 

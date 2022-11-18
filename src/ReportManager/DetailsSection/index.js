@@ -70,7 +70,11 @@ const DetailsSection = ({
                   originalEvent={originalReport}
                   onGeometryChange={onReportGeometryChange}
                 />
-              : <LocationSelectorInput location={reportLocation} onLocationChange={onReportLocationChange} />
+              : <LocationSelectorInput
+                  label={null}
+                  location={reportLocation}
+                  onLocationChange={onReportLocationChange}
+                />
             }
           </label>
         </th>
