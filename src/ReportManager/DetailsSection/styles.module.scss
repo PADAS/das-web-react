@@ -1,3 +1,4 @@
+@import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
 
 .sectionHeader {
@@ -29,7 +30,11 @@
 }
 
 .fieldsColumn {
-  width: 50%;
+  width: 100%;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
 }
 
 .fieldLabel {

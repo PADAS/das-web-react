@@ -47,38 +47,40 @@ const DetailsSection = ({
     </div>
 
     <table className={styles.fieldsTable}>
-      <tr>
-        <th className={styles.fieldsColumn}>
-          <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
-            Reported By
-            <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
-          </label>
-        </th>
+      <tbody>
+        <tr>
+          <th className={styles.fieldsColumn}>
+            <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
+              Reported By
+              <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
+            </label>
+          </th>
 
-        <th></th>
-      </tr>
+          <th></th>
+        </tr>
 
-      <tr>
-        <th>
-          <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
-            Report location
-            {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-              ? <AreaSelectorInput
-                  event={reportForm}
-                  originalEvent={originalReport}
-                  onGeometryChange={onReportGeometryChange}
-                />
-              : <LocationSelectorInput
-                  label={null}
-                  location={reportLocation}
-                  onLocationChange={onReportLocationChange}
-                />
-            }
-          </label>
-        </th>
+        <tr>
+          <th>
+            <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
+              Report location
+              {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+                ? <AreaSelectorInput
+                    event={reportForm}
+                    originalEvent={originalReport}
+                    onGeometryChange={onReportGeometryChange}
+                  />
+                : <LocationSelectorInput
+                    label={null}
+                    location={reportLocation}
+                    onLocationChange={onReportLocationChange}
+                  />
+              }
+            </label>
+          </th>
 
-        <th></th>
-      </tr>
+          <th></th>
+        </tr>
+      </tbody>
     </table>
   </>;
 };
