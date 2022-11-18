@@ -4,7 +4,7 @@ import { DEFAULT_SELECT_STYLES, PRIORITY_LEVELS, REPORT_PRIORITIES } from '../co
 import styles from './styles.module.scss';
 import { string, element, func } from 'prop-types';
 
-const PrioritySelect = ({ menuRef, onChange, className }) => {
+const PrioritySelect = ({ menuRef, onChange, placeholder, className }) => {
   const optionalProps = {};
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
@@ -59,19 +59,22 @@ const PrioritySelect = ({ menuRef, onChange, className }) => {
         styles={selectStyles}
         getOptionValue={getOptionValue}
         getOptionLabel={getOptionLabel}
+        placeholder={placeholder}
         {...optionalProps}
     />;
 };
 
 PrioritySelect.defaultProps = {
   menuRef: null,
-  className: ''
+  className: '',
+  placeholder: 'Select',
 };
 
 
 PrioritySelect.propTypes = {
   menuRef: element,
   onChange: func.isRequired,
+  placeholder: string,
   className: string
 };
 
