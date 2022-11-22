@@ -1,7 +1,7 @@
-import React, {memo} from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import ReportedBySelect from '../../ReportedBySelect';
-import {ReactComponent as PencilWritingIcon} from '../../common/images/icons/pencil-writing.svg';
+import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 import styles from './styles.module.scss';
 import PrioritySelect from '../../PrioritySelect';
 
