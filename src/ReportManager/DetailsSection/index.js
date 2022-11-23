@@ -5,7 +5,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 import styles from './styles.module.scss';
 import PrioritySelect from '../../PrioritySelect';
 
-const DetailsSection = ({ onReportedByChange, reportedBy, onPriorityChange }) => (
+const DetailsSection = ({ onReportedByChange, reportedBy, onPriorityChange, priority }) => (
   <>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
@@ -23,18 +23,23 @@ const DetailsSection = ({ onReportedByChange, reportedBy, onPriorityChange }) =>
       <div className={styles.column}>
         <label data-testid="reportManager-prioritySelector" className={styles.label}>
           Priority
-          <PrioritySelect onChange={onPriorityChange} />
+          <PrioritySelect onChange={onPriorityChange} priority={priority} />
         </label>
       </div>
     </div>
   </>
 );
 
-DetailsSection.defaultProps = { reportedBy: null };
+DetailsSection.defaultProps = {
+  reportedBy: null,
+  priority: null
+};
 
 DetailsSection.propTypes = {
+  onPriorityChange: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
   reportedBy: PropTypes.object,
+  priority: PropTypes.number,
 };
 
 export default memo(DetailsSection);

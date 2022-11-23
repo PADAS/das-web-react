@@ -226,30 +226,31 @@ export const EVENT_STATE_CHOICES = [
   },
 ];
 
-export const PRIORITY_LEVELS = {
-  high: 300,
-  medium: 200,
-  low: 100,
-  none: 0
+export const REPORT_PRIORITY_HIGH = {
+  display: 'Red',
+  value: 300,
+};
+
+export const REPORT_PRIORITY_MEDIUM = {
+  display: 'Amber',
+  value: 200,
+};
+
+export const REPORT_PRIORITY_LOW = {
+  display: 'Green',
+  value: 100,
+};
+
+export const REPORT_PRIORITY_NONE = {
+  display: 'None',
+  value: 0,
 };
 
 export const REPORT_PRIORITIES = [
-  {
-    display: 'Red',
-    value: PRIORITY_LEVELS.high,
-  },
-  {
-    display: 'Amber',
-    value: PRIORITY_LEVELS.medium,
-  },
-  {
-    display: 'Green',
-    value: PRIORITY_LEVELS.low,
-  },
-  {
-    display: 'None',
-    value: PRIORITY_LEVELS.none,
-  },
+  REPORT_PRIORITY_HIGH,
+  REPORT_PRIORITY_MEDIUM,
+  REPORT_PRIORITY_LOW,
+  REPORT_PRIORITY_NONE
 ];
 
 export const DEFAULT_SELECT_STYLES = {

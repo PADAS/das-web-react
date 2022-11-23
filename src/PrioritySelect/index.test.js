@@ -1,24 +1,29 @@
 import React from 'react';
 import PrioritySelect from './';
-import { REPORT_PRIORITIES } from '../constants';
+import { REPORT_PRIORITIES, REPORT_PRIORITY_HIGH } from '../constants';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 
 describe('PrioritySelect', () => {
+  const selectedPriority = REPORT_PRIORITY_HIGH;
+  const testId = `priority-select-${selectedPriority.display}`;
   const initialProps = {
     onChange: () => {},
-    placeholder: 'select priority'
+    priority: selectedPriority.value
   };
-  const renderPrioritySelect = ({ onChange, placeholder } = initialProps) => (
-    render(<PrioritySelect onChange={onChange} placeholder={placeholder} />)
+  const renderPrioritySelect = ({ onChange, priority } = initialProps) => (
+    render(<PrioritySelect onChange={onChange} priority={priority} />)
   );
 
   it('should render all report priority levels', () => {
     renderPrioritySelect();
-    const list = screen.getByText(initialProps.placeholder);
+    const list = screen.getByText(selectedPriority.display);
     userEvent.click(list);
-    REPORT_PRIORITIES.forEach(({ display }) => expect( screen.getByText(display) ).toBeInTheDocument());
+    REPORT_PRIORITIES.forEach(({ display }) => {
+      const currentTestId = `priority-select-${display}`;
+      expect( screen.getByTestId(currentTestId) ).toBeInTheDocument();
+    });
   });
 
   it('should return selected priority level', () => {
@@ -28,9 +33,9 @@ describe('PrioritySelect', () => {
       expect(selectedValue).toBe(value);
     });
     renderPrioritySelect({ ...initialProps, onChange });
-    const list = screen.getByText(initialProps.placeholder);
+    const list = screen.getByText(display);
     userEvent.click(list);
-    const option = screen.getByText(display);
+    const option = screen.getByTestId(testId);
     userEvent.click(option);
     expect(onChange).toHaveBeenCalled();
   });

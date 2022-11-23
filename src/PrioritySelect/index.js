@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Select, { components } from 'react-select';
-import { DEFAULT_SELECT_STYLES, PRIORITY_LEVELS, REPORT_PRIORITIES } from '../constants';
+import {
+  DEFAULT_SELECT_STYLES,
+  REPORT_PRIORITIES,
+  REPORT_PRIORITY_HIGH, REPORT_PRIORITY_LOW, REPORT_PRIORITY_MEDIUM,
+  REPORT_PRIORITY_NONE
+} from '../constants';
 import styles from './styles.module.scss';
-import { string, element, func } from 'prop-types';
+import { string, element, func, number } from 'prop-types';
 
-const PrioritySelect = ({ menuRef, onChange, placeholder, className }) => {
+
+const PrioritySelect = ({ priority: priorityProp, menuRef, onChange, placeholder, className }) => {
+  const priority = useMemo(() => {
+    return REPORT_PRIORITIES.find(({ value }) => value === priorityProp) ?? REPORT_PRIORITY_NONE;
+  }, [priorityProp]);
+  const [selectedPriority, setSelectedPriority] = useState(priority);
   const optionalProps = {};
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
@@ -14,15 +24,19 @@ const PrioritySelect = ({ menuRef, onChange, placeholder, className }) => {
       overflowY: 'auto',
     }),
   };
+  const handleOnChange = (selectedOption) => {
+    setSelectedPriority(selectedOption);
+    onChange(selectedOption);
+  };
   const getOptionLabel = ({ display }) => display;
 
   const getOptionValue = ({ value }) => value;
 
   const calcClassNameForPriority = (priority) => {
     const priorityStyles = {
-      [PRIORITY_LEVELS.high]: styles.highPriority,
-      [PRIORITY_LEVELS.medium]: styles.mediumPriority,
-      [PRIORITY_LEVELS.low]: styles.lowPriority,
+      [REPORT_PRIORITY_HIGH.value]: styles.highPriority,
+      [REPORT_PRIORITY_MEDIUM.value]: styles.mediumPriority,
+      [REPORT_PRIORITY_LOW.value]: styles.lowPriority,
     };
     return priorityStyles[priority] ?? '';
   };
@@ -41,8 +55,10 @@ const PrioritySelect = ({ menuRef, onChange, placeholder, className }) => {
   );
 
   const Option = ({ data, ...props }) => (
-    <components.Option {...props}>
-      <PriorityItem data={data} />
+    <components.Option {...props} >
+      <div data-testid={`priority-select-${data.display}`}>
+        <PriorityItem data={data} />
+      </div>
     </components.Option>
   );
 
@@ -52,20 +68,22 @@ const PrioritySelect = ({ menuRef, onChange, placeholder, className }) => {
   }
 
   return <Select
-        className={className}
-        components={{ Option, SingleValue }}
-        onChange={onChange}
-        options={REPORT_PRIORITIES}
-        styles={selectStyles}
-        getOptionValue={getOptionValue}
-        getOptionLabel={getOptionLabel}
-        placeholder={placeholder}
-        {...optionalProps}
+      value={selectedPriority}
+      className={className}
+      components={{ Option, SingleValue }}
+      onChange={handleOnChange}
+      options={REPORT_PRIORITIES}
+      styles={selectStyles}
+      getOptionValue={getOptionValue}
+      getOptionLabel={getOptionLabel}
+      placeholder={placeholder}
+      {...optionalProps}
     />;
 };
 
 PrioritySelect.defaultProps = {
   menuRef: null,
+  priority: null,
   className: '',
   placeholder: 'Select',
 };
@@ -75,7 +93,8 @@ PrioritySelect.propTypes = {
   menuRef: element,
   onChange: func.isRequired,
   placeholder: string,
-  className: string
+  className: string,
+  priority: number,
 };
 
 export default PrioritySelect;

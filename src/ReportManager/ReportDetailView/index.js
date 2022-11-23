@@ -358,7 +358,7 @@ const ReportDetailView = ({
           <div className={styles.content}>
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
-                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} onPriorityChange={onPriorityChange} />
+                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} priority={reportForm?.priority} onPriorityChange={onPriorityChange} />
               </QuickLinks.Section>
 
               {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
