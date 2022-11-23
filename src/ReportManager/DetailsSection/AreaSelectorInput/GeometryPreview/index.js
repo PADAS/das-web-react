@@ -6,11 +6,11 @@ import rewind from '@turf/rewind';
 import simplify from '@turf/simplify';
 import { useSelector } from 'react-redux';
 
-import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
-import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
+import { ReactComponent as PencilIcon } from '../../../../common/images/icons/pencil.svg';
+import { ReactComponent as TrashCanIcon } from '../../../../common/images/icons/trash-can.svg';
 
-import { REACT_APP_MAPBOX_TOKEN } from '../../../constants';
-import { useEventGeoMeasurementDisplayStrings } from '../../../hooks/geometry';
+import { REACT_APP_MAPBOX_TOKEN } from '../../../../constants';
+import { useEventGeoMeasurementDisplayStrings } from '../../../../hooks/geometry';
 
 import styles from './styles.module.scss';
 

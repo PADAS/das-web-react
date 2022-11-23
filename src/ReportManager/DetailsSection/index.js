@@ -10,7 +10,7 @@ import { calcGeometryTypeForReport } from '../../utils/events';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
-import AreaSelectorInput from '../../EditableItem/AreaSelectorInput';
+import AreaSelectorInput from './AreaSelectorInput';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 
 import styles from './styles.module.scss';

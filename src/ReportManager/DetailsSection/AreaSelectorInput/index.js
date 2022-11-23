@@ -7,17 +7,17 @@ import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { ReactComponent as PolygonIcon } from '../../common/images/icons/polygon.svg';
+import { ReactComponent as PolygonIcon } from '../../../common/images/icons/polygon.svg';
 
-import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { hideSideBar, showSideBar } from '../../ducks/side-bar';
-import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
-import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../ducks/map-ui';
-import { setModalVisibilityState } from '../../ducks/modals';
-import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
+import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../../utils/analytics';
+import { hideSideBar, showSideBar } from '../../../ducks/side-bar';
+import { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
+import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../../ducks/map-ui';
+import { setModalVisibilityState } from '../../../ducks/modals';
+import { useEventGeoMeasurementDisplayStrings } from '../../../hooks/geometry';
 
 import GeometryPreview from './GeometryPreview';
-import TextCopyBtn from '../../TextCopyBtn';
+import TextCopyBtn from '../../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 

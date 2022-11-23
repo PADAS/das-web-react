@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import GeometryPreview from './';
-import { mockStore } from '../../../__test-helpers/MockStore';
-import { report } from '../../../__test-helpers/fixtures/reports';
+import { mockStore } from '../../../../__test-helpers/MockStore';
+import { report } from '../../../../__test-helpers/fixtures/reports';
 
 describe('GeometryPreview', () => {
   const onAreaSelectStart = jest.fn(), onDeleteArea = jest.fn();
