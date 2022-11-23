@@ -145,7 +145,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   }, [activeTab, hasPatrols]);
 
   return <Popover {...rest} ref={ref} className={styles.popover}>
-    <Popover.Content>
+    <Popover.Body>
       <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
         {!!eventsByCategory?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
           <div className={styles.reportTypeSearchControls}>
@@ -171,7 +171,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
           <ReportTypeList categories={patrolCategories} filter={patrolFilter} onClickReportType={onClickReportType} />
         </Tab>}
       </Tabs>
-    </Popover.Content>
+    </Popover.Body>
   </Popover>;
 });
 
@@ -311,7 +311,7 @@ const AddReport = forwardRef(({
           {showLabel && <span>{title}</span>}
         </button>
         <Overlay show={popoverOpen} container={containerRef.current} target={forwardedRef?.current || targetRef.current} placement={popoverPlacement}>
-          <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
+          <AddReportPopover onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>

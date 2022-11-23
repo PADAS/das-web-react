@@ -105,7 +105,7 @@ const ReportMenu = ({ report, onReportChange }) => {
 
   if (!canAddToIncident && reportBelongsToPatrol) return null;
 
-  return  <Dropdown alignRight className={styles.kebabMenu}>
+  return  <Dropdown align="end" className={styles.kebabMenu}>
     <Toggle as="button" className={styles.kebabToggle} data-testid="reportMenu-kebab-button">
       <KebabMenuIcon />
     </Toggle>

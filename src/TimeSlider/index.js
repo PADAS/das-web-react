@@ -19,8 +19,6 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 
 import styles from './styles.module.scss';
 
-const { Title, Content } = Popover;
-
 const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -111,12 +109,12 @@ const TimeSlider = (props) => {
 
   const PopoverContent = ({ popoverClassName, ...rest }) => {
     return <Popover {...rest} className={`${styles.popover} ${props.className}`}>
-      <Title className={styles.popoverTitle}>
+      <Popover.Header className={styles.popoverTitle}>
         <ClockIcon />
         Date Range
         <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
-      </Title>
-      <Content className={styles.popoverBody}>
+      </Popover.Header>
+      <Popover.Body className={styles.popoverBody}>
         <EventFilterDateRangeSelector
           onStartChange={onDateChange}
           onEndChange={onDateChange}
@@ -125,7 +123,7 @@ const TimeSlider = (props) => {
           popoverClassName={`${styles.dateRangePopover} ${popoverClassName || ''} ${sidebarOpen ? '' : styles.sidebarClosed}`}
           placement='top'
           />
-      </Content>
+      </Popover.Body>
     </Popover>;
   };
 

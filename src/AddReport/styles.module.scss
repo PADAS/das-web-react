@@ -76,35 +76,52 @@ div.popover {
   margin-left: 1rem;
 }
 
-nav.tabBar {
+.tabBar {
   $tab-header-color: $bright-blue;
-
   width: 100%;
+
+  [class*=nav-item] {
+    flex-grow: 1;
+    border: none;
+
+    button {
+      width: 100%;
+      background: $tab-header-color;
+      color: white;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &:only-child {
+      button {
+        cursor: default;
+        pointer-events: none;
+      }
+
+      button[class*=active] {
+        background: $tab-header-color;
+        color: white;
+      }
+    }
+
+    &:not(:only-child) {
+      button[class*=active] {
+        background: white;
+        color: $tab-header-color;
+      }
+    }
+  }
 
   [class*=nav-link] {
     border: none;
     font-size: 1rem;
     font-weight: bold;
-    flex-grow: 1;
     padding: 0.5rem;
     text-align: center;
     text-transform: uppercase;
-
-    &:only-child {
-      cursor: default;
-      pointer-events: none;
-    }
-
-    &:not([class*=active]),
-    &:only-child {
-      background: $tab-header-color;
-      color: white;
-    }
-
-    &[class*=active]:not(:only-child) {
-      background: white;
-      color: $tab-header-color;
-    }
+    width: 100%;
   }
 }
 
