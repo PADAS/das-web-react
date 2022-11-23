@@ -1,6 +1,8 @@
 import isString from 'lodash/isString';
 
 export const createMapMock = (override = {}) => {
+  let boundEvents = [];
+
   const mockMap = {
     addSource: jest.fn(),
     getBounds: jest.fn().mockReturnValue({
@@ -13,9 +15,23 @@ export const createMapMock = (override = {}) => {
     moveLayer: jest.fn(),
     removeLayer: jest.fn(),
     removeFeatureState: jest.fn(),
-    on: jest.fn(),
+    on: jest.fn((name, ...rest) => {
+      const layerId = isString(rest[0]) ? rest[0] : '';
+      const callback = !!layerId ? rest[1] : rest[0];
+
+      const eventId = `${name}-${layerId}`;
+
+      boundEvents.push({ callback: callback, id: eventId });
+    }),
     once: jest.fn(),
-    off: jest.fn(),
+    off: jest.fn((name, ...rest) => {
+      const layerId = isString(rest[0]) ? rest[0] : '';
+      const callback = !!layerId ? rest[1] : rest[0];
+
+      const eventId = `${name}-${layerId}`;
+
+      boundEvents = boundEvents.filter((boundEvent) => boundEvent.id !== eventId || boundEvent.callback !== callback);
+    }),
     setLayerZoomRange: jest.fn(),
     getLayer: jest.fn(),
     getZoom: jest.fn(),
@@ -39,32 +55,16 @@ export const createMapMock = (override = {}) => {
     ...override,
     __test__: {
       fireHandlers: (handlerName, ...rest) => {
-        const layerName = isString(rest[0]) ? rest[0] : null;
-        const eventObj = layerName ? rest[1] : rest[0];
+        const layerId = isString(rest[0]) ? rest[0] : '';
+        const eventObj = layerId ? rest[1] : rest[0];
 
-        const toCall = mockMap.on.mock.calls
-          .filter(([name, ...rest]) => {
-            const layerId = isString(rest[0]) ? rest[0] : null;
-            const handlerNameMatches = (name === handlerName);
+        const eventId = `${handlerName}-${layerId}`;
 
-            if (!layerName) return handlerNameMatches;
-
-            return handlerNameMatches
-              && layerName === layerId;
-          });
-
-        toCall.forEach((item) => {
-          const [, ...rest] = item;
-          const layerId = isString(rest[0]) ? rest[0] : null;
-
-          /* skip the optional layerName arg if it hasn't been passed */
-          const func = !!layerId ? rest[1] : rest[0];
-
-          func(
-            createMockMapInteractionEvent(
-              eventObj
-            )
-          );
+        boundEvents.forEach((boundEvent) => {
+          const matchesId = !layerId ? boundEvent.id.startsWith(eventId) : boundEvent.id === eventId;
+          if (matchesId) {
+            boundEvent.callback(createMockMapInteractionEvent(eventObj));
+          }
         });
       },
     }

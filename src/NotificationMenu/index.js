@@ -169,7 +169,7 @@ const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest
     }
   }, [news, socket]);
 
-  return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
+  return <Dropdown onToggle={onToggle} align="end" className={styles.dropdown} {...rest}>
     <Toggle ref={toggleBtnRef} as='div' data-testid='notification-toggle'>
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
       {!!unreadCount && <BadgeIcon data-testid='unread-count' className={styles.badge} count={unreadCount} />}

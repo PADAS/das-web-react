@@ -441,8 +441,8 @@ div.mapboxgl-popup-tip {
   display: flex !important;
   justify-content: center;
 
-  &[style*='display: none'],
-  &[style*='display:none'] {
+  &[style*='opacity: 0'],
+  &[style*='opacity:0'] {
     z-index: -1;
   }
 }

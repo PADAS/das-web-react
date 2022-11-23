@@ -1,4 +1,4 @@
-import { feature, featureCollection, polygon } from '@turf/helpers';
+import { featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import format from 'date-fns/format';
@@ -293,7 +293,8 @@ export const metersPerPixel = (lat, zoom) => {
 export const calculatePopoverPlacement = async (map, popoverLocation) => {
   if (!map || !popoverLocation) return 'auto';
 
-  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.8;
+  const SIDE_EDGES_NEARNESS_PERCENTAGE_THRESHOLD = 0.8;
+  const BOTTOM_EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.55;
 
   const mapBounds = await waitForMapBounds(map);
   const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
@@ -304,17 +305,14 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   const popoverXPlacementRatio = popoverRelativeCoordinateX / mapRelativeWidth;
   const popoverYPlacementRatio = popoverRelativeCoordinateY / mapRelativeHeight;
 
-  if (popoverXPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if (popoverXPlacementRatio > SIDE_EDGES_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'left';
   }
-  if ((1 - popoverXPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if ((1 - popoverXPlacementRatio) > SIDE_EDGES_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'right';
   }
-  if (popoverYPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if (popoverYPlacementRatio > BOTTOM_EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'top';
   }
-  if ((1 - popoverYPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
-    return 'bottom';
-  }
-  return 'auto';
+  return 'bottom';
 };

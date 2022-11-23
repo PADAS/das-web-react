@@ -87,7 +87,7 @@ const SystemStatus = ({ systemStatus }) => {
   }, [setOpenState]);
 
   return (
-    <Dropdown alignRight onToggle={onDropdownToggle}>
+    <Dropdown align="end" onToggle={onDropdownToggle}>
       <Toggle id="system-status" className={styles.toggle}>
         <div className={`${styles.indicator} ${isOpen ? 'open' : ''}`} data-testid="systemStatus-indicator">
           <Badge status={statusSummary} />

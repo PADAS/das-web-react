@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
-import { connect } from 'react-redux';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
+import { connect } from 'react-redux';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
@@ -263,27 +263,27 @@ const EventFilter = (props) => {
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const FilterDatePopover = <Popover placement='bottom' className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
-    <Popover.Title>
+    <Popover.Header>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
         <Button type="button" variant='light' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
-    </Popover.Title>
-    <Popover.Content style={{ overflow: 'visible' }}>
+    </Popover.Header>
+    <Popover.Body style={{ overflow: 'visible' }}>
       <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
-    </Popover.Content>
+    </Popover.Body>
   </Popover>;
 
   const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover' data-testid='filter-popover'>
-    <Popover.Title>
+    <Popover.Header>
       <div className={styles.popoverTitle}>
         Report Filters
         <Button type="button" variant='light' size='sm'
           onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
       </div>
-    </Popover.Title>
-    <Popover.Content>
+    </Popover.Header>
+    <Popover.Body>
       <div className={styles.filterRow}>
         {/* state here */}
         <label>State</label>
@@ -316,7 +316,7 @@ const EventFilter = (props) => {
         </h5>
         <ReportTypeMultiSelect filter={reportTypeFilterText} onFilterChange={setReportTypeFilterText} selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
       </div>
-    </Popover.Content>
+    </Popover.Body>
   </Popover>;
 
   return <>

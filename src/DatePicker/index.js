@@ -111,7 +111,7 @@ const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = nu
       onClick={handleClick}
       >
       <CalendarIcon/>
-      <span className={!value && placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
+      <span className={!value && placeholderText ? styles.placeholder : ''}>{value || placeholderText}</span>
       <div className={`${styles.triangle} ${isPopperOpen? 'open' : ''}`}></div>
     </button>
   </>;
