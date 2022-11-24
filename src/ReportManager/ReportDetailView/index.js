@@ -10,6 +10,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
 import {
+  calcDisplayPriorityForReport,
   createNewIncidentCollection,
   eventBelongsToCollection,
   eventBelongsToPatrol,
@@ -21,7 +22,7 @@ import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../.
 import { extractObjectDifference } from '../../utils/objects';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
-import { TAB_KEYS } from '../../constants';
+import { REPORT_PRIORITY_NONE, TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
 import ActivitySection from '../ActivitySection';
@@ -58,7 +59,7 @@ const ReportDetailView = ({
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
-
+  const eventTypes = useSelector(({ data: { eventTypes } }) => eventTypes);
   const { loadingEvents } = useContext(ReportsTabContext);
 
   const temporalIdRef = useRef(null);
@@ -68,6 +69,9 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
+  const displayPriority = useMemo(() =>
+    !reportForm ? REPORT_PRIORITY_NONE.value : calcDisplayPriorityForReport(reportForm, eventTypes)
+  , [eventTypes, reportForm]);
 
   const reportTracker = trackEventFactory(reportForm?.is_collection
     ? INCIDENT_REPORT_CATEGORY
@@ -328,6 +332,15 @@ const ReportDetailView = ({
     }
   }, [eventStore, isNewReport, loadingEvents, newReport, reportForm?.id, reportId]);
 
+  useEffect(() => {
+    if (displayPriority !== reportForm?.priority){
+      setReportForm({
+        ...reportForm,
+        priority: displayPriority,
+      });
+    }
+  }, [displayPriority]);
+
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
@@ -358,7 +371,12 @@ const ReportDetailView = ({
           <div className={styles.content}>
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
-                <DetailsSection onReportedByChange={onReportedByChange} reportedBy={reportForm?.reported_by} priority={reportForm?.priority} onPriorityChange={onPriorityChange} />
+                <DetailsSection
+                    onReportedByChange={onReportedByChange}
+                    reportedBy={reportForm?.reported_by}
+                    priority={displayPriority}
+                    onPriorityChange={onPriorityChange}
+                />
               </QuickLinks.Section>
 
               {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}

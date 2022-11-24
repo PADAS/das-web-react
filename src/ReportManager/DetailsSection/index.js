@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import ReportedBySelect from '../../ReportedBySelect';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
-import styles from './styles.module.scss';
 import PrioritySelect from '../../PrioritySelect';
+import styles from './styles.module.scss';
 
 const DetailsSection = ({ onReportedByChange, reportedBy, onPriorityChange, priority }) => (
   <>
@@ -32,7 +32,7 @@ const DetailsSection = ({ onReportedByChange, reportedBy, onPriorityChange, prio
 
 DetailsSection.defaultProps = {
   reportedBy: null,
-  priority: null
+  priority: null,
 };
 
 DetailsSection.propTypes = {

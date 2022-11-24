@@ -27,17 +27,18 @@ describe('PrioritySelect', () => {
   });
 
   it('should return selected priority level', () => {
+    const onChangePartialArgs = { action: 'select-option' };
     const [ highLevel ] = REPORT_PRIORITIES;
-    const { display, value } = highLevel;
-    const onChange = jest.fn(({ value: selectedValue }) => {
-      expect(selectedValue).toBe(value);
-    });
+    const { display } = highLevel;
+    const onChange = jest.fn();
     renderPrioritySelect({ ...initialProps, onChange });
     const list = screen.getByText(display);
     userEvent.click(list);
+    expect(onChange).not.toHaveBeenCalled();
     const option = screen.getByTestId(testId);
     userEvent.click(option);
-    expect(onChange).toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(highLevel, onChangePartialArgs);
   });
 
 });
