@@ -1,4 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { getTemplate, getUiOptions } from '@rjsf/utils';
 import Select, { components } from 'react-select';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
@@ -312,24 +313,37 @@ export default {
 };
 
 export const ObjectFieldTemplate = (props) => {
-  const { TitleField, DescriptionField } = props;
+  const {
+    description,
+    title,
+    properties,
+    required,
+    uiSchema,
+    idSchema,
+    registry,
+    formContext,
+  } = props;
+
+  const uiOptions = getUiOptions(uiSchema);
+  const TitleFieldTemplate = getTemplate('TitleFieldTemplate', registry, uiOptions);
+  const DescriptionFieldTemplate = getTemplate('DescriptionFieldTemplate', registry, uiOptions);
 
   const [instanceId] = useState(uuid());
 
   return <div className='container' style={{ padding: 0 }}>
-    {(props.title || props.uiSchema['ui:title']) && (
-      <TitleField
-        id={`${props.idSchema.$id}__title`}
-        title={props.title || props.uiSchema['ui:title']}
-        required={props.required}
-        formContext={props.formContext}
+    {(title || uiSchema['ui:title']) && (
+      <TitleFieldTemplate
+        id={`${idSchema.$id}__title`}
+        title={title || uiSchema['ui:title']}
+        required={required}
+        formContext={formContext}
       />
     )}
-    {props.description && (
-      <DescriptionField
-        id={`${props.idSchema.$id}__description`}
-        description={props.description}
-        formContext={props.formContext}
+    {description && (
+      <DescriptionFieldTemplate
+        id={`${idSchema.$id}__description`}
+        description={description}
+        formContext={formContext}
       />
     )}
     <div className='row'>
@@ -337,8 +351,8 @@ export const ObjectFieldTemplate = (props) => {
       {createGroupedFields({
         instanceId,
         props,
-        properties: props.properties,
-        groups: props.uiSchema['ui:groups'],
+        properties: properties,
+        groups: uiSchema['ui:groups'],
       })}
     </div>
   </div>;

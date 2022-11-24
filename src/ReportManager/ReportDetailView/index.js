@@ -19,6 +19,7 @@ import { createNewReportForEventType } from '../../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
+import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
@@ -61,6 +62,7 @@ const ReportDetailView = ({
 
   const { loadingEvents } = useContext(ReportsTabContext);
 
+  const submitJsonFormButtonRef = useRef(null);
   const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
@@ -101,7 +103,7 @@ const ReportDetailView = ({
   );
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
 
-  const reportSchemas =  reportForm
+  const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
@@ -231,6 +233,21 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onJsonFormChange = useCallback((event) => {
+    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
+
+    reportTracker.track('Change Report Json Form Data');
+  }, [reportForm, reportTracker]);
+
+  const onJsonFormError = (errors) => {
+    const formattedErrors = errors.map((error) => ({
+      ...error,
+      label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
+    }));
+
+    setSaveError([...formattedErrors]);
+  };
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -308,6 +325,14 @@ const ReportDetailView = ({
     }
   };
 
+  const onClickSaveButton = useCallback(() => {
+    if (reportForm?.is_collection) {
+      onSaveReport();
+    } else if (submitJsonFormButtonRef.current) {
+      submitJsonFormButtonRef.current.click();
+    }
+  }, [onSaveReport, reportForm?.is_collection]);
+
   const onClickCancelButton = useCallback(() => {
     if (isAddedReport) {
       onCancelAddedReport();
@@ -315,6 +340,12 @@ const ReportDetailView = ({
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
   }, [isAddedReport, navigate, onCancelAddedReport]);
+
+  useEffect(() => {
+    if (!!reportForm && !reportSchemas) {
+      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
+    }
+  }, [dispatch, reportForm, reportSchemas]);
 
   useEffect(() => {
     const missingReportData = (isNewReport && !reportType)
@@ -365,11 +396,17 @@ const ReportDetailView = ({
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
                 <DetailsSection
+                  jsonFormSchema={reportSchemas?.schema}
+                  jsonFormUISchema={reportSchemas?.uiSchema}
+                  onJsonFormChange={onJsonFormChange}
+                  onJsonFormError={onJsonFormError}
+                  onJsonFormSubmit={onSaveReport}
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
+                  submitJsonFormButtonRef={submitJsonFormButtonRef}
                 />
               </QuickLinks.Section>
 
@@ -417,7 +454,7 @@ const ReportDetailView = ({
                 <Button
                   className={styles.saveButton}
                   disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                  onClick={onSaveReport}
+                  onClick={onClickSaveButton}
                   type="button"
                 >
                   Save

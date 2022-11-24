@@ -5,7 +5,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 }
 
 .title {
@@ -38,7 +37,7 @@
 }
 
 .fieldLabel {
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
   width: 100%;
   position: relative;
   color: $secondary-medium-gray;
@@ -52,4 +51,144 @@
   [class*=locationSelectionLabel] {
     width: 100%;
   }
+}
+
+.form {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+
+  @media #{$whenPageIsMediumHeightAndWidth} {
+    font-size: 1rem;
+  }
+
+  [id*=root__title], [class*=card][class*=errors] {
+    display: none;
+  }
+
+  [class*=fieldset] {
+    &[class*=row] {
+      gap: 4%;
+      padding: 0;
+
+      [class*=field][class*=col-] {
+        width: 48%;
+      }
+
+      > * {
+        padding: 0;
+      }
+    }
+  }
+
+  label {
+    margin: 1.5rem 0 0;
+    width: 100%;
+    position: relative;
+    color: $secondary-medium-gray;
+    font-size: 0.875rem;
+    font-weight: normal;
+    
+    > div {
+      margin-top: 0.187rem;
+    }
+  
+    [class*=locationSelectionLabel] {
+      width: 100%;
+    }
+  }
+
+  [class*=field] {
+    [class*=datePickerCustomInput] {
+      min-width: 100%;
+      width: 100%;
+
+      span {
+        text-align: left;
+        width: 100%;
+      }
+    }
+  }
+
+  button[type="submit"] {
+    display: none;
+  }
+
+  // TODO: Are these needed?
+
+  // [class*=fieldset] legend {
+  //   border-bottom: 1px solid $light-gray-border;
+  //   display: block;
+  //   margin: 0.5rem 0;
+  // }
+
+  // [class*=fieldset], [class*=form-group] {
+  //   &:not([class*=col-]) {
+  //     width: 100%;
+  //   }
+  // }
+
+  // [class*=btn-add] {
+  //   margin-top: 1rem;
+  //   &::after {
+  //     content: 'New';
+  //     margin-left: 0.5rem;
+  //   }
+  // }
+
+  // [class*=array-item-toolbox] {
+  //   padding-right: 0;
+  //   [class*=btn-group] {
+  //     justify-content: flex-end !important;
+  //     > [class*=btn] {
+  //       max-width: 2rem;
+  //     }
+  //   }
+  // }
+
+  // [class*=field-array-of-object] {
+  //   [class$=array-item] {
+  //     border: 1px solid $light-gray-border;
+  //     border-top-left-radius: 0.5rem;
+  //     border-top-right-radius: 0.5rem;
+  //     padding: 0.5rem;
+
+  //     &:only-child {
+  //       border-radius: 0.5rem;
+  //     }
+
+  //     &:not(:only-child) {
+  //       border-bottom: 0;
+  //     }
+
+  //     &:last-child {
+  //       border-bottom: 1px solid $light-gray-border;
+  //       border-bottom-left-radius: 0.5rem;
+  //       border-bottom-right-radius: 0.5rem;
+  //     }
+
+  //     + [class$=array-item] {
+  //       border-top-left-radius: 0;
+  //       border-top-right-radius: 0;
+  //     }
+  //   }
+  // }
+
+  // [class$='checkbox '], [class$='checkbox disabled'] {
+  //   align-items: center;
+  //   display: flex;
+  //   margin-bottom: 0;
+
+  //   + [class$='checkbox '], + [class$='checkbox disabled'] {
+  //     margin-top: 0.5rem;
+  //   }
+  // }
+
+  // [type=checkbox] {
+  //   margin-right: 0.5rem;
+
+  //   + span {
+  //     cursor: pointer;
+  //     font-weight: normal;
+  //   }
+  // }
 }
