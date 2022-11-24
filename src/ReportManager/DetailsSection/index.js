@@ -127,13 +127,18 @@ const DetailsSection = ({
   </>;
 };
 
-// TODO: update
 DetailsSection.propTypes = {
+  jsonFormSchema: PropTypes.object.isRequired,
+  jsonFormUISchema: PropTypes.object.isRequired,
+  onJsonFormChange: PropTypes.func.isRequired,
+  onJsonFormError: PropTypes.func.isRequired,
+  onJsonFormSubmit: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
   onReportGeometryChange: PropTypes.func.isRequired,
   onReportLocationChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
+  submitJsonFormButtonRef: PropTypes.object.isRequired,
 };
 
 export default memo(DetailsSection);

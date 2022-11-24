@@ -140,6 +140,35 @@ describe('ReportManager - ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
   });
 
+  test('does not fetch the event schema if it is loaded already', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView isNewReportnewReportTypeI d="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"reportId="1234" />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(fetchEventTypeSchema).not.toHaveBeenCalled();
+  });
+
+  test('fetches the event schema if it is not loaded already', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView isNewReport newReportTypeId="74941f0d-4b89-48be-a62a-a74c78db8383" reportId="1234" />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(fetchEventTypeSchema).toHaveBeenCalled();
+    expect(fetchEventTypeSchema).toHaveBeenCalledWith('fire_rep', undefined);
+  });
+
   test('updates the title when user types in it', async () => {
     render(
       <Provider store={mockStore(store)}>
@@ -181,6 +210,25 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('updates the JSON form schema when user does a change', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+            </ReportsTabContext.Provider>
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const typeOfAccidentField = await screen.findByLabelText('Type of accident');
+    userEvent.type(typeOfAccidentField, 'Truck crash');
+
+    expect((await screen.findByDisplayValue('Truck crash'))).toBeDefined();
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
