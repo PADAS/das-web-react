@@ -92,28 +92,6 @@ describe('PatrolDetailView', () => {
     expect((await screen.findAllByRole('tabpanel'))[0]).toHaveClass('show');
   });
 
-  test('navigates to the Timeline view when user clicks the tab', async () => {
-    const timelineTab = (await screen.findAllByRole('tab'))[1];
-
-    expect(timelineTab).not.toHaveClass('active');
-
-    userEvent.click(timelineTab);
-
-    expect(timelineTab).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
-  test('navigates to the History view when user clicks the tab', async () => {
-    const historyTab = (await screen.findAllByRole('tab'))[2];
-
-    expect(historyTab).not.toHaveClass('active');
-
-    userEvent.click(historyTab);
-
-    expect(historyTab).toHaveClass('active');
-    expect(await screen.findByRole('tabpanel')).toHaveClass('show');
-  });
-
   test('updates the title when user types in it', async () => {
     const titleInput = (await screen.findAllByRole('textbox'))[0];
 

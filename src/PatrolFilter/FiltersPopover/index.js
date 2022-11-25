@@ -172,7 +172,7 @@ const FiltersPopover = React.forwardRef(({
       className={`${styles.filterPopover} ${styles.filters} ${patrolFiltersPopoverStyles.popover}`}
       id='filter-popover'
     >
-    <Popover.Title>
+    <Popover.Header>
       <div className={styles.popoverTitle}>
         Patrol Filters
         {!!filtersModified &&
@@ -187,9 +187,9 @@ const FiltersPopover = React.forwardRef(({
           </Button>
         }
       </div>
-    </Popover.Title>
+    </Popover.Header>
 
-    <Popover.Content>
+    <Popover.Body>
       <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.leadersFilterContainer}`}>
         <label>TRACKED BY</label>
         <div className="select">
@@ -259,7 +259,7 @@ const FiltersPopover = React.forwardRef(({
           />
         </div>
       </div>
-    </Popover.Content>
+    </Popover.Body>
   </Popover>;
 });
 

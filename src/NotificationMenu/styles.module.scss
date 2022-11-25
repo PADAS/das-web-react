@@ -138,13 +138,14 @@ div.menu {
 
 .unreadNotificationsPopover {
   color: $primary-font-color;
-  left: -7rem;
+  left: -9rem;
   padding: 0.5rem;
   text-align: center;
-  top: 1.75rem;
+  top: 2.25rem;
   width: 18rem;
+  position: absolute;
 
   [class*=arrow] {
-    left: 6.75rem;
+    display: none;
   }
 }

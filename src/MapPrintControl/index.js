@@ -1,32 +1,37 @@
-import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
-import { connect } from 'react-redux';
-import Popover from 'react-bootstrap/Popover';
-import Overlay from 'react-bootstrap/Overlay';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-
-import { setPrintTitle } from '../ducks/map-ui';
+import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { setPrintTitle } from '../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapPrintControl = (props) => {
-  const { printTitle, setPrintTitle } = props;
+const MapPrintControl = () => {
+  const dispatch = useDispatch();
 
-  const [active, setActiveState] = useState(false);
+  const printTitle = useSelector((state) => state.view.printTitle);
+
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
+
+  const [active, setActiveState] = useState(false);
+
   const onAfterPrint = useCallback(() => setActiveState(false), []);
 
-  const toggleActiveState = () => setActiveState(!active);
-  const onInputChange = ({ target: { value } }) => setPrintTitle(value);
+  const toggleActiveState = useCallback(() => setActiveState(!active), [active]);
 
-  const onPrintFormSubmit = (e) => {
-    e.preventDefault();
+  const onInputChange = ({ target: { value } }) => dispatch(setPrintTitle(value));
+
+  const onPrintFormSubmit = (event) => {
+    event.preventDefault();
+
     mapInteractionTracker.track('Print Map');
     window.print();
     toggleActiveState();
@@ -35,47 +40,56 @@ const MapPrintControl = (props) => {
   useEffect(() => {
     window.removeEventListener('afterprint', onAfterPrint);
     window.addEventListener('afterprint', onAfterPrint);
+
     return () => {
       window.removeEventListener('afterprint', onAfterPrint);
     };
   }, [onAfterPrint]);
 
-
   useEffect(() => {
     const handleKeyDown = (event) => {
-      const { key } = event;
-      if (key === 'Escape') {
+      if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
+
         toggleActiveState();
       }
     };
-    const handleOutsideClick = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+
+    const handleOutsideClick = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         toggleActiveState();
       }
     };
+
     if (active) {
       document.addEventListener('keydown', handleKeyDown);
       document.addEventListener('mousedown', handleOutsideClick);
+
       mapInteractionTracker.track('Open \'Print Dialog\'');
     } else {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleOutsideClick);
     }
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleOutsideClick);
     };
 
-  }, [active]); // eslint-disable-line
+  }, [active, toggleActiveState]);
 
   return <div className={styles.wrapper} ref={wrapperRef}>
-    <button onClick={toggleActiveState} ref={buttonRef}
-      type='button' title='Print map'
-      className={`${styles.button} ${active ? styles.active : ''}`} >
+    <button
+      onClick={toggleActiveState}
+      ref={buttonRef}
+      type='button'
+      title='Print map'
+      className={`${styles.button} ${active ? styles.active : ''}`}
+    >
       <PrinterIcon />
     </button>
+
     <Overlay
       show={active}
       target={buttonRef.current}
@@ -83,24 +97,23 @@ const MapPrintControl = (props) => {
       placement='left'
     >
       <Popover placement='left'>
-
-        <Popover.Content>
+        <Popover.Body>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>
             <label>
               <span>Document Title:</span>
               <input type='text' value={printTitle} onChange={onInputChange} />
             </label>
+
             <Button size='sm' variant='dark' type='submit'>
               Print map
             </Button>
+
             <small>Adjust the &quot;scale&quot; setting when printing for best results</small>
           </form>
-        </Popover.Content>
+        </Popover.Body>
       </Popover>
     </Overlay>
   </div>;
 };
 
-const mapStateToProps = ({ view: { printTitle } }) => ({ printTitle });
-
-export default connect(mapStateToProps, { setPrintTitle })(memo(MapPrintControl));
+export default memo(MapPrintControl);

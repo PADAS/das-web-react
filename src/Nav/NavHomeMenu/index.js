@@ -28,7 +28,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
   };
 
   return (
-    <Dropdown className="home-select" onToggle={onDropdownToggle} alignRight>
+    <Dropdown className="home-select" onToggle={onDropdownToggle} align="end">
       <Toggle className={styles.toggle}>
         <NavHomeItem {...selectedMap} showIcon={true} /> {isMediumLayout && <ArrowDownSmallIcon />}
       </Toggle>

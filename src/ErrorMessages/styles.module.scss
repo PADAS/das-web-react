@@ -4,7 +4,7 @@
 .alert {
   @include fade-in;
 
-  padding: 1rem 0.5rem 0rem !important;
+  padding: 0.5rem 0.5rem 0rem !important;
   border-radius: 0 !important;
   background-color: rgba(253, 242, 244, 0.95);
   box-shadow: rgba(0, 0, 0, 0.45) 0rem 1.5rem 1.2rem -1.2rem;
@@ -24,13 +24,19 @@
 }
 
 .alertLink {
-  display: inline;
-  color: $bright-red !important;
-  padding-top: 0.22rem !important;
-  text-decoration: underline !important;
-  
-  &:hover {
+  padding-bottom: 1rem;
+
+  [class*=accordion-button] {
+    display: inline;
     color: $bright-red !important;
+    padding-top: 0.22rem !important;
+    text-decoration: underline !important;
+    background: transparent;
+    padding: 0;
+    
+    &:hover {
+      color: $bright-red !important;
+    }
   }
 }
 
