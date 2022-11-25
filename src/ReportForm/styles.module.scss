@@ -50,15 +50,52 @@
   font-size: 0.85rem;
   min-height: 8rem;
   padding: 1rem 1rem 3rem;
+
   @media #{$whenPageIsMediumHeightAndWidth} {
     font-size: 1rem;
   }
+
   [class*=col-] {
     position: static;
   }
-  legend, [class*=card][class*=errors] {
+
+  [class*=form-group] {
+    margin-bottom: 1rem;
+  }
+
+  [id*=root__title], [class*=card][class*=errors] {
     display: none;
   }
+
+  [class*=row] {
+    gap: 4%;
+    padding: 0;
+
+    > * {
+      padding: 0;
+    }
+
+    [class*=field][class*=col-] {
+      width: 48%;
+    }
+
+    [id*=root] {
+      height: unset !important;
+    }
+  }
+
+  [class*=field] {
+    [class*=datePickerCustomInput] {
+      min-width: 100%;
+      width: 100%;
+
+      span {
+        text-align: left;
+        width: 100%;
+      }
+    }
+  }
+
   [class*=fieldset] legend {
     border-bottom: 1px solid $light-gray-border;
     display: block;
