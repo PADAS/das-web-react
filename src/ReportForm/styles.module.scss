@@ -68,19 +68,22 @@
   }
 
   [class*=row] {
-    gap: 4%;
     padding: 0;
 
     > * {
       padding: 0;
     }
 
-    [class*=field][class*=col-] {
-      width: 48%;
-    }
-
     [id*=root] {
       height: unset !important;
+    }
+  }
+
+  [class*=fieldset][class*=row] {
+    gap: 4%;
+
+    [class*=field][class*=col-] {
+      width: 48%;
     }
   }
 
