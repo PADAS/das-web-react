@@ -118,3 +118,7 @@ $toastify-mq: only screen and (min-width: 481px); // using pixel values here, wh
 .modal-dialog-centered::before {
   display: none;
 }
+
+.table-responsive {
+  width: 100%;
+}

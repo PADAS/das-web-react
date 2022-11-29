@@ -147,7 +147,7 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
           {formError && <Alert className={styles.error} variant='danger'>There was an issue accepting the EULA. Please try again.</Alert>}
         </Footer>
       </Form>
-    </Dialog>;
+    </Dialog>
     {submitted && !rerouteCookieValue && <Navigate to={rerouteOnSuccess} />}
     {canceled && !adminReferrer && <Navigate to={`${REACT_APP_ROUTE_PREFIX}login`} />}
   </div>;
