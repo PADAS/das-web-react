@@ -117,6 +117,7 @@ const DetailsSection = ({
         onError={onJsonFormError}
         onSubmit={onJsonFormSubmit}
         schema={jsonFormSchema}
+        showErrorList={false}
         templates={{ ObjectFieldTemplate }}
         transformErrors={transformErrors}
         uiSchema={jsonFormUISchema}
