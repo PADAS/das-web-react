@@ -68,6 +68,9 @@ const Nav = ({
       mainToolbarTracker.track('Select to operate as a user profile');
       setUserProfile(profile, isMainUser ? false : true);
     }
+    setTimeout(() => {
+      window.location.reload(true);
+    }, [1000]);
   };
 
   useEffect(() => {
