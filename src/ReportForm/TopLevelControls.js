@@ -9,7 +9,7 @@ import { setMapLocationSelectionEvent } from '../ducks/map-ui';
 
 import DatePicker from '../DatePicker';
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
-import AreaSelectorInput from './AreaSelectorInput';
+import AreaSelectorInput from '../ReportManager/DetailsSection/AreaSelectorInput';
 import ReportedBySelect from '../ReportedBySelect';
 
 import styles from './styles.module.scss';

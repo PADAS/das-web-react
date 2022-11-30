@@ -102,8 +102,12 @@
 
   &[class*=open] {
     box-shadow: 0 0 3px rgba(black, 0.7);
-    width: auto;
+    width: var(--sidebar-width);
     min-width: var(--sidebar-width);
+
+    @media (min-width: $md-layout-width-min) {
+      width: auto;
+    }
   }
 
   @media (width: $md-layout-width-min) {

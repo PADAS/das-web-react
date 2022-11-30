@@ -10,7 +10,22 @@
 .wrapper {
   display: flex;
   width: 100vw;
+
+  [class*=modal-dialog] {
+    margin-top: 1.75rem
+  }
+  
   [class*=modal-content] {
     background: rgba(255,255,255,0.8);
+    border: 1px solid #0003;
+    border-radius: 0.3rem;
+  }
+  
+  [class*=modal-body] {
+    padding: 1rem;
+  }
+
+  [class*=modal-footer] > * {
+    margin: 0.25rem;
   }
 }

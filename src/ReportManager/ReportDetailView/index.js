@@ -229,6 +229,20 @@ const ReportDetailView = ({
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [reportForm, reportTracker]);
 
+  const onReportGeometryChange = useCallback((geometry) => {
+    setReportForm({ ...reportForm, geometry, location: null });
+
+    reportTracker.track('Change Report Geometry');
+  }, [reportForm, reportTracker]);
+
+  const onReportLocationChange = useCallback((location) => {
+    const updatedLocation = !!location ? { latitude: location[1], longitude: location[0] } : null;
+
+    setReportForm({ ...reportForm, location: updatedLocation });
+
+    reportTracker.track('Change Report Location');
+  }, [reportForm, reportTracker]);
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -332,15 +346,6 @@ const ReportDetailView = ({
     }
   }, [eventStore, isNewReport, loadingEvents, newReport, reportForm?.id, reportId]);
 
-  useEffect(() => {
-    if (displayPriority !== reportForm?.priority){
-      setReportForm({
-        ...reportForm,
-        priority: displayPriority,
-      });
-    }
-  }, [displayPriority]);
-
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
@@ -372,10 +377,13 @@ const ReportDetailView = ({
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
                 <DetailsSection
-                    onReportedByChange={onReportedByChange}
-                    reportedBy={reportForm?.reported_by}
-                    priority={displayPriority}
-                    onPriorityChange={onPriorityChange}
+                  onReportedByChange={onReportedByChange}
+                  onReportGeometryChange={onReportGeometryChange}
+                  onReportLocationChange={onReportLocationChange}
+                  originalReport={originalReport}
+                  reportForm={reportForm}
+                  onPriorityChange={onPriorityChange}
+                  priority={displayPriority}
                 />
               </QuickLinks.Section>
 

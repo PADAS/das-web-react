@@ -3,18 +3,18 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { MapContext } from '../../App';
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { MapContext } from '../../../App';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
 import AreaSelectorInput from './';
-import { createMapMock } from '../../__test-helpers/mocks';
-import { mockStore } from '../../__test-helpers/MockStore';
-import { eventsWithGeometries } from '../../__test-helpers/fixtures/events';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
-import { setIsPickingLocation } from '../../ducks/map-ui';
-import { hideSideBar, showSideBar } from '../../ducks/side-bar';
-import { setModalVisibilityState } from '../../ducks/modals';
+import { createMapMock } from '../../../__test-helpers/mocks';
+import { mockStore } from '../../../__test-helpers/MockStore';
+import { eventsWithGeometries } from '../../../__test-helpers/fixtures/events';
+import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
+import { setIsPickingLocation } from '../../../ducks/map-ui';
+import { hideSideBar, showSideBar } from '../../../ducks/side-bar';
+import { setModalVisibilityState } from '../../../ducks/modals';
 
-import { FormDataContext } from '../../EditableItem/context';
+import { FormDataContext } from '../../../EditableItem/context';
 
 const [, eventWithPolygon] = eventsWithGeometries;
 
@@ -26,19 +26,19 @@ jest.mock('react-router-dom', () => ({
 }));
 
 
-jest.mock('../../ducks/side-bar', () => ({
-  ...jest.requireActual('../../ducks/side-bar'),
+jest.mock('../../../ducks/side-bar', () => ({
+  ...jest.requireActual('../../../ducks/side-bar'),
   hideSideBar: jest.fn(),
   showSideBar: jest.fn(),
 }));
 
-jest.mock('../../ducks/modals', () => ({
-  ...jest.requireActual('../../ducks/modals'),
+jest.mock('../../../ducks/modals', () => ({
+  ...jest.requireActual('../../../ducks/modals'),
   setModalVisibilityState: jest.fn(),
 }));
 
-jest.mock('../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../ducks/map-ui'),
+jest.mock('../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../ducks/map-ui'),
   setIsPickingLocation: jest.fn(),
 }));
 
