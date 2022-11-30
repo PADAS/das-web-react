@@ -10,7 +10,6 @@ import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions } from '../../utils/save';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
-import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
@@ -18,7 +17,6 @@ import ReportDetailView from './';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
-import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -185,6 +183,29 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('sets the state when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+              <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
+            </ReportsTabContext.Provider>
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect((await screen.queryByRole('button', { name: 'Resolved' }))).toBeNull();
+
+    const stateDropdown = await screen.findByText('Active');
+    userEvent.click(stateDropdown);
+    const resolvedItem = await screen.findByText('Resolved');
+    userEvent.click(resolvedItem);
+
+    expect(((await screen.findAllByRole('button', { name: 'Resolved' })))[0]).toHaveClass('dropdown-toggle');
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
