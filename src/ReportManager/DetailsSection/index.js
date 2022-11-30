@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useMemo } from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -8,7 +9,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { calcGeometryTypeForReport } from '../../utils/events';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
-import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import AreaSelectorInput from './AreaSelectorInput';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
@@ -19,6 +20,7 @@ const DetailsSection = ({
   onReportedByChange,
   onReportGeometryChange,
   onReportLocationChange,
+  onReportStateChange,
   originalReport,
   reportForm,
 }) => {
@@ -43,6 +45,25 @@ const DetailsSection = ({
         <PencilWritingIcon />
 
         <h2>Details</h2>
+      </div>
+
+      <div>
+        <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
+          <Dropdown.Toggle variant="success" id="dropdown-basic">
+            {`${reportForm.state.charAt(0).toUpperCase()}${reportForm.state.slice(1)}`}
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu className={styles.stateDropdownMenu}>
+            {Object.values(EVENT_FORM_STATES)
+              .map((eventState) => <Dropdown.Item
+                className={styles.stateItem}
+                eventKey={eventState.toLowerCase()}
+                key={eventState}
+              >
+                {eventState}
+              </Dropdown.Item>)}
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </div>
 

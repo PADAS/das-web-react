@@ -226,6 +226,11 @@ export const EVENT_STATE_CHOICES = [
   },
 ];
 
+export const EVENT_FORM_STATES = {
+  ACTIVE: 'Active',
+  RESOLVED: 'Resolved',
+};
+
 export const REPORT_PRIORITIES = [
   {
     display: 'Red',
