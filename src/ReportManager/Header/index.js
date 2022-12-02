@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import {
+  calcDisplayPriorityForReport,
   collectionHasMultipleValidLocations,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
@@ -16,6 +18,7 @@ import LocationJumpButton from '../../LocationJumpButton';
 import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
+import { REPORT_PRIORITY_NONE } from '../../constants';
 
 const Header = ({ onChangeTitle, report, onReportChange }) => {
   const { displayTitle, eventTypeTitle } = useReport(report);
@@ -25,8 +28,12 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const isNewReport = !report.id;
   const showEventType = report.title !== eventTypeTitle;
-
-  const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
+  const eventTypes = useSelector(({ data: { eventTypes } }) => eventTypes);
+  const displayPriority = useMemo(() => {
+    return !report ? REPORT_PRIORITY_NONE.value : calcDisplayPriorityForReport(report, eventTypes);
+  }
+  , [eventTypes, report]);
+  const priorityTheme = PRIORITY_COLOR_MAP[displayPriority];
 
   const onTitleBlur = useCallback((event) => {
     if (!event.target.textContent) {
@@ -44,8 +51,8 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
     }
   }, [onChangeTitle, displayTitle, report.title]);
 
-  return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
-    <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
+  return <div className={`${styles.header} ${styles[`priority-${displayPriority}`]}`}>
+    <div className={`${styles.icon} ${styles[`priority-${displayPriority}`]}`} data-testid="reportDetailHeader-icon">
       <EventIcon report={report} />
     </div>
 
