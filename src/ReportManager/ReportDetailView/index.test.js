@@ -144,7 +144,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
   });
 
-  test.only('updates the title when user types in it', async () => {
+  test('updates the title when user types in it', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>

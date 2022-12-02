@@ -58,7 +58,7 @@ const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalSt
 
   return <Select
       value={priority}
-      className={className}
+      className={`${styles.select} ${className}`}
       components={{ Option, SingleValue }}
       onChange={onChange}
       options={REPORT_PRIORITIES}

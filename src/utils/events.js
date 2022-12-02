@@ -330,9 +330,6 @@ export const calcDisplayPriorityForReport = (report, eventTypes) => {
 };
 
 export const calcGeometryTypeForReport = (report, eventTypes) => {
-  /// Loggear event type y report data
-  console.log(report);
-  console.log(eventTypes);
   const matchingType = eventTypes.find((type) => type.value === report.event_type);
 
   return matchingType.geometry_type;
