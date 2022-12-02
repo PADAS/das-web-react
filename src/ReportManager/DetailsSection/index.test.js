@@ -107,15 +107,12 @@ describe('ReportManager - DetailsSection', () => {
     );
 
     const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const reportReportedInput = await within(reportedBySelect).getByTestId('select-single-value');
+    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
 
-    const selectionImage = reportReportedInput.children[0];
-    const selectionText = reportReportedInput.children[1];
-
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(within(reportedBySelect).queryByText('Reported by...')).toBeNull();
-      expect(selectionImage).toHaveAttribute('alt', 'Radio icon for Canek value');
-      expect(selectionText).toHaveTextContent('Canek');
+      expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+      expect((await within(reportedBySelect).findByText('Canek'))).toBeDefined();
     });
   });
 
@@ -137,9 +134,8 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const reportReportedInput = await within(reportedBySelect).getByTestId('select-single-value');
-    userEvent.click(reportReportedInput);
+    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
+    userEvent.click(selectionImage);
 
     expect(onReportedByChange).toHaveBeenCalledTimes(0);
 

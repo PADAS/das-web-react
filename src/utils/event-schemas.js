@@ -1,4 +1,4 @@
-import customSchemaFields from '../SchemaFields';
+import { CheckboxesWidget, DateTimeWidget, SelectWidget } from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
 import isString from 'lodash/isString';
 import merge from 'lodash/merge';
@@ -268,7 +268,7 @@ const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
       uniqueItems: true,
     },
     uiSchemaEntry: {
-      'ui:widget': customSchemaFields.checkboxes,
+      'ui:widget': CheckboxesWidget,
     },
   };
 };
@@ -278,7 +278,7 @@ const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
     key,
   },
   uiSchemaEntry: {
-    'ui:field': customSchemaFields.datetime,
+    'ui:field': DateTimeWidget,
   },
 });
 
@@ -317,7 +317,7 @@ const addCustomSelectFieldForEnums = (schema) => {
 const generateUiSchemaForSelectFields = (key) => {
   return {
     [key]: {
-      'ui:widget': customSchemaFields.select,
+      'ui:widget': SelectWidget,
     }
   };
 };
@@ -327,7 +327,7 @@ const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properti
     if (value.format && value.format === 'uri') {
       return merge(accumulator, {
         [key]: {
-          'ui:field': customSchemaFields.externalUri,
+          'ui:field': 'externalLink',
         },
       });
     }

@@ -20,7 +20,17 @@ import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import AreaSelectorInput from './AreaSelectorInput';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
-import { ObjectFieldTemplate } from '../../SchemaFields';
+import {
+  AddButton,
+  ArrayFieldItemTemplate,
+  ArrayFieldTemplate,
+  BaseInputTemplate,
+  ExternalLinkField,
+  MoveDownButton,
+  MoveUpButton,
+  ObjectFieldTemplate,
+  RemoveButton,
+} from '../../SchemaFields';
 
 import styles from './styles.module.scss';
 
@@ -112,13 +122,20 @@ const DetailsSection = ({
     {jsonFormSchema && <Form
         className={styles.form}
         disabled={jsonFormSchema.readonly}
+        fields={{ externalLink: ExternalLinkField }}
         formData={reportForm.event_details}
         onChange={onJsonFormChange}
         onError={onJsonFormError}
         onSubmit={onJsonFormSubmit}
         schema={jsonFormSchema}
         showErrorList={false}
-        templates={{ ObjectFieldTemplate }}
+        templates={{
+          ArrayFieldItemTemplate,
+          ArrayFieldTemplate,
+          BaseInputTemplate,
+          ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
+          ObjectFieldTemplate,
+        }}
         transformErrors={transformErrors}
         uiSchema={jsonFormUISchema}
         validator={jsonFormValidator}

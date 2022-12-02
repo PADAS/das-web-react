@@ -57,18 +57,6 @@
   margin-top: 1.5rem;
   font-size: 0.85rem;
 
-  @media #{$whenPageIsMediumHeightAndWidth} {
-    font-size: 1rem;
-  }
-
-  [id*=root__title], [class*=card][class*=errors] {
-    display: none;
-  }
-
-  [id*=root] {
-    height: unset !important;
-  }
-
   [class*=row] {
     padding: 0;
 
@@ -77,99 +65,143 @@
     }
   }
 
-  legend {
-    font-size: 1rem;
-    margin: 1.5rem 0 0.5rem;
-    border-bottom: 1px solid $light-gray-border;
-  }
-
-  label {
-    margin: 1.5rem 0 0;
-    width: 100%;
-    position: relative;
-    color: $secondary-medium-gray;
-    font-size: 0.875rem;
-    font-weight: normal;
-    
-    > div {
-      margin-top: 0.187rem;
-    }
-  
-    [class*=locationSelectionLabel] {
-      width: 100%;
-    }
-  }
-
   [class*=col-] {
     padding: 0 0.5rem;
   }
 
-  [class*=field] {
-    [class*=datePickerCustomInput] {
-      min-width: 100%;
-      width: 100%;
-
-      span {
-        text-align: left;
-        width: 100%;
-      }
-    }
+  legend {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 1.5rem 0 0.5rem;
+    border-bottom: 1px solid $light-gray-border;
   }
 
-  [class*=field-array] {
-    [class*=field-object] {
-      border: 1px solid $light-gray-border;
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    }
-
-    [title="Move up"], [title="Move down"] {
-      display: none;
-    }
-
-    [title=Remove] {
-      margin-left: 0.5rem;
-    }
-  }
-
-  [class*=checkboxes] {
-    border: 1px solid $light-gray-border;
-    border-radius: 0 0.25rem;
-    padding: 0.5rem;
-    overflow-x: hidden;
-  }
-
-  [class*=checkbox] {
-    label {
-      margin-top: 0;
-    }
-
-    + [class*=checkbox] {
-      label {
-        margin-top: 0.5rem;
-      }
-    }
-  }
-
-  [type=checkbox] {
-    margin-right: 0.5rem;
-
-    + span {
-      cursor: pointer;
-      font-weight: normal;
-    }
-  }
-
-  [title="Add Item"] {
-    &::after {
-      @media (min-width: $md-layout-width-min) {
-        content: 'New';
-        margin-left: 0.5rem;
-      }
-    }
+  label:not([class=form-check-label]) {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $secondary-medium-gray;
+    margin-top: 1rem;
   }
 
   button[type=submit] {
     display: none;
   }
+
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+  }
+
+//   @media #{$whenPageIsMediumHeightAndWidth} {
+//     font-size: 1rem;
+//   }
+
+//   [id*=root__title], [class*=card][class*=errors] {
+//     display: none;
+//   }
+
+//   [class*=row] {
+//     padding: 0;
+
+//     > * {
+//       padding: 0;
+//     }
+//   }
+
+//   legend {
+//     font-size: 1rem;
+//     margin: 1.5rem 0 0.5rem;
+//     border-bottom: 1px solid $light-gray-border;
+//   }
+
+//   label {
+//     margin: 1.5rem 0 0;
+//     width: 100%;
+//     position: relative;
+//     color: $secondary-medium-gray;
+//     font-size: 0.875rem;
+//     font-weight: normal;
+    
+//     > div {
+//       margin-top: 0.187rem;
+//     }
+  
+//     [class*=locationSelectionLabel] {
+//       width: 100%;
+//     }
+//   }
+
+//   [class*=col-] {
+//     padding: 0 0.5rem;
+//   }
+
+//   [class*=field] {
+//     [class*=datePickerCustomInput] {
+//       width: 100%;
+
+//       span {
+//         text-align: left;
+//         width: 100%;
+//       }
+//     }
+//   }
+
+//   [class*=field-array] {
+//     [class*=field-object] {
+//       border: 1px solid $light-gray-border;
+//       border-radius: 0.5rem;
+//       padding: 0.5rem;
+//     }
+
+//     [title="Move up"], [title="Move down"] {
+//       display: none;
+
+//       @media (min-width: $md-layout-width-min) {
+//         display: unset;
+//         margin-left: 0.25rem;
+//         height: 2.25rem;
+//         font-size: 1rem;
+//         width: 2.25rem;
+//       }
+//     }
+
+//     [title=Remove] {
+//       margin-left: 0.25rem;
+//       height: 2.25rem;
+//       font-size: 1rem;
+//       width: 2.25rem;
+//     }
+//   }
+
+//   [class*=checkboxes] {
+//     border: 1px solid $light-gray-border;
+//     border-radius: 0 0.25rem;
+//     padding: 0.5rem;
+//     overflow-x: hidden;
+//   }
+
+//   [class*=checkbox] {
+//     label {
+//       margin-top: 0;
+//     }
+
+//     + [class*=checkbox] {
+//       label {
+//         margin-top: 0.5rem;
+//       }
+//     }
+//   }
+
+//   [type=checkbox] {
+//     height: auto;
+//     margin-right: 0.5rem;
+
+//     + span {
+//       cursor: pointer;
+//       font-weight: normal;
+//     }
+//   }
+
+//   input, [class*=ValueContainer] {
+//     height: 2.5rem !important;
+//   }
 }
