@@ -200,12 +200,12 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.queryByRole('button', { name: 'Resolved' }))).toBeNull();
 
-    const stateDropdown = await screen.findByText('Active');
+    const stateDropdown = await screen.findByText('active');
     userEvent.click(stateDropdown);
-    const resolvedItem = await screen.findByText('Resolved');
+    const resolvedItem = await screen.findByText('resolved');
     userEvent.click(resolvedItem);
 
-    expect(((await screen.findAllByRole('button', { name: 'Resolved' })))[0]).toHaveClass('dropdown-toggle');
+    expect(((await screen.findAllByRole('button', { name: 'resolved' })))[0]).toHaveClass('dropdown-toggle');
   });
 
   test('hides the detail view when clicking the cancel button', async () => {

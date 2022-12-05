@@ -28,6 +28,8 @@ const DetailsSection = ({
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
+  const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
+
   const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
 
   const reportLocation = useMemo(
@@ -50,16 +52,13 @@ const DetailsSection = ({
       <div>
         <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
           <Dropdown.Toggle variant="success" id="dropdown-basic">
-            {`${reportForm.state.charAt(0).toUpperCase()}${reportForm.state.slice(1)}`}
+            {reportState}
           </Dropdown.Toggle>
 
           <Dropdown.Menu className={styles.stateDropdownMenu}>
             {Object.values(EVENT_FORM_STATES)
-              .map((eventState) => <Dropdown.Item
-                className={styles.stateItem}
-                eventKey={eventState.toLowerCase()}
-                key={eventState}
-              >
+              .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
+              .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
                 {eventState}
               </Dropdown.Item>)}
           </Dropdown.Menu>

@@ -283,12 +283,12 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    const stateDropdown = await screen.findByText('Active');
+    const stateDropdown = await screen.findByText('active');
     userEvent.click(stateDropdown);
 
     expect(onReportStateChange).toHaveBeenCalledTimes(0);
 
-    const resolvedItem = await screen.findByText('Resolved');
+    const resolvedItem = await screen.findByText('resolved');
     userEvent.click(resolvedItem);
 
     expect(onReportStateChange).toHaveBeenCalledTimes(1);

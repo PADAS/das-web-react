@@ -227,8 +227,9 @@ export const EVENT_STATE_CHOICES = [
 ];
 
 export const EVENT_FORM_STATES = {
-  ACTIVE: 'Active',
-  RESOLVED: 'Resolved',
+  ACTIVE: 'active',
+  NEW_LEGACY: 'new',
+  RESOLVED: 'resolved',
 };
 
 export const REPORT_PRIORITIES = [

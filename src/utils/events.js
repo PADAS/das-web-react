@@ -146,7 +146,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
     icon_id,
     is_collection: false,
     location,
-    state: EVENT_FORM_STATES.ACTIVE.toLowerCase(),
+    state: EVENT_FORM_STATES.ACTIVE,
     priority,
     reported_by,
     time: time ? new Date(time) : new Date(),
