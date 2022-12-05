@@ -58,9 +58,7 @@ const ReportDetailView = ({
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
-
   const { loadingEvents } = useContext(ReportsTabContext);
-
   const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
@@ -216,6 +214,14 @@ const ReportDetailView = ({
 
     reportTracker.track('Change Report Reported By');
   }, [reportForm, reportTracker, setReportForm]);
+
+  const onPriorityChange = useCallback(({ value: priority }) => {
+    setReportForm({
+      ...reportForm,
+      priority,
+    });
+    reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
+  }, [reportForm, reportTracker]);
 
   const onReportGeometryChange = useCallback((geometry) => {
     setReportForm({ ...reportForm, geometry, location: null });
@@ -377,6 +383,7 @@ const ReportDetailView = ({
                   onReportStateChange={onReportStateChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
+                  onPriorityChange={onPriorityChange}
                 />
               </QuickLinks.Section>
 

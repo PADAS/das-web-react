@@ -53,18 +53,6 @@
   }
 }
 
-.fieldsTable {
-  width: 100%;
-}
-
-.fieldsColumn {
-  width: 100%;
-
-  @media (min-width: $md-layout-width-min) {
-    width: 50%;
-  }
-}
-
 .fieldLabel {
   margin-top: 0.5rem;
   width: 100%;
@@ -72,12 +60,26 @@
   color: $secondary-medium-gray;
   font-size: 0.875rem;
   font-weight: normal;
-  
+
   > div {
     margin-top: 0.187rem;
   }
 
   [class*=locationSelectionLabel] {
     width: 100%;
+  }
+}
+
+.container{
+  .row{
+    display: block;
+
+    @media (min-width: $md-layout-width-min) {
+      display: flex;
+    }
+
+    label:nth-child(2) {
+      margin-left: 0.2rem;
+    }
   }
 }
