@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../AddReport';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
+import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
@@ -22,23 +24,27 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../ducks/event-schemas', () => ({
-  ...jest.requireActual('../ducks/event-schemas'),
-  fetchEventTypeSchema: jest.fn(),
-}));
-
 jest.mock('../AddReport', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
+const server = setupServer(
+  rest.get(
+    `${EVENT_TYPE_SCHEMA_API_URL}:name`,
+    (req, res, ctx) => res(ctx.json( { data: { results: {} } }))
+  )
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 describe('ReportManager', () => {
-  let AddReportMock, fetchEventTypeSchemaMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddReportMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
     AddReportMock = jest.fn(() => null);
     AddReport.mockImplementation(AddReportMock);
-    fetchEventTypeSchemaMock = jest.fn(() => () => {});
-    fetchEventTypeSchema.mockImplementation(fetchEventTypeSchemaMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({

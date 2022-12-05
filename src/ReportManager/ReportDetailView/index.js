@@ -61,7 +61,7 @@ const ReportDetailView = ({
   );
   const { loadingEvents } = useContext(ReportsTabContext);
 
-  const submitJsonFormButtonRef = useRef(null);
+  const submitFormButtonRef = useRef(null);
   const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
@@ -240,13 +240,13 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
-  const onJsonFormChange = useCallback((event) => {
+  const onFormChange = useCallback((event) => {
     setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
 
-    reportTracker.track('Change Report Json Form Data');
+    reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
-  const onJsonFormError = (errors) => {
+  const onFormError = (errors) => {
     const formattedErrors = errors.map((error) => ({
       ...error,
       label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
@@ -335,8 +335,8 @@ const ReportDetailView = ({
   const onClickSaveButton = useCallback(() => {
     if (reportForm?.is_collection) {
       onSaveReport();
-    } else if (submitJsonFormButtonRef.current) {
-      submitJsonFormButtonRef.current.click();
+    } else if (submitFormButtonRef.current) {
+      submitFormButtonRef.current.click();
     }
   }, [onSaveReport, reportForm?.is_collection]);
 
@@ -403,18 +403,18 @@ const ReportDetailView = ({
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
                 <DetailsSection
-                  jsonFormSchema={reportSchemas?.schema}
-                  jsonFormUISchema={reportSchemas?.uiSchema}
-                  onJsonFormChange={onJsonFormChange}
-                  onJsonFormError={onJsonFormError}
-                  onJsonFormSubmit={onSaveReport}
+                  formSchema={reportSchemas?.schema}
+                  formUISchema={reportSchemas?.uiSchema}
+                  onFormChange={onFormChange}
+                  onFormError={onFormError}
+                  onFormSubmit={onSaveReport}
                   onPriorityChange={onPriorityChange}
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
-                  submitJsonFormButtonRef={submitJsonFormButtonRef}
+                  submitFormButtonRef={submitFormButtonRef}
                 />
               </QuickLinks.Section>
 

@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import { customizeValidator } from '@rjsf/validator-ajv6';
 import Form from '@rjsf/bootstrap-4';
 import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { customizeValidator } from '@rjsf/validator-ajv6';
 
 import ReportedBySelect from '../../ReportedBySelect';
 
@@ -35,21 +35,21 @@ import PrioritySelect from '../../PrioritySelect';
 
 import styles from './styles.module.scss';
 
-const jsonFormValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
+const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
 const DetailsSection = ({
-  jsonFormSchema,
-  jsonFormUISchema,
-  onJsonFormChange,
-  onJsonFormError,
-  onJsonFormSubmit,
+  formSchema,
+  formUISchema,
+  onFormChange,
+  onFormError,
+  onFormSubmit,
   onPriorityChange,
   onReportedByChange,
   onReportGeometryChange,
   onReportLocationChange,
   originalReport,
   reportForm,
-  submitJsonFormButtonRef,
+  submitFormButtonRef,
 }) => {
   const dispatch = useDispatch();
 
@@ -65,11 +65,11 @@ const DetailsSection = ({
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutRequiredValueOnSchemaPropErrors(errors),
-      jsonFormUISchema
+      formUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [jsonFormUISchema]);
+  }, [formUISchema]);
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -116,15 +116,15 @@ const DetailsSection = ({
       </div>
     </div>
 
-    {jsonFormSchema && <Form
+    {formSchema && <Form
         className={styles.form}
-        disabled={jsonFormSchema.readonly}
+        disabled={formSchema.readonly}
         fields={{ externalLink: ExternalLinkField }}
         formData={reportForm.event_details}
-        onChange={onJsonFormChange}
-        onError={onJsonFormError}
-        onSubmit={onJsonFormSubmit}
-        schema={jsonFormSchema}
+        onChange={onFormChange}
+        onError={onFormError}
+        onSubmit={onFormSubmit}
+        schema={formSchema}
         showErrorList={false}
         templates={{
           ArrayFieldItemTemplate,
@@ -134,27 +134,27 @@ const DetailsSection = ({
           ObjectFieldTemplate,
         }}
         transformErrors={transformErrors}
-        uiSchema={jsonFormUISchema}
-        validator={jsonFormValidator}
+        uiSchema={formUISchema}
+        validator={formValidator}
       >
-      <button ref={submitJsonFormButtonRef} type="submit" />
+      <button ref={submitFormButtonRef} type="submit" />
     </Form>}
   </>;
 };
 
 DetailsSection.propTypes = {
-  jsonFormSchema: PropTypes.object.isRequired,
-  jsonFormUISchema: PropTypes.object.isRequired,
-  onJsonFormChange: PropTypes.func.isRequired,
-  onJsonFormError: PropTypes.func.isRequired,
-  onJsonFormSubmit: PropTypes.func.isRequired,
+  formSchema: PropTypes.object.isRequired,
+  formUISchema: PropTypes.object.isRequired,
+  onFormChange: PropTypes.func.isRequired,
+  onFormError: PropTypes.func.isRequired,
+  onFormSubmit: PropTypes.func.isRequired,
   onPriorityChange: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
   onReportGeometryChange: PropTypes.func.isRequired,
   onReportLocationChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
-  submitJsonFormButtonRef: PropTypes.object.isRequired,
+  submitFormButtonRef: PropTypes.object.isRequired,
 };
 
 export default memo(DetailsSection);

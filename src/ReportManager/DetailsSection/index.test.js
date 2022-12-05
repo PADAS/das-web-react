@@ -17,9 +17,9 @@ import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import DetailsSection from './';
 
 let map;
-const onJsonFormChange = jest.fn(),
-  onJsonFormError = jest.fn(),
-  onJsonFormSubmit = jest.fn(),
+const onFormChange = jest.fn(),
+  onFormError = jest.fn(),
+  onFormSubmit = jest.fn(),
   onReportedByChange = jest.fn(),
   onReportGeometryChange = jest.fn(),
   onReportLocationChange = jest.fn();
@@ -68,11 +68,11 @@ describe('ReportManager - DetailsSection', () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
-          jsonFormSchema={eventSchemas.accident_rep.base.schema}
-          jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-          onJsonFormChange={onJsonFormChange}
-          onJsonFormError={onJsonFormError}
-          onJsonFormSubmit={onJsonFormSubmit}
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -92,11 +92,11 @@ describe('ReportManager - DetailsSection', () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
-          jsonFormSchema={eventSchemas.accident_rep.base.schema}
-          jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-          onJsonFormChange={onJsonFormChange}
-          onJsonFormError={onJsonFormError}
-          onJsonFormSubmit={onJsonFormSubmit}
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -120,11 +120,11 @@ describe('ReportManager - DetailsSection', () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
-          jsonFormSchema={eventSchemas.accident_rep.base.schema}
-          jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-          onJsonFormChange={onJsonFormChange}
-          onJsonFormError={onJsonFormError}
-          onJsonFormSubmit={onJsonFormSubmit}
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -160,11 +160,11 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <DetailsSection
-            jsonFormSchema={eventSchemas.accident_rep.base.schema}
-            jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-            onJsonFormChange={onJsonFormChange}
-            onJsonFormError={onJsonFormError}
-            onJsonFormSubmit={onJsonFormSubmit}
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -191,11 +191,11 @@ describe('ReportManager - DetailsSection', () => {
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <DetailsSection
-              jsonFormSchema={eventSchemas.accident_rep.base.schema}
-              jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-              onJsonFormChange={onJsonFormChange}
-              onJsonFormError={onJsonFormError}
-              onJsonFormSubmit={onJsonFormSubmit}
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
               onReportedByChange={onReportedByChange}
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
@@ -232,11 +232,11 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <DetailsSection
-            jsonFormSchema={eventSchemas.accident_rep.base.schema}
-            jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-            onJsonFormChange={onJsonFormChange}
-            onJsonFormError={onJsonFormError}
-            onJsonFormSubmit={onJsonFormSubmit}
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -262,11 +262,11 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
           <DetailsSection
-            jsonFormSchema={eventSchemas.accident_rep.base.schema}
-            jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-            onJsonFormChange={onJsonFormChange}
-            onJsonFormError={onJsonFormError}
-            onJsonFormSubmit={onJsonFormSubmit}
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -280,16 +280,16 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
   });
 
-  test('triggers the onJsonFormChange callback when user does a change to a form field', async () => {
+  test('triggers the onFormChange callback when user does a change to a form field', async () => {
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
           <DetailsSection
-            jsonFormSchema={eventSchemas.accident_rep.base.schema}
-            jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-            onJsonFormChange={onJsonFormChange}
-            onJsonFormError={onJsonFormError}
-            onJsonFormSubmit={onJsonFormSubmit}
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -300,40 +300,40 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    expect(onJsonFormChange).toHaveBeenCalledTimes(0);
+    expect(onFormChange).toHaveBeenCalledTimes(0);
 
     const typeOfAccidentField = await screen.findByLabelText('Type of accident');
     userEvent.type(typeOfAccidentField, 'Truck crash');
 
-    expect(onJsonFormChange).toHaveBeenCalled();
+    expect(onFormChange).toHaveBeenCalled();
   });
 
-  test('triggers the onJsonFormSubmit callback when clicking the submit button', async () => {
-    const submitJsonFormButtonRef = {};
+  test('triggers the onFormSubmit callback when clicking the submit button', async () => {
+    const submitFormButtonRef = {};
     render(
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
           <DetailsSection
-            jsonFormSchema={eventSchemas.accident_rep.base.schema}
-            jsonFormUISchema={eventSchemas.accident_rep.base.uiSchema}
-            onJsonFormChange={onJsonFormChange}
-            onJsonFormError={onJsonFormError}
-            onJsonFormSubmit={onJsonFormSubmit}
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
             reportForm={report}
-            submitJsonFormButtonRef={submitJsonFormButtonRef}
+            submitFormButtonRef={submitFormButtonRef}
           />
         </MapDrawingToolsContext.Provider>
       </Provider>
     );
 
-    expect(onJsonFormSubmit).toHaveBeenCalledTimes(0);
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
 
-    submitJsonFormButtonRef.current.click();
+    submitFormButtonRef.current.click();
 
-    expect(onJsonFormSubmit).toHaveBeenCalledTimes(1);
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
   });
 });
