@@ -24,15 +24,17 @@
   }
 }
 
-.fieldsTable {
-  width: 100%;
-}
+.container{
+  .row{
+    display: block;
 
-.fieldsColumn {
-  width: 100%;
+    @media (min-width: $md-layout-width-min) {
+      display: flex;
+    }
 
-  @media (min-width: $md-layout-width-min) {
-    width: 50%;
+    label:nth-child(2) {
+      margin-left: 0.2rem;
+    }
   }
 }
 
@@ -43,7 +45,7 @@
   color: $secondary-medium-gray;
   font-size: 0.875rem;
   font-weight: normal;
-  
+
   > div {
     margin-top: 0.187rem;
   }
@@ -90,118 +92,4 @@
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
   }
-
-//   @media #{$whenPageIsMediumHeightAndWidth} {
-//     font-size: 1rem;
-//   }
-
-//   [id*=root__title], [class*=card][class*=errors] {
-//     display: none;
-//   }
-
-//   [class*=row] {
-//     padding: 0;
-
-//     > * {
-//       padding: 0;
-//     }
-//   }
-
-//   legend {
-//     font-size: 1rem;
-//     margin: 1.5rem 0 0.5rem;
-//     border-bottom: 1px solid $light-gray-border;
-//   }
-
-//   label {
-//     margin: 1.5rem 0 0;
-//     width: 100%;
-//     position: relative;
-//     color: $secondary-medium-gray;
-//     font-size: 0.875rem;
-//     font-weight: normal;
-    
-//     > div {
-//       margin-top: 0.187rem;
-//     }
-  
-//     [class*=locationSelectionLabel] {
-//       width: 100%;
-//     }
-//   }
-
-//   [class*=col-] {
-//     padding: 0 0.5rem;
-//   }
-
-//   [class*=field] {
-//     [class*=datePickerCustomInput] {
-//       width: 100%;
-
-//       span {
-//         text-align: left;
-//         width: 100%;
-//       }
-//     }
-//   }
-
-//   [class*=field-array] {
-//     [class*=field-object] {
-//       border: 1px solid $light-gray-border;
-//       border-radius: 0.5rem;
-//       padding: 0.5rem;
-//     }
-
-//     [title="Move up"], [title="Move down"] {
-//       display: none;
-
-//       @media (min-width: $md-layout-width-min) {
-//         display: unset;
-//         margin-left: 0.25rem;
-//         height: 2.25rem;
-//         font-size: 1rem;
-//         width: 2.25rem;
-//       }
-//     }
-
-//     [title=Remove] {
-//       margin-left: 0.25rem;
-//       height: 2.25rem;
-//       font-size: 1rem;
-//       width: 2.25rem;
-//     }
-//   }
-
-//   [class*=checkboxes] {
-//     border: 1px solid $light-gray-border;
-//     border-radius: 0 0.25rem;
-//     padding: 0.5rem;
-//     overflow-x: hidden;
-//   }
-
-//   [class*=checkbox] {
-//     label {
-//       margin-top: 0;
-//     }
-
-//     + [class*=checkbox] {
-//       label {
-//         margin-top: 0.5rem;
-//       }
-//     }
-//   }
-
-//   [type=checkbox] {
-//     height: auto;
-//     margin-right: 0.5rem;
-
-//     + span {
-//       cursor: pointer;
-//       font-weight: normal;
-//     }
-//   }
-
-//   input, [class*=ValueContainer] {
-//     height: 2.5rem !important;
-//   }
 }

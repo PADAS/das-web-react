@@ -18,8 +18,6 @@ import {
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
-import AreaSelectorInput from './AreaSelectorInput';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import {
   AddButton,
   ArrayFieldItemTemplate,
@@ -31,6 +29,9 @@ import {
   ObjectFieldTemplate,
   RemoveButton,
 } from '../../SchemaFields';
+import AreaSelectorInput from './AreaSelectorInput';
+import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import PrioritySelect from '../../PrioritySelect';
 
 import styles from './styles.module.scss';
 
@@ -42,6 +43,7 @@ const DetailsSection = ({
   onJsonFormChange,
   onJsonFormError,
   onJsonFormSubmit,
+  onPriorityChange,
   onReportedByChange,
   onReportGeometryChange,
   onReportLocationChange,
@@ -82,42 +84,37 @@ const DetailsSection = ({
       </div>
     </div>
 
-    <table className={styles.fieldsTable}>
-      <tbody>
-        <tr>
-          <th className={styles.fieldsColumn}>
-            <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
-              Reported By
-              <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
-            </label>
-          </th>
+    <div className={styles.container}>
+      <div className={styles.row}>
+        <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
+          Reported By
+          <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
+        </label>
 
-          <th></th>
-        </tr>
+        <label data-testid="reportManager-prioritySelector" className={styles.fieldLabel}>
+          Priority
+          <PrioritySelect onChange={onPriorityChange} priority={reportForm?.priority} />
+        </label>
+      </div>
 
-        <tr>
-          <th>
-            <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
-              Report location
-              {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-                ? <AreaSelectorInput
-                    event={reportForm}
-                    originalEvent={originalReport}
-                    onGeometryChange={onReportGeometryChange}
-                  />
-                : <LocationSelectorInput
-                    label={null}
-                    location={reportLocation}
-                    onLocationChange={onReportLocationChange}
-                  />
-              }
-            </label>
-          </th>
-
-          <th></th>
-        </tr>
-      </tbody>
-    </table>
+      <div className={styles.row}>
+        <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
+          Report location
+          {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+              ? <AreaSelectorInput
+                  event={reportForm}
+                  originalEvent={originalReport}
+                  onGeometryChange={onReportGeometryChange}
+              />
+              : <LocationSelectorInput
+                  label={null}
+                  location={reportLocation}
+                  onLocationChange={onReportLocationChange}
+              />
+          }
+        </label>
+      </div>
+    </div>
 
     {jsonFormSchema && <Form
         className={styles.form}
@@ -151,6 +148,7 @@ DetailsSection.propTypes = {
   onJsonFormChange: PropTypes.func.isRequired,
   onJsonFormError: PropTypes.func.isRequired,
   onJsonFormSubmit: PropTypes.func.isRequired,
+  onPriorityChange: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
   onReportGeometryChange: PropTypes.func.isRequired,
   onReportLocationChange: PropTypes.func.isRequired,
