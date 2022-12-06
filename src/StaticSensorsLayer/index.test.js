@@ -136,6 +136,11 @@ describe('adding layers to the map', () => {
 
   describe('clicking on a stationary subject', () => {
     beforeEach(() => {
+      map = createMapMock({
+        getLayer: jest.fn().mockReturnValue(true),
+        getSource: jest.fn().mockReturnValue(true),
+      });
+
       render(
         <Provider store={mockStore(store)}>
           <MapContext.Provider value={map}>
@@ -158,8 +163,11 @@ describe('adding layers to the map', () => {
       } });
     });
 
-    test('setting the map filter to hide the selected subject\'s marker', async () => {
+    test.only('setting the map filter to hide the selected subject\'s marker', async () => {
+      jest.runAllTimers();
+
       await waitFor(() => {
+
         expect(map.setFilter).toHaveBeenCalledTimes(2); /* once for the background layer, once for the symbol layer */
 
         map.setFilter.mock.calls.forEach((call) => {

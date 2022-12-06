@@ -128,12 +128,13 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
           id: layerId,
           source: sourceId,
           type,
+          filter: config.hasOwnProperty(filter) ? filter : true,
           layout: layout || {},
           paint: paint || {},
         }, before);
       }
     }
-  }, [before, condition, layer, layerId, layout, map, sourceId, paint, type]);
+  }, [before, condition, config, filter, layer, layerId, layout, map, sourceId, paint, type]);
 
   useEffect(() => {
     if (condition && layer && layout) {

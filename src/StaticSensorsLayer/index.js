@@ -9,10 +9,11 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { showPopup } from '../ducks/popup';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 
+import { useMapLayer, useMapEventBinding } from '../hooks';
+
 import { backgroundLayerStyles, labelLayerStyles, calcDynamicBackgroundLayerLayout, calcDynamicLabelLayerLayoutStyles } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
-
 
 const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
@@ -40,12 +41,12 @@ const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAY
 const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
   const map = useContext(MapContext);
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
-  const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
   const [layerFilter, setLayerFilter] = useState(DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER);
 
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
   const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
-  const [currentLayerId, currentInactiveLayerId] = shouldSubjectsBeClustered ? [layerIds[0], layerIds[1]] :[layerIds[1], layerIds[0]];
+
+  const currentLayerId = shouldSubjectsBeClustered ? layerIds[0] : layerIds[1];
   const currentBackgroundLayerId = `${currentLayerId}_BACKGROUND`;
 
   const dynamicBackgroundLayerLayoutProps = useMemo(() =>
@@ -55,7 +56,6 @@ const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: is
   const dynamicLabelLayerLayoutProps = useMemo(() =>
     calcDynamicLabelLayerLayoutStyles(isDataInMapSimplified, showMapStaticSubjectsNames),
   [isDataInMapSimplified, showMapStaticSubjectsNames]);
-
 
   /* watch the source data for updates, and add potential new icon images to the map if necessary */
   useEffect(() => {
@@ -85,127 +85,82 @@ const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: is
   }, [map]);
 
   const createPopup = useCallback((feature) => {
-
     const { geometry, properties } = feature;
 
     showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
       offset: [0, 0],
     } });
 
-    const handleMapClick = (event) => {
-      const stationarySubjectAtPoint = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+  }, [showPopup]);
 
-      const newFilter = !!stationarySubjectAtPoint ?  [
-        ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
-        ['!=', 'id', stationarySubjectAtPoint.properties.id]
-      ] : DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER;
+  const onLayerClick = useCallback((event) => {
+    setTimeout(() => {
 
+      event.preventDefault();
+
+      const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+      let newFilter;
+
+      if (feature) {
+        newFilter = [
+          ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+          ['!=', 'id', feature.properties.id]
+        ];
+
+        createPopup(feature);
+
+      } else {
+        newFilter = DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER;
+      }
       setLayerFilter(newFilter);
-    };
 
-    setTimeout(() => map.once('click', handleMapClick));
+    });
+  }, [createPopup, currentBackgroundLayerId, map]);
 
-  }, [currentBackgroundLayerId, map, showPopup]);
+  const onLayerMouseEnter = useCallback(() => {
+    map.getCanvas().style.cursor = 'pointer';
+  }, [map]);
 
-  // Renderless layer to query unclustered static sensors
+  const onLayerMouseLeave = useCallback(() => {
+    map.getCanvas().style.cursor = '';
+  }, [map]);
 
-  /* adding the map layers */
-  useEffect(() => {
-    if (map && !!map.getSource(currentSourceId)) {
-      if (!map.getLayer(currentLayerId)) {
-        map.addLayer({
-          id: currentLayerId,
-          source: currentSourceId,
-          type: 'symbol',
-          layout: labelLayerStyles.layout,
-          paint: labelLayerStyles.paint,
-          filter: layerFilter,
-        });
-        map.addLayer({
-          id: currentBackgroundLayerId,
-          source: currentSourceId,
-          type: 'symbol',
-          layout: backgroundLayerStyles.layout,
-          paint: backgroundLayerStyles.paint,
-          filter: layerFilter,
-        }, currentLayerId);
-      }
-      if (map.getLayer(currentInactiveLayerId)) {
-        map.removeLayer(currentInactiveLayerId);
-      }
-    }
-  }, [map, currentInactiveLayerId, layerFilter, currentBackgroundLayerId, currentLayerId, currentSourceId]);
 
-  /* updating the stationary subject layers when the filter changes */
-  useEffect(() => {
-    if (map) {
-      map.setFilter(currentBackgroundLayerId, layerFilter);
-      map.setFilter(currentLayerId, layerFilter);
-    }
-  }, [layerFilter, map, currentBackgroundLayerId, currentLayerId]);
+  const layerConfig = useMemo(() => ({
+    filter: layerFilter,
+  }), [layerFilter]);
 
-  /* layer interaction handlers. click and hover. */
-  useEffect(() => {
-    if (map) {
-      const onLayerClick = (event) => {
-        event.preventDefault();
+  const backgroundLayoutObject = useMemo(() => ({
+    ...backgroundLayerStyles.layout,
+    ...dynamicBackgroundLayerLayoutProps,
+  }), [dynamicBackgroundLayerLayoutProps]);
 
-        const feature = map.queryRenderedFeatures(event.point, { layers: [currentBackgroundLayerId] })[0];
+  const layoutObject = useMemo(() => ({
+    ...labelLayerStyles.layout,
+    ...dynamicLabelLayerLayoutProps,
+  }), [dynamicLabelLayerLayoutProps]);
 
-        if (feature) {
-          const newFilter = [
-            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
-            ['!=', 'id', feature.properties.id]
-          ];
+  useMapLayer(
+    currentBackgroundLayerId,
+    'symbol',
+    currentSourceId,
+    backgroundLayerStyles.paint,
+    backgroundLayoutObject,
+    layerConfig,
+  );
 
-          setLayerFilter(newFilter);
+  useMapLayer(
+    currentLayerId,
+    'symbol',
+    currentSourceId,
+    labelLayerStyles.paint,
+    layoutObject,
+    layerConfig,
+  );
 
-          createPopup(feature);
-        }
-      };
-
-      const onLayerMouseEnter = () => {
-        map.getCanvas().style.cursor = 'pointer';
-      };
-
-      const onLayerMouseLeave = () => {
-        map.getCanvas().style.cursor = '';
-      };
-
-      map.on('click', currentBackgroundLayerId, onLayerClick);
-
-      map.on('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
-
-      map.on('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
-
-      return () => {
-        map.off('click', currentBackgroundLayerId, onLayerClick);
-
-        map.off('mouseenter', currentBackgroundLayerId, onLayerMouseEnter);
-
-        map.off('mouseleave', currentBackgroundLayerId, onLayerMouseLeave);
-      };
-    }
-  }, [currentBackgroundLayerId, createPopup, map, getStaticSensorLayer]);
-
-  /* updating layer layout properties when the map view config changes */
-  useEffect(() => {
-    if (map && !!map.getLayer(currentLayerId)) {
-      Object.entries(dynamicLabelLayerLayoutProps).forEach(([key, value]) => {
-        map.setLayoutProperty(currentLayerId, key, value);
-      });
-    }
-  }, [currentLayerId, dynamicLabelLayerLayoutProps, map]);
-
-  /* updating layer layout properties when the map view config changes */
-  useEffect(() => {
-    if (map && !!map.getLayer(currentBackgroundLayerId)) {
-      Object.entries(dynamicBackgroundLayerLayoutProps).forEach(([key, value]) => {
-        map.setLayoutProperty(currentBackgroundLayerId, key, value);
-      });
-    }
-  }, [currentBackgroundLayerId, dynamicBackgroundLayerLayoutProps, map]);
-
+  useMapEventBinding('click', onLayerClick, currentBackgroundLayerId);
+  useMapEventBinding('mouseenter', onLayerMouseEnter, currentBackgroundLayerId);
+  useMapEventBinding('mouseenter', onLayerMouseLeave, currentBackgroundLayerId);
 
   return null;
 };
