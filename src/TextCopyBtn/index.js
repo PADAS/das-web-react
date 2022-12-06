@@ -37,7 +37,7 @@ const TextCopyBtn = (props) => {
     onCopySuccess();
   }, [text, onCopySuccess]);
 
-  return <span className={`${styles.clipboardWrapper} ${className}`}>
+  return <span data-testid='textCopyBtn' className={`${styles.clipboardWrapper} ${className}`}>
     <button type='button' onClick={onClickCopy}>
       <ClipboardIcon />
       {copySuccess && <Alert className={styles.copySuccessMsg} variant='success'>Copied to clipboard</Alert>}
