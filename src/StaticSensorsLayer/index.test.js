@@ -3,6 +3,7 @@ import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { runAllTimers } from '../__test-helpers/timers.js';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { MapContext } from '../App';
@@ -49,10 +50,16 @@ jest.mock('../ducks/popup', () => ({
 
 describe('adding layers to the map', () => {
   beforeEach(() => {
+    jest.useFakeTimers();
     map = createMapMock({
       getLayer: jest.fn().mockReturnValue(false),
       getSource: jest.fn().mockReturnValue(true),
     });
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
   describe('the layer used when clustering is disabled', () => {
@@ -135,7 +142,7 @@ describe('adding layers to the map', () => {
   });
 
   describe('clicking on a stationary subject', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       map = createMapMock({
         getLayer: jest.fn().mockReturnValue(true),
         getSource: jest.fn().mockReturnValue(true),
@@ -152,37 +159,29 @@ describe('adding layers to the map', () => {
       showPopup.mockImplementation(() => jest.fn());
 
       map.queryRenderedFeatures.mockReturnValue([staticSubjectFeature]);
-      map.setFilter.mockClear();
 
       map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
+      await runAllTimers();
     });
 
-    test('showing the subject popup', () => {
+    test('showing the subject popup', async () => {
       expect(showPopup).toHaveBeenCalledWith('subject', { geometry: staticSubjectFeature.geometry, properties: staticSubjectFeature.properties, coordinates: staticSubjectFeature.geometry.coordinates, popupAttrsOverride: {
         offset: [0, 0],
       } });
     });
 
-    test.only('setting the map filter to hide the selected subject\'s marker', async () => {
-      jest.runAllTimers();
+    test('setting the map filter to hide the selected subject\'s marker', async () => {
+      map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
 
-      await waitFor(() => {
+      await runAllTimers();
 
-        expect(map.setFilter).toHaveBeenCalledTimes(2); /* once for the background layer, once for the symbol layer */
+      expect(map.setFilter).toHaveBeenCalledTimes(4);
 
-        map.setFilter.mock.calls.forEach((call) => {
-          expect(call[1]).toEqual([
-            ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
-            ['!=', 'id', staticSubjectFeature.properties.id]
-          ]);
-        });
-      });
-    });
-
-    test('a one-time handler is bound to the map for handling map click after selecting a stationary subject', async () => {
-      await waitFor(() => {
-        expect(map.once).toHaveBeenCalled();
-      });
+      expect(map.setFilter.mock.calls[3][1])
+        .toEqual([
+          ...DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER,
+          ['!=', 'id', staticSubjectFeature.properties.id]
+        ]);
     });
 
     describe('clicking the map while a stationary subject popup is visible', () => {
@@ -190,7 +189,6 @@ describe('adding layers to the map', () => {
         map.queryRenderedFeatures.mockReset();
         map.queryRenderedFeatures.mockReturnValue([staticSubjectFeatureWithoutDefaultValue]);
 
-        map.__test__.fireHandlers('once', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
         map.setFilter.mockClear();
 
         await waitFor(() => {
