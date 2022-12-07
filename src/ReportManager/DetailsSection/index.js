@@ -38,7 +38,7 @@ import styles from './styles.module.scss';
 
 const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
-const LOADER_COLOR = 'blue';
+const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
 const DetailsSection = ({
