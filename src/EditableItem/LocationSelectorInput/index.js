@@ -20,12 +20,14 @@ import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
+const PLACEHOLDER = 'Click here to set location';
+
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
-const calculateInputDisplayString = (location, gpsFormat) => {
+const calculateInputDisplayString = (location, gpsFormat, placeholder) => {
   return location
     ? calcGpsDisplayString(location[1], location[0], gpsFormat)
-    : 'Click here to set location';
+    :  placeholder;
 };
 
 const LocationSelectorInput = ({
@@ -50,7 +52,7 @@ const LocationSelectorInput = ({
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const displayString = calculateInputDisplayString(location, gpsFormat);
+  const displayString = calculateInputDisplayString(location, gpsFormat, placeholder);
 
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== placeholder);
@@ -144,7 +146,7 @@ const LocationSelectorInput = ({
     >
 
       <LocationIcon className={styles.icon} />
-      <span className={styles.displayString}>{displayString}</span>
+      <span data-testid="locationSelectorInput-displayValue" className={styles.displayString}>{displayString}</span>
       {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
     </div>
 
@@ -189,7 +191,7 @@ LocationSelectorInput.defaultProps = {
   copyable: true,
   label: 'Location:',
   location: null,
-  placeholder: null,
+  placeholder: PLACEHOLDER,
   popoverClassName: '',
 };
 

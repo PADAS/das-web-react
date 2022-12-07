@@ -11,7 +11,7 @@ import { addModal } from '../ducks/modals';
 
 import { calcUrlForImage } from './img';
 import colorVariables from '../common/styles/vars/colors.module.scss';
-import { EVENT_STATE_CHOICES } from '../constants';
+import { EVENT_FORM_STATES, EVENT_STATE_CHOICES } from '../constants';
 import { EVENT_API_URL } from '../ducks/events';
 
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
@@ -146,7 +146,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
     icon_id,
     is_collection: false,
     location,
-    // state: 'active',
+    state: EVENT_FORM_STATES.ACTIVE,
     priority,
     reported_by,
     time: time ? new Date(time) : new Date(),

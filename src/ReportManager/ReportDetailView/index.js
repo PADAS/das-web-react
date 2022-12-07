@@ -240,6 +240,12 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onReportStateChange = useCallback((state) => {
+    setReportForm({ ...reportForm, state });
+
+    reportTracker.track('Change Report State');
+  }, [reportForm, reportTracker]);
+
   const onFormChange = useCallback((event) => {
     setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
 
@@ -412,6 +418,7 @@ const ReportDetailView = ({
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}
+                  onReportStateChange={onReportStateChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
                   submitFormButtonRef={submitFormButtonRef}

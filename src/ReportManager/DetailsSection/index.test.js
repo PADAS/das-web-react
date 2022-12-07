@@ -22,7 +22,8 @@ const onFormChange = jest.fn(),
   onFormSubmit = jest.fn(),
   onReportedByChange = jest.fn(),
   onReportGeometryChange = jest.fn(),
-  onReportLocationChange = jest.fn();
+  onReportLocationChange = jest.fn(),
+  onReportStateChange = jest.fn();
 const store = {
   data: {
     subjectStore: {},
@@ -76,6 +77,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
           originalReport={report}
           reportForm={report}
         />
@@ -100,6 +102,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
         />
@@ -128,6 +131,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
         />
@@ -168,6 +172,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
+            onReportStateChange={onReportStateChange}
             originalReport={report}
             reportForm={report}
           />
@@ -199,6 +204,7 @@ describe('ReportManager - DetailsSection', () => {
               onReportedByChange={onReportedByChange}
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
               originalReport={report}
               reportForm={report}
             />
@@ -240,6 +246,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
+            onReportStateChange={onReportStateChange}
             originalReport={report}
             reportForm={report}
           />
@@ -270,6 +277,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
+            onReportStateChange={onReportStateChange}
             originalReport={report}
             reportForm={report}
           />
@@ -335,5 +343,33 @@ describe('ReportManager - DetailsSection', () => {
     submitFormButtonRef.current.click();
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onReportStateChange callback when user selects a new state', async () => {
+    store.data.eventTypes = eventTypes;
+
+    render(
+      <Provider store={mockStore(store)}>
+        <DetailsSection
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
+          originalReport={report}
+          reportForm={report}
+        />
+      </Provider>
+    );
+
+    const stateDropdown = await screen.findByText('active');
+    userEvent.click(stateDropdown);
+
+    expect(onReportStateChange).toHaveBeenCalledTimes(0);
+
+    const resolvedItem = await screen.findByText('resolved');
+    userEvent.click(resolvedItem);
+
+    expect(onReportStateChange).toHaveBeenCalledTimes(1);
+    expect(onReportStateChange.mock.calls[0][0]).toBe('resolved');
   });
 });

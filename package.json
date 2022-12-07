@@ -42,7 +42,7 @@
     "react-mapbox-gl": "4.8.3",
     "react-redux": "^7.0.3",
     "react-router-dom": "^6.4.2",
-    "react-scripts": "5.0.0",
+    "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
     "react-toastify": "^5.4.0",
     "redux": "^4.0.0",
@@ -116,6 +116,6 @@
     "eslint-loader": "3.0.2",
     "mapbox-gl": "2.9.2",
     "node-fetch": "2.6.7",
-    "immer": "9.0.6"
+    "loader-utils": "2.0.4"
   }
 }

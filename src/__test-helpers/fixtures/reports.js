@@ -17,7 +17,7 @@ export const report = {
   title: null,
   notes: [],
   reported_by: null,
-  state: 'new',
+  state: 'active',
   event_details: {},
   contains: [],
   is_linked_to: [],
