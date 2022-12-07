@@ -158,7 +158,7 @@ const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: is
     layerConfig,
   );
 
-  useMapEventBinding('click', onLayerClick, currentBackgroundLayerId);
+  useMapEventBinding('click', onLayerClick);
   useMapEventBinding('mouseenter', onLayerMouseEnter, currentBackgroundLayerId);
   useMapEventBinding('mouseenter', onLayerMouseLeave, currentBackgroundLayerId);
 

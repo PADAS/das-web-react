@@ -1,4 +1,4 @@
-import { get } from 'axios';
+import axios from 'axios';
 import { API_URL, REACT_APP_BASE_MAP_STYLES } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
@@ -9,7 +9,7 @@ const FETCH_BASE_LAYERS_ERROR = 'FETCH_BASE_LAYERS_ERROR';
 
 const SET_BASE_LAYER = 'SET_BASE_LAYER';
 
-const BASE_LAYER_API_URL = `${API_URL}layers`;
+export const BASE_LAYER_API_URL = `${API_URL}layers`;
 
 export const fetchBaseLayers = () => async (dispatch) => {
   dispatch({
@@ -17,7 +17,7 @@ export const fetchBaseLayers = () => async (dispatch) => {
   });
 
   try {
-    const { data: { data: results } } = await get(BASE_LAYER_API_URL);
+    const { data: { data: results } } = await axios.get(BASE_LAYER_API_URL);
     dispatch({
       type: FETCH_BASE_LAYERS_SUCCESS,
       payload: results,
