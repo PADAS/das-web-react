@@ -345,6 +345,29 @@ describe('ReportManager - DetailsSection', () => {
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
   });
 
+  test('shows the loader while the schema has not loaded', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
+          <DetailsSection
+            formSchema={null}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect((await screen.findByTestId('reportManager-detailsSection-loader'))).toBeDefined();
+  });
+
   test('triggers the onReportStateChange callback when user selects a new state', async () => {
     store.data.eventTypes = eventTypes;
 

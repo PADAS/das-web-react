@@ -32,8 +32,8 @@
       display: flex;
     }
 
-    label:nth-child(2) {
-      margin-left: 0.2rem;
+    label:not(:first-child) {
+      margin-left: 1rem;
     }
   }
 }

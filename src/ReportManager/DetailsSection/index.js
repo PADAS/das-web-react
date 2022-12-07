@@ -5,8 +5,7 @@ import Form from '@rjsf/bootstrap-4';
 import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-
-import ReportedBySelect from '../../ReportedBySelect';
+import { ResizeSpinLoader } from 'react-css-loaders';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
@@ -33,10 +32,14 @@ import {
 import AreaSelectorInput from './AreaSelectorInput';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
+import ReportedBySelect from '../../ReportedBySelect';
 
 import styles from './styles.module.scss';
 
 const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
+
+const LOADER_COLOR = 'blue';
+const LOADER_SIZE = 4;
 
 const DetailsSection = ({
   formSchema,
@@ -136,29 +139,31 @@ const DetailsSection = ({
       </div>
     </div>
 
-    {formSchema && <Form
-        className={styles.form}
-        disabled={formSchema.readonly}
-        fields={{ externalLink: ExternalLinkField }}
-        formData={reportForm.event_details}
-        onChange={onFormChange}
-        onError={onFormError}
-        onSubmit={onFormSubmit}
-        schema={formSchema}
-        showErrorList={false}
-        templates={{
-          ArrayFieldItemTemplate,
-          ArrayFieldTemplate,
-          BaseInputTemplate,
-          ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
-          ObjectFieldTemplate,
-        }}
-        transformErrors={transformErrors}
-        uiSchema={formUISchema}
-        validator={formValidator}
-      >
-      <button ref={submitFormButtonRef} type="submit" />
-    </Form>}
+    {!!formSchema
+      ? <Form
+          className={styles.form}
+          disabled={formSchema.readonly}
+          fields={{ externalLink: ExternalLinkField }}
+          formData={reportForm.event_details}
+          onChange={onFormChange}
+          onError={onFormError}
+          onSubmit={onFormSubmit}
+          schema={formSchema}
+          showErrorList={false}
+          templates={{
+            ArrayFieldItemTemplate,
+            ArrayFieldTemplate,
+            BaseInputTemplate,
+            ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
+            ObjectFieldTemplate,
+          }}
+          transformErrors={transformErrors}
+          uiSchema={formUISchema}
+          validator={formValidator}
+        >
+        <button ref={submitFormButtonRef} type="submit" />
+      </Form>
+      : <ResizeSpinLoader color={LOADER_COLOR} data-testid="reportManager-detailsSection-loader" size={LOADER_SIZE} />}
   </>;
 };
 
