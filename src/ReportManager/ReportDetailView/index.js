@@ -237,6 +237,12 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onReportStateChange = useCallback((state) => {
+    setReportForm({ ...reportForm, state });
+
+    reportTracker.track('Change Report State');
+  }, [reportForm, reportTracker]);
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -374,6 +380,7 @@ const ReportDetailView = ({
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}
+                  onReportStateChange={onReportStateChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
                   onPriorityChange={onPriorityChange}

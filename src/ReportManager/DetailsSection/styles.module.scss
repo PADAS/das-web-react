@@ -25,6 +25,34 @@
   }
 }
 
+.stateDropdown {
+  button {
+    padding: 0.325rem 1rem;
+    text-transform: capitalize;
+
+    &::after {
+      margin-left: 0.5rem;
+    }
+  }
+
+  &.resolved {
+    button {
+      background-color: $secondary-medium-light-gray;
+      border-color: $secondary-medium-light-gray;
+    }
+  }
+
+  .stateDropdownMenu {
+    padding: 0.312rem 0;
+
+    .stateItem {
+      font-size: 0.875rem;
+      padding: 0.25rem 0.5rem;
+      text-transform: capitalize;
+    }
+  }
+}
+
 .fieldLabel {
   margin-top: 0.5rem;
   width: 100%;
