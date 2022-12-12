@@ -42,9 +42,9 @@ const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalSt
   );
 
   const SingleValue = ({ data, ...props }) => (
-    <components.Control {...props} className={styles.control}>
+    <components.SingleValue {...props} className={styles.control}>
       <PriorityItem data={data} />
-    </components.Control>
+    </components.SingleValue>
   );
 
   const Option = ({ data, ...props }) => (

@@ -6,8 +6,10 @@ import userEvent from '@testing-library/user-event';
 import AddReport from '../../AddReport';
 import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
 import { createMapMock } from '../../__test-helpers/mocks';
+import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions } from '../../utils/save';
+import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -29,6 +31,11 @@ jest.mock('../../ducks/events', () => ({
   fetchEvent: jest.fn(),
 }));
 
+jest.mock('../../ducks/event-schemas', () => ({
+  ...jest.requireActual('../../ducks/event-schemas'),
+  fetchEventTypeSchema: jest.fn(),
+}));
+
 jest.mock('../../utils/save', () => ({
   ...jest.requireActual('../../utils/save'),
   executeSaveActions: jest.fn(),
@@ -38,8 +45,9 @@ describe('ReportManager - ReportDetailView', () => {
   let AddReportMock,
     addEventToIncidentMock,
     createEventMock,
-    fetchEventMock,
     executeSaveActionsMock,
+    fetchEventMock,
+    fetchEventTypeSchemaMock,
     map,
     navigate,
     useNavigateMock,
@@ -52,10 +60,12 @@ describe('ReportManager - ReportDetailView', () => {
     addEventToIncident.mockImplementation(addEventToIncidentMock);
     createEventMock = jest.fn(() => () => {});
     createEvent.mockImplementation(createEventMock);
-    fetchEventMock = jest.fn(() => () => {});
-    fetchEvent.mockImplementation(fetchEventMock);
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
+    fetchEventMock = jest.fn(() => () => {});
+    fetchEvent.mockImplementation(fetchEventMock);
+    fetchEventTypeSchemaMock = jest.fn(() => () => {});
+    fetchEventTypeSchema.mockImplementation(fetchEventTypeSchemaMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
@@ -68,19 +78,7 @@ describe('ReportManager - ReportDetailView', () => {
         eventStore: {},
         eventTypes,
         patrolTypes,
-        eventSchemas: {
-          globalSchema: {
-            properties: {
-              reported_by: {
-                enum_ext: [{
-                  value: { id: 'Leader 1' },
-                }, {
-                  value: { id: 'Leader 2' },
-                }],
-              },
-            },
-          },
-        },
+        eventSchemas,
       },
       view: {
         mapLocationSelection: { isPickingLocation: false },
@@ -142,12 +140,41 @@ describe('ReportManager - ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
   });
 
+  test('does not fetch the event schema if it is loaded already', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView isNewReportnewReportTypeI d="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"reportId="1234" />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(fetchEventTypeSchema).not.toHaveBeenCalled();
+  });
+
+  test('fetches the event schema if it is not loaded already', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView isNewReport newReportTypeId="74941f0d-4b89-48be-a62a-a74c78db8383" reportId="1234" />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(fetchEventTypeSchema).toHaveBeenCalled();
+    expect(fetchEventTypeSchema).toHaveBeenCalledWith('fire_rep', undefined);
+  });
+
   test('updates the title when user types in it', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -155,11 +182,11 @@ describe('ReportManager - ReportDetailView', () => {
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
 
-    expect(titleInput).toHaveTextContent('Jenae Test Auto Resolve');
+    expect(titleInput).toHaveTextContent('Accident');
 
     userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveTextContent('2enae Test Auto Resolve');
+    expect(titleInput).toHaveTextContent('2ccident');
   });
 
   test('sets the location when user changes it', async () => {
@@ -168,7 +195,7 @@ describe('ReportManager - ReportDetailView', () => {
         <MapContext.Provider value={map}>
           <NavigationWrapper>
             <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
+              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
             </ReportsTabContext.Provider>
           </NavigationWrapper>
         </MapContext.Provider>
@@ -183,6 +210,25 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('updates the JSON form schema when user does a change', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+            </ReportsTabContext.Provider>
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const typeOfAccidentField = await screen.findByLabelText('Type of accident');
+    userEvent.type(typeOfAccidentField, 'Truck crash');
+
+    expect((await screen.findByDisplayValue('Truck crash'))).toBeDefined();
   });
 
   test('sets the state when user changes it', async () => {
@@ -213,7 +259,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -238,7 +284,7 @@ describe('ReportManager - ReportDetailView', () => {
             <ReportDetailView
               isAddedReport
               isNewReport
-              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               onCancelAddedReport={onCancelAddedReport}
               reportId="1234"
             />
@@ -463,7 +509,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -589,7 +635,7 @@ describe('ReportManager - ReportDetailView', () => {
             <ReportDetailView
               formProps={{ onSaveSuccess }}
               isNewReport
-              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="456"
             />
           </ReportsTabContext.Provider>
@@ -612,7 +658,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -636,7 +682,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -661,7 +707,7 @@ describe('ReportManager - ReportDetailView', () => {
             <ReportDetailView
               formProps={{ onSaveError }}
               isNewReport
-              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="456"
             />
           </ReportsTabContext.Provider>
@@ -687,7 +733,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -759,7 +805,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -774,7 +820,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -795,7 +841,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="456" />
+            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -830,7 +876,7 @@ describe('ReportManager - ReportDetailView', () => {
             <ReportDetailView
               formProps={{ relationshipButtonDisabled: true }}
               isNewReport
-              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="456"
             />
           </ReportsTabContext.Provider>
@@ -886,7 +932,7 @@ describe('ReportManager - ReportDetailView', () => {
             <ReportDetailView
               isAddedReport
               isNewReport
-              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="456"
             />
           </ReportsTabContext.Provider>

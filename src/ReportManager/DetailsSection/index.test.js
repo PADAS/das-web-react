@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
+import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
@@ -16,7 +17,10 @@ import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import DetailsSection from './';
 
 let map;
-const onReportedByChange = jest.fn(),
+const onFormChange = jest.fn(),
+  onFormError = jest.fn(),
+  onFormSubmit = jest.fn(),
+  onReportedByChange = jest.fn(),
   onReportGeometryChange = jest.fn(),
   onReportLocationChange = jest.fn(),
   onReportStateChange = jest.fn();
@@ -26,24 +30,7 @@ const store = {
     eventStore: {},
     eventTypes,
     patrolTypes,
-    eventSchemas: {
-      globalSchema: {
-        properties: {
-          reported_by: {
-            enum_ext: [{
-              value: {
-                id: '1234',
-                name: 'Canek',
-                subject_type: 'person',
-                subject_subtype: 'ranger',
-                is_active: true,
-                image_url: '/static/ranger-black.svg'
-              }
-            }],
-          },
-        },
-      },
-    }
+    eventSchemas,
   },
   view: {
     mapLocationSelection: { isPickingLocation: false },
@@ -53,6 +40,21 @@ const store = {
 };
 
 describe('ReportManager - DetailsSection', () => {
+  eventSchemas.globalSchema.properties.reported_by.enum_ext[0].value = {
+    id: '1234',
+    name: 'Canek',
+    subject_type: 'person',
+    subject_subtype: 'ranger',
+    is_active: true,
+    image_url: '/static/ranger-black.svg'
+  };
+
+  const reportedBy = {
+    id: '1234',
+    name: 'Canek',
+    image_url: '/static/ranger-black.svg'
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
 
@@ -67,6 +69,12 @@ describe('ReportManager - DetailsSection', () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -84,15 +92,15 @@ describe('ReportManager - DetailsSection', () => {
   });
 
   test('shows the name of the tracking subject in reported by for saved reports', async () => {
-    const reportedBy = {
-      id: '1234',
-      name: 'Canek',
-      image_url: '/static/ranger-black.svg'
-    };
-
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -104,28 +112,25 @@ describe('ReportManager - DetailsSection', () => {
     );
 
     const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const reportReportedInput = await within(reportedBySelect).getByTestId('select-single-value');
+    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
 
-    const selectionImage = reportReportedInput.children[0];
-    const selectionText = reportReportedInput.children[1];
-
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(within(reportedBySelect).queryByText('Reported by...')).toBeNull();
-      expect(selectionImage).toHaveAttribute('alt', 'Radio icon for Canek value');
-      expect(selectionText).toHaveTextContent('Canek');
+      expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+      expect((await within(reportedBySelect).findByText('Canek'))).toBeDefined();
     });
   });
 
   test('triggers the onReportedByChange callback when the user selects a subject', async () => {
-    const reportedBy = {
-      id: '1234',
-      name: 'Canek',
-      image_url: '/static/ranger-black.svg'
-    };
-
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
@@ -136,9 +141,8 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const reportReportedInput = await within(reportedBySelect).getByTestId('select-single-value');
-    userEvent.click(reportReportedInput);
+    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
+    userEvent.click(selectionImage);
 
     expect(onReportedByChange).toHaveBeenCalledTimes(0);
 
@@ -163,6 +167,12 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <DetailsSection
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -190,6 +200,12 @@ describe('ReportManager - DetailsSection', () => {
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              loadingSchema={false}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
               onReportedByChange={onReportedByChange}
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
@@ -227,6 +243,12 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <DetailsSection
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -253,6 +275,12 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
           <DetailsSection
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
@@ -265,6 +293,89 @@ describe('ReportManager - DetailsSection', () => {
     );
 
     expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onFormChange callback when user does a change to a form field', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
+          <DetailsSection
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect(onFormChange).toHaveBeenCalledTimes(0);
+
+    const typeOfAccidentField = await screen.findByLabelText('Type of accident');
+    userEvent.type(typeOfAccidentField, 'Truck crash');
+
+    expect(onFormChange).toHaveBeenCalled();
+  });
+
+  test('triggers the onFormSubmit callback when clicking the submit button', async () => {
+    const submitFormButtonRef = {};
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
+          <DetailsSection
+            formSchema={eventSchemas.accident_rep.base.schema}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+            submitFormButtonRef={submitFormButtonRef}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
+
+    submitFormButtonRef.current.click();
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the loader while the schema has not loaded', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
+          <DetailsSection
+            formSchema={null}
+            formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema
+            onFormChange={onFormChange}
+            onFormError={onFormError}
+            onFormSubmit={onFormSubmit}
+            onReportedByChange={onReportedByChange}
+            onReportGeometryChange={onReportGeometryChange}
+            onReportLocationChange={onReportLocationChange}
+            originalReport={report}
+            reportForm={report}
+          />
+        </MapDrawingToolsContext.Provider>
+      </Provider>
+    );
+
+    expect((await screen.findByTestId('reportManager-detailsSection-loader'))).toBeDefined();
   });
 
   test('triggers the onReportStateChange callback when user selects a new state', async () => {
