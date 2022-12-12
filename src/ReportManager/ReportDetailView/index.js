@@ -411,6 +411,7 @@ const ReportDetailView = ({
                 <DetailsSection
                   formSchema={reportSchemas?.schema}
                   formUISchema={reportSchemas?.uiSchema}
+                  loadingSchema={!!eventSchemas.loading}
                   onFormChange={onFormChange}
                   onFormError={onFormError}
                   onFormSubmit={onSaveReport}

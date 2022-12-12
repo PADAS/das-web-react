@@ -12,7 +12,9 @@ const { get } = axios;
 export const EVENT_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
 export const EVENT_TYPE_SCHEMA_API_URL = `${API_URL}activity/events/schema/eventtype/`;
 
+const FETCH_EVENT_TYPE_SCHEMA = 'FETCH_EVENT_TYPE_SCHEMA';
 const FETCH_EVENT_TYPE_SCHEMA_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_SUCCESS';
+const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE';
 const FETCH_EVENT_SCHEMA_SUCCESS = 'FETCH_EVENT_SCHEMA_SUCCESS';
 
 export const fetchEventSchema = () => dispatch => get(EVENT_SCHEMA_API_URL)
@@ -21,6 +23,8 @@ export const fetchEventSchema = () => dispatch => get(EVENT_SCHEMA_API_URL)
   });
 
 export const fetchEventTypeSchema = (name, event_id) => (dispatch, getState) => {
+  dispatch({ type: FETCH_EVENT_TYPE_SCHEMA });
+
   const state = getState();
   const params = {};
 
@@ -37,11 +41,16 @@ export const fetchEventTypeSchema = (name, event_id) => (dispatch, getState) => 
     .then(({ data: { data: schema } }) => {
       dispatch(fetchEventTypeSchemaSuccess({ name, schema, event_id }));
     }
-    );
+    ).catch((error) => dispatch(fetchEventTypeSchemaFailure({ name, error, event_id })));
 };
 
 const fetchEventTypeSchemaSuccess = payload => ({
   type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS,
+  payload,
+});
+
+const fetchEventTypeSchemaFailure = (payload) => ({
+  type: FETCH_EVENT_TYPE_SCHEMA_FAILURE,
   payload,
 });
 
@@ -52,6 +61,10 @@ const fetchEventSchemaSuccess = payload => ({
 
 const eventSchemasReducer = (state, action) => {
   const { type, payload } = action;
+
+  if (type === FETCH_EVENT_TYPE_SCHEMA) {
+    return { ...state, loading: true };
+  }
 
   if (type === FETCH_EVENT_TYPE_SCHEMA_SUCCESS) {
     const { name, schema, event_id } = payload;
@@ -65,16 +78,35 @@ const eventSchemasReducer = (state, action) => {
     };
 
     if (!event_id) {
-      return { ...state, [name]: {
-        ...state[name],
-        base: stateValue,
-      } };
+      return {
+        ...state,
+        loading: false,
+        [name]: {
+          ...state[name],
+          base: stateValue,
+        }
+      };
     }
 
     return {
-      ...state, [name]: {
+      ...state,
+      loading: false,
+      [name]: {
         ...state[name],
         [event_id]: stateValue,
+      }
+    };
+  }
+
+  if (type === FETCH_EVENT_TYPE_SCHEMA_FAILURE) {
+    const { name, event_id, error } = payload;
+
+    return {
+      ...state,
+      loading: false,
+      [name]: {
+        ...state[name],
+        [event_id]: error,
       }
     };
   }

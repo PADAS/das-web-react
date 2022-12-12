@@ -218,9 +218,9 @@ const addCssClassesToDefinition = ({ key, htmlClass, layout }) => {
   };
   if (layout) {
     const columnClasses = convertSchemaLayoutToColumnClassString(layout);
-    entry.uiSchemaEntry.classNames = columnClasses;
+    entry.uiSchemaEntry['ui:classNames'] = columnClasses;
   }
-  if (htmlClass) entry.uiSchemaEntry.classNames = `${entry.uiSchemaEntry.classNames || ''} ${htmlClass}`;
+  if (htmlClass) entry.uiSchemaEntry['ui:classNames'] = `${entry.uiSchemaEntry.classNames || ''} ${htmlClass}`;
   return entry;
 };
 

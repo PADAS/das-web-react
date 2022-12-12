@@ -71,6 +71,7 @@ describe('ReportManager - DetailsSection', () => {
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
@@ -96,6 +97,7 @@ describe('ReportManager - DetailsSection', () => {
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
@@ -125,6 +127,7 @@ describe('ReportManager - DetailsSection', () => {
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
@@ -166,6 +169,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
@@ -198,6 +202,7 @@ describe('ReportManager - DetailsSection', () => {
             <DetailsSection
               formSchema={eventSchemas.accident_rep.base.schema}
               formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              loadingSchema={false}
               onFormChange={onFormChange}
               onFormError={onFormError}
               onFormSubmit={onFormSubmit}
@@ -240,6 +245,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
@@ -271,6 +277,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
@@ -295,6 +302,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
@@ -324,6 +332,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
@@ -352,6 +361,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={null}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            loadingSchema
             onFormChange={onFormChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}

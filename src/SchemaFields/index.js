@@ -179,9 +179,8 @@ export const BaseInputTemplate = ({
   </>;
 };
 
-const IconButton = ({ icon, iconType, uiSchema: _uiSchema, variant, ...rest }) => <Button
+const IconButton = ({ icon, iconType: _iconType, uiSchema: _uiSchema, variant, ...rest }) => <Button
     {...rest}
-    block={iconType === 'block'}
     variant={variant || 'light'}
     size="sm"
   >
