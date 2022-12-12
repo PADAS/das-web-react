@@ -343,6 +343,10 @@ const ReportDetailView = ({
     }
   };
 
+  const onPatrolLinkClicked = ({ id }) => navigate(`/${TAB_KEYS.PATROLS}/${id}`);
+
+  const onReportLinkClicked = ({ id }) => navigate(`/${TAB_KEYS.REPORTS}/${id}`);
+
   const onClickCancelButton = useCallback(() => {
     if (isAddedReport) {
       onCancelAddedReport();
@@ -436,13 +440,13 @@ const ReportDetailView = ({
                   <LinkIcon />
                   <h2>Links</h2>
                 </div>
-                <ReportListItem showJumpButton={false}
+                <ReportListItem showJumpButton={false} onTitleClick={onReportLinkClicked}
                                 className={styles.reportLink}
                                 report={reportForm}
                                 showElapsed={false} />
                 {
                   patrolObject &&
-                    <PatrolListItem showTitleDetails={false}
+                    <PatrolListItem showTitleDetails={false} onTitleClick={onPatrolLinkClicked}
                                     showControls={false}
                                     patrol={patrolObject}
                                     showStateTitle={false}
