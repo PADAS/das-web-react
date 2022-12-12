@@ -1,4 +1,6 @@
 import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
+import axios from 'axios';
+
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -120,7 +122,7 @@ const App = (props) => {
         }
       });
 
-    loadProgressBar();
+    loadProgressBar({}, axios);
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

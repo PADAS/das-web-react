@@ -5,7 +5,7 @@ import { createGeoJSONCircle } from '../utils/analyzers';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial?active=true`;
+export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial`;
 
 // actions
 export const FETCH_ANALYZERS = 'FETCH_ANALYZERS';
@@ -18,7 +18,7 @@ let featureLayerIdentifier = 1000;
 
 export const fetchAnalyzers = () => async (dispatch) => {
   // fetch the active analyzers, only processing the non-null spatial group urls
-  const { data: { data } } = await axios.get(ANALYZERS_API_URL);
+  const { data: { data } } = await axios.get(ANALYZERS_API_URL, { params: { active: true } });
 
   const analyzers = await Promise.all(data.map(async (analyzer) => {
     const spatialEntries = Object.entries(analyzer.spatial_groups);
