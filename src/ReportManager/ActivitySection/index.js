@@ -10,6 +10,7 @@ import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
+import ReportListItem from './ReportListItem';
 
 import styles from './styles.module.scss';
 
@@ -44,8 +45,19 @@ const ActivitySection = ({
     setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
   }, [cardsExpanded, onSaveNote]);
 
+  const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
+    date: new Date(containedReport.time),
+    node: <ReportListItem
+      cardsExpanded={cardsExpanded}
+      key={containedReport.id}
+      onCollapse={() => onCollapseCard(containedReport)}
+      onExpand={() => onExpandCard(containedReport)}
+      report={containedReport}
+    />,
+  })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
+
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
-    date: reportAttachment.updated_at || reportAttachment.created_at,
+    date: new Date(reportAttachment.updated_at || reportAttachment.created_at),
     node: <AttachmentListItem
       attachment={reportAttachment}
       cardsExpanded={cardsExpanded}
@@ -57,7 +69,7 @@ const ActivitySection = ({
   })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments, reportTracker]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
-    date: attachmentToAdd.creationDate,
+    date: new Date(attachmentToAdd.creationDate),
     node: <AttachmentListItem
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
@@ -66,7 +78,7 @@ const ActivitySection = ({
   })), [attachmentsToAdd, onDeleteAttachment]);
 
   const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
-    date: reportNote.updated_at || reportNote.created_at,
+    date: new Date(reportNote.updated_at || reportNote.created_at),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
@@ -78,7 +90,7 @@ const ActivitySection = ({
   })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
-    date: noteToAdd.creationDate,
+    date: new Date(noteToAdd.creationDate),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
@@ -91,15 +103,26 @@ const ActivitySection = ({
   })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
 
   const sortedItemsRendered = useMemo(
-    () => [...reportAttachmentsRendered, ...reportNotesRendered, ...attachmentsToAddRendered, ...notesToAddRendered]
-      .sort((a, b) => {
-        if (timeSortOrder === DESCENDING_SORT_ORDER) {
-          return a.date > b.date ? 1 : -1;
-        }
-        return a.date < b.date ? 1 : -1;
-      })
-      .map((item) => item.node),
-    [attachmentsToAddRendered, notesToAddRendered, reportAttachmentsRendered, reportNotesRendered, timeSortOrder]
+    () => [
+      ...containedReportsRendered,
+      ...reportAttachmentsRendered,
+      ...reportNotesRendered,
+      ...attachmentsToAddRendered,
+      ...notesToAddRendered,
+    ].sort((a, b) => {
+      if (timeSortOrder === DESCENDING_SORT_ORDER) {
+        return a.date > b.date ? 1 : -1;
+      }
+      return a.date < b.date ? 1 : -1;
+    }).map((item) => item.node),
+    [
+      attachmentsToAddRendered,
+      containedReportsRendered,
+      notesToAddRendered,
+      reportAttachmentsRendered,
+      reportNotesRendered,
+      timeSortOrder,
+    ]
   );
 
   const reportImageAttachments = useMemo(
@@ -108,13 +131,25 @@ const ActivitySection = ({
   );
 
   const areAllItemsExpanded = useMemo(
-    () => cardsExpanded.length === (notesToAdd.length + reportNotes.length + reportImageAttachments.length),
-    [cardsExpanded.length, notesToAdd.length, reportImageAttachments.length, reportNotes.length],
+    () => cardsExpanded.length === (
+      notesToAdd.length +
+      reportNotes.length +
+      reportImageAttachments.length +
+      containedReportsRendered.length),
+    [
+      cardsExpanded.length,
+      containedReportsRendered.length,
+      notesToAdd.length,
+      reportImageAttachments.length,
+      reportNotes.length,
+    ],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
-    setCardsExpanded(areAllItemsExpanded ? [] : [...reportNotes, ...notesToAdd, ...reportImageAttachments]);
-  }, [areAllItemsExpanded, notesToAdd, reportImageAttachments, reportNotes]);
+    setCardsExpanded(areAllItemsExpanded
+      ? []
+      : [...reportNotes, ...notesToAdd, ...reportImageAttachments, ...containedReports]);
+  }, [areAllItemsExpanded, containedReports, notesToAdd, reportImageAttachments, reportNotes]);
 
   const onClickTimeSortButton = useCallback(() => {
     setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
@@ -158,9 +193,6 @@ const ActivitySection = ({
     </div>
 
     {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
-
-    {/* TODO: This is a temporal print of child reports for testing purposes */}
-    {!!containedReports.length && containedReports.map((report) => <div key={report.id}>{report.id}<br/></div>)}
   </div>;
 };
 

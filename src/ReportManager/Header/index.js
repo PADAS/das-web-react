@@ -1,14 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
-import {
-  calcDisplayPriorityForReport,
-  collectionHasMultipleValidLocations,
-  getCoordinatesForCollection,
-  getCoordinatesForEvent,
-  PRIORITY_COLOR_MAP,
-} from '../../utils/events';
+import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
 import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
 import useReport from '../../hooks/useReport';
 
@@ -18,21 +11,14 @@ import LocationJumpButton from '../../LocationJumpButton';
 import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
-import { REPORT_PRIORITY_NONE } from '../../constants';
 
 const Header = ({ onChangeTitle, report, onReportChange }) => {
-  const { displayTitle, eventTypeTitle } = useReport(report);
+  const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
 
-  const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const isNewReport = !report.id;
   const showEventType = report.title !== eventTypeTitle;
-  const eventTypes = useSelector(({ data: { eventTypes } }) => eventTypes);
-  const displayPriority = useMemo(() => {
-    return !report ? REPORT_PRIORITY_NONE.value : calcDisplayPriorityForReport(report, eventTypes);
-  }
-  , [eventTypes, report]);
   const priorityTheme = PRIORITY_COLOR_MAP[displayPriority];
 
   const onTitleBlur = useCallback((event) => {
@@ -108,4 +94,4 @@ Header.propTypes = {
   onReportChange: PropTypes.func.isRequired,
 };
 
-export default Header;
+export default memo(Header);

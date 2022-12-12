@@ -127,6 +127,22 @@
     height: 1.375rem;
     width: 1.375rem;
   }
+  
+  &.priority-300 {
+    background-color: $high-priority;
+  }
+
+  &.priority-200 {
+    background-color: $medium-priority;
+  }
+
+  &.priority-100 {
+    background-color: $low-priority;
+  }
+  
+  &.priority-0 {
+    background-color: $no-priority;
+  }
 }
 
 .itemDetails {
@@ -143,6 +159,16 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+  }
+}
+
+.reportDetail {
+  display: flex;
+  width: 100%;
+  align-items: center;
+
+  .serialNumber {
+    margin: 0 0.5rem 0 0;
   }
 }
 
