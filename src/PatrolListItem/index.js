@@ -22,7 +22,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, showTitleDetails = true, showStateTitle = true, ...rest }, ref) => {
   const {
     patrolData,
 
@@ -68,7 +68,10 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfMa
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
-        <span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span>
+        <span>{patrolElapsedTime}</span> |
+        <span>
+          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+        </span>
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
@@ -138,13 +141,15 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfMa
         <span className={styles.serialNumber}>{patrol.serial_number}</span>
         <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={handleTitleClick}>
           <span className={styles.mainTitle}>{displayTitle}</span>
-          {TitleDetailsComponent}
+          {showTitleDetails && TitleDetailsComponent}
         </button>
       </>
     }
     DateComponent={
       <div className={styles.statusInfo} data-testid={`patrol-list-item-date-status-${patrol.id}`}>
-        <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>
+        { showStateTitle &&
+          <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>
+        }
         <span>{dateComponentDateString}</span>
       </div>
     }

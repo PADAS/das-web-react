@@ -18,7 +18,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import styles from './styles.module.scss';
 
-const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
+const ReportListItem = ({ eventTypes, displayTime = null, showElapsed= true, title = null, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
   const jumpToLocation = useJumpToLocation();
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
@@ -76,7 +76,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, report, 
       </>
     }
     DateComponent={dateTimeProp && <span>
-      <DateTime date={dateTimeProp} suffix='ago'/>
+      <DateTime date={dateTimeProp} suffix='ago' showElapsed={showElapsed}/>
         {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
       </span>}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&

@@ -1,0 +1,35 @@
+.container{
+  border-radius: 3px;
+  overflow: hidden;
+  background: #d4d3f1;
+
+}
+
+.flexWrapper{
+  display: flex;
+  align-items: center;
+}
+
+.icon{
+  width: 40px;
+  height: 40px;
+  background: #3E35A3;
+  padding: 6px;
+}
+
+.info{
+  flex-grow: 1;
+  .count{
+    margin: 0 10px;
+  }
+  .title{
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.date{
+  margin: 0 10px 0;
+  font-weight: 400;
+  font-size: 14px;
+}

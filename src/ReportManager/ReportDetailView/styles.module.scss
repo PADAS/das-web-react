@@ -80,6 +80,40 @@
   }
 }
 
+.reportLink{
+  margin-bottom: 0.4rem;
+  border-radius: 5px;
+  height: 40px;
+  div[role=img]{
+    border-radius: 5px 0 0 5px;
+    width: 40px;
+    svg{
+      width: 25px;
+    }
+  }
+  span{
+    font-weight: normal;
+  }
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0 0.5rem;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  svg {
+    color: $secondary-medium-gray;
+    width: 1.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
 .cancelButton {
   background-color: transparent;
   border-color: transparent;

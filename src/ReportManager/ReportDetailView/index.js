@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
-import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
+import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/link.svg';
+import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -35,9 +36,33 @@ import LoadingOverlay from '../../LoadingOverlay';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
+import ReportListItem from '../../ReportListItem';
+import { fetchPatrol } from '../../ducks/patrols';
+import PatrolListItem from '../../PatrolListItem';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
+
+const useFetchPatrol = (patrolId, patrolStore, dispatch) => {
+  const [patrol, setPatrol] = useState(null);
+  const getPatrolInfo = useCallback(() => {
+    const patrolStateData = patrolStore[patrolId];
+    if (!patrolStateData){
+      dispatch(fetchPatrol(patrolId));
+      return;
+    }
+    setPatrol(patrolStateData);
+  }, [patrolId, patrolStore, dispatch]);
+
+  useEffect(() => {
+    if (!patrolId){
+      return;
+    }
+    getPatrolInfo();
+  }, [patrolStore, patrolId, getPatrolInfo]);
+
+  return patrol;
+};
 
 const ReportDetailView = ({
   className,
@@ -52,6 +77,8 @@ const ReportDetailView = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const patrolStore = useSelector(({ data: { patrolStore } }) => patrolStore);
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
@@ -202,6 +229,8 @@ const ReportDetailView = ({
     (newTitle) => setReportForm({ ...reportForm, title: newTitle }),
     [reportForm, setReportForm]
   );
+
+  const patrolObject = useFetchPatrol(reportForm?.patrols[0], patrolStore, dispatch);
 
   const onReportedByChange = useCallback((selection) => {
     const reportedBySelection = { reported_by: selection || null };
@@ -401,6 +430,26 @@ const ReportDetailView = ({
               <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
                 <h3 data-testid="reportDetailView-historySection">History</h3>
               </QuickLinks.Section>
+
+              <QuickLinks.Section anchorTitle="Links">
+                <div className={styles.title}>
+                  <LinkIcon />
+                  <h2>Links</h2>
+                </div>
+                <ReportListItem showJumpButton={false}
+                                className={styles.reportLink}
+                                report={reportForm}
+                                showElapsed={false} />
+                {
+                  patrolObject &&
+                    <PatrolListItem showTitleDetails={false}
+                                    showControls={false}
+                                    patrol={patrolObject}
+                                    showStateTitle={false}
+                                    className={styles.reportLink} />
+                }
+              </QuickLinks.Section>
+
             </QuickLinks.SectionsWrapper>
 
             <div className={styles.footer}>

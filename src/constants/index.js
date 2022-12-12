@@ -226,6 +226,11 @@ export const EVENT_STATE_CHOICES = [
   },
 ];
 
+export const REPORT_LINK_TYPES = {
+  patrol: 'patrol',
+  incidents: 'incidents'
+};
+
 export const REPORT_PRIORITY_HIGH = {
   display: 'Red',
   value: 300,
