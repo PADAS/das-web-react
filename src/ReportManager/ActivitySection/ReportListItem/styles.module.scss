@@ -1,0 +1,120 @@
+@import '../../../common/styles/vars/colors';
+
+.collapse {
+  padding: 1rem 1.5rem;
+
+  .nonSchemaFields {
+    display: flex;
+    width: 100%;
+
+    .nonSchemaField {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+
+      label {
+        margin: 0;
+      }
+    }
+  }
+
+  label {
+    font-size: 0.875rem;
+    color: $secondary-medium-gray;
+    margin: 0.75rem 0 0;
+  }
+
+  .form {
+    [class*=row] {
+      padding: 0;
+  
+      > * {
+        padding: 0;
+      }
+    }
+  
+    [class*=col-] {
+      padding: 0;
+    }
+
+    button,
+    input,
+    [class*=control] {
+      background-color: transparent;
+      border: transparent;
+      margin: 0;
+      padding: 0;
+      height: 1.5rem !important;
+      font-size: 1rem;
+    }
+
+    [class*=control] {
+      min-height: 1.5rem;
+    }
+
+    [class*=ValueContainer] {
+      display: block;
+      padding: 0;
+      
+      [class*=singleValue] {
+        margin: 0;
+        color: black;
+      }
+    }
+
+    legend {
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 1.5rem 0 0.5rem;
+      border-bottom: 1px solid $light-gray-border;
+    }
+
+    h5 {
+      font-size: 1rem;
+    }
+
+    hr {
+      margin-bottom: 0;
+    }
+
+    button[class*=moveButton],
+    button[type=submit],
+    svg,
+    [class*=addButton],
+    [class*=triangle],
+    [class*=IndicatorsContainer] {
+      display: none !important;
+    }
+    
+    [class*=checkboxesWidget] {
+      border: none;
+      max-height: none;
+      overflow-y: hidden;
+
+      [class*=checkbox] {
+        padding-left: 0;
+        margin-bottom: 0;
+
+        label {
+          color: black;
+          font-size: 1rem;
+          opacity: 1;
+          margin: 0;
+
+          &:before {
+            content: "\002D";
+            margin-right: 0.25rem;
+          }
+        }
+        
+        input {
+          display: none;
+        }
+
+        &:has(input:not(:checked)) {
+          display: none;
+        }
+      }
+    }
+  }
+}

@@ -12,16 +12,29 @@ import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/ar
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
 import { fetchEvent } from '../../../ducks/events';
+import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../../utils/event-schemas';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 import useReport from '../../../hooks/useReport';
 
+import {
+  AddButton,
+  ArrayFieldItemTemplate,
+  ArrayFieldTemplate,
+  BaseInputTemplate,
+  ExternalLinkField,
+  MoveDownButton,
+  MoveUpButton,
+  ObjectFieldTemplate,
+  RemoveButton,
+} from '../../../SchemaFields';
 import DateTime from '../../../DateTime';
 import EventIcon from '../../../EventIcon';
 import ItemActionButton from '../ItemActionButton';
 
-import styles from '../styles.module.scss';
+import activitySectionStyles from '../styles.module.scss';
+import styles from './styles.module.scss';
 
 const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
@@ -51,20 +64,27 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
     }
   }, [dispatch, report.id, reportFromEventStore]);
 
-  console.log(reportSchemas?.schema);
+  useEffect(() => {
+    if (!reportSchemas) {
+      dispatch(fetchEventTypeSchema(report.event_type, report.id));
+    }
+  }, [dispatch, report.event_type, report.id, reportSchemas]);
 
   return <li>
-    <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
-      <div className={`${styles.itemIcon} ${styles[`priority-${displayPriority}`]}`}>
+    <div
+      className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow}`}
+      onClick={isOpen ? onCollapse: onExpand}
+    >
+      <div className={`${activitySectionStyles.itemIcon} ${activitySectionStyles[`priority-${displayPriority}`]}`}>
         <EventIcon report={report} />
       </div>
 
-      <div className={styles.itemDetails}>
-        <div className={styles.reportDetail}>
-          <p className={styles.serialNumber}>{report.serial_number}</p>
+      <div className={activitySectionStyles.itemDetails}>
+        <div className={activitySectionStyles.reportDetail}>
+          <p className={activitySectionStyles.serialNumber}>{report.serial_number}</p>
 
           <p
-            className={styles.itemTitle}
+            className={activitySectionStyles.itemTitle}
             data-testid={`reportManager-activitySection-noteTitle-${report.id}`}
           >
             {displayTitle}
@@ -72,20 +92,20 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
         </div>
 
         <DateTime
-          className={styles.itemDate}
+          className={activitySectionStyles.itemDate}
           data-testid={`reportManager-activitySection-dateTime-${report.id}`}
           date={report.time}
           showElapsed={false}
         />
       </div>
 
-      <div className={styles.itemActionButtonContainer}>
+      <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip="Go to report">
           <ArrowIntoIcon data-testid={`reportManager-activitySection-arrowIntoIcon-${report.id}`} />
         </ItemActionButton>}
       </div>
 
-      <div className={styles.itemActionButtonContainer}>
+      <div className={activitySectionStyles.itemActionButtonContainer}>
         <ItemActionButton>
           {isOpen
             ? <ArrowUpSimpleIcon />
@@ -95,28 +115,44 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
     </div>
 
     <Collapse
-      className={styles.collapse}
+      className={`${styles.collapse} ${activitySectionStyles.collapse}`}
       data-testid={`reportManager-activitySection-collapse-${report.id}`}
       in={isOpen}
     >
       {!!reportFromEventStore
         ? <div>
-          <label>
-            Report Type
-            {eventTypeTitle}
-          </label>
+          <div className={styles.nonSchemaFields}>
+            <div className={styles.nonSchemaField}>
+              <label>
+                Report Type
+              </label>
 
-          <label>
-            Reported By
-            {reportFromEventStore.reported_by.name}
-          </label>
+              {eventTypeTitle}
+            </div>
+
+            <div className={styles.nonSchemaField}>
+              <label>
+                Reported By
+              </label>
+
+              {reportFromEventStore.reported_by?.name}
+            </div>
+          </div>
 
           {reportSchemas?.schema && <Form
             className={styles.form}
             disabled
-            formData={report.event_details}
+            fields={{ externalLink: ExternalLinkField }}
+            formData={reportFromEventStore.event_details}
             schema={reportSchemas?.schema}
             showErrorList={false}
+            templates={{
+              ArrayFieldItemTemplate,
+              ArrayFieldTemplate,
+              BaseInputTemplate,
+              ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
+              ObjectFieldTemplate,
+            }}
             uiSchema={reportSchemas?.uiSchema}
             validator={formValidator}
           />}
