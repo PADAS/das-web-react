@@ -43,7 +43,7 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
     event.target.scrollTop = 0;
   }, [eventTypeTitle, onChangeTitle]);
 
-  const hasPatrols = !!report.patrols.length;
+  const hasPatrols = !!report?.patrols?.length;
 
   const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
 
