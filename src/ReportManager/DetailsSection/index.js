@@ -45,6 +45,7 @@ const DetailsSection = ({
   formSchema,
   formUISchema,
   isCollection,
+  loadingSchema,
   onFormChange,
   onFormError,
   onFormSubmit,
@@ -140,38 +141,48 @@ const DetailsSection = ({
       </div>}
     </div>
 
-    {!!formSchema
-      ? <Form
-          className={styles.form}
-          disabled={formSchema.readonly}
-          fields={{ externalLink: ExternalLinkField }}
-          formData={reportForm.event_details}
-          onChange={onFormChange}
-          onError={onFormError}
-          onSubmit={onFormSubmit}
-          schema={formSchema}
-          showErrorList={false}
-          templates={{
-            ArrayFieldItemTemplate,
-            ArrayFieldTemplate,
-            BaseInputTemplate,
-            ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
-            ObjectFieldTemplate,
-          }}
-          transformErrors={transformErrors}
-          uiSchema={formUISchema}
-          validator={formValidator}
-        >
-        <button ref={submitFormButtonRef} type="submit" />
-      </Form>
-      : <ResizeSpinLoader color={LOADER_COLOR} data-testid="reportManager-detailsSection-loader" size={LOADER_SIZE} />}
+    {!!formSchema && <Form
+        className={styles.form}
+        disabled={formSchema.readonly}
+        fields={{ externalLink: ExternalLinkField }}
+        formData={reportForm.event_details}
+        onChange={onFormChange}
+        onError={onFormError}
+        onSubmit={onFormSubmit}
+        schema={formSchema}
+        showErrorList={false}
+        templates={{
+          ArrayFieldItemTemplate,
+          ArrayFieldTemplate,
+          BaseInputTemplate,
+          ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
+          ObjectFieldTemplate,
+        }}
+        transformErrors={transformErrors}
+        uiSchema={formUISchema}
+        validator={formValidator}
+      >
+      <button ref={submitFormButtonRef} type="submit" />
+    </Form>}
+
+    {!formSchema && loadingSchema && <ResizeSpinLoader
+      color={LOADER_COLOR}
+      data-testid="reportManager-detailsSection-loader"
+      size={LOADER_SIZE}
+    />}
   </>;
 };
 
+DetailsSection.defaultProps = {
+  formSchema: null,
+  formUISchema: null,
+};
+
 DetailsSection.propTypes = {
-  formSchema: PropTypes.object.isRequired,
-  formUISchema: PropTypes.object.isRequired,
+  formSchema: PropTypes.object,
+  formUISchema: PropTypes.object,
   isCollection: PropTypes.bool.isRequired,
+  loadingSchema: PropTypes.bool.isRequired,
   onFormChange: PropTypes.func.isRequired,
   onFormError: PropTypes.func.isRequired,
   onFormSubmit: PropTypes.func.isRequired,

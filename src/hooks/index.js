@@ -109,7 +109,7 @@ export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   return source;
 };
 
-export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
+export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {}) => {
   const map = useContext(MapContext);
   const layer = map?.getLayer(layerId);
 
@@ -128,12 +128,13 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
           id: layerId,
           source: sourceId,
           type,
+          filter: config.hasOwnProperty(filter) ? filter : true,
           layout: layout || {},
           paint: paint || {},
         }, before);
       }
     }
-  }, [before, condition, layer, layerId, layout, map, sourceId, paint, type]);
+  }, [before, condition, config, filter, layer, layerId, layout, map, sourceId, paint, type]);
 
   useEffect(() => {
     if (condition && layer && layout) {
@@ -152,7 +153,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config) => {
   }, [condition, map, layer, layerId, paint]);
 
   useEffect(() => {
-    if (condition && map && layer) {
+    if (condition && map && map.getLayer(layerId)) {
       map.setFilter(layerId, filter);
     }
   }, [condition, filter, layer, layerId, map]);

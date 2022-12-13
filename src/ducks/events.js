@@ -348,7 +348,7 @@ export const setEventState = (id, state) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file, onUploadProgress = (event) => console.log('report file upload update', event)) => (dispatch, getState) => {
+export const uploadEventFile = (event_id, file) => (dispatch, getState) => {
   const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
   const params = {};
   const state = getState();
@@ -373,7 +373,6 @@ export const uploadEventFile = (event_id, file, onUploadProgress = (event) => co
       'Content-Type': 'multipart/form-data',
     },
     params,
-    onUploadProgress,
   }).then((response) => {
     dispatch({
       type: UPLOAD_EVENT_FILES_SUCCESS,
