@@ -1,10 +1,15 @@
 import React from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import { files, notes } from '../../__test-helpers/fixtures/reports';
+import { EVENT_API_URL } from '../../ducks/events';
+import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
+import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
+import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 
 import ActivitySection from './';
 
@@ -13,38 +18,55 @@ jest.mock('../../utils/file', () => ({
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
+const server = setupServer(
+  rest.get(
+    `${EVENT_API_URL}:eventId`,
+    (req, res, ctx) => res(ctx.json( { data: { ...report } }))
+  ),
+  rest.get(
+    `${EVENT_TYPE_SCHEMA_API_URL}:name`,
+    (req, res, ctx) => res(ctx.json( { data: { results: {} } }))
+  )
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 describe('ReportManager - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(), onDeleteNote= jest.fn(), onSaveNote= jest.fn(), track = jest.fn();
   let store;
   beforeEach(() => {
-    store = { data: {}, view: {} };
+    store = { data: { eventSchemas: {}, eventStore: {}, eventTypes: [], patrolTypes: [] }, view: {} };
 
     const currentDate = new Date();
     render(
       <Provider store={mockStore(store)}>
-        <ActivitySection
-          attachmentsToAdd={[{
-            creationDate: new Date(currentDate.getTime() + 1).toISOString(),
-            file: { name: 'newFile1.pdf' },
-          }, {
-            creationDate: new Date(currentDate.getTime() + 2).toISOString(),
-            file: { name: 'newFile2.pdf' },
-          }]}
-          containedReports={[]}
-          notesToAdd={[{
-            creationDate: new Date(currentDate.getTime() + 3).toISOString(),
-            text: 'note1',
-          }, {
-            creationDate: new Date(currentDate.getTime() + 4).toISOString(),
-            text: 'note2',
-          }]}
-          onDeleteAttachment={onDeleteAttachment}
-          onDeleteNote={onDeleteNote}
-          onSaveNote={onSaveNote}
-          reportAttachments={files}
-          reportNotes={notes}
-          reportTracker={{ track }}
-        />
+        <NavigationWrapper>
+          <ActivitySection
+            attachmentsToAdd={[{
+              creationDate: new Date(currentDate.getTime() + 1).toISOString(),
+              file: { name: 'newFile1.pdf' },
+            }, {
+              creationDate: new Date(currentDate.getTime() + 2).toISOString(),
+              file: { name: 'newFile2.pdf' },
+            }]}
+            containedReports={[report]}
+            notesToAdd={[{
+              creationDate: new Date(currentDate.getTime() + 3).toISOString(),
+              text: 'note1',
+            }, {
+              creationDate: new Date(currentDate.getTime() + 4).toISOString(),
+              text: 'note2',
+            }]}
+            onDeleteAttachment={onDeleteAttachment}
+            onDeleteNote={onDeleteNote}
+            onSaveNote={onSaveNote}
+            reportAttachments={files}
+            reportNotes={notes}
+            reportTracker={{ track }}
+          />
+        </NavigationWrapper>
       </Provider>
     );
   });
@@ -53,12 +75,38 @@ describe('ReportManager - ActivitySection', () => {
     jest.restoreAllMocks();
   });
 
+  test('expands a contained report when clicking the down arrow', async () => {
+    const reportCollapse = await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+
+    expect(reportCollapse).toHaveClass('collapse');
+
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+    userEvent.click(expandButton);
+
+    await waitFor(() => {
+      expect(reportCollapse).toHaveClass('show');
+    });
+  });
+
+  test('collapses a contained report when clicking the up arrow', async () => {
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+    userEvent.click(expandButton);
+    const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
+    userEvent.click(collapseButton);
+
+    const reportCollapse = await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+
+    await waitFor(() => {
+      expect(reportCollapse).toHaveClass('collapse');
+    });
+  });
+
   test('expands an existing image attachment when clicking the down arrow', async () => {
     const imageCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 
     expect(imageCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[3];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -133,7 +181,7 @@ describe('ReportManager - ActivitySection', () => {
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[3];
+    const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[4];
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -183,6 +231,7 @@ describe('ReportManager - ActivitySection', () => {
     expect(itemsText).toEqual([
       'note.svgnote49',
       'note.svgnote38',
+      '165634light_rep1',
       'attachment.svgfile1.pdf6',
       'attachment.svgfile2.pdf7',
       'image.svgfile1.png6',
@@ -209,6 +258,7 @@ describe('ReportManager - ActivitySection', () => {
       'image.svgfile1.png6',
       'attachment.svgfile2.pdf7',
       'attachment.svgfile1.pdf6',
+      '165634light_rep1',
     ]);
   });
 

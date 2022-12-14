@@ -25,6 +25,7 @@ describe('useReport', () => {
       </Provider>
     );
 
-    expect((await screen.findByTestId('report-data'))).toHaveTextContent('{"displayTitle":"Light","eventTypeTitle":"Light"}');
+    expect((await screen.findByTestId('report-data')))
+      .toHaveTextContent('{"coordinates":[-104.19557197413907,20.75709101172957],"displayPriority":300,"displayTitle":"Light","eventTypeTitle":"Light"}');
   });
 });

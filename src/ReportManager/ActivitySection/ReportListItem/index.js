@@ -51,7 +51,6 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
 
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
 
-  // TODO: This is undefined, eventSchemas is always empty
   const reportSchemas = reportFromEventStore
     ? getSchemasForEventTypeByEventId(eventSchemas, reportFromEventStore.event_type, reportFromEventStore.id)
     : null;
@@ -83,17 +82,13 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
         <div className={activitySectionStyles.reportDetail}>
           <p className={activitySectionStyles.serialNumber}>{report.serial_number}</p>
 
-          <p
-            className={activitySectionStyles.itemTitle}
-            data-testid={`reportManager-activitySection-noteTitle-${report.id}`}
-          >
+          <p className={activitySectionStyles.itemTitle} >
             {displayTitle}
           </p>
         </div>
 
         <DateTime
           className={activitySectionStyles.itemDate}
-          data-testid={`reportManager-activitySection-dateTime-${report.id}`}
           date={report.time}
           showElapsed={false}
         />
@@ -101,7 +96,7 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip="Go to report">
-          <ArrowIntoIcon data-testid={`reportManager-activitySection-arrowIntoIcon-${report.id}`} />
+          <ArrowIntoIcon />
         </ItemActionButton>}
       </div>
 
@@ -162,8 +157,11 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   </li>;
 };
 
-ReportListItem.defaultProps = {};
-
-ReportListItem.propTypes = {};
+ReportListItem.propTypes = {
+  cardsExpanded: PropTypes.array.isRequired,
+  onCollapse: PropTypes.func.isRequired,
+  onExpand: PropTypes.func.isRequired,
+  report: PropTypes.object.isRequired,
+};
 
 export default memo(ReportListItem);
