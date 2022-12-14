@@ -52,9 +52,11 @@
       min-height: 1.5rem;
     }
 
-    [class*=ValueContainer] {
-      display: block;
-      padding: 0;
+    [class*=selectWidget] {
+      div {
+        display: block;
+        padding: 0;
+      }
       
       [class*=singleValue] {
         margin: 0;
