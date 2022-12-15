@@ -226,11 +226,6 @@ export const EVENT_STATE_CHOICES = [
   },
 ];
 
-export const REPORT_LINK_TYPES = {
-  patrol: 'patrol',
-  incidents: 'incidents'
-};
-
 export const EVENT_FORM_STATES = {
   ACTIVE: 'active',
   NEW_LEGACY: 'new',

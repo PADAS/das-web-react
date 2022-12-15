@@ -43,25 +43,21 @@ import PatrolListItem from '../../PatrolListItem';
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
-const useFetchPatrol = (patrolId, patrolStore, dispatch) => {
-  const [patrol, setPatrol] = useState(null);
-  const getPatrolInfo = useCallback(() => {
-    const patrolStateData = patrolStore[patrolId];
-    if (!patrolStateData){
-      dispatch(fetchPatrol(patrolId));
-      return;
-    }
-    setPatrol(patrolStateData);
-  }, [patrolId, patrolStore, dispatch]);
+const useFetchPatrolInfo = (patrols, patrolStore, dispatch) => {
+  const getPatrolsData = useCallback(() => {
+    const patrolsData = [];
+    patrols.forEach((currentID) => {
+      const patrol = patrolStore[currentID];
+      if (!patrol){
+        dispatch(fetchPatrol(currentID));
+        return;
+      }
+      patrolsData.push(patrol);
+    });
+    return patrolsData;
+  }, [patrols, patrolStore, dispatch]);
 
-  useEffect(() => {
-    if (!patrolId){
-      return;
-    }
-    getPatrolInfo();
-  }, [patrolStore, patrolId, getPatrolInfo]);
-
-  return patrol;
+  return Array.isArray(patrols) ? getPatrolsData() : [];
 };
 
 const ReportDetailView = ({
@@ -79,7 +75,6 @@ const ReportDetailView = ({
   const navigate = useNavigate();
 
   const patrolStore = useSelector(({ data: { patrolStore } }) => patrolStore);
-
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const reportType = useSelector(
@@ -93,6 +88,19 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
+
+  const patrolsInfo = useFetchPatrolInfo(reportForm?.patrols, patrolStore, dispatch);
+
+  const linkedReports = useMemo(() => {
+    return Array.isArray(reportForm?.is_contained_in) && Array.isArray(reportForm?.is_linked_to)
+      ? [...reportForm?.is_contained_in, ...reportForm?.is_linked_to]
+      : [];
+  }, [reportForm]);
+  const linkedReportsInfo = useMemo(() => {
+    return Array.isArray(linkedReports) ? linkedReports.map(({ related_event }) => related_event) : [];
+  }, [linkedReports]);
+
+  const shouldRenderLinksSection = !!linkedReportsInfo.length || !!patrolsInfo.length;
 
   const reportTracker = trackEventFactory(reportForm?.is_collection
     ? INCIDENT_REPORT_CATEGORY
@@ -230,8 +238,6 @@ const ReportDetailView = ({
     [reportForm, setReportForm]
   );
 
-  const patrolObject = useFetchPatrol(reportForm?.patrols[0], patrolStore, dispatch);
-
   const onReportedByChange = useCallback((selection) => {
     const reportedBySelection = { reported_by: selection || null };
     const selectionCoordinates = selection?.last_position?.geometry?.coordinates;
@@ -349,9 +355,19 @@ const ReportDetailView = ({
     }
   };
 
-  const onPatrolLinkClicked = ({ id }) => navigate(`/${TAB_KEYS.PATROLS}/${id}`);
+  const onPatrolLinkClicked = ({ id }) => {
+    if (!id){
+      return;
+    }
+    navigate(`/${TAB_KEYS.PATROLS}/${id}`);
+  };
 
-  const onReportLinkClicked = ({ id }) => navigate(`/${TAB_KEYS.REPORTS}/${id}`);
+  const onReportLinkClicked = ({ id }) => {
+    if (!id){
+      return;
+    }
+    navigate(`/${TAB_KEYS.REPORTS}/${id}`);
+  };
 
   const onClickCancelButton = useCallback(() => {
     if (isAddedReport) {
@@ -442,22 +458,31 @@ const ReportDetailView = ({
                 <h3 data-testid="reportDetailView-historySection">History</h3>
               </QuickLinks.Section>
 
-              <QuickLinks.Section anchorTitle="Links">
+              <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
                 <div className={styles.title}>
                   <LinkIcon />
                   <h2>Links</h2>
                 </div>
-                <ReportListItem showJumpButton={false} onTitleClick={onReportLinkClicked}
-                                className={styles.reportLink}
-                                report={reportForm}
-                                showElapsed={false} />
                 {
-                  patrolObject &&
-                    <PatrolListItem showTitleDetails={false} onTitleClick={onPatrolLinkClicked}
-                                    showControls={false}
-                                    patrol={patrolObject}
-                                    showStateTitle={false}
-                                    className={styles.reportLink} />
+                  linkedReportsInfo.map((linkedReport) => (
+                    <ReportListItem showJumpButton={false}
+                        onTitleClick={onReportLinkClicked}
+                        className={styles.reportLink}
+                        report={linkedReport}
+                        showElapsed={false}
+                        key={linkedReport.id} />
+                  ))
+                }
+                {
+                  patrolsInfo.map((patrolInfo) => (
+                    <PatrolListItem showTitleDetails={false}
+                        onTitleClick={onPatrolLinkClicked}
+                        showControls={false}
+                        patrol={patrolInfo}
+                        showStateTitle={false}
+                        className={styles.reportLink}
+                        key={patrolInfo.id} />
+                  ))
                 }
               </QuickLinks.Section>
 
