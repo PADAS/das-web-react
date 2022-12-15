@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -43,30 +43,38 @@ const useSortedNodes = (
   , [list, sortFn]);
 };
 
+const defaultRenderFn = ({ toggleSortFn, disabled, testId, sortOrder }) =>
+  <Button className={styles.timeSortButton}
+    type='button' data-testid={testId}
+    disabled={disabled} onClick={toggleSortFn}
+    variant={sortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
+    >
+    {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
+  </Button>;
+
 export const useSortedNodesWithToggleBtn = (
   list = [{ sortDate: new Date(0), node: null }],
   defaultSortOrder = DESCENDING_SORT_ORDER,
+  buttonRenderFn = defaultRenderFn,
 ) => {
 
   const [sortOrder, setSortOrder] = useState(defaultSortOrder);
 
-  const onClickTimeSortButton = () => {
+  const onClickTimeSortButton = useCallback(() => {
     setSortOrder(
       sortOrder === DESCENDING_SORT_ORDER
         ? ASCENDING_SORT_ORDER
         : DESCENDING_SORT_ORDER
     );
-  };
+  }, [sortOrder]);
 
-  const sortButton = <Button
-      className={styles.timeSortButton}
-      data-testid="time-sort-btn"
-      disabled={!list.length}
-      onClick={onClickTimeSortButton}
-      type="button"
-      variant={sortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}  >
-    {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
-  </Button>;
+  const sortButton = useMemo(() => buttonRenderFn({
+    toggleSortFn: onClickTimeSortButton,
+    sortOrder,
+    testId: 'time-sort-btn',
+    disabled: !list.length,
+
+  }), [list.length, onClickTimeSortButton, buttonRenderFn, sortOrder]);
 
   const renderedNodes = useSortedNodes(list, sortOrder);
 
