@@ -38,7 +38,7 @@ jest.mock('../../ducks/map-ui', () => ({
 
 describe('LocationSelectorInput', () => {
   const onLocationChange = jest.fn();
-  let map, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
+  let map, rerender, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
   beforeEach(() => {
     hideSideBarMock = jest.fn(() => () => {});
     hideSideBar.mockImplementation(hideSideBarMock);
@@ -57,7 +57,7 @@ describe('LocationSelectorInput', () => {
       },
     };
 
-    render(
+    const output = render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
@@ -72,6 +72,8 @@ describe('LocationSelectorInput', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    rerender = output.rerender;
   });
 
   afterEach(() => {
@@ -152,6 +154,36 @@ describe('LocationSelectorInput', () => {
     await waitFor(() => {
       expect(showSideBar).toHaveBeenCalled();
       expect(setModalVisibilityState).toHaveBeenCalledWith(true);
+    });
+  });
+
+  test('showing a placeholder when no value is present', async () => {
+    const displayValue = await screen.getByTestId('locationSelectorInput-displayValue');
+    expect(displayValue).toHaveTextContent('Click here to set location');
+  });
+
+  test('only showing a "copy to clipboard" button when a value is present', async () => {
+    await waitFor(() => {
+      expect(screen.queryByTestId('textCopyBtn')).not.toBeInTheDocument();
+    });
+
+    rerender(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <LocationSelectorInput
+            label="label"
+            location={[10, 10]}
+            map={map}
+            onLocationChange={onLocationChange}
+          />
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('textCopyBtn')).toBeInTheDocument();
     });
   });
 

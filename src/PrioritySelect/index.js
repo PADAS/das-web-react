@@ -10,7 +10,6 @@ import {
 
 import styles from './styles.module.scss';
 
-
 const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalStyling, onChange, placeholder, className }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
   const selectStyles = {

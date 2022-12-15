@@ -231,6 +231,12 @@ export const REPORT_LINK_TYPES = {
   incidents: 'incidents'
 };
 
+export const EVENT_FORM_STATES = {
+  ACTIVE: 'active',
+  NEW_LEGACY: 'new',
+  RESOLVED: 'resolved',
+};
+
 export const REPORT_PRIORITY_HIGH = {
   display: 'Red',
   value: 300,

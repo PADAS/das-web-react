@@ -66,7 +66,6 @@ import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
-import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
@@ -692,8 +691,6 @@ const Map = ({
     </>}
 
     {timeSliderActive && <TimeSlider />}
-
-    <ReloadOnProfileChange />
 
     <SleepDetector onSleepDetected={onSleepDetected} />
   </EarthRangerMap>;

@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useMemo } from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -8,7 +9,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { calcGeometryTypeForReport } from '../../utils/events';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
-import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import AreaSelectorInput from './AreaSelectorInput';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
@@ -20,6 +21,7 @@ const DetailsSection = ({
   onReportedByChange,
   onReportGeometryChange,
   onReportLocationChange,
+  onReportStateChange,
   originalReport,
   reportForm,
   onPriorityChange
@@ -27,6 +29,8 @@ const DetailsSection = ({
   const dispatch = useDispatch();
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
+
+  const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
 
@@ -46,6 +50,22 @@ const DetailsSection = ({
 
         <h2>Details</h2>
       </div>
+
+      <div>
+        <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
+          <Dropdown.Toggle variant="success" id="dropdown-basic">
+            {reportState}
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu className={styles.stateDropdownMenu}>
+            {Object.values(EVENT_FORM_STATES)
+              .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
+              .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
+                {eventState}
+              </Dropdown.Item>)}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
     </div>
 
     <div className={styles.container}>
@@ -54,6 +74,7 @@ const DetailsSection = ({
           Reported By
           <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
         </label>
+
         <label data-testid="reportManager-prioritySelector" className={styles.fieldLabel}>
           Priority
           <PrioritySelect onChange={onPriorityChange} priority={reportForm?.priority} />
