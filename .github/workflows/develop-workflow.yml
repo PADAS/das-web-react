@@ -101,6 +101,7 @@ jobs:
             echo "Site doesn't exist, skipping deploy."
             exit 0
           fi
+          gcloud components install gke-gcloud-auth-plugin
           echo "Getting credentials"
           gcloud container clusters get-credentials das-dev --zone us-west1-a
           echo "Configuring cluster"
