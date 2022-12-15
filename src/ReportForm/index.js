@@ -111,6 +111,9 @@ const ReportForm = (props) => {
     } else {
       const changes = extractObjectDifference(report, originalReport);
 
+      const locationChanged = changes.hasOwnProperty('location');
+      const locationRemoved = locationChanged && !changes.location;
+
       toSubmit = {
         ...changes,
         id: report.id,
@@ -123,6 +126,15 @@ const ReportForm = (props) => {
           ...(!!changes && changes.location),
         }
       };
+
+      if (locationChanged) {
+        toSubmit.location = locationRemoved
+          ? null
+          : {
+            ...originalReport.location,
+            ...(!!changes && changes.location),
+          };
+      }
 
       /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
       if (changes.reported_by) {
@@ -311,17 +323,17 @@ const ReportForm = (props) => {
   });
 
   const onPrioritySelect = useCallback((priority) => {
-    updateStateReport({
-      ...report,
+    updateStateReport(prevState => ({
+      ...prevState,
       priority,
-    });
+    }));
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
-  }, [report, reportTracker]);
+  }, [reportTracker]);
 
   const onEventGeometryChange = useCallback((geometry) => {
-    updateStateReport({ ...report, geometry, location: null });
+    updateStateReport(prevState => ({ ...prevState, geometry, location: null }));
     reportTracker.track('Change Report Geometry');
-  }, [report, reportTracker]);
+  }, [reportTracker]);
 
   const onReportLocationChange = useCallback((location) => {
     const updatedLocation = !!location
@@ -330,12 +342,13 @@ const ReportForm = (props) => {
         longitude: location[0],
       } : null;
 
-    updateStateReport({
-      ...report,
+    updateStateReport(prevState => ({ // removing expensive dependency on full `report` object
+      ...prevState,
       location: updatedLocation,
-    });
+    }));
+
     reportTracker.track('Change Report Location');
-  }, [report, reportTracker]);
+  }, [reportTracker]);
 
   const onIncidentReportClick = (report) => {
     reportTracker.track(
@@ -499,10 +512,10 @@ const ReportForm = (props) => {
   };
 
   const onUpdateStateReportToggle = useCallback((state) => {
-    updateStateReport({ ...report, state });
+    updateStateReport(prevState => ({ ...prevState, state }));
     startSubmitForm();
     reportTracker.track(`Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
-  }, [report, reportTracker, startSubmitForm]);
+  }, [reportTracker, startSubmitForm]);
 
   useEffect(() => {
     if (
@@ -510,10 +523,10 @@ const ReportForm = (props) => {
       && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
       && report.location
     ) {
-      updateStateReport({ ...report, location: null });
+      updateStateReport(prevState => ({ ...prevState, location: null }));
     }
 
-  }, [reportIsNew, geometryType, report]);
+  }, [reportIsNew, geometryType, report.location]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
