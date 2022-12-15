@@ -1,4 +1,4 @@
-import { get, isCancel } from 'axios';
+import axios, { isCancel } from 'axios';
 import toString from 'lodash/toString';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
@@ -40,7 +40,7 @@ export const recursivePaginatedQuery = async (initialQuery, onEach = null, resul
         onEach && onEach(results);
 
         if (next) {
-          return recursivePaginatedQuery(get(next, config), onEach, [...resultsToDate, ...results]);
+          return recursivePaginatedQuery(axios.get(next, config), onEach, [...resultsToDate, ...results]);
         }
 
         return [...resultsToDate, ...results];

@@ -9,6 +9,7 @@ import NavigationWrapper from './__test-helpers/navigationWrapper';
 import SocketProvider from './__test-helpers/MockSocketContext';
 
 import { MAPS_API_URL } from './ducks/maps';
+import { CURRENT_USER_API_URL, USER_PROFILES_API_URL } from './ducks/user';
 import { STATUS_API_URL } from './ducks/system-status';
 import { EVENT_TYPE_API_URL } from './ducks/event-types';
 import { SUBJECT_GROUPS_API_URL } from './ducks/subjects';
@@ -16,6 +17,8 @@ import { FEATURESET_API_URL } from './ducks/features';
 import { ANALYZERS_API_URL } from './ducks/analyzers';
 import { PATROL_TYPES_API_URL } from './ducks/patrol-types';
 import { EVENT_SCHEMA_API_URL } from './ducks/event-schemas';
+import { NEWS_API_URL } from './ducks/news';
+import { BASE_LAYER_API_URL } from './ducks/layers';
 
 import { mockStore } from './__test-helpers/MockStore';
 import * as socketExports from './socket';
@@ -36,7 +39,19 @@ const server = setupServer(
   rest.get(MAPS_API_URL, (req, res, ctx) => {
     return res(ctx.json(generateEmptyResponse()));
   }),
+  rest.get(NEWS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(CURRENT_USER_API_URL, (req, res, ctx) => {
+    return res(ctx.json({ data: {} }));
+  }),
+  rest.get(USER_PROFILES_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
   rest.get(STATUS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(BASE_LAYER_API_URL, (req, res, ctx) => {
     return res(ctx.json(generateEmptyResponse()));
   }),
   rest.get(EVENT_TYPE_API_URL, (req, res, ctx) => {

@@ -127,7 +127,7 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const leadersSelect = await screen.findByRole('textbox');
+    const leadersSelect = await screen.findByRole('combobox');
     userEvent.type(leadersSelect, 'Leader 1');
     userEvent.keyboard('{Enter}');
 
@@ -143,7 +143,7 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const leadersSelect = await screen.findByRole('textbox');
+    const leadersSelect = await screen.findByRole('combobox');
     userEvent.type(leadersSelect, 'Leader 2');
     userEvent.keyboard('{Enter}');
 

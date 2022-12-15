@@ -49,7 +49,7 @@ const CustomDatePicker = ({ value,
       onCalendarOpen={handleOpen}
       onCalendarClose={handleClose}
       customInput={
-        !disableCustomInput ? customInput || <CustomDefaultInput
+        !disableCustomInput ? customInput || <CustomDefaultInputWithRef
         value={value}
         onClick={onChange}
         className={className}
@@ -96,8 +96,7 @@ const CustomHeader = ({
   </div>
 );
 
-const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = null, className = null }) => {
-
+const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = null, className = null }, ref) => {
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -109,6 +108,7 @@ const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = nu
       className={`${styles.datePickerCustomInput} ${className}`}
       data-testid="custom-datepicker-button"
       onClick={handleClick}
+      ref={ref}
       >
       <CalendarIcon/>
       <span className={!value && placeholderText ? styles.placeholder : ''}>{value || placeholderText}</span>
@@ -116,5 +116,7 @@ const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = nu
     </button>
   </>;
 };
+
+const CustomDefaultInputWithRef = forwardRef(CustomDefaultInput);
 
 export default forwardRef(CustomDatePicker);

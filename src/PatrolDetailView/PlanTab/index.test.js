@@ -61,14 +61,11 @@ describe('Tracked by input', () => {
     </Provider>);
 
     const reportedBySelect = await screen.getByTestId('reported-by-select');
-    const patrolLeaderInput = within(reportedBySelect).getByTestId('select-single-value');
-
-    const selectionImage = patrolLeaderInput.children[0];
-    const selectionText = patrolLeaderInput.children[1];
+    const selectionImage = await screen.getByAltText('Radio icon for Alex value');
 
     expect(within(reportedBySelect).queryByText('Select Device...')).toBeNull();
-    expect(selectionImage).toHaveAttribute('alt', 'Radio icon for Alex value');
-    expect(selectionText).toHaveTextContent('Alex');
+    expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
+    expect((await within(reportedBySelect).findByText('Alex'))).toBeDefined();
   });
 
   test('it should show the field empty for new patrols', async () => {

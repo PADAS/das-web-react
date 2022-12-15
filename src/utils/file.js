@@ -1,4 +1,4 @@
-import { get } from 'axios';
+import axios from 'axios';
 import { Buffer } from 'buffer';
 
 export const convertFileListToArray = (list) => {
@@ -10,7 +10,7 @@ export const convertFileListToArray = (list) => {
 };
 
 export const fetchImageAsBase64FromUrl = async (url) => {
-  const response = await get(url, {
+  const response = await axios.get(url, {
     responseType: 'arraybuffer',
   });
 

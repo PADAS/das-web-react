@@ -231,14 +231,6 @@ aside {
   }
 }
 
-.json-schema-checkbox-wrapper {
-  border-top: 1px solid $light-gray-border;
-  border-bottom: 3px solid $light-gray-border;
-  max-height: 12.5rem;
-  overflow: scroll;
-  padding: 0.5rem;
-}
-
 .floating-report-filter {
   @include fade-in;
 

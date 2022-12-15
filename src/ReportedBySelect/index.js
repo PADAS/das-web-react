@@ -130,14 +130,13 @@ const ReportedBySelect = (props) => {
     </div>;
   };
 
-  const SingleValue = (props) => {
-    const { data } = props;
-
+  const SingleValue = ({ data, children, ...props }) => {
     const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
-    return <div className={styles.singleValue} data-testid="select-single-value">
+
+    return <components.SingleValue className={styles.singleValue} {...props}>
       {radioImage && <img src={radioImage} alt={`Radio icon for ${data.name} value`} />}
-      <components.SingleValue {...props} />
-    </div>;
+      {children}
+    </components.SingleValue>;
   };
 
   return <Select

@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../AddReport';
+import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
+import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
@@ -23,6 +27,17 @@ jest.mock('react-router-dom', () => ({
 jest.mock('../AddReport', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+const server = setupServer(
+  rest.get(
+    `${EVENT_TYPE_SCHEMA_API_URL}:name`,
+    (req, res, ctx) => res(ctx.json( { data: { results: {} } }))
+  )
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('ReportManager', () => {
   let AddReportMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
@@ -46,19 +61,7 @@ describe('ReportManager', () => {
         eventStore: {},
         eventTypes,
         patrolTypes,
-        eventSchemas: {
-          globalSchema: {
-            properties: {
-              reported_by: {
-                enum_ext: [{
-                  value: { id: 'Leader 1' },
-                }, {
-                  value: { id: 'Leader 2' },
-                }],
-              },
-            },
-          },
-        },
+        eventSchemas,
       },
       view: {
         mapLocationSelection: { isPickingLocation: false },

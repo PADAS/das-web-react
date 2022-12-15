@@ -1,17 +1,133 @@
-@import '../common//styles/layout';
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
 
-div.datepicker {
-  left: 0;
-  position: fixed;
-  margin: unset;
-  top: 0;
+.addButton {
+  display: flex !important;
+  align-items: center;
+  background-color: lighten($light-gray-background, 3.5%) !important;
+  border: 1px solid lighten($light-gray-background, 3.5%) !important;
+  border-radius: 3px !important;
+  height: 2.5rem;
+  color: $secondary-medium-gray !important;
+  font-weight: bold !important;
+  padding: 0 0.875rem !important;
+
+  svg {
+    margin-left: -0.5rem;
+
+    path {
+      display: none;
+    }
+  }
 }
 
-.linkLabel {
-  align-items: flex-end;
+.arrayFieldItemTemplate {
+  border: 1px solid $light-gray-border;
+  border-radius: 0.25rem;
+  padding: 1rem 3.5rem 1rem 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+
+  hr {
+    margin: 1rem -8.5rem 1rem -1rem;
+  }
+
+  .arrayFieldItemButtons {
+    position: absolute;
+    top: 0.625rem;
+    right: 1rem;
+    display: flex;
+
+    button {
+      margin-left: 0.25rem;
+    }
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    padding: 1rem 8.5rem 1rem 1rem;
+  }
+}
+
+.arrayFieldTemplate {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.baseInput {
+  height: 2.5rem !important;
+}
+
+.checkboxesWidget {
+  border: 1px solid $light-gray-border;
+  border-radius: 0 0.25rem;
+  max-height: 12.5rem;
+  padding: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  .checkbox {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.dateTimeWidget {
+  height: 2.5rem;
+  width: 100%;
+
+  span {
+    text-align: left;
+    width: 100%;
+  }
+}
+
+.externalLinkField {
+  label {
+    align-items: flex-end;
+    display: flex;
+    margin-bottom: 0.25rem;
+
+    a {
+      margin-left: 0.25rem;
+    }
+  }
+}
+
+.moveButton,
+.removeButton {
+  height: 2.25rem;
+  width: 2.25rem;
+  font-size: 1rem !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.objectFieldTemplateProperties {
   display: flex;
-  margin-bottom: 0.25rem;
-  a {
-    margin-left: 0.25rem;
+  flex-wrap: wrap;
+
+  .objectFieldTemplateProperty {
+    flex: 0 0 auto;
+    width: 50%;
+    max-width: 100%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+    margin-top: 0;
+
+    [class*=col-] {
+      width: 100%;
+    }
+  }
+}
+
+.removeButton {
+  color: $bright-red !important;
+  background-color: rgba(208, 3, 27, 0.05) !important;
+  border: 1px solid rgba(208, 3, 27, 0.05) !important;
+}
+
+.selectWidget {
+  [class*=control] {
+    height: 2.5rem;
   }
 }

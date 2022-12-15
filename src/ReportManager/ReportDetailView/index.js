@@ -5,8 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
-import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/link.svg';
+import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
+
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -20,6 +21,7 @@ import { createNewReportForEventType } from '../../utils/events';
 import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
+import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
@@ -81,6 +83,8 @@ const ReportDetailView = ({
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
   const { loadingEvents } = useContext(ReportsTabContext);
+
+  const submitFormButtonRef = useRef(null);
   const temporalIdRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
@@ -134,7 +138,7 @@ const ReportDetailView = ({
   );
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
 
-  const reportSchemas =  reportForm
+  const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
@@ -278,6 +282,21 @@ const ReportDetailView = ({
     reportTracker.track('Change Report State');
   }, [reportForm, reportTracker]);
 
+  const onFormChange = useCallback((event) => {
+    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
+
+    reportTracker.track('Change Report Form Data');
+  }, [reportForm, reportTracker]);
+
+  const onFormError = (errors) => {
+    const formattedErrors = errors.map((error) => ({
+      ...error,
+      label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
+    }));
+
+    setSaveError([...formattedErrors]);
+  };
+
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
@@ -369,6 +388,14 @@ const ReportDetailView = ({
     navigate(`/${TAB_KEYS.REPORTS}/${id}`);
   };
 
+  const onClickSaveButton = useCallback(() => {
+    if (reportForm?.is_collection) {
+      onSaveReport();
+    } else if (submitFormButtonRef.current) {
+      submitFormButtonRef.current.click();
+    }
+  }, [onSaveReport, reportForm?.is_collection]);
+
   const onClickCancelButton = useCallback(() => {
     if (isAddedReport) {
       onCancelAddedReport();
@@ -376,6 +403,12 @@ const ReportDetailView = ({
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
   }, [isAddedReport, navigate, onCancelAddedReport]);
+
+  useEffect(() => {
+    if (!!reportForm && !reportSchemas) {
+      dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
+    }
+  }, [dispatch, reportForm, reportSchemas]);
 
   useEffect(() => {
     const missingReportData = (isNewReport && !reportType)
@@ -426,13 +459,20 @@ const ReportDetailView = ({
             <QuickLinks.SectionsWrapper>
               <QuickLinks.Section anchorTitle="Details">
                 <DetailsSection
+                  formSchema={reportSchemas?.schema}
+                  formUISchema={reportSchemas?.uiSchema}
+                  loadingSchema={!!eventSchemas.loading}
+                  onFormChange={onFormChange}
+                  onFormError={onFormError}
+                  onFormSubmit={onSaveReport}
+                  onPriorityChange={onPriorityChange}
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}
                   onReportStateChange={onReportStateChange}
                   originalReport={originalReport}
                   reportForm={reportForm}
-                  onPriorityChange={onPriorityChange}
+                  submitFormButtonRef={submitFormButtonRef}
                 />
               </QuickLinks.Section>
 
@@ -509,7 +549,7 @@ const ReportDetailView = ({
                 <Button
                   className={styles.saveButton}
                   disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                  onClick={onSaveReport}
+                  onClick={onClickSaveButton}
                   type="button"
                 >
                   Save

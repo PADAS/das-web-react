@@ -93,7 +93,9 @@ describe('#useMapLayer', () => {
   const layerId = 'test-layer-id';
 
   beforeEach(() => {
-    map = createMapMock();
+    map = createMapMock({
+      getSource: jest.fn(() => true),
+    });
     wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>; // eslint-disable-line react/display-name
   });
 
