@@ -43,7 +43,7 @@ const useSortedNodes = (
   , [list, sortFn]);
 };
 
-export const useListSortWithButton = (
+export const useSortedNodesWithToggleBtn = (
   list = [{ sortDate: new Date(0), node: null }],
   defaultSortOrder = DESCENDING_SORT_ORDER,
 ) => {

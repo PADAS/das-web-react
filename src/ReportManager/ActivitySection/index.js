@@ -9,7 +9,7 @@ import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
 import ReportListItem from './ReportListItem';
 
-import { useListSortWithButton } from '../hooks';
+import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
@@ -114,7 +114,7 @@ const ActivitySection = ({
     notesToAddRendered,
   ]);
 
-  const [sortButton, sortedItemsRendered] = useListSortWithButton(sortableList);
+  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList);
 
   const reportImageAttachments = useMemo(
     () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),

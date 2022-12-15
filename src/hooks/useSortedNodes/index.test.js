@@ -3,9 +3,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { useListSortWithButton } from './';
+import { useSortedNodesWithToggleBtn } from './';
 
-describe('#useListSortWithButton', () => {
+describe('#useSortedNodesWithToggleBtn', () => {
   let timeSortButton, listItems;
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('#useListSortWithButton', () => {
     ];
 
     const TestComponent = ({ list }) => {
-      const [sortButton, sortedResults] = useListSortWithButton(list);
+      const [sortButton, sortedResults] = useSortedNodesWithToggleBtn(list);
 
       return <>
         {sortButton}
