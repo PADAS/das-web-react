@@ -21,12 +21,12 @@ describe('#useListSortWithButton', () => {
     ];
 
     const TestComponent = ({ list }) => {
-      const [SortButton, SortedResults] = useListSortWithButton(list);
+      const [sortButton, sortedResults] = useListSortWithButton(list);
 
       return <>
-        <SortButton />
+        {sortButton}
         <ul>
-          <SortedResults />
+          {sortedResults}
         </ul>
       </>;
     };

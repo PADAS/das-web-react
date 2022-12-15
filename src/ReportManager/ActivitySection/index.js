@@ -114,7 +114,7 @@ const ActivitySection = ({
     notesToAddRendered,
   ]);
 
-  const [SortButton, SortedItemsRendered] = useListSortWithButton(sortableList);
+  const [sortButton, sortedItemsRendered] = useListSortWithButton(sortableList);
 
   const reportImageAttachments = useMemo(
     () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
@@ -158,7 +158,7 @@ const ActivitySection = ({
       {sortableList.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
-        <SortButton />
+        {sortButton}
 
         <Button
           className={styles.expandCollapseButton}
@@ -173,7 +173,7 @@ const ActivitySection = ({
     </div>
 
     {sortableList.length > 0 && <ul className={styles.list}>
-      <SortedItemsRendered />
+      {sortedItemsRendered}
     </ul>}
   </div>;
 };

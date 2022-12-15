@@ -45,9 +45,10 @@ const useSortedNodes = (
 
 export const useListSortWithButton = (
   list = [{ sortDate: new Date(0), node: null }],
+  defaultSortOrder = DESCENDING_SORT_ORDER,
 ) => {
 
-  const [sortOrder, setSortOrder] = useState(DESCENDING_SORT_ORDER);
+  const [sortOrder, setSortOrder] = useState(defaultSortOrder);
 
   const onClickTimeSortButton = () => {
     setSortOrder(
@@ -57,19 +58,18 @@ export const useListSortWithButton = (
     );
   };
 
-  const SortButton = () =>
-    <Button
+  const sortButton = <Button
       className={styles.timeSortButton}
       data-testid="time-sort-btn"
       disabled={!list.length}
       onClick={onClickTimeSortButton}
       type="button"
       variant={sortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}  >
-      {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
-    </Button>;
+    {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
+  </Button>;
 
   const renderedNodes = useSortedNodes(list, sortOrder);
 
-  return [SortButton, () => renderedNodes];
+  return [sortButton, renderedNodes];
 
 };
