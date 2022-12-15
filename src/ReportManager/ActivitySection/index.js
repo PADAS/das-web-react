@@ -2,15 +2,14 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } fr
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as ArrowDownIcon } from '../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowUpIcon } from '../../common/images/icons/arrow-up.svg';
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
-import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
 import ReportListItem from './ReportListItem';
+
+import { useListSortWithButton } from '../hooks';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +24,6 @@ const ActivitySection = ({
   reportNotes,
   reportTracker,
 }, ref) => {
-  const [timeSortOrder, setTimeSortOrder] = useState(DESCENDING_SORT_ORDER);
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card) => {
@@ -46,7 +44,7 @@ const ActivitySection = ({
   }, [cardsExpanded, onSaveNote]);
 
   const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
-    date: new Date(containedReport.time),
+    sortDate: new Date(containedReport.time),
     node: <ReportListItem
       cardsExpanded={cardsExpanded}
       key={containedReport.id}
@@ -57,7 +55,7 @@ const ActivitySection = ({
   })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
 
   const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
-    date: new Date(reportAttachment.updated_at || reportAttachment.created_at),
+    sortDate: new Date(reportAttachment.updated_at || reportAttachment.created_at),
     node: <AttachmentListItem
       attachment={reportAttachment}
       cardsExpanded={cardsExpanded}
@@ -69,7 +67,7 @@ const ActivitySection = ({
   })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments, reportTracker]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
-    date: new Date(attachmentToAdd.creationDate),
+    sortDate: new Date(attachmentToAdd.creationDate),
     node: <AttachmentListItem
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
@@ -78,7 +76,7 @@ const ActivitySection = ({
   })), [attachmentsToAdd, onDeleteAttachment]);
 
   const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
-    date: new Date(reportNote.updated_at || reportNote.created_at),
+    sortDate: new Date(reportNote.updated_at || reportNote.created_at),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
@@ -90,7 +88,7 @@ const ActivitySection = ({
   })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
-    date: new Date(noteToAdd.creationDate),
+    sortDate: new Date(noteToAdd.creationDate),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
@@ -102,28 +100,21 @@ const ActivitySection = ({
     />,
   })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
 
-  const sortedItemsRendered = useMemo(
-    () => [
-      ...containedReportsRendered,
-      ...reportAttachmentsRendered,
-      ...reportNotesRendered,
-      ...attachmentsToAddRendered,
-      ...notesToAddRendered,
-    ].sort((a, b) => {
-      if (timeSortOrder === DESCENDING_SORT_ORDER) {
-        return a.date > b.date ? 1 : -1;
-      }
-      return a.date < b.date ? 1 : -1;
-    }).map((item) => item.node),
-    [
-      attachmentsToAddRendered,
-      containedReportsRendered,
-      notesToAddRendered,
-      reportAttachmentsRendered,
-      reportNotesRendered,
-      timeSortOrder,
-    ]
-  );
+  const sortableList = useMemo(() => [
+    ...containedReportsRendered,
+    ...reportAttachmentsRendered,
+    ...reportNotesRendered,
+    ...attachmentsToAddRendered,
+    ...notesToAddRendered,
+  ], [
+    containedReportsRendered,
+    reportAttachmentsRendered,
+    reportNotesRendered,
+    attachmentsToAddRendered,
+    notesToAddRendered,
+  ]);
+
+  const [SortButton, SortedItemsRendered] = useListSortWithButton(sortableList);
 
   const reportImageAttachments = useMemo(
     () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
@@ -151,9 +142,6 @@ const ActivitySection = ({
       : [...reportNotes, ...notesToAdd, ...reportImageAttachments, ...containedReports]);
   }, [areAllItemsExpanded, containedReports, notesToAdd, reportImageAttachments, reportNotes]);
 
-  const onClickTimeSortButton = useCallback(() => {
-    setTimeSortOrder(timeSortOrder === DESCENDING_SORT_ORDER ? ASCENDING_SORT_ORDER : DESCENDING_SORT_ORDER);
-  }, [timeSortOrder]);
 
   useEffect(() => {
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
@@ -167,18 +155,10 @@ const ActivitySection = ({
         <h2>Activity</h2>
       </div>
 
-      {sortedItemsRendered.length > 0 && <div className={styles.actions}>
+      {sortableList.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
-        <Button
-          className={styles.timeSortButton}
-          data-testid="reportManager-activitySection-timeSortButton"
-          onClick={onClickTimeSortButton}
-          type="button"
-          variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
-        >
-          {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
-        </Button>
+        <SortButton />
 
         <Button
           className={styles.expandCollapseButton}
@@ -192,7 +172,9 @@ const ActivitySection = ({
       </div>}
     </div>
 
-    {sortedItemsRendered.length > 0 && <ul className={styles.list}>{sortedItemsRendered}</ul>}
+    {sortableList.length > 0 && <ul className={styles.list}>
+      <SortedItemsRendered />
+    </ul>}
   </div>;
 };
 
