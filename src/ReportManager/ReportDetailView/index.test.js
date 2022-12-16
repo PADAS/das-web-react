@@ -19,6 +19,7 @@ import ReportDetailView from './';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
+import * as customHooks from '../../hooks';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -69,7 +70,7 @@ describe('ReportManager - ReportDetailView', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-
+    jest.spyOn(customHooks, 'useFetchPatrolInfo').mockImplementation(() => ([]));
     map = createMapMock();
 
     store = {
@@ -906,6 +907,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
+
     store.data.eventStore = {
       456: { event_type: 'jtar', id: '456', patrols: ['patrol'], priority: 0, state: 'active', title: 'title' },
     };

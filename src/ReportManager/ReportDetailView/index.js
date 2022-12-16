@@ -39,28 +39,11 @@ import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
 import ReportListItem from '../../ReportListItem';
-import { fetchPatrol } from '../../ducks/patrols';
 import PatrolListItem from '../../PatrolListItem';
+import { useFetchPatrolInfo } from '../../hooks';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
-
-const useFetchPatrolInfo = (patrols, patrolStore, dispatch) => {
-  const getPatrolsData = useCallback(() => {
-    const patrolsData = [];
-    patrols.forEach((currentID) => {
-      const patrol = patrolStore[currentID];
-      if (!patrol){
-        dispatch(fetchPatrol(currentID));
-        return;
-      }
-      patrolsData.push(patrol);
-    });
-    return patrolsData;
-  }, [patrols, patrolStore, dispatch]);
-
-  return Array.isArray(patrols) ? getPatrolsData() : [];
-};
 
 const ReportDetailView = ({
   className,

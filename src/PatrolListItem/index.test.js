@@ -73,19 +73,55 @@ beforeEach(() => {
   jest.useFakeTimers('modern');
 });
 
+const initialProps = {
+  onTitleClick,
+  onPatrolSelfManagedStateChange,
+  patrol: testPatrol,
+  map
+};
+
+const renderPatrolListItem = ({ onTitleClick, onPatrolSelfManagedStateChange, patrol, map, ...otherProps } = initialProps, storeObject = store) =>
+  render(
+    <Provider store={storeObject}>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <PatrolListItem
+              onTitleClick={onTitleClick}
+              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+              patrol={patrol}
+              map={map}
+              {...otherProps} />
+        </MapContext.Provider>
+      </NavigationWrapper>
+    </Provider>
+  );
+
 test('rendering without crashing', () => {
   testPatrol = { ...patrols[0] };
+  renderPatrolListItem({
+    ...initialProps,
+    patrol: testPatrol
+  });
+});
 
-  render(<Provider store={store}>
-    <NavigationWrapper>
-      <MapContext.Provider value={map}>
-        <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-      </MapContext.Provider>
-    </NavigationWrapper>
-  </Provider>);
+test('rendering without showing title details', () => {
+  testPatrol = { ...patrols[0] };
+  renderPatrolListItem({
+    ...initialProps,
+    patrol: testPatrol,
+    showTitleDetails: false
+  });
+  expect( screen.queryByText('Scheduled:') ).not.toBeInTheDocument();
+});
+
+test('rendering without state label', () => {
+  testPatrol = { ...patrols[0] };
+  renderPatrolListItem({
+    ...initialProps,
+    patrol: testPatrol,
+    showStateTitle: false
+  });
+  expect( screen.queryByTestId(`patrol-list-item-state-title-${testPatrol.id}`) ).not.toBeInTheDocument();
 });
 
 describe('the patrol list item', () => {
@@ -99,17 +135,10 @@ describe('the patrol list item', () => {
       return PATROL_UI_STATES.ACTIVE;
     });
 
-
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
   });
   test('showing an icon for the patrol', async () => {
     await screen.findByTestId(`patrol-list-item-icon-${testPatrol.id}`);
@@ -154,16 +183,10 @@ describe('for active patrols', () => {
       return PATROL_UI_STATES.ACTIVE;
     });
 
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
   });
 
   test('showing a location jump button if the patrol has any location data', async () => {
@@ -251,16 +274,10 @@ describe('for scheduled patrols', () => {
       return PATROL_UI_STATES.READY_TO_START;
     });
 
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
   });
   test('showing a "start" button which starts the patrol', async () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
@@ -310,16 +327,11 @@ describe('for overdue patrols', () => {
       return PATROL_UI_STATES.START_OVERDUE;
     });
 
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
+
   });
 
   test('showing an overdue indicator', async () => {
@@ -331,6 +343,7 @@ describe('for overdue patrols', () => {
     const iconContainer = await screen.findByRole('img');
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolOverdueThemeColor}`);
   });
+
 });
 
 describe('for cancelled patrols', () => {
@@ -346,16 +359,10 @@ describe('for cancelled patrols', () => {
       return PATROL_UI_STATES.CANCELLED;
     });
 
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
   });
 
   test('showing a button to restore the patrol', async () => {
@@ -406,16 +413,10 @@ describe('for completed patrols', () => {
       return PATROL_UI_STATES.CANCELLED;
     });
 
-    render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem onTitleClick={onTitleClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={testPatrol}
-          map={map} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolListItem({
+      ...initialProps,
+      patrol: testPatrol
+    });
   });
 
   test('restoring the patrol from the kebab menu', async () => {

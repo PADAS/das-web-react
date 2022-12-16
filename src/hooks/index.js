@@ -1,10 +1,11 @@
-import { useContext, useState, useEffect, useRef } from 'react';
+import {useContext, useState, useEffect, useRef, useCallback} from 'react';
 import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
 import { MIN_ZOOM, MAX_ZOOM } from '../constants';
+import {fetchPatrol} from "../ducks/patrols";
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
@@ -206,4 +207,21 @@ export const useMemoCompare = (next, compare = isEqual) => {
   }, [isEqual, next]);
 
   return isEqual ? previous : next;
+};
+
+export const useFetchPatrolInfo = (patrols, patrolStore, dispatch) => {
+  const getPatrolsData = useCallback(() => {
+    const patrolsData = [];
+    patrols.forEach((currentID) => {
+      const patrol = patrolStore[currentID];
+      if (!patrol){
+        dispatch(fetchPatrol(currentID));
+        return;
+      }
+      patrolsData.push(patrol);
+    });
+    return patrolsData;
+  }, [patrols, patrolStore, dispatch]);
+
+  return Array.isArray(patrols) ? getPatrolsData() : [];
 };
