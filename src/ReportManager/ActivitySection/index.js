@@ -7,7 +7,7 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
-import ReportListItem from './ReportListItem';
+import ContainedReportListItem from './ContainedReportListItem';
 
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
@@ -45,7 +45,7 @@ const ActivitySection = ({
 
   const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
     sortDate: new Date(containedReport.time),
-    node: <ReportListItem
+    node: <ContainedReportListItem
       cardsExpanded={cardsExpanded}
       key={containedReport.id}
       onCollapse={() => onCollapseCard(containedReport)}

@@ -80,7 +80,7 @@
 
 //     expect(reportCollapse).toHaveClass('collapse');
 
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
 //     userEvent.click(expandButton);
 
 //     await waitFor(() => {
@@ -89,9 +89,9 @@
 //   });
 
 //   test('collapses a contained report when clicking the up arrow', async () => {
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
 //     userEvent.click(expandButton);
-//     const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
+//     const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
 //     userEvent.click(collapseButton);
 
 //     const reportCollapse = await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
@@ -106,7 +106,7 @@
 
 //     expect(imageCollapse).toHaveClass('collapse');
 
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[3];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 //     userEvent.click(expandButton);
 
 //     await waitFor(() => {
@@ -115,9 +115,9 @@
 //   });
 
 //   test('collapses an existing image attachment when clicking the up arrow', async () => {
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 //     userEvent.click(expandButton);
-//     const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
+//     const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 //     userEvent.click(collapseButton);
 
 //     const imageCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
@@ -130,7 +130,7 @@
 //   test('removes new attachment from attachments to add when clicking the delete icon', async () => {
 //     expect(onDeleteAttachment).toHaveBeenCalledTimes(0);
 
-//     const deleteNewAttachmentButton = (await screen.findAllByText('trash-can.svg'))[0];
+//     const deleteNewAttachmentButton = await screen.findByTestId('reportManager-activitySection-trashCan-newFile1.pdf');
 //     userEvent.click(deleteNewAttachmentButton);
 
 //     expect(onDeleteAttachment).toHaveBeenCalledTimes(1);
@@ -141,7 +141,7 @@
 
 //     expect(noteCollapse).toHaveClass('collapse');
 
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[0];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
 //     userEvent.click(expandButton);
 
 //     await waitFor(() => {
@@ -150,9 +150,9 @@
 //   });
 
 //   test('collapses an existing note when clicking the up arrow', async () => {
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[0];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
 //     userEvent.click(expandButton);
-//     const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
+//     const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
 //     userEvent.click(collapseButton);
 
 //     const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
@@ -181,7 +181,7 @@
 
 //     expect(noteCollapse).toHaveClass('collapse');
 
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[4];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-note1');
 //     userEvent.click(expandButton);
 
 //     await waitFor(() => {
@@ -190,9 +190,9 @@
 //   });
 
 //   test('collapses a new note when clicking the up arrow', async () => {
-//     const expandButton = (await screen.findAllByText('arrow-down-simple.svg'))[2];
+//     const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-note1');
 //     userEvent.click(expandButton);
-//     const collapseButton = (await screen.findAllByText('arrow-up-simple.svg'))[0];
+//     const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-note1');
 //     userEvent.click(collapseButton);
 
 //     const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-note1');
@@ -229,37 +229,42 @@
 //     const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
 
 //     expect(itemsText).toEqual([
+//       'note.svgNew',
+//       'note.svgNew',
+//       'attachment.svgnewFile2.pdftrash-can.svg',
+//       'attachment.svgnewFile1.pdftrash-can.svg',
 //       'note.svgnote49',
 //       'note.svgnote38',
-//       '165634light_rep1',
-//       'attachment.svgfile1.pdf6',
-//       'attachment.svgfile2.pdf7',
 //       'image.svgfile1.png6',
-//       'attachment.svgnewFile1.pdftrash-can.svg',
-//       'attachment.svgnewFile2.pdftrash-can.svg',
-//       'note.svgNew',
-//       'note.svgNew',
+//       'attachment.svgfile2.pdf7',
+//       'attachment.svgfile1.pdf6',
+//       '165634light_rep1',
+//       '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
 //     ]);
 //   });
 
 //   test('inverts the sort direction when clicking the time sort button', async () => {
-//     const timeSortButton = await screen.findByTestId('reportManager-activitySection-timeSortButton');
+//     const timeSortButton = await screen.findByTestId('time-sort-btn');
 //     userEvent.click(timeSortButton);
 
 //     const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
 
-//     expect(itemsText).toEqual([
-//       'note.svgNew',
-//       'note.svgNew',
-//       'attachment.svgnewFile2.pdftrash-can.svg',
-//       'attachment.svgnewFile1.pdftrash-can.svg',
-//       'note.svgnote49',
-//       'note.svgnote38',
-//       'image.svgfile1.png6',
-//       'attachment.svgfile2.pdf7',
-//       'attachment.svgfile1.pdf6',
-//       '165634light_rep1',
-//     ]);
+//     await waitFor(() => {
+
+//       expect(itemsText).toEqual([
+//         'note.svgnote49',
+//         'note.svgnote38',
+//         '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
+//         '165634light_rep1',
+//         'attachment.svgfile1.pdf6',
+//         'attachment.svgfile2.pdf7',
+//         'image.svgfile1.png6',
+//         'attachment.svgnewFile1.pdftrash-can.svg',
+//         'attachment.svgnewFile2.pdftrash-can.svg',
+//         'note.svgNew',
+//         'note.svgNew',
+//       ]);
+//     });
 //   });
 
 //   test('expands all expandable items when clicking the button Expand All', async () => {
@@ -292,7 +297,7 @@
 
 //   test('shows activity action buttons if there are items', async () => {
 //     expect((await screen.findByText('Expand All'))).toBeDefined();
-//     expect((await screen.findByText('arrow-down.svg'))).toBeDefined();
+//     expect((await screen.findByTestId('time-sort-btn'))).toBeDefined();
 //   });
 
 //   test('hides activity action buttons if items list is empty', async () => {
@@ -314,10 +319,6 @@
 //     );
 
 //     expect((await screen.queryByText('Expand All'))).toBeNull();
-//     expect((await screen.queryByText('arrow-down.svg'))).toBeNull();
+//     expect((await screen.queryByText('time-sort-btn'))).toBeNull();
 //   });
 // });
-
-test('existence', () => {
-
-});

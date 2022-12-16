@@ -232,8 +232,11 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     expect((await screen.queryByText('Report Type'))).toBeNull();
   });
 
-  test('once the report loades, the collapsible form shows up', async () => {
+  test('once the report and schema loades, the collapsible form shows up', async () => {
     store.data.eventStore[report.id] = report;
+    store.data.eventSchemas[report.event_type] = {
+      [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
+    };
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>

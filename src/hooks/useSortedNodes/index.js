@@ -43,7 +43,7 @@ const useSortedNodes = (
   , [list, sortFn]);
 };
 
-const defaultRenderFn = ({ toggleSortFn, disabled, testId, sortOrder }) =>
+const defaultRenderFn = ({ toggleSortFn, disabled, testId = 'time-sort-btn', sortOrder }) =>
   <Button className={styles.timeSortButton}
     type='button' data-testid={testId}
     disabled={disabled} onClick={toggleSortFn}
