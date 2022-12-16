@@ -29,6 +29,8 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
     event.target.scrollTop = 0;
   }, [eventTypeTitle, onChangeTitle]);
 
+  const hasPatrols = !!report?.patrols?.length;
+
   const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
 
   useEffect(() => {
@@ -38,8 +40,9 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
   }, [onChangeTitle, displayTitle, report.title]);
 
   return <div className={`${styles.header} ${styles[`priority-${displayPriority}`]}`}>
-    <div className={`${styles.icon} ${styles[`priority-${displayPriority}`]}`} data-testid="reportDetailHeader-icon">
+    <div role='img' className={`${styles.icon} ${styles[`priority-${displayPriority}`]}`} data-testid="reportDetailHeader-icon">
       <EventIcon report={report} />
+      {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </div>
 
     <p className={styles.serialNumber}>{report.serial_number}</p>

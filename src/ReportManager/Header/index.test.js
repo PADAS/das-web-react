@@ -158,4 +158,30 @@ describe('ReportManager - Header', () => {
 
     expect(await screen.queryByTitle('Jump to this location')).toBeNull();
   });
+
+  test('rendering a small "p" indicator if the report is associated with patrols', async () => {
+    const { rerender } = render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} onChangeTitle={onChangeTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    let reportIcon = await screen.queryByRole('img');
+    expect(reportIcon).not.toHaveTextContent('p');
+
+    report.patrols = ['dfasd-x-adfasxf-1'];
+
+    rerender(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <NavigationWrapper>
+          <Header report={report} onChangeTitle={onChangeTitle} />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    reportIcon = await screen.queryByRole('img');
+    expect(reportIcon).toHaveTextContent('p');
+  });
 });
