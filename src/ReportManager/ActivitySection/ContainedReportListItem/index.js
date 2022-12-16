@@ -1,8 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import { customizeValidator } from '@rjsf/validator-ajv6';
-import Form from '@rjsf/bootstrap-4';
-import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,35 +13,20 @@ import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../../utils/event-schemas';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
-import useReport from '../../../hooks/useReport';
 
-import {
-  AddButton,
-  ArrayFieldItemTemplate,
-  ArrayFieldTemplate,
-  BaseInputTemplate,
-  ExternalLinkField,
-  MoveDownButton,
-  MoveUpButton,
-  ObjectFieldTemplate,
-  RemoveButton,
-} from '../../../SchemaFields';
-import DateTime from '../../../DateTime';
-import EventIcon from '../../../EventIcon';
 import ItemActionButton from '../ItemActionButton';
+import ReportFormSummary from '../../../ReportFormSummary';
+import ReportListItem from '../../../ReportListItem';
 
 import activitySectionStyles from '../styles.module.scss';
 import styles from './styles.module.scss';
 
-const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
-
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
-const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
+const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
@@ -74,25 +56,12 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
       className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow}`}
       onClick={isOpen ? onCollapse: onExpand}
     >
-      <div className={`${activitySectionStyles.itemIcon} ${activitySectionStyles[`priority-${displayPriority}`]}`}>
-        <EventIcon report={report} />
-      </div>
-
-      <div className={activitySectionStyles.itemDetails}>
-        <div className={activitySectionStyles.reportDetail}>
-          <p className={activitySectionStyles.serialNumber}>{report.serial_number}</p>
-
-          <p className={activitySectionStyles.itemTitle} >
-            {displayTitle}
-          </p>
-        </div>
-
-        <DateTime
-          className={activitySectionStyles.itemDate}
-          date={report.time}
-          showElapsed={false}
-        />
-      </div>
+      <ReportListItem
+        className={styles.reportListItem}
+        report={report}
+        showElapsedTime={false}
+        showJumpButton={false}
+      />
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip="Go to report">
@@ -103,65 +72,36 @@ const ReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
       <div className={activitySectionStyles.itemActionButtonContainer}>
         <ItemActionButton>
           {isOpen
-            ? <ArrowUpSimpleIcon />
-            : <ArrowDownSimpleIcon />}
+            ? <ArrowUpSimpleIcon data-testid={`reportManager-activitySection-arrowUp-${report.id}`} />
+            : <ArrowDownSimpleIcon data-testid={`reportManager-activitySection-arrowDown-${report.id}`} />}
         </ItemActionButton>
       </div>
     </div>
 
     <Collapse
-      className={`${styles.collapse} ${activitySectionStyles.collapse}`}
+      className={activitySectionStyles.collapse}
       data-testid={`reportManager-activitySection-collapse-${report.id}`}
       in={isOpen}
     >
-      {!!reportFromEventStore
-        ? <div>
-          <div className={styles.nonSchemaFields}>
-            <div className={styles.nonSchemaField}>
-              <label>
-                Report Type
-              </label>
-
-              {eventTypeTitle}
-            </div>
-
-            <div className={styles.nonSchemaField}>
-              <label>
-                Reported By
-              </label>
-
-              {reportFromEventStore.reported_by?.name}
-            </div>
-          </div>
-
-          {reportSchemas?.schema && <Form
-            className={styles.form}
-            disabled
-            fields={{ externalLink: ExternalLinkField }}
-            formData={reportFromEventStore.event_details}
-            schema={reportSchemas?.schema}
-            showErrorList={false}
-            templates={{
-              ArrayFieldItemTemplate,
-              ArrayFieldTemplate,
-              BaseInputTemplate,
-              ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
-              ObjectFieldTemplate,
-            }}
-            uiSchema={reportSchemas?.uiSchema}
-            validator={formValidator}
-          />}
-        </div>
-        : <ResizeSpinLoader color={LOADER_COLOR} size={LOADER_SIZE} />}
+      <div>
+        {!!reportFromEventStore && !!reportSchemas
+          ? <ReportFormSummary
+            className={styles.reportFormSummary}
+            report={reportFromEventStore}
+            schema={reportSchemas.schema}
+            uiSchema={reportSchemas.uiSchema}
+          />
+          : <ResizeSpinLoader color={LOADER_COLOR} size={LOADER_SIZE} />}
+      </div>
     </Collapse>
   </li>;
 };
 
-ReportListItem.propTypes = {
+ContainedReportListItem.propTypes = {
   cardsExpanded: PropTypes.array.isRequired,
   onCollapse: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
 };
 
-export default memo(ReportListItem);
+export default memo(ContainedReportListItem);

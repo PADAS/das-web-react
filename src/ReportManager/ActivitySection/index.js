@@ -2,15 +2,13 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } fr
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as ArrowDownIcon } from '../../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowUpIcon } from '../../common/images/icons/arrow-up.svg';
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
 import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
-import ReportListItem from './ReportListItem';
+import ContainedReportListItem from './ContainedReportListItem';
 
 import styles from './styles.module.scss';
 
@@ -47,7 +45,7 @@ const ActivitySection = ({
 
   const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
     date: new Date(containedReport.time),
-    node: <ReportListItem
+    node: <ContainedReportListItem
       cardsExpanded={cardsExpanded}
       key={containedReport.id}
       onCollapse={() => onCollapseCard(containedReport)}
@@ -111,9 +109,9 @@ const ActivitySection = ({
       ...notesToAddRendered,
     ].sort((a, b) => {
       if (timeSortOrder === DESCENDING_SORT_ORDER) {
-        return a.date > b.date ? 1 : -1;
+        return a.date < b.date ? 1 : -1;
       }
-      return a.date < b.date ? 1 : -1;
+      return a.date > b.date ? 1 : -1;
     }).map((item) => item.node),
     [
       attachmentsToAddRendered,
@@ -171,13 +169,13 @@ const ActivitySection = ({
         <label>Time</label>
 
         <Button
-          className={styles.timeSortButton}
+          className={`${styles.timeSortButton} ${timeSortOrder === DESCENDING_SORT_ORDER ? styles.descending : styles.ascending}`}
           data-testid="reportManager-activitySection-timeSortButton"
           onClick={onClickTimeSortButton}
           type="button"
           variant={timeSortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
         >
-          {timeSortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
+          <i className={timeSortOrder === DESCENDING_SORT_ORDER ? styles.arrowDown : styles.arrowUp} />
         </Button>
 
         <Button

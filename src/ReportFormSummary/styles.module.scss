@@ -1,26 +1,34 @@
-@import '../../../common/styles/vars/colors';
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
 
-.collapse {
-  padding: 1rem 1.5rem;
-
+.reportFormSummary {
   .nonSchemaFields {
     display: flex;
+    flex-direction: column;
     width: 100%;
 
     .nonSchemaField {
-      width: 50%;
       display: flex;
       flex-direction: column;
+      width: 100%;
 
       label {
         margin: 0;
       }
+
+      @media (min-width: $md-layout-width-min) {
+        width: 50%;
+      }
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      flex-direction: row;
     }
   }
 
   label {
-    font-size: 0.875rem;
     color: $secondary-medium-gray;
+    font-size: 0.875rem;
     margin: 0.75rem 0 0;
   }
 
@@ -42,10 +50,10 @@
     [class*=control] {
       background-color: transparent;
       border: transparent;
+      font-size: 1rem;
+      height: 1.5rem !important;
       margin: 0;
       padding: 0;
-      height: 1.5rem !important;
-      font-size: 1rem;
     }
 
     [class*=control] {
@@ -54,21 +62,22 @@
 
     [class*=selectWidget] {
       div {
+        height: 1.5rem;
         display: block;
         padding: 0;
       }
       
       [class*=singleValue] {
-        margin: 0;
         color: black;
+        margin: 0;
       }
     }
 
     legend {
+      border-bottom: 1px solid $light-gray-border;
       font-size: 1rem;
       font-weight: 500;
       margin: 1.5rem 0 0.5rem;
-      border-bottom: 1px solid $light-gray-border;
     }
 
     h5 {
@@ -94,14 +103,14 @@
       overflow-y: hidden;
 
       [class*=checkbox] {
-        padding-left: 0;
         margin-bottom: 0;
+        padding-left: 0;
 
         label {
           color: black;
           font-size: 1rem;
-          opacity: 1;
           margin: 0;
+          opacity: 1;
 
           &:before {
             content: "\002D";

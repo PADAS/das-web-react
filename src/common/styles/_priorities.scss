@@ -1,0 +1,15 @@
+@mixin priority300 {
+  background-color: $high-priority;
+}
+
+@mixin priority200 {
+  background-color: $medium-priority;
+}
+
+@mixin priority100 {
+  background-color: $low-priority;
+}
+
+@mixin priority0 {
+  background-color: $no-priority;
+}

@@ -1,4 +1,5 @@
 @import '../../common/styles/layout';
+@import '../../common/styles/priorities';
 @import '../../common/styles/vars/colors';
 
 .header {
@@ -39,19 +40,19 @@
   height: 100%;
 
   &.priority-300 {
-    background-color: $high-priority;
+    @include priority300;
   }
 
   &.priority-200 {
-    background-color: $medium-priority;
+    @include priority200;
   }
 
   &.priority-100 {
-    background-color: $low-priority;
+    @include priority100;
   }
 
   &.priority-0 {
-    background-color: $no-priority;
+    @include priority0;
   }
 
   svg {
