@@ -140,7 +140,6 @@ const ReportForm = (props) => {
 
       if (reportedByChanged) {
         toSubmit.reported_by = report.reported_by; // carry over full value instead of just extracted object difference for reported_by. See ERCS-684.
-        console.log('reportedByChanged', 'toSubmit.reported_by', toSubmit.reported_by);
       }
 
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
@@ -288,8 +287,6 @@ const ReportForm = (props) => {
         longitude: selection.last_position.geometry.coordinates[0],
       };
     }
-
-    console.log({ updates });
 
     updateStateReport({
       ...report,
