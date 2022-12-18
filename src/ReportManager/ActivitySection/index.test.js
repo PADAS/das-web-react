@@ -244,27 +244,24 @@
 //   });
 
 //   test('inverts the sort direction when clicking the time sort button', async () => {
-//     const timeSortButton = await screen.findByTestId('time-sort-btn');
+//     const timeSortButton = await screen.findByTestId('reportManager-activitySection-timeSortButton');
 //     userEvent.click(timeSortButton);
 
 //     const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
 
-//     await waitFor(() => {
-
-//       expect(itemsText).toEqual([
-//         'note.svgnote49',
-//         'note.svgnote38',
-//         '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
-//         '165634light_rep1',
-//         'attachment.svgfile1.pdf6',
-//         'attachment.svgfile2.pdf7',
-//         'image.svgfile1.png6',
-//         'attachment.svgnewFile1.pdftrash-can.svg',
-//         'attachment.svgnewFile2.pdftrash-can.svg',
-//         'note.svgNew',
-//         'note.svgNew',
-//       ]);
-//     });
+//     expect(itemsText).toEqual([
+//       'note.svgnote49',
+//       'note.svgnote38',
+//       '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
+//       '165634light_rep1',
+//       'attachment.svgfile1.pdf6',
+//       'attachment.svgfile2.pdf7',
+//       'image.svgfile1.png6',
+//       'attachment.svgnewFile1.pdftrash-can.svg',
+//       'attachment.svgnewFile2.pdftrash-can.svg',
+//       'note.svgNew',
+//       'note.svgNew',
+//     ]);
 //   });
 
 //   test('expands all expandable items when clicking the button Expand All', async () => {
@@ -297,7 +294,7 @@
 
 //   test('shows activity action buttons if there are items', async () => {
 //     expect((await screen.findByText('Expand All'))).toBeDefined();
-//     expect((await screen.findByTestId('time-sort-btn'))).toBeDefined();
+//     expect((await screen.findByTestId('reportManager-activitySection-timeSortButton'))).toBeDefined();
 //   });
 
 //   test('hides activity action buttons if items list is empty', async () => {
@@ -319,10 +316,10 @@
 //     );
 
 //     expect((await screen.queryByText('Expand All'))).toBeNull();
-//     expect((await screen.queryByText('time-sort-btn'))).toBeNull();
+//     expect((await screen.queryByText('reportManager-activitySection-timeSortButton'))).toBeNull();
 //   });
 // });
 
-test('it', () => {
+test('existing', () => {
 
 });
