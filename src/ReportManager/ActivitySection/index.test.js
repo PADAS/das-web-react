@@ -235,15 +235,17 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('inverts the sort direction when clicking the time sort button', async () => {
-    const timeSortButton = await screen.findByTestId('reportManager-activitySection-timeSortButton');
+    const timeSortButton = await screen.findByTestId('time-sort-btn');
     userEvent.click(timeSortButton);
 
     const items = await screen.findAllByRole('listitem');
 
-    expect((await within(items[0]).findAllByText('note4'))).toBeDefined();
-    expect((await within(items[2]).findAllByText('light_rep'))).toBeDefined();
-    expect((await within(items[4]).findAllByText('file1.pdf'))).toBeDefined();
-    expect((await within(items[6]).findAllByText('file1.png'))).toBeDefined();
+    await waitFor(() => {
+      expect((within(items[0]).findAllByText('note4'))).toBeDefined();
+      expect((within(items[2]).findAllByText('light_rep'))).toBeDefined();
+      expect((within(items[4]).findAllByText('file1.pdf'))).toBeDefined();
+      expect((within(items[6]).findAllByText('file1.png'))).toBeDefined();
+    });
   });
 
   test('expands all expandable items when clicking the button Expand All', async () => {
@@ -276,7 +278,7 @@ describe('ReportManager - ActivitySection', () => {
 
   test('shows activity action buttons if there are items', async () => {
     expect((await screen.findByText('Expand All'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-activitySection-timeSortButton'))).toBeDefined();
+    expect((await screen.findByTestId('time-sort-btn'))).toBeDefined();
   });
 
   test('hides activity action buttons if items list is empty', async () => {
@@ -298,6 +300,6 @@ describe('ReportManager - ActivitySection', () => {
     );
 
     expect((await screen.queryByText('Expand All'))).toBeNull();
-    expect((await screen.queryByText('reportManager-activitySection-timeSortButton'))).toBeNull();
+    expect((await screen.queryByText('time-sort-btn'))).toBeNull();
   });
 });
