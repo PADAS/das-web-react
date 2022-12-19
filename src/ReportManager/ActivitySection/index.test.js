@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -226,42 +226,24 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('sorts items by date', async () => {
-    const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
+    const items = await screen.findAllByRole('listitem');
 
-    expect(itemsText).toEqual([
-      'note.svgNew',
-      'note.svgNew',
-      'attachment.svgnewFile2.pdftrash-can.svg',
-      'attachment.svgnewFile1.pdftrash-can.svg',
-      'note.svgnote49',
-      'note.svgnote38',
-      'image.svgfile1.png6',
-      'attachment.svgfile2.pdf7',
-      'attachment.svgfile1.pdf6',
-      '165634light_rep1',
-      '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
-    ]);
+    expect((await within(items[0]).findAllByText('New note: note2'))).toBeDefined();
+    expect((await within(items[2]).findAllByText('newFile2.pdf'))).toBeDefined();
+    expect((await within(items[4]).findAllByText('note4'))).toBeDefined();
+    expect((await within(items[6]).findAllByText('file1.png'))).toBeDefined();
   });
 
   test('inverts the sort direction when clicking the time sort button', async () => {
     const timeSortButton = await screen.findByTestId('reportManager-activitySection-timeSortButton');
     userEvent.click(timeSortButton);
 
-    const itemsText = (await screen.findAllByRole('listitem')).map((item) => item.textContent.split(' ')[0]);
+    const items = await screen.findAllByRole('listitem');
 
-    expect(itemsText).toEqual([
-      'note.svgnote49',
-      'note.svgnote38',
-      '165634light_rep1',  // Duplicated because we render our own li but FeedListItem renders another one
-      '165634light_rep1',
-      'attachment.svgfile1.pdf6',
-      'attachment.svgfile2.pdf7',
-      'image.svgfile1.png6',
-      'attachment.svgnewFile1.pdftrash-can.svg',
-      'attachment.svgnewFile2.pdftrash-can.svg',
-      'note.svgNew',
-      'note.svgNew',
-    ]);
+    expect((await within(items[0]).findAllByText('note4'))).toBeDefined();
+    expect((await within(items[2]).findAllByText('light_rep'))).toBeDefined();
+    expect((await within(items[4]).findAllByText('file1.pdf'))).toBeDefined();
+    expect((await within(items[6]).findAllByText('file1.png'))).toBeDefined();
   });
 
   test('expands all expandable items when clicking the button Expand All', async () => {
