@@ -1,11 +1,11 @@
-import {useContext, useState, useEffect, useRef, useCallback} from 'react';
+import { useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
 import { MIN_ZOOM, MAX_ZOOM } from '../constants';
-import {fetchPatrol} from "../ducks/patrols";
+import { fetchPatrol } from '../ducks/patrols';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
