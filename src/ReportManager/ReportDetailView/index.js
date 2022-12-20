@@ -432,9 +432,8 @@ const ReportDetailView = ({
         <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
           <QuickLinks.NavigationBar>
             <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
-
             <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
-
+            <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
             <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
           </QuickLinks.NavigationBar>
 
@@ -475,12 +474,6 @@ const ReportDetailView = ({
                 />
               </QuickLinks.Section>
 
-              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
-
-              <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-                <h3 data-testid="reportDetailView-historySection">History</h3>
-              </QuickLinks.Section>
-
               <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
                 <div className={styles.title}>
                   <LinkIcon />
@@ -507,6 +500,15 @@ const ReportDetailView = ({
                         key={patrolInfo.id} />
                   ))
                 }
+              </QuickLinks.Section>
+
+              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+
+              <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+                <div className={styles.title}>
+                  <HistoryIcon />
+                  <h2 data-testid="reportDetailView-historySection">History</h2>
+                </div>
               </QuickLinks.Section>
 
             </QuickLinks.SectionsWrapper>
