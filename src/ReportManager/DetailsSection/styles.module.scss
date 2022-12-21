@@ -32,7 +32,7 @@
       display: flex;
     }
 
-    label:not(:first-child) {
+    > :not(:first-child) {
       margin-left: 1rem;
     }
   }
@@ -66,6 +66,11 @@
   }
 }
 
+.reportDateTimeContainer {
+  width: 100%;
+  display: flex;
+}
+
 .fieldLabel {
   margin-top: 1.5rem;
   width: 100%;
@@ -74,8 +79,28 @@
   font-size: 0.875rem;
   font-weight: normal;
 
-  > div {
+  > div, 
+  > label {
     margin-top: 0.187rem;
+  }
+
+  &.datePickerLabel {
+    flex: 2;
+
+    .datePicker {
+      width: 100%;
+
+      span {
+        width: 100%;
+        text-align: left;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+
+  &.timePickerLabel {
+    flex: 1;
+    margin-left: 0.5rem;
   }
 
   [class*=locationSelectionLabel] {

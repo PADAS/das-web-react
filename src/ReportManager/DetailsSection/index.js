@@ -15,6 +15,7 @@ import {
   filterOutRequiredValueOnSchemaPropErrors,
   getLinearErrorPropTree,
 } from '../../utils/event-schemas';
+import { getHoursAndMinutesString } from '../../utils/datetime';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
@@ -30,9 +31,11 @@ import {
   RemoveButton,
 } from '../../SchemaFields';
 import AreaSelectorInput from './AreaSelectorInput';
+import DatePicker from '../../DatePicker';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
+import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 
@@ -50,9 +53,11 @@ const DetailsSection = ({
   onFormSubmit,
   onPriorityChange,
   onReportedByChange,
+  onReportDateChange,
   onReportGeometryChange,
   onReportLocationChange,
   onReportStateChange,
+  onReportTimeChange,
   originalReport,
   reportForm,
   submitFormButtonRef,
@@ -137,6 +142,27 @@ const DetailsSection = ({
               />
           }
         </label>
+
+        <div className={styles.reportDateTimeContainer}>
+          <label data-testid="reportManager-datePicker" className={`${styles.fieldLabel} ${styles.datePickerLabel}`}>
+            Report Date
+            <DatePicker
+              className={styles.datePicker}
+              onChange={onReportDateChange}
+              selected={new Date(reportForm?.time)}
+            />
+          </label>
+
+          <label data-testid="reportManager-timePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
+            Report Time
+            <TimePicker
+              minutesInterval={15}
+              onChange={onReportTimeChange}
+              optionsToDisplay={15}
+              value={getHoursAndMinutesString(new Date(reportForm?.time))}
+            />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -186,9 +212,11 @@ DetailsSection.propTypes = {
   onFormSubmit: PropTypes.func.isRequired,
   onPriorityChange: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
+  onReportDateChange: PropTypes.func.isRequired,
   onReportGeometryChange: PropTypes.func.isRequired,
   onReportLocationChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
+  onReportTimeChange: PropTypes.func.isRequired,
   reportForm: PropTypes.object.isRequired,
   submitFormButtonRef: PropTypes.object.isRequired,
 };
