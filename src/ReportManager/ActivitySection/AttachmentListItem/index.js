@@ -115,7 +115,9 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
         <div className={styles.itemActionButtonContainer}>
           <ItemActionButton>
-            {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+            {isOpen
+              ? <ArrowUpSimpleIcon data-testid={`reportManager-activitySection-arrowUp-${attachment.id}`} />
+              : <ArrowDownSimpleIcon data-testid={`reportManager-activitySection-arrowDown-${attachment.id}`} />}
           </ItemActionButton>
         </div>
       </div>
@@ -156,8 +158,10 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     <div className={styles.itemActionButtonContainer}>
       <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={!isNew ? 'Download' : 'Delete'}>
         {!isNew
-          ? <DownloadArrowIcon />
-          : <TrashCanIcon />}
+          ? <DownloadArrowIcon data-testid={`reportManager-activitySection-downloadArrow-${attachment.id}`} />
+          : <TrashCanIcon
+            data-testid={`reportManager-activitySection-trashCan-${attachment.filename || attachment.name}`}
+          />}
       </ItemActionButton>
     </div>
 

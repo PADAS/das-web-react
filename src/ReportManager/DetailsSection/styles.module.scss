@@ -81,6 +81,10 @@
   [class*=locationSelectionLabel] {
     width: 100%;
   }
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
 }
 
 .form {

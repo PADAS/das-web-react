@@ -44,6 +44,7 @@ const LOADER_SIZE = 4;
 const DetailsSection = ({
   formSchema,
   formUISchema,
+  isCollection,
   loadingSchema,
   onFormChange,
   onFormError,
@@ -110,10 +111,10 @@ const DetailsSection = ({
 
     <div className={styles.container}>
       <div className={styles.row}>
-        <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
+        {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
           Reported By
           <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
-        </label>
+        </label>}
 
         <label data-testid="reportManager-prioritySelector" className={styles.fieldLabel}>
           Priority
@@ -121,7 +122,7 @@ const DetailsSection = ({
         </label>
       </div>
 
-      <div className={styles.row}>
+      {!isCollection && <div className={styles.row}>
         <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
           Report location
           {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
@@ -137,7 +138,7 @@ const DetailsSection = ({
               />
           }
         </label>
-      </div>
+      </div>}
     </div>
 
     {!!formSchema && <Form
@@ -180,6 +181,7 @@ DetailsSection.defaultProps = {
 DetailsSection.propTypes = {
   formSchema: PropTypes.object,
   formUISchema: PropTypes.object,
+  isCollection: PropTypes.bool.isRequired,
   loadingSchema: PropTypes.bool.isRequired,
   onFormChange: PropTypes.func.isRequired,
   onFormError: PropTypes.func.isRequired,
