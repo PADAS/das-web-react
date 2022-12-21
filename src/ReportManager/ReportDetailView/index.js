@@ -400,7 +400,8 @@ const ReportDetailView = ({
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
-    + notesToAdd.length) > 0;
+    + notesToAdd.length
+    + containedReports.length) > 0;
   const shouldRenderHistorySection = !isNewReport;
 
   return <div
@@ -430,6 +431,7 @@ const ReportDetailView = ({
                 <DetailsSection
                   formSchema={reportSchemas?.schema}
                   formUISchema={reportSchemas?.uiSchema}
+                  isCollection={isCollection}
                   loadingSchema={!!eventSchemas.loading}
                   onFormChange={onFormChange}
                   onFormError={onFormError}

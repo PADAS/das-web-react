@@ -111,6 +111,11 @@ const ReportForm = (props) => {
     } else {
       const changes = extractObjectDifference(report, originalReport);
 
+      const locationChanged = changes.hasOwnProperty('location');
+      const locationRemoved = locationChanged && !changes.location;
+
+      const reportedByChanged = changes.hasOwnProperty('reported_by');
+
       toSubmit = {
         ...changes,
         id: report.id,
@@ -124,12 +129,17 @@ const ReportForm = (props) => {
         }
       };
 
-      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
-      if (changes.reported_by) {
-        toSubmit.reported_by = {
-          ...report.reported_by,
-          ...changes.reported_by,
-        };
+      if (locationChanged) {
+        toSubmit.location = locationRemoved
+          ? null
+          : {
+            ...originalReport.location,
+            ...(!!changes && changes.location),
+          };
+      }
+
+      if (reportedByChanged) {
+        toSubmit.reported_by = report.reported_by; // carry over full value instead of just extracted object difference for reported_by. See ERCS-684.
       }
 
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
