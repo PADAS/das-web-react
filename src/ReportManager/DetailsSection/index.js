@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { customizeValidator } from '@rjsf/validator-ajv6';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
@@ -67,6 +67,8 @@ const DetailsSection = ({
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
+  const datePickerRef = useRef(null);
+
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
@@ -75,6 +77,11 @@ const DetailsSection = ({
     () => !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null,
     [reportForm.location]
   );
+
+  const handleReportDateChange = useCallback((date) => {
+    setTimeout(() => datePickerRef.current.setOpen(false), 0);
+    onReportDateChange(date);
+  }, [onReportDateChange]);
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
@@ -149,7 +156,8 @@ const DetailsSection = ({
             Report Date
             <DatePicker
               className={styles.datePicker}
-              onChange={onReportDateChange}
+              onChange={handleReportDateChange}
+              ref={datePickerRef}
               selected={new Date(reportForm?.time)}
             />
           </label>

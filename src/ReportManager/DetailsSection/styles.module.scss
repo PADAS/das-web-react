@@ -30,10 +30,10 @@
 
     @media (min-width: $md-layout-width-min) {
       display: flex;
-    }
 
-    > :not(:first-child) {
-      margin-left: 1rem;
+      > :not(:first-child) {
+        margin-left: 1rem;
+      }
     }
   }
 }
@@ -69,6 +69,10 @@
 .reportDateTimeContainer {
   width: 100%;
   display: flex;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
 }
 
 .fieldLabel {
@@ -79,23 +83,13 @@
   font-size: 0.875rem;
   font-weight: normal;
 
-  > div, 
+  > div:first-child, 
   > label {
     margin-top: 0.187rem;
   }
 
   &.datePickerLabel {
     flex: 2;
-
-    .datePicker {
-      width: 100%;
-
-      span {
-        width: 100%;
-        text-align: left;
-        margin-left: 0.5rem;
-      }
-    }
   }
 
   &.timePickerLabel {

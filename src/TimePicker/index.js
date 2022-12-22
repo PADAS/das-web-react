@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -30,6 +30,9 @@ const TimePicker = ({
     const initialTimeDate = new Date();
     initialTimeDate.setHours(initialTimeParts[0], initialTimeParts[1], '00');
 
+    const millisecondsInterval = 1000 * 60 * minutesInterval;
+    initialTimeDate.setTime(Math.floor(initialTimeDate.getTime() / millisecondsInterval) * millisecondsInterval);
+
     const options = [];
     let accumulatedMinutes = minutesInterval;
 
@@ -57,6 +60,8 @@ const TimePicker = ({
     </Popover>;
   }, [minutesInterval, onChange, optionsToDisplay, showDurationFromStartTime, startTime, value]);
 
+  const handleChange = useCallback((event) => onChange(event.target.value), [onChange]);
+
   return <div className={styles.inputWrapper}>
     <ClockIcon/>
 
@@ -70,7 +75,7 @@ const TimePicker = ({
         className={styles.timeInput}
         data-testid="time-input"
         min={startTime || '00:00'}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={handleChange}
         type="time"
         value={value}
       />
@@ -85,6 +90,7 @@ TimePicker.defaultProps = {
   optionsToDisplay: 5,
   showDurationFromStartTime: false,
   startTime: '',
+  value: '',
 };
 
 TimePicker.propTypes = {
@@ -93,7 +99,7 @@ TimePicker.propTypes = {
   optionsToDisplay: PropTypes.number,
   showDurationFromStartTime: PropTypes.bool,
   startTime: PropTypes.string,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
 };
 
 export default memo(TimePicker);

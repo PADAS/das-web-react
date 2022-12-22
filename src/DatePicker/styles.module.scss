@@ -1,84 +1,82 @@
 @import '../common/styles/inputs';
 @import '../common/styles/vars/colors';
 
-.customHeader {
-  padding: 0.375rem;
+.header {
   display: flex;
-  justify-content: center;
-  border-bottom: 0.062rem solid $light-gray;
+  border-bottom: 0.0625rem solid $light-gray;
+  justify-content: space-between;
+  padding: 0.5rem;
 
   > button {
-    border: none;
-    display: flex;
     align-items: center;
-    color: $secondary-medium-light-gray;
     background-color: transparent;
-
-    &:focus {
-      outline: none;
-    }
-  }
-}
-
-.headerTitle {
-  color: black;
-  font-size: 0.875rem;
-  margin-left: 30%;
-  display: flex;
-  align-items: center;
-
-  > span {
     color: $secondary-medium-light-gray;
+    display: flex;
+    border: none;
+
+    &:hover {
+      background-color: $blue-highlight;
+    }
   }
 
-  &:focus {
-    outline: none;
+  .headerTitle {
+    align-items: center;
+    color: black;
+    display: flex;
+    font-size: 0.875rem;
+    justify-content: center;
+
+    [class*=triangle] {
+      margin-left: 0.25rem;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &.customMonthYearPickerHeaderTitle {
+      &:hover {
+        cursor: unset;
+      }
+    }
   }
 }
 
-.datePickerCustomInput {
+.input {
   @include defaultTextInput;
-  font-size: 0.875rem;
-  display: flex;
+
   align-items: center;
-  min-width: 10.625rem;
-  justify-content: space-between;
-  padding: 0.25rem 0.5rem;
+  display: flex;
+  font-size: 1rem;
   height: 2.5rem;
+  justify-content: space-between;
+  min-width: 10.625rem;
+  padding: 0.5rem;
+  width: 100%;
 
-  &:focus {
-    outline: none;
+  svg {
+    margin-right: 1rem;
+    height: 1rem;
+    width: 1rem;
   }
 
-  > svg {
-    &:first-child {
-      margin-right: 0.625rem;
-      height: 1rem;
-      width: 1rem;
-    }
-
-    &:not(:first-child) {
-      margin-left: 0.625rem;
-      color: $secondary-medium-light-gray;
-    }
-  }
-
-  > span {
+  span {
+    width: 100%;
+    text-align: left;
+∫
     .placeholder {
       color: $secondary-medium-light-gray;
     }
   }
 }
 
-.triangle{
-  width: 0;
-  height: 0;
+.triangle {
   border-width: 0.375rem 0.25rem 0 0.25rem;
   border-color: $secondary-medium-light-gray transparent transparent transparent;
   border-style: solid;
-  margin-left: 0.25rem;
+  margin-left: 1rem;
 
-  &[class*=open] {
+  &.open {
     transform: rotate(180deg);
   }
 }
