@@ -50,8 +50,12 @@ const TimePicker = ({
       accumulatedMinutes += minutesInterval;
     }
 
+    if (options.slice(-1)?.[0].value === value) {
+      options.pop();
+    }
+
     return <Popover className={styles.popoverOptions}>
-      <ul>
+      <ul data-testid="timePicker-popoverOptionsList">
         {options.map((option) => <li key={option.value} onClick={() => onChange(option.value)}>
           <span>{option.value}</span>
           {option.duration && <span>{option.duration}</span>}
@@ -60,7 +64,7 @@ const TimePicker = ({
     </Popover>;
   }, [minutesInterval, onChange, optionsToDisplay, showDurationFromStartTime, startTime, value]);
 
-  const handleChange = useCallback((event) => onChange(event.target.value), [onChange]);
+  const handleChange = useCallback((event) => !!event.target.value && onChange(event.target.value), [onChange]);
 
   return <div className={styles.inputWrapper}>
     <ClockIcon/>

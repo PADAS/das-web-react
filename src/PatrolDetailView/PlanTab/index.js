@@ -165,7 +165,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         Start Date
         <DatePicker
           className={styles.patrolDatepicker}
-          dateFormat="dd MMM yyyy"
           maxDate={endDate}
           onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
           selected={startDate ?? new Date()}
@@ -209,7 +208,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         End Date
         <DatePicker
           className={styles.patrolDatepicker}
-          dateFormat="dd MMM yyyy"
           endDate={endDate}
           minDate={startDate}
           onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}

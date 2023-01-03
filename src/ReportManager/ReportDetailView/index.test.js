@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../../AddReport';
@@ -211,6 +211,49 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('sets the date when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+            </ReportsTabContext.Provider>
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[16]);
+
+    expect(datePickerInput).toHaveAttribute('value', '01/17/2023');
+  });
+
+  test('sets the time when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+            </ReportsTabContext.Provider>
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(timeInput).toHaveAttribute('value', '17:00');
   });
 
   test('updates the JSON form schema when user does a change', async () => {

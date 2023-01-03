@@ -67,8 +67,6 @@ const DetailsSection = ({
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
-  const datePickerRef = useRef(null);
-
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
@@ -77,11 +75,6 @@ const DetailsSection = ({
     () => !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null,
     [reportForm.location]
   );
-
-  const handleReportDateChange = useCallback((date) => {
-    setTimeout(() => datePickerRef.current.setOpen(false), 0);
-    onReportDateChange(date);
-  }, [onReportDateChange]);
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
@@ -156,8 +149,7 @@ const DetailsSection = ({
             Report Date
             <DatePicker
               className={styles.datePicker}
-              onChange={handleReportDateChange}
-              ref={datePickerRef}
+              onChange={onReportDateChange}
               selected={new Date(reportForm?.time)}
             />
           </label>
@@ -167,7 +159,7 @@ const DetailsSection = ({
             <TimePicker
               minutesInterval={15}
               onChange={onReportTimeChange}
-              optionsToDisplay={15}
+              optionsToDisplay={96}
               value={getHoursAndMinutesString(new Date(reportForm?.time))}
             />
           </label>
@@ -225,8 +217,8 @@ DetailsSection.propTypes = {
   onReportDateChange: PropTypes.func.isRequired,
   onReportGeometryChange: PropTypes.func.isRequired,
   onReportLocationChange: PropTypes.func.isRequired,
-  originalReport: PropTypes.object.isRequired,
   onReportTimeChange: PropTypes.func.isRequired,
+  originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
   submitFormButtonRef: PropTypes.object.isRequired,
 };

@@ -1,31 +1,40 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { within } from '@testing-library/dom';
 
 import DatePicker from './';
 
 describe('DatePicker', () => {
-  test('it should render a different placeholder if it is provided', async () => {
-    render(<DatePicker placeholderText='hello dumb text' />);
-
-    const customButton = await screen.getByTestId('custom-datepicker-button');
-    const placeholderText = within(customButton).queryByText('hello dumb text');
-
-    expect(placeholderText).toBeDefined();
+  const onCalendarOpenMock = jest.fn(), onCalendarCloseMock = jest.fn();
+  let rerender;
+  beforeEach(() => {
+    ({ rerender } = render(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      placeholderText="placeholder text"
+    />));
   });
 
-  test('It should call the calendar callbacks for close and open', async () => {
-    const onCalendarOpenMock = jest.fn();
-    const onCalendarCloseMock = jest.fn();
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    render(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock}/>);
+  test('renders the default placeholder if it is not provided', async () => {
+    rerender(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock} />);
 
+    expect((await screen.findByDisplayValue('Select a date'))).toBeDefined();
+  });
+
+  test('renders the placeholder if it is provided', async () => {
+    expect((await screen.findByDisplayValue('placeholder text'))).toBeDefined();
+  });
+
+  test('calls the calendar callbacks for close and open', async () => {
     expect(onCalendarOpenMock).toHaveBeenCalledTimes(0);
     expect(onCalendarCloseMock).toHaveBeenCalledTimes(0);
 
-    const customButton = await screen.getByTestId('custom-datepicker-button');
-    userEvent.click(customButton);
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
 
     expect(onCalendarOpenMock).toHaveBeenCalledTimes(1);
 
@@ -34,15 +43,115 @@ describe('DatePicker', () => {
     expect(onCalendarCloseMock).toHaveBeenCalledTimes(1);
   });
 
-  test('it should open the calendar if the user clicks the button', async () => {
-    render(<DatePicker/>);
+  test('opens and closes the calendar if the user clicks the button', async () => {
+    const datePickerInput = await screen.getByTestId('datePicker-input');
 
-    const customButton = await screen.getByTestId('custom-datepicker-button');
+    expect((await screen.queryByRole('listbox'))).toBeNull();
 
-    expect(() => screen.getByRole('listbox')).toThrow();
+    userEvent.click(datePickerInput);
 
-    userEvent.click(customButton);
+    expect((await screen.findByRole('listbox'))).toBeDefined();
 
-    expect(() => screen.getByRole('listbox')).toBeDefined();
+    userEvent.keyboard('{Escape}');
+
+    expect((await screen.queryByRole('listbox'))).toBeNull();
+  });
+
+  test('decreases one year when clicking double left arrow button', async () => {
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    const decreaseYearButton = await screen.getByTestId('datePicker-decreaseYear');
+
+    expect((await screen.findByText('Feb 2020'))).toBeDefined();
+
+    userEvent.click(decreaseYearButton);
+
+    expect((await screen.findByText('Feb 2019'))).toBeDefined();
+  });
+
+  test('decreases one month when clicking left arrow button', async () => {
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    const decreaseMonthButton = await screen.getByTestId('datePicker-decreaseMonth');
+
+    expect((await screen.findByText('Feb 2020'))).toBeDefined();
+
+    userEvent.click(decreaseMonthButton);
+
+    expect((await screen.findByText('Jan 2020'))).toBeDefined();
+  });
+
+  test('increases one year when clicking double right arrow button', async () => {
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    const increaseYearButton = await screen.getByTestId('datePicker-increaseYear');
+
+    expect((await screen.findByText('Feb 2020'))).toBeDefined();
+
+    userEvent.click(increaseYearButton);
+
+    expect((await screen.findByText('Feb 2021'))).toBeDefined();
+  });
+
+  test('increases one month when clicking right arrow button', async () => {
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    const increaseMonthButton = await screen.getByTestId('datePicker-increaseMonth');
+
+    expect((await screen.findByText('Feb 2020'))).toBeDefined();
+
+    userEvent.click(increaseMonthButton);
+
+    expect((await screen.findByText('Mar 2020'))).toBeDefined();
+  });
+
+  test('triggers onChange with the selected date', async () => {
+    const onChangeMock = jest.fn();
+
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      onChange={onChangeMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    expect(onChangeMock).toHaveBeenCalledTimes(0);
+
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[16]);
+
+    expect(onChangeMock).toHaveBeenCalledTimes(1);
+    expect(onChangeMock.mock.calls[0][0].toISOString()).toMatch(/^2020-02-11/);
   });
 });

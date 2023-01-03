@@ -5,11 +5,10 @@
 $background_image_url: '../common/images/icons/';
   
 .inputWrapper {
-  min-width: 6rem;
   position: relative;
   width: 100%;
   
-  svg:first-child {
+  svg {
     box-sizing: border-box;
     height: 1.5rem;
     left: 0.375rem;
