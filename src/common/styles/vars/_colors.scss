@@ -24,6 +24,7 @@ $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
 
+$semi-light-gray: #e9ecef;
 $very-light-gray: #f9f9f9;
 $very-light-gray-alt: #E7E7E7;
 
@@ -137,3 +138,5 @@ $patrol-done-border: black;
 $patrol-done-bg: white;
 
 $subject-control-btn-bg: $very-light-gray;
+
+$disabled-field-gray: $semi-light-gray;

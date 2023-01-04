@@ -10,7 +10,7 @@ import {
 
 import styles from './styles.module.scss';
 
-const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalStyling, onChange, placeholder, className }) => {
+const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalStyling, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
@@ -57,6 +57,7 @@ const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalSt
 
   return <Select
       value={priority}
+      isDisabled={isDisabled}
       className={`${styles.select} ${className}`}
       components={{ Option, SingleValue }}
       onChange={onChange}

@@ -12,8 +12,10 @@ import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
+const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
+
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps, isDisabled } = props;
 
   const selections = optionsFromProps ? optionsFromProps : reporters;
 
@@ -93,7 +95,7 @@ const ReportedBySelect = (props) => {
     return <div className={styles.control}>
       <components.Control {...props}>
         {!hasValue && <img
-          src={calcUrlForImage('static/ranger-gray.svg')}
+          src={placeholderImgSrc}
           alt='Radio icon placeholder for reported by selector'
         />}
         {children}
@@ -144,6 +146,7 @@ const ReportedBySelect = (props) => {
     components={{ Control, MultiValueLabel, Option, SingleValue }}
     value={selected}
     isClearable={true}
+    isDisabled={isDisabled}
     isSearchable={true}
     isMulti={isMulti}
     onChange={onChange}
@@ -165,6 +168,7 @@ export default connect(mapStateToProps, null)(memo(ReportedBySelect));
 
 ReportedBySelect.defaultProps = {
   value: null,
+  isDisabled: false,
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
   placeholder: 'Reported By...',
@@ -172,6 +176,7 @@ ReportedBySelect.defaultProps = {
 
 
 ReportedBySelect.propTypes = {
+  isDisabled: PropTypes.bool,
   isMulti: PropTypes.bool,
   value: PropTypes.oneOfType([
     PropTypes.object,

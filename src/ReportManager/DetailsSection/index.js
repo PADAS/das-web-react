@@ -64,7 +64,11 @@ const DetailsSection = ({
 
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
-  const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
+  const geometryType = useMemo(() =>
+    reportForm
+    && eventTypes
+    && calcGeometryTypeForReport(reportForm, eventTypes)
+  , [eventTypes, reportForm]);
 
   const reportLocation = useMemo(
     () => !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null,
@@ -94,7 +98,7 @@ const DetailsSection = ({
 
       <div>
         <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
+          <Dropdown.Toggle variant="success">
             {reportState}
           </Dropdown.Toggle>
 
@@ -113,12 +117,12 @@ const DetailsSection = ({
       <div className={styles.row}>
         {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
           Reported By
-          <ReportedBySelect onChange={onReportedByChange} value={reportForm?.reported_by} />
+          <ReportedBySelect isDisabled={formSchema?.readonly} onChange={onReportedByChange} value={reportForm?.reported_by} />
         </label>}
 
         <label data-testid="reportManager-prioritySelector" className={styles.fieldLabel}>
           Priority
-          <PrioritySelect onChange={onPriorityChange} priority={reportForm?.priority} />
+          <PrioritySelect isDisabled={formSchema?.readonly} onChange={onPriorityChange} priority={reportForm?.priority} />
         </label>
       </div>
 
@@ -143,7 +147,7 @@ const DetailsSection = ({
 
     {!!formSchema && <Form
         className={styles.form}
-        disabled={formSchema.readonly}
+        disabled={formSchema?.readonly}
         fields={{ externalLink: ExternalLinkField }}
         formData={reportForm.event_details}
         onChange={onFormChange}
