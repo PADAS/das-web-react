@@ -1,0 +1,35 @@
+@import '../../common/styles/vars/colors';
+
+.timeSortButton {
+  background-color: $light-gray;
+  border-color: $light-gray;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  margin-left: 0.5rem;
+
+  svg {
+    margin-bottom: 0.19rem;
+
+    path {
+      fill: $secondary-medium-gray;
+    }
+  }
+
+  &:hover {
+    background-color: $secondary-light-gray;
+    border-color: $secondary-light-gray;
+  }
+
+  &:hover, &[class*=btn-primary] {
+    svg {
+      path {
+        fill: white;
+      }
+    }
+  }
+
+  &:focus {
+    box-shadow: none;
+  }
+}

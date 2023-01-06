@@ -71,6 +71,7 @@ describe('ReportManager - DetailsSection', () => {
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection={false}
           loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
@@ -97,6 +98,7 @@ describe('ReportManager - DetailsSection', () => {
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection={false}
           loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
@@ -121,12 +123,37 @@ describe('ReportManager - DetailsSection', () => {
     });
   });
 
+  test('does not show the reported by field if report is collection', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
+          originalReport={report}
+          reportForm={report}
+        />
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('reportManager-reportedBySelect'))).toBeNull();
+  });
+
   test('triggers the onReportedByChange callback when the user selects a subject', async () => {
     render(
       <Provider store={mockStore(store)}>
         <DetailsSection
           formSchema={eventSchemas.accident_rep.base.schema}
           formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection={false}
           loadingSchema={false}
           onFormChange={onFormChange}
           onFormError={onFormError}
@@ -169,6 +196,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            isCollection={false}
             loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
@@ -187,6 +215,30 @@ describe('ReportManager - DetailsSection', () => {
     expect((await screen.findByText('Click here to set location'))).toBeDefined();
   });
 
+  test('does not show the location selector if report is collection', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
+          onReportedByChange={onReportedByChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
+          originalReport={report}
+          reportForm={report}
+        />
+      </Provider>
+    );
+
+    expect((await screen.queryByText('Click here to set location'))).toBeNull();
+  });
+
   test('triggers the onReportLocationChange callback when the user chooses a location in map', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
@@ -202,6 +254,7 @@ describe('ReportManager - DetailsSection', () => {
             <DetailsSection
               formSchema={eventSchemas.accident_rep.base.schema}
               formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              isCollection={false}
               loadingSchema={false}
               onFormChange={onFormChange}
               onFormError={onFormError}
@@ -245,6 +298,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            isCollection={false}
             loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
@@ -277,6 +331,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            isCollection={false}
             loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
@@ -302,6 +357,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            isCollection={false}
             loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}
@@ -332,6 +388,7 @@ describe('ReportManager - DetailsSection', () => {
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            isCollection={false}
             loadingSchema={false}
             onFormChange={onFormChange}
             onFormError={onFormError}

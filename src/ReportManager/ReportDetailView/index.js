@@ -410,7 +410,8 @@ const ReportDetailView = ({
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
-    + notesToAdd.length) > 0;
+    + notesToAdd.length
+    + containedReports.length) > 0;
   const shouldRenderHistorySection = !isNewReport;
 
   return <div
@@ -444,6 +445,7 @@ const ReportDetailView = ({
                   onFormError={onFormError}
                   onFormSubmit={onSaveReport}
                   onPriorityChange={onPriorityChange}
+                  isCollection={isCollection}
                   onReportedByChange={onReportedByChange}
                   onReportGeometryChange={onReportGeometryChange}
                   onReportLocationChange={onReportLocationChange}

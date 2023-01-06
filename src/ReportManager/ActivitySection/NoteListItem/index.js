@@ -99,8 +99,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       <div className={styles.itemActionButtonContainer}>
         <ItemActionButton>
           {isOpen
-            ? <ArrowUpSimpleIcon />
-            : <ArrowDownSimpleIcon />}
+            ? <ArrowUpSimpleIcon data-testid={`reportManager-activitySection-arrowUp-${note.id || note.text}`} />
+            : <ArrowDownSimpleIcon data-testid={`reportManager-activitySection-arrowDown-${note.id || note.text}`} />}
         </ItemActionButton>
       </div>
     </div>

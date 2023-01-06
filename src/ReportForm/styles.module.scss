@@ -4,6 +4,7 @@
 @import '../common/styles/layout';
 @import '../common/styles/animations';
 @import '../common/styles/popovers';
+@import '../common/styles/priorities';
 @import '../common/styles/vars/fonts';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
@@ -228,16 +229,19 @@
   }
   
   &.priority-300 {
-    background-color: $high-priority;
+    @include priority300;
   }
+
   &.priority-200 {
-    background-color: $medium-priority;
+    @include priority200;
   }
+
   &.priority-100 {
-    background-color: $low-priority;
+    @include priority100;
   }
+
   &.priority-0 {
-    background-color: $no-priority;
+    @include priority0;
   }
   button {
     margin-left: auto;

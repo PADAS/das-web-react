@@ -1,0 +1,131 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+.reportFormSummary {
+  .nonSchemaFields {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .nonSchemaField {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      label {
+        margin: 0;
+      }
+
+      @media (min-width: $md-layout-width-min) {
+        width: 50%;
+      }
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      flex-direction: row;
+    }
+  }
+
+  label {
+    color: $secondary-medium-gray;
+    font-size: 0.875rem;
+    margin: 0.75rem 0 0;
+  }
+
+  .form {
+    [class*=row] {
+      padding: 0;
+  
+      > * {
+        padding: 0;
+      }
+    }
+  
+    [class*=col-] {
+      padding: 0;
+    }
+
+    button,
+    input,
+    [class*=control] {
+      background-color: transparent;
+      border: transparent;
+      font-size: 1rem;
+      height: 1.5rem !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    [class*=control] {
+      min-height: 1.5rem;
+    }
+
+    [class*=selectWidget] {
+      div {
+        height: 1.5rem;
+        display: block;
+        padding: 0;
+      }
+      
+      [class*=singleValue] {
+        color: black;
+        margin: 0;
+      }
+    }
+
+    legend {
+      border-bottom: 1px solid $light-gray-border;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    h5 {
+      font-size: 1rem;
+    }
+
+    hr {
+      margin-bottom: 0;
+    }
+
+    button[class*=moveButton],
+    button[type=submit],
+    svg,
+    [class*=addButton],
+    [class*=triangle],
+    [class*=IndicatorsContainer] {
+      display: none !important;
+    }
+    
+    [class*=checkboxesWidget] {
+      border: none;
+      max-height: none;
+      overflow-y: hidden;
+
+      [class*=checkbox] {
+        margin-bottom: 0;
+        padding-left: 0;
+
+        label {
+          color: black;
+          font-size: 1rem;
+          margin: 0;
+          opacity: 1;
+
+          &:before {
+            content: "\002D";
+            margin-right: 0.25rem;
+          }
+        }
+        
+        input {
+          display: none;
+        }
+
+        &:has(input:not(:checked)) {
+          display: none;
+        }
+      }
+    }
+  }
+}
