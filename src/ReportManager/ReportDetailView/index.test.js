@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../../AddReport';
-import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
+import { addEventToIncident, createEvent, EVENT_API_URL, EVENTS_API_URL, fetchEvent } from '../../ducks/events';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
@@ -19,7 +19,11 @@ import ReportDetailView from './';
 import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
-import * as customHooks from '../../hooks';
+import { setupServer } from 'msw/node';
+import { rest } from 'msw';
+import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
+import { PATROLS_API_URL } from '../../ducks/patrols';
+import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -41,6 +45,20 @@ jest.mock('../../utils/save', () => ({
   ...jest.requireActual('../../utils/save'),
   executeSaveActions: jest.fn(),
 }));
+
+const fetchPatrolResponse = { data: activePatrol };
+
+const server = setupServer(
+  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => {
+    console.log("Data fetched!");
+    console.log(fetchPatrolResponse);
+    return res(ctx.json({ data: fetchPatrolResponse }));
+  }),
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('ReportManager - ReportDetailView', () => {
   let AddReportMock,
@@ -70,7 +88,6 @@ describe('ReportManager - ReportDetailView', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-    jest.spyOn(customHooks, 'useFetchPatrolInfo').mockImplementation(() => ([]));
     map = createMapMock();
 
     store = {
@@ -80,6 +97,7 @@ describe('ReportManager - ReportDetailView', () => {
         eventTypes,
         patrolTypes,
         eventSchemas,
+        patrolStore: {}
       },
       view: {
         mapLocationSelection: { isPickingLocation: false },

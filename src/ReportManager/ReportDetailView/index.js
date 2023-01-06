@@ -40,7 +40,7 @@ import QuickLinks from '../QuickLinks';
 import styles from './styles.module.scss';
 import ReportListItem from '../../ReportListItem';
 import PatrolListItem from '../../PatrolListItem';
-import { useFetchPatrolInfo } from '../../hooks';
+import { useFetchPatrolInfo, usePatrolInfo, usePatrolsInfo } from '../../hooks';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
@@ -76,16 +76,14 @@ const ReportDetailView = ({
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
 
-  const patrolsInfo = useFetchPatrolInfo(reportForm?.patrols, patrolStore, dispatch);
+  const patrolsInfo = usePatrolsInfo(reportForm?.patrols, patrolStore, dispatch);
 
-  const linkedReports = useMemo(() => {
-    return Array.isArray(reportForm?.is_contained_in) && Array.isArray(reportForm?.is_linked_to)
+  const linkedReportsInfo = useMemo(() => {
+    const linkedReports = Array.isArray(reportForm?.is_contained_in) && Array.isArray(reportForm?.is_linked_to)
       ? [...reportForm?.is_contained_in, ...reportForm?.is_linked_to]
       : [];
+    return linkedReports.map(({ related_event }) => related_event);
   }, [reportForm]);
-  const linkedReportsInfo = useMemo(() => {
-    return Array.isArray(linkedReports) ? linkedReports.map(({ related_event }) => related_event) : [];
-  }, [linkedReports]);
 
   const shouldRenderLinksSection = !!linkedReportsInfo.length || !!patrolsInfo.length;
 
@@ -358,17 +356,15 @@ const ReportDetailView = ({
   };
 
   const onPatrolLinkClicked = ({ id }) => {
-    if (!id){
-      return;
+    if (id){
+      navigate(`/${TAB_KEYS.PATROLS}/${id}`);
     }
-    navigate(`/${TAB_KEYS.PATROLS}/${id}`);
   };
 
   const onReportLinkClicked = ({ id }) => {
-    if (!id){
-      return;
+    if (id){
+      navigate(`/${TAB_KEYS.REPORTS}/${id}`);
     }
-    navigate(`/${TAB_KEYS.REPORTS}/${id}`);
   };
 
   const onClickSaveButton = useCallback(() => {

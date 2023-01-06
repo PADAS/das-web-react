@@ -22,7 +22,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, showTitleDetails = true, showStateTitle = true, ...rest }, ref) => {
+const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, showTitleDetails, showStateTitle, ...rest }, ref) => {
   const {
     patrolData,
 
@@ -133,6 +133,7 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfMa
     themeColor={themeColor}
     themeBgColor={themeBgColor}
     title={displayTitle}
+    onClick={handleTitleClick}
     IconComponent={patrolIconId && <button onClick={handleTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
       <DasIcon type='events' iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} />
     </button>}
@@ -162,6 +163,12 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfMa
 
   {...rest}
   />;
+};
+
+PatrolListItem.defaulProps = {
+  showControls: true,
+  showTitleDetails: true,
+  showStateTitle: true
 };
 
 export default connect(null, { togglePatrolTrackState, toggleTrackState })(memo(forwardRef(PatrolListItem)));

@@ -44,6 +44,10 @@
   .iconContainer {
     padding: 0;
   }
+
+  &:hover{
+    cursor: pointer;
+  }
 }
 
 .titleContainer {

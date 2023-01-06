@@ -80,21 +80,22 @@ const initialProps = {
   map
 };
 
-const renderPatrolListItem = ({ onTitleClick, onPatrolSelfManagedStateChange, patrol, map, ...otherProps } = initialProps, storeObject = store) =>
-  render(
-    <Provider store={storeObject}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolListItem
+const getPatrolListItemComponent = ({ onTitleClick, onPatrolSelfManagedStateChange, patrol, map, ...otherProps }, storeObject = store) => (
+  <Provider store={storeObject}>
+    <NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <PatrolListItem
               onTitleClick={onTitleClick}
               onSelfManagedStateChange={onPatrolSelfManagedStateChange}
               patrol={patrol}
               map={map}
               {...otherProps} />
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>
-  );
+      </MapContext.Provider>
+    </NavigationWrapper>
+  </Provider>
+);
+
+const renderPatrolListItem = (props = initialProps, storeObject = store) => render( getPatrolListItemComponent(props, storeObject) );
 
 test('rendering without crashing', () => {
   testPatrol = { ...patrols[0] };
@@ -104,24 +105,36 @@ test('rendering without crashing', () => {
   });
 });
 
-test('rendering without showing title details', () => {
+test.only('rendering without showing title details', () => {
   testPatrol = { ...patrols[0] };
-  renderPatrolListItem({
+  const stateLabel = 'Scheduled:';
+  const props = {
     ...initialProps,
-    patrol: testPatrol,
+    patrol: testPatrol
+  };
+  const { rerender } = renderPatrolListItem(props);
+  expect( screen.getByText(stateLabel) ).toBeInTheDocument();
+  rerender( getPatrolListItemComponent({
+    ...props,
     showTitleDetails: false
-  });
-  expect( screen.queryByText('Scheduled:') ).not.toBeInTheDocument();
+  }) );
+  expect( screen.queryByText(stateLabel) ).not.toBeInTheDocument();
 });
 
 test('rendering without state label', () => {
   testPatrol = { ...patrols[0] };
-  renderPatrolListItem({
+  const props = {
     ...initialProps,
     patrol: testPatrol,
+  };
+  const testId = `patrol-list-item-state-title-${testPatrol.id}`;
+  const { rerender } = renderPatrolListItem(props);
+  expect( screen.getByTestId(testId) ).toBeInTheDocument();
+  rerender( getPatrolListItemComponent({
+    ...props,
     showStateTitle: false
-  });
-  expect( screen.queryByTestId(`patrol-list-item-state-title-${testPatrol.id}`) ).not.toBeInTheDocument();
+  }) );
+  expect( screen.queryByTestId(testId) ).not.toBeInTheDocument();
 });
 
 describe('the patrol list item', () => {

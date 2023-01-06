@@ -209,7 +209,44 @@ export const useMemoCompare = (next, compare = isEqual) => {
   return isEqual ? previous : next;
 };
 
-export const useFetchPatrolInfo = (patrols, patrolStore, dispatch) => {
+export const usePatrolInfo = (patrolId, patrolStore, dispatch) => {
+  const patrolData = patrolStore[patrolId];
+  const getPatrolsData = useCallback(() => {
+    if (!patrolId){
+      return null;
+    }
+    if (!patrolData){
+      dispatch(fetchPatrol(patrolId));
+      return null;
+    }
+    return patrolData;
+  }, [patrolData, patrolId, dispatch]);
+  return getPatrolsData();
+};
+
+export const usePatrolsInfo = (patrolIds, patrolStore, dispatch) => {
+  const [currentId, setCurrentId] = useState(null);
+  const [patrolsData, setPatrolData] = useState([]);
+  const patrolInfo = usePatrolInfo(currentId, patrolStore, dispatch);
+
+  useEffect(() => {
+    if (Array.isArray(patrolIds)){
+      patrolIds.forEach((id) => {
+        setCurrentId(id);
+      });
+    }
+  }, [patrolIds]);
+
+  useEffect(() => {
+    if (patrolInfo){
+      setPatrolData([...patrolsData, patrolInfo]);
+    }
+  }, [patrolInfo]);
+
+  return patrolsData;
+};
+
+export const useFetchPatrolsInfo = (patrols, patrolStore, dispatch) => {
   const getPatrolsData = useCallback(() => {
     const patrolsData = [];
     patrols.forEach((currentID) => {
