@@ -38,9 +38,8 @@ import LoadingOverlay from '../../LoadingOverlay';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
-import ReportListItem from '../../ReportListItem';
-import PatrolListItem from '../../PatrolListItem';
-import { useFetchPatrolInfo, usePatrolInfo, usePatrolsInfo } from '../../hooks';
+import { usePatrolsInfo } from '../../hooks';
+import LinksSection from '../LinksSection';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
@@ -76,8 +75,17 @@ const ReportDetailView = ({
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
 
+  const onPatrolLinkClicked = ({ id }) => {
+    if (id){
+      navigate(`/${TAB_KEYS.PATROLS}/${id}`);
+    }
+  };
+  const onReportLinkClicked = ({ id }) => {
+    if (id){
+      navigate(`/${TAB_KEYS.REPORTS}/${id}`);
+    }
+  };
   const patrolsInfo = usePatrolsInfo(reportForm?.patrols, patrolStore, dispatch);
-
   const linkedReportsInfo = useMemo(() => {
     const linkedReports = Array.isArray(reportForm?.is_contained_in) && Array.isArray(reportForm?.is_linked_to)
       ? [...reportForm?.is_contained_in, ...reportForm?.is_linked_to]
@@ -355,18 +363,6 @@ const ReportDetailView = ({
     }
   };
 
-  const onPatrolLinkClicked = ({ id }) => {
-    if (id){
-      navigate(`/${TAB_KEYS.PATROLS}/${id}`);
-    }
-  };
-
-  const onReportLinkClicked = ({ id }) => {
-    if (id){
-      navigate(`/${TAB_KEYS.REPORTS}/${id}`);
-    }
-  };
-
   const onClickSaveButton = useCallback(() => {
     if (reportForm?.is_collection) {
       onSaveReport();
@@ -473,31 +469,12 @@ const ReportDetailView = ({
               </QuickLinks.Section>
 
               <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
-                <div className={styles.title}>
-                  <LinkIcon />
-                  <h2>Links</h2>
-                </div>
-                {
-                  linkedReportsInfo.map((linkedReport) => (
-                    <ReportListItem showJumpButton={false}
-                        onTitleClick={onReportLinkClicked}
-                        className={styles.reportLink}
-                        report={linkedReport}
-                        showElapsed={false}
-                        key={linkedReport.id} />
-                  ))
-                }
-                {
-                  patrolsInfo.map((patrolInfo) => (
-                    <PatrolListItem showTitleDetails={false}
-                        onTitleClick={onPatrolLinkClicked}
-                        showControls={false}
-                        patrol={patrolInfo}
-                        showStateTitle={false}
-                        className={styles.reportLink}
-                        key={patrolInfo.id} />
-                  ))
-                }
+                <LinksSection
+                    linkedReportsInfo={linkedReportsInfo}
+                    patrolsInfo={patrolsInfo}
+                    onReportLinkClicked={onReportLinkClicked}
+                    onPatrolLinkClicked={onPatrolLinkClicked}
+                />
               </QuickLinks.Section>
 
               {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}

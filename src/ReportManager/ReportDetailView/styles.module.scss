@@ -80,22 +80,6 @@
   }
 }
 
-.reportLink{ // rem 16px
-  margin-bottom: 0.4rem;
-  border-radius: .25rem;
-  height: 2.5rem;
-  div[role=img]{
-    border-radius: .25rem 0 0 .25rem;
-    width: 2.5rem;
-    svg{
-      width: 1.5rem;
-    }
-  }
-  span{
-    font-weight: normal;
-  }
-}
-
 .title {
   display: flex;
   align-items: center;

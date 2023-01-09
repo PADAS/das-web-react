@@ -50,8 +50,6 @@ const fetchPatrolResponse = { data: activePatrol };
 
 const server = setupServer(
   rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => {
-    console.log("Data fetched!");
-    console.log(fetchPatrolResponse);
     return res(ctx.json({ data: fetchPatrolResponse }));
   }),
 );
