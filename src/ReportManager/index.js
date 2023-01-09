@@ -60,6 +60,7 @@ const ReportManager = () => {
   const isNewReport = existingReportId === 'new';
   const reportId = isNewReport ? newReportTemporalId : existingReportId;
   const reportData = location.state?.reportData;
+  const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
     setAddedReportFormProps(formProps);
@@ -75,19 +76,17 @@ const ReportManager = () => {
   }, [eventStore, isNewReport, reportId]);
 
   useEffect(() => {
-    if (isNewReport && !reportType) {
-      navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+    if (isNewReport) {
+      if (!reportType) {
+        navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+      } else if (!newReportTemporalId) {
+        navigate(
+          `${location.pathname}${location.search}`,
+          { replace: true, state: { ...location.state, temporalId: uuid() } }
+        );
+      }
     }
-  }, [isNewReport, navigate, reportType]);
-
-  useEffect(() => {
-    if (isNewReport && !newReportTemporalId) {
-      navigate(
-        `${location.pathname}${location.search}`,
-        { replace: true, state: { ...location.state, temporalId: uuid() } }
-      );
-    }
-  }, [isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId]);
+  }, [isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportType]);
 
   useEffect(() => {
     if (!isNewReport && !eventStore[reportId]) {
@@ -99,7 +98,7 @@ const ReportManager = () => {
   }, [dispatch, eventStore, isNewReport, navigate, reportId]);
 
   return <>
-    {!isLoadingReport && <ReportDetailView
+    {shouldRenderReportDetailView && <ReportDetailView
       key={reportId} // This resets component state when the id changes
       formProps={navigationData?.formProps}
       isNewReport={isNewReport}

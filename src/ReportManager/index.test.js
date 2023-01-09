@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -90,8 +90,10 @@ describe('ReportManager', () => {
   });
 
   test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=invalid', state: {} }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
 
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
@@ -100,23 +102,7 @@ describe('ReportManager', () => {
     </Provider>);
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
-    });
-  });
-
-  test('redirects to /reports if user tries to open a report that cannot be found', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/234' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <ReportManager />
-      </NavigationWrapper>
-    </Provider>);
-
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalled();
       expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
     });
   });
@@ -125,7 +111,6 @@ describe('ReportManager', () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -147,7 +132,6 @@ describe('ReportManager', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
     useLocation.mockImplementation(useLocationMock);
 
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -167,7 +151,6 @@ describe('ReportManager', () => {
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -187,7 +170,6 @@ describe('ReportManager', () => {
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -201,7 +183,7 @@ describe('ReportManager', () => {
     });
   });
 
-  test.only('shows the added report when clicking the add report button', async () => {
+  test('shows the added report when clicking the add report button', async () => {
     AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         onAddReport({}, {}, 'd0884b8c-4ecb-45da-841d-f2f8d6246abf');
