@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useState } from 'react';
+import React, { createRef, forwardRef, memo, useCallback, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import getMonth from 'date-fns/get_month';
 import getYear from 'date-fns/get_year';
@@ -13,20 +13,6 @@ import styles from './styles.module.scss';
 
 const DEFAULT_PLACEHOLDER = 'Select a date';
 
-const CustomMonthYearPickerHeader = ({ date, decreaseYear, increaseYear }) => <div className={styles.header}>
-  <button onClick={decreaseYear}>
-    <ChevronLeft/>
-  </button>
-
-  <div className={`${styles.headerTitle} ${styles.customMonthYearPickerHeaderTitle}`}>
-    {getYear(date)}
-  </div>
-
-  <button onClick={increaseYear}>
-    <ChevronRight/>
-  </button>
-</div>;
-
 const CustomHeader = ({
   changeMonth,
   changeYear,
@@ -38,7 +24,26 @@ const CustomHeader = ({
   nextMonthButtonDisabled,
   prevMonthButtonDisabled,
 }) => {
-  const CustomInput = <div className={styles.headerTitle}>
+  const monthYearPickerRef = createRef();
+
+  const CustomMonthYearPickerHeader = ({ date, decreaseYear, increaseYear }) => <div className={styles.header}>
+    <button onClick={decreaseYear}>
+      <ChevronLeft/>
+    </button>
+
+    <div className={`${styles.headerTitle} ${styles.customMonthYearPickerHeaderTitle}`}>
+      {getYear(date)}
+    </div>
+
+    <button onClick={increaseYear}>
+      <ChevronRight/>
+    </button>
+  </div>;
+
+  const CustomMonthYearPickerInput = <div
+      className={styles.headerTitle}
+      data-testid="datePicker-monthYearPicker-input"
+    >
     {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
 
     <div className={styles.triangle} />
@@ -47,6 +52,12 @@ const CustomHeader = ({
   const onChangeDate = (date) => {
     changeMonth(getMonth(date));
     changeYear(getYear(date));
+  };
+
+  const onInputClick = () => {
+    if (monthYearPickerRef.current.isCalendarOpen()) {
+      monthYearPickerRef.current.setOpen(false);
+    }
   };
 
   return <div className={styles.header}>
@@ -60,10 +71,12 @@ const CustomHeader = ({
     </button>
 
     <DatePicker
-      customInput={CustomInput}
+      customInput={CustomMonthYearPickerInput}
       dateFormat="yyyy"
       onChange={onChangeDate}
+      onInputClick={onInputClick}
       popperPlacement="bottom"
+      ref={monthYearPickerRef}
       renderCustomHeader={CustomMonthYearPickerHeader}
       selected={date}
       showMonthYearPicker
@@ -81,37 +94,51 @@ const CustomHeader = ({
   </div>;
 };
 
-const CustomInput = ({ className, isPopperOpen, placeholderText, value, ...rest }, ref) => <div
-    className={styles.inputWrapper}
-  >
-  <CalendarIcon/>
 
-  <input
-    className={`${styles.input} ${className}`}
-    data-testid="datePicker-input"
-    ref={ref}
-    type="text"
-    value={value || placeholderText}
-    {...rest}
-  />
+const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, ref) => {
+  const pressedKeyRef = useRef();
 
-  <div className={`${styles.triangle} ${isPopperOpen ? styles.open : ''}`} />
-</div>;
+  const handleKeyDown = useCallback((event) => {
+    pressedKeyRef.current = event.key;
 
-CustomInput.defaultProps = {
-  className: '',
-  placeholderText: '',
-  value: '',
-};
+    onKeyDown(event);
+  }, [onKeyDown]);
 
-CustomInput.propTypes = {
-  className: PropTypes.string,
-  isPopperOpen: PropTypes.bool.isRequired,
-  placeholderText: PropTypes.string,
-  value: PropTypes.string,
+  const handleChange = useCallback((event) => {
+    let newValue = event.target.value;
+
+    const userPressedBackspace = pressedKeyRef.current === 'Backspace';
+    const newValueContainsValidMonthText = newValue.length === 2 && !newValue.includes('/');
+    const newValueContainsValidMonthAndDayText = /^[0-9]{2}\/[0-9]{2}$/.test(newValue);
+    if (!userPressedBackspace && (newValueContainsValidMonthText || newValueContainsValidMonthAndDayText)) {
+      event.target.value = `${newValue}/`;
+    }
+
+    const newValueHasValidCharacters = /^[/0-9]*$/.test(newValue);
+    if (newValueHasValidCharacters) {
+      onChange(event);
+    }
+  }, [onChange]);
+
+  return <div className={styles.inputWrapper}>
+    <CalendarIcon/>
+
+    <input
+      className={`${styles.input} ${className}`}
+      data-testid="datePicker-input"
+      onKeyDown={handleKeyDown}
+      onChange={handleChange}
+      ref={ref}
+      type="text"
+      {...rest}
+    />
+
+    <div className={`${styles.triangle} ${isPopperOpen ? styles.open : ''}`} />
+  </div>;
 };
 
 const CustomInputWithRef = forwardRef(CustomInput);
+
 
 const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ...rest }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -127,12 +154,13 @@ const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ..
   }, [onCalendarClose]);
 
   return <DatePicker
-    customInput={<CustomInputWithRef isPopperOpen={isOpen} placeholderText={placeholderText || DEFAULT_PLACEHOLDER} />}
+    customInput={<CustomInputWithRef isPopperOpen={isOpen} />}
     onCalendarClose={handleCalendarClose}
     onCalendarOpen={handleCalendarOpen}
     ref={ref}
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
+    placeholderText={placeholderText || DEFAULT_PLACEHOLDER}
     timeInputLabel="Time:"
     {...rest}
   />;
@@ -141,7 +169,7 @@ const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ..
 CustomDatePicker.defaultProps = {
   onCalendarClose: null,
   onCalendarOpen: null,
-  placeholderText: '',
+  placeholderText: DEFAULT_PLACEHOLDER,
 };
 
 CustomDatePicker.propTypes = {

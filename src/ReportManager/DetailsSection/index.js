@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { customizeValidator } from '@rjsf/validator-ajv6';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
@@ -149,8 +149,9 @@ const DetailsSection = ({
             Report Date
             <DatePicker
               className={styles.datePicker}
+              maxDate={new Date()}
               onChange={onReportDateChange}
-              selected={new Date(reportForm?.time)}
+              selected={reportForm?.time ? new Date(reportForm?.time) : undefined}
             />
           </label>
 

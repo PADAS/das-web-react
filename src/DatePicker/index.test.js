@@ -22,38 +22,29 @@ describe('DatePicker', () => {
   test('renders the default placeholder if it is not provided', async () => {
     rerender(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock} />);
 
-    expect((await screen.findByDisplayValue('Select a date'))).toBeDefined();
+    expect((await screen.findByPlaceholderText('Select a date'))).toBeDefined();
   });
 
   test('renders the placeholder if it is provided', async () => {
-    expect((await screen.findByDisplayValue('placeholder text'))).toBeDefined();
-  });
-
-  test('calls the calendar callbacks for close and open', async () => {
-    expect(onCalendarOpenMock).toHaveBeenCalledTimes(0);
-    expect(onCalendarCloseMock).toHaveBeenCalledTimes(0);
-
-    const datePickerInput = await screen.getByTestId('datePicker-input');
-    userEvent.click(datePickerInput);
-
-    expect(onCalendarOpenMock).toHaveBeenCalledTimes(1);
-
-    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape', code: 'Escape' });
-
-    expect(onCalendarCloseMock).toHaveBeenCalledTimes(1);
+    expect((await screen.findByPlaceholderText('placeholder text'))).toBeDefined();
   });
 
   test('opens and closes the calendar if the user clicks the button', async () => {
+    expect(onCalendarOpenMock).toHaveBeenCalledTimes(0);
+    expect(onCalendarCloseMock).toHaveBeenCalledTimes(0);
+
     const datePickerInput = await screen.getByTestId('datePicker-input');
 
     expect((await screen.queryByRole('listbox'))).toBeNull();
 
     userEvent.click(datePickerInput);
 
+    expect(onCalendarOpenMock).toHaveBeenCalledTimes(1);
     expect((await screen.findByRole('listbox'))).toBeDefined();
 
     userEvent.keyboard('{Escape}');
 
+    expect(onCalendarCloseMock).toHaveBeenCalledTimes(1);
     expect((await screen.queryByRole('listbox'))).toBeNull();
   });
 
@@ -131,6 +122,28 @@ describe('DatePicker', () => {
     userEvent.click(increaseMonthButton);
 
     expect((await screen.findByText('Mar 2020'))).toBeDefined();
+  });
+
+  test('opens and closes the month / year picker when clicking the input', async () => {
+    rerender(<DatePicker
+      onCalendarOpen={onCalendarOpenMock}
+      onCalendarClose={onCalendarCloseMock}
+      selected={new Date(2020, 1)}
+    />);
+
+    const datePickerInput = await screen.getByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    expect((await screen.queryByText('2020'))).toBeNull();
+
+    const monthYearPickerInput = await screen.getByTestId('datePicker-monthYearPicker-input');
+    userEvent.click(monthYearPickerInput);
+
+    expect((await screen.findByText('2020'))).toBeDefined();
+
+    userEvent.click(monthYearPickerInput);
+
+    expect((await screen.queryByText('2020'))).toBeNull();
   });
 
   test('triggers onChange with the selected date', async () => {

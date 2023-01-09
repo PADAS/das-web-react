@@ -42,7 +42,14 @@ jest.mock('../../utils/save', () => ({
 }));
 
 describe('ReportManager - ReportDetailView', () => {
-  const mockReport = { event_type: 'jtar', id: '456', priority: 0, state: 'active', time: new Date(), title: 'title' };
+  const mockReport = {
+    event_type: 'jtar',
+    id: '456',
+    priority: 0,
+    state: 'active',
+    time: new Date('2022-12-17T03:24:00'),
+    title: 'title',
+  };
   let AddReportMock,
     addEventToIncidentMock,
     createEventMock,
@@ -146,7 +153,7 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReportnewReportTypeI d="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"reportId="1234" />
+            <ReportDetailView isNewReportnewReport typeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"reportId="1234" />
           </ReportsTabContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -214,12 +221,14 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('sets the date when user changes it', async () => {
+    store.data.eventStore = { 456: mockReport };
+
     render(
       <Provider store={mockStore(store)}>
         <MapContext.Provider value={map}>
           <NavigationWrapper>
             <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+              <ReportDetailView isNewReport={false} reportId="456" />
             </ReportsTabContext.Provider>
           </NavigationWrapper>
         </MapContext.Provider>
@@ -229,18 +238,20 @@ describe('ReportManager - ReportDetailView', () => {
     const datePickerInput = await screen.findByTestId('datePicker-input');
     userEvent.click(datePickerInput);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[16]);
+    userEvent.click(options[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '01/17/2023');
+    expect(datePickerInput).toHaveAttribute('value', '12/22/2022');
   });
 
   test('sets the time when user changes it', async () => {
+    store.data.eventStore = { 456: mockReport };
+
     render(
       <Provider store={mockStore(store)}>
         <MapContext.Provider value={map}>
           <NavigationWrapper>
             <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
+              <ReportDetailView isNewReport={false} reportId="456" />
             </ReportsTabContext.Provider>
           </NavigationWrapper>
         </MapContext.Provider>
@@ -253,7 +264,7 @@ describe('ReportManager - ReportDetailView', () => {
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '17:00');
+    expect(timeInput).toHaveAttribute('value', '04:00');
   });
 
   test('updates the JSON form schema when user does a change', async () => {
