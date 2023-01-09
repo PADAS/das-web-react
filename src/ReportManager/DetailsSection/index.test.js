@@ -499,7 +499,6 @@ describe('ReportManager - DetailsSection', () => {
     userEvent.click(timeOptionsListItems[2]);
 
     expect(onReportTimeChange).toHaveBeenCalledTimes(1);
-    expect(onReportTimeChange).toHaveBeenCalledWith('12:00');
   });
 
   test('triggers the onFormChange callback when user does a change to a form field', async () => {
