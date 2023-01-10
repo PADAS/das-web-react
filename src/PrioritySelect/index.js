@@ -10,7 +10,7 @@ import {
 
 import styles from './styles.module.scss';
 
-const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalStyling, onChange, placeholder, className, isDisabled }) => {
+const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
@@ -19,7 +19,6 @@ const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalSt
       maxHeight: '12rem',
       overflowY: 'auto',
     }),
-    menuPortal: menuPortalStyling
   };
   const getOptionLabel = useCallback(({ display }) => display, []);
 
@@ -66,13 +65,10 @@ const PrioritySelect = ({ priority: priorityProp, menuPortalTarget, menuPortalSt
       getOptionValue={getOptionValue}
       getOptionLabel={getOptionLabel}
       placeholder={placeholder}
-      menuPortalTarget={menuPortalTarget}
     />;
 };
 
 PrioritySelect.defaultProps = {
-  menuPortalTarget: undefined,
-  menuPortalStyling: null,
   priority: null,
   className: '',
   placeholder: 'Select',
@@ -80,12 +76,10 @@ PrioritySelect.defaultProps = {
 
 
 PrioritySelect.propTypes = {
-  menuPortalTarget: PropTypes.element,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   className: PropTypes.string,
   priority: PropTypes.number,
-  menuPortalStyling: PropTypes.oneOf([PropTypes.object, PropTypes.func]),
 };
 
 export default memo(PrioritySelect);
