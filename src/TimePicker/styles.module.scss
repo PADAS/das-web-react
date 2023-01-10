@@ -52,6 +52,7 @@ $background_image_url: '../common/images/icons/';
 
 .popoverOptions {
   border: none;
+  border-radius: 0.25rem;
   box-shadow: 0rem 0rem 0.937rem rgba(0, 0, 0, 0.25);
   font-size: 1rem;
   max-height: 10rem;
@@ -68,6 +69,12 @@ $background_image_url: '../common/images/icons/';
       &:hover {
         background-color: $blue-highlight;
         cursor: pointer;
+      }
+
+      &.disabled {
+        background-color: unset;
+        cursor: not-allowed;
+        opacity: 0.6;
       }
     
       > span:not(:first-child){

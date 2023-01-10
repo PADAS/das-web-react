@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import DatePicker from './';
@@ -22,7 +22,7 @@ describe('DatePicker', () => {
   test('renders the default placeholder if it is not provided', async () => {
     rerender(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock} />);
 
-    expect((await screen.findByPlaceholderText('Select a date'))).toBeDefined();
+    expect((await screen.findByPlaceholderText('MM/DD/YYYY'))).toBeDefined();
   });
 
   test('renders the placeholder if it is provided', async () => {

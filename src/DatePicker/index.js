@@ -11,7 +11,7 @@ import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-r
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const DEFAULT_PLACEHOLDER = 'Select a date';
+const DEFAULT_PLACEHOLDER = 'MM/DD/YYYY';
 
 const CustomHeader = ({
   changeMonth,
@@ -98,12 +98,6 @@ const CustomHeader = ({
 const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, ref) => {
   const pressedKeyRef = useRef();
 
-  const handleKeyDown = useCallback((event) => {
-    pressedKeyRef.current = event.key;
-
-    onKeyDown(event);
-  }, [onKeyDown]);
-
   const handleChange = useCallback((event) => {
     let newValue = event.target.value;
 
@@ -119,6 +113,12 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, 
       onChange(event);
     }
   }, [onChange]);
+
+  const handleKeyDown = useCallback((event) => {
+    pressedKeyRef.current = event.key;
+
+    onKeyDown(event);
+  }, [onKeyDown]);
 
   return <div className={styles.inputWrapper}>
     <CalendarIcon/>

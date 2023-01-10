@@ -241,7 +241,9 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onReportDateChange = useCallback((date) => {
-    setReportForm({ ...reportForm, time: date });
+    const now = new Date();
+
+    setReportForm({ ...reportForm, time: date > now ? now : date });
 
     reportTracker.track('Change Report Date');
   }, [reportForm, reportTracker]);

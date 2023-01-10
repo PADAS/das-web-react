@@ -16,6 +16,7 @@ timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
 const TimePicker = ({
+  maxTime,
   minutesInterval,
   onChange,
   optionsToDisplay,
@@ -24,6 +25,9 @@ const TimePicker = ({
   value,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [writtenValue, setWrittenValue] = useState(null);
+
+  const isTimeBelowMax = useCallback((time) => !maxTime || maxTime >= time, [maxTime]);
 
   const TimeOptionsPopover = useMemo(() => {
     const initialTimeParts = (startTime || value).split(':');
@@ -41,47 +45,68 @@ const TimePicker = ({
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
 
       options.push({
-        value: timeValue,
+        disabled: !isTimeBelowMax(timeValue),
         duration: showDurationFromStartTime
           ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
           : null,
+        value: timeValue,
       });
 
       accumulatedMinutes += minutesInterval;
     }
 
-    if (options.slice(-1)?.[0].value === value) {
+    if (options.slice(-1)?.[0]?.value === value) {
       options.pop();
     }
 
     return <Popover className={styles.popoverOptions}>
       <ul data-testid="timePicker-popoverOptionsList">
-        {options.map((option) => <li key={option.value} onClick={() => onChange(option.value)}>
+        {options.map((option) => <li
+          className={option.disabled ? styles.disabled : ''}
+          key={option.value}
+          onClick={() => !option.disabled && onChange(option.value)}
+          onMouseDown={(event) => option.disabled && event.preventDefault()}
+        >
           <span>{option.value}</span>
           {option.duration && <span>{option.duration}</span>}
         </li>)}
       </ul>
     </Popover>;
-  }, [minutesInterval, onChange, optionsToDisplay, showDurationFromStartTime, startTime, value]);
+  }, [isTimeBelowMax, minutesInterval, onChange, optionsToDisplay, showDurationFromStartTime, startTime, value]);
 
-  const handleChange = useCallback((event) => !!event.target.value && onChange(event.target.value), [onChange]);
+  const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
+
+  const onKeyDown = useCallback((event) => event.key === 'Enter' && event.target.blur(), []);
+
+  const onToggle = useCallback((show) => {
+    setIsOpen(show);
+
+    if (!show && writtenValue) {
+      if (isTimeBelowMax(writtenValue)) {
+        onChange(writtenValue);
+      }
+
+      setWrittenValue(null);
+    }
+  }, [isTimeBelowMax, onChange, writtenValue]);
 
   return <div className={styles.inputWrapper}>
     <ClockIcon/>
 
     <OverlayTrigger
-      placement="bottom"
-      trigger="focus"
-      onToggle={setIsOpen}
+      onToggle={onToggle}
       overlay={TimeOptionsPopover}
+      placement="bottom-start"
+      trigger="focus"
     >
       <input
         className={styles.timeInput}
         data-testid="time-input"
         min={startTime || '00:00'}
         onChange={handleChange}
+        onKeyDown={onKeyDown}
         type="time"
-        value={value}
+        value={writtenValue || value}
       />
     </OverlayTrigger>
 
@@ -90,6 +115,7 @@ const TimePicker = ({
 };
 
 TimePicker.defaultProps = {
+  maxTime: '',
   minutesInterval: 30,
   optionsToDisplay: 5,
   showDurationFromStartTime: false,
@@ -98,6 +124,7 @@ TimePicker.defaultProps = {
 };
 
 TimePicker.propTypes = {
+  maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,
   optionsToDisplay: PropTypes.number,

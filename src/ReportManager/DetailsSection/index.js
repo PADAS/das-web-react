@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { customizeValidator } from '@rjsf/validator-ajv6';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
+import isToday from 'date-fns/is_today';
 import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,6 +69,7 @@ const DetailsSection = ({
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
+  const reportTime = new Date(reportForm?.time);
 
   const geometryType = useMemo(() => calcGeometryTypeForReport(reportForm, eventTypes), [eventTypes, reportForm]);
 
@@ -151,17 +153,18 @@ const DetailsSection = ({
               className={styles.datePicker}
               maxDate={new Date()}
               onChange={onReportDateChange}
-              selected={reportForm?.time ? new Date(reportForm?.time) : undefined}
+              selected={reportForm?.time ? reportTime : undefined}
             />
           </label>
 
           <label data-testid="reportManager-timePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             Report Time
             <TimePicker
+              maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
               minutesInterval={15}
               onChange={onReportTimeChange}
               optionsToDisplay={96}
-              value={getHoursAndMinutesString(new Date(reportForm?.time))}
+              value={getHoursAndMinutesString(reportTime)}
             />
           </label>
         </div>

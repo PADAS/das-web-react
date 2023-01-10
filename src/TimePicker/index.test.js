@@ -12,7 +12,7 @@ describe('TimePicker', () => {
     jest.clearAllMocks();
   });
 
-  test('should render only the amount of options specified by optionsToDisplay', async () => {
+  test('renders only the amount of options specified by optionsToDisplay', async () => {
     render(<TimePicker onChange={onChange} optionsToDisplay={15} value="10:00" />);
 
     const timeInput = await screen.findByTestId('time-input');
@@ -40,7 +40,7 @@ describe('TimePicker', () => {
     expect(timeOptionsListItems[4].textContent).toBe('10:25');
   });
 
-  test('should show only the duration time in options if showDurationFromStartTime is true', async () => {
+  test('shows only the duration time in options if showDurationFromStartTime is true', async () => {
     render(<TimePicker onChange={onChange} showDurationFromStartTime value="10:00" />);
 
     const timeInput = await screen.findByTestId('time-input');
@@ -56,7 +56,7 @@ describe('TimePicker', () => {
     expect(timeOptionsListItems[4].textContent).toBe('12:30 (2h 30m)');
   });
 
-  test('should call onChange and send a date with the time chosen', async () => {
+  test('calls onChange and send a date with the time chosen', async () => {
     render(<TimePicker onChange={onChange} value="10:00" />);
 
     const timeInput = await screen.findByTestId('time-input');
@@ -73,7 +73,7 @@ describe('TimePicker', () => {
     expect(onChange).toHaveBeenCalledWith('11:30');
   });
 
-  test('should set the arrow as open if input is on focus', async () => {
+  test('sets the arrow as open if input is on focus', async () => {
     render(<TimePicker onChange={onChange} value="10:00" />);
 
     expect((await screen.findByTestId('time-input-triangle-arrow'))).not.toHaveClass('open');
@@ -88,5 +88,26 @@ describe('TimePicker', () => {
     userEvent.click(timeOptionsListItems[0]);
 
     expect((await screen.findByTestId('time-input-triangle-arrow'))).not.toHaveClass('open');
+  });
+
+  test('disables the options that are above maxTime', async () => {
+    render(<TimePicker maxTime="14:00" onChange={onChange} value="12:00" />);
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+
+    expect(onChange).toHaveBeenCalledTimes(0);
+
+    const optionsList = await screen.findByRole('list');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+
+    expect(timeOptionsListItems[3]).toHaveTextContent('14:00');
+    expect(timeOptionsListItems[3]).not.toHaveClass('disabled');
+    expect(timeOptionsListItems[4]).toHaveTextContent('14:30');
+    expect(timeOptionsListItems[4]).toHaveClass('disabled');
+
+    userEvent.click(timeOptionsListItems[4]);
+
+    expect(onChange).toHaveBeenCalledTimes(0);
   });
 });
