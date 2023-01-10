@@ -98,4 +98,8 @@ Header.propTypes = {
   onReportChange: PropTypes.func.isRequired,
 };
 
+Header.defaultProps = {
+  isReadOnly: false,
+};
+
 export default memo(Header);
