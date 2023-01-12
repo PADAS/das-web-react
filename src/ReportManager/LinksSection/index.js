@@ -38,8 +38,8 @@ const LinksSection = ({ linkedReportsInfo, patrolsInfo, onReportLinkClicked, onP
 };
 
 LinksSection.propTypes = {
-  linkedReportsInfo: PropTypes.object,
-  patrolsInfo: PropTypes.object,
+  linkedReportsInfo: PropTypes.array,
+  patrolsInfo: PropTypes.array,
   onReportLinkClicked: PropTypes.func,
   onPatrolLinkClicked: PropTypes.func
 };
