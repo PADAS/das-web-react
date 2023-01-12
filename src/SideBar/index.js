@@ -100,7 +100,7 @@ const SideBar = () => {
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
-  const onClickBackFromDetailView = useCallback(() => navigate(-1), [navigate]);
+  const onClickBackFromDetailView = useCallback(() => navigate(`/${currentTab}`), [currentTab, navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
