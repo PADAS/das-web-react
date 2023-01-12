@@ -134,13 +134,13 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedSt
     themeBgColor={themeBgColor}
     title={displayTitle}
     onClick={handleTitleClick}
-    IconComponent={patrolIconId && <button onClick={handleTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
+    IconComponent={patrolIconId && <button data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
       <DasIcon type='events' iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} />
     </button>}
     TitleComponent={
       <>
         <span className={styles.serialNumber}>{patrol.serial_number}</span>
-        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={handleTitleClick}>
+        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button'>
           <span className={styles.mainTitle}>{displayTitle}</span>
           {showTitleDetails && TitleDetailsComponent}
         </button>
