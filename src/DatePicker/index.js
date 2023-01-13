@@ -11,7 +11,8 @@ import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-r
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const DEFAULT_PLACEHOLDER = 'MM/DD/YYYY';
+const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy';
+const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
 const CustomHeader = ({
   changeMonth,
@@ -95,30 +96,48 @@ const CustomHeader = ({
 };
 
 
-const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, ref) => {
+const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ...rest }, ref) => {
+  const wasPastedRef = useRef(false);
   const pressedKeyRef = useRef();
 
   const handleChange = useCallback((event) => {
-    let newValue = event.target.value;
+    let newValue = event.target.value.replaceAll('-', '/');
 
+    const wasNewValuePasted = wasPastedRef.current;
     const userPressedBackspace = pressedKeyRef.current === 'Backspace';
+
     const newValueContainsValidMonthText = newValue.length === 2 && !newValue.includes('/');
     const newValueContainsValidMonthAndDayText = /^[0-9]{2}\/[0-9]{2}$/.test(newValue);
     if (!userPressedBackspace && (newValueContainsValidMonthText || newValueContainsValidMonthAndDayText)) {
-      event.target.value = `${newValue}/`;
+      newValue = `${newValue}/`;
     }
 
     const newValueHasValidCharacters = /^[/0-9]*$/.test(newValue);
     if (newValueHasValidCharacters) {
+      const newValueHasOnlyNumbers = /^[0-9]*$/.test(newValue);
+      if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 4) {
+        newValue =`${newValue.substring(0, 2)}/${newValue.substring(2, 4)}/${newValue.substring(4)}`;
+      }
+
+      event.target.value = newValue;
       onChange(event);
     }
+
+    pressedKeyRef.current = undefined;
+    wasPastedRef.current = false;
   }, [onChange]);
 
   const handleKeyDown = useCallback((event) => {
     pressedKeyRef.current = event.key;
 
-    onKeyDown(event);
+    onKeyDown?.(event);
   }, [onKeyDown]);
+
+  const handlePaste = useCallback((event) => {
+    wasPastedRef.current = true;
+
+    onPaste?.(event);
+  }, [onPaste]);
 
   return <div className={styles.inputWrapper}>
     <CalendarIcon/>
@@ -128,6 +147,7 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, 
       data-testid="datePicker-input"
       onKeyDown={handleKeyDown}
       onChange={handleChange}
+      onPaste={handlePaste}
       ref={ref}
       type="text"
       {...rest}
@@ -140,7 +160,7 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, ...rest }, 
 const CustomInputWithRef = forwardRef(CustomInput);
 
 
-const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ...rest }, ref) => {
+const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, ...rest }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCalendarOpen = useCallback(() => {
@@ -155,13 +175,14 @@ const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ..
 
   return <DatePicker
     customInput={<CustomInputWithRef isPopperOpen={isOpen} />}
+    dateFormat={dateFormat || DEFAULT_DATE_FORMAT}
     onCalendarClose={handleCalendarClose}
     onCalendarOpen={handleCalendarOpen}
+    placeholderText={placeholderText || (dateFormat || DEFAULT_DATE_FORMAT).toUpperCase()}
     ref={ref}
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
-    placeholderText={placeholderText || DEFAULT_PLACEHOLDER}
-    timeInputLabel="Time:"
+    timeInputLabel={DEFAULT_TIME_INPUT_LABEL}
     {...rest}
   />;
 };
@@ -169,7 +190,7 @@ const CustomDatePicker = ({ onCalendarClose, onCalendarOpen, placeholderText, ..
 CustomDatePicker.defaultProps = {
   onCalendarClose: null,
   onCalendarOpen: null,
-  placeholderText: DEFAULT_PLACEHOLDER,
+  placeholderText: null,
 };
 
 CustomDatePicker.propTypes = {

@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import DatePicker from './';
 
 describe('DatePicker', () => {
-  const onCalendarOpenMock = jest.fn(), onCalendarCloseMock = jest.fn();
+  const onCalendarOpenMock = jest.fn(), onCalendarCloseMock = jest.fn(), onChangeMock = jest.fn();
   let rerender;
   beforeEach(() => {
     ({ rerender } = render(<DatePicker
@@ -22,7 +22,7 @@ describe('DatePicker', () => {
   test('renders the default placeholder if it is not provided', async () => {
     rerender(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock} />);
 
-    expect((await screen.findByPlaceholderText('MM/DD/YYYY'))).toBeDefined();
+    expect((await screen.findByPlaceholderText('DD/MM/YYYY'))).toBeDefined();
   });
 
   test('renders the placeholder if it is provided', async () => {
@@ -147,8 +147,6 @@ describe('DatePicker', () => {
   });
 
   test('triggers onChange with the selected date', async () => {
-    const onChangeMock = jest.fn();
-
     rerender(<DatePicker
       onCalendarOpen={onCalendarOpenMock}
       onCalendarClose={onCalendarCloseMock}

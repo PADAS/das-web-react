@@ -64,6 +64,10 @@
     height: 2.5rem;
     padding-left: 2rem;
     width: 100%;
+
+    &::placeholder {
+      font-size: 0.875rem;
+    }
   }
 
   .triangle {
