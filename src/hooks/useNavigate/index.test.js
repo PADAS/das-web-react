@@ -15,7 +15,19 @@ jest.mock('react-router-dom', () => ({
 
 describe('useNavigate', () => {
   let mockStoreInstance = mockStore({});
-  const routerNavigate = jest.fn(), setNavigationData = jest.fn();
+  const routerNavigate = jest.fn(),
+    navigationAttemptBlocked = jest.fn(),
+    navigationAttemptUnblocked = jest.fn(),
+    setNavigationData = jest.fn();
+
+  const navigationContextValue = {
+    isNavigationBlocked: false,
+    navigationAttemptBlocked,
+    navigationAttemptResolution: null,
+    navigationAttemptUnblocked,
+    setNavigationData,
+  };
+
   let useRouterNavigateMock;
   beforeEach(() => {
     useRouterNavigateMock = jest.fn(() => routerNavigate);
@@ -36,7 +48,7 @@ describe('useNavigate', () => {
     render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
-          <NavigationContext.Provider value={{ setNavigationData }}>
+          <NavigationContext.Provider value={navigationContextValue}>
             <Component />
           </NavigationContext.Provider>
         </NavigationWrapper>
@@ -61,7 +73,7 @@ describe('useNavigate', () => {
     render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
-          <NavigationContext.Provider value={{ setNavigationData }}>
+          <NavigationContext.Provider value={navigationContextValue}>
             <Component />
           </NavigationContext.Provider>
         </NavigationWrapper>
@@ -87,7 +99,7 @@ describe('useNavigate', () => {
     render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
-          <NavigationContext.Provider value={{ setNavigationData }}>
+          <NavigationContext.Provider value={navigationContextValue}>
             <Component />
           </NavigationContext.Provider>
         </NavigationWrapper>
@@ -100,5 +112,92 @@ describe('useNavigate', () => {
       expect(setNavigationData).toHaveBeenCalledWith({});
       expect(mockStoreInstance.getActions()).toHaveLength(0);
     });
+  });
+
+  test('blocks a navigation attempt', async () => {
+    navigationContextValue.isNavigationBlocked = true;
+
+    const Component = () => {
+      const navigate = useNavigate();
+      useEffect(() => { navigate('/'); }, [navigate]);
+      return null;
+    };
+
+    render(
+      <Provider store={mockStoreInstance}>
+        <NavigationWrapper>
+          <NavigationContext.Provider value={navigationContextValue}>
+            <Component />
+          </NavigationContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(routerNavigate).toHaveBeenCalledTimes(0);
+      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
+    });
+
+    navigationContextValue.isNavigationBlocked = false;
+  });
+
+  test('unblocks a cancelled navigation attempt', async () => {
+    navigationContextValue.isNavigationBlocked = true;
+    navigationContextValue.navigationAttemptResolution = false;
+
+    const Component = () => {
+      const navigate = useNavigate();
+      useEffect(() => { navigate('/'); }, [navigate]);
+      return null;
+    };
+
+    render(
+      <Provider store={mockStoreInstance}>
+        <NavigationWrapper>
+          <NavigationContext.Provider value={navigationContextValue}>
+            <Component />
+          </NavigationContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(routerNavigate).toHaveBeenCalledTimes(0);
+      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
+      expect(navigationAttemptUnblocked).toHaveBeenCalled();
+    });
+
+    navigationContextValue.isNavigationBlocked = false;
+    navigationContextValue.navigationAttemptResolution = null;
+  });
+
+  test('unblocks a continued navigation attempt', async () => {
+    navigationContextValue.isNavigationBlocked = true;
+    navigationContextValue.navigationAttemptResolution = true;
+
+    const Component = () => {
+      const navigate = useNavigate();
+      useEffect(() => { navigate('/'); }, [navigate]);
+      return null;
+    };
+
+    render(
+      <Provider store={mockStoreInstance}>
+        <NavigationWrapper>
+          <NavigationContext.Provider value={navigationContextValue}>
+            <Component />
+          </NavigationContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(routerNavigate).toHaveBeenCalledTimes(1);
+      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
+      expect(navigationAttemptUnblocked).toHaveBeenCalled();
+    });
+
+    navigationContextValue.isNavigationBlocked = false;
+    navigationContextValue.navigationAttemptResolution = null;
   });
 });

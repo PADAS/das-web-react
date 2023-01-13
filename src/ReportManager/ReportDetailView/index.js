@@ -33,6 +33,7 @@ import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
 import LoadingOverlay from '../../LoadingOverlay';
+import NavigationPrompt from '../../NavigationPrompt';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
@@ -59,6 +60,7 @@ const ReportDetailView = ({
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
+
   const { loadingEvents } = useContext(ReportsTabContext);
 
   const submitFormButtonRef = useRef(null);
@@ -66,6 +68,7 @@ const ReportDetailView = ({
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [wasSaved, setWasSaved] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(null);
   const [saveError, setSaveError] = useState(null);
@@ -125,7 +128,7 @@ const ReportDetailView = ({
   const onSaveSuccess = useCallback((reportToSubmit) => (results) => {
     onSaveSuccessCallback?.(results);
 
-    navigate(`/${TAB_KEYS.REPORTS}`);
+    setWasSaved(true);
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
       return Promise.all(reportToSubmit.contains
@@ -133,7 +136,7 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
     return results;
-  }, [dispatch, navigate, onSaveSuccessCallback]);
+  }, [dispatch, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -378,6 +381,12 @@ const ReportDetailView = ({
     }
   }, [eventStore, isNewReport, loadingEvents, newReport, reportForm?.id, reportId]);
 
+  useEffect(() => {
+    if (wasSaved) {
+      navigate(`/${TAB_KEYS.REPORTS}`);
+    }
+  }, [navigate, wasSaved]);
+
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
@@ -391,6 +400,8 @@ const ReportDetailView = ({
     >
     {!!reportForm && <>
       {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
+
+      <NavigationPrompt when={isReportModified && !wasSaved} />
 
       <Header onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
