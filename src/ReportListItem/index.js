@@ -97,7 +97,7 @@ const ReportListItem = ({
   />;
 };
 
-ReportListItem.deafultProps = {
+ReportListItem.defaultProps = {
   className: '',
   displayTime: null,
   onIconClick: null,
