@@ -332,7 +332,7 @@ export const calcDisplayPriorityForReport = (report, eventTypes) => {
 export const calcGeometryTypeForReport = (report, eventTypes) => {
   const matchingType = eventTypes.find((type) => type.value === report.event_type);
 
-  return matchingType.geometry_type;
+  return matchingType?.geometry_type;
 };
 
 export const PRIORITY_COLOR_MAP = {
