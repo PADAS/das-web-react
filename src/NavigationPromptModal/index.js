@@ -9,7 +9,7 @@ import useBlockNavigation from '../hooks/useBlockNavigation';
 
 import styles from './styles.module.scss';
 
-const NavigationPrompt = ({
+const NavigationPromptModal = ({
   cancelNavigationButtonText,
   continueNavigationButtonText,
   description,
@@ -44,18 +44,19 @@ const NavigationPrompt = ({
   </Modal>;
 };
 
-NavigationPrompt.defaultProps = {
+NavigationPromptModal.defaultProps = {
   cancelNavigationButtonText: 'Cancel',
   continueNavigationButtonText: 'Discard',
   description: 'Would you like to discard changes?',
   title: 'Discard changes',
 };
 
-NavigationPrompt.propTypes = {
+NavigationPromptModal.propTypes = {
   cancelNavigationButtonText: PropTypes.string,
   continueNavigationButtonText: PropTypes.string,
   description: PropTypes.string,
   title: PropTypes.string,
+  when: PropTypes.bool.isRequired,
 };
 
-export default memo(NavigationPrompt);
+export default memo(NavigationPromptModal);

@@ -33,7 +33,7 @@ import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
 import LoadingOverlay from '../../LoadingOverlay';
-import NavigationPrompt from '../../NavigationPrompt';
+import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
@@ -401,7 +401,7 @@ const ReportDetailView = ({
     {!!reportForm && <>
       {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-      <NavigationPrompt when={isReportModified && !wasSaved} />
+      <NavigationPromptModal when={isReportModified && !wasSaved} />
 
       <Header onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
