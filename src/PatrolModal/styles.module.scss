@@ -97,8 +97,13 @@ section.timeBar {
 
   .timeInput {
     border: none;
-    min-width: 0.8rem;
+    height: 1.5rem;
     margin-left: 0.5rem;
+    width: 10rem;
+
+    input {
+      font-size: 0.875rem;
+    }
 
     @media (max-width: $md-layout-width-min) {
       display: flex;
@@ -130,7 +135,7 @@ section.timeBar {
 
     &:not([class*=empty]) , &[class*=editingDate] {
       background: none;
-      > span {
+      > input {
         color: white;
         &:hover {
           text-decoration: underline;

@@ -81,6 +81,10 @@
   font-size: 0.875rem;
   min-width: 10.025rem;
 
+  input {
+    padding: 0 !important;
+  }
+
   svg {
     display: none;
   }
