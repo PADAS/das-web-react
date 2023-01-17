@@ -1,30 +1,30 @@
 import React from 'react';
-import {Provider} from 'react-redux';
+import { Provider } from 'react-redux';
 import bbox from '@turf/bbox';
-import {lineString} from '@turf/helpers';
-import {render, screen} from '@testing-library/react';
+import { lineString } from '@turf/helpers';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {within} from '@testing-library/dom';
+import { within } from '@testing-library/dom';
 
-import {PATROL_API_STATES, PATROL_UI_STATES} from '../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
-import {mockStore} from '../__test-helpers/MockStore';
+import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
-import {MapContext} from '../App';
+import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';
-import {UPDATE_SUBJECT_TRACK_STATE} from '../ducks/map-ui';
+import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
 import * as customHooks from '../hooks';
 
-import {UPDATE_PATROL_TRACK_STATE, updatePatrol} from '../ducks/patrols';
+import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
 
 import PatrolListItem from './';
 
-import {createMapMock} from '../__test-helpers/mocks';
+import { createMapMock } from '../__test-helpers/mocks';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
 
