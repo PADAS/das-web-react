@@ -10,6 +10,22 @@
   @media (min-width: $md-layout-width-min) {
     width: 46rem;
   }
+
+  &.readonly {
+    [class*=fieldLabel] {
+      * {
+        color: $primary-font-color;
+        pointer-events: none;
+        &:focus {
+          box-shadow: none;
+          outline: none;
+        }
+      }
+      div, input {
+        background-color: $disabled-field-gray;
+      }
+    }
+  }
 }
 
 .loadingOverlay {

@@ -10,10 +10,11 @@ describe('PrioritySelect', () => {
   const testId = `priority-select-${selectedPriority.display}`;
   const initialProps = {
     onChange: () => {},
+    isDisabled: false,
     priority: selectedPriority.value
   };
-  const renderPrioritySelect = ({ onChange, priority } = initialProps) => (
-    render(<PrioritySelect onChange={onChange} priority={priority} />)
+  const renderPrioritySelect = ({ isDisabled, onChange, priority } = initialProps) => (
+    render(<PrioritySelect isDisabled={isDisabled} onChange={onChange} priority={priority} />)
   );
 
   it('should render all report priority levels', () => {
@@ -40,5 +41,4 @@ describe('PrioritySelect', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(highLevel, onChangePartialArgs);
   });
-
 });

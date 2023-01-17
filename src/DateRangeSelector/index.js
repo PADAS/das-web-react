@@ -70,15 +70,14 @@ const DateRangeSelector = (props) => {
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
           <DatePicker
             {...DATEPICKER_DEFAULT_CONFIG}
-            showTimeInput
-            placement={placement}
-            required={true}
-            maxDate={endDate ? endDate : maxDate}
-            value={startDate}
-            onChange={onStartDateChange}
             className={styles.dateInput}
-            popperClassName={`${styles.datePopover}
-            ${popoverClassName || ''}`}
+            maxDate={endDate || maxDate}
+            onChange={onStartDateChange}
+            popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
+            popperPlacement={placement}
+            required
+            selected={startDate}
+            showTimeInput
             {...rest}
           />
         </span>
@@ -91,17 +90,16 @@ const DateRangeSelector = (props) => {
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
           <DatePicker
             {...DATEPICKER_DEFAULT_CONFIG}
-            showTimeInput
-            value={endDate}
-            placement={placement}
-            onClickDay={handleEndDateDayClick}
             className={styles.dateInput}
-            popperClassName={`${styles.datePopover}
-            ${popoverClassName || ''}`}
-            required={requireEnd}
-            minDate={startDate}
             maxDate={hasEndMaxDate ? endMaxDate : maxDate}
+            minDate={startDate}
             onChange={handleEndDateChange}
+            onClickDay={handleEndDateDayClick}
+            placement={placement}
+            popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
+            required={requireEnd}
+            selected={endDate}
+            showTimeInput
             {...rest}
           />
         </span>

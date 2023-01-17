@@ -78,6 +78,7 @@
     }
 
     &--disabled {
+      opacity: 0.6;
       cursor: not-allowed;
     }
 
@@ -101,10 +102,17 @@
       &[class*=--outside-month] {
         color: white;
       }
-  
+
       &:hover {
         color: $bright-blue;
       }
+    }
+
+    &--keyboard-selected {
+      border-radius: 0;
+      border-left: solid white 0.375rem;
+      border-right: solid white 0.375rem;
+      background-color: $blue-highlight;
     }
 
     &--in-selecting-range:not([class*=--selected]) {
@@ -142,5 +150,26 @@
       color: $dark-gray;
       background-color: white;
     }
+  }
+  
+  &__month {
+    &--selected {
+      color: white;
+      background-color: $bright-blue;
+
+      &:hover {
+        color: $bright-blue;
+      }
+    }
+
+    &--keyboard-selected {
+      background-color: $blue-highlight;
+    }
+  }
+  
+  &__month-text {
+    &:hover {
+      background-color: $blue-highlight;
+   }
   }
 }

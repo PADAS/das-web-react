@@ -119,12 +119,15 @@
   font-weight: 500;
   line-height: 1.25rem;
   color: $dark-gray;
-  border-bottom: 1px dashed $secondary-light-gray;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+
+  &.editable {
+    border-bottom: 1px dashed $secondary-light-gray;
+  }
 
   &::-webkit-scrollbar {
     background: transparent;  /* Optional: just make scrollbar invisible */

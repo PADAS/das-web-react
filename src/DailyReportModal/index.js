@@ -70,16 +70,16 @@ const DailyReportModal = (props) => {
     </div>
     <DateRangeSelector
       className={styles.controls}
-      popoverClassName={styles.popovers}
-      maxDate={today}
-      startDate={customStartDate}
       endDate={customEndDate}
-      requireStart={true}
-      requireEnd={true}
-      placement='bottom'
-      onStartDateChange={handleStartDateChange}
+      gaEventSrc="Report Export"
+      maxDate={today}
       onEndDateChange={handleEndDateChange}
-      gaEventSrc='Report Export'
+      onStartDateChange={handleStartDateChange}
+      placement="bottom"
+      popoverClassName={styles.popovers}
+      requireEnd
+      requireStart
+      startDate={customStartDate}
     />
   </DataExportModal >;
 };

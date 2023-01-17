@@ -62,21 +62,22 @@ const FeedDateFilter = (props) => {
       : upper;
 
   return <DateRangeSelector
-    className={styles.dateSelect}
-    popoverClassName={popoverClassName || ''}
-    isAtDefault={isAtDefault}
-    placement={placement || 'auto'}
-    endDate={endDate}
-    endDateLabelClass={styles.endDateLabel}
-    endDateNullMessage={endDateNullMessage}
-    onClickDateRangePreset={onClickDateRangePreset}
-    onEndDateChange={onEndDateChange}
-    onStartDateChange={onStartDateChange}
-    showPresets={true}
-    startDate={hasLower ? new Date(lower) : lower}
-    startDateNullMessage={startDateNullMessage}
-    filterSettings={filterSettings}
-    {...rest} >
+      className={styles.dateSelect}
+      endDate={endDate}
+      endDateLabelClass={styles.endDateLabel}
+      endDateNullMessage={endDateNullMessage}
+      filterSettings={filterSettings}
+      isAtDefault={isAtDefault}
+      onClickDateRangePreset={onClickDateRangePreset}
+      onEndDateChange={onEndDateChange}
+      onStartDateChange={onStartDateChange}
+      placement={placement || 'auto'}
+      popoverClassName={popoverClassName || ''}
+      showPresets
+      startDate={hasLower ? new Date(lower) : lower}
+      startDateNullMessage={startDateNullMessage}
+      {...rest}
+    >
     {children}
   </DateRangeSelector>;
 };

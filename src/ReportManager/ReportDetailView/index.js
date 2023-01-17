@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,7 +23,6 @@ import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../.
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
-import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -64,15 +63,18 @@ const ReportDetailView = ({
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
-  const { loadingEvents } = useContext(ReportsTabContext);
 
   const submitFormButtonRef = useRef(null);
-  const temporalIdRef = useRef(null);
+
+  const newReport = useMemo(
+    () => reportType ? createNewReportForEventType(reportType, reportData) : null,
+    [reportData, reportType]
+  );
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
-  const [reportForm, setReportForm] = useState(null);
+  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
 
   const onPatrolLinkClicked = ({ id }) => {
@@ -104,11 +106,6 @@ const ReportDetailView = ({
     onSaveSuccess: onSaveSuccessCallback,
     relationshipButtonDisabled,
   } = formProps || {};
-
-  const newReport = useMemo(
-    () => reportType ? createNewReportForEventType(reportType, reportData) : null,
-    [reportData, reportType]
-  );
 
   const originalReport = isNewReport ? newReport : eventStore[reportId];
 
@@ -265,6 +262,24 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onReportDateChange = useCallback((date) => {
+    const now = new Date();
+
+    setReportForm({ ...reportForm, time: date > now ? now : date });
+
+    reportTracker.track('Change Report Date');
+  }, [reportForm, reportTracker]);
+
+  const onReportTimeChange = useCallback((time) => {
+    const newTimeParts = time.split(':');
+    const updatedDateTime = new Date(reportForm.time);
+    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
+
+    setReportForm({ ...reportForm, time: updatedDateTime });
+
+    reportTracker.track('Change Report Time');
+  }, [reportForm, reportTracker]);
+
   const onReportStateChange = useCallback((state) => {
     setReportForm({ ...reportForm, state });
 
@@ -385,24 +400,6 @@ const ReportDetailView = ({
     }
   }, [dispatch, reportForm, reportSchemas]);
 
-  useEffect(() => {
-    const missingReportData = (isNewReport && !reportType)
-      || (!isNewReport && !loadingEvents && !eventStore[reportId]);
-    if (!isAddedReport && missingReportData) {
-      navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
-    }
-  }, [eventStore, isAddedReport, isNewReport, loadingEvents, navigate, reportId, reportType]);
-
-  useEffect(() => {
-    if (!loadingEvents) {
-      const selectedReportHasChanged = (isNewReport ? temporalIdRef.current : reportForm?.id) !== reportId;
-      if (selectedReportHasChanged) {
-        setReportForm(isNewReport ? newReport : eventStore[reportId]);
-        temporalIdRef.current = reportId;
-      }
-    }
-  }, [eventStore, isNewReport, loadingEvents, newReport, reportForm?.id, reportId]);
-
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
@@ -410,116 +407,118 @@ const ReportDetailView = ({
     + containedReports.length) > 0;
   const shouldRenderHistorySection = !isNewReport;
 
+  const isReadOnly = reportSchemas?.schema?.readonly;
+
   return <div
-    className={`${styles.reportDetailView} ${className || ''}`}
+    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
     >
-    {!!reportForm && <>
-      {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
+    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-      <Header onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
+    <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
-      {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
+    {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
-      <div className={styles.body}>
-        <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-          <QuickLinks.NavigationBar>
-            <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
-            <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
-            <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
-            <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
-          </QuickLinks.NavigationBar>
+    <div className={styles.body}>
+      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
+        <QuickLinks.NavigationBar>
+          <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
+          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+          <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
+          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+        </QuickLinks.NavigationBar>
 
-          <div className={styles.content}>
-            <QuickLinks.SectionsWrapper>
-              <QuickLinks.Section anchorTitle="Details">
-                <DetailsSection
-                  formSchema={reportSchemas?.schema}
-                  formUISchema={reportSchemas?.uiSchema}
-                  loadingSchema={!!eventSchemas.loading}
-                  onFormChange={onFormChange}
-                  onFormError={onFormError}
-                  onFormSubmit={onSaveReport}
-                  onPriorityChange={onPriorityChange}
-                  isCollection={isCollection}
-                  onReportedByChange={onReportedByChange}
-                  onReportGeometryChange={onReportGeometryChange}
-                  onReportLocationChange={onReportLocationChange}
-                  onReportStateChange={onReportStateChange}
-                  originalReport={originalReport}
-                  reportForm={reportForm}
-                  submitFormButtonRef={submitFormButtonRef}
-                />
-              </QuickLinks.Section>
+        <div className={styles.content}>
+          <QuickLinks.SectionsWrapper>
+            <QuickLinks.Section anchorTitle="Details">
+              <DetailsSection
+                formSchema={reportSchemas?.schema}
+                formUISchema={reportSchemas?.uiSchema}
+                isCollection={isCollection}
+                loadingSchema={!!eventSchemas.loading}
+                onFormChange={onFormChange}
+                onFormError={onFormError}
+                onFormSubmit={onSaveReport}
+                onPriorityChange={onPriorityChange}
+                onReportDateChange={onReportDateChange}
+                onReportedByChange={onReportedByChange}
+                onReportGeometryChange={onReportGeometryChange}
+                onReportLocationChange={onReportLocationChange}
+                onReportStateChange={onReportStateChange}
+                onReportTimeChange={onReportTimeChange}
+                originalReport={originalReport}
+                reportForm={reportForm}
+                submitFormButtonRef={submitFormButtonRef}
+              />
+            </QuickLinks.Section>
 
-              {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
+            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-              <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
-                <ActivitySection
-                  attachmentsToAdd={attachmentsToAdd}
-                  containedReports={containedReports}
-                  notesToAdd={notesToAdd}
-                  onDeleteAttachment={onDeleteAttachment}
-                  onDeleteNote={onDeleteNote}
-                  onSaveNote={onSaveNote}
-                  reportAttachments={reportAttachments}
-                  reportNotes={reportNotes}
-                  reportTracker={reportTracker}
-                />
-              </QuickLinks.Section>
+            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+              <ActivitySection
+                attachmentsToAdd={attachmentsToAdd}
+                containedReports={containedReports}
+                notesToAdd={notesToAdd}
+                onDeleteAttachment={onDeleteAttachment}
+                onDeleteNote={onDeleteNote}
+                onSaveNote={onSaveNote}
+                reportAttachments={reportAttachments}
+                reportNotes={reportNotes}
+                reportTracker={reportTracker}
+              />
+            </QuickLinks.Section>
 
-              <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
-                <LinksSection
+            <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
+              <LinksSection
                     linkedReportsInfo={linkedReportsInfo}
                     patrolsInfo={patrolsInfo}
                     onReportLinkClicked={onReportLinkClicked}
                     onPatrolLinkClicked={onPatrolLinkClicked}
                 />
-              </QuickLinks.Section>
+            </QuickLinks.Section>
 
-              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
-              <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-                <div className={styles.title}>
-                  <HistoryIcon />
-                  <h2 data-testid="reportDetailView-historySection">History</h2>
-                </div>
-              </QuickLinks.Section>
-
-            </QuickLinks.SectionsWrapper>
-
-            <div className={styles.footer}>
-              <div className={styles.footerActionButtonsContainer}>
-                <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
-
-                <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
-
-                {showAddReportButton && <AddReportButton
-                  className={styles.footerActionButton}
-                  onAddReport={onAddReport}
-                  onSaveAddedReport={onSaveAddedReport}
-                />}
+            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+              <div className={styles.title}>
+                <HistoryIcon />
+                <h2 data-testid="reportDetailView-historySection">History</h2>
               </div>
+            </QuickLinks.Section>
 
-              <div>
-                <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                  Cancel
-                </Button>
+          </QuickLinks.SectionsWrapper>
 
-                <Button
+          <div className={styles.footer}>
+            <div className={styles.footerActionButtonsContainer}>
+              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+
+              <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+
+              {showAddReportButton && <AddReportButton
+                className={styles.footerActionButton}
+                onAddReport={onAddReport}
+                onSaveAddedReport={onSaveAddedReport}
+              />}
+            </div>
+
+            <div>
+              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+                Cancel
+              </Button>
+
+              <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified || reportSchemas?.schema?.readonly}
+                  disabled={!isReportModified}
                   onClick={onClickSaveButton}
                   type="button"
                 >
-                  Save
-                </Button>
-              </div>
+                Save
+              </Button>
             </div>
           </div>
-        </QuickLinks>
-      </div>
-    </>}
+        </div>
+      </QuickLinks>
+    </div>
   </div>;
 };
 

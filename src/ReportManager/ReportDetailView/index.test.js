@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../../AddReport';
-import { addEventToIncident, createEvent, EVENT_API_URL, EVENTS_API_URL, fetchEvent } from '../../ducks/events';
+import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
@@ -16,12 +16,10 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
-import { ReportsTabContext } from '../../SideBar/ReportsTab';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 
@@ -59,6 +57,14 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('ReportManager - ReportDetailView', () => {
+  const mockReport = {
+    event_type: 'jtar',
+    id: '456',
+    priority: 0,
+    state: 'active',
+    time: new Date('2022-12-17T03:24:00'),
+    title: 'title',
+  };
   let AddReportMock,
     addEventToIncidentMock,
     createEventMock,
@@ -86,12 +92,13 @@ describe('ReportManager - ReportDetailView', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
+
     map = createMapMock();
 
     store = {
       data: {
         subjectStore: {},
-        eventStore: {},
+        eventStore: { 456: mockReport },
         eventTypes,
         patrolTypes,
         eventSchemas,
@@ -109,61 +116,15 @@ describe('ReportManager - ReportDetailView', () => {
     jest.restoreAllMocks();
   });
 
-  test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="invalid" reportId="1234" />
-          </ReportsTabContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
-    });
-  });
-
-  test('redirects to /reports if user tries to open a report that cannot be found', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
-    });
-  });
-
-  test('does not redirect to /reports if it is an added report', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isAddedReport isNewReport newReportTypeId="invalid" reportId="1234" />
-          </ReportsTabContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(navigate).toHaveBeenCalledTimes(0);
-  });
-
   test('does not fetch the event schema if it is loaded already', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReportnewReportTypeI d="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"reportId="1234" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -175,9 +136,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="74941f0d-4b89-48be-a62a-a74c78db8383" reportId="1234" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="74941f0d-4b89-48be-a62a-a74c78db8383"
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -190,9 +153,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -211,9 +176,11 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <MapContext.Provider value={map}>
           <NavigationWrapper>
-            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
-            </ReportsTabContext.Provider>
+            <ReportDetailView
+              isNewReport
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+              reportId="1234"
+            />
           </NavigationWrapper>
         </MapContext.Provider>
       </Provider>
@@ -229,14 +196,55 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
   });
 
+  test('sets the date when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportDetailView isNewReport={false} reportId="456" />
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(datePickerInput).toHaveAttribute('value', '22/12/2022');
+  });
+
+  test('sets the time when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportDetailView isNewReport={false} reportId="456" />
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(timeInput).toHaveAttribute('value', '04:00');
+  });
+
   test('updates the JSON form schema when user does a change', async () => {
     render(
       <Provider store={mockStore(store)}>
         <MapContext.Provider value={map}>
           <NavigationWrapper>
-            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
-            </ReportsTabContext.Provider>
+            <ReportDetailView
+              isNewReport
+              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+              reportId="1234"
+            />
           </NavigationWrapper>
         </MapContext.Provider>
       </Provider>
@@ -253,9 +261,11 @@ describe('ReportManager - ReportDetailView', () => {
       <Provider store={mockStore(store)}>
         <MapContext.Provider value={map}>
           <NavigationWrapper>
-            <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-              <ReportDetailView isNewReport newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf" reportId="1234" />
-            </ReportsTabContext.Provider>
+            <ReportDetailView
+              isNewReport
+              newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
+              reportId="1234"
+            />
           </NavigationWrapper>
         </MapContext.Provider>
       </Provider>
@@ -275,9 +285,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -297,15 +309,13 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView
-              isAddedReport
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              onCancelAddedReport={onCancelAddedReport}
-              reportId="1234"
-            />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isAddedReport
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            onCancelAddedReport={onCancelAddedReport}
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -319,14 +329,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -341,14 +347,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -365,14 +367,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new note', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -386,14 +384,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new note', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -421,23 +415,12 @@ describe('ReportManager - ReportDetailView', () => {
     AddReport.mockImplementation(AddReportMock);
 
 
-    store.data.eventStore = {
-      initial: {
-        event_type: 'jtar',
-        id: 'initial',
-        is_collection: true,
-        priority: 0,
-        state: 'active',
-        title: 'title',
-      },
-    };
+    store.data.eventStore = { initial: mockReport };
 
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
         </NavigationWrapper>
       </Provider>
     );
@@ -467,23 +450,12 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
 
-    store.data.eventStore = {
-      initial: {
-        event_type: 'jtar',
-        id: 'initial',
-        is_collection: true,
-        priority: 0,
-        state: 'active',
-        title: 'title',
-      },
-    };
+    store.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="initial" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="initial" />
         </NavigationWrapper>
       </Provider>
     );
@@ -525,9 +497,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="1234" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="1234"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -545,14 +519,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -561,14 +531,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if users modified the opened report', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -581,14 +547,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds an attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -601,14 +563,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('keeps the save button disabled if user adds a note without saving', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -620,14 +578,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds a note, edits it and saves it', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -648,14 +602,12 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView
-              formProps={{ onSaveSuccess }}
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="456"
-            />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            formProps={{ onSaveSuccess }}
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -674,9 +626,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -698,9 +652,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -720,14 +676,12 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView
-              formProps={{ onSaveError }}
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="456"
-            />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            formProps={{ onSaveError }}
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -749,9 +703,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -765,14 +721,10 @@ describe('ReportManager - ReportDetailView', () => {
   test('omits duplicated attachment files', async () => {
     window.alert = jest.fn();
 
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -794,14 +746,10 @@ describe('ReportManager - ReportDetailView', () => {
   test('displays a new note', async () => {
     window.alert = jest.fn();
 
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -821,9 +769,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -836,9 +786,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -857,9 +809,11 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74" reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -869,14 +823,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays the history section and its anchor if the report is saved', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -889,14 +839,12 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView
-              formProps={{ relationshipButtonDisabled: true }}
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="456"
-            />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            formProps={{ relationshipButtonDisabled: true }}
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -905,16 +853,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
-    store.data.eventStore = {
-      456: { event_type: 'jtar', is_contained_in: ['collection'], id: '456', priority: 0, state: 'active', title: 'title' },
-    };
+    store.data.eventStore = { 456: { ...mockReport, is_contained_in: ['collection'] } };
 
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -923,18 +867,13 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
-
-    store.data.eventStore = {
-      456: { event_type: 'jtar', id: '456', patrols: ['patrol'], priority: 0, state: 'active', title: 'title' },
-    };
+    store.data.eventStore = { 456: { ...mockReport, patrols: ['patrol'] } };
 
     cleanup();
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );
@@ -946,14 +885,12 @@ describe('ReportManager - ReportDetailView', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView
-              isAddedReport
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="456"
-            />
-          </ReportsTabContext.Provider>
+          <ReportDetailView
+            isAddedReport
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
         </NavigationWrapper>
       </Provider>
     );
@@ -962,14 +899,10 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('shows the add report button', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </ReportsTabContext.Provider>
+          <ReportDetailView isNewReport={false} reportId="456" />
         </NavigationWrapper>
       </Provider>
     );

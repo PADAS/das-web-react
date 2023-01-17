@@ -12,7 +12,7 @@ import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onChangeTitle, report, onReportChange }) => {
+const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) => {
   const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -49,8 +49,8 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
 
     <div className={styles.titleAndType}>
       {report.title && <div
-        className={styles.title}
-        contentEditable={true}
+        className={`${styles.title} ${isReadOnly ? '' : styles.editable}`}
+        contentEditable={isReadOnly ? false : true}
         data-testid="reportManager-header-title"
         onBlur={onTitleBlur}
         onFocus={onTitleFocus}
@@ -92,9 +92,14 @@ const Header = ({ onChangeTitle, report, onReportChange }) => {
 };
 
 Header.propTypes = {
+  isReadOnly: PropTypes.bool,
   onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
   onReportChange: PropTypes.func.isRequired,
+};
+
+Header.defaultProps = {
+  isReadOnly: false,
 };
 
 export default memo(Header);
