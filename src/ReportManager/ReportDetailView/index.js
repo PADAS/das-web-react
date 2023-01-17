@@ -390,7 +390,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-      <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
+    <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
@@ -469,15 +469,14 @@ const ReportDetailView = ({
                 Cancel
               </Button>
 
-                <Button
+              <Button
                   className={styles.saveButton}
                   disabled={!isReportModified}
                   onClick={onClickSaveButton}
                   type="button"
                 >
-                  Save
-                </Button>
-              </div>
+                Save
+              </Button>
             </div>
           </div>
         </div>
