@@ -376,7 +376,7 @@ describe('SideBar', () => {
     userEvent.click(backDetailViewButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(-1);
+    expect(navigate).toHaveBeenCalledWith('/reports');
   });
 
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
@@ -401,7 +401,7 @@ describe('SideBar', () => {
     userEvent.click(backDetailViewButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(-1);
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('redirects to map if a tab is not recognized', async () => {

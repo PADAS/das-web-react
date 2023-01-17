@@ -1,26 +1,20 @@
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  FEATURE_FLAGS,
-  PERMISSION_KEYS,
-  PERMISSIONS,
-  TAB_KEYS,
-} from '../constants';
+import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
+import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
-import { getPatrolList } from '../selectors/patrols';
-import { SocketContext } from '../withSocketConnection';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
+import { getPatrolList } from '../selectors/patrols';
+import { MapContext } from '../App';
+import { SocketContext } from '../withSocketConnection';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -35,16 +29,9 @@ import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
-import { MapContext } from '../App';
 
 import PatrolsTab from './PatrolsTab';
-import ReportsTab from './ReportsTab';
-
-import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
-import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
-import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
-import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
-import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
 
@@ -113,9 +100,7 @@ const SideBar = () => {
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
-  const onClickBackFromDetailView = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
+  const onClickBackFromDetailView = useCallback(() => navigate(`/${currentTab}`), [currentTab, navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
@@ -152,6 +137,7 @@ const SideBar = () => {
     if (showPatrols) {
       setPatrolLoadState(true);
       fetchAndLoadPatrolData();
+
       return () => {
         const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
 
@@ -224,13 +210,13 @@ const SideBar = () => {
               {/* Gets rid of warning */}
               <Route path="/" element={null} />
 
-              <Route
-                path="reports"
-                element={<ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>}
-              >
+              <Route path="reports">
+                <Route index element={<ReportsFeedTab />} />
+
                 <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
+              {/* TODO: Remove Outlet and follow the same approach than in /reports */}
               <Route
                 path="patrols"
                 element={<PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />}

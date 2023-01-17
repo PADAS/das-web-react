@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 
 import { eventWithPoint, events } from '../../__test-helpers/fixtures/events';
@@ -14,7 +14,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import useNavigate from '../../hooks/useNavigate';
 
-import ReportsTab from './';
+import ReportsFeedTab from '.';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -41,7 +41,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('ReportsTab', () => {
+describe('ReportsFeedTab', () => {
   let navigate,
     store,
     useLocationMock,
@@ -64,6 +64,7 @@ describe('ReportsTab', () => {
 
     store = {
       data: {
+        eventSchemas: {},
         eventStore: {},
         eventFilter: {
           state: ['new', 'active', 'resolved'],
@@ -75,6 +76,7 @@ describe('ReportsTab', () => {
             event_type: [],
             priority: [],
             reported_by: [],
+            text: '',
           },
         },
         eventTypes,
@@ -94,88 +96,11 @@ describe('ReportsTab', () => {
     server.events.removeListener('request:match', logRequest);
   });
 
-  test('fetches the event data if there is an id specified in the URL', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTab />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(
-        capturedRequestURLs
-          .find(item =>
-            item.includes(`${EVENT_API_URL}123`
-            )
-          )
-      )
-        .toBeDefined();
-    });
-
-  });
-
-  test('does not fetch the event data if the id is "new"', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    store.data.eventStore = { 123: {} };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTab />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(
-        capturedRequestURLs
-          .find(item =>
-            item.includes(`${EVENT_API_URL}123`
-            )
-          )
-      )
-        .not
-        .toBeDefined();
-    });
-
-  });
-
-  test('does not fetch the event data if it is in the event store already', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
-    useLocation.mockImplementation(useLocationMock);
-    store.data.eventStore = { 123: {} };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTab />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(
-        capturedRequestURLs
-          .find(item =>
-            item.includes(`${EVENT_API_URL}123`
-            )
-          )
-      )
-        .not
-        .toBeDefined();
-    });
-  });
-
   test('loads the feed', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportsTab />
+          <ReportsFeedTab />
         </NavigationWrapper>
       </Provider>
     );
