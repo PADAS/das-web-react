@@ -99,7 +99,7 @@ section.timeBar {
     border: none;
     height: 1.5rem;
     margin-left: 0.5rem;
-    width: 10rem;
+    width: 11rem;
 
     input {
       font-size: 0.875rem;
@@ -295,20 +295,17 @@ section.timeBar {
 }
 
 .editingDate:not([class*=react-calendar]) {
-  button {
-    width: 7.5rem;
+  input {
+    color: yellow !important;
+    font-style: italic;
+    width: 9.5rem;
     background: none;
-
-    > span {     
-      color: yellow !important;
-      font-style: italic;
-    }
   }
 
   &::after {
     color: yellow;
     display: inline;
-    content: "\00a0*unsaved";
+    content: "\00a0*";
   }
   + .scheduledLabel {
     display: none;
