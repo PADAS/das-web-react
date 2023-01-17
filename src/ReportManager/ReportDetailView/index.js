@@ -239,6 +239,24 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onReportDateChange = useCallback((date) => {
+    const now = new Date();
+
+    setReportForm({ ...reportForm, time: date > now ? now : date });
+
+    reportTracker.track('Change Report Date');
+  }, [reportForm, reportTracker]);
+
+  const onReportTimeChange = useCallback((time) => {
+    const newTimeParts = time.split(':');
+    const updatedDateTime = new Date(reportForm.time);
+    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
+
+    setReportForm({ ...reportForm, time: updatedDateTime });
+
+    reportTracker.track('Change Report Time');
+  }, [reportForm, reportTracker]);
+
   const onReportStateChange = useCallback((state) => {
     setReportForm({ ...reportForm, state });
 
@@ -372,15 +390,17 @@ const ReportDetailView = ({
     + containedReports.length) > 0;
   const shouldRenderHistorySection = !isNewReport;
 
+  const isReadOnly = reportSchemas?.schema?.readonly;
+
   return <div
-    className={`${styles.reportDetailView} ${className || ''}`}
+    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <NavigationPromptModal when={isReportModified && !wasSaved} />
 
-    <Header onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
+    <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
@@ -400,16 +420,18 @@ const ReportDetailView = ({
               <DetailsSection
                 formSchema={reportSchemas?.schema}
                 formUISchema={reportSchemas?.uiSchema}
+                isCollection={isCollection}
                 loadingSchema={!!eventSchemas.loading}
                 onFormChange={onFormChange}
                 onFormError={onFormError}
                 onFormSubmit={onSaveReport}
                 onPriorityChange={onPriorityChange}
-                isCollection={isCollection}
+                onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}
                 onReportGeometryChange={onReportGeometryChange}
                 onReportLocationChange={onReportLocationChange}
                 onReportStateChange={onReportStateChange}
+                onReportTimeChange={onReportTimeChange}
                 originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}
@@ -458,11 +480,11 @@ const ReportDetailView = ({
               </Button>
 
               <Button
-                className={styles.saveButton}
-                disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                onClick={onClickSaveButton}
-                type="button"
-              >
+                  className={styles.saveButton}
+                  disabled={!isReportModified}
+                  onClick={onClickSaveButton}
+                  type="button"
+                >
                 Save
               </Button>
             </div>

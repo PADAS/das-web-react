@@ -340,7 +340,7 @@ export const DateTimeWidget = ({
       {...DATEPICKER_DEFAULT_CONFIG}
       autoFocus={autofocus}
       className={styles.dateTimeWidget}
-      defaultTimeValue='00:00'
+      defaultTimeValue="00:00"
       disabled={disabled}
       id={id}
       maxDate={new Date((new Date().getFullYear() + 15).toString())}
@@ -350,8 +350,8 @@ export const DateTimeWidget = ({
       onFocus={onFocus}
       readOnly={readonly}
       required={required}
+      selected={date}
       showTimeInput
-      value={date}
     />
   </>;
 };
