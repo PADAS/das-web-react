@@ -21,9 +21,11 @@ const onFormChange = jest.fn(),
   onFormError = jest.fn(),
   onFormSubmit = jest.fn(),
   onReportedByChange = jest.fn(),
+  onReportDateChange = jest.fn(),
   onReportGeometryChange = jest.fn(),
   onReportLocationChange = jest.fn(),
-  onReportStateChange = jest.fn();
+  onReportStateChange = jest.fn(),
+  onReportTimeChange = jest.fn();
 const store = {
   data: {
     subjectStore: {},
@@ -77,9 +79,11 @@ describe('ReportManager - DetailsSection', () => {
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
         />
@@ -104,9 +108,11 @@ describe('ReportManager - DetailsSection', () => {
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
         />
@@ -135,9 +141,11 @@ describe('ReportManager - DetailsSection', () => {
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
         />
@@ -159,9 +167,11 @@ describe('ReportManager - DetailsSection', () => {
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
         />
@@ -202,9 +212,11 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             onReportStateChange={onReportStateChange}
+            onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
           />
@@ -227,9 +239,11 @@ describe('ReportManager - DetailsSection', () => {
           onFormError={onFormError}
           onFormSubmit={onFormSubmit}
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
         />
@@ -260,9 +274,11 @@ describe('ReportManager - DetailsSection', () => {
               onFormError={onFormError}
               onFormSubmit={onFormSubmit}
               onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
               onReportGeometryChange={onReportGeometryChange}
               onReportLocationChange={onReportLocationChange}
               onReportStateChange={onReportStateChange}
+              onReportTimeChange={onReportTimeChange}
               originalReport={report}
               reportForm={report}
             />
@@ -304,9 +320,11 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             onReportStateChange={onReportStateChange}
+            onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
           />
@@ -337,9 +355,11 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             onReportStateChange={onReportStateChange}
+            onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
           />
@@ -348,6 +368,137 @@ describe('ReportManager - DetailsSection', () => {
     );
 
     expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not show the date selector if report is collection', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
+          onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
+          originalReport={report}
+          reportForm={report}
+        />
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('datePicker-input'))).toBeNull();
+  });
+
+  test('triggers the onReportDateChange callback when the user selects a date', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              isCollection={false}
+              loadingSchema={false}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
+              onReportTimeChange={onReportTimeChange}
+              originalReport={report}
+              reportForm={report}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    expect(onReportDateChange).toHaveBeenCalledTimes(0);
+
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[16]);
+
+    expect(onReportDateChange).toHaveBeenCalledTimes(1);
+    expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
+  });
+
+  test('does not show the time selector if report is collection', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <DetailsSection
+          formSchema={eventSchemas.accident_rep.base.schema}
+          formUISchema={eventSchemas.accident_rep.base.uiSchema}
+          isCollection
+          loadingSchema={false}
+          onFormChange={onFormChange}
+          onFormError={onFormError}
+          onFormSubmit={onFormSubmit}
+          onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
+          onReportGeometryChange={onReportGeometryChange}
+          onReportLocationChange={onReportLocationChange}
+          onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
+          originalReport={report}
+          reportForm={report}
+        />
+      </Provider>
+    );
+
+    expect((await screen.queryByTestId('time-input'))).toBeNull();
+  });
+
+  test('triggers the onReportTimeChange callback when the user selects a time', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              isCollection={false}
+              loadingSchema={false}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
+              onReportTimeChange={onReportTimeChange}
+              originalReport={report}
+              reportForm={report}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+
+    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+
+    expect(onReportTimeChange).toHaveBeenCalledTimes(0);
+
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(onReportTimeChange).toHaveBeenCalledTimes(1);
   });
 
   test('triggers the onFormChange callback when user does a change to a form field', async () => {
@@ -363,6 +514,7 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
@@ -394,6 +546,7 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
@@ -423,6 +576,7 @@ describe('ReportManager - DetailsSection', () => {
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
             onReportedByChange={onReportedByChange}
+            onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
@@ -442,9 +596,11 @@ describe('ReportManager - DetailsSection', () => {
       <Provider store={mockStore(store)}>
         <DetailsSection
           onReportedByChange={onReportedByChange}
+          onReportDateChange={onReportDateChange}
           onReportGeometryChange={onReportGeometryChange}
           onReportLocationChange={onReportLocationChange}
           onReportStateChange={onReportStateChange}
+          onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
         />

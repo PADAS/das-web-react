@@ -74,7 +74,7 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
 };
 
 export const getHoursAndMinutesString = (date) => {
-  if (!date) return null;
+  if (!date) return '';
   const dateMinutes = (new Date(date).getMinutes()<10?'0':'') + new Date(date).getMinutes();
   const dateHours = (new Date(date).getHours()<10?'0':'') + new Date(date).getHours();
   return `${dateHours}:${dateMinutes}`;

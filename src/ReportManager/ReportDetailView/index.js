@@ -237,6 +237,24 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
+  const onReportDateChange = useCallback((date) => {
+    const now = new Date();
+
+    setReportForm({ ...reportForm, time: date > now ? now : date });
+
+    reportTracker.track('Change Report Date');
+  }, [reportForm, reportTracker]);
+
+  const onReportTimeChange = useCallback((time) => {
+    const newTimeParts = time.split(':');
+    const updatedDateTime = new Date(reportForm.time);
+    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
+
+    setReportForm({ ...reportForm, time: updatedDateTime });
+
+    reportTracker.track('Change Report Time');
+  }, [reportForm, reportTracker]);
+
   const onReportStateChange = useCallback((state) => {
     setReportForm({ ...reportForm, state });
 
@@ -392,16 +410,18 @@ const ReportDetailView = ({
               <DetailsSection
                 formSchema={reportSchemas?.schema}
                 formUISchema={reportSchemas?.uiSchema}
+                isCollection={isCollection}
                 loadingSchema={!!eventSchemas.loading}
                 onFormChange={onFormChange}
                 onFormError={onFormError}
                 onFormSubmit={onSaveReport}
                 onPriorityChange={onPriorityChange}
-                isCollection={isCollection}
+                onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}
                 onReportGeometryChange={onReportGeometryChange}
                 onReportLocationChange={onReportLocationChange}
                 onReportStateChange={onReportStateChange}
+                onReportTimeChange={onReportTimeChange}
                 originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}

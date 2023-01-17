@@ -53,15 +53,15 @@ const KMLExportModal = (props) => {
     <div>
       <DateRangeSelector
         className={styles.controls}
-        popoverClassName={styles.datePopover}
-        maxDate={today}
-        startDate={customStartDate}
         endDate={customEndDate}
-        requireStart={true}
-        requireEnd={true}
-        placement='bottom'
-        onStartDateChange={handleStartDateChange}
+        maxDate={today}
         onEndDateChange={handleEndDateChange}
+        onStartDateChange={handleStartDateChange}
+        placement="bottom"
+        popoverClassName={styles.datePopover}
+        requireEnd={true}
+        requireStart={true}
+        startDate={customStartDate}
       />
     </div>
     <div className={styles.inactiveSubjects}>

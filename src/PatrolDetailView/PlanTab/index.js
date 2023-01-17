@@ -7,7 +7,7 @@ import isFuture from 'date-fns/is_future';
 
 import { BREAKPOINTS } from '../../constants';
 import DatePicker from '../../DatePicker';
-import TimeRangeInput from '../../TimeRangeInput';
+import TimePicker from '../../TimePicker';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
@@ -46,8 +46,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
   const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
-  const [startTime, setStartTime] = useState(getHoursAndMinutesString(startDate));
-  const [endTime, setEndTime] = useState(getHoursAndMinutesString(endDate));
 
   const rowContainerRef = useRef(null);
 
@@ -145,7 +143,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol({ patrol_segments: [locationToUpdate] });
   }, [updatePatrol]);
 
-
   return <div className={styles.planTab}>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
@@ -167,19 +164,26 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <label className={styles.dateLabel}>
         Start Date
         <DatePicker
-          selectsStart
-          shouldCloseOnSelect
           className={styles.patrolDatepicker}
-          selected={startDate ?? new Date()}
-          onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
-          dateFormat="dd MMM yyyy"
-          startDate={startDate}
           maxDate={endDate}
-          />
+          onChange={(value) => updatePatrolDate(START_KEY, value, isAutoStart)}
+          selected={startDate ?? new Date()}
+          selectsStart
+          startDate={startDate}
+        />
       </label>
       <label className={styles.timeLabel}>
         Start Time
-        <TimeRangeInput containerRef={rowContainerRef} timeValue={startTime} dateValue={startDate ?? new Date()} onTimeChange={(value) => {updatePatrolDate(START_KEY, value, isAutoStart); setStartTime(getHoursAndMinutesString(value));}}/>
+        <TimePicker
+          onChange={(startTime) => {
+            const newStartTimeParts = startTime.split(':');
+            const updatedStartDateTime = new Date(startDate);
+            updatedStartDateTime.setHours(newStartTimeParts[0], newStartTimeParts[1], '00');
+
+            updatePatrolDate(START_KEY, updatedStartDateTime, isAutoStart);
+          }}
+          value={getHoursAndMinutesString(startDate)}
+        />
       </label>
       <label className={styles.locationLabel} data-testid="planTab-start-location">
         {isMediumLayoutOrLarger ? 'Start Location' : 'Location'}
@@ -203,25 +207,29 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <label className={styles.dateLabel}>
         End Date
         <DatePicker
-          selectsEnd
-          shouldCloseOnSelect
-          selected={endDate}
           className={styles.patrolDatepicker}
-          onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}
-          dateFormat="dd MMM yyyy"
-          startDate={startDate}
           endDate={endDate}
-          minDate={startDate} />
+          minDate={startDate}
+          onChange={(value) => updatePatrolDate(END_KEY, value, isAutoEnd)}
+          selected={endDate}
+          selectsEnd
+          startDate={startDate}
+        />
       </label>
       <label className={styles.timeLabel}>
         End Time
-        <TimeRangeInput
-          timeValue={endTime}
-          dateValue={endDate}
-          starDateRange={startDate}
-          onTimeChange={(value) => {updatePatrolDate(END_KEY, value, isAutoEnd); setEndTime(getHoursAndMinutesString(value));}}
+        <TimePicker
+          onChange={(endTime) => {
+            const newEndTimeParts = endTime.split(':');
+            const updatedEndDateTime = endDate ? new Date(endDate) : new Date();
+            updatedEndDateTime.setHours(newEndTimeParts[0], newEndTimeParts[1], '00');
+
+            updatePatrolDate(END_KEY, updatedEndDateTime, isAutoEnd);
+          }}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
-          />
+          startTime={getHoursAndMinutesString(startDate)}
+          value={getHoursAndMinutesString(endDate)}
+        />
       </label>
       <label className={styles.locationLabel} data-testid="planTab-end-location">
         {isMediumLayoutOrLarger ? 'End Location' : 'Location'}

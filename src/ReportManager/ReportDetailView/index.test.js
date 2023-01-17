@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../../AddReport';
@@ -41,6 +41,14 @@ jest.mock('../../utils/save', () => ({
 }));
 
 describe('ReportManager - ReportDetailView', () => {
+  const mockReport = {
+    event_type: 'jtar',
+    id: '456',
+    priority: 0,
+    state: 'active',
+    time: new Date('2022-12-17T03:24:00'),
+    title: 'title',
+  };
   let AddReportMock,
     addEventToIncidentMock,
     createEventMock,
@@ -74,7 +82,7 @@ describe('ReportManager - ReportDetailView', () => {
     store = {
       data: {
         subjectStore: {},
-        eventStore: {},
+        eventStore: { 456: mockReport },
         eventTypes,
         patrolTypes,
         eventSchemas,
@@ -171,6 +179,45 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
   });
 
+  test('sets the date when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportDetailView isNewReport={false} reportId="456" />
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(datePickerInput).toHaveAttribute('value', '22/12/2022');
+  });
+
+  test('sets the time when user changes it', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <NavigationWrapper>
+            <ReportDetailView isNewReport={false} reportId="456" />
+          </NavigationWrapper>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(timeInput).toHaveAttribute('value', '04:00');
+  });
+
   test('updates the JSON form schema when user does a change', async () => {
     render(
       <Provider store={mockStore(store)}>
@@ -265,8 +312,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -285,8 +330,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -307,8 +350,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new note', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -326,8 +367,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new note', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -359,16 +398,7 @@ describe('ReportManager - ReportDetailView', () => {
     AddReport.mockImplementation(AddReportMock);
 
 
-    store.data.eventStore = {
-      initial: {
-        event_type: 'jtar',
-        id: 'initial',
-        is_collection: true,
-        priority: 0,
-        state: 'active',
-        title: 'title',
-      },
-    };
+    store.data.eventStore = { initial: mockReport };
 
     render(
       <Provider store={mockStore(store)}>
@@ -403,16 +433,7 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
 
-    store.data.eventStore = {
-      initial: {
-        event_type: 'jtar',
-        id: 'initial',
-        is_collection: true,
-        priority: 0,
-        state: 'active',
-        title: 'title',
-      },
-    };
+    store.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
     render(
       <Provider store={mockStore(store)}>
@@ -481,8 +502,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('disables the save button if user has not changed the opened report', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -495,8 +514,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if users modified the opened report', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -513,8 +530,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds an attachment', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -531,8 +546,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('keeps the save button disabled if user adds a note without saving', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -548,8 +561,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds a note, edits it and saves it', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -693,8 +704,6 @@ describe('ReportManager - ReportDetailView', () => {
   test('omits duplicated attachment files', async () => {
     window.alert = jest.fn();
 
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -719,8 +728,6 @@ describe('ReportManager - ReportDetailView', () => {
 
   test('displays a new note', async () => {
     window.alert = jest.fn();
-
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
 
     render(
       <Provider store={mockStore(store)}>
@@ -799,8 +806,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays the history section and its anchor if the report is saved', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -831,9 +836,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
-    store.data.eventStore = {
-      456: { event_type: 'jtar', is_contained_in: ['collection'], id: '456', priority: 0, state: 'active', title: 'title' },
-    };
+    store.data.eventStore = { 456: { ...mockReport, is_contained_in: ['collection'] } };
 
     render(
       <Provider store={mockStore(store)}>
@@ -847,9 +850,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
-    store.data.eventStore = {
-      456: { event_type: 'jtar', id: '456', patrols: ['patrol'], priority: 0, state: 'active', title: 'title' },
-    };
+    store.data.eventStore = { 456: { ...mockReport, patrols: ['patrol'] } };
 
     cleanup();
     render(
@@ -881,8 +882,6 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('shows the add report button', async () => {
-    store.data.eventStore = { 456: { event_type: 'jtar', id: '456', priority: 0, state: 'active', title: 'title' } };
-
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>

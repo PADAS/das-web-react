@@ -143,26 +143,6 @@ describe('The main app view', () => {
 
 
     jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
-
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('rendering without crashing', () => {
-    render(
-      <Provider store={store}>
-        <NavigationWrapper>
-          <SocketProvider>
-            <App />
-          </SocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-  });
-
-  test('showing a geo-permission toast for geo-perm-restricted users', () => {
     jest.spyOn(toastUtils, 'showToast');
 
     render(
@@ -173,7 +153,13 @@ describe('The main app view', () => {
           </SocketProvider>
         </NavigationWrapper>
       </Provider>);
+  });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('showing a geo-permission toast for geo-perm-restricted users', () => {
     expect(toastUtils.showToast).toHaveBeenCalled();
   });
 });
