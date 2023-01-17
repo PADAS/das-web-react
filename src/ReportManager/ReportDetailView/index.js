@@ -364,13 +364,15 @@ const ReportDetailView = ({
     + containedReports.length) > 0;
   const shouldRenderHistorySection = !isNewReport;
 
+  const isReadOnly = reportSchemas?.schema?.readonly;
+
   return <div
-    className={`${styles.reportDetailView} ${className || ''}`}
+    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    <Header onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
+      <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
@@ -447,14 +449,15 @@ const ReportDetailView = ({
                 Cancel
               </Button>
 
-              <Button
-                className={styles.saveButton}
-                disabled={!isReportModified || reportSchemas?.schema?.readonly}
-                onClick={onClickSaveButton}
-                type="button"
-              >
-                Save
-              </Button>
+                <Button
+                  className={styles.saveButton}
+                  disabled={!isReportModified}
+                  onClick={onClickSaveButton}
+                  type="button"
+                >
+                  Save
+                </Button>
+              </div>
             </div>
           </div>
         </div>
