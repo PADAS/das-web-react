@@ -50,13 +50,9 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
       const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
-        console.time('fixAntimeridianCrossing');
         const trackFeatureCollection = fixAntimeridianCrossing(response.data.data);
-        console.timeEnd('fixAntimeridianCrossing');
 
-        console.time('asPoints');
         const asPoints = convertTrackFeatureCollectionToPoints(trackFeatureCollection);
-        console.timeEnd('asPoints');
 
         accumulator[ids[index]] = {
           track: trackFeatureCollection,
