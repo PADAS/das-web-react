@@ -99,10 +99,11 @@ section.timeBar {
     border: none;
     height: 1.5rem;
     margin-left: 0.5rem;
-    width: 11rem;
+    width: fit-content;
 
     input {
       font-size: 0.875rem;
+      width: 9rem;
     }
 
     @media (max-width: $md-layout-width-min) {
@@ -125,9 +126,12 @@ section.timeBar {
     &[class*=empty] {
       background: white;
       display: flex;
-      > span {
+
+      input {
         color: $light-blue;
+        width: 8rem;
       }
+
       svg * {
         fill: $light-blue;
       }
@@ -298,7 +302,7 @@ section.timeBar {
   input {
     color: yellow !important;
     font-style: italic;
-    width: 9.5rem;
+    width: 9rem !important;
     background: none;
   }
 
