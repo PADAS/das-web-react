@@ -97,8 +97,14 @@ section.timeBar {
 
   .timeInput {
     border: none;
-    min-width: 0.8rem;
+    height: 1.5rem;
     margin-left: 0.5rem;
+    width: fit-content;
+
+    input {
+      font-size: 0.875rem;
+      width: 9rem;
+    }
 
     @media (max-width: $md-layout-width-min) {
       display: flex;
@@ -120,9 +126,12 @@ section.timeBar {
     &[class*=empty] {
       background: white;
       display: flex;
-      > span {
+
+      input {
         color: $light-blue;
+        width: 8rem;
       }
+
       svg * {
         fill: $light-blue;
       }
@@ -130,7 +139,7 @@ section.timeBar {
 
     &:not([class*=empty]) , &[class*=editingDate] {
       background: none;
-      > span {
+      > input {
         color: white;
         &:hover {
           text-decoration: underline;
@@ -290,20 +299,17 @@ section.timeBar {
 }
 
 .editingDate:not([class*=react-calendar]) {
-  button {
-    width: 7.5rem;
+  input {
+    color: yellow !important;
+    font-style: italic;
+    width: 9rem !important;
     background: none;
-
-    > span {     
-      color: yellow !important;
-      font-style: italic;
-    }
   }
 
   &::after {
     color: yellow;
     display: inline;
-    content: "\00a0*unsaved";
+    content: "\00a0*";
   }
   + .scheduledLabel {
     display: none;
