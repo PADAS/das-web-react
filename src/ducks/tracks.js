@@ -51,6 +51,7 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
 
       const results = responses.reduce((accumulator, response, index) => {
         const trackFeatureCollection = fixAntimeridianCrossing(response.data.data);
+
         const asPoints = convertTrackFeatureCollectionToPoints(trackFeatureCollection);
 
         accumulator[ids[index]] = {
