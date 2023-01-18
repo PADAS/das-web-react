@@ -105,10 +105,21 @@ const ReportDetailView = ({
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
-  const reportChanges = useMemo(
-    () => originalReport && reportForm ? extractObjectDifference(reportForm, originalReport) : {},
-    [originalReport, reportForm]
-  );
+  const reportChanges = useMemo(() => {
+    if (!originalReport || !reportForm) {
+      return {};
+    }
+
+    return Object.entries(extractObjectDifference(reportForm, originalReport))
+      .reduce((accumulator, [key, value]) => {
+        const unwantedDifferences = ['contains'];
+
+        if (!unwantedDifferences.includes(key)) {
+          return { ...accumulator, [key]: value };
+        }
+        return accumulator;
+      }, {});
+  }, [originalReport, reportForm]);
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
@@ -218,10 +229,8 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker, setReportForm]);
 
   const onPriorityChange = useCallback(({ value: priority }) => {
-    setReportForm({
-      ...reportForm,
-      priority,
-    });
+    setReportForm({ ...reportForm, priority });
+
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [reportForm, reportTracker]);
 
