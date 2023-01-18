@@ -43,6 +43,11 @@
 }
 
 .inputWrapper {
+  @include defaultTextInput;
+
+  align-items: center;
+  display: flex;
+  height: 2.5rem;
   position: relative;
   width: 100%;
 
@@ -58,12 +63,10 @@
   }
 
   .input {
-    @include defaultTextInput;
-  
+    background: none;
+    border: none;
     font-size: 1rem;
-    height: 2.5rem;
-    padding-left: 2rem;
-    width: 100%;
+    padding: 0 0 0 2rem;
 
     &::placeholder {
       font-size: 0.875rem;

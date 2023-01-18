@@ -97,8 +97,9 @@ const CustomHeader = ({
 
 
 const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ...rest }, ref) => {
-  const wasPastedRef = useRef(false);
+  const inputRef = useRef();
   const pressedKeyRef = useRef();
+  const wasPastedRef = useRef(false);
 
   const handleChange = useCallback((event) => {
     let newValue = event.target.value.replaceAll('-', '/');
@@ -139,16 +140,18 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ..
     onPaste?.(event);
   }, [onPaste]);
 
-  return <div className={styles.inputWrapper}>
+  const onWrapperClick = useCallback(() => inputRef.current.focus(), []);
+
+  return <div className={`${styles.inputWrapper} ${className}`} onClick={onWrapperClick} ref={ref}>
     <CalendarIcon/>
 
     <input
-      className={`${styles.input} ${className}`}
+      className={styles.input}
       data-testid="datePicker-input"
       onKeyDown={handleKeyDown}
       onChange={handleChange}
       onPaste={handlePaste}
-      ref={ref}
+      ref={inputRef}
       type="text"
       {...rest}
     />
