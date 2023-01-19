@@ -111,14 +111,7 @@ const ReportDetailView = ({
     }
 
     return Object.entries(extractObjectDifference(reportForm, originalReport))
-      .reduce((accumulator, [key, value]) => {
-        const unwantedDifferences = ['contains'];
-
-        if (!unwantedDifferences.includes(key)) {
-          return { ...accumulator, [key]: value };
-        }
-        return accumulator;
-      }, {});
+      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
@@ -490,7 +483,7 @@ const ReportDetailView = ({
 
               <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified}
+                  disabled={!isReportModified && !isAddedReport}
                   onClick={onClickSaveButton}
                   type="button"
                 >
