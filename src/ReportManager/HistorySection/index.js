@@ -12,17 +12,17 @@ import styles from './styles.module.scss';
 const HistorySection = ({ reportUpdates }) => {
   const updatesRendered = useMemo(() => reportUpdates.map((update) => ({
     sortDate: new Date(update.time),
-    node: <div className={styles.historyListItem} key={update.time}>
+    node: <li className={styles.historyListItem} key={update.time}>
       <div>
         {update.user.first_name && <p className={styles.user}>
-          {`${update.user.first_name} ${update.user?.last_name ?? ''}`}
+          {`${update.user.first_name} ${update.user.last_name ?? ''}`}
         </p>}
         <p className={styles.message}>{update.message}</p>
         <p className={styles.secondaryMessage}>{update.secondaryMessage}</p>
       </div>
 
       <TimeAgo className={styles.date} date={update.time} suffix="ago" />
-    </div>,
+    </li>,
   })), [reportUpdates]);
 
   const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered);
@@ -42,7 +42,7 @@ const HistorySection = ({ reportUpdates }) => {
       </div>
     </div>
 
-    <div className={styles.historyList}>{sortedItemsRendered}</div>
+    <ul className={styles.historyList}>{sortedItemsRendered}</ul>
   </div>;
 };
 
