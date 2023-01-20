@@ -5,7 +5,7 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
-import TimeAgo from '../../TimeAgo';
+import DateTime from '../../DateTime';
 
 import styles from './styles.module.scss';
 
@@ -21,7 +21,7 @@ const HistorySection = ({ reportUpdates }) => {
         <p className={styles.secondaryMessage}>{update.secondaryMessage}</p>
       </div>
 
-      <TimeAgo className={styles.date} date={update.time} suffix="ago" />
+      <DateTime className={styles.date} date={update.time} showElapsed={false} />
     </li>,
   })), [reportUpdates]);
 

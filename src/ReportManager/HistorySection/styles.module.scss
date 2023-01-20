@@ -72,8 +72,9 @@
     }
   
     .date {
-      font-size: 0.875rem;
-      margin-bottom: 0;
+      span {
+        font-size: 0.875rem;
+      }
     }
   }
 }
