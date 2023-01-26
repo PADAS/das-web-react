@@ -5,25 +5,29 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
-import DateTime from '../../DateTime';
+import UpdateListItem from './UpdateListItem';
 
 import styles from './styles.module.scss';
 
-const HistorySection = ({ reportUpdates }) => {
-  const updatesRendered = useMemo(() => reportUpdates.map((update) => ({
-    sortDate: new Date(update.time),
-    node: <li className={styles.historyListItem} key={update.time}>
-      <div>
-        {update.user.first_name && <p className={styles.user}>
-          {`${update.user.first_name} ${update.user.last_name ?? ''}`}
-        </p>}
-        <p className={styles.message}>{update.message}</p>
-        <p className={styles.secondaryMessage}>{update.secondaryMessage}</p>
-      </div>
+const FILTERED_UPDATE_MESSAGES = ['Updated fields: '];
 
-      <DateTime className={styles.date} date={update.time} showElapsed={false} />
-    </li>,
-  })), [reportUpdates]);
+const HistorySection = ({ reportUpdates }) => {
+  const updatesRendered = useMemo(() => reportUpdates.reduce((accumulator, update) => {
+    if (!FILTERED_UPDATE_MESSAGES.includes(update.message)) {
+      accumulator.push({
+        sortDate: new Date(update.time),
+        node: <UpdateListItem
+          key={update.time}
+          message={update.message}
+          secondaryMessage={update.secondaryMessage}
+          time={update.time}
+          user={update.user}
+        />,
+      });
+    }
+
+    return accumulator;
+  }, []), [reportUpdates]);
 
   const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered);
 

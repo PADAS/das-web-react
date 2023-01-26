@@ -43,38 +43,4 @@
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);
   border-radius: 0.25rem;
   margin-bottom: 4.5rem;
-
-  .historyListItem {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border-bottom: 1px solid $light-gray-border;
-
-    &:last-of-type {
-      border-bottom: none;
-    }
-
-    .user {
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 0.25rem;
-    }
-  
-    .message {
-      font-size: 0.75rem;
-      margin-bottom: 0;
-    }
-  
-    .secondaryMessage {
-      font-size: 0.75rem;
-      margin-bottom: 0;
-      color: $light-font-color;
-    }
-  
-    .date {
-      span {
-        font-size: 0.875rem;
-      }
-    }
-  }
 }
