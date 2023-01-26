@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
-
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
 import ContainedReportListItem from './ContainedReportListItem';
