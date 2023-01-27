@@ -1,5 +1,4 @@
 import React from 'react';
-import { MapContext as MapboxMapContext } from 'react-mapbox-gl';
 import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 
@@ -45,12 +44,6 @@ jest.mock('../ducks/popup', () => ({
   ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
   showPopup: jest.fn(),
-}));
-
-jest.mock('react-mapbox-gl', () => ({
-  ...jest.requireActual('react-mapbox-gl'),
-  __esModule: true,
-  default: () => ({ children }) => <div>{children}</div>, /* eslint-disable-line react/display-name */
 }));
 
 jest.mock('../ducks/map-ui', () => ({
@@ -160,11 +153,9 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
@@ -177,11 +168,11 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
@@ -194,11 +185,11 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
@@ -224,11 +215,11 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);

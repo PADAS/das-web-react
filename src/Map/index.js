@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
@@ -637,16 +636,6 @@ const Map = ({
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >
           <CursorGpsDisplay />
-          <RotationControl
-            className='rotation-control'
-            style={{
-              position: 'relative',
-              top: 'auto',
-              margin: '0.5rem 0 0 0.5rem',
-              borderStyle: 'none',
-              borderRadius: '0.25rem',
-            }}
-          />
         </span>
         <>
           {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}

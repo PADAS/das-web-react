@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
 import { connect  } from 'react-redux';
-import { Popup } from 'react-mapbox-gl';
 import { calcGpsDisplayString } from '../utils/location';
 
 
 import { validateLngLat } from '../utils/location';
+
+import Popup from '../Popup';
 
 import styles from './styles.module.scss';
 
