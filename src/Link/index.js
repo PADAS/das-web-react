@@ -1,44 +1,44 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { NavigationContext } from '../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider';
 
 const Link = ({ onClick, ...rest }) => {
-  const {
-    isNavigationBlocked,
-    navigationAttemptBlocked,
-    navigationAttemptResolution,
-    navigationAttemptUnblocked,
-  } = useContext(NavigationContext);
+  const { blocker, isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
   const linkRef = useRef();
 
-  const [localNavigationAttemptBlocked, setLocalNavigationAttemptBlocked] = useState(false);
-  const [localNavigationUnblocked, setLocalNavigationUnblocked] = useState(false);
+  const [skipBlocker, setSkipBlocker] = useState(false);
+  const [wasClicked, setWasClicked] = useState(false);
 
   const handleClick = useCallback((event) => {
-    if (!localNavigationUnblocked && isNavigationBlocked) {
+    if (!skipBlocker && isNavigationBlocked) {
       event.preventDefault();
 
-      setLocalNavigationAttemptBlocked(true);
-      navigationAttemptBlocked();
+      setWasClicked(true);
+      onNavigationAttemptBlocked();
     } else {
       onClick?.(event);
-      setLocalNavigationUnblocked(false);
+      setSkipBlocker(false);
     }
-  }, [isNavigationBlocked, localNavigationUnblocked, navigationAttemptBlocked, onClick]);
+  }, [isNavigationBlocked, onClick, onNavigationAttemptBlocked, skipBlocker]);
 
   useEffect(() => {
-    if (localNavigationAttemptBlocked && navigationAttemptResolution !== null) {
-      if (navigationAttemptResolution) {
-        setLocalNavigationUnblocked(true);
-        setTimeout(() => linkRef.current.click());
-      }
+    if (wasClicked && blocker.state === BLOCKER_STATES.PROCEEDING) {
+      setSkipBlocker(true);
+      setWasClicked(false);
 
-      setLocalNavigationAttemptBlocked(false);
-      navigationAttemptUnblocked();
+      setTimeout(() => linkRef.current.click());
+
+      blocker.reset();
     }
-  }, [localNavigationAttemptBlocked, navigationAttemptResolution, navigationAttemptUnblocked]);
+  }, [blocker, onNavigationAttemptBlocked, wasClicked]);
+
+  useEffect(() => {
+    if (blocker.state === BLOCKER_STATES.UNBLOCKED) {
+      setWasClicked(false);
+    }
+  }, [blocker.state]);
 
   return <RouterLink onClick={handleClick} ref={linkRef} {...rest} />;
 };

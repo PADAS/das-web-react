@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { showSideBar } from '../../ducks/side-bar';
 
-import { NavigationContext } from '../../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
 
 // Custom useNavigate hook to handle blocking navigation, context navigation
 // data and synchronization with sidebar reducer
@@ -15,19 +15,18 @@ const useNavigate = (options = {}) => {
   const routerNavigate = useRouterNavigate();
 
   const {
+    blocker,
     isNavigationBlocked,
-    navigationAttemptBlocked,
-    navigationAttemptResolution,
-    navigationAttemptUnblocked,
+    onNavigationAttemptBlocked,
     setNavigationData,
   } = useContext(NavigationContext);
 
   const [navigationAttemptParameters, setNavigationAttemptParameters] = useState(null);
 
-  const navigate = useCallback((to, options, navigationContextData = null, unblocked = false) => {
-    if (!unblocked && isNavigationBlocked) {
+  const navigate = useCallback((to, options, navigationContextData = null, skipBlocker = false) => {
+    if (!skipBlocker && isNavigationBlocked) {
       setNavigationAttemptParameters({ to, options, navigationContextData });
-      navigationAttemptBlocked();
+      onNavigationAttemptBlocked();
     } else {
       if (clearContext || navigationContextData) {
         setNavigationData(navigationContextData || {});
@@ -44,26 +43,29 @@ const useNavigate = (options = {}) => {
     dispatch,
     dispatchShowSideBar,
     isNavigationBlocked,
-    navigationAttemptBlocked,
+    onNavigationAttemptBlocked,
     routerNavigate,
     setNavigationData,
   ]);
 
   useEffect(() => {
-    if (navigationAttemptResolution !== null) {
-      if (navigationAttemptResolution && navigationAttemptParameters) {
-        navigate(
-          navigationAttemptParameters.to,
-          navigationAttemptParameters.options,
-          navigationAttemptParameters.navigationContextData,
-          true
-        );
-      }
+    if (blocker.state === BLOCKER_STATES.PROCEEDING && navigationAttemptParameters) {
+      navigate(
+        navigationAttemptParameters.to,
+        navigationAttemptParameters.options,
+        navigationAttemptParameters.navigationContextData,
+        true
+      );
 
-      setNavigationAttemptParameters(null);
-      navigationAttemptUnblocked();
+      blocker.reset();
     }
-  }, [navigationAttemptParameters, navigationAttemptResolution, navigate, navigationAttemptUnblocked]);
+  }, [blocker, navigate, navigationAttemptParameters]);
+
+  useEffect(() => {
+    if (blocker.state === BLOCKER_STATES.UNBLOCKED) {
+      setNavigationAttemptParameters(null);
+    }
+  }, [blocker.state]);
 
   return navigate;
 };

@@ -4,7 +4,7 @@ import { render, waitFor } from '@testing-library/react';
 import { useNavigate as useRouterNavigate } from 'react-router-dom';
 
 import { mockStore } from '../../__test-helpers/MockStore';
-import { NavigationContext } from '../../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from './';
 
@@ -16,15 +16,14 @@ jest.mock('react-router-dom', () => ({
 describe('useNavigate', () => {
   let mockStoreInstance = mockStore({});
   const routerNavigate = jest.fn(),
-    navigationAttemptBlocked = jest.fn(),
-    navigationAttemptUnblocked = jest.fn(),
+    onNavigationAttemptBlocked = jest.fn(),
+    reset = jest.fn(),
     setNavigationData = jest.fn();
 
   const navigationContextValue = {
+    blocker: { reset, state: BLOCKER_STATES.UNBLOCKED },
     isNavigationBlocked: false,
-    navigationAttemptBlocked,
-    navigationAttemptResolution: null,
-    navigationAttemptUnblocked,
+    onNavigationAttemptBlocked,
     setNavigationData,
   };
 
@@ -135,7 +134,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(0);
-      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
+      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
     });
 
     navigationContextValue.isNavigationBlocked = false;
@@ -143,7 +142,6 @@ describe('useNavigate', () => {
 
   test('unblocks a cancelled navigation attempt', async () => {
     navigationContextValue.isNavigationBlocked = true;
-    navigationContextValue.navigationAttemptResolution = false;
 
     const Component = () => {
       const navigate = useNavigate();
@@ -163,17 +161,15 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(0);
-      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
-      expect(navigationAttemptUnblocked).toHaveBeenCalled();
+      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
     });
 
     navigationContextValue.isNavigationBlocked = false;
-    navigationContextValue.navigationAttemptResolution = null;
   });
 
-  test('unblocks a continued navigation attempt', async () => {
+  test('resets the blocker on a continued navigation attempt', async () => {
     navigationContextValue.isNavigationBlocked = true;
-    navigationContextValue.navigationAttemptResolution = true;
+    navigationContextValue.blocker.state = BLOCKER_STATES.PROCEEDING;
 
     const Component = () => {
       const navigate = useNavigate();
@@ -193,11 +189,11 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(navigationAttemptBlocked).toHaveBeenCalledTimes(1);
-      expect(navigationAttemptUnblocked).toHaveBeenCalled();
+      expect(onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
+      expect(reset).toHaveBeenCalledTimes(1);
     });
 
     navigationContextValue.isNavigationBlocked = false;
-    navigationContextValue.navigationAttemptResolution = null;
+    navigationContextValue.blocker.state = BLOCKER_STATES.UNBLOCKED;
   });
 });

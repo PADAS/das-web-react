@@ -1,58 +1,67 @@
-import React, { createContext, useCallback, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 
 export const NavigationContext = createContext();
 
+export const BLOCKER_STATES = {
+  BLOCKED: 'blocked',
+  PROCEEDING: 'proceeding',
+  UNBLOCKED: 'unblocked',
+};
+
 const NavigationContextProvider = ({ children }) => {
-  const [isNavigationAttemptPending, setIsNavigationAttemptPending] = useState(false);
+  const [blockerState, setBlockerState] = useState(BLOCKER_STATES.UNBLOCKED);
   const [isNavigationBlocked, setIsNavigationBlocked] = useState(false);
-  const [navigationAttemptResolution, setNavigationAttemptResolution] = useState(null);
   const [navigationData, setNavigationData] = useState({});
 
   const blockNavigation = useCallback(() => setIsNavigationBlocked(true), []);
 
-  const cancelNavigationAttempt = useCallback(() => {
-    if (isNavigationAttemptPending) {
-      setNavigationAttemptResolution(false);
-    }
-  }, [isNavigationAttemptPending]);
-
-  const continueNavigationAttempt = useCallback(() => {
-    if (isNavigationAttemptPending) {
-      setNavigationAttemptResolution(true);
-    }
-  }, [isNavigationAttemptPending]);
-
-  const navigationAttemptBlocked = useCallback(() => {
+  const onNavigationAttemptBlocked = useCallback(() => {
     if (isNavigationBlocked) {
-      setIsNavigationAttemptPending(true);
+      setBlockerState(BLOCKER_STATES.BLOCKED);
     }
   }, [isNavigationBlocked]);
 
-  const navigationAttemptUnblocked = useCallback(() => {
-    setIsNavigationAttemptPending(false);
-    setNavigationAttemptResolution(null);
+  const unblockNavigation = useCallback(() => {
+    setIsNavigationBlocked(false);
+    setBlockerState(BLOCKER_STATES.UNBLOCKED);
   }, []);
 
-  const unblockNavigation = useCallback(() => {
-    setIsNavigationAttemptPending(false);
-    setIsNavigationBlocked(false);
-    setNavigationAttemptResolution(null);
-  }, []);
+  useEffect(() => {
+    if (isNavigationBlocked) {
+      const onUnload = (event) => {
+        event.returnValue = 'Would you like to discard changes?';
+      };
+      window.addEventListener('beforeunload', onUnload);
+
+      return () => {
+        window.removeEventListener('beforeunload', onUnload);
+      };
+    }
+  }, [isNavigationBlocked]);
+
+  const proceed = useCallback(() => {
+    if (blockerState === BLOCKER_STATES.BLOCKED) {
+      setBlockerState(BLOCKER_STATES.PROCEEDING);
+    }
+  }, [blockerState]);
+
+  const reset = useCallback(() => {
+    if (blockerState === BLOCKER_STATES.BLOCKED) {
+      setBlockerState(BLOCKER_STATES.UNBLOCKED);
+    }
+  }, [blockerState]);
+
+  const blocker = { proceed, reset, state: blockerState };
 
   const navigationContextValue = {
-    isNavigationAttemptPending,
+    blocker,
     isNavigationBlocked,
-    navigationAttemptResolution,
     navigationData,
 
     blockNavigation,
-    cancelNavigationAttempt,
-    continueNavigationAttempt,
-    navigationAttemptBlocked,
-    navigationAttemptUnblocked,
-    unblockNavigation,
-
+    onNavigationAttemptBlocked,
     setNavigationData,
+    unblockNavigation,
   };
 
   return <NavigationContext.Provider value={navigationContextValue}>

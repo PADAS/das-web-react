@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { render, screen } from '@testing-library/react';
 
-import NavigationContextProvider, { NavigationContext } from './';
+import NavigationContextProvider, { BLOCKER_STATES, NavigationContext } from './';
 
 describe('NavigationContextProvider', () => {
   test('can read and update navigation data', async () => {
@@ -70,15 +70,13 @@ describe('NavigationContextProvider', () => {
     expect((await screen.findByText('Navigation blocked: false'))).toBeDefined();
   });
 
-  test('resolves to true when continuing the navigation of a blocked attempt', async () => {
+  test('sets the blocker proceeding state', async () => {
     const ChildComponent = () => {
       const {
+        blocker,
         blockNavigation,
-        continueNavigationAttempt,
-        isNavigationAttemptPending,
         isNavigationBlocked,
-        navigationAttemptBlocked,
-        navigationAttemptResolution,
+        onNavigationAttemptBlocked,
       } = useContext(NavigationContext);
 
       useEffect(() => {
@@ -87,17 +85,17 @@ describe('NavigationContextProvider', () => {
 
       useEffect(() => {
         if (isNavigationBlocked) {
-          navigationAttemptBlocked();
+          onNavigationAttemptBlocked();
         }
-      }, [isNavigationBlocked, navigationAttemptBlocked]);
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
 
       useEffect(() => {
-        if (isNavigationAttemptPending) {
-          continueNavigationAttempt();
+        if (blocker.state === BLOCKER_STATES.BLOCKED) {
+          blocker.proceed();
         }
-      }, [continueNavigationAttempt, isNavigationAttemptPending]);
+      }, [blocker]);
 
-      return <p>{`Navigation attempt resolution: ${navigationAttemptResolution}`}</p>;
+      return <p>{`Blocker state: ${blocker.state}`}</p>;
     };
 
     render(
@@ -106,18 +104,16 @@ describe('NavigationContextProvider', () => {
       </NavigationContextProvider>
     );
 
-    expect((await screen.findByText('Navigation attempt resolution: true'))).toBeDefined();
+    expect((await screen.findByText('Blocker state: proceeding'))).toBeDefined();
   });
 
-  test('resolves to false when canceling the navigation of a blocked attempt', async () => {
+  test('sets the blocker unblocked state', async () => {
     const ChildComponent = () => {
       const {
+        blocker,
         blockNavigation,
-        cancelNavigationAttempt,
-        isNavigationAttemptPending,
         isNavigationBlocked,
-        navigationAttemptBlocked,
-        navigationAttemptResolution,
+        onNavigationAttemptBlocked,
       } = useContext(NavigationContext);
 
       useEffect(() => {
@@ -126,17 +122,17 @@ describe('NavigationContextProvider', () => {
 
       useEffect(() => {
         if (isNavigationBlocked) {
-          navigationAttemptBlocked();
+          onNavigationAttemptBlocked();
         }
-      }, [isNavigationBlocked, navigationAttemptBlocked]);
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
 
       useEffect(() => {
-        if (isNavigationAttemptPending) {
-          cancelNavigationAttempt();
+        if (blocker.state === BLOCKER_STATES.BLOCKED) {
+          blocker.reset();
         }
-      }, [cancelNavigationAttempt, isNavigationAttemptPending]);
+      }, [blocker]);
 
-      return <p>{`Navigation attempt resolution: ${navigationAttemptResolution}`}</p>;
+      return <p>{`Blocker state: ${blocker.state}`}</p>;
     };
 
     render(
@@ -145,6 +141,6 @@ describe('NavigationContextProvider', () => {
       </NavigationContextProvider>
     );
 
-    expect((await screen.findByText('Navigation attempt resolution: false'))).toBeDefined();
+    expect((await screen.findByText('Blocker state: unblocked'))).toBeDefined();
   });
 });

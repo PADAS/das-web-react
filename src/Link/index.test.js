@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Link from './';
-import { NavigationContext } from '../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 describe('Link', () => {
@@ -14,7 +14,8 @@ describe('Link', () => {
     return <div data-testid="location-display">{location.pathname}</div>;
   };
 
-  let navigationAttemptBlocked = jest.fn(), navigationAttemptUnblocked = jest.fn();
+  let onNavigationAttemptBlocked = jest.fn(), reset = jest.fn();
+  const blocker = { reset, state: BLOCKER_STATES.UNBLOCKED };
 
   test('navigates to the link route when user clicks it', async () => {
     render(<NavigationWrapper>
@@ -32,10 +33,9 @@ describe('Link', () => {
   test('blocks a navigation attempt when navigation is blocked', async () => {
     render(<NavigationWrapper>
       <NavigationContext.Provider value={{
+        blocker,
         isNavigationBlocked: true,
-        navigationAttemptBlocked,
-        navigationAttemptResolution: null,
-        navigationAttemptUnblocked,
+        onNavigationAttemptBlocked,
       }}>
         <Link to="/route" />
 
@@ -49,13 +49,14 @@ describe('Link', () => {
     expect((await screen.findByTestId('location-display'))).toHaveTextContent('/');
   });
 
-  test('blocks a navigation attempt and unblocks it after when the resolution is true', async () => {
+  test('blocks a navigation attempt and unblocks it after the user decides to continue', async () => {
+    blocker.state = BLOCKER_STATES.PROCEEDING;
+
     render(<NavigationWrapper>
       <NavigationContext.Provider value={{
+        blocker,
         isNavigationBlocked: true,
-        navigationAttemptBlocked,
-        navigationAttemptResolution: true,
-        navigationAttemptUnblocked,
+        onNavigationAttemptBlocked,
       }}>
         <Link to="/route" />
 

@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 
 import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
 
-import useBlockNavigation from '../hooks/useBlockNavigation';
+import { BLOCKER_STATES } from '../NavigationContextProvider';
+import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
@@ -17,9 +18,9 @@ const NavigationPromptModal = ({
   when,
   ...rest
 }) => {
-  const { cancelNavigationAttempt, continueNavigationAttempt, isNavigationAttemptPending } = useBlockNavigation(when);
+  const blocker = useNavigationBlocker(when);
 
-  return <Modal {...rest} onHide={cancelNavigationAttempt} show={isNavigationAttemptPending}>
+  return <Modal {...rest} onHide={blocker.reset} show={blocker.state === BLOCKER_STATES.BLOCKED}>
     <Modal.Header closeButton>
       <Modal.Title>{title}</Modal.Title>
     </Modal.Header>
@@ -27,13 +28,13 @@ const NavigationPromptModal = ({
     <Modal.Body>{description}</Modal.Body>
 
     <Modal.Footer className={styles.footer}>
-      <Button className={styles.cancelButton} onClick={cancelNavigationAttempt} variant="secondary">
+      <Button className={styles.cancelButton} onClick={blocker.reset} variant="secondary">
         {cancelNavigationButtonText}
       </Button>
 
       <Button
         className={styles.continueButton}
-        onClick={continueNavigationAttempt}
+        onClick={blocker.proceed}
         onFocus={(event) => event.target.blur()}
         variant="primary"
       >

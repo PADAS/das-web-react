@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import NavigationPromptModal from './';
-import { NavigationContext } from '../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 describe('NavigationPromptModal', () => {
@@ -23,15 +23,15 @@ describe('NavigationPromptModal', () => {
     expect((await screen.queryByText('Discard changes'))).toBeNull();
   });
 
-  test('shows the prompt modal if "when" is true there is a pending navigation attempt', async () => {
+  test('shows the prompt modal if "when" is true there is a navigation attempt', async () => {
     const ChildComponent = () => {
-      const { isNavigationBlocked, navigationAttemptBlocked } = useContext(NavigationContext);
+      const { isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
       useEffect(() => {
         if (isNavigationBlocked) {
-          navigationAttemptBlocked();
+          onNavigationAttemptBlocked();
         }
-      }, [isNavigationBlocked, navigationAttemptBlocked]);
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
 
       return null;
     };
@@ -47,28 +47,21 @@ describe('NavigationPromptModal', () => {
     });
   });
 
-  test('removes the modal if the navigation attempt is resolved (clicking continue button)', async () => {
+  test('removes the modal if the navigation attempt is continued', async () => {
     const ChildComponent = () => {
-      const {
-        isNavigationBlocked,
-        navigationAttemptBlocked,
-        navigationAttemptResolution,
-        navigationAttemptUnblocked,
-      } = useContext(NavigationContext);
+      const { blocker, isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
-      // Report that user tried to navigate away
       useEffect(() => {
         if (isNavigationBlocked) {
-          navigationAttemptBlocked();
+          onNavigationAttemptBlocked();
         }
-      }, [isNavigationBlocked, navigationAttemptBlocked]);
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
 
-      // Report that the blocked navigattion attempt was resolved
       useEffect(() => {
-        if (navigationAttemptResolution) {
-          navigationAttemptUnblocked();
+        if (blocker.state === BLOCKER_STATES.BLOCKED) {
+          blocker.proceed();
         }
-      }, [navigationAttemptResolution, navigationAttemptUnblocked]);
+      }, [blocker]);
 
       return null;
     };
@@ -90,25 +83,22 @@ describe('NavigationPromptModal', () => {
   test('removes the modal if the navigation attempt is resolved (clicking cancel button)', async () => {
     const ChildComponent = () => {
       const {
+        blocker,
         isNavigationBlocked,
-        navigationAttemptBlocked,
-        navigationAttemptResolution,
-        navigationAttemptUnblocked,
+        onNavigationAttemptBlocked,
       } = useContext(NavigationContext);
 
-      // Report that user tried to navigate away
       useEffect(() => {
         if (isNavigationBlocked) {
-          navigationAttemptBlocked();
+          onNavigationAttemptBlocked();
         }
-      }, [isNavigationBlocked, navigationAttemptBlocked]);
+      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
 
-      // Report that the blocked navigattion attempt was resolved
       useEffect(() => {
-        if (navigationAttemptResolution === false) {
-          navigationAttemptUnblocked();
+        if (blocker.state === BLOCKER_STATES.BLOCKED) {
+          blocker.reset();
         }
-      }, [navigationAttemptResolution, navigationAttemptUnblocked]);
+      }, [blocker]);
 
       return null;
     };
