@@ -33,6 +33,7 @@ import AddReportButton from '../AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
+import HistorySection from '../HistorySection';
 import LoadingOverlay from '../../LoadingOverlay';
 import QuickLinks from '../QuickLinks';
 
@@ -405,7 +406,7 @@ const ReportDetailView = ({
     + reportNotes.length
     + notesToAdd.length
     + containedReports.length) > 0;
-  const shouldRenderHistorySection = !isNewReport;
+  const shouldRenderHistorySection = reportForm?.updates;
 
   const isReadOnly = reportSchemas?.schema?.readonly;
 
@@ -480,10 +481,7 @@ const ReportDetailView = ({
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-              <div className={styles.title}>
-                <HistoryIcon />
-                <h2 data-testid="reportDetailView-historySection">History</h2>
-              </div>
+              <HistorySection reportUpdates={reportForm?.updates || []} />
             </QuickLinks.Section>
 
           </QuickLinks.SectionsWrapper>

@@ -43,54 +43,6 @@
   }
 }
 
-.timeSortButton {
-  background-color: $light-gray;
-  border-color: $light-gray;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  margin-left: 0.5rem;
-
-  i {
-    border: solid $secondary-medium-gray;
-    border-width: 0 2px 2px 0;
-    display: inline-block;
-    padding: 0.25rem;
-
-    &.arrowDown {
-      transform: rotate(45deg);
-    }
-
-    &.arrowUp {
-      transform: rotate(-135deg);
-    }
-  }
-
-  &.ascending {
-    padding-top: 0.25rem;
-  }
-
-  &.descending {
-    padding-bottom: 0.25rem;
-  }
-
-  &:hover {
-    background-color: $secondary-light-gray;
-    border-color: $secondary-light-gray;
-  }
-
-  &:hover, &[class*=btn-primary] {
-    i {
-      border: solid white;
-      border-width: 0 2px 2px 0;
-    }
-  }
-
-  &:focus {
-    box-shadow: none;
-  }
-}
-
 .expandCollapseButton {
   background-color: $light-gray;
   border-color: $light-gray;

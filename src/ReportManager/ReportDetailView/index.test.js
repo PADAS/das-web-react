@@ -64,6 +64,12 @@ describe('ReportManager - ReportDetailView', () => {
     state: 'active',
     time: new Date('2022-12-17T03:24:00'),
     title: 'title',
+    updates: [{
+      message: 'message',
+      secondaryMessage: 'secondary message',
+      time: new Date('2022-12-17T03:26:00'),
+      user: { first_name: 'First', last_name: 'Last' },
+    }],
   };
   let AddReportMock,
     addEventToIncidentMock,
@@ -818,7 +824,7 @@ describe('ReportManager - ReportDetailView', () => {
       </Provider>
     );
 
-    expect((await screen.queryByTestId('reportDetailView-historySection'))).toBeNull();
+    expect((await screen.queryByTestId('reportManager-historySection'))).toBeNull();
     expect((await screen.queryByTestId('reportManager-quickLinks-anchor-History'))).toBeNull();
   });
 
@@ -831,7 +837,7 @@ describe('ReportManager - ReportDetailView', () => {
       </Provider>
     );
 
-    expect((await screen.findByTestId('reportDetailView-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('reportManager-historySection'))).toBeDefined();
     expect((await screen.findByTestId('reportManager-quickLinks-anchor-History'))).toBeDefined();
   });
 
