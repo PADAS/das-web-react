@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -12,6 +12,22 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
+const SortableList = ({ sortableList, scrollInto, sortedItemsRendered, className }) => {
+  const listRef = useRef();
+
+  useEffect(() => {
+    if (scrollInto && listRef?.current){
+      listRef.current?.scrollIntoView?.({
+        behavior: 'smooth'
+      });
+    }
+  }, [scrollInto]);
+
+  return sortableList.length > 0 ? <ul className={className} ref={listRef} >
+    {sortedItemsRendered}
+  </ul> : null;
+};
+
 const ActivitySection = ({
   attachmentsToAdd,
   containedReports,
@@ -22,6 +38,7 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
+  scrollInto,
 }, ref) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -171,9 +188,13 @@ const ActivitySection = ({
       </div>}
     </div>
 
-    {sortableList.length > 0 && <ul className={styles.list}>
-      {sortedItemsRendered}
-    </ul>}
+    <SortableList
+        sortableList={sortableList}
+        sortedItemsRendered={sortedItemsRendered}
+        className={styles.list}
+        scrollInto={scrollInto}
+    />
+
   </div>;
 };
 
@@ -205,6 +226,7 @@ ActivitySection.propTypes = {
     updated_at: PropTypes.string,
   })).isRequired,
   reportTracker: PropTypes.object.isRequired,
+  scrollInto: PropTypes.bool.isRequired,
 };
 
 export default memo(forwardRef(ActivitySection));

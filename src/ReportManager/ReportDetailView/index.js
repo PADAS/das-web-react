@@ -67,6 +67,7 @@ const ReportDetailView = ({
     [reportData, reportType]
   );
 
+  const [scrollInto, setScrollInto] = useState(false);
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
@@ -283,6 +284,7 @@ const ReportDetailView = ({
 
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
+    setScrollInto(false);
   }, [notesToAdd]);
 
   const onSaveNote = useCallback((originalNote, editedText) => {
@@ -308,7 +310,7 @@ const ReportDetailView = ({
     } else {
       const newNote = { creationDate: new Date().toISOString(), text: '' };
       setNotesToAdd([...notesToAdd, newNote]);
-
+      setScrollInto(true);
       reportTracker.track('Added Note');
     }
   }, [notesToAdd, reportTracker]);
@@ -442,6 +444,7 @@ const ReportDetailView = ({
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
                 reportTracker={reportTracker}
+                scrollInto={scrollInto}
               />
             </QuickLinks.Section>
 
