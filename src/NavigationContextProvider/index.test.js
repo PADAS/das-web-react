@@ -1,146 +1,83 @@
-import React, { useContext, useEffect } from 'react';
-import { render, screen } from '@testing-library/react';
+import React, { useContext } from 'react';
+import { renderHook } from '@testing-library/react-hooks';
 
 import NavigationContextProvider, { BLOCKER_STATES, NavigationContext } from './';
 
 describe('NavigationContextProvider', () => {
   test('can read and update navigation data', async () => {
-    const ChildComponent = () => {
-      const { navigationData, setNavigationData } = useContext(NavigationContext);
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
 
-      useEffect(() => {
-        setNavigationData('Navigation data!');
-      }, [setNavigationData]);
+    expect(result.current.navigationData).toEqual({});
 
-      return <p>{JSON.stringify(navigationData)}</p>;
-    };
+    result.current.setNavigationData('Navigation data!');
 
-    render(
-      <NavigationContextProvider>
-        <ChildComponent />
-      </NavigationContextProvider>
-    );
-
-    expect((await screen.findByText('"Navigation data!"'))).toBeDefined();
+    expect(result.current.navigationData).toBe('Navigation data!');
   });
 
   test('blocks the navigation', async () => {
-    const ChildComponent = () => {
-      const { blockNavigation, isNavigationBlocked } = useContext(NavigationContext);
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
 
-      useEffect(() => {
-        blockNavigation();
-      }, [blockNavigation]);
+    expect(result.current.isNavigationBlocked).toBeFalsy();
 
-      return <p>{`Navigation blocked: ${isNavigationBlocked}`}</p>;
-    };
+    result.current.blockNavigation();
 
-    render(
-      <NavigationContextProvider>
-        <ChildComponent />
-      </NavigationContextProvider>
-    );
-
-    expect((await screen.findByText('Navigation blocked: true'))).toBeDefined();
+    expect(result.current.isNavigationBlocked).toBeTruthy();
   });
 
   test('unblocks the navigation', async () => {
-    const ChildComponent = () => {
-      const { blockNavigation, isNavigationBlocked, unblockNavigation } = useContext(NavigationContext);
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
 
-      useEffect(() => {
-        blockNavigation();
-      }, [blockNavigation]);
+    expect(result.current.isNavigationBlocked).toBeFalsy();
 
-      useEffect(() => {
-        if (isNavigationBlocked) {
-          unblockNavigation();
-        }
-      }, [isNavigationBlocked, unblockNavigation]);
+    result.current.blockNavigation();
 
-      return <p>{`Navigation blocked: ${isNavigationBlocked}`}</p>;
-    };
+    expect(result.current.isNavigationBlocked).toBeTruthy();
 
-    render(
-      <NavigationContextProvider>
-        <ChildComponent />
-      </NavigationContextProvider>
-    );
+    result.current.unblockNavigation();
 
-    expect((await screen.findByText('Navigation blocked: false'))).toBeDefined();
+    expect(result.current.isNavigationBlocked).toBeFalsy();
   });
 
   test('sets the blocker proceeding state', async () => {
-    const ChildComponent = () => {
-      const {
-        blocker,
-        blockNavigation,
-        isNavigationBlocked,
-        onNavigationAttemptBlocked,
-      } = useContext(NavigationContext);
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
 
-      useEffect(() => {
-        blockNavigation();
-      }, [blockNavigation]);
+    expect(result.current.isNavigationBlocked).toBeFalsy();
 
-      useEffect(() => {
-        if (isNavigationBlocked) {
-          onNavigationAttemptBlocked();
-        }
-      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
+    result.current.blockNavigation();
 
-      useEffect(() => {
-        if (blocker.state === BLOCKER_STATES.BLOCKED) {
-          blocker.proceed();
-        }
-      }, [blocker]);
+    expect(result.current.isNavigationBlocked).toBeTruthy();
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
 
-      return <p>{`Blocker state: ${blocker.state}`}</p>;
-    };
+    result.current.onNavigationAttemptBlocked();
 
-    render(
-      <NavigationContextProvider>
-        <ChildComponent />
-      </NavigationContextProvider>
-    );
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.BLOCKED);
 
-    expect((await screen.findByText('Blocker state: proceeding'))).toBeDefined();
+    result.current.blocker.proceed();
+
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.PROCEEDING);
   });
 
   test('sets the blocker unblocked state', async () => {
-    const ChildComponent = () => {
-      const {
-        blocker,
-        blockNavigation,
-        isNavigationBlocked,
-        onNavigationAttemptBlocked,
-      } = useContext(NavigationContext);
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
 
-      useEffect(() => {
-        blockNavigation();
-      }, [blockNavigation]);
+    expect(result.current.isNavigationBlocked).toBeFalsy();
 
-      useEffect(() => {
-        if (isNavigationBlocked) {
-          onNavigationAttemptBlocked();
-        }
-      }, [isNavigationBlocked, onNavigationAttemptBlocked]);
+    result.current.blockNavigation();
 
-      useEffect(() => {
-        if (blocker.state === BLOCKER_STATES.BLOCKED) {
-          blocker.reset();
-        }
-      }, [blocker]);
+    expect(result.current.isNavigationBlocked).toBeTruthy();
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
 
-      return <p>{`Blocker state: ${blocker.state}`}</p>;
-    };
+    result.current.onNavigationAttemptBlocked();
 
-    render(
-      <NavigationContextProvider>
-        <ChildComponent />
-      </NavigationContextProvider>
-    );
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.BLOCKED);
 
-    expect((await screen.findByText('Blocker state: unblocked'))).toBeDefined();
+    result.current.blocker.reset();
+
+    expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
   });
 });

@@ -6,6 +6,7 @@ import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider'
 const Link = ({ onClick, ...rest }) => {
   const { blocker, isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
+  const blockedEventRef = useRef();
   const linkRef = useRef();
 
   const [skipBlocker, setSkipBlocker] = useState(false);
@@ -16,10 +17,13 @@ const Link = ({ onClick, ...rest }) => {
       event.preventDefault();
 
       setWasClicked(true);
+      blockedEventRef.current = event;
       onNavigationAttemptBlocked();
     } else {
-      onClick?.(event);
+      onClick?.(blockedEventRef.current || event);
+
       setSkipBlocker(false);
+      blockedEventRef.current = null;
     }
   }, [isNavigationBlocked, onClick, onNavigationAttemptBlocked, skipBlocker]);
 
