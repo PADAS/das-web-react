@@ -41,12 +41,19 @@ const Popup = (props) => {
   }, [anchor, className, offset, coordinates, map]);
 
   useEffect(() => {
-    if (popupRef.current && classNameRef.current !== className) {
-      const classDifferences = xor(classNameRef.current.split(' '), className.split(' '));
+    if (popupRef.current) {
+      const classDifferences = xor(
+        classNameRef.current.split(' '),
+        className.split(' '),
+      ).filter(classString =>
+        !!classString
+      );
 
       classDifferences.forEach((className) => {
         popupRef.current.toggleClass(className);
       });
+
+      classNameRef.current = className;
     }
   }, [className]);
 

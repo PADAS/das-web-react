@@ -1,11 +1,21 @@
 import ReactGA from 'react-ga';
 import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
+import mapboxgl from 'mapbox-gl';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
-
+import { createMapMock, createMockPopup } from './__test-helpers/mocks';
 
 ReactGA.initialize('dummy', { testMode: true });
+
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Map: jest.fn(),
+  Popup: jest.fn(),
+}));
+
+mapboxgl.Map.prototype = createMapMock();
+mapboxgl.Popup.prototype = createMockPopup();
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

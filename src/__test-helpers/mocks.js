@@ -9,6 +9,7 @@ export const createMapMock = (override = {}) => {
       _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },
       _sw: { lat: -3.480332977332381, lng: 36.96196978906826 },
     }),
+    getContainer: jest.fn(),
     setFilter: jest.fn(),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
@@ -72,6 +73,15 @@ export const createMapMock = (override = {}) => {
 
   return mockMap;
 };
+
+export const createMockPopup = (override = {}) => ({
+  addTo: jest.fn(),
+  setLngLat: jest.fn(),
+  setOffset: jest.fn(),
+  setDOMContent: jest.fn(),
+  on: jest.fn(),
+  ...override,
+});
 
 export const createMockInteractionEvent = (data) => ({
   preventDefault: jest.fn(),
