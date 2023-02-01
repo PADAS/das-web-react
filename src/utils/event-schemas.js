@@ -294,24 +294,61 @@ const generateSchemaAndUiSchemaForTextarea = ({ key }) => ({
 
 
 const addCustomSelectFieldForEnums = (schema) => {
-  return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
-    if (value.hasOwnProperty('enum')) {
-      return merge(accumulator, generateUiSchemaForSelectFields(key));
-    }
-    if (value.type === 'object') {
-      return merge(accumulator, {
-        [key]: addCustomSelectFieldForEnums(value),
-      });
-    }
-    if (value.type === 'array' && !!value.items  && value.items.type === 'object') {
-      return merge(accumulator, {
-        [key]: {
-          items: addCustomSelectFieldForEnums(value.items),
-        }
-      });
-    }
-    return accumulator;
-  }, {});
+  const { properties = {}, dependencies = {} } = schema;
+
+  const generateSelectUiWidgetDefsForProps = (props) =>
+    Object.entries(props).reduce((accumulator, [key, value]) => {
+      if (value.hasOwnProperty('enum')) {
+        return merge(accumulator, generateUiSchemaForSelectFields(key));
+      }
+      if (value.type === 'object') {
+        return merge(accumulator, {
+          [key]: addCustomSelectFieldForEnums(value),
+        });
+      }
+      if (value.type === 'array' && !!value.items && value.items.type === 'object') {
+        return merge(accumulator, {
+          [key]: {
+            items: addCustomSelectFieldForEnums(value.items),
+          }
+        });
+      }
+      return accumulator;
+    }, {});
+
+  const dependencyUpdates = Object.entries(dependencies)
+    .reduce((propsObject, [key, value]) => {
+      if (value.properties) {
+        return {
+          ...propsObject,
+          [key]: generateSelectUiWidgetDefsForProps(value.properties),
+        };
+      }
+      else if (value?.oneOf) {
+        const updates = Object.entries(value.oneOf).reduce((updateObj, [_vKey, vValue]) => {
+          if (vValue.properties) {
+            return {
+              ...updateObj,
+              ...generateSelectUiWidgetDefsForProps(vValue.properties)
+            };
+          }
+          return updateObj;
+        }, {});
+
+        return {
+          ...propsObject,
+          ...updates,
+        };
+      }
+      return propsObject;
+    }, {});
+
+  const propertyUpdates = generateSelectUiWidgetDefsForProps(properties);
+
+  return {
+    ...propertyUpdates,
+    ...dependencyUpdates,
+  };
 };
 
 const generateUiSchemaForSelectFields = (key) => {

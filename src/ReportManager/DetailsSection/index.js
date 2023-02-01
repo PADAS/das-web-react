@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { customizeValidator } from '@rjsf/validator-ajv6';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
@@ -65,6 +65,13 @@ const DetailsSection = ({
   submitFormButtonRef,
 }) => {
   const dispatch = useDispatch();
+  const formRef = useRef(null);
+
+  const onSubmit = useCallback((...args) => {
+    if (formRef.current.validateForm()) {
+      onFormSubmit(...args);
+    }
+  }, [onFormSubmit]);
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
@@ -176,13 +183,14 @@ const DetailsSection = ({
     </div>
 
     {!!formSchema && <Form
+        ref={formRef}
         className={styles.form}
         disabled={formSchema?.readonly}
         fields={{ externalLink: ExternalLinkField }}
         formData={reportForm.event_details}
         onChange={onFormChange}
         onError={onFormError}
-        onSubmit={onFormSubmit}
+        onSubmit={onSubmit}
         schema={formSchema}
         showErrorList={false}
         templates={{
