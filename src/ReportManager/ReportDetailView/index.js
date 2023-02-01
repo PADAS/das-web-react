@@ -5,9 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
-import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
-
+import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -22,6 +21,7 @@ import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } fr
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
+import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
@@ -34,12 +34,11 @@ import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
 import HistorySection from '../HistorySection';
+import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
-import { usePatrolsInfo } from '../../hooks';
-import LinksSection from '../LinksSection';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
@@ -58,7 +57,7 @@ const ReportDetailView = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const patrolStore = useSelector(({ data: { patrolStore } }) => patrolStore);
+  const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const reportType = useSelector(
@@ -77,26 +76,6 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-
-  const onPatrolLinkClicked = ({ id }) => {
-    if (id){
-      navigate(`/${TAB_KEYS.PATROLS}/${id}`);
-    }
-  };
-  const onReportLinkClicked = ({ id }) => {
-    if (id){
-      navigate(`/${TAB_KEYS.REPORTS}/${id}`);
-    }
-  };
-  const patrolsInfo = usePatrolsInfo(reportForm?.patrols, patrolStore, dispatch);
-  const linkedReportsInfo = useMemo(() => {
-    const linkedReports = Array.isArray(reportForm?.is_contained_in) && Array.isArray(reportForm?.is_linked_to)
-      ? [...reportForm?.is_contained_in, ...reportForm?.is_linked_to]
-      : [];
-    return linkedReports.map(({ related_event }) => related_event);
-  }, [reportForm]);
-
-  const shouldRenderLinksSection = !!linkedReportsInfo.length || !!patrolsInfo.length;
 
   const reportTracker = trackEventFactory(reportForm?.is_collection
     ? INCIDENT_REPORT_CATEGORY
@@ -119,7 +98,23 @@ const ReportDetailView = ({
     [reportForm?.contains]
   );
 
-  const reportAttachments =  useMemo(
+  const linkedPatrols = reportForm?.patrols?.map((id) => patrolStore[id]) || [];
+
+  const linkedReports = useMemo(() => {
+    let linkedReports = [];
+
+    if (Array.isArray(reportForm?.is_contained_in)) {
+      linkedReports = linkedReports.concat(reportForm.is_contained_in);
+    }
+
+    if (Array.isArray(reportForm?.is_linked_to)) {
+      linkedReports = linkedReports.concat(reportForm.is_linked_to);
+    }
+
+    return linkedReports.map((linkedReport) => linkedReport.related_event);
+  }, [reportForm]);
+
+  const reportAttachments = useMemo(
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
@@ -401,12 +396,19 @@ const ReportDetailView = ({
     }
   }, [dispatch, reportForm, reportSchemas]);
 
+  useEffect(() => {
+    if (reportForm?.patrols?.length > 0) {
+      reportForm.patrols.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
+    }
+  }, [dispatch, patrolStore, reportForm?.patrols]);
+
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
     + notesToAdd.length
     + containedReports.length) > 0;
   const shouldRenderHistorySection = reportForm?.updates;
+  const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
   const isReadOnly = reportSchemas?.schema?.readonly;
 
@@ -424,8 +426,11 @@ const ReportDetailView = ({
       <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
         <QuickLinks.NavigationBar>
           <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
+
           <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+
           <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
+
           <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
         </QuickLinks.NavigationBar>
 
@@ -469,13 +474,10 @@ const ReportDetailView = ({
               />
             </QuickLinks.Section>
 
+            {shouldRenderLinksSection && <div className={styles.sectionSeparation} />}
+
             <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
-              <LinksSection
-                    linkedReportsInfo={linkedReportsInfo}
-                    patrolsInfo={patrolsInfo}
-                    onReportLinkClicked={onReportLinkClicked}
-                    onPatrolLinkClicked={onPatrolLinkClicked}
-                />
+              <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
@@ -483,7 +485,6 @@ const ReportDetailView = ({
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
               <HistorySection reportUpdates={reportForm?.updates || []} />
             </QuickLinks.Section>
-
           </QuickLinks.SectionsWrapper>
 
           <div className={styles.footer}>

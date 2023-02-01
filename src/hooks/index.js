@@ -1,11 +1,10 @@
-import { useContext, useState, useEffect, useRef, useCallback } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
 import { MIN_ZOOM, MAX_ZOOM } from '../constants';
-import { fetchPatrol } from '../ducks/patrols';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
@@ -207,58 +206,4 @@ export const useMemoCompare = (next, compare = isEqual) => {
   }, [isEqual, next]);
 
   return isEqual ? previous : next;
-};
-
-export const usePatrolInfo = (patrolId, patrolStore, dispatch) => {
-  const patrolData = patrolStore[patrolId];
-  const getPatrolsData = useCallback(() => {
-    if (!patrolId){
-      return null;
-    }
-    if (!patrolData){
-      dispatch(fetchPatrol(patrolId));
-      return null;
-    }
-    return patrolData;
-  }, [patrolData, patrolId, dispatch]);
-  return getPatrolsData();
-};
-
-export const usePatrolsInfo = (patrolIds, patrolStore, dispatch) => {
-  const [currentId, setCurrentId] = useState(null);
-  const [patrolsData, setPatrolData] = useState([]);
-  const patrolInfo = usePatrolInfo(currentId, patrolStore, dispatch);
-
-  useEffect(() => {
-    if (Array.isArray(patrolIds)){
-      patrolIds.forEach((id) => {
-        setCurrentId(id);
-      });
-    }
-  }, [patrolIds]);
-
-  useEffect(() => {
-    if (patrolInfo){
-      setPatrolData([...patrolsData, patrolInfo]);
-    }
-  }, [patrolInfo]);
-
-  return patrolsData;
-};
-
-export const useFetchPatrolsInfo = (patrols, patrolStore, dispatch) => {
-  const getPatrolsData = useCallback(() => {
-    const patrolsData = [];
-    patrols.forEach((currentID) => {
-      const patrol = patrolStore[currentID];
-      if (!patrol){
-        dispatch(fetchPatrol(currentID));
-        return;
-      }
-      patrolsData.push(patrol);
-    });
-    return patrolsData;
-  }, [patrols, patrolStore, dispatch]);
-
-  return Array.isArray(patrols) ? getPatrolsData() : [];
 };

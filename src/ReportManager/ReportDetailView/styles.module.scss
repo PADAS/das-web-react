@@ -96,24 +96,6 @@
   }
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  margin: 2rem 0 1rem;
-
-  h2 {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin: 0;
-  }
-
-  svg {
-    color: $secondary-medium-gray;
-    width: 1.5rem;
-    margin-right: 0.5rem;
-  }
-}
-
 .cancelButton {
   background-color: transparent;
   border-color: transparent;

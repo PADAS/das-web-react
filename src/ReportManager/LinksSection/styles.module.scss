@@ -1,35 +1,24 @@
 @import '../../common/styles/vars/colors';
 
-.reportLink{
-  margin-bottom: 0.4rem;
-  border-radius: .25rem;
-  height: 2.5rem;
-  div[role=img]{
-    border-radius: .25rem 0 0 .25rem;
-    width: 2.5rem;
-    svg{
-      width: 1.5rem;
-    }
-  }
-  span{
-    font-weight: normal;
-  }
-}
-
-.title {
+.sectionHeader {
   display: flex;
-  align-items: center;
-  margin: 2rem 0 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
 
-  h2 {
-    font-size: 1.125rem;
-    font-weight: 500;
-    margin: 0;
-  }
-
-  svg {
-    color: $secondary-medium-gray;
-    width: 1.5rem;
-    margin-right: 0.5rem;
+  .title {
+    display: flex;
+    align-items: center;
+  
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin: 0;
+    }
+  
+    svg {
+      color: $secondary-medium-gray;
+      width: 1.5rem;
+      margin-right: 0.5rem;
+    }
   }
 }

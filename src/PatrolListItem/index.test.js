@@ -87,58 +87,45 @@ const getPatrolListItemComponent = ({ onTitleClick, onPatrolSelfManagedStateChan
     <NavigationWrapper>
       <MapContext.Provider value={map}>
         <PatrolListItem
-              onTitleClick={onTitleClick}
-              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-              patrol={patrol}
-              map={map}
-              showStateTitle={showStateTitle}
-              showTitleDetails={showTitleDetails}
-              {...otherProps} />
+          onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={patrol}
+          map={map}
+          showStateTitle={showStateTitle}
+          showTitleDetails={showTitleDetails}
+          {...otherProps}
+        />
       </MapContext.Provider>
     </NavigationWrapper>
   </Provider>
 );
 
-const renderPatrolListItem = (props = initialProps, storeObject = store) => render( getPatrolListItemComponent(props, storeObject) );
-
-test('rendering without crashing', () => {
-  testPatrol = { ...patrols[0] };
-  renderPatrolListItem({
-    ...initialProps,
-    patrol: testPatrol
-  });
-});
+const renderPatrolListItem = (props = initialProps, storeObject = store) => render(getPatrolListItemComponent(props, storeObject));
 
 test('rendering without showing title details', () => {
   testPatrol = { ...patrols[0] };
   const stateLabel = 'Scheduled:';
-  const props = {
-    ...initialProps,
-    patrol: testPatrol
-  };
+  const props = { ...initialProps, patrol: testPatrol };
   const { rerender } = renderPatrolListItem(props);
-  expect( screen.getByText(stateLabel) ).toBeInTheDocument();
-  rerender( getPatrolListItemComponent({
-    ...props,
-    showTitleDetails: false
-  }) );
-  expect( screen.queryByText(stateLabel) ).not.toBeInTheDocument();
+
+  expect(screen.getByText(stateLabel)).toBeInTheDocument();
+
+  rerender(getPatrolListItemComponent({ ...props, showTitleDetails: false }));
+
+  expect(screen.queryByText(stateLabel)).not.toBeInTheDocument();
 });
 
 test('rendering without state label', () => {
   testPatrol = { ...patrols[0] };
-  const props = {
-    ...initialProps,
-    patrol: testPatrol,
-  };
+  const props = { ...initialProps, patrol: testPatrol };
   const testId = `patrol-list-item-state-title-${testPatrol.id}`;
   const { rerender } = renderPatrolListItem(props);
-  expect( screen.getByTestId(testId) ).toBeInTheDocument();
-  rerender( getPatrolListItemComponent({
-    ...props,
-    showStateTitle: false
-  }) );
-  expect( screen.queryByTestId(testId) ).not.toBeInTheDocument();
+
+  expect(screen.getByTestId(testId)).toBeInTheDocument();
+
+  rerender(getPatrolListItemComponent({ ...props, showStateTitle: false }));
+
+  expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
 });
 
 describe('the patrol list item', () => {
@@ -148,26 +135,24 @@ describe('the patrol list item', () => {
     testPatrol = { ...patrols[0] };
     testPatrol.title = TEST_PATROL_TITLE;
 
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.ACTIVE;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.ACTIVE);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
+
   test('showing an icon for the patrol', async () => {
     await screen.findByTestId(`patrol-list-item-icon-${testPatrol.id}`);
   });
 
   test('showing the patrol title', async () => {
     const title = await screen.findByTestId(`patrol-list-item-title-${testPatrol.id}`);
+
     expect(title).toHaveTextContent(TEST_PATROL_TITLE);
   });
 
   test('showing the patrol\'s current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
+
     expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
   });
 
@@ -188,22 +173,16 @@ describe('for active patrols', () => {
     jest.useFakeTimers('modern');
     jest.setSystemTime(mockCurrentDate.getTime());
 
-    jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockImplementation(() => {
-      return true;
-    });
+    jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockImplementation(() => true);
     jest.spyOn(patrolUtils, 'getBoundsForPatrol').mockImplementation(() => {
       var line = lineString([[-74, 40], [-78, 42], [-82, 35]]); /* some random valid line to create bounding box around */
       var boundingBox = bbox(line);
+
       return boundingBox;
     });
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.ACTIVE;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.ACTIVE);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
 
   test('showing a location jump button if the patrol has any location data', async () => {
@@ -220,7 +199,6 @@ describe('for active patrols', () => {
 
     expect(actionMatch).toBeDefined();
     expect(actionMatch.payload).toEqual({ visible: [testPatrol.id] });
-
   });
 
   test('toggling a patrol leader\'s track on when clicking the "jump to location button"', async () => {
@@ -233,7 +211,6 @@ describe('for active patrols', () => {
 
     expect(actionMatch).toBeDefined();
     expect(actionMatch.payload).toEqual({ visible: [testPatrol.patrol_segments[0].leader.id] });
-
   });
 
   test('showing a track button if the patrol has track data', async () => {
@@ -262,7 +239,6 @@ describe('for active patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const endBtn = await within(kebabMenu).findByText('End Patrol');
-
     userEvent.click(endBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -272,6 +248,7 @@ describe('for active patrols', () => {
 
   test('theming', async () => {
     const iconContainer = await screen.findByRole('img');
+
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolActiveThemeColor}`);
   });
 
@@ -287,15 +264,11 @@ describe('for scheduled patrols', () => {
 
     jest.setSystemTime(mockCurrentDate.getTime());
 
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.READY_TO_START;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.READY_TO_START);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
+
   test('showing a "start" button which starts the patrol', async () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
@@ -316,7 +289,6 @@ describe('for scheduled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
-
     userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -325,6 +297,7 @@ describe('for scheduled patrols', () => {
 
   test('theming', async () => {
     const iconContainer = await screen.findByRole('img');
+
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolReadyThemeColor}`);
   });
 
@@ -340,24 +313,20 @@ describe('for overdue patrols', () => {
 
     jest.setSystemTime(mockCurrentDate.getTime());
 
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.START_OVERDUE;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.START_OVERDUE);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
-
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
 
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
+
     expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
   });
 
   test('theming', async () => {
     const iconContainer = await screen.findByRole('img');
+
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolOverdueThemeColor}`);
   });
 
@@ -372,21 +341,15 @@ describe('for cancelled patrols', () => {
 
     jest.setSystemTime(mockCurrentDate.getTime());
 
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.CANCELLED;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.CANCELLED);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
 
   test('showing a button to restore the patrol', async () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await screen.findByTestId(`patrol-list-item-restore-btn-${testPatrol.id}`);
-
     userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -402,7 +365,6 @@ describe('for cancelled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
-
     userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -412,9 +374,9 @@ describe('for cancelled patrols', () => {
 
   test('theming', async () => {
     const iconContainer = await screen.findByRole('img');
+
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolCancelledThemeColor}`);
   });
-
 });
 
 describe('for completed patrols', () => {
@@ -426,14 +388,9 @@ describe('for completed patrols', () => {
 
     jest.setSystemTime(mockCurrentDate.getTime());
 
-    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_UI_STATES.CANCELLED;
-    });
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.CANCELLED);
 
-    renderPatrolListItem({
-      ...initialProps,
-      patrol: testPatrol
-    });
+    renderPatrolListItem({ ...initialProps, patrol: testPatrol });
   });
 
   test('restoring the patrol from the kebab menu', async () => {
@@ -444,7 +401,6 @@ describe('for completed patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
-
     userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
@@ -454,7 +410,7 @@ describe('for completed patrols', () => {
 
   test('theming', async () => {
     const iconContainer = await screen.findByRole('img');
+
     expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolDoneThemeColor}`);
   });
-
 });

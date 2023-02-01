@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import AddReport from '../../AddReport';
 import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
+import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
@@ -14,14 +17,11 @@ import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
+import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
-import { setupServer } from 'msw/node';
-import { rest } from 'msw';
-import { PATROLS_API_URL } from '../../ducks/patrols';
-import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -44,12 +44,8 @@ jest.mock('../../utils/save', () => ({
   executeSaveActions: jest.fn(),
 }));
 
-const fetchPatrolResponse = { data: activePatrol };
-
 const server = setupServer(
-  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => {
-    return res(ctx.json({ data: fetchPatrolResponse }));
-  }),
+  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: { data: activePatrol } }))),
 );
 
 beforeAll(() => server.listen());
@@ -108,7 +104,8 @@ describe('ReportManager - ReportDetailView', () => {
         eventTypes,
         patrolTypes,
         eventSchemas,
-        patrolStore: {}
+        patrolStore: { 123: activePatrol },
+        tracks: {},
       },
       view: {
         mapLocationSelection: { isPickingLocation: false },
@@ -859,7 +856,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
-    store.data.eventStore = { 456: { ...mockReport, is_contained_in: ['collection'] } };
+    store.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
 
     render(
       <Provider store={mockStore(store)}>
@@ -873,7 +870,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
-    store.data.eventStore = { 456: { ...mockReport, patrols: ['patrol'] } };
+    store.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
 
     cleanup();
     render(

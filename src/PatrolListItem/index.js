@@ -1,28 +1,35 @@
 import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
 
 import { calcPatrolState } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
+import { PATROL_LIST_ITEM_CATEGORY, trackEventFactory } from '../utils/analytics';
 import usePatrol from '../hooks/usePatrol';
 
 import DasIcon from '../DasIcon';
 import FeedListItem from '../FeedListItem';
-import PatrolTrackControls from '../PatrolTrackControls';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from '../PatrolMenu';
+import PatrolTrackControls from '../PatrolTrackControls';
 
 import styles from './styles.module.scss';
-import { togglePatrolTrackState } from '../ducks/patrols';
-import { toggleTrackState } from '../ducks/map-ui';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
+const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 
-const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, showTitleDetails, showStateTitle, ...rest }, ref) => {
+const PatrolListItem = ({
+  dispatch: _dispatch,
+  onClick,
+  onSelfManagedStateChange,
+  patrol: patrolFromProps,
+  showControls,
+  showStateTitle,
+  showTitleDetails,
+  ...rest
+}, ref) => {
   const {
     patrolData,
 
@@ -59,29 +66,30 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedSt
 
   const { base: themeColor, background: themeBgColor } = theme;
 
-  const handleTitleClick = useCallback(() => {
+  const handleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item');
 
-    onTitleClick(patrol);
-  }, [onTitleClick, patrol]);
+    onClick?.(patrol);
+  }, [onClick, patrol]);
 
-  const patrolDataArr = useMemo(() => [patrolData], [patrolData]);
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
         <span>{patrolElapsedTime}</span> |
         <span>
-          <PatrolDistanceCovered patrolsData={patrolDataArr} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
         </span>
       </span>;
     }
+
     if (isPatrolScheduled || isPatrolCancelled) {
       return <span className={styles.titleDetails}>
         Scheduled: <span>{scheduledStartTime}</span>
       </span>;
     }
+
     return null;
-  }, [isPatrolCancelled, isPatrolActiveOrDone, isPatrolScheduled, patrolElapsedTime, scheduledStartTime, patrolDataArr]);
+  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolData, scheduledStartTime]);
 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
@@ -89,18 +97,43 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedSt
 
   const restorePatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
+
     restorePatrol();
   }, [restorePatrol]);
 
   const startPatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Start patrol from patrol list item');
+
     startPatrol();
   }, [startPatrol]);
 
   const StateDependentControls = () => {
-    if (isPatrolActiveOrDone) return <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} />;
-    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrolAndTrack} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
-    if (isPatrolScheduled) return  <Button variant='light' size='sm' onClick={startPatrolAndTrack} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
+    if (isPatrolActiveOrDone) {
+      return <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} />;
+    }
+
+    if (isPatrolCancelled) {
+      return <Button
+          data-testid={`patrol-list-item-restore-btn-${patrol.id}`}
+          onClick={restorePatrolAndTrack}
+          size="sm"
+          variant="light"
+        >
+        Restore
+      </Button>;
+    }
+
+    if (isPatrolScheduled) {
+      return <Button
+          data-testid={`patrol-list-item-start-btn-${patrol.id}`}
+          onClick={startPatrolAndTrack}
+          size="sm"
+          variant="light"
+        >
+        Start
+      </Button>;
+    }
+
     return null;
   };
 
@@ -112,6 +145,7 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedSt
           optionalDateBoundaries: { since: actualStartTime, until: actualEndTime }
         });
       }, TRACK_FETCH_DEBOUNCE_DELAY);
+
       return () => window.clearTimeout(debouncedTrackFetch.current);
     }
   }, [actualEndTime, actualStartTime, leader]);
@@ -126,50 +160,75 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls, onSelfManagedSt
     }, STATE_CHANGE_POLLING_INTERVAL);
 
     return () => window.clearInterval(intervalRef.current);
-
   }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
-  return <FeedListItem
-    ref={ref}
-    themeColor={themeColor}
-    themeBgColor={themeBgColor}
-    title={displayTitle}
-    onClick={handleTitleClick}
-    IconComponent={patrolIconId && <button data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
-      <DasIcon type='events' iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} />
-    </button>}
-    TitleComponent={
-      <>
-        <span className={styles.serialNumber}>{patrol.serial_number}</span>
-        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button'>
-          <span className={styles.mainTitle}>{displayTitle}</span>
-          {showTitleDetails && TitleDetailsComponent}
-        </button>
-      </>
-    }
-    DateComponent={
-      <div className={styles.statusInfo} data-testid={`patrol-list-item-date-status-${patrol.id}`}>
-        { showStateTitle &&
-          <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>
-        }
-        <span>{dateComponentDateString}</span>
-      </div>
-    }
-    ControlsComponent={
-      showControls ? <>
-        <StateDependentControls />
-        <PatrolMenu data-testid={`patrol-list-item-kebab-menu-${patrol.id}`} patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} />
-      </> : null
-    }
+  const renderedControlsComponent = showControls
+    ? <>
+      <StateDependentControls />
+      <PatrolMenu
+        data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}
+        menuRef={menuRef}
+        onPatrolChange={onPatrolChange}
+        patrol={patrol}
+      />
+    </>
+    : null;
 
-  {...rest}
+  const renderedDateComponent = <div
+      className={styles.statusInfo}
+      data-testid={`patrol-list-item-date-status-${patrol.id}`}
+    >
+    {showStateTitle && <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>}
+    <span>{dateComponentDateString}</span>
+  </div>;
+
+  const renderedIconComponent = patrolIconId && <button
+      className={styles.icon}
+      data-testid={`patrol-list-item-icon-${patrol.id}`}
+      type="button"
+    >
+    <DasIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} type="events" />
+  </button>;
+
+  const renderedTitleComponent = <>
+    <span className={styles.serialNumber}>{patrol.serial_number}</span>
+    <button
+        className={styles.title}
+        data-testid={`patrol-list-item-title-${patrol.id}`}
+        title={displayTitle}
+        type='button'
+      >
+      <span className={styles.mainTitle}>{displayTitle}</span>
+      {showTitleDetails && TitleDetailsComponent}
+    </button>
+  </>;
+
+  return <FeedListItem
+    ControlsComponent={renderedControlsComponent}
+    DateComponent={renderedDateComponent}
+    IconComponent={renderedIconComponent}
+    onClick={handleClick}
+    ref={ref}
+    themeBgColor={themeBgColor}
+    themeColor={themeColor}
+    title={displayTitle}
+    TitleComponent={renderedTitleComponent}
+    {...rest}
   />;
 };
 
 PatrolListItem.defaulProps = {
+  onClick: null,
   showControls: true,
+  showStateTitle: true,
   showTitleDetails: true,
-  showStateTitle: true
 };
 
-export default connect(null, { togglePatrolTrackState, toggleTrackState })(memo(forwardRef(PatrolListItem)));
+PatrolListItem.propTypes = {
+  onClick: PropTypes.func,
+  showControls: PropTypes.bool,
+  showStateTitle: PropTypes.bool,
+  showTitleDetails: PropTypes.bool,
+};
+
+export default memo(forwardRef(PatrolListItem));
