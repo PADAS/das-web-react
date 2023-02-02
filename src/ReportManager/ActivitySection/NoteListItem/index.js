@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
@@ -14,7 +14,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }, ref = null) => {
   const textareaRef = useRef();
 
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -59,7 +59,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     setText(trimmedText);
   }, [onSave, text]);
 
-  return <li className={isOpen ? styles.openItem : ''}>
+  return <li className={isOpen ? styles.openItem : ''} ref={ref}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
       <div className={styles.itemIcon}>
         <NoteIcon />
@@ -159,4 +159,4 @@ NoteListItem.propTypes = {
   onSave: PropTypes.func.isRequired,
 };
 
-export default memo(NoteListItem);
+export default memo(forwardRef(NoteListItem));

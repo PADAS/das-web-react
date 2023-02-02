@@ -12,16 +12,8 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
-const SortableList = ({ sortableList, scrollInto, sortedItemsRendered, className }) => {
+const SortableList = ({ sortableList, sortedItemsRendered, className }) => {
   const listRef = useRef();
-
-  useEffect(() => {
-    if (scrollInto && listRef?.current){
-      listRef.current?.scrollIntoView?.({
-        behavior: 'smooth'
-      });
-    }
-  }, [scrollInto]);
 
   return sortableList.length > 0 ? <ul className={className} ref={listRef} >
     {sortedItemsRendered}
@@ -38,7 +30,6 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
-  scrollInto,
 }, ref) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -109,6 +100,7 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
+      ref={noteToAdd.ref}
       onCollapse={() => onCollapseCard(noteToAdd)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd)}
@@ -192,7 +184,6 @@ const ActivitySection = ({
         sortableList={sortableList}
         sortedItemsRendered={sortedItemsRendered}
         className={styles.list}
-        scrollInto={scrollInto}
     />
 
   </div>;
@@ -226,7 +217,6 @@ ActivitySection.propTypes = {
     updated_at: PropTypes.string,
   })).isRequired,
   reportTracker: PropTypes.object.isRequired,
-  scrollInto: PropTypes.bool.isRequired,
 };
 
 export default memo(forwardRef(ActivitySection));
