@@ -31,7 +31,7 @@ const LinkItem = ({ item, type }) => {
         />
       </Link>;
     } else {
-      return <div style={{ cursor: 'pointer' }} onClick={() => openModalForPatrol(item, map)}>
+      return <div onClick={() => openModalForPatrol(item, map)}>
         <PatrolListItem
           className={styles.item}
           patrol={item}

@@ -21,6 +21,7 @@ const STATE_CHANGE_POLLING_INTERVAL = 3000;
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 
 const PatrolListItem = ({
+  className,
   dispatch: _dispatch,
   onClick,
   onSelfManagedStateChange,
@@ -204,6 +205,7 @@ const PatrolListItem = ({
   </>;
 
   return <FeedListItem
+    className={`${styles.item} ${className}`}
     ControlsComponent={renderedControlsComponent}
     DateComponent={renderedDateComponent}
     IconComponent={renderedIconComponent}
