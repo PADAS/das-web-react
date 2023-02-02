@@ -400,7 +400,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    <NavigationPromptModal when={isReportModified && !wasSaved} />
+    {!isAddedReport && <NavigationPromptModal when={isReportModified && !wasSaved} />}
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
