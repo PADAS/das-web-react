@@ -12,13 +12,6 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
-const SortableList = ({ sortableList, sortedItemsRendered, className }) => {
-  const listRef = useRef();
-
-  return sortableList.length > 0 ? <ul className={className} ref={listRef} >
-    {sortedItemsRendered}
-  </ul> : null;
-};
 
 const ActivitySection = ({
   attachmentsToAdd,
@@ -180,11 +173,9 @@ const ActivitySection = ({
       </div>}
     </div>
 
-    <SortableList
-        sortableList={sortableList}
-        sortedItemsRendered={sortedItemsRendered}
-        className={styles.list}
-    />
+    {!!sortableList.length && <ul className={styles.list} >
+      {sortedItemsRendered}
+    </ul>}
 
   </div>;
 };
