@@ -285,8 +285,12 @@ const ReportDetailView = ({
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
 
-  const onSaveNote = useCallback((originalNote, editedText) => {
-    const editedNote = { ...originalNote, text: editedText };
+  const onSaveNote = useCallback((originalNote, updatedNote) => {
+    const editedNote = { ...originalNote, text: updatedNote.text };
+
+    if (updatedNote.hasOwnProperty('added')) {
+      editedNote.added = updatedNote.added;
+    }
 
     const isNew = !originalNote.id;
     if (isNew) {
@@ -306,7 +310,7 @@ const ReportDetailView = ({
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), text: '' };
+      const newNote = { creationDate: new Date().toISOString(), text: '', added: false };
       setNotesToAdd([...notesToAdd, newNote]);
 
       reportTracker.track('Added Note');

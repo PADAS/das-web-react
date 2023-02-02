@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
@@ -20,6 +20,11 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const isNew = useMemo(() => !note.id, [note.id]);
   const isNewAndEmpty = useMemo(() => isNew && !note.text, [isNew, note.text]);
   const isOpen = useMemo(() => cardsExpanded.includes(note), [cardsExpanded, note]);
+  const isNoteNewAndUnAdded = useMemo(() =>
+    isNew
+    && note.hasOwnProperty('added')
+    && !note.added,
+  [isNew, note]);
 
   const title = useMemo(() => {
     if (isNew) {
@@ -47,17 +52,41 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
-    setText(note.text);
+    if (isNoteNewAndUnAdded) {
+      onDelete();
+    } else {
+      setText(note.text);
+    }
     setIsEditing(false);
-  }, [note.text]);
+  }, [isNoteNewAndUnAdded, onDelete, note.text]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
-
     const trimmedText = text.trim();
-    onSave(trimmedText);
+
+    const newNote = {
+      ...note,
+      text: trimmedText,
+    };
+
+    if (isNoteNewAndUnAdded) {
+      newNote.added = true;
+    }
+
+    onSave(newNote);
     setText(trimmedText);
-  }, [onSave, text]);
+  }, [note, isNoteNewAndUnAdded, onSave, text]);
+
+  useEffect(() => {
+    if (isEditing) {
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.selectionStart = textareaRef.current.value.length;
+        }
+      });
+    }
+  }, [isEditing]);
 
   return <li className={isOpen ? styles.openItem : ''}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
@@ -122,7 +151,6 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
         {isEditing && <div className={styles.editingNoteActions}>
           <Button
-            disabled={isNewAndEmpty}
             className={styles.cancelNoteButton}
             onClick={onClickCancelButton}
             type="button"
