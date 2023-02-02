@@ -55,7 +55,7 @@ const minimumNecessaryStoreStructure = {
 
 let store = mockStore(minimumNecessaryStoreStructure);
 
-const onTitleClick = jest.fn();
+const onClick = jest.fn();
 const onPatrolSelfManagedStateChange = jest.fn();
 const map = createMapMock({ fitBounds: jest.fn() });
 
@@ -73,7 +73,7 @@ beforeEach(() => {
 });
 
 const initialProps = {
-  onTitleClick,
+  onClick,
   onPatrolSelfManagedStateChange,
   patrol: testPatrol,
   showStateTitle: true,
@@ -82,12 +82,12 @@ const initialProps = {
   map
 };
 
-const getPatrolListItemComponent = ({ onTitleClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
+const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
   <Provider store={storeObject}>
     <NavigationWrapper>
       <MapContext.Provider value={map}>
         <PatrolListItem
-          onTitleClick={onTitleClick}
+          onClick={onClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={patrol}
           map={map}

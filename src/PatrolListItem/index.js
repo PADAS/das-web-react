@@ -73,12 +73,13 @@ const PatrolListItem = ({
     onClick?.(patrol);
   }, [onClick, patrol]);
 
+  const patrolsData = useMemo(() => [patrolData], [patrolData]);
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
       return <span className={styles.titleDetails}>
         <span>{patrolElapsedTime}</span> |
         <span>
-          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+          <PatrolDistanceCovered patrolsData={patrolsData} suffix=' km' />
         </span>
       </span>;
     }
@@ -90,7 +91,7 @@ const PatrolListItem = ({
     }
 
     return null;
-  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolData, scheduledStartTime]);
+  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime]);
 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
