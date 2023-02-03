@@ -16,7 +16,7 @@ const Popup = (props) => {
 
   useEffect(() => {
     if (!popupRef.current) {
-      const popup = new mapboxgl.Popup({ className, offset, anchor });
+      const popup = new mapboxgl.Popup({ className, offset, anchor, closeButton: false });
       popup.setDOMContent(popupContainerRef.current);
       popup.setLngLat(coordinates);
 
@@ -68,6 +68,12 @@ const Popup = (props) => {
       popupRef.current.setOffset(offset);
     }
   }, [offset]);
+
+  useEffect(() => {
+    return () => {
+      popupRef?.current?.remove();
+    };
+  }, []);
 
   return !!popupRef.current && createPortal(
     <Fragment>{children}</Fragment>,
