@@ -18,13 +18,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const textareaRef = useRef();
 
   const isNew = useMemo(() => !note.id, [note.id]);
-  const isNewAndEmpty = useMemo(() => isNew && !note.text, [isNew, note.text]);
+  const isNewAndUnAdded = useMemo(() => isNew && !note.text, [isNew, note.text]);
   const isOpen = useMemo(() => cardsExpanded.includes(note), [cardsExpanded, note]);
-  const isNoteNewAndUnAdded = useMemo(() =>
-    isNew
-    && note.hasOwnProperty('added')
-    && !note.added,
-  [isNew, note]);
 
   const title = useMemo(() => {
     if (isNew) {
@@ -33,7 +28,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     return note.text;
   }, [isNew, note.text]);
 
-  const [isEditing, setIsEditing] = useState(isNewAndEmpty);
+  const [isEditing, setIsEditing] = useState(isNewAndUnAdded);
   const [text, setText] = useState(note.text);
 
   const onClickTrashCanIcon = useCallback((event) => {
@@ -52,13 +47,13 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
-    if (isNoteNewAndUnAdded) {
+    if (isNewAndUnAdded) {
       onDelete();
     } else {
       setText(note.text);
     }
     setIsEditing(false);
-  }, [isNoteNewAndUnAdded, onDelete, note.text]);
+  }, [isNewAndUnAdded, onDelete, note.text]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -69,13 +64,9 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       text: trimmedText,
     };
 
-    if (isNoteNewAndUnAdded) {
-      newNote.added = true;
-    }
-
     onSave(newNote);
     setText(trimmedText);
-  }, [note, isNoteNewAndUnAdded, onSave, text]);
+  }, [note, onSave, text]);
 
   useEffect(() => {
     if (isEditing) {
@@ -119,7 +110,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       <div className={styles.itemActionButtonContainer}>
         <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
           <PencilIcon
-            className={isNewAndEmpty ? styles.disabled : ''}
+            className={isNewAndUnAdded ? styles.disabled : ''}
             data-testid={`reportManager-activitySection-editIcon-${note.id || note.text}`}
           />
         </ItemActionButton>

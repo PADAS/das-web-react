@@ -288,10 +288,6 @@ const ReportDetailView = ({
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
 
-    if (updatedNote.hasOwnProperty('added')) {
-      editedNote.added = updatedNote.added;
-    }
-
     const isNew = !originalNote.id;
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
