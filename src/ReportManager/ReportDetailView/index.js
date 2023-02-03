@@ -285,8 +285,8 @@ const ReportDetailView = ({
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
 
-  const onSaveNote = useCallback((originalNote, editedText) => {
-    const editedNote = { ...originalNote, text: editedText };
+  const onSaveNote = useCallback((originalNote, updatedNote) => {
+    const editedNote = { ...originalNote, text: updatedNote.text };
 
     const isNew = !originalNote.id;
     if (isNew) {
