@@ -306,7 +306,7 @@ const ReportDetailView = ({
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), text: '', added: false };
+      const newNote = { creationDate: new Date().toISOString(), text: '' };
       setNotesToAdd([...notesToAdd, newNote]);
 
       reportTracker.track('Added Note');
