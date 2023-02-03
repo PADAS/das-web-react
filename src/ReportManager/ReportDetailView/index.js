@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -41,6 +42,7 @@ import QuickLinks from '../QuickLinks';
 import styles from './styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
+const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ReportDetailView = ({
@@ -98,21 +100,36 @@ const ReportDetailView = ({
     [reportForm?.contains]
   );
 
-  const linkedPatrols = reportForm?.patrols?.map((id) => patrolStore[id]) || [];
+  const fetchEventDebounced = useMemo(
+    () => debounce((id) => dispatch(fetchEvent(id)), FETCH_EVENT_DEBOUNCE_TIME, { leading: true }),
+    [dispatch]
+  );
 
-  const linkedReports = useMemo(() => {
-    let linkedReports = [];
+  const linkedPatrolIds = reportForm?.patrols;
+  const linkedPatrols = useMemo(
+    () => linkedPatrolIds?.map((id) => patrolStore[id]).filter((patrol) => !!patrol) || [],
+    [linkedPatrolIds, patrolStore]
+  );
+
+  const linkedReportIds = useMemo(() => {
+    let linkedReportIds = [];
 
     if (Array.isArray(reportForm?.is_contained_in)) {
-      linkedReports = linkedReports.concat(reportForm.is_contained_in);
+      linkedReportIds = [
+        ...linkedReportIds,
+        ...reportForm.is_contained_in.map((containedIn) => containedIn.related_event.id),
+      ];
     }
-
     if (Array.isArray(reportForm?.is_linked_to)) {
-      linkedReports = linkedReports.concat(reportForm.is_linked_to);
+      linkedReportIds = [...linkedReportIds, ...reportForm.is_linked_to.map((linkedTo) => linkedTo.related_event.id)];
     }
 
-    return linkedReports.map((linkedReport) => linkedReport.related_event);
-  }, [reportForm]);
+    return linkedReportIds;
+  }, [reportForm.is_contained_in, reportForm.is_linked_to]);
+  const linkedReports = useMemo(
+    () => linkedReportIds?.map((id) => eventStore[id]).filter((report) => !!report) || [],
+    [eventStore, linkedReportIds]
+  );
 
   const reportAttachments = useMemo(
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
@@ -397,10 +414,16 @@ const ReportDetailView = ({
   }, [dispatch, reportForm, reportSchemas]);
 
   useEffect(() => {
-    if (reportForm?.patrols?.length > 0) {
-      reportForm.patrols.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
+    if (linkedPatrolIds?.length > 0) {
+      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
     }
-  }, [dispatch, patrolStore, reportForm?.patrols]);
+  }, [dispatch, linkedPatrolIds, patrolStore]);
+
+  useEffect(() => {
+    if (linkedReportIds?.length > 0) {
+      linkedReportIds.forEach((id) => !eventStore[id] && fetchEventDebounced(id));
+    }
+  }, [eventStore, fetchEventDebounced, linkedReportIds]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
