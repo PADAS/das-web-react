@@ -1,19 +1,22 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { NavigationContext } from '../../NavigationContextProvider';
+import { uuid } from '../../utils/string';
 
 const useNavigationBlocker = (when) => {
   const { blocker, blockNavigation, unblockNavigation } = useContext(NavigationContext);
 
+  const blockRequestId = useRef(uuid());
+
   useEffect(() => {
     if (when) {
-      blockNavigation();
+      blockNavigation(blockRequestId.current);
     } else {
-      unblockNavigation();
+      unblockNavigation(blockRequestId.current);
     }
   }, [blockNavigation, unblockNavigation, when]);
 
-  useEffect(() => unblockNavigation, [unblockNavigation]);
+  useEffect(() => () => unblockNavigation(blockRequestId.current), [unblockNavigation]);
 
   return blocker;
 };

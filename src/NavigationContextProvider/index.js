@@ -9,11 +9,15 @@ export const BLOCKER_STATES = {
 };
 
 const NavigationContextProvider = ({ children }) => {
+  const [blockRequestIds, setBlockRequestIds] = useState([]);
   const [blockerState, setBlockerState] = useState(BLOCKER_STATES.UNBLOCKED);
-  const [isNavigationBlocked, setIsNavigationBlocked] = useState(false);
   const [navigationData, setNavigationData] = useState({});
 
-  const blockNavigation = useCallback(() => setIsNavigationBlocked(true), []);
+  const isNavigationBlocked = !!blockRequestIds.length;
+
+  const blockNavigation = useCallback((newBlockRequestId) => {
+    setBlockRequestIds((blockRequestIds) => [...blockRequestIds, newBlockRequestId]);
+  }, []);
 
   const onNavigationAttemptBlocked = useCallback(() => {
     if (isNavigationBlocked) {
@@ -21,8 +25,10 @@ const NavigationContextProvider = ({ children }) => {
     }
   }, [isNavigationBlocked]);
 
-  const unblockNavigation = useCallback(() => {
-    setIsNavigationBlocked(false);
+  const unblockNavigation = useCallback((blockRequestIdToRemove) => {
+    setBlockRequestIds(
+      (blockRequestIds) => blockRequestIds.filter((blockRequestId) => blockRequestId !== blockRequestIdToRemove)
+    );
     setBlockerState(BLOCKER_STATES.UNBLOCKED);
   }, []);
 

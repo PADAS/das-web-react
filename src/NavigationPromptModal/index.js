@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
@@ -14,13 +14,27 @@ const NavigationPromptModal = ({
   cancelNavigationButtonText,
   continueNavigationButtonText,
   description,
+  onCancel,
+  onContinue,
   title,
   when,
   ...rest
 }) => {
   const blocker = useNavigationBlocker(when);
 
-  return <Modal {...rest} onHide={blocker.reset} show={blocker.state === BLOCKER_STATES.BLOCKED}>
+  const handleCancel = useCallback(() => {
+    blocker.reset();
+
+    onCancel?.();
+  }, [blocker, onCancel]);
+
+  const handleContinue = useCallback(() => {
+    blocker.proceed();
+
+    onContinue?.();
+  }, [blocker, onContinue]);
+
+  return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
     <Modal.Header closeButton>
       <Modal.Title>{title}</Modal.Title>
     </Modal.Header>
@@ -28,13 +42,13 @@ const NavigationPromptModal = ({
     <Modal.Body>{description}</Modal.Body>
 
     <Modal.Footer className={styles.footer}>
-      <Button className={styles.cancelButton} onClick={blocker.reset} variant="secondary">
+      <Button className={styles.cancelButton} onClick={handleCancel} variant="secondary">
         {cancelNavigationButtonText}
       </Button>
 
       <Button
         className={styles.continueButton}
-        onClick={blocker.proceed}
+        onClick={handleContinue}
         onFocus={(event) => event.target.blur()}
         variant="primary"
       >
@@ -49,6 +63,8 @@ NavigationPromptModal.defaultProps = {
   cancelNavigationButtonText: 'Cancel',
   continueNavigationButtonText: 'Discard',
   description: 'Would you like to discard changes?',
+  onCancel: null,
+  onContinue: null,
   title: 'Discard changes',
 };
 
@@ -56,6 +72,8 @@ NavigationPromptModal.propTypes = {
   cancelNavigationButtonText: PropTypes.string,
   continueNavigationButtonText: PropTypes.string,
   description: PropTypes.string,
+  onCancel: PropTypes.func,
+  onContinue: PropTypes.func,
   title: PropTypes.string,
   when: PropTypes.bool.isRequired,
 };

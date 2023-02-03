@@ -4,6 +4,8 @@ import { renderHook } from '@testing-library/react-hooks';
 import NavigationContextProvider, { BLOCKER_STATES, NavigationContext } from './';
 
 describe('NavigationContextProvider', () => {
+  const blockRequestId = '123';
+
   test('can read and update navigation data', async () => {
     const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
     const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
@@ -21,7 +23,7 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation();
+    result.current.blockNavigation(blockRequestId);
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
   });
@@ -32,11 +34,11 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation();
+    result.current.blockNavigation(blockRequestId);
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
 
-    result.current.unblockNavigation();
+    result.current.unblockNavigation(blockRequestId);
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
   });
@@ -47,7 +49,7 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation();
+    result.current.blockNavigation(blockRequestId);
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
@@ -67,7 +69,7 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation();
+    result.current.blockNavigation(blockRequestId);
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
@@ -79,5 +81,27 @@ describe('NavigationContextProvider', () => {
     result.current.blocker.reset();
 
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
+  });
+
+  test('stays blocked if a different blocker request id is removed', async () => {
+    const anotherBlockRequestId = '456';
+
+    const wrapper = ({ children }) => <NavigationContextProvider>{children}</NavigationContextProvider>;
+    const { result } = renderHook(() => useContext(NavigationContext), { wrapper });
+
+    expect(result.current.isNavigationBlocked).toBeFalsy();
+
+    result.current.blockNavigation(blockRequestId);
+    result.current.blockNavigation(anotherBlockRequestId);
+
+    expect(result.current.isNavigationBlocked).toBeTruthy();
+
+    result.current.unblockNavigation(anotherBlockRequestId);
+
+    expect(result.current.isNavigationBlocked).toBeTruthy();
+
+    result.current.unblockNavigation(blockRequestId);
+
+    expect(result.current.isNavigationBlocked).toBeFalsy();
   });
 });

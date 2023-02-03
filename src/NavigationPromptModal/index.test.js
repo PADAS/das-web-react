@@ -47,6 +47,16 @@ describe('NavigationPromptModal', () => {
     });
   });
 
+  test('forces to show the modal even if when is false', async () => {
+    render(<NavigationWrapper>
+      <NavigationPromptModal show when={false} />
+    </NavigationWrapper>);
+
+    await waitFor(async () => {
+      expect((await screen.findByText('Discard changes'))).toBeDefined();
+    });
+  });
+
   test('removes the modal if the navigation attempt is continued', async () => {
     const ChildComponent = () => {
       const { blocker, isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
