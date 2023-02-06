@@ -175,7 +175,7 @@ const DetailsSection = ({
       </div>}
     </div>
 
-    {!!formSchema && <Form
+    {!!formSchema && !reportForm.is_collection && <Form
         className={styles.form}
         disabled={formSchema?.readonly}
         fields={{ externalLink: ExternalLinkField }}
