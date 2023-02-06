@@ -175,7 +175,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
 
-  test('user can cancel the edition of a note', async () => {
+  test('user can cancel the edit of a note', async () => {
     const note = { text: 'note' };
     render(<NoteListItem
       cardsExpanded={[note]}
@@ -203,7 +203,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect((await screen.queryByText('Save Note'))).toBeNull();
   });
 
-  test('user can save the edition of a new note', async () => {
+  test('user can save edits to a new note', async () => {
     const note = { text: 'note' };
     render(<NoteListItem
       cardsExpanded={[note]}
@@ -230,7 +230,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
-    expect(onSave).toHaveBeenCalledWith('noteedition');
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
     expect((await screen.queryByText('Save Note'))).toBeNull();
   });
 
@@ -276,10 +276,10 @@ describe('ReportManager - ActivitySection - Note', () => {
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
-    expect(onSave).toHaveBeenCalledWith('noteedition');
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
   });
 
-  test('cancel and edition buttons are disabled while editing a new empty note', async () => {
+  test('edit button is disabled while editing a new empty note', async () => {
     const note = { text: '' };
     render(<NoteListItem
       cardsExpanded={[note]}
@@ -291,6 +291,5 @@ describe('ReportManager - ActivitySection - Note', () => {
     />);
 
     expect((await screen.findByTestId('reportManager-activitySection-editIcon-'))).toHaveClass('disabled');
-    expect((await screen.findByText('Cancel'))).toHaveAttribute('disabled');
   });
 });

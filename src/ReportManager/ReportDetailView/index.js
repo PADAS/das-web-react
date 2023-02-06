@@ -36,6 +36,7 @@ import LoadingOverlay from '../../LoadingOverlay';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
+import activitySectionStyles from '../ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
@@ -286,8 +287,8 @@ const ReportDetailView = ({
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
 
-  const onSaveNote = useCallback((originalNote, editedText) => {
-    const editedNote = { ...originalNote, text: editedText };
+  const onSaveNote = useCallback((originalNote, updatedNote) => {
+    const editedNote = { ...originalNote, text: updatedNote.text };
 
     const isNew = !originalNote.id;
     if (isNew) {
@@ -313,10 +314,9 @@ const ReportDetailView = ({
 
       setTimeout(() => {
         newNoteRef?.current?.scrollIntoView?.({
-          alignToTop: false,
           behavior: 'smooth',
         });
-      });
+      }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
   }, [notesToAdd, reportTracker]);
 

@@ -38,8 +38,8 @@ const ActivitySection = ({
     }
   }, [cardsExpanded]);
 
-  const onSaveNoteKeepExpanded = useCallback((originalNote) => (editedText) => {
-    const editedNote = onSaveNote(originalNote, editedText);
+  const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
+    const editedNote = onSaveNote(originalNote, updatedNote);
     setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
   }, [cardsExpanded, onSaveNote]);
 
