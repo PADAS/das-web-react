@@ -82,6 +82,7 @@ export const createMockPopup = (override = {}) => ({
   setDOMContent: jest.fn(),
   remove: jest.fn(),
   on: jest.fn(),
+  toggleClass: jest.fn(),
   ...override,
 });
 

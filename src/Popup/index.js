@@ -9,7 +9,7 @@ import xor from 'lodash/xor';
 const Popup = (props) => {
   const { className, offset, coordinates, anchor, children, map } = props;
 
-  const classNameRef = useRef(className);
+  const classNameRef = useRef('');
 
   const popupRef = useRef(null);
   const popupContainerRef = useRef(document.createElement('div'));

@@ -262,8 +262,6 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
-      console.log(mapboxgl.Popup.prototype.setDOMContent.mock.calls[0]);
-
       await waitFor(() => {
         expect(mapboxgl.Popup.prototype.setDOMContent).toHaveBeenCalled();
         const domContent = mapboxgl.Popup.prototype.setDOMContent.mock.calls[0][0];
