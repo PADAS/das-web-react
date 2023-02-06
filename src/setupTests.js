@@ -14,6 +14,7 @@ jest.mock('mapbox-gl', () => ({
   Popup: jest.fn(),
 }));
 
+
 mapboxgl.Map.prototype = createMapMock();
 mapboxgl.Popup.prototype = createMockPopup();
 

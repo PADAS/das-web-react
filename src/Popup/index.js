@@ -20,21 +20,14 @@ const Popup = (props) => {
       popup.setDOMContent(popupContainerRef.current);
       popup.setLngLat(coordinates);
 
-      popup.on('open', () => {
-        console.log('now i am opening');
-      });
-
       popup.on('close', () => {
-        console.log('now i am closing');
         popupRef.current = null;
         classNameRef.current = '';
       });
 
       popupRef.current = popup;
 
-      setTimeout(() => {
-        popupRef.current.addTo(map);
-      });
+      popupRef.current.addTo(map);
     }
 
 
@@ -43,8 +36,8 @@ const Popup = (props) => {
   useEffect(() => {
     if (popupRef.current) {
       const classDifferences = xor(
-        classNameRef.current.split(' '),
-        className.split(' '),
+        (classNameRef.current || '').split(' '),
+        (className || '').split(' '),
       ).filter(classString =>
         !!classString
       );
@@ -75,17 +68,30 @@ const Popup = (props) => {
     };
   }, []);
 
-  return !!popupRef.current && createPortal(
+  return createPortal(
     <Fragment>{children}</Fragment>,
     popupContainerRef.current
   );
 };
 
+Popup.propTypes = {
+  anchor: PropTypes.string,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+    null,
+  ]),
+  className: PropTypes.string,
+  coordinates: PropTypes.array.isRequired,
+  map: PropTypes.object.isRequired,
+  offset: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.object,
+  ]),
+};
+
+Popup.defaultProps = {
+  clasName: '',
+};
+
 export default withMap(Popup);
-
-/* 
-  1. renders new popup content on any prop change
-  2. replaces popup html content with rendered changes
-  3. closes on map click
-
-*/

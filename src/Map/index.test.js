@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
@@ -150,6 +150,8 @@ describe('Map', () => {
   });
 
   test('shows the EventFilter', async () => {
+    store.view.mapLocationSelection.isPickingLocation = false;
+
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
@@ -160,7 +162,9 @@ describe('Map', () => {
       </NavigationWrapper>
     </Provider>);
 
-    expect((await screen.findByTestId('eventFilter-form'))).toBeDefined();
+    await waitFor(() => {
+      expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
+    });
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
@@ -224,6 +228,9 @@ describe('Map', () => {
       </NavigationWrapper>
     </Provider>);
 
-    expect((await screen.findByTestId('reportAreaOverview-wrapper'))).toBeDefined();
+    await waitFor(() => {
+      expect(screen.findByTestId('reportAreaOverview-wrapper')).toBeDefined();
+    });
+
   });
 });

@@ -428,12 +428,12 @@ export const CheckboxesWidget = ({
 
 export const ExternalLinkField = ({ formData, idSchema, schema }) => {
   const onClick = useCallback(() => {
-    const urlDomain = formData.value.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0];
+    const urlDomain = formData?.value?.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0] ?? '';
 
     eventReportTracker.track('Click \'External Source\' link', urlDomain);
-  }, [formData.value]);
+  }, [formData?.value]);
 
-  return <div className={styles.externalLinkField}>
+  return formData.value && <div className={styles.externalLinkField}>
     <label htmlFor={idSchema.id}>
       {schema.title}
 

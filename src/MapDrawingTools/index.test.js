@@ -2,6 +2,8 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
+import mapboxgl from 'mapbox-gl';
+
 import { MapContext } from '../App';
 import MapDrawingTools, { DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
@@ -252,7 +254,7 @@ describe('MapDrawingTools', () => {
     test('rendering a cursor popup with point details when drawing and the mouse is moved', async () => {
       const points = [[1, 2], [2, 3], [4, 5]];
 
-      const { container } = render(
+      render(
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <MapDrawingTools drawing={drawing} drawingMode={DRAWING_MODES.POLYGON} points={points} />
@@ -260,9 +262,14 @@ describe('MapDrawingTools', () => {
         </MapContext.Provider>
       );
 
+      console.log(mapboxgl.Popup.prototype.setDOMContent.mock.calls[0]);
+
       await waitFor(() => {
-        expect(container).toHaveTextContent('Bearing');
-        expect(container).toHaveTextContent('Distance');
+        expect(mapboxgl.Popup.prototype.setDOMContent).toHaveBeenCalled();
+        const domContent = mapboxgl.Popup.prototype.setDOMContent.mock.calls[0][0];
+
+        expect(domContent).toHaveTextContent('Bearing');
+        expect(domContent).toHaveTextContent('Distance');
       });
 
     });
