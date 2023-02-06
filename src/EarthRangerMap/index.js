@@ -65,13 +65,6 @@ const EarthRangerMap = (props) => {
     }
   }, [onLoad]);
 
-  /*   const onZoomControlClick = (map, zoomDiff) => {
-    zoomDiff > 0 ?
-      map.zoomIn({ level: map.getZoom() + zoomDiff }) :
-      map.zoomOut({ level: map.getZoom() - zoomDiff });
-    mapInteractionTracker.track(`Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
-  }; */
-
   useEffect(() => {
     if (currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
       map.current && map.current.setStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
@@ -85,7 +78,6 @@ const EarthRangerMap = (props) => {
       {mapLoaded && <Fragment>
         <MapTerrain map={map.current} />
         <SkyLayer map={map.current} />
-        {/* <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/> */}
         <div className='map-controls-container'>
           {controls}
         </div>
