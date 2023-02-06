@@ -43,7 +43,7 @@ const Popup = (props) => {
       );
 
       classDifferences.forEach((className) => {
-        popupRef.current.toggleClass(className);
+        popupRef?.current?.toggleClass(className);
       });
 
       classNameRef.current = className;
@@ -52,13 +52,13 @@ const Popup = (props) => {
 
   useEffect(() => {
     if (popupRef.current) {
-      popupRef.current.setLngLat(coordinates);
+      popupRef?.current?.setLngLat(coordinates);
     }
   }, [coordinates]);
 
   useEffect(() => {
     if (popupRef.current) {
-      popupRef.current.setOffset(offset);
+      popupRef?.current?.setOffset(offset);
     }
   }, [offset]);
 
