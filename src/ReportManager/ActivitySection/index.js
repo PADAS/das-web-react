@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -210,4 +210,4 @@ ActivitySection.propTypes = {
   reportTracker: PropTypes.object.isRequired,
 };
 
-export default memo(forwardRef(ActivitySection));
+export default memo(ActivitySection);
