@@ -182,7 +182,7 @@ const AddToPatrolModal = (props) => {
                 data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 showControls={false}
-                onTitleClick={onClickPatrol} />;
+                onClick={onClickPatrol} />;
             })}
             {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
             {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}

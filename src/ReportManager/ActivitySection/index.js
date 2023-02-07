@@ -23,7 +23,7 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
-}, ref) => {
+}) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card) => {
@@ -148,7 +148,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notesToAdd, onExpandCard]);
 
-  return <div data-testid="reportManager-activitySection" ref={ref}>
+  return <div data-testid="reportManager-activitySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
