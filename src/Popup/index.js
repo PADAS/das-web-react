@@ -35,6 +35,8 @@ const Popup = (props) => {
 
   useEffect(() => {
     if (popupRef.current) {
+      let currentPopup = popupRef.current;
+
       const classDifferences = xor(
         (classNameRef.current || '').split(' '),
         (className || '').split(' '),
@@ -43,7 +45,7 @@ const Popup = (props) => {
       );
 
       classDifferences.forEach((className) => {
-        popupRef?.current?.toggleClass(className);
+        currentPopup.toggleClass(className);
       });
 
       classNameRef.current = className;

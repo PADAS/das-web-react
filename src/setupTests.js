@@ -12,6 +12,7 @@ jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
   Map: jest.fn(),
   Popup: jest.fn(),
+  Marker: jest.fn(),
 }));
 
 

@@ -9,14 +9,19 @@ export const createMapMock = (override = {}) => {
       _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },
       _sw: { lat: -3.480332977332381, lng: 36.96196978906826 },
     }),
-    getContainer: jest.fn(),
-    getCanvasContainer: jest.fn(),
+    getContainer: jest.fn(() => document.createElement('div')),
+    getCanvasContainer: jest.fn(() => document.createElement('div')),
     setFilter: jest.fn(),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
+    _addMarker: jest.fn(),
     moveLayer: jest.fn(),
     removeLayer: jest.fn(),
     removeFeatureState: jest.fn(),
+    transform: {
+      center: {},
+      renderWorldCopies: jest.fn(),
+    },
     on: jest.fn((name, ...rest) => {
       const layerId = isString(rest[0]) ? rest[0] : '';
       const callback = !!layerId ? rest[1] : rest[0];
