@@ -601,6 +601,10 @@ describe('ReportManager - ReportDetailView', () => {
       </Provider>
     );
 
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
+
     expect(onSaveSuccess).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
@@ -623,6 +627,10 @@ describe('ReportManager - ReportDetailView', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
 
@@ -650,6 +658,9 @@ describe('ReportManager - ReportDetailView', () => {
       </Provider>
     );
 
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
@@ -674,6 +685,10 @@ describe('ReportManager - ReportDetailView', () => {
         </NavigationWrapper>
       </Provider>
     );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
 
     expect(onSaveError).toHaveBeenCalledTimes(0);
 
@@ -701,6 +716,9 @@ describe('ReportManager - ReportDetailView', () => {
       </Provider>
     );
 
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
-import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
@@ -24,6 +24,7 @@ import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
+import Link from '../Link';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';

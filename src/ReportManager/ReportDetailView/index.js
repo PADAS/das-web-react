@@ -33,6 +33,7 @@ import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
 import HistorySection from '../HistorySection';
 import LoadingOverlay from '../../LoadingOverlay';
+import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
@@ -69,6 +70,7 @@ const ReportDetailView = ({
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [wasSaved, setWasSaved] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
@@ -104,10 +106,14 @@ const ReportDetailView = ({
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
-  const reportChanges = useMemo(
-    () => originalReport && reportForm ? extractObjectDifference(reportForm, originalReport) : {},
-    [originalReport, reportForm]
-  );
+  const reportChanges = useMemo(() => {
+    if (!originalReport || !reportForm) {
+      return {};
+    }
+
+    return Object.entries(extractObjectDifference(reportForm, originalReport))
+      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
+  }, [originalReport, reportForm]);
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
@@ -123,7 +129,7 @@ const ReportDetailView = ({
   const onSaveSuccess = useCallback((reportToSubmit) => (results) => {
     onSaveSuccessCallback?.(results);
 
-    navigate(`/${TAB_KEYS.REPORTS}`);
+    setWasSaved(true);
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
       return Promise.all(reportToSubmit.contains
@@ -131,7 +137,7 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
     return results;
-  }, [dispatch, navigate, onSaveSuccessCallback]);
+  }, [dispatch, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -217,10 +223,8 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker, setReportForm]);
 
   const onPriorityChange = useCallback(({ value: priority }) => {
-    setReportForm({
-      ...reportForm,
-      priority,
-    });
+    setReportForm({ ...reportForm, priority });
+
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [reportForm, reportTracker]);
 
@@ -376,6 +380,12 @@ const ReportDetailView = ({
     }
   }, [dispatch, reportForm, reportSchemas]);
 
+  useEffect(() => {
+    if (wasSaved) {
+      navigate(`/${TAB_KEYS.REPORTS}`);
+    }
+  }, [navigate, wasSaved]);
+
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
@@ -390,6 +400,8 @@ const ReportDetailView = ({
     data-testid="reportManagerContainer"
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
+
+    {!isAddedReport && <NavigationPromptModal when={isReportModified && !wasSaved} />}
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
@@ -472,7 +484,7 @@ const ReportDetailView = ({
 
               <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified}
+                  disabled={!isReportModified && !isAddedReport}
                   onClick={onClickSaveButton}
                   type="button"
                 >
