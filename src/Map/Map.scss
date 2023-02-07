@@ -1,5 +1,14 @@
+@import '../common/styles/buttons';
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
+
+@mixin buttonOpacity {
+  opacity: 0.75;
+
+  &:hover {
+    opacity: 1;
+  }
+}
 
 .main-map {
   h5 {
@@ -72,11 +81,21 @@
   }
 }
 
+[class*="mapboxgl-ctrl-"][type=button] {
+  --dimensions: 2.25rem;
+
+  @include buttonOpacity;
+  @include imageButton;
+
+  height: var(--dimensions);
+  width: var(--dimensions);
+}
+
 .compass-wrapper {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   max-width: 11rem;
   width: 30vw;
   margin-bottom: 0.5rem;
