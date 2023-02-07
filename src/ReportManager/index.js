@@ -10,6 +10,7 @@ import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
 import DelayedUnmount from '../DelayedUnmount';
+import NavigationPromptModal from '../NavigationPromptModal';
 import ReportDetailView from './ReportDetailView';
 
 import styles from './styles.module.scss';
@@ -30,15 +31,24 @@ const ReportManager = () => {
   const [addedReportData, setAddedReportData] = useState(null);
   const [addedReportTypeId, setAddedReportTypeId] = useState(null);
   const [showAddedReport, setShowAddedReport] = useState(false);
+  const [showSecondaryReportNavigationPrompt, setShowSecondaryReportNavigationPrompt] = useState(false);
 
-  const onCancelAddedReport = useCallback(() => {
+  const onCancelSecondaryReportPrompt = useCallback(() => {
+    setShowSecondaryReportNavigationPrompt(false);
+  }, []);
+
+  const onContinueSecondaryReportPrompt = useCallback(() => {
+    setShowSecondaryReportNavigationPrompt(false);
     setShowAddedReport(false);
-
     setTimeout(() => {
       setAddedReportFormProps(null);
       setAddedReportData(null);
       setAddedReportTypeId(null);
     }, ADDED_REPORT_TRANSITION_EFFECT_TIME);
+  }, []);
+
+  const onCancelAddedReport = useCallback(() => {
+    setShowSecondaryReportNavigationPrompt(true);
   }, []);
 
   useEffect(() => {
@@ -110,6 +120,12 @@ const ReportManager = () => {
     />}
 
     <DelayedUnmount isMounted={showAddedReport}>
+      <NavigationPromptModal
+        onCancel={onCancelSecondaryReportPrompt}
+        onContinue={onContinueSecondaryReportPrompt}
+        show={showSecondaryReportNavigationPrompt}
+      />
+
       <ReportDetailView
         className={addedReportClassName}
         formProps={addedReportFormProps}

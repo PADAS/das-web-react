@@ -1,0 +1,24 @@
+@import '../common/styles/vars/colors';
+
+.footer {
+  border-top: none;
+
+  .cancelButton {
+    background-color: white;
+    border: none;
+    color: $secondary-medium-gray;
+    margin-right: 0.5rem;
+  }
+  
+  .continueButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $bright-red;
+    border: none;
+  
+    svg {
+      margin-right: 0.25rem;
+    }
+  }
+}

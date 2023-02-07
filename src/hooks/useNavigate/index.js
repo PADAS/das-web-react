@@ -1,32 +1,71 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate as useRouterNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import { showSideBar } from '../../ducks/side-bar';
 
-import { NavigationContext } from '../../NavigationContextProvider';
+import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
 
-// Our own useNavigate hook so we can set or cleanup the navigation context data in every
-// navigation, and show the sidebar in case we left it closed through side-bar reducer
+// Custom useNavigate hook to handle blocking navigation, context navigation
+// data and synchronization with sidebar reducer
 const useNavigate = (options = {}) => {
   const { clearContext = true, dispatchShowSideBar = true } = options;
 
   const dispatch = useDispatch();
   const routerNavigate = useRouterNavigate();
 
-  const { setNavigationData } = useContext(NavigationContext);
+  const {
+    blocker,
+    isNavigationBlocked,
+    onNavigationAttemptBlocked,
+    setNavigationData,
+  } = useContext(NavigationContext);
 
-  const navigate = useCallback((to, options, navigationContextData = null) => {
-    if (clearContext || navigationContextData) {
-      setNavigationData(navigationContextData || {});
+  const [navigationAttemptParameters, setNavigationAttemptParameters] = useState(null);
+
+  const navigate = useCallback((to, options, navigationContextData = null, skipBlocker = false) => {
+    if (!skipBlocker && isNavigationBlocked) {
+      setNavigationAttemptParameters({ to, options, navigationContextData });
+      onNavigationAttemptBlocked();
+    } else {
+      if (clearContext || navigationContextData) {
+        setNavigationData(navigationContextData || {});
+      }
+
+      if (dispatchShowSideBar) {
+        dispatch(showSideBar());
+      }
+
+      routerNavigate(to, options);
     }
+  }, [
+    clearContext,
+    dispatch,
+    dispatchShowSideBar,
+    isNavigationBlocked,
+    onNavigationAttemptBlocked,
+    routerNavigate,
+    setNavigationData,
+  ]);
 
-    if (dispatchShowSideBar) {
-      dispatch(showSideBar());
+  useEffect(() => {
+    if (blocker.state === BLOCKER_STATES.PROCEEDING && navigationAttemptParameters) {
+      navigate(
+        navigationAttemptParameters.to,
+        navigationAttemptParameters.options,
+        navigationAttemptParameters.navigationContextData,
+        true
+      );
+
+      blocker.reset();
     }
+  }, [blocker, navigate, navigationAttemptParameters]);
 
-    routerNavigate(to, options);
-  }, [clearContext, dispatch, dispatchShowSideBar, routerNavigate, setNavigationData]);
+  useEffect(() => {
+    if (blocker.state === BLOCKER_STATES.UNBLOCKED) {
+      setNavigationAttemptParameters(null);
+    }
+  }, [blocker.state]);
 
   return navigate;
 };

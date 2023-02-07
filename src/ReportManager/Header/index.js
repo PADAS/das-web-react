@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
@@ -33,11 +33,7 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) =
 
   const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
 
-  useEffect(() => {
-    if (!report.title) {
-      onChangeTitle(displayTitle);
-    }
-  }, [onChangeTitle, displayTitle, report.title]);
+  const title = report.title || displayTitle;
 
   return <div className={`${styles.header} ${styles[`priority-${displayPriority}`]}`}>
     <div role='img' className={`${styles.icon} ${styles[`priority-${displayPriority}`]}`} data-testid="reportDetailHeader-icon">
@@ -48,7 +44,7 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) =
     <p className={styles.serialNumber}>{report.serial_number}</p>
 
     <div className={styles.titleAndType}>
-      {report.title && <div
+      {title && <div
         className={`${styles.title} ${isReadOnly ? '' : styles.editable}`}
         contentEditable={isReadOnly ? false : true}
         data-testid="reportManager-header-title"
@@ -57,7 +53,7 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) =
         ref={titleInput}
         suppressContentEditableWarning
       >
-        {report.title}
+        {title}
       </div>}
 
       {showEventType && <label

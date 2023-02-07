@@ -4,7 +4,15 @@ import isEqual from 'react-fast-compare';
 
 export const extractObjectDifference = (object, original) => transform(object, (result, value, key) => {
   if (!isEqual(value, original[key])) {
-    result[key] = isPlainObject(value) && isPlainObject(original[key]) ? extractObjectDifference(value, original[key]) : value;
+    if (isPlainObject(value) && isPlainObject(original[key])) {
+      const objectDifference = extractObjectDifference(value, original[key]);
+
+      if (Object.keys(objectDifference).length > 0) {
+        result[key] = objectDifference;
+      }
+    } else {
+      result[key] = value;
+    }
   }
 });
 

@@ -108,7 +108,7 @@ describe('ReportManager', () => {
     });
   });
 
-  test('redirects to the same route assignin a temporal id in case it is missing', async () => {
+  test('redirects to the same route assigning a temporal id in case it is missing', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
@@ -210,7 +210,41 @@ describe('ReportManager', () => {
     });
   });
 
-  test('hides the added report when clicking the cancel button', async () => {
+  test('shows a confirmation prompt the cancel button in an added report', async () => {
+    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
+      useEffect(() => {
+        onAddReport({}, {}, 'd0884b8c-4ecb-45da-841d-f2f8d6246abf');
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportManager />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    const addedReportManager = (await screen.findAllByTestId('reportManagerContainer'))[1];
+
+    await waitFor(async () => {
+      expect(addedReportManager).toHaveClass('show');
+      expect((await screen.queryByText('Would you like to discard changes?'))).toBeNull();
+    });
+
+    const addedReportCancelButton = (await screen.findAllByText('Cancel'))[1];
+    userEvent.click(addedReportCancelButton);
+
+    await waitFor(async () => {
+      expect((await screen.findByText('Would you like to discard changes?'))).toBeDefined();
+    });
+  });
+
+  test('hides the added report when confirming the prompt', async () => {
     AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         const formProps = {};
@@ -238,6 +272,8 @@ describe('ReportManager', () => {
 
     const addedReportCancelButton = (await screen.findAllByText('Cancel'))[1];
     userEvent.click(addedReportCancelButton);
+    const discardButton = await screen.findByText('Discard');
+    userEvent.click(discardButton);
 
     await waitFor(() => {
       expect(addedReportManager).not.toHaveClass('show');

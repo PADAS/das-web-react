@@ -173,7 +173,7 @@ describe('ReportManager - ActivitySection', () => {
     userEvent.click(saveNoteButton);
 
     expect(onSaveNote).toHaveBeenCalledTimes(1);
-    expect(onSaveNote.mock.calls[0][1]).toBe('note4edited');
+    expect(onSaveNote.mock.calls[0][1].text).toBe('note4edited');
   });
 
   test('expands a new note when clicking the down arrow', async () => {
@@ -222,7 +222,7 @@ describe('ReportManager - ActivitySection', () => {
     userEvent.click(saveNoteButton);
 
     expect(onSaveNote).toHaveBeenCalledTimes(1);
-    expect(onSaveNote.mock.calls[0][1]).toBe('note1edited');
+    expect(onSaveNote.mock.calls[0][1].text).toBe('note1edited');
   });
 
   test('sorts items by date', async () => {
