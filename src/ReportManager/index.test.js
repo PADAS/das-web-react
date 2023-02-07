@@ -73,6 +73,7 @@ describe('ReportManager', () => {
         eventTypes,
         patrolTypes,
         eventSchemas,
+        patrolStore: {},
       },
       view: {
         mapLocationSelection: { isPickingLocation: false },

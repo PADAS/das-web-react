@@ -11,7 +11,7 @@ import {
   trackHasDataWithinTimeRange,
 } from '../utils/tracks';
 
-const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
+export const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
 // actions
 export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';

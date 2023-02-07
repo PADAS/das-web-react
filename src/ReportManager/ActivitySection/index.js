@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -22,7 +22,7 @@ const ActivitySection = ({
   reportAttachments,
   reportNotes,
   reportTracker,
-}, ref) => {
+}) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card) => {
@@ -146,7 +146,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notesToAdd, onExpandCard]);
 
-  return <div data-testid="reportManager-activitySection" ref={ref}>
+  return <div data-testid="reportManager-activitySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -207,4 +207,4 @@ ActivitySection.propTypes = {
   reportTracker: PropTypes.object.isRequired,
 };
 
-export default memo(forwardRef(ActivitySection));
+export default memo(ActivitySection);
