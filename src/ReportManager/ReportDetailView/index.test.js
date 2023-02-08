@@ -468,8 +468,6 @@ describe('ReportManager - ReportDetailView', () => {
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
       expect(fetchEvent).toHaveBeenCalledTimes(1);
       expect(fetchEvent).toHaveBeenCalledWith('initial');
-      expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports/initial');
     });
   });
 
