@@ -1,4 +1,5 @@
 @import 'vars/colors';
+@import 'vars/controls';
 
 @mixin defaultTextInput {
   background: white;
@@ -6,4 +7,24 @@
   border-radius: 0.2rem;
   outline: none;
   padding: 0.25rem;
+}
+
+@mixin dropdown-caret($size: 0.3rem, $color: $secondary-medium-light-gray) {
+  border-left: $size solid transparent;
+  border-right: $size solid transparent;
+  border-top: $size solid $color;
+}
+
+@mixin dropdown-options-hover {
+  background-color: $blue-highlight;
+  cursor: pointer;
+}
+
+@mixin label-styles {
+  font-weight: 500;
+  color: $secondary-medium-gray;
+}
+
+@mixin boxShadow {
+  box-shadow: $base-box-shadow;
 }

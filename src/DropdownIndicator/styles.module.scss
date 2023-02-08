@@ -1,0 +1,5 @@
+@import '../common/styles/inputs';
+
+.caret{
+  @include dropdown-caret;
+}

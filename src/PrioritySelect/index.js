@@ -9,6 +9,7 @@ import {
 } from '../constants';
 
 import styles from './styles.module.scss';
+import DropdownIndicator from '../DropdownIndicator';
 
 const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
@@ -48,7 +49,7 @@ const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, classNa
 
   const Option = ({ data, ...props }) => (
     <components.Option {...props} >
-      <div data-testid={`priority-select-${data.display}`}>
+      <div data-testid={`priority-select-${data.display}`} className={styles.option}>
         <PriorityItem data={data} />
       </div>
     </components.Option>
@@ -58,7 +59,7 @@ const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, classNa
       value={priority}
       isDisabled={isDisabled}
       className={`${styles.select} ${className}`}
-      components={{ Option, SingleValue }}
+      components={{ Option, SingleValue, DropdownIndicator }}
       onChange={onChange}
       options={REPORT_PRIORITIES}
       styles={selectStyles}

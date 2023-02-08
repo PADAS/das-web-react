@@ -121,7 +121,7 @@ const DetailsSection = ({
     </div>
 
     <div className={styles.container}>
-      <div className={styles.row}>
+      <div className={`${styles.row} ${styles.something}`}>
         {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
           Reported By
           <ReportedBySelect isDisabled={formSchema?.readonly} onChange={onReportedByChange} value={reportForm?.reported_by} />

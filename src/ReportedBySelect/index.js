@@ -11,6 +11,7 @@ import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
+import DropdownIndicator from '../DropdownIndicator';
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 
@@ -46,7 +47,7 @@ const ReportedBySelect = (props) => {
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
     selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
-  };
+  }
 
   const selected = useMemo(() => {
     if (!Boolean(value)) return null;
@@ -143,7 +144,7 @@ const ReportedBySelect = (props) => {
 
   return <Select
     className={className}
-    components={{ Control, MultiValueLabel, Option, SingleValue }}
+    components={{ Control, MultiValueLabel, Option, SingleValue, DropdownIndicator }}
     value={selected}
     isClearable={true}
     isDisabled={isDisabled}
@@ -155,6 +156,7 @@ const ReportedBySelect = (props) => {
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
+    menuShouldScrollIntoView={false}
     {...optionalProps}
   />;
 };

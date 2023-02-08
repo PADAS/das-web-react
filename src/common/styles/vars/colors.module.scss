@@ -4,6 +4,7 @@ we have to do this in a separate *.module.scss file because of this bug https://
 @import './colors';
  
 :export {
+  optionHighlight: $blue-highlight;
   gray: map-get($report-no-priority-theme, 'base');
   grayBg: map-get($report-no-priority-theme, 'background');
   green: map-get($report-low-priority-theme, 'base');

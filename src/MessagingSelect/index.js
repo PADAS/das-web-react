@@ -7,6 +7,7 @@ import { DEFAULT_SELECT_STYLES } from '../constants';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
+import DropdownIndicator from '../DropdownIndicator';
 
 // const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
 
@@ -83,7 +84,7 @@ const MessagingSelect = (props) => {
 
   return <Select
     className={className}
-    components={{ Option }}
+    components={{ Option, DropdownIndicator }}
     value={value}
     isClearable={true}
     isSearchable={true}

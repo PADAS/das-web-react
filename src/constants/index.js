@@ -2,7 +2,8 @@ import { toast } from 'react-toastify';
 
 import * as packageJson from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-
+import colorVars  from '../common/styles/vars/colors.module.scss';
+import controlsVars  from '../common/styles/vars/controls.module.scss';
 import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS } = toast;
@@ -264,15 +265,23 @@ export const DEFAULT_SELECT_STYLES = {
     const { isDisabled, isFocused } = state;
     return {
       ...styles,
-      backgroundColor: isFocused ? '#006cd9' : 'white',
-      color: isFocused ? 'white' : 'inherit',
+      backgroundColor: isFocused ? colorVars.optionHighlight : 'white',
+      color: 'inherit',
       display: isDisabled ? 'none' : 'block',
+      cursor: isFocused ? 'pointer' : 'inherit',
     };
   },
   menu(styles) {
     return {
       ...styles,
-      zIndex: 5,
+      zIndex: 10,
+      boxShadow: controlsVars.baseBoxShadow,
+    };
+  },
+  placeholder(styles){
+    return {
+      ...styles,
+      fontWeight: 'normal'
     };
   }
 };

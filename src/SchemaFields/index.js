@@ -19,6 +19,7 @@ import { uuid } from '../utils/string';
 import DatePicker from '../DatePicker';
 
 import styles from './styles.module.scss';
+import DropdownIndicator from '../DropdownIndicator';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -293,7 +294,7 @@ export const SelectWidget = ({
   return <Select
     autoFocus={autofocus}
     className={`${rawErrors.length > 0 ? 'is-invalid' : ''} ${styles.selectWidget}`}
-    components={{ SelectContainer }}
+    components={{ SelectContainer, DropdownIndicator }}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
     id={id}
