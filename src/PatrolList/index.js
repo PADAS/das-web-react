@@ -18,7 +18,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, onPatrolSelfManagedStateChange, patrol, onItemClick, ...rest } = props;
 
-  const onTitleClick = useCallback(() => {
+  const onClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
     if (ENABLE_PATROL_NEW_UI) return onItemClick(patrol.id);
     openModalForPatrol(patrol, map);
@@ -27,7 +27,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
       ref={ref}
-      onTitleClick={onTitleClick}
+      onClick={onClick}
       onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={patrol}
       map={map}

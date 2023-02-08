@@ -28,9 +28,7 @@ describe('ReportManager - Header', () => {
     expect((await screen.findByTestId('reportDetailHeader-icon'))).toHaveClass('priority-300');
   });
 
-  test('sets the display title as the title if it was empty', async () => {
-    expect(onChangeTitle).toHaveBeenCalledTimes(0);
-
+  test('sets the display title as the title if it was empty without changing the form', async () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
         <NavigationWrapper>
@@ -39,8 +37,8 @@ describe('ReportManager - Header', () => {
       </Provider>
     );
 
-    expect(onChangeTitle).toHaveBeenCalledTimes(1);
-    expect(onChangeTitle).toHaveBeenCalledWith('Light');
+    expect((await screen.findByTestId('reportManager-header-title'))).toHaveTextContent('Light');
+    expect(onChangeTitle).toHaveBeenCalledTimes(0);
   });
 
   test('triggers setTitle callback when the contenteditable loses focus', async () => {

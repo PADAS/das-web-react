@@ -257,7 +257,7 @@ const AddReport = forwardRef(({
         setPopoverState(false);
         if (ENABLE_PATROL_NEW_UI) {
           return navigate(
-            { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
+            { pathname: `/${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
             { state: { patrolData: reportData, temporalId: uuid() } }
           );
         }

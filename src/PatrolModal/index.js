@@ -622,7 +622,7 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (ENABLE_REPORT_NEW_UI) {
-      navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
+      navigate(`/${TAB_KEYS.REPORTS}/${item.id}`, undefined, { formProps });
     } else {
       openModalForReport(item, map, formProps);
     }

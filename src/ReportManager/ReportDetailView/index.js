@@ -1,10 +1,12 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
+import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
@@ -20,6 +22,7 @@ import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } fr
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
+import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
@@ -32,12 +35,15 @@ import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
 import HistorySection from '../HistorySection';
+import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
+import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
+const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ReportDetailView = ({
@@ -54,6 +60,7 @@ const ReportDetailView = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const reportType = useSelector(
@@ -69,6 +76,7 @@ const ReportDetailView = ({
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [wasSaved, setWasSaved] = useState(false);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
@@ -94,7 +102,38 @@ const ReportDetailView = ({
     [reportForm?.contains]
   );
 
-  const reportAttachments =  useMemo(
+  const fetchEventDebounced = useMemo(
+    () => debounce((id) => dispatch(fetchEvent(id)), FETCH_EVENT_DEBOUNCE_TIME, { leading: true }),
+    [dispatch]
+  );
+
+  const linkedPatrolIds = reportForm?.patrols;
+  const linkedPatrols = useMemo(
+    () => linkedPatrolIds?.map((id) => patrolStore[id]).filter((patrol) => !!patrol) || [],
+    [linkedPatrolIds, patrolStore]
+  );
+
+  const linkedReportIds = useMemo(() => {
+    let linkedReportIds = [];
+
+    if (Array.isArray(reportForm?.is_contained_in)) {
+      linkedReportIds = [
+        ...linkedReportIds,
+        ...reportForm.is_contained_in.map((containedIn) => containedIn.related_event.id),
+      ];
+    }
+    if (Array.isArray(reportForm?.is_linked_to)) {
+      linkedReportIds = [...linkedReportIds, ...reportForm.is_linked_to.map((linkedTo) => linkedTo.related_event.id)];
+    }
+
+    return linkedReportIds;
+  }, [reportForm.is_contained_in, reportForm.is_linked_to]);
+  const linkedReports = useMemo(
+    () => linkedReportIds?.map((id) => eventStore[id]).filter((report) => !!report) || [],
+    [eventStore, linkedReportIds]
+  );
+
+  const reportAttachments = useMemo(
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
@@ -104,10 +143,14 @@ const ReportDetailView = ({
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
-  const reportChanges = useMemo(
-    () => originalReport && reportForm ? extractObjectDifference(reportForm, originalReport) : {},
-    [originalReport, reportForm]
-  );
+  const reportChanges = useMemo(() => {
+    if (!originalReport || !reportForm) {
+      return {};
+    }
+
+    return Object.entries(extractObjectDifference(reportForm, originalReport))
+      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
+  }, [originalReport, reportForm]);
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
@@ -123,7 +166,7 @@ const ReportDetailView = ({
   const onSaveSuccess = useCallback((reportToSubmit) => (results) => {
     onSaveSuccessCallback?.(results);
 
-    navigate(`/${TAB_KEYS.REPORTS}`);
+    setWasSaved(true);
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
       return Promise.all(reportToSubmit.contains
@@ -131,7 +174,7 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
     return results;
-  }, [dispatch, navigate, onSaveSuccessCallback]);
+  }, [dispatch, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -217,10 +260,8 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker, setReportForm]);
 
   const onPriorityChange = useCallback(({ value: priority }) => {
-    setReportForm({
-      ...reportForm,
-      priority,
-    });
+    setReportForm({ ...reportForm, priority });
+
     reportTracker.track('Click \'Priority\' option', `Priority:${priority}`);
   }, [reportForm, reportTracker]);
 
@@ -376,12 +417,31 @@ const ReportDetailView = ({
     }
   }, [dispatch, reportForm, reportSchemas]);
 
+  useEffect(() => {
+    if (linkedPatrolIds?.length > 0) {
+      linkedPatrolIds.forEach((id) => !patrolStore[id] && dispatch(fetchPatrol(id)));
+    }
+  }, [dispatch, linkedPatrolIds, patrolStore]);
+
+  useEffect(() => {
+    if (linkedReportIds?.length > 0) {
+      linkedReportIds.forEach((id) => !eventStore[id] && fetchEventDebounced(id));
+    }
+  }, [eventStore, fetchEventDebounced, linkedReportIds]);
+
+  useEffect(() => {
+    if (wasSaved) {
+      navigate(`/${TAB_KEYS.REPORTS}`);
+    }
+  }, [navigate, wasSaved]);
+
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
     + reportNotes.length
     + notesToAdd.length
     + containedReports.length) > 0;
   const shouldRenderHistorySection = reportForm?.updates;
+  const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
   const isReadOnly = reportSchemas?.schema?.readonly;
 
@@ -390,6 +450,8 @@ const ReportDetailView = ({
     data-testid="reportManagerContainer"
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
+
+    {!isAddedReport && <NavigationPromptModal when={isReportModified && !wasSaved} />}
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
@@ -401,6 +463,8 @@ const ReportDetailView = ({
           <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
 
           <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+
+          <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
 
           <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
         </QuickLinks.NavigationBar>
@@ -445,6 +509,12 @@ const ReportDetailView = ({
               />
             </QuickLinks.Section>
 
+            {shouldRenderLinksSection && <div className={styles.sectionSeparation} />}
+
+            <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
+              <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
+            </QuickLinks.Section>
+
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
@@ -472,7 +542,7 @@ const ReportDetailView = ({
 
               <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified}
+                  disabled={!isReportModified && !isAddedReport}
                   onClick={onClickSaveButton}
                   type="button"
                 >
