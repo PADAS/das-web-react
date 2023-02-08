@@ -542,7 +542,7 @@ const ReportDetailView = ({
 
               <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified && !isAddedReport}
+                  disabled={!isNewReport && !isAddedReport && !isReportModified}
                   onClick={onClickSaveButton}
                   type="button"
                 >
