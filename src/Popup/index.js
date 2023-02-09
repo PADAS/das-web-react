@@ -45,7 +45,7 @@ const Popup = (props) => {
       );
 
       classDifferences.forEach((className) => {
-        currentPopup.toggleClass(className);
+        currentPopup?.toggleClass?.(className);
       });
 
       classNameRef.current = className;
