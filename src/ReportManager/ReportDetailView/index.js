@@ -41,6 +41,7 @@ import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
+import activitySectionStyles from '../ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -69,6 +70,7 @@ const ReportDetailView = ({
   );
 
   const submitFormButtonRef = useRef(null);
+  const newNoteRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -352,10 +354,15 @@ const ReportDetailView = ({
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), text: '' };
+      const newNote = { creationDate: new Date().toISOString(), ref: newNoteRef, text: '' };
       setNotesToAdd([...notesToAdd, newNote]);
-
       reportTracker.track('Added Note');
+
+      setTimeout(() => {
+        newNoteRef?.current?.scrollIntoView?.({
+          behavior: 'smooth',
+        });
+      }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
   }, [notesToAdd, reportTracker]);
 
