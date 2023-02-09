@@ -433,7 +433,7 @@ export const ExternalLinkField = ({ formData, idSchema, schema }) => {
     eventReportTracker.track('Click \'External Source\' link', urlDomain);
   }, [formData?.value]);
 
-  return formData.value && <div className={styles.externalLinkField}>
+  return formData?.value && <div className={styles.externalLinkField}>
     <label htmlFor={idSchema.id}>
       {schema.title}
 
