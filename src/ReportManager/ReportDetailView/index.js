@@ -28,8 +28,8 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
 import ActivitySection from '../ActivitySection';
-import AddAttachmentButton from '../AddAttachmentButton';
-import AddNoteButton from '../AddNoteButton';
+import AddAttachmentButton from '../../AddAttachmentButton';
+import AddNoteButton from '../../AddNoteButton';
 import AddReportButton from '../AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
@@ -38,7 +38,7 @@ import HistorySection from '../HistorySection';
 import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
-import QuickLinks from '../QuickLinks';
+import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
 

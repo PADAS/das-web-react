@@ -1,9 +1,7 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { connect, useSelector } from 'react-redux';
-import Nav from 'react-bootstrap/Nav';
-import PropTypes from 'prop-types';
-import Tab from 'react-bootstrap/Tab';
+import isFuture from 'date-fns/is_future';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
@@ -15,89 +13,116 @@ import { createPatrolDataSelector } from '../selectors/patrols';
 import {
   createNewPatrolForPatrolType,
   displayPatrolSegmentId,
-  displayTitleForPatrol,
   patrolShouldBeMarkedDone,
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
+import { extractObjectDifference } from '../utils/objects';
+import { fetchPatrol } from '../ducks/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { PatrolsTabContext } from '../SideBar/PatrolsTab';
+import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
+import AddAttachmentButton from '../AddAttachmentButton';
+import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
-import HistoryTab from './HistoryTab';
-import PlanTab from './PlanTab';
+import HistorySection from './HistorySection';
+import LoadingOverlay from '../LoadingOverlay';
+import NavigationPromptModal from '../NavigationPromptModal';
+import PlanSection from './PlanSection';
+import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
-const NAVIGATION_PLAN_EVENT_KEY = 'plan';
-const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
-const NAVIGATION_HISTORY_EVENT_KEY = 'history';
+const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
+// TODO: Remove this eslint-disable once patrols new UI epic is ready
 /* eslint-disable no-unused-vars */
-const PatrolDetailView = ({ patrolPermissions }) => {
+const PatrolDetailView = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { loadingPatrols } = useContext(PatrolsTabContext) || {};
+  const patrolId = getCurrentIdFromURL(location.pathname);
+  const newPatrolTemporalId = location.state?.temporalId;
+  const newPatrolTypeId = searchParams.get('patrolType');
 
+  const patrolPermissions = useSelector((state) => {
+    const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+    const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+
+    return patrolPermissions ;
+  });
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const patrolType = useSelector(
-    (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === searchParams.get('patrolType'))
+    (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === newPatrolTypeId)
   );
-
   const state = useSelector((state) => state);
 
   const temporalIdRef = useRef(null);
 
+  const [filesToAdd, setFilesToAdd] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
+  const [patrolForm, setPatrolForm] = useState();
+  const [redirectTo, setRedirectTo] = useState(null);
+  const [reportsToAdd, setReportsToAdd] = useState([]);
 
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
+  const isNewPatrol = patrolId === 'new';
   const patrolData = location.state?.patrolData;
+  const shouldRenderPatrolDetailView = !!(isNewPatrol ? patrolType : (patrolStore[patrolId] && !isLoadingPatrol));
 
-  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
-
-  const isNewPatrol = useMemo(() => itemId === 'new', [itemId]);
   const newPatrol = useMemo(
     () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
     [patrolData, patrolType]
   );
-  const originalPatrol = useMemo(
-    () => isNewPatrol ? newPatrol : patrolStore[itemId],
-    [isNewPatrol, itemId, newPatrol, patrolStore]
-  );
+  const originalPatrol = isNewPatrol ? newPatrol : patrolStore[patrolId];
+
+  const patrolChanges = useMemo(() => {
+    if (!originalPatrol || !patrolForm) {
+      return {};
+    }
+
+    return extractObjectDifference(patrolForm, originalPatrol);
+  }, [originalPatrol, patrolForm]);
 
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
+  const patrolSegmentId = patrol && displayPatrolSegmentId(patrol);
 
-  const patrolTrackStatus = !patrol?.id ? 'new' : 'existing';
+  const isPatrolModified = Object.keys(patrolChanges).length > 0 || filesToAdd.length > 0 || reportsToAdd.length > 0;
 
-  const [isSaving, setSaveState] = useState(false);
-  const [newFiles, updateNewFiles] = useState([]);
-  const [newReports, setNewReports] = useState([]);
-  const [patrolForm, setPatrolForm] = useState();
-  const [tab, setTab] = useState(NAVIGATION_PLAN_EVENT_KEY);
+  const onSaveSuccess = useCallback((redirectTo) => () => {
+    console.log('success');
+    setRedirectTo(redirectTo);
 
-  const patrolSegmentId = useMemo(() => {
-    if (patrol) {
-      return displayPatrolSegmentId(patrol);
+    patrolDetailViewTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
+  }, [isNewPatrol]);
+
+  const onSaveError = useCallback((error) => {
+    console.log('error');
+    patrolDetailViewTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);
+
+    console.warn('failed to save new patrol', error);
+  }, [isNewPatrol]);
+
+  const onSavePatrol = useCallback(() => {
+    if (isSaving) {
+      return;
     }
-  }, [patrol]);
 
-  const onPatrolChange = useCallback((patrolChanges) => {
-    setPatrolForm({ ...patrol, ...patrolChanges });
-  }, [patrol]);
+    patrolDetailViewTracker.track(`Click 'Save' button for ${isNewPatrol ? 'new' : 'existing'} patrol`);
 
-  const onSave = useCallback(() => {
-    patrolDetailViewTracker.track(`Click "save" button for ${patrolTrackStatus} patrol`);
-    setSaveState(true);
+    setIsSaving(true);
 
     const patrolToSubmit = { ...patrolForm };
     if (patrolShouldBeMarkedDone(patrolForm)){
@@ -112,160 +137,263 @@ const PatrolDetailView = ({ patrolPermissions }) => {
       }
     });
 
-    // just assign added newReports to inital segment id for now
-    newReports.forEach((report) => {
+    // just assign added reportsToAdd to inital segment id for now
+    reportsToAdd.forEach((report) => {
       addPatrolSegmentToEvent(patrolSegmentId, report.id);
     });
 
-    const actions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newFiles);
-    return executeSaveActions(actions)
-      .then(() => {
-        patrolDetailViewTracker.track(`Saved ${patrolTrackStatus} patrol`);
-      })
-      .catch((error) => {
-        patrolDetailViewTracker.track(`Error saving ${patrolTrackStatus} patrol`);
-        console.warn('failed to save new patrol', error);
-      })
-      .finally(() => {
-        setSaveState(false);
-        navigate(`/${TAB_KEYS.PATROLS}`);
-      });
-  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, navigate]);
+    const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], filesToAdd);
+    return executeSaveActions(saveActions)
+      .then(onSaveSuccess(`/${TAB_KEYS.PATROLS}`))
+      .catch(onSaveError)
+      .finally(() => setIsSaving(false));
+  }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
 
-  useEffect(() => {
-    if (isNewPatrol && !location.state?.temporalId) {
-      navigate(
-        `${location.pathname}${location.search}`,
-        { replace: true, state: { ...location.state, temporalId: uuid() } }
-      );
+  const onChangeTitle = useCallback(
+    (newTitle) => setPatrolForm({ ...patrolForm, title: newTitle }),
+    [patrolForm, setPatrolForm]
+  );
+
+  const onPatrolEndDateChange = useCallback((endDate, isAutoEnd) => {
+    const isScheduled = !isAutoEnd && isFuture(endDate);
+
+    setPatrolForm({
+      ...patrolForm,
+      patrol_segments: [
+        {
+          ...patrolForm.patrol_segments[0],
+          scheduled_end: isScheduled ? endDate : null,
+          time_range: { ...patrolForm.patrol_segments[0].time_range, end_time: !isScheduled ? endDate : null },
+        },
+        ...patrolForm.patrol_segments.slice(1),
+      ],
+    });
+
+    patrolDetailViewTracker.track('Set patrol end date');
+  }, [patrolForm]);
+
+  const onPatrolEndLocationChange = useCallback((endLocation) => {
+    const updatedEndLocation = !!endLocation ? { latitude: endLocation[1], longitude: endLocation[0] } : null;
+
+    setPatrolForm({
+      ...patrolForm,
+      patrol_segments: [
+        { ...patrolForm.patrol_segments[0], end_location: updatedEndLocation },
+        ...patrolForm.patrol_segments.slice(1),
+      ],
+    });
+
+    patrolDetailViewTracker.track('Set patrol end location');
+  }, [patrolForm]);
+
+  const onPatrolObjectiveChange = useCallback((event) => {
+    event.preventDefault();
+
+    setPatrolForm({ ...patrolForm, objective: event.target.value });
+
+    patrolDetailViewTracker.track('Set patrol objective');
+  }, [patrolForm]);
+
+  const onPatrolReportedByChange = useCallback((selection) => {
+    let startLocation, timeRange;
+    if (isNewPatrol) {
+      const shouldAssignTrackedSubjectLocationAndTime = radioHasRecentActivity(selection)
+        && subjectIsARadio(selection)
+        && !!selection?.last_position?.geometry?.coordinates
+        && !!selection?.last_position?.properties?.coordinateProperties?.time;
+      if (shouldAssignTrackedSubjectLocationAndTime) {
+        startLocation = {
+          latitude: selection.last_position.geometry.coordinates[1],
+          longitude: selection.last_position.geometry.coordinates[0],
+        };
+        timeRange = { start_time: selection.last_position.properties.coordinateProperties.time };
+      } else if (!selection) {
+        startLocation = null;
+        timeRange = { start_time: new Date().toISOString() };
+      }
     }
-  }, [isNewPatrol, location, navigate]);
+
+    setPatrolForm({
+      ...patrolForm,
+      patrol_segments: [
+        {
+          ...patrolForm.patrol_segments[0],
+          leader: selection || null,
+          start_location: startLocation,
+          time_range: timeRange,
+        },
+        ...patrolForm.patrol_segments.slice(1),
+      ],
+    });
+
+    patrolDetailViewTracker.track(`${selection ? 'Set' : 'Unset'} patrol tracked subject`);
+  }, [isNewPatrol, patrolForm]);
+
+  const onPatrolStartDateChange = useCallback((startDate, isAutoStart) => {
+    const isScheduled = !isAutoStart && isFuture(startDate);
+
+    setPatrolForm({
+      ...patrolForm,
+      patrol_segments: [
+        {
+          ...patrolForm.patrol_segments[0],
+          scheduled_start: isScheduled ? startDate : null,
+          time_range: { ...patrolForm.patrol_segments[0].time_range, start_time: !isScheduled ? startDate : null },
+        },
+        ...patrolForm.patrol_segments.slice(1),
+      ],
+    });
+
+    patrolDetailViewTracker.track('Set patrol start date');
+  }, [patrolForm]);
+
+  const onPatrolStartLocationChange = useCallback((startLocation) => {
+    const updatedStartLocation = !!startLocation ? { latitude: startLocation[1], longitude: startLocation[0] } : null;
+
+    setPatrolForm({
+      ...patrolForm,
+      patrol_segments: [
+        { ...patrolForm.patrol_segments[0], start_location: updatedStartLocation },
+        ...patrolForm.patrol_segments.slice(1),
+      ],
+    });
+
+    patrolDetailViewTracker.track('Set patrol start location');
+  }, [patrolForm]);
+
+  const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 
   useEffect(() => {
     if (patrol) {
-      setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
+      setPatrolForm({ ...patrol });
     }
   }, [leader, patrol]);
 
   useEffect(() => {
-    const shouldRedirectToFeed = (isNewPatrol && !patrolType)
-      || (!isNewPatrol && !loadingPatrols && !patrolStore[itemId]);
-    if (shouldRedirectToFeed) {
-      navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
-    } else if (!loadingPatrols) {
-      const currentPatrolId = isNewPatrol ? location.state?.temporalId : itemId;
-      const selectedPatrolHasChanged = (isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id) !== currentPatrolId;
-      if (selectedPatrolHasChanged) {
+    if (isNewPatrol || patrolStore[patrolId]) {
+      setIsLoadingPatrol(false);
+    }
+  }, [isNewPatrol, patrolId, patrolStore]);
+
+  useEffect(() => {
+    if (isNewPatrol) {
+      if (!patrolType) {
+        navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+      } else if (!newPatrolTemporalId) {
+        navigate(
+          `${location.pathname}${location.search}`,
+          { replace: true, state: { ...location.state, temporalId: uuid() } }
+        );
+      }
+    }
+  }, [isNewPatrol, location.pathname, location.search, location.state, navigate, newPatrolTemporalId, patrolType]);
+
+  useEffect(() => {
+    if (!isNewPatrol && !patrolStore[patrolId]) {
+      setIsLoadingPatrol(true);
+      dispatch(fetchPatrol(patrolId))
+        .then(() => setIsLoadingPatrol(false))
+        .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
+    }
+  }, [dispatch, isNewPatrol, navigate, patrolId, patrolStore]);
+
+  useEffect(() => {
+    if (!isLoadingPatrol) {
+      const navigationPatrolId = isNewPatrol ? newPatrolTemporalId : patrolId;
+      const memoryPatrolId = isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id;
+      if (navigationPatrolId !== memoryPatrolId) {
         setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
-        temporalIdRef.current = isNewPatrol ? currentPatrolId : null;
+        temporalIdRef.current = isNewPatrol ? newPatrolTemporalId : null;
       }
     }
   }, [
+    isLoadingPatrol,
     isNewPatrol,
-    itemId,
-    loadingPatrols,
-    location.state?.temporalId,
-    navigate,
+    newPatrolTemporalId,
     originalPatrol,
     patrolDataSelector?.patrol?.id,
-    patrolStore,
-    patrolType,
+    patrolId,
     state,
   ]);
 
-  return !!patrolForm && <div className={styles.patrolDetailView}>
-    <Header
-      patrol={patrol}
-      setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}
-      title={patrolForm.title}
-    />
+  useEffect(() => {
+    if (redirectTo) {
+      navigate(redirectTo);
+    }
+  }, [navigate, redirectTo]);
 
-    <Tab.Container activeKey={tab} onSelect={setTab}>
-      <div className={styles.body}>
-        <Nav className={styles.navigation}>
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-              <CalendarIcon />
-              <span>Plan</span>
-            </Nav.Link>
-          </Nav.Item>
+  const shouldRenderHistorySection = patrolForm?.updates;
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
-              <BulletListIcon />
-              <span>Timeline</span>
-            </Nav.Link>
-          </Nav.Item>
+  return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
+    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-          <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              <HistoryIcon />
-              <span>History</span>
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+    <NavigationPromptModal when={isPatrolModified && !redirectTo} />
+
+    <Header onChangeTitle={onChangeTitle} patrol={patrolForm} />
+
+    <div className={styles.body}>
+      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
+        <QuickLinks.NavigationBar>
+          <QuickLinks.Anchor anchorTitle="Plan" iconComponent={<CalendarIcon />} />
+
+          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+
+          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+        </QuickLinks.NavigationBar>
 
         <div className={styles.content}>
-          <Tab.Content className={`${styles.tab} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-              <PlanTab patrolForm={patrolForm} onPatrolChange={onPatrolChange}/>
-            </Tab.Pane>
+          <QuickLinks.SectionsWrapper>
+            <QuickLinks.Section anchorTitle="Plan">
+              <PlanSection
+                onPatrolEndDateChange={onPatrolEndDateChange}
+                onPatrolEndLocationChange={onPatrolEndLocationChange}
+                onPatrolObjectiveChange={onPatrolObjectiveChange}
+                onPatrolReportedByChange={onPatrolReportedByChange}
+                onPatrolStartDateChange={onPatrolStartDateChange}
+                onPatrolStartLocationChange={onPatrolStartLocationChange}
+                patrolForm={patrolForm}
+              />
+            </QuickLinks.Section>
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
-              Timeline
-            </Tab.Pane>
+            <div className={styles.sectionSeparation} />
 
-            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-              <HistoryTab patrolForm={patrolForm} />
-            </Tab.Pane>
-          </Tab.Content>
+            <QuickLinks.Section anchorTitle="Activity">
+              Activity section
+            </QuickLinks.Section>
+
+            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+
+            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+              <HistorySection patrolForm={patrolForm} />
+            </QuickLinks.Section>
+          </QuickLinks.SectionsWrapper>
 
           <div className={styles.footer}>
-            <Button
-              className={styles.exitButton}
-              onClick={() => navigate(`/${TAB_KEYS.PATROLS}`)}
-              type="button"
-              variant="secondary"
-            >
-              Exit
-            </Button>
+            <div className={styles.footerActionButtonsContainer}>
+              <AddNoteButton className={styles.footerActionButton} onAddNote={() => console.log('Add note')} />
 
-            {tab === NAVIGATION_PLAN_EVENT_KEY && hasEditPatrolsPermission && <Button
-              className={styles.saveButton}
-              onClick={onSave}
-              type="button"
-            >
-              Save
-            </Button>}
+              <AddAttachmentButton className={styles.footerActionButton} />
+            </div>
+
+            <div>
+              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+                Cancel
+              </Button>
+
+              <Button
+                className={styles.saveButton}
+                disabled={!isNewPatrol && !isPatrolModified}
+                onClick={onSavePatrol}
+                type="button"
+              >
+                Save
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </Tab.Container>
-  </div>;
+      </QuickLinks>
+    </div>
+  </div> : null;
 };
 
-PatrolDetailView.propTypes = {
-  patrolPermissions: PropTypes.arrayOf(PropTypes.string).isRequired,
-  patrolDataSelector: PropTypes.shape({
-    leader: PropTypes.shape({
-      name: PropTypes.string,
-    }),
-    patrol: PropTypes.shape({
-      icon_id: PropTypes.string,
-      patrol_segments: PropTypes.array,
-      serial_number: PropTypes.number,
-      title: PropTypes.string,
-    }).isRequired,
-    startStopGeometries: PropTypes.shape({}),
-    trackData: PropTypes.shape({}),
-  }),
-};
-
-const mapStateToProps = (state, props) => {
-  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-  return { patrolPermissions };
-};
-
-export default connect(mapStateToProps)(PatrolDetailView);
+export default memo(PatrolDetailView);
