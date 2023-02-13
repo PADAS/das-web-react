@@ -73,40 +73,41 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
 
 export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   const map = useContext(MapContext);
-  const source = map?.getSource(sourceId);
-
   useEffect(() => {
-    if (map && !source) {
+    if (map && !map?.getSource(sourceId)) {
       map.addSource(sourceId, {
         ...config,
         data,
       });
     }
-  }, [sourceId, source, config, data, map]);
+  }, [sourceId, config, data, map]);
 
   useEffect(() => {
     let timeout;
-    if (source) {
-      timeout = window.setTimeout(() => {
-        source.setData?.(data);
-      });
-    }
+    timeout = window.setTimeout(() => {
+      const source = map?.getSource?.(sourceId);
+
+      if (source) {
+        source?.setData?.(data);
+      }
+
+    });
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [data, source]);
+  }, [data, map, sourceId]);
 
   useEffect(() => {
     return () => {
       if (map) {
         setTimeout(() => {
-          source && map.removeSource(sourceId);
+          map?.getSource(sourceId) && map.removeSource(sourceId);
         });
       }
     };
-  }, [sourceId, source, map]);
+  }, [sourceId, map]);
 
-  return source;
+  return map?.getSource(sourceId);
 };
 
 export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {}) => {
@@ -121,9 +122,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
 
   useEffect(() => {
     if (condition && map && !layer) {
-      const source = map.getSource(sourceId);
-
-      if (!!source) {
+      if (!!map.getSource(sourceId)) {
         map.addLayer({
           id: layerId,
           source: sourceId,
