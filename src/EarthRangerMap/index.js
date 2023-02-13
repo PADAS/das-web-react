@@ -28,6 +28,7 @@ const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, dispatch: _dispatch, ...rest } = props;
 
   const [mapLoaded, setMapLoaded] = useState(false);
+  const baseStyleRef = useRef(REACT_APP_BASE_MAP_STYLES);
 
   const onLoad = useCallback(({ target: map }) => {
     map.loadImage(mapLabel, (_err, img) => {
@@ -66,8 +67,13 @@ const EarthRangerMap = (props) => {
   }, [onLoad]);
 
   useEffect(() => {
-    if (currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
-      map.current && map.current.setStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
+    if (map.current && currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
+      const value = currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url;
+
+      if (value !== baseStyleRef.current) {
+        map.current.setStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
+        baseStyleRef.current = value;
+      }
     }
   }, [currentBaseLayer]);
 
