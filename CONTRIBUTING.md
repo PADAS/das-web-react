@@ -1,21 +1,12 @@
-# EarthRanger - Code Contribution Policy
-
+# Contributing to EarthRanger
 Contributing to EarthRanger is highly encouraged. As an open source project, EarthRanger is dedicated to transparency, security, and the greater EarthRanger community.
 
 Please ensure that all participation in EarthRanger development adheres to our [code of conduct](CODE_OF_CONDUCT_LINK_HERE), and is a good faith effort towards the improvement of conservation technology.
 
-Please consider the following before filing a pull request to merge your contribution:
+Please consider the following when making a contribution:
 
 1. Is the contribution specific to your site, or broadly useful in the conservation community? If it is the former, consider writing the feature as an integration, or running a fork of EarthRanger with your modified code.
 2. Can you support potential bugs and requests surrounding the feature?
-
----
-
-
-# Contributing to EarthRanger
-Contributing to EarthRanger is highly encouraged. As an open source project, EarthRanger is dedicated to transparency, security, and the greater EarthRanger community.
-
-Please ensure that all participation in EarthRanger development adheres to our code of conduct, and is a good faith effort towards the improvement of conservation technology.
 
 You are welcome to contribute to EarthRanger in a number of ways, including:
 - Reporting a bug
