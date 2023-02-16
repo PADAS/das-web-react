@@ -16,6 +16,7 @@ timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
 const TimePicker = ({
+  className,
   maxTime,
   minutesInterval,
   onChange,
@@ -90,7 +91,7 @@ const TimePicker = ({
     }
   }, [isTimeBelowMax, onChange, writtenValue]);
 
-  return <div className={styles.inputWrapper}>
+  return <div className={`${styles.inputWrapper} ${className}`}>
     <ClockIcon/>
 
     <OverlayTrigger
@@ -115,6 +116,7 @@ const TimePicker = ({
 };
 
 TimePicker.defaultProps = {
+  className: '',
   maxTime: '',
   minutesInterval: 30,
   optionsToDisplay: 5,
@@ -124,6 +126,7 @@ TimePicker.defaultProps = {
 };
 
 TimePicker.propTypes = {
+  className: PropTypes.string,
   maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,

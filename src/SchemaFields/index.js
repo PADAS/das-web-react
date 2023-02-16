@@ -11,12 +11,14 @@ import { ReactComponent as ArrowUpIcon } from '../common/images/icons/arrow-up.s
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
 
-import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
+import { DEFAULT_SELECT_STYLES } from '../constants';
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
+import { getHoursAndMinutesString } from '../utils/datetime';
 import { uuid } from '../utils/string';
 
 import DatePicker from '../DatePicker';
+import TimePicker from '../TimePicker';
 
 import styles from './styles.module.scss';
 
@@ -329,30 +331,46 @@ export const DateTimeWidget = ({
   required,
   schema,
 }) => {
-  const date = formData ? new Date(formData) : undefined;
+  const date = useMemo(() => formData ? new Date(formData) : undefined, [formData]);
 
-  const handleChange = useCallback((newVal) => onChange(newVal ? newVal.toISOString() : newVal), [onChange]);
+  const handleDateChange = useCallback((newDate) => onChange(newDate ? newDate.toISOString() : newDate), [onChange]);
+
+  const handleTimeChange = useCallback((newTime) => {
+    const newTimeParts = newTime.split(':');
+    const updatedDateTime = date ? new Date(date) : new Date();
+    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
+
+    onChange(updatedDateTime.toISOString());
+  }, [date, onChange]);
 
   return <>
     <label htmlFor={id}>{schema.title}{required ? '*' : ''}</label>
 
-    <DatePicker
-      {...DATEPICKER_DEFAULT_CONFIG}
-      autoFocus={autofocus}
-      className={styles.dateTimeWidget}
-      defaultTimeValue="00:00"
-      disabled={disabled}
-      id={id}
-      maxDate={new Date((new Date().getFullYear() + 15).toString())}
-      minDate={null}
-      onBlur={onBlur}
-      onChange={handleChange}
-      onFocus={onFocus}
-      readOnly={readonly}
-      required={required}
-      selected={date}
-      showTimeInput
-    />
+    <div className={styles.dateTimeWidget}>
+      <div className={styles.datePicker}>
+        <DatePicker
+          autoFocus={autofocus}
+          disabled={disabled}
+          id={id}
+          maxDate={new Date((new Date().getFullYear() + 15).toString())}
+          minDate={null}
+          onBlur={onBlur}
+          onChange={handleDateChange}
+          onFocus={onFocus}
+          readOnly={readonly}
+          required={required}
+          selected={date}
+        />
+      </div>
+
+      <TimePicker
+        className={styles.timePicker}
+        minutesInterval={15}
+        onChange={handleTimeChange}
+        optionsToDisplay={96}
+        value={getHoursAndMinutesString(date) || '00:00'}
+      />
+    </div>
   </>;
 };
 
