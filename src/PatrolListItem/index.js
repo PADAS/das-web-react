@@ -220,18 +220,20 @@ const PatrolListItem = ({
   />;
 };
 
-PatrolListItem.defaulProps = {
+const PatrolListItemForwardRef = forwardRef(PatrolListItem);
+
+PatrolListItemForwardRef.defaultProps = {
   onClick: null,
   showControls: true,
   showStateTitle: true,
   showTitleDetails: true,
 };
 
-PatrolListItem.propTypes = {
+PatrolListItemForwardRef.propTypes = {
   onClick: PropTypes.func,
   showControls: PropTypes.bool,
   showStateTitle: PropTypes.bool,
   showTitleDetails: PropTypes.bool,
 };
 
-export default memo(forwardRef(PatrolListItem));
+export default memo(PatrolListItemForwardRef);
