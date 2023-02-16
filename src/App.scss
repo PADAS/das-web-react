@@ -91,6 +91,12 @@ body {
   height: 100%;
 }
 
+.mapboxgl-ctrl-top-right {
+  .mapboxgl-ctrl {
+    margin: 1rem 1rem 0 0;
+  }
+}
+
 .App {
   display: flex;
   flex-flow: column;
@@ -324,6 +330,17 @@ aside {
 .mapboxgl-ctrl-scale,
 .mapbox-zoom-ctrl {
   transition: transform 0.3s ease-in-out;
+}
+
+.mapboxgl-ctrl-bottom-right {
+  right: 0.5rem;
+  .mapboxgl-ctrl-group {
+    bottom: 1rem;
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    right: 0;
+  }
 }
 
 .mapboxgl-ctrl-attrib:not(.er-map) {

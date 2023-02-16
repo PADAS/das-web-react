@@ -20,7 +20,7 @@ const DelayedUnmount = (props) => {
     return () => {
       clearTimeout(timeoutRef.current);
     };
-  }, [isMounted, mounted]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [delay, isMounted, mounted]);
 
   return mounted && children;
 

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'react-mapbox-gl';
+
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
@@ -14,6 +14,7 @@ import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
 import { useMapEventBinding, useMatchMedia } from '../hooks';
 
 import MapLayers from './MapLayers';
+import Popup from '../Popup';
 
 import styles from './styles.module.scss';
 

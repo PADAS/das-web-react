@@ -44,7 +44,6 @@ const MAP_LOCATION_SELECTION_MODE_CLASS_MAP = {
 };
 
 // use this block to do direct map event binding.
-// useful for API gaps between react-mapbox-gl and mapbox-gl.
 // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
 const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
