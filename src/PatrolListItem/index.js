@@ -165,7 +165,7 @@ const PatrolListItem = ({
   }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
   const renderedControlsComponent = showControls
-    ? <>
+    ? <div className={styles.controls} onClick={(event) => event.stopPropagation()}>
       <StateDependentControls />
       <PatrolMenu
         data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}
@@ -173,7 +173,7 @@ const PatrolListItem = ({
         onPatrolChange={onPatrolChange}
         patrol={patrol}
       />
-    </>
+    </div>
     : null;
 
   const renderedDateComponent = <div
