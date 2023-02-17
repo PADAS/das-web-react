@@ -1,13 +1,11 @@
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
-
-import { DEFAULT_SELECT_STYLES } from '../constants';
+import { components } from 'react-select';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
-import DropdownIndicator from '../DropdownIndicator';
+import CustomSelect from '../CustomSelect';
 
 // const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
 
@@ -26,7 +24,6 @@ const MessagingSelect = (props) => {
 
   const optionalProps = {};
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     container(styles) {
       return {
         ...styles,
@@ -82,9 +79,9 @@ const MessagingSelect = (props) => {
     }
   }, []);
 
-  return <Select
+  return <CustomSelect
     className={className}
-    components={{ Option, DropdownIndicator }}
+    components={{ Option }}
     value={value}
     isClearable={true}
     isSearchable={true}

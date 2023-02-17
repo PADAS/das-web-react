@@ -260,32 +260,6 @@ export const REPORT_PRIORITIES = [
   REPORT_PRIORITY_NONE
 ];
 
-export const DEFAULT_SELECT_STYLES = {
-  option(styles, state) {
-    const { isDisabled, isFocused } = state;
-    return {
-      ...styles,
-      backgroundColor: isFocused ? colorVars.optionHighlight : 'white',
-      color: 'inherit',
-      display: isDisabled ? 'none' : 'block',
-      cursor: isFocused ? 'pointer' : 'inherit',
-    };
-  },
-  menu(styles) {
-    return {
-      ...styles,
-      zIndex: 10,
-      boxShadow: controlsVars.baseBoxShadow,
-    };
-  },
-  placeholder(styles){
-    return {
-      ...styles,
-      fontWeight: 'normal'
-    };
-  }
-};
-
 export const DATEPICKER_DEFAULT_CONFIG = {
   dateFormat: 'yyyy-MM-dd HH:mm',
   minDate: new Date('2010-01-01'),

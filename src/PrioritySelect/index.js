@@ -1,20 +1,18 @@
 import React, { useCallback, memo } from 'react';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import PropTypes from 'prop-types';
 
 import {
-  DEFAULT_SELECT_STYLES,
   REPORT_PRIORITIES,
   REPORT_PRIORITY_HIGH, REPORT_PRIORITY_LOW, REPORT_PRIORITY_MEDIUM
 } from '../constants';
 
 import styles from './styles.module.scss';
-import DropdownIndicator from '../DropdownIndicator';
+import CustomSelect from '../CustomSelect';
 
 const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     valueContainer: (provided) => ({
       ...provided,
       maxHeight: '12rem',
@@ -49,17 +47,17 @@ const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, classNa
 
   const Option = ({ data, ...props }) => (
     <components.Option {...props} >
-      <div data-testid={`priority-select-${data.display}`} className={styles.option}>
+      <div data-testid={`priority-select-${data.display}`}>
         <PriorityItem data={data} />
       </div>
     </components.Option>
   );
 
-  return <Select
+  return <CustomSelect
       value={priority}
       isDisabled={isDisabled}
       className={`${styles.select} ${className}`}
-      components={{ Option, SingleValue, DropdownIndicator }}
+      components={{ Option, SingleValue }}
       onChange={onChange}
       options={REPORT_PRIORITIES}
       styles={selectStyles}

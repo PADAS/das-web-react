@@ -1,17 +1,16 @@
 import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import TimeAgo from '../TimeAgo';
 
 import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
-import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
-import DropdownIndicator from '../DropdownIndicator';
+import CustomSelect from '../CustomSelect';
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 
@@ -36,7 +35,6 @@ const ReportedBySelect = (props) => {
 
   const optionalProps = {};
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     valueContainer: (provided) => ({
       ...provided,
       maxHeight: '12rem',
@@ -142,9 +140,9 @@ const ReportedBySelect = (props) => {
     </components.SingleValue>;
   };
 
-  return <Select
+  return <CustomSelect
     className={className}
-    components={{ Control, MultiValueLabel, Option, SingleValue, DropdownIndicator }}
+    components={{ Control, MultiValueLabel, Option, SingleValue }}
     value={selected}
     isClearable={true}
     isDisabled={isDisabled}
