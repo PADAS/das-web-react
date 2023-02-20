@@ -2,10 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
-import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
+import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
-import QuickLinks, { QuickLinksContext } from './';
+import QuickLinks, { QuickLinksContext } from '.';
 
 describe('ReportManager - QuickLinks', () => {
   test('renders the anchors and sections', async () => {
@@ -29,10 +29,10 @@ describe('ReportManager - QuickLinks', () => {
       </QuickLinks>
     );
 
-    expect((await screen.findByTestId('reportManager-quickLinks-anchor-quicklink1'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-quickLinks-anchor-quicklink2'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-quickLinks-section-quicklink1'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-quickLinks-section-quicklink2'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-quicklink1'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-quicklink2'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-section-quicklink1'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-section-quicklink2'))).toBeDefined();
   });
 
   test('does not render a quicklink that does not have a corresponding section', async () => {
@@ -52,7 +52,7 @@ describe('ReportManager - QuickLinks', () => {
       </QuickLinks>
     );
 
-    expect((await screen.queryByTestId('reportManager-quickLinks-anchor-quicklink2'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-quicklink2'))).toBeNull();
   });
 
   describe('QuickLinks.Anchor', () => {
@@ -66,7 +66,7 @@ describe('ReportManager - QuickLinks', () => {
 
       expect(onClickAnchor).toHaveBeenCalledTimes(0);
 
-      const anchor = await screen.queryByTestId('reportManager-quickLinks-anchor-anchor1');
+      const anchor = await screen.queryByTestId('quickLinks-anchor-anchor1');
       userEvent.click(anchor);
 
       expect(onClickAnchor).toHaveBeenCalledTimes(1);
@@ -95,7 +95,7 @@ describe('ReportManager - QuickLinks', () => {
         </QuickLinksContext.Provider>
       );
 
-      expect((await screen.queryByTestId('reportManager-quickLinks-section-section1'))).toBeNull();
+      expect((await screen.queryByTestId('quickLinks-section-section1'))).toBeNull();
     });
   });
 });

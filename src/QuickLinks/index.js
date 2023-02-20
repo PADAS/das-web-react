@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import useOnScreen from '../../hooks/useOnScreen';
+import useOnScreen from '../hooks/useOnScreen';
 
 import styles from './styles.module.scss';
 
@@ -47,7 +47,7 @@ QuickLinks.propTypes = {
 
 const NavigationBar = ({ children }) => <div
   className={styles.navigationBar}
-  data-testid="reportManager-quickLinks-navigationBar"
+  data-testid="quickLinks-navigationBar"
   >
   {children}
 </div>;
@@ -68,7 +68,7 @@ const Anchor = ({ anchorTitle, iconComponent }) => {
 
   return sectionElement ? <div
     className={`${styles.anchor} ${isSectionOnScreen ? 'active' : ''}`}
-    data-testid={`reportManager-quickLinks-anchor-${anchorTitle}`}
+    data-testid={`quickLinks-anchor-${anchorTitle}`}
     onClick={onClick}
     >
     {iconComponent}
@@ -86,7 +86,7 @@ const SectionsWrapper = ({ children }) => {
 
   return <div
     className={styles.sectionsWrapper}
-    data-testid="reportManager-quickLinks-anchor-sectionsWrapper"
+    data-testid="quickLinks-anchor-sectionsWrapper"
     ref={sectionsWrapperRef}
     >
     {children}
@@ -111,7 +111,7 @@ const Section = ({ anchorTitle, children, hidden }) => {
     }
   }, [anchorTitle, getSectionElement, onSectionElementChange, sectionElement]);
 
-  return !hidden ? <div data-testid={`reportManager-quickLinks-section-${anchorTitle}`} ref={sectionRef}>
+  return !hidden ? <div data-testid={`quickLinks-section-${anchorTitle}`} ref={sectionRef}>
     {children}
   </div> : null;
 };
