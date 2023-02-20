@@ -23,7 +23,7 @@ import {
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
@@ -62,9 +62,9 @@ const GlobalMenuDrawer = ({
   selectedUserProfile,
   user,
 }) => {
-  const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
-  const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const dailyReportEnabled = useSystemConfigFlag(FEATURE_FLAGS.DAILY_REPORT);
+  const kmlExportEnabled = useSystemConfigFlag(FEATURE_FLAGS.KML_EXPORT);
+  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 

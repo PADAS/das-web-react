@@ -29,7 +29,7 @@ jest.mock('../ducks/drawer', () => ({
 }));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
-  useFeatureFlag: () => true,
+  useSystemConfigFlag: () => true,
   useMatchMedia: jest.fn(),
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());

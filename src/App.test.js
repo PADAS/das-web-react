@@ -30,7 +30,6 @@ import { ConnectedApp as App } from './App';
 
 jest.mock('./constants', () => ({
   ...jest.requireActual('./constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true },
 }));
 
 const generateEmptyResponse = () => ({ data: [] });

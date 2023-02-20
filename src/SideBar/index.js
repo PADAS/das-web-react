@@ -15,7 +15,7 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { getPatrolList } from '../selectors/patrols';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -47,7 +47,7 @@ const SideBar = () => {
   const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
 
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const map = useContext(MapContext);

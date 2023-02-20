@@ -15,7 +15,7 @@ jest.mock('../ducks/popup', () => ({
 }));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
-  useFeatureFlag: () => true,
+  useSystemConfigFlag: () => true,
 }));
 
 describe('LayerSelectorPopup', () => {

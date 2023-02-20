@@ -11,7 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import { analyticsMetadata } from '../proptypes';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
@@ -197,7 +197,7 @@ const AddReport = forwardRef(({
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
   const patrolsEnabled = !!patrolFlagEnabled

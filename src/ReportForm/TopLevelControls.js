@@ -15,7 +15,6 @@ import ReportedBySelect from '../ReportedBySelect';
 import styles from './styles.module.scss';
 
 
-const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const ReportFormTopLevelControls = ({
   geometryType,
@@ -62,7 +61,7 @@ const ReportFormTopLevelControls = ({
     </label>
 
 
-    {ENABLE_EVENT_GEOMETRY && geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+    {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
       ? <AreaSelectorInput
         event={report}
         originalEvent={originalEvent}

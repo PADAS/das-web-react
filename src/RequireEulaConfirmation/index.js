@@ -5,7 +5,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
-import { useFeatureFlag } from '../hooks';
+import { useSystemConfigFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus, user }) => {
@@ -26,7 +26,7 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchCurrentUser]);
 
-  const eulaEnabled = useFeatureFlag(FEATURE_FLAGS.EULA);
+  const eulaEnabled = useSystemConfigFlag(FEATURE_FLAGS.EULA);
 
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false

@@ -13,6 +13,7 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
+import { featureFlagOverrideReducer } from '../ducks/feature-flag-overrides';
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
@@ -53,6 +54,7 @@ const heatmapConfigPersistanceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistanceConfig = generateStorageConfig('userProfile');
 const mapsPersistanceConfig = generateStorageConfig('maps');
 const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
+const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides');
 const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
@@ -95,6 +97,7 @@ const rootReducer = combineReducers({
   }),
   view: combineReducers({
     currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
+    featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
