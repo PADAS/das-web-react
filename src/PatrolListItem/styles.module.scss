@@ -41,6 +41,10 @@
   @include unstyledButton;
 }
 
+.controls {
+  display: flex;
+}
+
 .statusInfo {
   display: flex;
   flex-flow: column;
