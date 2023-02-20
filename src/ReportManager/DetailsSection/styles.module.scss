@@ -58,6 +58,7 @@
 
   .stateDropdownMenu {
     padding: 0.312rem 0;
+    @include boxShadow;
 
     .stateItem {
       font-size: 0.875rem;
@@ -120,7 +121,7 @@
   }
 
   [class*=col-] {
-    padding: 0 0.5rem;
+    padding: 0;
   }
 
   select {
