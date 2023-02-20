@@ -138,3 +138,13 @@ export const HUMANIZED_DURATION_CONFIGS = {
 };
 
 export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT) => humanizeDuration.humanizer(config);
+
+export const getUserLocaleTime = (date = new Date()) => {
+  const userLanguage = navigator.languages?.[0]
+    || navigator.userLanguage
+    || navigator.language
+    || navigator.browserLanguage
+    || 'en';
+
+  return date.toLocaleTimeString(userLanguage, { hour: '2-digit', minute: '2-digit' });
+};
