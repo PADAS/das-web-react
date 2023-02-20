@@ -85,6 +85,7 @@ describe('The main app view', () => {
     store = mockStore({
       view: {
         drawer: {},
+        featureFlagOverrides: {},
         modals: {
           canShowModals: true,
           modals: [],

@@ -11,6 +11,16 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('ReportManager - Header', () => {
+  let store = {
+    data: {
+      eventTypes,
+      patrolTypes,
+    },
+    view: {
+      featureFlagOverrides: {},
+    },
+  };
+
   const onChangeTitle = jest.fn();
   afterEach(() => {
     jest.restoreAllMocks();
@@ -18,7 +28,7 @@ describe('ReportManager - Header', () => {
 
   test('renders correctly case of a 300 priority report', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -30,7 +40,7 @@ describe('ReportManager - Header', () => {
 
   test('sets the display title as the title if it was empty without changing the form', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -44,7 +54,7 @@ describe('ReportManager - Header', () => {
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
     report.title = 'Light';
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -64,7 +74,7 @@ describe('ReportManager - Header', () => {
   test('sets the event type title if user leaves the title input empty', async () => {
     report.title = 'Light';
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -82,7 +92,7 @@ describe('ReportManager - Header', () => {
   test('shows the event type label if the title does not match the event type title', async () => {
     report.title = 'Report!';
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -97,7 +107,7 @@ describe('ReportManager - Header', () => {
   test('doest not show the event type label if the title matches the event type title', async () => {
     report.title = 'Light';
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -109,7 +119,7 @@ describe('ReportManager - Header', () => {
 
   test('renders the priority and date values if report is not new', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -122,7 +132,7 @@ describe('ReportManager - Header', () => {
   test('does not render the priority and date values if report is new', async () => {
     report.id = undefined;
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -134,7 +144,7 @@ describe('ReportManager - Header', () => {
 
   test('renders the location jump button if the report has coordinates', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -147,7 +157,7 @@ describe('ReportManager - Header', () => {
   test('does not render the location jump button if the report does not have coordinates', async () => {
     report.geojson.geometry.coordinates = null;
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -159,7 +169,7 @@ describe('ReportManager - Header', () => {
 
   test('rendering a small "p" indicator if the report is associated with patrols', async () => {
     const { rerender } = render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>
@@ -172,7 +182,7 @@ describe('ReportManager - Header', () => {
     report.patrols = ['dfasd-x-adfasxf-1'];
 
     rerender(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <Header report={report} onChangeTitle={onChangeTitle} />
         </NavigationWrapper>

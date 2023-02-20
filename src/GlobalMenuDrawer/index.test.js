@@ -65,6 +65,7 @@ describe('GlobalMenuDrawer', () => {
       },
       selectedUserProfile: null,
       view: {
+        featureFlagOverrides: {},
         systemConfig: {
           alerts_enabled: true,
           tableau_enabled: true,

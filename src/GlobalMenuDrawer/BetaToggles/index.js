@@ -44,6 +44,7 @@ const BetaToggles = () => {
 
     {toggleableFeatures.map(([key, { label, value }]) =>
       <Form.Check
+      data-testid={`beta-toggle-${key}`}
       key={key}
       type="switch"
       checked={value}

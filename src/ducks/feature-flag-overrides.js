@@ -8,7 +8,7 @@ export const setFlagOverrideValue = (flagName, value) => ({
   payload: { flagName, value }
 });
 
-const INTIAL_REDUCER_STATE = {
+export const INTIAL_REDUCER_STATE = {
   [ENABLE_REPORT_NEW_UI]: {
     label: 'New Report Form UI',
     value: DEVELOPMENT_FEATURE_FLAGS[ENABLE_REPORT_NEW_UI],
@@ -26,6 +26,7 @@ const reducer = (state = INTIAL_REDUCER_STATE, action = {}) => {
       },
     };
   }
+
   return state;
 };
 

@@ -9,7 +9,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { getPatrolList } from '../selectors/patrols';
@@ -47,7 +47,7 @@ const SideBar = () => {
   const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
 
-  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const map = useContext(MapContext);

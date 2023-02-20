@@ -16,7 +16,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  FEATURE_FLAGS,
+  SYSTEM_CONFIG_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
@@ -63,9 +63,9 @@ const GlobalMenuDrawer = ({
   selectedUserProfile,
   user,
 }) => {
-  const dailyReportEnabled = useSystemConfigFlag(FEATURE_FLAGS.DAILY_REPORT);
-  const kmlExportEnabled = useSystemConfigFlag(FEATURE_FLAGS.KML_EXPORT);
-  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const dailyReportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.DAILY_REPORT);
+  const kmlExportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.KML_EXPORT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 

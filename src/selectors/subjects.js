@@ -3,7 +3,7 @@ import { createSelector } from 'reselect';
 import { getTimeSliderState } from './';
 import { tracks } from './tracks';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols, addDefaultStatusValue, subjectIsStatic } from '../utils/subjects';
 
@@ -66,7 +66,7 @@ export const allSubjects = createSelector(
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
   [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
-    const patrolsEnabled = !!systemConfig?.[FEATURE_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
+    const patrolsEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
 
     const mapSubjectFeatureCollection_ = patrolsEnabled ? markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection) : mapSubjectFeatureCollection;
 

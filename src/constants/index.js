@@ -149,7 +149,7 @@ export const LAYER_PICKER_IDS = [
   LAYER_IDS.EVENT_GEOMETRY_LAYER,
 ];
 
-export const FEATURE_FLAGS = {
+export const SYSTEM_CONFIG_FLAGS = {
   PATROL_MANAGEMENT: 'patrol_enabled',
   ALERTS: 'alerts_enabled',
   DAILY_REPORT: 'daily_report_enabled',

@@ -83,6 +83,9 @@ describe('ReportsFeedTab', () => {
         feedEvents: { results: [] },
         patrolTypes,
       },
+      view: {
+        featureFlagOverrides: {},
+      }
     };
   });
 

@@ -24,7 +24,7 @@ import EventTypeListItem from '../EventTypeListItem';
 
 import {
   FEATURE_FLAG_LABELS,
-  FEATURE_FLAGS,
+  SYSTEM_CONFIG_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
@@ -200,7 +200,7 @@ const AddReport = forwardRef(({
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
-  const patrolFlagEnabled = useSystemConfigFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
   const patrolsEnabled = !!patrolFlagEnabled
