@@ -1,7 +1,6 @@
 import React from 'react';
-import { MapContext as MapboxMapContext } from 'react-mapbox-gl';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
@@ -45,12 +44,6 @@ jest.mock('../ducks/popup', () => ({
   ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
   showPopup: jest.fn(),
-}));
-
-jest.mock('react-mapbox-gl', () => ({
-  ...jest.requireActual('react-mapbox-gl'),
-  __esModule: true,
-  default: () => ({ children }) => <div>{children}</div>, /* eslint-disable-line react/display-name */
 }));
 
 jest.mock('../ducks/map-ui', () => ({
@@ -157,19 +150,21 @@ describe('Map', () => {
   });
 
   test('shows the EventFilter', async () => {
+    store.view.mapLocationSelection.isPickingLocation = false;
+
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 
-    expect((await screen.findByTestId('eventFilter-form'))).toBeDefined();
+    await waitFor(() => {
+      expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
+    });
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
@@ -177,11 +172,11 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
@@ -194,11 +189,11 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
@@ -224,15 +219,18 @@ describe('Map', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <MapDrawingToolsContextProvider>
-          <MapboxMapContext.Provider value={map}>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} />
-            </MapContext.Provider>
-          </MapboxMapContext.Provider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
         </MapDrawingToolsContextProvider>
       </NavigationWrapper>
     </Provider>);
 
-    expect((await screen.findByTestId('reportAreaOverview-wrapper'))).toBeDefined();
+    await waitFor(() => {
+      expect(screen.findByTestId('reportAreaOverview-wrapper')).toBeDefined();
+    });
+
   });
 });

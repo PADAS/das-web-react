@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import mapboxgl from 'mapbox-gl';
 
 import {
   addNewClusterMarkers,
@@ -26,14 +27,13 @@ import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const mapMarkers = [];
-jest.mock('mapbox-gl', () => {
-  class Marker {
-    constructor(marker) { this.marker = marker; }
-    addTo() { mapMarkers.push(this.marker); }
-    setLngLat() { return this; }
-  };
-  return { ...jest.requireActual('mapbox-gl'), Marker };
-});
+
+class MockMarker {
+  constructor(marker) { this.marker = marker; }
+  addTo() { mapMarkers.push(this.marker); }
+  setLngLat() { return this; }
+};
+
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
   getMapEventFeatureCollectionWithVirtualDate: () => mockEventFeatureCollection,
@@ -44,12 +44,15 @@ jest.mock('../selectors/subjects', () => ({
 }));
 jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
 
+
 describe('ClustersLayer', () => {
   let getClusterExpansionZoomMock, removeClusterPolygon;
 
   beforeEach(() => {
     getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
     removeClusterPolygon = jest.fn();
+    mapboxgl.Marker.mockImplementation((...args) => new MockMarker(...args));
+
   });
 
   describe('the map layer', () => {

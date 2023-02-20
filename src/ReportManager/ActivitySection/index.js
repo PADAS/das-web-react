@@ -12,6 +12,7 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
+
 const ActivitySection = ({
   attachmentsToAdd,
   containedReports,
@@ -92,6 +93,7 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
+      ref={noteToAdd.ref}
       onCollapse={() => onCollapseCard(noteToAdd)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd)}
@@ -171,9 +173,10 @@ const ActivitySection = ({
       </div>}
     </div>
 
-    {sortableList.length > 0 && <ul className={styles.list}>
+    {!!sortableList.length && <ul className={styles.list} >
       {sortedItemsRendered}
     </ul>}
+
   </div>;
 };
 

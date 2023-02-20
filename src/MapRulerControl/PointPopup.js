@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState, memo } from 'react';
-
-import { Popup } from 'react-mapbox-gl';
 import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import { calculatePopoverPlacement } from '../utils/map';
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddReport from '../AddReport';
+import Popup from '../Popup';
 import { calcPositiveBearing } from '../utils/location';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';

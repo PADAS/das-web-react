@@ -319,6 +319,7 @@ const EventFilter = (props) => {
     </Popover.Body>
   </Popover>;
 
+
   return <>
     <form
       className={`${styles.form} ${className} ${styles.oldNavigation}`}

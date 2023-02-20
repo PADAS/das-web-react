@@ -41,6 +41,7 @@ import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
+import activitySectionStyles from '../ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -54,6 +55,7 @@ const ReportDetailView = ({
   newReportTypeId,
   onAddReport,
   onCancelAddedReport,
+  onSaveAddedReport: onSaveAddedReportCallback,
   reportData,
   reportId,
 }) => {
@@ -68,6 +70,7 @@ const ReportDetailView = ({
   );
 
   const submitFormButtonRef = useRef(null);
+  const newNoteRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -76,7 +79,7 @@ const ReportDetailView = ({
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [wasSaved, setWasSaved] = useState(false);
+  const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
@@ -163,10 +166,14 @@ const ReportDetailView = ({
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
-  const onSaveSuccess = useCallback((reportToSubmit) => (results) => {
+  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
     onSaveSuccessCallback?.(results);
 
-    setWasSaved(true);
+    if (isAddedReport) {
+      onSaveAddedReportCallback?.();
+    } else if (redirectTo) {
+      setRedirectTo(redirectTo);
+    }
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
       return Promise.all(reportToSubmit.contains
@@ -174,7 +181,7 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
     return results;
-  }, [dispatch, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -182,7 +189,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback]);
 
-  const onSaveReport = useCallback(() => {
+  const onSaveReport = useCallback((shouldRedirectAfterSave = true) => {
     if (isSaving) {
       return;
     }
@@ -226,7 +233,7 @@ const ReportDetailView = ({
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
     return executeSaveActions(saveActions)
-      .then(onSaveSuccess(reportToSubmit))
+      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
@@ -347,10 +354,15 @@ const ReportDetailView = ({
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), text: '' };
+      const newNote = { creationDate: new Date().toISOString(), ref: newNoteRef, text: '' };
       setNotesToAdd([...notesToAdd, newNote]);
-
       reportTracker.track('Added Note');
+
+      setTimeout(() => {
+        newNoteRef?.current?.scrollIntoView?.({
+          behavior: 'smooth',
+        });
+      }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
   }, [notesToAdd, reportTracker]);
 
@@ -370,27 +382,27 @@ const ReportDetailView = ({
 
   const onSaveAddedReport = ([{ data: { data: secondReportSaved } }]) => {
     try {
-      onSaveReport().then(async ([{ data: { data: thisReportSaved } }]) => {
+      onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
         let idOfReportToRedirect;
         if (reportForm.is_collection) {
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
           ({ data: { data: { id: idOfReportToRedirect } } } = await dispatch(fetchEvent(thisReportSaved.id)));
         } else {
+          setIsSaving(true);
           const { data: { data: incidentCollection } } = await dispatch(createEvent(createNewIncidentCollection()));
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
           const incidentCollectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
 
           ({ data: { data: { id: idOfReportToRedirect } } } = incidentCollectionRefreshedResults);
-          onSaveSuccess(incidentCollectionRefreshedResults);
+          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`)(incidentCollectionRefreshedResults);
         }
 
         reportTracker.track('Added Report');
-
-        navigate(`/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`);
       });
     } catch (e) {
+      setIsSaving(false);
       onSaveError(e);
     }
   };
@@ -430,10 +442,10 @@ const ReportDetailView = ({
   }, [eventStore, fetchEventDebounced, linkedReportIds]);
 
   useEffect(() => {
-    if (wasSaved) {
-      navigate(`/${TAB_KEYS.REPORTS}`);
+    if (redirectTo) {
+      navigate(redirectTo);
     }
-  }, [navigate, wasSaved]);
+  }, [navigate, redirectTo]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
@@ -451,7 +463,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    {!isAddedReport && <NavigationPromptModal when={isReportModified && !wasSaved} />}
+    {!isAddedReport && <NavigationPromptModal when={isReportModified && !redirectTo} />}
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
@@ -542,7 +554,7 @@ const ReportDetailView = ({
 
               <Button
                   className={styles.saveButton}
-                  disabled={!isReportModified && !isAddedReport}
+                  disabled={!isNewReport && !isAddedReport && !isReportModified}
                   onClick={onClickSaveButton}
                   type="button"
                 >
@@ -563,6 +575,7 @@ ReportDetailView.defaulProps = {
   newReportTypeId: null,
   onAddReport: null,
   onCancelAddedReport: null,
+  onSaveAddedReport: null,
   reportData: null,
 };
 
@@ -578,6 +591,7 @@ ReportDetailView.propTypes = {
   newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,
   onCancelAddedReport: PropTypes.func,
+  onSaveAddedReport: PropTypes.func,
   reportData: PropTypes.object,
   reportId: PropTypes.string.isRequired,
 };

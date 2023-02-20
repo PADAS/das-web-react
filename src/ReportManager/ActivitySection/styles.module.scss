@@ -2,6 +2,8 @@
 @import '../../common/styles/priorities';
 @import '../../common/styles/vars/colors';
 
+$cardExpansionTransitionTime: 300ms;
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -55,7 +57,7 @@
   margin-bottom: 0;
   
   li {
-    transition: margin 500ms;
+    transition: margin $cardExpansionTransitionTime;
 
     &.openItem {
       margin: 0.5rem 0;
@@ -208,4 +210,8 @@
 .disabled {
   color: $secondary-light-gray;
   pointer-events: none;
+}
+
+:export {
+  cardToggleTransitionTime: $cardExpansionTransitionTime
 }

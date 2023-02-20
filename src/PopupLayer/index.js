@@ -1,9 +1,11 @@
 import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'react-mapbox-gl';
+
 
 import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
+
+import Popup from '../Popup';
 
 import SubjectPopup from '../SubjectPopup';
 
@@ -113,6 +115,7 @@ const PopupLayer = ({ popup, map, ...rest }) => {
 
   const template = templates[type];
   if (!template) return null;
+
   const { Component, popupAttrs } = template;
 
   const finalPopupAttrs = {

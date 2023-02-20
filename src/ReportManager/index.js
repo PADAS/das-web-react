@@ -37,7 +37,7 @@ const ReportManager = () => {
     setShowSecondaryReportNavigationPrompt(false);
   }, []);
 
-  const onContinueSecondaryReportPrompt = useCallback(() => {
+  const onCloseAddedReport = useCallback(() => {
     setShowSecondaryReportNavigationPrompt(false);
     setShowAddedReport(false);
     setTimeout(() => {
@@ -121,8 +121,9 @@ const ReportManager = () => {
     <DelayedUnmount isMounted={showAddedReport}>
       <NavigationPromptModal
         onCancel={onCancelSecondaryReportPrompt}
-        onContinue={onContinueSecondaryReportPrompt}
+        onContinue={onCloseAddedReport}
         show={showSecondaryReportNavigationPrompt}
+        when={false}
       />
 
       <ReportDetailView
@@ -132,6 +133,7 @@ const ReportManager = () => {
         isNewReport
         newReportTypeId={addedReportTypeId}
         onCancelAddedReport={onCancelAddedReport}
+        onSaveAddedReport={onCloseAddedReport}
         reportData={addedReportData}
         reportId={addedReportTypeId || 'added'}
       />
