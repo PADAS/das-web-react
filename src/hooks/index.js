@@ -24,7 +24,7 @@ export const useFeatureFlag = (flagName) => {
   };
 
   return featureFlagOverrides.hasOwnProperty(flagName)
-    ? featureFlagOverrides[flagName]
+    ? featureFlagOverrides[flagName].value
     : DEVELOPMENT_FEATURE_FLAGS[flagName];
 };
 

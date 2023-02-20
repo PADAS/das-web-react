@@ -15,7 +15,7 @@ import {
   EVENT_SORT_ORDER_OPTIONS,
 } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
+import { FEATURE_FLAG_LABELS } from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchEventFeed, fetchEventFeedCancelToken, fetchNextEventFeedPage } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
@@ -23,6 +23,7 @@ import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { MapContext } from '../../App';
 import { openModalForReport } from '../../utils/events';
 import { objectToParamString } from '../../utils/query';
+import { useFeatureFlag } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
@@ -34,13 +35,15 @@ import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsFeedTab = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const events = useSelector((state) => getFeedEvents(state));
@@ -81,14 +84,14 @@ const ReportsFeedTab = () => {
   );
 
   const onEventTitleClick = useCallback((event) => {
-    if (ENABLE_REPORT_NEW_UI) {
+    if (enableNewReportUI) {
       navigate(event.id);
     } else {
       openModalForReport(event, map);
     }
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [map, navigate]);
+  }, [enableNewReportUI, map, navigate]);
 
   useEffect(() => {
     if (geoResrictedUserLocationCoords) {

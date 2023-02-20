@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 
-import { DATEPICKER_DEFAULT_CONFIG, VALID_EVENT_GEOMETRY_TYPES, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DATEPICKER_DEFAULT_CONFIG, VALID_EVENT_GEOMETRY_TYPES } from '../constants';
 import { setMapLocationSelectionEvent } from '../ducks/map-ui';
 
 import DatePicker from '../DatePicker';

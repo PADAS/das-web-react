@@ -15,7 +15,6 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
-  DEVELOPMENT_FEATURE_FLAGS,
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,

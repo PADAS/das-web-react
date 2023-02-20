@@ -27,6 +27,7 @@ import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
+import BetaToggles from './BetaToggles';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
@@ -190,6 +191,10 @@ const GlobalMenuDrawer = ({
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
+  const onToggleChange = (stuff) => {
+    console.log({ stuff });
+  };
+
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
     ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
@@ -227,6 +232,9 @@ const GlobalMenuDrawer = ({
       <div className={styles.section}>
         <h6>EXPORTS</h6>
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
+      </div>
+      <div className={styles.section}>
+        <BetaToggles />
       </div>
     </div>
 
