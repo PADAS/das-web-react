@@ -28,10 +28,6 @@ import * as toastUtils from './utils/toast';
 
 import { ConnectedApp as App } from './App';
 
-jest.mock('./constants', () => ({
-  ...jest.requireActual('./constants'),
-}));
-
 const generateEmptyResponse = () => ({ data: [] });
 
 const server = setupServer(

@@ -191,10 +191,6 @@ const GlobalMenuDrawer = ({
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
-  const onToggleChange = (stuff) => {
-    console.log({ stuff });
-  };
-
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
     ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
