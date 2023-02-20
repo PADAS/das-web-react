@@ -426,23 +426,26 @@ export const CheckboxesWidget = ({
   </Form.Group>;
 };
 
-export const ExternalLinkField = ({ formData, idSchema, schema }) => {
+export const ExternalLinkField = (props) => {
+  const { formData, idSchema, schema } = props;
   const onClick = useCallback(() => {
     const urlDomain = formData?.value?.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0] ?? '';
 
     eventReportTracker.track('Click \'External Source\' link', urlDomain);
   }, [formData?.value]);
 
-  return formData?.value && <div className={styles.externalLinkField}>
-    <label htmlFor={idSchema.id}>
+  const value = typeof formData === 'string' ? formData : formData?.value;
+
+  return value && <div className={styles.externalLinkField}>
+    <label htmlFor={idSchema.id} data-testid={`schema-link-label-${idSchema.id}`}>
       {schema.title}
 
-      <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={formData.value}>
+      <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={value}>
         <ExternalLinkIcon />
       </a>
     </label>
 
-    <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={formData.value}>{formData.value}</a>
+    <a onClick={onClick} target='_blank' rel='noopener noreferrer' href={value} data-testid={`schema-link-${idSchema.id}`} >{value}</a>
   </div>;
 };
 
