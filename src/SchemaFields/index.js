@@ -426,8 +426,7 @@ export const CheckboxesWidget = ({
   </Form.Group>;
 };
 
-export const ExternalLinkField = (props) => {
-  const { formData, idSchema, schema } = props;
+export const ExternalLinkField = ({ formData, idSchema, schema }) => {
   const onClick = useCallback(() => {
     const urlDomain = formData?.value?.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0] ?? '';
 
