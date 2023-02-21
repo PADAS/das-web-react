@@ -8,7 +8,7 @@ import {
 } from '../constants';
 
 import styles from './styles.module.scss';
-import CustomSelect from '../CustomSelect';
+import Select from '../Select';
 
 const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
@@ -53,7 +53,7 @@ const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, classNa
     </components.Option>
   );
 
-  return <CustomSelect
+  return <Select
       value={priority}
       isDisabled={isDisabled}
       className={`${styles.select} ${className}`}

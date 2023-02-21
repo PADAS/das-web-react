@@ -10,7 +10,7 @@ import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
-import CustomSelect from '../CustomSelect';
+import Select from '../Select';
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 
@@ -140,7 +140,7 @@ const ReportedBySelect = (props) => {
     </components.SingleValue>;
   };
 
-  return <CustomSelect
+  return <Select
     className={className}
     components={{ Control, MultiValueLabel, Option, SingleValue }}
     value={selected}

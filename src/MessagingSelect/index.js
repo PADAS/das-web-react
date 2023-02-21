@@ -5,7 +5,7 @@ import { components } from 'react-select';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
-import CustomSelect from '../CustomSelect';
+import Select from '../Select';
 
 // const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
 
@@ -79,7 +79,7 @@ const MessagingSelect = (props) => {
     }
   }, []);
 
-  return <CustomSelect
+  return <Select
     className={className}
     components={{ Option }}
     value={value}

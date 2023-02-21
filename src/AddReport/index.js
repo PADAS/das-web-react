@@ -30,7 +30,7 @@ import {
 } from '../constants';
 
 import styles from './styles.module.scss';
-import CustomSelect from '../CustomSelect';
+import Select from '../Select';
 
 const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -151,7 +151,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
           <div className={styles.reportTypeSearchControls}>
             <SearchBar className={styles.search} placeholder='Search' value={reportFilter}
               onChange={onReportSearchValueChange} onClear={onReportFilterClear} />
-            <CustomSelect
+            <Select
               className={styles.quickJumpSelect}
               value={quickJumpOption}
               isSearchable={true}

@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import Select, { components } from 'react-select';
+import ReactSelect, { components } from 'react-select';
 import styles from './styles.module.scss';
 import colorVars from '../common/styles/vars/colors.module.scss';
 import controlsVars from '../common/styles/vars/controls.module.scss';
@@ -12,7 +12,7 @@ const DropdownIndicator = (props) => {
   );
 };
 
-const CustomSelect = ({ styles: customStyles, components, ...otherProps }) => {
+const Select = ({ styles: customStyles, components, ...otherProps }) => {
 
   const selectStyles = useMemo(() => ({
     ...customStyles,
@@ -41,11 +41,11 @@ const CustomSelect = ({ styles: customStyles, components, ...otherProps }) => {
     }
   }), [customStyles]);
 
-  return <Select
+  return <ReactSelect
       components={{ ...components, DropdownIndicator }}
       styles={selectStyles}
       {...otherProps}
   />;
 };
 
-export default memo(CustomSelect);
+export default memo(Select);

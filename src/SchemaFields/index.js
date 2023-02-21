@@ -19,7 +19,7 @@ import { uuid } from '../utils/string';
 import DatePicker from '../DatePicker';
 
 import styles from './styles.module.scss';
-import CustomSelect from '../CustomSelect';
+import Select from '../Select';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -291,7 +291,7 @@ export const SelectWidget = ({
     }
   }), [registry.formContext]);
 
-  return <CustomSelect
+  return <Select
     autoFocus={autofocus}
     className={`${rawErrors.length > 0 ? 'is-invalid' : ''} ${styles.selectWidget}`}
     components={{ SelectContainer }}
