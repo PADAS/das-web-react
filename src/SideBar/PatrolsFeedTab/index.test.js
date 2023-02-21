@@ -4,12 +4,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
-import { createMapMock } from '../../__test-helpers/mocks';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from '../../hooks/useNavigate';
 
-import PatrolsTab from './';
+import PatrolsFeedTab from './';
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
@@ -23,14 +22,12 @@ const patrolFilter = { filter: {
   patrol_type: [], status: [], text: '', leader: '',
 }, };
 
-const loadingPatrols = false;
-const mockedPatrols = [activePatrol];
-const map = createMapMock();
-
 let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
+store.data.patrolStore = { [activePatrol.id]: activePatrol };
+store.data.patrols.results = [activePatrol.id];
 
-describe('PatrolsTab', () => {
+describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;
   beforeEach(() => {
     navigate = jest.fn();
@@ -41,7 +38,7 @@ describe('PatrolsTab', () => {
   test('rendering without crashing', () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={mockedPatrols} />
+        <PatrolsFeedTab />
       </NavigationWrapper>
     </Provider>);
   });
@@ -49,7 +46,7 @@ describe('PatrolsTab', () => {
   test('it should show the list patrols if the patrolDetailView does NOT contain any data', async () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={mockedPatrols} />
+        <PatrolsFeedTab />
       </NavigationWrapper>
     </Provider>);
 
@@ -59,11 +56,7 @@ describe('PatrolsTab', () => {
   test('opens the patrol detail view if an item from the list is clicked', async () => {
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <PatrolsTab
-          loadingPatrols={loadingPatrols}
-          map={map}
-          patrolResults={mockedPatrols}
-        />
+        <PatrolsFeedTab />
       </NavigationWrapper>
     </Provider>);
 

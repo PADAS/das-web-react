@@ -144,7 +144,6 @@ describe('ReportManager', () => {
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).toBeDefined();
     });
-
   });
 
   test('does not fetch the event data if the id is "new"', async () => {
@@ -163,7 +162,6 @@ describe('ReportManager', () => {
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).not.toBeDefined();
     });
-
   });
 
   test('does not fetch the event data if it is in the event store already', async () => {
