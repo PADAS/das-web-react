@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as NoteIcon } from '../../common/images/icons/note.svg';
+import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 
 const AddNoteButton = ({ className, onAddNote }) => <Button
   data-testid="reportManager-addNoteButton"

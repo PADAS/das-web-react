@@ -2,7 +2,7 @@ import React, { memo, useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
-import { ReactComponent as AttachmentIcon } from '../../common/images/icons/attachment.svg';
+import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 
 import styles from './styles.module.scss';
 

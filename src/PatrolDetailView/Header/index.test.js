@@ -24,7 +24,7 @@ jest.mock('../../ducks/patrols', () => ({
 const store = mockStore(patrolDefaultStoreData);
 
 describe('Header', () => {
-  const setTitle = jest.fn();
+  const onChangeTitle = jest.fn();
   let updatePatrolMock;
   beforeEach(() => {
     updatePatrolMock = jest.fn(() => () => {});
@@ -38,11 +38,7 @@ describe('Header', () => {
   test('renders correctly case of a new patrol', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={newPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -53,11 +49,7 @@ describe('Header', () => {
   test('renders correctly case of a scheduled patrol', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={scheduledPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -72,11 +64,7 @@ describe('Header', () => {
   test('renders correctly case of an active patrol', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={activePatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={activePatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -90,11 +78,7 @@ describe('Header', () => {
   test('renders correctly case of an overdue patrol', async () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {}, tracks: [] }, view: {} })}>
-        <Header
-          patrol={overduePatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={overduePatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -109,11 +93,7 @@ describe('Header', () => {
   test('renders correctly case of an done patrol', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={donePatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={donePatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -127,11 +107,7 @@ describe('Header', () => {
   test('renders correctly case of an cancelled patrol', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={cancelledPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -140,34 +116,26 @@ describe('Header', () => {
     expect((await screen.findByRole('button'))).toHaveTextContent('Restore');
   });
 
-  test('triggers setTitle callback when changing the title', async () => {
+  test('triggers onChangeTitle callback when changing the title', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={newPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
-    expect(setTitle).toHaveBeenCalledTimes(0);
+    expect(onChangeTitle).toHaveBeenCalledTimes(0);
 
     const titleTextBox = await screen.findByRole('textbox');
     userEvent.type(titleTextBox, '2');
 
-    expect(setTitle).toHaveBeenCalledTimes(1);
-    expect(setTitle).toHaveBeenCalledWith('title2');
+    expect(onChangeTitle).toHaveBeenCalledTimes(1);
+    expect(onChangeTitle).toHaveBeenCalledWith('title2');
   });
 
   test('triggers startPatrol callback when clicking the start button', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={scheduledPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
@@ -183,11 +151,7 @@ describe('Header', () => {
   test('triggers restorePatrol callback when clicking the restore button', async () => {
     render(
       <Provider store={store}>
-        <Header
-          patrol={cancelledPatrol}
-          setTitle={setTitle}
-          title="title"
-        />
+        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 

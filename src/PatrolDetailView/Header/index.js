@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
-const Header = ({ patrol, setTitle, title }) => {
+const Header = ({ onChangeTitle, patrol }) => {
   const {
     patrolData,
 
@@ -26,6 +26,7 @@ const Header = ({ patrol, setTitle, title }) => {
     isPatrolOverdue,
     isPatrolScheduled,
 
+    displayTitle,
     patrolElapsedTime,
     patrolIconId,
     patrolState,
@@ -62,18 +63,22 @@ const Header = ({ patrol, setTitle, title }) => {
   ]);
 
   const restorePatrolAndTrack = useCallback(() => {
-    patrolDetailViewTracker.track('Restore patrol from patrol detail view header');
     restorePatrol();
+
+    patrolDetailViewTracker.track('Restore patrol from patrol detail view header');
   }, [restorePatrol]);
 
   const startPatrolAndTrack = useCallback(() => {
-    patrolDetailViewTracker.track('Start patrol from patrol detail view header');
     startPatrol();
+
+    patrolDetailViewTracker.track('Start patrol from patrol detail view header');
   }, [startPatrol]);
 
   const onLocationClick = useCallback(() => {
     patrolDetailViewTracker.track('Click "jump to location" from patrol detail view');
   }, []);
+
+  const title = patrol.title || displayTitle;
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
@@ -83,7 +88,7 @@ const Header = ({ patrol, setTitle, title }) => {
     <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
     <div className={styles.title}>
-      <input onChange={(event) => setTitle(event.target.value)} type="text" value={title} />
+      <input onChange={(event) => onChangeTitle(event.target.value)} type="text" value={title} />
 
       {!isNewPatrol && titleDetails}
     </div>
@@ -120,9 +125,8 @@ const Header = ({ patrol, setTitle, title }) => {
 };
 
 Header.propTypes = {
+  onChangeTitle: PropTypes.func.isRequired,
   patrol: PropTypes.object.isRequired,
-  setTitle: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
 };
 
-export default Header;
+export default memo(Header);

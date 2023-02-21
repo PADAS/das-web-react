@@ -44,13 +44,12 @@ const ReportsFeedTab = () => {
   const navigate = useNavigate();
 
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+  const map = useContext(MapContext);
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const events = useSelector((state) => getFeedEvents(state));
   const userIsGeoPermRestricted = useSelector((state) => userIsGeoPermissionRestricted(state?.data?.user));
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
-
-  const map = useContext(MapContext);
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEventFeed, setEventLoadState] = useState(true);
