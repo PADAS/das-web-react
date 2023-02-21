@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
@@ -10,9 +9,7 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { fetchPatrols } from '../ducks/patrols';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
-import { getPatrolList } from '../selectors/patrols';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useFeatureFlag, usePermissions } from '../hooks';
@@ -32,7 +29,7 @@ import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
-import PatrolsTab from './PatrolsTab';
+import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
@@ -40,12 +37,9 @@ import styles from './styles.module.scss';
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
-  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const patrolFilter = useSelector((state) => state.data.patrolFilter);
-  const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -60,22 +54,12 @@ const SideBar = () => {
 
   const sidebarOpen = !!currentTab;
 
-  const patrolFetchRef = useRef(null);
-
-  const [loadingPatrols, setPatrolLoadState] = useState(true);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
-
-  const patrolFilterParams = useMemo(() => {
-    const filterParams = cloneDeep(patrolFilter);
-    delete filterParams.filter.overlap;
-
-    return filterParams;
-  }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
@@ -89,17 +73,6 @@ const SideBar = () => {
       return '';
     }
   }, [currentTab]);
-
-  const fetchAndLoadPatrolData = useCallback(() => {
-    patrolFetchRef.current = dispatch(fetchPatrols());
-
-    patrolFetchRef.current.request
-      .finally(() => {
-        setPatrolLoadState(false);
-        patrolFetchRef.current = null;
-      });
-
-  }, [dispatch]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
@@ -134,22 +107,6 @@ const SideBar = () => {
       };
     }
   }, [sidebarOpen, currentTab, socket]);
-
-  // fetch patrols if filter itself has changed
-  useEffect(() => {
-    if (showPatrols) {
-      setPatrolLoadState(true);
-      fetchAndLoadPatrolData();
-
-      return () => {
-        const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
-
-        if (priorRequestCancelToken) {
-          priorRequestCancelToken.cancel();
-        }
-      };
-    }
-  }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
     if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {
@@ -225,15 +182,10 @@ const SideBar = () => {
                 <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
-              {/* TODO: Remove Outlet and follow the same approach than in /reports */}
-              <Route
-                path="patrols"
-                element={<PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />}
-              >
-                <Route
-                  path=":id/*"
-                  element={<PatrolDetailView className={styles.patrolDetailView} />}
-                />
+              <Route path="patrols">
+                <Route index element={<PatrolsFeedTab />} />
+
+                <Route path=":id/*" element={<PatrolDetailView />} />
               </Route>
 
               <Route

@@ -1,0 +1,103 @@
+@import '../../common/styles/vars/colors';
+@import '../../common/styles/layout';
+
+.sectionHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  align-items: center;
+  display: flex;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  svg {
+    color: $secondary-medium-gray;
+    margin-right: 0.5rem;
+    width: 1.5rem;
+  }
+}
+
+.container {
+  .row {
+    display: block;
+
+    @media (min-width: $md-layout-width-min) {
+      display: flex;
+
+      > :not(:first-child) {
+        margin-left: 1rem;
+      }
+    }
+  }
+}
+
+.dateTimeContainer {
+  display: flex;
+  width: 100%;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
+}
+
+.fieldLabel {
+  color: $secondary-medium-gray;
+  font-size: 0.875rem;
+  font-weight: normal;
+  margin-top: 1.5rem;
+  position: relative;
+  width: 100%;
+
+  > div:first-child, 
+  > label {
+    margin-top: 0.187rem;
+  }
+
+  &.objectiveLabel {
+    width: 100%;
+
+    > textarea {
+      font-size: 1rem;
+      margin-top: 0.25rem;
+      min-height: 2.375rem;
+    }
+  }
+
+  &.datePickerLabel {
+    flex: 1;
+    width: 0;
+  }
+
+  &.timePickerLabel {
+    flex: 1;
+    margin-left: 0.5rem;
+    width: 0;
+  }
+
+  [class*=locationSelectionLabel] {
+    width: 100%;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
+}
+
+.autoFieldCheckbox {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+
+  > span {
+    color: black;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+}

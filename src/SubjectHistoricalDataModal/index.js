@@ -22,6 +22,7 @@ const { Header, Title, Body } = Modal;
 
 export const ITEMS_PER_PAGE = 10;
 export const DISPLAYED_PAGES_LIMIT = 5;
+export const SORT_BY = '-recorded_at';
 
 export const getObservationUniqProperties = (observations) => {
   const observationsDeviceProperties = observations.map(result => result?.device_status_properties ?? []);
@@ -38,7 +39,7 @@ const SubjectHistoricalDataModal = ({ gpsFormat, title, subjectId, subjectIsStat
 
   const fetchObservations = useCallback((page = 1) => {
     setLoadState(true);
-    fetchObservationsForSubject({ subject_id: subjectId, page: page, page_size: ITEMS_PER_PAGE })
+    fetchObservationsForSubject({ subject_id: subjectId, page: page, page_size: ITEMS_PER_PAGE, sort_by: SORT_BY })
       .then((data) => {
         setSubjectObservations(data.results);
         setObservationsCount(data.count);

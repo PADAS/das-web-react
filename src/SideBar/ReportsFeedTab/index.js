@@ -30,9 +30,9 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const events = useSelector((state) => getFeedEvents(state));
-
   const map = useContext(MapContext);
+
+  const events = useSelector((state) => getFeedEvents(state));
 
   const [feedEvents, setFeedEvents] = useState([]);
 

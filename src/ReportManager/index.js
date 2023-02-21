@@ -112,7 +112,6 @@ const ReportManager = () => {
       key={reportId} // This resets component state when the id changes
       formProps={navigationData?.formProps}
       isNewReport={isNewReport}
-      loadingReport={isLoadingReport}
       newReportTypeId={newReportTypeId}
       onAddReport={onAddReport}
       reportData={reportData}
