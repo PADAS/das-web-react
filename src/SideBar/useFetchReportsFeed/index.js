@@ -12,7 +12,7 @@ import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
-const useFetchFeed = () => {
+const useFetchReportsFeed = () => {
   const dispatch = useDispatch();
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -44,19 +44,6 @@ const useFetchFeed = () => {
   }), [dispatch]);
 
   useEffect(() => {
-    if (geoResrictedUserLocationCoords) {
-      eventParams.current = {
-        ...eventParams.current,
-        location: calcLocationParamStringForUserLocationCoords(geoResrictedUserLocationCoords),
-      };
-    }
-
-    loadFeedEvents(true);
-
-    return () => fetchEventFeedCancelToken.cancel();;
-  }, [geoResrictedUserLocationCoords, loadFeedEvents]);
-
-  useEffect(() => {
     const params = {};
     if (shouldExcludeContained) {
       params.exclude_contained = true;
@@ -68,10 +55,17 @@ const useFetchFeed = () => {
 
     eventParams.current = { ...calcEventFilterForRequest({ params, format: 'object' }, feedSort) };
 
-    loadFeedEvents();
+    if (geoResrictedUserLocationCoords) {
+      eventParams.current = {
+        ...eventParams.current,
+        location: calcLocationParamStringForUserLocationCoords(geoResrictedUserLocationCoords),
+      };
+    }
+
+    loadFeedEvents(!!geoResrictedUserLocationCoords);
 
     return () => fetchEventFeedCancelToken.cancel();
-  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
+  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained, geoResrictedUserLocationCoords]);
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {
@@ -80,14 +74,12 @@ const useFetchFeed = () => {
   }, [events.error, loadingEventFeed]);
 
   return {
-    reportsFeed: {
-      feedSort,
-      loadFeedEvents,
-      loadingEventFeed,
-      setFeedSort,
-      shouldExcludeContained,
-    },
+    feedSort,
+    loadFeedEvents,
+    loadingEventFeed,
+    setFeedSort,
+    shouldExcludeContained,
   };
 };
 
-export default useFetchFeed;
+export default useFetchReportsFeed;

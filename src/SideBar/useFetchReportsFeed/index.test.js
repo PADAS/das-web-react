@@ -10,7 +10,7 @@ import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
-import useFetchFeed from './';
+import useFetchReportsFeed from '.';
 
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
@@ -27,7 +27,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('useFetchFeed', () => {
+describe('useFetchReportsFeed', () => {
   let capturedRequestURLs, store;
 
   const logRequest = (req) => {
@@ -71,18 +71,18 @@ describe('useFetchFeed', () => {
 
   test('returns the reportsFeed properties and methods', async () => {
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    const { result } = renderHook(() => useFetchFeed(), { wrapper });
+    const { result } = renderHook(() => useFetchReportsFeed(), { wrapper });
 
-    expect(result.current.reportsFeed.feedSort).toBe(DEFAULT_EVENT_SORT);
-    expect(typeof result.current.reportsFeed.loadFeedEvents).toBe('function');
-    expect(result.current.reportsFeed.loadingEventFeed).toBe(true);
-    expect(typeof result.current.reportsFeed.setFeedSort).toBe('function');
-    expect(result.current.reportsFeed.shouldExcludeContained).toBe(true);
+    expect(result.current.feedSort).toBe(DEFAULT_EVENT_SORT);
+    expect(typeof result.current.loadFeedEvents).toBe('function');
+    expect(result.current.loadingEventFeed).toBe(true);
+    expect(typeof result.current.setFeedSort).toBe('function');
+    expect(result.current.shouldExcludeContained).toBe(true);
   });
 
   test('loads the feed for georestricted users', async () => {
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    renderHook(() => useFetchFeed(), { wrapper });
+    renderHook(() => useFetchReportsFeed(), { wrapper });
 
     await waitFor(() => {
       expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toContain('location=65.7%2C50.3');
@@ -92,7 +92,7 @@ describe('useFetchFeed', () => {
   test('loads the feed normally', async () => {
     store.data.user.permissions = [];
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    renderHook(() => useFetchFeed(), { wrapper });
+    renderHook(() => useFetchReportsFeed(), { wrapper });
 
     await waitFor(() => {
       expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toBeDefined();

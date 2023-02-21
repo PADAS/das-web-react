@@ -13,7 +13,7 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useFeatureFlag, usePermissions } from '../hooks';
-import useFetchFeed from './useFetchFeed';
+import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -44,7 +44,7 @@ const SideBar = () => {
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const { reportsFeed } = useFetchFeed();
+  const reportsFeed = useFetchReportsFeed();
 
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
