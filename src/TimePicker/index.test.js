@@ -33,11 +33,11 @@ describe('TimePicker', () => {
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems[0].textContent).toBe('10:05');
-    expect(timeOptionsListItems[1].textContent).toBe('10:10');
-    expect(timeOptionsListItems[2].textContent).toBe('10:15');
-    expect(timeOptionsListItems[3].textContent).toBe('10:20');
-    expect(timeOptionsListItems[4].textContent).toBe('10:25');
+    expect(timeOptionsListItems[0].textContent.slice(0, 5)).toBe('10:05');
+    expect(timeOptionsListItems[1].textContent.slice(0, 5)).toBe('10:10');
+    expect(timeOptionsListItems[2].textContent.slice(0, 5)).toBe('10:15');
+    expect(timeOptionsListItems[3].textContent.slice(0, 5)).toBe('10:20');
+    expect(timeOptionsListItems[4].textContent.slice(0, 5)).toBe('10:25');
   });
 
   test('shows only the duration time in options if showDurationFromStartTime is true', async () => {
@@ -49,11 +49,11 @@ describe('TimePicker', () => {
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems[0].textContent).toBe('10:30 (30m)');
-    expect(timeOptionsListItems[1].textContent).toBe('11:00 (1h)');
-    expect(timeOptionsListItems[2].textContent).toBe('11:30 (1h 30m)');
-    expect(timeOptionsListItems[3].textContent).toBe('12:00 (2h)');
-    expect(timeOptionsListItems[4].textContent).toBe('12:30 (2h 30m)');
+    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(30m)');
+    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(1h)');
+    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(1h 30m)');
+    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(2h)');
+    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(2h 30m)');
   });
 
   test('calls onChange and send a date with the time chosen', async () => {
@@ -101,9 +101,9 @@ describe('TimePicker', () => {
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems[3]).toHaveTextContent('14:00');
+    expect(timeOptionsListItems[3]).toHaveTextContent('02:00');
     expect(timeOptionsListItems[3]).not.toHaveClass('disabled');
-    expect(timeOptionsListItems[4]).toHaveTextContent('14:30');
+    expect(timeOptionsListItems[4]).toHaveTextContent('02:30');
     expect(timeOptionsListItems[4]).toHaveClass('disabled');
 
     userEvent.click(timeOptionsListItems[4]);

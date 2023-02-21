@@ -144,7 +144,7 @@ export const getUserLocaleTime = (date = new Date()) => {
     || navigator.userLanguage
     || navigator.language
     || navigator.browserLanguage
-    || 'en';
+    || 'en-US';
 
   return date.toLocaleTimeString(userLanguage, { hour: '2-digit', minute: '2-digit' });
 };
