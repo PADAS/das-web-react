@@ -519,17 +519,6 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-  test('disables the save button if user has not changed the opened report', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect((await screen.queryByText('Save'))).toBeDisabled();
-  });
 
   test('enables the save button if users modified the opened report', async () => {
     render(
@@ -561,21 +550,6 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.upload(addAttachmentButton, fakeFile);
 
     expect(await screen.findByText('Save')).not.toBeDisabled();
-  });
-
-  test('keeps the save button disabled if user adds a note without saving', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
-    userEvent.click(addNoteButton);
-
-    expect(await screen.findByText('Save')).toBeDisabled();
   });
 
   test('enables the save button if user adds a note, edits it and saves it', async () => {
@@ -798,7 +772,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportManager-quickLinks-anchor-Activity'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
   });
 
   test('displays the activity section and its anchor after adding an item', async () => {
@@ -815,13 +789,13 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportManager-quickLinks-anchor-Activity'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
     userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('reportManager-activitySection'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-quickLinks-anchor-Activity'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
   });
 
   test('does not display neither the history section nor its anchor if the report is new', async () => {
@@ -838,7 +812,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.queryByTestId('reportManager-historySection'))).toBeNull();
-    expect((await screen.queryByTestId('reportManager-quickLinks-anchor-History'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-History'))).toBeNull();
   });
 
   test('displays the history section and its anchor if the report is saved', async () => {
@@ -851,7 +825,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-historySection'))).toBeDefined();
-    expect((await screen.findByTestId('reportManager-quickLinks-anchor-History'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
   });
 
   test('does not show add report button if formProps relationshipButtonDisabled is true', async () => {

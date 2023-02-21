@@ -12,7 +12,7 @@ import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) => {
+const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
   const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const titleInput = useRef();
@@ -87,15 +87,15 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly = false }) =
   </div>;
 };
 
+Header.defaultProps = {
+  isReadOnly: false,
+};
+
 Header.propTypes = {
   isReadOnly: PropTypes.bool,
   onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
   onReportChange: PropTypes.func.isRequired,
-};
-
-Header.defaultProps = {
-  isReadOnly: false,
 };
 
 export default memo(Header);
