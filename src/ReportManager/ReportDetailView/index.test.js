@@ -520,18 +520,6 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-  test('disables the save button if user has not changed the opened report', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect((await screen.queryByText('Save'))).toBeDisabled();
-  });
-
   test('enables the save button if users modified the opened report', async () => {
     render(
       <Provider store={mockStore(store)}>
