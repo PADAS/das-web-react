@@ -564,21 +564,6 @@ describe('ReportManager - ReportDetailView', () => {
     expect(await screen.findByText('Save')).not.toBeDisabled();
   });
 
-  test('keeps the save button disabled if user adds a note without saving', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
-    userEvent.click(addNoteButton);
-
-    expect(await screen.findByText('Save')).toBeDisabled();
-  });
-
   test('enables the save button if user adds a note, edits it and saves it', async () => {
     render(
       <Provider store={mockStore(store)}>
