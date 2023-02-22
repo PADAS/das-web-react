@@ -365,9 +365,12 @@ export const DateTimeWidget = ({
 
       <TimePicker
         className={styles.timePicker}
+        disabled={disabled}
         minutesInterval={15}
         onChange={handleTimeChange}
         optionsToDisplay={96}
+        readOnly={readonly}
+        required={required}
         value={getHoursAndMinutesString(date) || '00:00'}
       />
     </div>

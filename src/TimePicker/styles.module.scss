@@ -30,6 +30,10 @@ $background_image_url: '../common/images/icons/';
     height: 2.5rem;
     padding-left: 2rem;
     width: 100%;
+
+    &:disabled {
+      background-color: $disabled-field-gray;
+    }
   
     &::-webkit-calendar-picker-indicator {
       display: none;

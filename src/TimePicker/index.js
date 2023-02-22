@@ -20,10 +20,12 @@ const TimePicker = ({
   maxTime,
   minutesInterval,
   onChange,
+  onKeyDown,
   optionsToDisplay,
   showDurationFromStartTime,
   startTime,
   value,
+  ...rest
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [writtenValue, setWrittenValue] = useState(null);
@@ -77,7 +79,13 @@ const TimePicker = ({
 
   const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
 
-  const onKeyDown = useCallback((event) => event.key === 'Enter' && event.target.blur(), []);
+  const handleKeyDown = useCallback((event) => {
+    if (event.key === 'Enter') {
+      event.target.blur();
+    }
+
+    onKeyDown?.(event);
+  }, [onKeyDown]);
 
   const onToggle = useCallback((show) => {
     setIsOpen(show);
@@ -105,9 +113,10 @@ const TimePicker = ({
         data-testid="time-input"
         min={startTime || '00:00'}
         onChange={handleChange}
-        onKeyDown={onKeyDown}
+        onKeyDown={handleKeyDown}
         type="time"
         value={writtenValue || value}
+        {...rest}
       />
     </OverlayTrigger>
 
