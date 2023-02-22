@@ -11,7 +11,6 @@ import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-r
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy';
 const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
 const CustomHeader = ({
@@ -107,17 +106,17 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ..
     const wasNewValuePasted = wasPastedRef.current;
     const userPressedBackspace = pressedKeyRef.current === 'Backspace';
 
-    const newValueContainsValidMonthText = newValue.length === 2 && !newValue.includes('/');
-    const newValueContainsValidMonthAndDayText = /^[0-9]{2}\/[0-9]{2}$/.test(newValue);
-    if (!userPressedBackspace && (newValueContainsValidMonthText || newValueContainsValidMonthAndDayText)) {
+    const newValueContainsValidYearText = newValue.length === 4 && !newValue.includes('/');
+    const newValueContainsValidYearAndMonthText = /^[0-9]{4}\/[0-9]{2}$/.test(newValue);
+    if (!userPressedBackspace && (newValueContainsValidYearText || newValueContainsValidYearAndMonthText)) {
       newValue = `${newValue}/`;
     }
 
     const newValueHasValidCharacters = /^[/0-9]*$/.test(newValue);
     if (newValueHasValidCharacters) {
       const newValueHasOnlyNumbers = /^[0-9]*$/.test(newValue);
-      if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 4) {
-        newValue =`${newValue.substring(0, 2)}/${newValue.substring(2, 4)}/${newValue.substring(4)}`;
+      if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 6) {
+        newValue =`${newValue.substring(0, 4)}/${newValue.substring(4, 6)}/${newValue.substring(6)}`;
       }
 
       event.target.value = newValue;
@@ -160,7 +159,7 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ..
   </div>;
 };
 
-const CustomInputWithRef = forwardRef(CustomInput);
+const CustomInputForwardRef = forwardRef(CustomInput);
 
 
 const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, ...rest }, ref) => {
@@ -177,11 +176,11 @@ const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeho
   }, [onCalendarClose]);
 
   return <DatePicker
-    customInput={<CustomInputWithRef isPopperOpen={isOpen} />}
-    dateFormat={dateFormat || DEFAULT_DATE_FORMAT}
+    customInput={<CustomInputForwardRef isPopperOpen={isOpen} />}
+    dateFormat={dateFormat}
     onCalendarClose={handleCalendarClose}
     onCalendarOpen={handleCalendarOpen}
-    placeholderText={placeholderText || (dateFormat || DEFAULT_DATE_FORMAT).toUpperCase()}
+    placeholderText={placeholderText || (dateFormat).toUpperCase()}
     ref={ref}
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
@@ -190,16 +189,20 @@ const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeho
   />;
 };
 
-CustomDatePicker.defaultProps = {
+const CustomDatePickerForwardRef = forwardRef(CustomDatePicker);
+
+CustomDatePickerForwardRef.defaultProps = {
+  dateFormat: 'yyyy/MM/dd',
   onCalendarClose: null,
   onCalendarOpen: null,
   placeholderText: null,
 };
 
-CustomDatePicker.propTypes = {
+CustomDatePickerForwardRef.propTypes = {
+  dateFormat: PropTypes.string,
   onCalendarClose: PropTypes.func,
   onCalendarOpen: PropTypes.func,
   placeholderText: PropTypes.string,
 };
 
-export default memo(forwardRef(CustomDatePicker));
+export default memo(CustomDatePickerForwardRef);
