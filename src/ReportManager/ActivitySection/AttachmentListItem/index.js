@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
@@ -21,7 +21,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }) => {
+const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }, ref = null) => {
   const dispatch = useDispatch();
 
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
@@ -84,7 +84,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   }, [attachment.file_type, attachment.images?.original]);
 
   if (attachment.file_type === 'image') {
-    return <li className={isOpen ? styles.openItem : ''}>
+    return <li className={isOpen ? styles.openItem : ''} ref={ref}>
       <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
         {!!imageIconSource
           ? <img
@@ -139,7 +139,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     </li>;
   }
 
-  return <li className={styles.itemRow}>
+  return <li className={styles.itemRow} ref={ref}>
     <div className={styles.itemIcon}>
       <AttachmentIcon />
     </div>
@@ -196,4 +196,4 @@ AttachmentListItem.propTypes = {
   }),
 };
 
-export default memo(AttachmentListItem);
+export default memo(forwardRef(AttachmentListItem));
