@@ -202,29 +202,33 @@ const ReportDetailView = ({
     let reportToSubmit;
     if (isNewReport) {
       reportToSubmit = reportForm;
+
+      if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
+        reportToSubmit.location = null;
+      }
     } else {
       reportToSubmit = {
         ...reportChanges,
         id: reportForm.id,
         event_details: { ...originalReport.event_details, ...reportChanges.event_details },
+        location: { ...originalReport.location, ...reportChanges.location }
       };
 
-      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
-      if (reportChanges.reported_by) {
-        reportToSubmit.reported_by = { ...reportForm.reported_by, ...reportChanges.reported_by };
+      if (reportChanges.hasOwnProperty('location') && !reportChanges.location) {
+        reportToSubmit.location = null;
       }
-      /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
+
+      if (reportChanges.hasOwnProperty('reported_by')) {
+        reportToSubmit.reported_by = reportForm.reported_by;
+      }
+
       if (reportChanges.notes) {
         reportToSubmit.notes = reportForm.notes;
       }
-      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+
       if (reportToSubmit.contains) {
         delete reportToSubmit.contains;
       }
-    }
-
-    if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
-      reportToSubmit.location = null;
     }
 
     const newNotes = notesToAdd.reduce(
@@ -244,7 +248,8 @@ const ReportDetailView = ({
     notesToAdd,
     onSaveError,
     onSaveSuccess,
-    originalReport?.event_details,
+    originalReport.event_details,
+    originalReport.location,
     reportChanges,
     reportForm,
     reportTracker,
