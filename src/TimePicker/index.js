@@ -5,7 +5,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
-import { getHoursAndMinutesString, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import {
+  durationHumanizer,
+  getHoursAndMinutesString,
+  getUserLocaleTime,
+  HUMANIZED_DURATION_CONFIGS,
+} from '../utils/datetime';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
@@ -46,9 +51,11 @@ const TimePicker = ({
     while (options.length < optionsToDisplay) {
       const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
+      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
 
       options.push({
         disabled: !isTimeBelowMax(timeValue),
+        display: timeDisplay,
         duration: showDurationFromStartTime
           ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
           : null,
@@ -70,7 +77,7 @@ const TimePicker = ({
           onClick={() => !option.disabled && onChange(option.value)}
           onMouseDown={(event) => option.disabled && event.preventDefault()}
         >
-          <span>{option.value}</span>
+          <span>{option.display}</span>
           {option.duration && <span>{option.duration}</span>}
         </li>)}
       </ul>
