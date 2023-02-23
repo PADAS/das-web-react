@@ -2,8 +2,8 @@
 
 @mixin defaultTextInput {
   background: white;
-  outline: none;
-  padding: 0.25rem;
   border: 1px solid $light-gray-border;
   border-radius: 0.2rem;
+  outline: none;
+  padding: 0.25rem;
 }

@@ -330,7 +330,7 @@ export const DateTimeWidget = ({
   schema,
 }) => {
   const date = formData ? new Date(formData) : undefined;
-  const styling = disabled || readonly ? `${styles.noBorder} ${styles.dateTimeWidget}` : styles.dateTimeWidget;
+
   const handleChange = useCallback((newVal) => onChange(newVal ? newVal.toISOString() : newVal), [onChange]);
 
   return <>
@@ -339,7 +339,7 @@ export const DateTimeWidget = ({
     <DatePicker
       {...DATEPICKER_DEFAULT_CONFIG}
       autoFocus={autofocus}
-      className={styling}
+      className={styles.dateTimeWidget}
       defaultTimeValue="00:00"
       disabled={disabled}
       id={id}
