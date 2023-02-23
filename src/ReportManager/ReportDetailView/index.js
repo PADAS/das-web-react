@@ -387,23 +387,25 @@ const ReportDetailView = ({
     reportTracker.track('Added Attachment');
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
-  const onSaveAddedReport = ([{ data: { data: secondReportSaved } }]) => {
+  const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     try {
       onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
-        let idOfReportToRedirect;
         if (reportForm.is_collection) {
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
-          ({ data: { data: { id: idOfReportToRedirect } } } = await dispatch(fetchEvent(thisReportSaved.id)));
+          const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
+
+          setReportForm(collectionRefreshedResults.data.data);
+          onSaveSuccess({})(collectionRefreshedResults);
         } else {
           setIsSaving(true);
           const { data: { data: incidentCollection } } = await dispatch(createEvent(createNewIncidentCollection()));
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
-          const incidentCollectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
 
-          ({ data: { data: { id: idOfReportToRedirect } } } = incidentCollectionRefreshedResults);
-          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`)(incidentCollectionRefreshedResults);
+          const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
+          const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
+          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
         }
 
         reportTracker.track('Added Report');
@@ -412,7 +414,7 @@ const ReportDetailView = ({
       setIsSaving(false);
       onSaveError(e);
     }
-  };
+  }, [dispatch, onSaveError, onSaveReport, onSaveSuccess, reportForm.is_collection, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     if (reportForm?.is_collection) {
