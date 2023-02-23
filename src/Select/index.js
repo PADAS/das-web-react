@@ -1,22 +1,20 @@
 import React, { memo, useMemo } from 'react';
 import ReactSelect, { components } from 'react-select';
-import styles from './styles.module.scss';
+
 import colorVars from '../common/styles/vars/colors.module.scss';
 import controlsVars from '../common/styles/vars/controls.module.scss';
 
-const DropdownIndicator = (props) => {
-  return (
-    <components.DropdownIndicator {...props}>
-      <div className={styles.caret} />
-    </components.DropdownIndicator>
-  );
-};
+import styles from './styles.module.scss';
 
-const Select = ({ styles: customStyles, components, ...otherProps }) => {
+const DropdownIndicator = (props) => <components.DropdownIndicator {...props}>
+  <div className={styles.caret} />
+</components.DropdownIndicator>;
+
+const Select = ({ styles: customStyles, components, ...rest }) => {
 
   const selectStyles = useMemo(() => ({
     ...customStyles,
-    option(styles, state) {
+    option: (styles, state) => {
       const { isDisabled, isFocused } = state;
       return {
         ...styles,
@@ -26,14 +24,14 @@ const Select = ({ styles: customStyles, components, ...otherProps }) => {
         cursor: isFocused ? 'pointer' : 'inherit',
       };
     },
-    menu(styles) {
+    menu: (styles) => {
       return {
         ...styles,
         zIndex: 10,
         boxShadow: controlsVars.baseBoxShadow,
       };
     },
-    placeholder(styles){
+    placeholder: (styles) => {
       return {
         ...styles,
         fontWeight: 'normal'
@@ -42,9 +40,9 @@ const Select = ({ styles: customStyles, components, ...otherProps }) => {
   }), [customStyles]);
 
   return <ReactSelect
-      components={{ ...components, DropdownIndicator }}
+      components={{ DropdownIndicator, ...components }}
       styles={selectStyles}
-      {...otherProps}
+      {...rest}
   />;
 };
 
