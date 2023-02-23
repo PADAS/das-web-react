@@ -5,7 +5,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
-import { getHoursAndMinutesString, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import {
+  durationHumanizer,
+  getHoursAndMinutesString,
+  getUserLocaleTime,
+  HUMANIZED_DURATION_CONFIGS,
+} from '../utils/datetime';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
@@ -16,6 +21,7 @@ timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
 const TimePicker = ({
+  disabled,
   maxTime,
   minutesInterval,
   onChange,
@@ -43,9 +49,11 @@ const TimePicker = ({
     while (options.length < optionsToDisplay) {
       const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
+      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
 
       options.push({
         disabled: !isTimeBelowMax(timeValue),
+        display: timeDisplay,
         duration: showDurationFromStartTime
           ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
           : null,
@@ -67,7 +75,7 @@ const TimePicker = ({
           onClick={() => !option.disabled && onChange(option.value)}
           onMouseDown={(event) => option.disabled && event.preventDefault()}
         >
-          <span>{option.value}</span>
+          <span>{option.display}</span>
           {option.duration && <span>{option.duration}</span>}
         </li>)}
       </ul>
@@ -102,6 +110,7 @@ const TimePicker = ({
       <input
         className={styles.timeInput}
         data-testid="time-input"
+        disabled={disabled}
         min={startTime || '00:00'}
         onChange={handleChange}
         onKeyDown={onKeyDown}
@@ -115,6 +124,7 @@ const TimePicker = ({
 };
 
 TimePicker.defaultProps = {
+  disabled: false,
   maxTime: '',
   minutesInterval: 30,
   optionsToDisplay: 5,
@@ -124,6 +134,7 @@ TimePicker.defaultProps = {
 };
 
 TimePicker.propTypes = {
+  disabled: PropTypes.bool,
   maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,
