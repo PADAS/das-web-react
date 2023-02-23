@@ -33,6 +33,8 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
+
 window.URL.createObjectURL = jest.fn();
 
 jest.doMock('./withSocketConnection', () => ({

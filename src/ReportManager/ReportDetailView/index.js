@@ -71,6 +71,7 @@ const ReportDetailView = ({
 
   const submitFormButtonRef = useRef(null);
   const newNoteRef = useRef(null);
+  const newAttachmentRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -374,8 +375,14 @@ const ReportDetailView = ({
     );
     setAttachmentsToAdd([
       ...attachmentsToAdd,
-      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString(), ref: newAttachmentRef })),
     ]);
+
+    setTimeout(() => {
+      newAttachmentRef?.current?.scrollIntoView?.({
+        behavior: 'smooth',
+      });
+    }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
     reportTracker.track('Added Attachment');
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
