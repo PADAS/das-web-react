@@ -72,6 +72,7 @@ const ActivitySection = ({
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
       onDelete={() => onDeleteAttachment(attachmentToAdd.file)}
+      ref={attachmentToAdd.ref}
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
