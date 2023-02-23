@@ -20,34 +20,32 @@ const WORLD_TOTAL_LONGITUDE = 360;
 export const fixAntimeridianCrossing = (trackFeatureCollection) => {
   if (!trackFeatureCollection?.features?.length) return trackFeatureCollection;
 
-  return {
-    ...trackFeatureCollection,
-    features: trackFeatureCollection.features.map((feature) => {
-      if (feature?.geometry?.type !== 'LineString') return feature;
+  trackFeatureCollection.features = trackFeatureCollection.features.map((feature) => {
+    if (feature?.geometry?.type !== 'LineString') return feature;
 
-      return {
-        ...feature,
-        geometry: {
-          ...feature.geometry,
-          coordinates: feature.geometry.coordinates.map((coordinates, index) => {
-            if (index === 0) return coordinates;
+    feature.geometry.coordinates = feature.geometry.coordinates.reduce((accumulator, coordinates, index) => {
+      let fixedCoordinates = coordinates;
+      if (index !== 0) {
+        const longitudeDifference = coordinates[0] - accumulator.at(-1)[0];
 
-            const longitudeDifference = coordinates[0] - feature.geometry.coordinates[index - 1][0];
-
-            if (longitudeDifference > MAX_ABSOLUTE_LONGITUDE) {
-              return [coordinates[0] - WORLD_TOTAL_LONGITUDE, coordinates[1]];
-            }
-
-            if (longitudeDifference < -MAX_ABSOLUTE_LONGITUDE) {
-              return [coordinates[0] + WORLD_TOTAL_LONGITUDE, coordinates[1]];
-            }
-
-            return coordinates;
-          }, [])
+        if (longitudeDifference > MAX_ABSOLUTE_LONGITUDE) {
+          fixedCoordinates = [coordinates[0] - WORLD_TOTAL_LONGITUDE, coordinates[1]];
         }
-      };
-    }),
-  };
+
+        if (longitudeDifference < -MAX_ABSOLUTE_LONGITUDE) {
+          fixedCoordinates = [coordinates[0] + WORLD_TOTAL_LONGITUDE, coordinates[1]];
+        }
+      }
+
+      accumulator.push(fixedCoordinates);
+
+      return accumulator;
+    }, []);
+
+    return feature;
+  });
+
+  return trackFeatureCollection;
 };
 
 export const convertTrackFeatureCollectionToPoints = feature => {
