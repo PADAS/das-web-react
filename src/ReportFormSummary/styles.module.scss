@@ -2,6 +2,15 @@
 @import '../common/styles/layout';
 
 .reportFormSummary {
+
+    [class*=react-datepicker-wrapper] {
+      div {
+        border: none;
+        padding: 0;
+        height: auto;
+      }
+    }
+
   .nonSchemaFields {
     display: flex;
     flex-direction: column;
