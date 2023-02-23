@@ -96,7 +96,7 @@ const CustomHeader = ({
 };
 
 
-const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, disabled, ...rest }, ref) => {
+const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, ...rest }, ref) => {
   const inputRef = useRef();
   const pressedKeyRef = useRef();
   const wasPastedRef = useRef(false);
@@ -141,9 +141,8 @@ const CustomInput = ({ className, isPopperOpen, onChange, onKeyDown, onPaste, di
   }, [onPaste]);
 
   const onWrapperClick = useCallback(() => inputRef.current.focus(), []);
-  const baseStyle = disabled ? styles.disabledInput : styles.defaultInput;
 
-  return <div className={`${baseStyle} ${styles.inputWrapper} ${className}`} onClick={onWrapperClick} ref={ref}>
+  return <div className={`${styles.inputWrapper} ${className}`} onClick={onWrapperClick} ref={ref}>
     <CalendarIcon/>
 
     <input

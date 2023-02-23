@@ -1,17 +1,9 @@
 @import 'vars/colors';
 
-$default-border: 1px solid $light-gray-border;
-
-@mixin defaultTextInput($addBorder: true) {
+@mixin defaultTextInput {
   background: white;
   outline: none;
   padding: 0.25rem;
-
-  @if $addBorder {
-    border: $default-border;
-    border-radius: 0.2rem;
-  }
-  @else {
-    border: none;
-  }
+  border: 1px solid $light-gray-border;
+  border-radius: 0.2rem;
 }
