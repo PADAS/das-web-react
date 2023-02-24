@@ -30,7 +30,11 @@ $background_image_url: '../common/images/icons/';
     height: 2.5rem;
     padding-left: 2rem;
     width: 100%;
-  
+
+    &:disabled {
+      background-color: $disabled-field-gray;
+    }
+
     &::-webkit-calendar-picker-indicator {
       display: none;
     }
@@ -50,13 +54,13 @@ $background_image_url: '../common/images/icons/';
 }
 
 .popoverOptions {
-  border: none;
-  border-radius: 0.25rem;
-  font-size: 1rem;
+  border: none !important;
+  border-radius: 0.25rem !important;
+  font-size: 1rem !important;
   max-height: 10rem;
   min-width: 6rem;
   overflow-y: scroll;
-  text-align: center;
+  text-align: center !important;
   @include boxShadow;
 
   ul {
