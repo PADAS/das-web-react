@@ -44,6 +44,19 @@ const useFetchReportsFeed = () => {
   }), [dispatch]);
 
   useEffect(() => {
+    if (geoResrictedUserLocationCoords) {
+      eventParams.current = {
+        ...eventParams.current,
+        location: calcLocationParamStringForUserLocationCoords(geoResrictedUserLocationCoords),
+      };
+    }
+
+    loadFeedEvents(true);
+
+    return () => fetchEventFeedCancelToken.cancel();;
+  }, [geoResrictedUserLocationCoords, loadFeedEvents]);
+
+  useEffect(() => {
     const params = {};
     if (shouldExcludeContained) {
       params.exclude_contained = true;
@@ -55,17 +68,10 @@ const useFetchReportsFeed = () => {
 
     eventParams.current = { ...calcEventFilterForRequest({ params, format: 'object' }, feedSort) };
 
-    if (geoResrictedUserLocationCoords) {
-      eventParams.current = {
-        ...eventParams.current,
-        location: calcLocationParamStringForUserLocationCoords(geoResrictedUserLocationCoords),
-      };
-    }
-
-    loadFeedEvents(!!geoResrictedUserLocationCoords);
+    loadFeedEvents();
 
     return () => fetchEventFeedCancelToken.cancel();
-  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained, geoResrictedUserLocationCoords]);
+  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {
