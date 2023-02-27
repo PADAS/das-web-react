@@ -11,6 +11,8 @@ import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 
+import { TrackerContext } from '../../utils/analytics';
+
 import ActivitySection from './';
 
 jest.mock('../../utils/file', () => ({
@@ -43,7 +45,8 @@ describe('ReportManager - ActivitySection', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ActivitySection
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            <ActivitySection
             attachmentsToAdd={[{
               creationDate: new Date(currentDate.getTime() + 1).toISOString(),
               file: { name: 'newFile1.pdf' },
@@ -66,6 +69,7 @@ describe('ReportManager - ActivitySection', () => {
             reportNotes={notes}
             reportTracker={{ track }}
           />
+          </TrackerContext.Provider>
         </NavigationWrapper>
       </Provider>
     );
