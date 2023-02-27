@@ -108,6 +108,7 @@ describe('ReportManager - ReportDetailView', () => {
         tracks: {},
       },
       view: {
+        featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
@@ -518,7 +519,6 @@ describe('ReportManager - ReportDetailView', () => {
       expect(navigate).toHaveBeenCalledWith('/reports/incident');
     });
   });
-
 
   test('enables the save button if users modified the opened report', async () => {
     render(

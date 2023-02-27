@@ -12,7 +12,7 @@ describe('ReportManager - AddReportButton', () => {
   const onAddReport = jest.fn();
   let store;
   beforeEach(() => {
-    store = { data: { eventTypes }, view: {} };
+    store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
   });
 
   afterEach(() => {

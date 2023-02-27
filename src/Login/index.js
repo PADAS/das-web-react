@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 
 import { postAuth, clearAuth } from '../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
+import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
@@ -35,7 +35,7 @@ const LoginPage = ({
   const [error, setError] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
 
-  const eulaEnabled = systemConfig?.[FEATURE_FLAGS.EULA];
+  const eulaEnabled = systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();

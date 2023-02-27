@@ -40,7 +40,7 @@ describe('RelationshipButton', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
-    store = mockStore({ data: {} });
+    store = mockStore({ data: {}, view: { featureFlagOverrides: {} } });
   });
 
   afterEach(() => {

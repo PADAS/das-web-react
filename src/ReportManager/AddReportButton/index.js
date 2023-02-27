@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as DocumentIcon } from '../../common/images/icons/document.svg';

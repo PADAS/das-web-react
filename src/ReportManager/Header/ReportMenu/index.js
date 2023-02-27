@@ -5,12 +5,13 @@ import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import { MapContext } from '../../../App';
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../../constants';
+import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
 import { fetchPatrol } from '../../../ducks/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
+import { useFeatureFlag } from '../../../hooks';
 import useNavigate from '../../../hooks/useNavigate';
 
 import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
@@ -25,10 +26,12 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
-const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
 
 const ReportMenu = ({ report, onReportChange }) => {
+
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const navigate = useNavigate();
   const map = useContext(MapContext);
@@ -86,14 +89,14 @@ const ReportMenu = ({ report, onReportChange }) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (ENABLE_PATROL_NEW_UI) {
+    if (enableNewPatrolUI) {
       return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
     }
 
     return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [dispatch, is_collection, map, navigate, onReportChange]);
+  }, [dispatch, enableNewPatrolUI, is_collection, map, navigate, onReportChange]);
 
   const onStartAddToPatrol = useCallback(() => {
     dispatch(addModal({

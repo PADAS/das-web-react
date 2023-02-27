@@ -11,7 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import { analyticsMetadata } from '../proptypes';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useFeatureFlag, useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
@@ -23,8 +23,8 @@ import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
 import {
-  DEVELOPMENT_FEATURE_FLAGS,
-  FEATURE_FLAGS,
+  FEATURE_FLAG_LABELS,
+  SYSTEM_CONFIG_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
@@ -32,7 +32,7 @@ import {
 
 import styles from './styles.module.scss';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -194,10 +194,13 @@ const AddReport = forwardRef(({
 }, forwardedRef) => {
   const navigate = useNavigate();
 
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
+
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
   const patrolsEnabled = !!patrolFlagEnabled
@@ -255,7 +258,7 @@ const AddReport = forwardRef(({
 
       if (isPatrol) {
         setPopoverState(false);
-        if (ENABLE_PATROL_NEW_UI) {
+        if (enableNewPatrolUI) {
           return navigate(
             { pathname: `/${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
             { state: { patrolData: reportData, temporalId: uuid() } }
@@ -269,7 +272,7 @@ const AddReport = forwardRef(({
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
-    if (ENABLE_REPORT_NEW_UI) {
+    if (enableNewReportUI) {
       if (!!onAddReport) {
         onAddReport(formProps, reportData, reportType.id);
       } else {
@@ -286,6 +289,7 @@ const AddReport = forwardRef(({
   }, [
     analyticsMetadata.category,
     analyticsMetadata.location,
+    enableNewReportUI,
     formProps,
     map,
     onAddReport,
