@@ -20,11 +20,11 @@ const EventFeed = (props) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return !!events.length ? (
+  return (
     <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
       <InfiniteScroll
         element='ul'
-        hasMore={hasMore}
+        hasMore={!!events.length && hasMore}
         loadMore={onScroll}
         useWindow={false}
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
@@ -46,7 +46,7 @@ const EventFeed = (props) => {
         </Flipper>
       </InfiniteScroll>
     </div>
-  ) : null;
+  );
 };
 
 export default memo(EventFeed);
