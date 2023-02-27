@@ -193,7 +193,7 @@ const ReportDetailView = ({
       return;
     }
 
-    reportTracker.track(`Click 'Save' button for ${isNewReport ? 'new' : 'existing'} report`);
+    reportTracker.track(`Start save for ${isNewReport ? 'new' : 'existing'} report`);
 
     setIsSaving(true);
 
