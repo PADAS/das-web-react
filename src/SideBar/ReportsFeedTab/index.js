@@ -105,7 +105,7 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
     {!events.error && <EventFeed
       className={styles.sidebarEventFeed}
       events={feedEvents}
-      hasMore={!!events.next}
+      hasMore={!!feedEvents.length && !!events.next}
       loading={loadingEventFeed}
       map={map}
       onScroll={onScroll}

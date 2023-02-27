@@ -24,7 +24,7 @@ const EventFeed = (props) => {
     <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
       <InfiniteScroll
         element='ul'
-        hasMore={!!events.length && hasMore}
+        hasMore={hasMore}
         loadMore={onScroll}
         useWindow={false}
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
