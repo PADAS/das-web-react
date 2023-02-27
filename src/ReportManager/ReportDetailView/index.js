@@ -11,7 +11,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
-import { TrackerContext } from '../';
+import { TrackerContext } from '../../utils/analytics';
 import {
   createNewIncidentCollection,
   eventBelongsToCollection,

@@ -1,4 +1,4 @@
-import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
@@ -9,15 +9,13 @@ import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
-import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { TrackerContext, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import DelayedUnmount from '../DelayedUnmount';
 import NavigationPromptModal from '../NavigationPromptModal';
 import ReportDetailView from './ReportDetailView';
 import styles from './styles.module.scss';
 
-
-export const TrackerContext = createContext(null);
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 450;
 

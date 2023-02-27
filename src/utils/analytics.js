@@ -1,6 +1,10 @@
+import { createContext } from 'react';
+import ReactGA from 'react-ga';
 import debounce from 'lodash/debounce';
 
 import { CLIENT_BUILD_VERSION } from '../constants';
+
+export const TrackerContext = createContext(null);
 
 /**
  * ReactGA convenience functions.
@@ -8,7 +12,6 @@ import { CLIENT_BUILD_VERSION } from '../constants';
  * This file defines several convenience functions for Google Analytics calls
  * that rely on the ReactGA library.
  */
-import ReactGA from 'react-ga';
 
 export const MAP_INTERACTION_CATEGORY = 'Map Interaction';
 export const DRAWER_CATEGORY = 'Map Drawer';
@@ -21,7 +24,6 @@ export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';
-export const REPORT_DETAIL_VIEW_CATEGORY = 'Report Detail View';
 export const REPORT_MODAL_CATEGORY = 'Report Modal';
 export const REPORT_EXPORT_CATEGORY = 'Report Export';
 export const INCIDENT_REPORT_CATEGORY = 'Incident Report';

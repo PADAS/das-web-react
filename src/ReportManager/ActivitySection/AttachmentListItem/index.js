@@ -3,7 +3,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
-import { TrackerContext } from '../../';
+import { TrackerContext } from '../../../utils/analytics';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';

@@ -19,12 +19,12 @@ import KebabMenuIcon from '../../../KebabMenuIcon';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
 
-import { trackEventFactory, REPORT_DETAIL_VIEW_CATEGORY } from '../../../utils/analytics';
+import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../../../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
-const reportTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
+const reportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 
