@@ -129,7 +129,11 @@ const ActivitySection = ({
     notesToAddRendered,
   ]);
 
-  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList);
+  const onSort = useCallback((order) => {
+    reportTracker.track(`Sort activity section in ${order} order`);
+  }, [reportTracker]);
+
+  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
   const reportImageAttachments = useMemo(
     () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
@@ -175,7 +179,7 @@ const ActivitySection = ({
       {sortableList.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
-        {sortButton}
+        <SortButton />
 
         <Button
           className={styles.expandCollapseButton}

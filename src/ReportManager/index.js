@@ -27,6 +27,11 @@ const ReportManager = () => {
 
   const { navigationData } = useContext(NavigationContext);
 
+  const reportData = location.state?.reportData;
+  const reportTracker = trackEventFactory(reportData?.is_collection
+    ? INCIDENT_REPORT_CATEGORY
+    : EVENT_REPORT_CATEGORY);
+
   // Added secondary report
   const [addedReportClassName, setAddedReportClassName] = useState(styles.addedReport);
   const [addedReportFormProps, setAddedReportFormProps] = useState(null);
@@ -40,6 +45,8 @@ const ReportManager = () => {
   }, []);
 
   const onCloseAddedReport = useCallback(() => {
+    reportTracker.track('Discard adding a report to a report');
+
     setShowSecondaryReportNavigationPrompt(false);
     setShowAddedReport(false);
     setTimeout(() => {
@@ -71,11 +78,6 @@ const ReportManager = () => {
 
   const isNewReport = existingReportId === 'new';
   const reportId = isNewReport ? newReportTemporalId : existingReportId;
-  const reportData = location.state?.reportData;
-
-  const reportTracker = trackEventFactory(reportData?.is_collection
-    ? INCIDENT_REPORT_CATEGORY
-    : EVENT_REPORT_CATEGORY);
 
   const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
 

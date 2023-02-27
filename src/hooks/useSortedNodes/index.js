@@ -43,7 +43,7 @@ const useSortedNodes = (
   , [list, sortFn]);
 };
 
-const defaultRenderFn = ({ toggleSortFn, disabled, testId, sortOrder }) =>
+const DefaultButtonComponent = ({ toggleSortFn, disabled, testId, sortOrder }) =>
   <Button className={styles.timeSortButton}
     type='button' data-testid={testId}
     disabled={disabled} onClick={toggleSortFn}
@@ -54,30 +54,32 @@ const defaultRenderFn = ({ toggleSortFn, disabled, testId, sortOrder }) =>
 
 export const useSortedNodesWithToggleBtn = (
   list = [{ sortDate: new Date(0), node: null }],
+  onSort = null,
   defaultSortOrder = DESCENDING_SORT_ORDER,
-  buttonRenderFn = defaultRenderFn,
+  ButtonComponent = DefaultButtonComponent,
 ) => {
 
   const [sortOrder, setSortOrder] = useState(defaultSortOrder);
 
   const onClickTimeSortButton = useCallback(() => {
-    setSortOrder(
-      sortOrder === DESCENDING_SORT_ORDER
-        ? ASCENDING_SORT_ORDER
-        : DESCENDING_SORT_ORDER
-    );
-  }, [sortOrder]);
+    const newSortOrder = sortOrder === DESCENDING_SORT_ORDER
+      ? ASCENDING_SORT_ORDER
+      : DESCENDING_SORT_ORDER;
 
-  const sortButton = useMemo(() => buttonRenderFn({
-    toggleSortFn: onClickTimeSortButton,
-    sortOrder,
-    testId: 'time-sort-btn',
-    disabled: !list.length,
+    setSortOrder(newSortOrder);
+    onSort?.(newSortOrder);
+  }, [onSort, sortOrder]);
 
-  }), [list.length, onClickTimeSortButton, buttonRenderFn, sortOrder]);
+  const SortButton = (props) =>
+    <ButtonComponent
+      toggleSortFn={onClickTimeSortButton}
+      sortOrder={sortOrder}
+      testId='time-sort-btn'
+      disabled={!list.length}
+      {...props} />;
 
   const renderedNodes = useSortedNodes(list, sortOrder);
 
-  return [sortButton, renderedNodes];
+  return [SortButton, renderedNodes];
 
 };

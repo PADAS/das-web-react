@@ -44,9 +44,10 @@ const ReportMenu = ({ report, onReportChange }) => {
 
     const { data: { data: newIncident } } = await dispatch(createEvent(incident));
     const [{ data: { data: thisReport } }] = await onReportChange();
+
     await dispatch(addEventToIncident(thisReport.id, newIncident.id));
 
-    reportTracker.track('Click \'Add To Incident\' button');
+    reportTracker.track('Added report to new incident');
 
     dispatch(fetchEvent(newIncident.id)).then(({ data: { data } }) => {
       removeModal();
@@ -58,7 +59,7 @@ const ReportMenu = ({ report, onReportChange }) => {
     const [{ data: { data: thisReport } }] = await onReportChange();
     await dispatch(addEventToIncident(thisReport.id, incident.id));
 
-    reportTracker.track('Click \'Add To Incident\' button');
+    reportTracker.track('Added report to existing incident');
 
     return dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
@@ -83,7 +84,7 @@ const ReportMenu = ({ report, onReportChange }) => {
     const [{ data: { data: thisReport } }] = await onReportChange();
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
-    reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
+    reportTracker.track(`Added ${is_collection ? 'Incident':'Event'} to Patrol`);
 
     removeModal();
     if (ENABLE_PATROL_NEW_UI) {

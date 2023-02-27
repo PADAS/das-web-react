@@ -1,5 +1,7 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+
+import { TrackerContext } from '../../utils/analytics';
 
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 
@@ -12,6 +14,9 @@ import styles from './styles.module.scss';
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: '];
 
 const HistorySection = ({ reportUpdates }) => {
+
+  const reportTracker = useContext(TrackerContext);
+
   const updatesRendered = useMemo(() => reportUpdates.reduce((accumulator, update) => {
     if (!FILTERED_UPDATE_MESSAGES.includes(update.message)) {
       accumulator.push({
@@ -29,7 +34,11 @@ const HistorySection = ({ reportUpdates }) => {
     return accumulator;
   }, []), [reportUpdates]);
 
-  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered);
+  const onSort = useCallback((order) => {
+    reportTracker.track(`Sort activity section in ${order} order`);
+  }, [reportTracker]);
+
+  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
 
   return <div data-testid="reportManager-historySection">
     <div className={styles.sectionHeader}>
@@ -42,7 +51,7 @@ const HistorySection = ({ reportUpdates }) => {
       <div className={styles.actions}>
         <label>Time</label>
 
-        {sortButton}
+        <SortButton />
       </div>
     </div>
 

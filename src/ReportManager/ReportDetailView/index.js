@@ -311,7 +311,7 @@ const ReportDetailView = ({
   const onReportStateChange = useCallback((state) => {
     setReportForm({ ...reportForm, state });
 
-    reportTracker.track('Change Report State');
+    reportTracker.track(`Change Report State to ${state}`);
   }, [reportForm, reportTracker]);
 
   const onFormChange = useCallback((event) => {
@@ -394,6 +394,7 @@ const ReportDetailView = ({
     try {
       onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
+          reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
           const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
@@ -408,10 +409,11 @@ const ReportDetailView = ({
 
           const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
           const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
+
+          reportTracker.track('Added report to report');
           onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
         }
 
-        reportTracker.track('Added Report');
       });
     } catch (e) {
       setIsSaving(false);
@@ -420,20 +422,26 @@ const ReportDetailView = ({
   }, [dispatch, onSaveError, onSaveReport, onSaveSuccess, reportForm.is_collection, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
+    reportTracker.track('Click "save" button');
     if (reportForm?.is_collection) {
       onSaveReport();
     } else if (submitFormButtonRef.current) {
       submitFormButtonRef.current.click();
     }
-  }, [onSaveReport, reportForm?.is_collection]);
+  }, [onSaveReport, reportForm?.is_collection, reportTracker]);
+
+  const trackDiscard = useCallback(() => {
+    reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
+  }, [isNewReport, reportTracker]);
 
   const onClickCancelButton = useCallback(() => {
+    reportTracker.track('Click "cancel" button');
     if (isAddedReport) {
       onCancelAddedReport();
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, navigate, onCancelAddedReport]);
+  }, [isAddedReport, navigate, onCancelAddedReport, reportTracker]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -475,7 +483,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    {!isAddedReport && <NavigationPromptModal when={isReportModified && !redirectTo} />}
+    {!isAddedReport && <NavigationPromptModal onContinue={trackDiscard} when={isReportModified && !redirectTo} />}
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
@@ -529,7 +537,6 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                reportTracker={reportTracker}
               />
             </QuickLinks.Section>
 
