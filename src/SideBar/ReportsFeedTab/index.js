@@ -26,6 +26,17 @@ const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
+const excludeContainedReports = (events) => {
+  const containedEventIdsToRemove = uniq(events
+    .filter(({ is_collection }) => !!is_collection)
+    .reduce((accumulator, item) => [
+      ...accumulator,
+      ...item.contains.map(({ related_event: { id } }) => id),
+    ], []));
+
+  return events.filter(event => !containedEventIdsToRemove.includes(event.id));
+};
+
 const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,7 +45,15 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
 
   const events = useSelector((state) => getFeedEvents(state));
 
-  const [feedEvents, setFeedEvents] = useState([]);
+  const [feedEvents, setFeedEvents] = useState(() => {
+    if (events.results?.length) {
+      if (shouldExcludeContained) {
+        return excludeContainedReports(events.results);
+      }
+      return events.results;
+    }
+    return [];
+  });
 
   const resetFeedSort = useCallback(() => setFeedSort(DEFAULT_EVENT_SORT), [setFeedSort]);
 
@@ -54,19 +73,7 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
   }, [map, navigate]);
 
   useEffect(() => {
-    if (!shouldExcludeContained) {
-      setFeedEvents(events.results);
-    } else {
-      /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
-      this happens as relationships can be established outside the state awareness of the feed. */
-      const containedEventIdsToRemove = uniq(events.results
-        .filter(({ is_collection }) => !!is_collection)
-        .reduce((accumulator, item) => [
-          ...accumulator,
-          ...item.contains.map(({ related_event: { id } }) => id),
-        ], []));
-      setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
-    }
+    setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);
   }, [events.results, shouldExcludeContained]);
 
   return <ErrorBoundary>
