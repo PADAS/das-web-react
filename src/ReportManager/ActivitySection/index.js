@@ -1,8 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { TrackerContext } from '../';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
+
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
@@ -22,9 +24,9 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
-  reportTracker,
 }) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
+  const reportTracker = useContext(TrackerContext);
 
   const onCollapseCard = useCallback((card) => {
     if (cardsExpanded.includes(card)) {

@@ -51,7 +51,7 @@ export function trackEvent(category, action, label=null) {
  * Function to create a tracker for provided category
  * @param {string} category 
  */
-export function trackEventFactory (category, tracker = trackEvent) {
+export const trackEventFactory = (category, tracker = trackEvent) => {
   const track = (action, label) => tracker(category, action, label);
 
   return {

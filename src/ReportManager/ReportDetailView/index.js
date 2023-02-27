@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
@@ -11,6 +11,7 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
+import { TrackerContext } from '../';
 import {
   createNewIncidentCollection,
   eventBelongsToCollection,
@@ -18,7 +19,6 @@ import {
   generateErrorListForApiResponseDetails
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
-import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
@@ -85,9 +85,7 @@ const ReportDetailView = ({
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
 
-  const reportTracker = trackEventFactory(reportForm?.is_collection
-    ? INCIDENT_REPORT_CATEGORY
-    : EVENT_REPORT_CATEGORY);
+  const reportTracker = useContext(TrackerContext);
 
   const {
     onSaveError: onSaveErrorCallback,

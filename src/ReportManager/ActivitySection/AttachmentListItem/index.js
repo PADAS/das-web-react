@@ -1,7 +1,9 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+
+import { TrackerContext } from '../../';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
@@ -21,8 +23,10 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }, ref = null) => {
+const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref = null) => {
   const dispatch = useDispatch();
+
+  const reportTracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);

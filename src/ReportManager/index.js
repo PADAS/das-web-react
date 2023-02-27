@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
@@ -9,11 +9,15 @@ import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
+import { EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+
 import DelayedUnmount from '../DelayedUnmount';
 import NavigationPromptModal from '../NavigationPromptModal';
 import ReportDetailView from './ReportDetailView';
-
 import styles from './styles.module.scss';
+
+
+export const TrackerContext = createContext(null);
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 450;
 
@@ -70,6 +74,11 @@ const ReportManager = () => {
   const isNewReport = existingReportId === 'new';
   const reportId = isNewReport ? newReportTemporalId : existingReportId;
   const reportData = location.state?.reportData;
+
+  const reportTracker = trackEventFactory(reportData?.is_collection
+    ? INCIDENT_REPORT_CATEGORY
+    : EVENT_REPORT_CATEGORY);
+
   const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
@@ -107,7 +116,7 @@ const ReportManager = () => {
     }
   }, [dispatch, eventStore, isNewReport, navigate, reportId]);
 
-  return <>
+  return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView && <ReportDetailView
       key={reportId} // This resets component state when the id changes
       formProps={navigationData?.formProps}
@@ -138,7 +147,7 @@ const ReportManager = () => {
         reportId={addedReportTypeId || 'added'}
       />
     </DelayedUnmount>
-  </>;
+  </TrackerContext.Provider>;
 };
 
 export default memo(ReportManager);
