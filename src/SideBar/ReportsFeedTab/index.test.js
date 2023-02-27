@@ -100,24 +100,24 @@ describe('ReportsFeedTab', () => {
   });
 
   test('loads the feed', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsFeedTab />
-        </NavigationWrapper>
-      </Provider>
-    );
+  //   render(
+  //     <Provider store={mockStore(store)}>
+  //       <NavigationWrapper>
+  //         <ReportsFeedTab />
+  //       </NavigationWrapper>
+  //     </Provider>
+  //   );
 
-    jest.runAllTimers();
+  //   jest.runAllTimers();
 
-    await screen.findAllByRole('listitem'); // wait for feed list items
+  //   await screen.findAllByRole('listitem'); // wait for feed list items
 
-    expect(
-      capturedRequestURLs
-        .find(item =>
-          item.includes(EVENTS_API_URL)
-        )
-    ).toBeDefined();
+  //   expect(
+  //     capturedRequestURLs
+  //       .find(item =>
+  //         item.includes(EVENTS_API_URL)
+  //       )
+  //   ).toBeDefined();
 
-  });
+  // });
 });

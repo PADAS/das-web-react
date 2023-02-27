@@ -216,7 +216,7 @@ describe('ReportManager - ReportDetailView', () => {
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '22/12/2022');
+    expect(datePickerInput).toHaveAttribute('value', '2022/12/22');
   });
 
   test('sets the time when user changes it', async () => {

@@ -5,7 +5,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
-import { getHoursAndMinutesString, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import {
+  durationHumanizer,
+  getHoursAndMinutesString,
+  getUserLocaleTime,
+  HUMANIZED_DURATION_CONFIGS,
+} from '../utils/datetime';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
@@ -16,13 +21,16 @@ timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
 const TimePicker = ({
+  className,
   maxTime,
   minutesInterval,
   onChange,
+  onKeyDown,
   optionsToDisplay,
   showDurationFromStartTime,
   startTime,
   value,
+  ...rest
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [writtenValue, setWrittenValue] = useState(null);
@@ -43,9 +51,11 @@ const TimePicker = ({
     while (options.length < optionsToDisplay) {
       const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
+      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
 
       options.push({
         disabled: !isTimeBelowMax(timeValue),
+        display: timeDisplay,
         duration: showDurationFromStartTime
           ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
           : null,
@@ -67,7 +77,7 @@ const TimePicker = ({
           onClick={() => !option.disabled && onChange(option.value)}
           onMouseDown={(event) => option.disabled && event.preventDefault()}
         >
-          <span>{option.value}</span>
+          <span>{option.display}</span>
           {option.duration && <span>{option.duration}</span>}
         </li>)}
       </ul>
@@ -76,7 +86,13 @@ const TimePicker = ({
 
   const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
 
-  const onKeyDown = useCallback((event) => event.key === 'Enter' && event.target.blur(), []);
+  const handleKeyDown = useCallback((event) => {
+    if (event.key === 'Enter') {
+      event.target.blur();
+    }
+
+    onKeyDown?.(event);
+  }, [onKeyDown]);
 
   const onToggle = useCallback((show) => {
     setIsOpen(show);
@@ -90,7 +106,7 @@ const TimePicker = ({
     }
   }, [isTimeBelowMax, onChange, writtenValue]);
 
-  return <div className={styles.inputWrapper}>
+  return <div className={`${styles.inputWrapper} ${className}`}>
     <ClockIcon/>
 
     <OverlayTrigger
@@ -104,9 +120,10 @@ const TimePicker = ({
         data-testid="time-input"
         min={startTime || '00:00'}
         onChange={handleChange}
-        onKeyDown={onKeyDown}
+        onKeyDown={handleKeyDown}
         type="time"
         value={writtenValue || value}
+        {...rest}
       />
     </OverlayTrigger>
 
@@ -115,6 +132,7 @@ const TimePicker = ({
 };
 
 TimePicker.defaultProps = {
+  className: '',
   maxTime: '',
   minutesInterval: 30,
   optionsToDisplay: 5,
@@ -124,6 +142,7 @@ TimePicker.defaultProps = {
 };
 
 TimePicker.propTypes = {
+  className: PropTypes.string,
   maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,

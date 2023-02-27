@@ -44,12 +44,15 @@
 
 .inputWrapper {
   @include defaultTextInput;
-
   align-items: center;
   display: flex;
   height: 2.5rem;
   position: relative;
   width: 100%;
+
+  &.disabled {
+    background-color: $disabled-field-gray;
+  }
 
   svg {
     box-sizing: border-box;
@@ -67,6 +70,7 @@
     border: none;
     font-size: 1rem;
     padding: 0 0 0 2rem;
+    width: 100%;
 
     &::placeholder {
       font-size: 0.875rem;

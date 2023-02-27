@@ -71,6 +71,7 @@ const ReportDetailView = ({
 
   const submitFormButtonRef = useRef(null);
   const newNoteRef = useRef(null);
+  const newAttachmentRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -201,29 +202,33 @@ const ReportDetailView = ({
     let reportToSubmit;
     if (isNewReport) {
       reportToSubmit = reportForm;
+
+      if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
+        reportToSubmit.location = null;
+      }
     } else {
       reportToSubmit = {
         ...reportChanges,
         id: reportForm.id,
         event_details: { ...originalReport.event_details, ...reportChanges.event_details },
+        location: { ...originalReport.location, ...reportChanges.location }
       };
 
-      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
-      if (reportChanges.reported_by) {
-        reportToSubmit.reported_by = { ...reportForm.reported_by, ...reportChanges.reported_by };
+      if (reportChanges.hasOwnProperty('location') && !reportChanges.location) {
+        reportToSubmit.location = null;
       }
-      /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
+
+      if (reportChanges.hasOwnProperty('reported_by')) {
+        reportToSubmit.reported_by = reportForm.reported_by;
+      }
+
       if (reportChanges.notes) {
         reportToSubmit.notes = reportForm.notes;
       }
-      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+
       if (reportToSubmit.contains) {
         delete reportToSubmit.contains;
       }
-    }
-
-    if (reportToSubmit.hasOwnProperty('location') && !reportToSubmit.location) {
-      reportToSubmit.location = null;
     }
 
     const newNotes = notesToAdd.reduce(
@@ -243,7 +248,8 @@ const ReportDetailView = ({
     notesToAdd,
     onSaveError,
     onSaveSuccess,
-    originalReport?.event_details,
+    originalReport.event_details,
+    originalReport.location,
     reportChanges,
     reportForm,
     reportTracker,
@@ -374,29 +380,37 @@ const ReportDetailView = ({
     );
     setAttachmentsToAdd([
       ...attachmentsToAdd,
-      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString() })),
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString(), ref: newAttachmentRef })),
     ]);
+
+    setTimeout(() => {
+      newAttachmentRef?.current?.scrollIntoView?.({
+        behavior: 'smooth',
+      });
+    }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
     reportTracker.track('Added Attachment');
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
-  const onSaveAddedReport = ([{ data: { data: secondReportSaved } }]) => {
+  const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     try {
       onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
-        let idOfReportToRedirect;
         if (reportForm.is_collection) {
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
-          ({ data: { data: { id: idOfReportToRedirect } } } = await dispatch(fetchEvent(thisReportSaved.id)));
+          const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
+
+          setReportForm(collectionRefreshedResults.data.data);
+          onSaveSuccess({})(collectionRefreshedResults);
         } else {
           setIsSaving(true);
           const { data: { data: incidentCollection } } = await dispatch(createEvent(createNewIncidentCollection()));
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
-          const incidentCollectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
 
-          ({ data: { data: { id: idOfReportToRedirect } } } = incidentCollectionRefreshedResults);
-          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${idOfReportToRedirect}`)(incidentCollectionRefreshedResults);
+          const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
+          const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
+          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
         }
 
         reportTracker.track('Added Report');
@@ -405,7 +419,7 @@ const ReportDetailView = ({
       setIsSaving(false);
       onSaveError(e);
     }
-  };
+  }, [dispatch, onSaveError, onSaveReport, onSaveSuccess, reportForm.is_collection, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     if (reportForm?.is_collection) {
