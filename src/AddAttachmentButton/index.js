@@ -1,6 +1,8 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+
+import { TrackerContext } from '../utils/analytics';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 
@@ -22,10 +24,14 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
 const AddAttachmentButton = ({ className, onAddAttachments }) => {
   const fileInputRef = useRef();
 
+  const analytics = useContext(TrackerContext);
+
   const [draggingOver, setDraggingOver] = useState(false);
 
   const onAttachmentButtonClick = useCallback((event) => {
     event.preventDefault();
+
+    analytics?.track('Start adding attachment');
 
     fileInputRef.current.click();
   }, []);
@@ -39,21 +45,27 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
   const onAttachmentButtonDragOver = useCallback((event) => {
     event.preventDefault();
 
+    analytics?.track('Drag in attachment');
+
     setDraggingOver(true);
-  }, []);
+  }, [analytics]);
 
   const onAttachmentButtonDrop = useCallback((event) => {
     event.preventDefault();
 
+    analytics?.track('Drop dragged attachment');
+
     setDraggingOver(false);
     onAddAttachments(event.dataTransfer.files);
-  }, [onAddAttachments]);
+  }, [analytics, onAddAttachments]);
 
   const onChangeFileInput = useCallback((event) => {
     event.preventDefault();
 
+    analytics?.track('Add attachment');
+
     onAddAttachments(fileInputRef.current.files);
-  }, [onAddAttachments]);
+  }, [analytics, onAddAttachments]);
 
   return <>
     <input

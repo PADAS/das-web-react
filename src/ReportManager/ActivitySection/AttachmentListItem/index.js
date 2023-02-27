@@ -40,18 +40,21 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   const onShowImageFullScreen = useCallback((event) => {
     event.stopPropagation();
 
+    reportTracker.track('View fullscreen image from activity section');
+
     dispatch(addModal({
       content: ImageModal,
       src: currentImageSource,
       title: attachment.filename,
+      tracker: reportTracker,
       url: attachment.url,
     }));
-  }, [attachment.filename, attachment.url, currentImageSource, dispatch]);
+  }, [attachment.filename, attachment.url, currentImageSource, dispatch, reportTracker]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
 
-    reportTracker.track('Open Report Attachment');
+    reportTracker.track('Download report attachment');
   }, [attachment.filename, attachment.url, reportTracker]);
 
   useEffect(() => {
