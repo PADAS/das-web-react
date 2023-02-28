@@ -1,11 +1,12 @@
 @import 'vars/colors';
+@import './inputs';
 
 @mixin customDatepicker {
   font-weight: 400;
   border: none;
   border-radius: 0.125rem;
-  box-shadow: 0 0 0.93rem rgba(0, 0, 0, 0.15);
-  
+  @include boxShadow;
+
   &-popper {
     z-index: 9999;
   }

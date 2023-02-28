@@ -1,5 +1,6 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
+@import '../../common/styles/inputs';
 
 .sectionHeader {
   display: flex;
@@ -57,6 +58,7 @@
 
   .stateDropdownMenu {
     padding: 0.312rem 0;
+    @include boxShadow;
 
     .stateItem {
       font-size: 0.875rem;
@@ -79,9 +81,7 @@
   margin-top: 1.5rem;
   width: 100%;
   position: relative;
-  color: $secondary-medium-gray;
-  font-size: 0.875rem;
-  font-weight: normal;
+  @include label-styles;
 
   > div:first-child, 
   > label {
@@ -115,13 +115,21 @@
   [class*=row] {
     padding: 0;
 
+    & > [class*=col-]:nth-child(odd){
+      padding-right: 0.5rem;
+    }
+
+    & > [class*=col-]:nth-child(even){
+      padding-left: 0.5rem;
+    }
+
     > * {
       padding: 0;
     }
   }
 
   [class*=col-] {
-    padding: 0 0.5rem;
+    padding: 0;
   }
 
   select {
@@ -141,10 +149,7 @@
   }
 
   label:not([class=form-check-label]) {
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.125rem;
-    color: $secondary-medium-gray;
+    @include label-styles;
     margin: 1rem 0 0.25rem;
   }
   

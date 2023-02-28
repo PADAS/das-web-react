@@ -5,7 +5,6 @@ import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
-import Select from 'react-select';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
@@ -31,6 +30,7 @@ import {
 } from '../constants';
 
 import styles from './styles.module.scss';
+import Select from '../Select';
 
 const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 

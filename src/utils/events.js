@@ -354,6 +354,6 @@ export const PRIORITY_COLOR_MAP = {
   0: {
     base: colorVariables.gray,
     background: colorVariables.grayBg,
-    name: 'Gray',
+    name: 'None',
   },
 };

@@ -1,5 +1,6 @@
 @import '../../../common/styles/buttons';
 @import '../../../common/styles/vars/colors';
+@import '../../../common/styles/inputs';
 
 .kebabMenu {
   display: flex;
@@ -30,11 +31,16 @@
 .menuDropdown {
   padding: 0.312rem 0;
   min-width: 8.56rem;
+  @include boxShadow;
 }
 
 .itemBtn {
   font-size: 0.875rem;
   padding: 0.437rem 0.312rem !important;
+
+  &:hover{
+    @include dropdown-options-hover;
+  }
 
   img, svg {
     margin-left: 0.1rem;
