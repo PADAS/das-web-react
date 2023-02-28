@@ -62,7 +62,7 @@ const ReportListItem = ({
 
   return <FeedListItem
     className={className}
-    ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
       <LocationJumpButton
         clickAnalytics={[
           MAP_LAYERS_CATEGORY,
@@ -72,7 +72,7 @@ const ReportListItem = ({
         coordinates={coordinates}
         isMulti={hasMultipleLocations}
         onClick={onClickLocationJumpButton}
-      />}
+      /> : undefined}
     DateComponent={dateTimeProp && <span>
       <DateTime date={dateTimeProp} showElapsed={showElapsedTime} suffix='ago'/>
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
