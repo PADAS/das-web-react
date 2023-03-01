@@ -209,11 +209,13 @@ const ReportDetailView = ({
         ...reportChanges,
         id: reportForm.id,
         event_details: { ...originalReport.event_details, ...reportChanges.event_details },
-        location: { ...originalReport.location, ...reportChanges.location }
+        location: originalReport.location,
       };
 
-      if (reportChanges.hasOwnProperty('location') && !reportChanges.location) {
-        reportToSubmit.location = null;
+      if (reportChanges.hasOwnProperty('location')) {
+        reportToSubmit.location = !!reportChanges.location
+          ? { ...originalReport.location, ...reportChanges.location }
+          : null;
       }
 
       if (reportChanges.hasOwnProperty('reported_by')) {

@@ -12,7 +12,7 @@ describe('ReportManager - AddReportButton', () => {
   const onAddReport = jest.fn();
   let store;
   beforeEach(() => {
-    store = { data: { eventTypes }, view: {} };
+    store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
   });
 
   afterEach(() => {
@@ -30,7 +30,7 @@ describe('ReportManager - AddReportButton', () => {
 
     expect((await screen.queryByText('Add Report'))).toBeNull();
 
-    const addReportButton = await screen.findByTestId('reportManager-addReportButton');
+    const addReportButton = await screen.findByTestId('addReport-button');
     userEvent.click(addReportButton);
 
     expect((await screen.findByText('Add Report'))).toBeDefined();

@@ -14,8 +14,18 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('ReportManager - Header', () => {
+  let store = {
+    data: {
+      eventTypes,
+      patrolTypes,
+    },
+    view: {
+      featureFlagOverrides: {},
+    },
+  };
+
   const onChangeTitle = jest.fn();
-  let Wrapper, renderWithWrapper, store;
+  let Wrapper, renderWithWrapper;
 
   beforeEach(() => {
     store = mockStore({ data: { eventTypes, patrolTypes } });

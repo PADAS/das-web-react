@@ -1,13 +1,17 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react-hooks';
 import { point } from '@turf/helpers';
+import { waitFor } from '@testing-library/dom';
+
+import { FEATURE_FLAG_LABELS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import { MapContext } from '../App';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { mockStore } from '../__test-helpers/MockStore';
 
-import { useMemoCompare, useMapEventBinding, useMapLayer, useMapSource } from './';
-import { waitFor } from '@testing-library/dom';
+import { useFeatureFlag, useMemoCompare, useMapEventBinding, useMapLayer, useMapSource } from './';
 
 describe('#useMapEventBinding', () => {
   let map, wrapper, handler;
@@ -286,5 +290,50 @@ describe('#useMemoCompare', () => {
 
     expect(result.current).toEqual({ hello: false }); // the reference is intact
 
+  });
+});
+
+describe('#useFeatureFlag', () => {
+  let wrapper, store;
+  const knownProperty = 'ENABLE_REPORT_NEW_UI';
+
+  beforeEach(() => {
+    store = mockStore({
+      view: {
+        featureFlagOverrides: {}
+      },
+    });
+    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
+  });
+  test('throwing an error if no matching feature flag has been set in the environment file', async () => {
+    const { result } = renderHook(() => useFeatureFlag('this_does_not_exist_anywhere_yo'), { wrapper });
+
+    expect(result.error.message).toBe('no feature flag with that name exists');
+  });
+
+  test('using the default value if no override has been set', () => {
+
+    expect(FEATURE_FLAG_LABELS).toHaveProperty(knownProperty);
+    expect(DEVELOPMENT_FEATURE_FLAGS).toHaveProperty(knownProperty);
+
+    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
+    expect(result.current).toBe(DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
+  });
+
+  test('using the override value if an override has been set', () => {
+    store = mockStore({
+      view: {
+        featureFlagOverrides: {
+          [FEATURE_FLAG_LABELS[knownProperty]]: {
+            label: 'whatever',
+            value: !DEVELOPMENT_FEATURE_FLAGS[knownProperty],
+          }
+        }
+      },
+    });
+
+    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
+
+    expect(result.current).toBe(!DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
   });
 });

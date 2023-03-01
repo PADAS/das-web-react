@@ -5,13 +5,18 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
+import {
+  DEFAULT_EVENT_SORT,
+  EVENT_SORT_OPTIONS,
+  EVENT_SORT_ORDER_OPTIONS,
+} from '../../utils/event-filter';
+import { FEATURE_FLAG_LABELS } from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { MapContext } from '../../App';
 import { openModalForReport } from '../../utils/events';
+import { useFeatureFlag } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
 import ColumnSort from '../../ColumnSort';
@@ -22,51 +27,62 @@ import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
+
+const excludeContainedReports = (events) => {
+  const containedEventIdsToRemove = uniq(events
+    .filter(({ is_collection }) => !!is_collection)
+    .reduce((accumulator, item) => [
+      ...accumulator,
+      ...item.contains.map(({ related_event: { id } }) => id),
+    ], []));
+
+  return events.filter(event => !containedEventIdsToRemove.includes(event.id));
+};
 
 const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
   const map = useContext(MapContext);
 
   const events = useSelector((state) => getFeedEvents(state));
 
-  const [feedEvents, setFeedEvents] = useState([]);
+  const [feedEvents, setFeedEvents] = useState(() => {
+    if (events.results?.length) {
+      if (shouldExcludeContained) {
+        return excludeContainedReports(events.results);
+      }
+      return events.results;
+    }
+    return [];
+  });
 
   const resetFeedSort = useCallback(() => setFeedSort(DEFAULT_EVENT_SORT), [setFeedSort]);
 
   const onScroll = useCallback(
-    () => events.next && dispatch(fetchNextEventFeedPage(events.next)),
+    () => {
+      console.log('onScroll');
+      events.next && dispatch(fetchNextEventFeedPage(events.next));
+    },
     [dispatch, events.next]
   );
 
   const onEventTitleClick = useCallback((event) => {
-    if (ENABLE_REPORT_NEW_UI) {
+    if (enableNewReportUI) {
       navigate(event.id);
     } else {
       openModalForReport(event, map);
     }
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [map, navigate]);
+  }, [enableNewReportUI, map, navigate]);
 
   useEffect(() => {
-    if (!shouldExcludeContained) {
-      setFeedEvents(events.results);
-    } else {
-      /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
-      this happens as relationships can be established outside the state awareness of the feed. */
-      const containedEventIdsToRemove = uniq(events.results
-        .filter(({ is_collection }) => !!is_collection)
-        .reduce((accumulator, item) => [
-          ...accumulator,
-          ...item.contains.map(({ related_event: { id } }) => id),
-        ], []));
-      setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
-    }
+    setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);
   }, [events.results, shouldExcludeContained]);
 
   return <ErrorBoundary>
@@ -98,7 +114,7 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
     {!events.error && <EventFeed
       className={styles.sidebarEventFeed}
       events={feedEvents}
-      hasMore={!!events.next}
+      hasMore={!!feedEvents.length && !!events.next}
       loading={loadingEventFeed}
       map={map}
       onScroll={onScroll}

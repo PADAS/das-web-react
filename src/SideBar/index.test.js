@@ -103,6 +103,7 @@ describe('SideBar', () => {
         },
       },
       view: {
+        featureFlagOverrides: {},
         hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
@@ -331,7 +332,7 @@ describe('SideBar', () => {
     expect(screen.getByTestId('sideBar-addReportButton')).toHaveClass('hidden');
   });
 
-  test('closes the sidebar tabs when clicking the cross button', () => {
+  test('closes the sidebar tabs when clicking the cross button', async () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
@@ -347,11 +348,15 @@ describe('SideBar', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    const closeButton = screen.getByTestId('sideBar-closeButton');
-    userEvent.click(closeButton);
+    await waitFor(() => {
+      const closeButton = screen.getByTestId('sideBar-closeButton');
+      userEvent.click(closeButton);
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/');
 
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/');
+    });
+
+
   });
 
   test('shows a back button if the detail view of the current tab is open', () => {

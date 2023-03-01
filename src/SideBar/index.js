@@ -8,11 +8,11 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
@@ -42,7 +42,7 @@ const SideBar = () => {
 
   const sideBar = useSelector((state) => state.view.sideBar);
 
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
   const reportsFeed = useFetchReportsFeed();
 
@@ -158,7 +158,13 @@ const SideBar = () => {
                 />}
             </div>
 
-            <h3>{tabTitle}</h3>
+            <h3>{tabTitle}
+              <Routes>
+                <Route path="reports">
+                  <Route path=":id/*" element={<span className={styles.betaPreviewLabel}> (Beta Preview)</span>} />
+                </Route>
+              </Routes>
+            </h3>
 
             <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
               <CrossIcon />

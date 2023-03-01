@@ -21,13 +21,27 @@ jest.mock('../../../ducks/modals', () => ({
 
 describe('Menu report options', () => {
   const saveReport = jest.fn();
+  let store;
+
+  beforeEach(() => {
+    store = {
+      data: {
+        eventTypes,
+        patrolTypes,
+      },
+      view: {
+        featureFlagOverrides: {},
+      }
+    };
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('The kebab menu is being rendered', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={report} saveReport={saveReport} />
         </NavigationWrapper>
@@ -39,7 +53,7 @@ describe('Menu report options', () => {
 
   test('Shows 2 options for reports that are not linked to a patrol or added to an incident', async () => {
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={report} saveReport={saveReport} />
         </NavigationWrapper>
@@ -56,7 +70,7 @@ describe('Menu report options', () => {
   test('should not show the incident option if the report is a collection', async () => {
     const collectionReport = { ...report, ...{ is_collection: true } };
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={collectionReport} saveReport={saveReport} />
         </NavigationWrapper>
@@ -73,7 +87,7 @@ describe('Menu report options', () => {
   test('should not show the incident option if the report belongs to a collection', async () => {
     const reportWithCollection = { ...report, ...{ is_contained_in: [{ type: 'contains', ordernum: null, url: 'https://fake.com', related_event: {} }] } };
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={reportWithCollection} saveReport={saveReport} />
         </NavigationWrapper>
@@ -90,7 +104,7 @@ describe('Menu report options', () => {
   test('should not show the patrol option if the report belongs to a patrol', async () => {
     const reportWithCollection = { ...report, ...{ patrols: ['f60d2f14-dc57-48a8-8258-88877982cc45'] } };
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={reportWithCollection} saveReport={saveReport} />
         </NavigationWrapper>
@@ -107,7 +121,7 @@ describe('Menu report options', () => {
   test('should not show the kebab button if a report belongs to a patrol and collection', async () => {
     const reportWithCollection = { ...report, ...{ patrols: ['f60d2f14-dc57-48a8-8258-88877982cc45'] }, ...{ is_collection: true } };
     render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <ReportMenu report={reportWithCollection} saveReport={saveReport} />
         </NavigationWrapper>

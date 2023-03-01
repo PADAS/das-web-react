@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
 import isPlainObject from 'lodash/isPlainObject';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
@@ -11,7 +11,6 @@ import { ReactComponent as ArrowUpIcon } from '../common/images/icons/arrow-up.s
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
 
-import { DEFAULT_SELECT_STYLES } from '../constants';
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
 import { getHoursAndMinutesString } from '../utils/datetime';
@@ -21,6 +20,7 @@ import DatePicker from '../DatePicker';
 import TimePicker from '../TimePicker';
 
 import styles from './styles.module.scss';
+import Select from '../Select';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -314,7 +314,6 @@ export const SelectWidget = ({
     options={enumOptions}
     ref={selectRef}
     required={required}
-    styles={DEFAULT_SELECT_STYLES}
     value={selected}
   />;
 };

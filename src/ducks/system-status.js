@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { combineReducers } from 'redux';
 
-import { API_URL, DAS_HOST, FEATURE_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
+import { API_URL, DAS_HOST, SYSTEM_CONFIG_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
 export const STATUS_API_URL = `${API_URL}status`;
@@ -74,27 +74,27 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_DAILY_REPORT_ENABLED,
-    payload: data[FEATURE_FLAGS.DAILY_REPORT],
+    payload: data[SYSTEM_CONFIG_FLAGS.DAILY_REPORT],
   });
   dispatch({
     type: SET_EXPORT_KML_ENABLED,
-    payload: data[FEATURE_FLAGS.KML_EXPORT],
+    payload: data[SYSTEM_CONFIG_FLAGS.KML_EXPORT],
   });
   dispatch({
     type: SET_PATROL_MANAGEMENT_ENABLED,
-    payload: data[FEATURE_FLAGS.PATROL_MANAGEMENT],
+    payload: data[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT],
   });
   dispatch({
     type: SET_ALERTS_ENABLED,
-    payload: data[FEATURE_FLAGS.ALERTS],
+    payload: data[SYSTEM_CONFIG_FLAGS.ALERTS],
   });
   dispatch({
     type: SET_EULA_ENABLED,
-    payload: data[FEATURE_FLAGS.EULA],
+    payload: data[SYSTEM_CONFIG_FLAGS.EULA],
   });
   dispatch({
     type: SET_TABLEAU_ENABLED,
-    payload: data[FEATURE_FLAGS.TABLEAU],
+    payload: data[SYSTEM_CONFIG_FLAGS.TABLEAU],
   });
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
@@ -318,42 +318,42 @@ export default combineReducers({
 });
 
 const INITIAL_SYSTEM_CONFIG_STATE = {
-  [FEATURE_FLAGS.DAILY_REPORT]: false,
-  [FEATURE_FLAGS.DAILY_REPORT]: false,
-  [FEATURE_FLAGS.KML_EXPORT]: false,
-  [FEATURE_FLAGS.ALERTS]: false,
-  [FEATURE_FLAGS.EULA]: false,
-  [FEATURE_FLAGS.GEOPERMISSIONS]: false,
+  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
+  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
+  [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: false,
+  [SYSTEM_CONFIG_FLAGS.ALERTS]: false,
+  [SYSTEM_CONFIG_FLAGS.EULA]: false,
+  [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
   switch (type) {
   case (SET_DAILY_REPORT_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.DAILY_REPORT]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: payload, };
   }
   case (SET_EXPORT_KML_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.KML_EXPORT]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: payload, };
   }
 
   case (SET_PATROL_MANAGEMENT_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.PATROL_MANAGEMENT]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: payload, };
   }
 
   case (SET_ALERTS_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.ALERTS]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.ALERTS]: payload, };
   }
   case (SET_SHOW_TRACK_DAYS): {
     return { ...state, showTrackDays: payload, };
   }
   case (SET_GEOPERMISSIONS_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.GEOPERMISSIONS]: payload };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: payload };
   }
   case (SET_EULA_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.EULA]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.EULA]: payload, };
   }
   case (SET_TABLEAU_ENABLED): {
-    return { ...state, [FEATURE_FLAGS.TABLEAU]: payload, };
+    return { ...state, [SYSTEM_CONFIG_FLAGS.TABLEAU]: payload, };
   }
   case (SET_SITENAME): {
     setSitenameDimension(payload);

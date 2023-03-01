@@ -76,6 +76,7 @@ describe('ReportManager', () => {
         patrolStore: {},
       },
       view: {
+        featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },

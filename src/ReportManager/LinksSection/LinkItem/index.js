@@ -6,15 +6,16 @@ import PropTypes from 'prop-types';
 import { TrackerContext } from '../../../utils/analytics';
 
 import { openModalForPatrol } from '../../../utils/patrols';
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../../constants';
+import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { MapContext } from '../../../App';
+import { useFeatureFlag } from '../../../hooks';
 
 import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const LINK_TYPES = { PATROL: 'patrol', REPORT: 'report' };
 
@@ -26,9 +27,11 @@ const LinkItem = ({ item, to, type }) => {
     analytics?.track(`Navigate to ${type} from links section`);
   }, [analytics, type]);
 
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
+
   if (type === LINK_TYPES.PATROL) {
-    if (ENABLE_PATROL_NEW_UI) {
-      return <Link className={styles.link} onClick={onClick} to={to}>
+    if (enableNewPatrolUI) {
+      return <Link className={styles.link} to={`/${TAB_KEYS.PATROLS}/${item.id}`}>
         <PatrolListItem
           className={styles.item}
           patrol={item}
