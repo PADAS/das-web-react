@@ -14,7 +14,7 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('ReportManager - Header', () => {
-  let store = {
+  let store = mockStore({
     data: {
       eventTypes,
       patrolTypes,
@@ -22,14 +22,12 @@ describe('ReportManager - Header', () => {
     view: {
       featureFlagOverrides: {},
     },
-  };
+  });
 
   const onChangeTitle = jest.fn();
   let Wrapper, renderWithWrapper;
 
   beforeEach(() => {
-    store = mockStore({ data: { eventTypes, patrolTypes } });
-
 
     Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
       <Provider store={store}>
