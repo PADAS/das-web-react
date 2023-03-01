@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext } from 'react';
 // TODO: Replace with custom link after ERA-8169
-import { Link, useLinkClickHandler } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { TrackerContext } from '../../../utils/analytics';
