@@ -4,12 +4,15 @@ import Popover from 'react-bootstrap/Popover';
 import Form from 'react-bootstrap/Form';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
+import { trackEventFactory, BETA_PREVIEW_CATEGORY  } from '../../utils/analytics';
+
 import { setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
 
 import { ReactComponent as InfoIcon } from '../../common/images/icons/information.svg';
 
 import styles from './styles.module.scss';
 
+const tracker = trackEventFactory(BETA_PREVIEW_CATEGORY);
 
 const BetaToggles = () => {
   const toggleableFeatures = useSelector((state) =>
@@ -18,11 +21,20 @@ const BetaToggles = () => {
   );
   const dispatch = useDispatch();
 
+
   const onFlagOverrideToggle = useCallback(({ target: { checked, value } }) => {
+    const toggledLabel = toggleableFeatures.find(([flag]) =>
+      flag === value
+    )[1].label;
+
+    console.log(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
+
+    tracker.track(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
+
     dispatch(
       setFlagOverrideValue(value, checked)
     );
-  }, [dispatch]);
+  }, [dispatch, toggleableFeatures]);
 
   return <Form>
     <h6 className={styles.formTitle}>BETA PREVIEWS <OverlayTrigger

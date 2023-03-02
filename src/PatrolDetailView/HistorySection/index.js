@@ -33,7 +33,7 @@ const HistorySection = ({ patrolForm }) => {
     }));
   }, [patrolForm.files, patrolForm.notes, patrolForm.patrol_segments, patrolForm.updates]);
 
-  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered);
+  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered);
 
   return <div data-testid="patrolDetailView-historySection">
     <div className={styles.sectionHeader}>
@@ -46,7 +46,7 @@ const HistorySection = ({ patrolForm }) => {
       <div className={styles.actions}>
         <label>Time</label>
 
-        {sortButton}
+        <SortButton />
       </div>
     </div>
 

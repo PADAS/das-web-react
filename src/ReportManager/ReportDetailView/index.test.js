@@ -12,6 +12,7 @@ import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { executeSaveActions } from '../../utils/save';
+import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
@@ -76,6 +77,8 @@ describe('ReportManager - ReportDetailView', () => {
     map,
     navigate,
     useNavigateMock,
+    Wrapper,
+    renderWithWrapper,
     store;
 
   beforeEach(() => {
@@ -97,6 +100,16 @@ describe('ReportManager - ReportDetailView', () => {
 
     map = createMapMock();
 
+    Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
+      <MapContext.Provider value={map}>
+        <NavigationWrapper>
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            {children}
+          </TrackerContext.Provider>
+        </NavigationWrapper>
+      </MapContext.Provider>
+    </Provider>;
+
     store = {
       data: {
         subjectStore: {},
@@ -114,6 +127,8 @@ describe('ReportManager - ReportDetailView', () => {
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
+
+    renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
   });
 
   afterEach(() => {
@@ -121,32 +136,24 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not fetch the event schema if it is loaded already', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect(fetchEventTypeSchema).not.toHaveBeenCalled();
   });
 
   test('fetches the event schema if it is not loaded already', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="74941f0d-4b89-48be-a62a-a74c78db8383"
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect(fetchEventTypeSchema).toHaveBeenCalled();
@@ -154,16 +161,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('updates the title when user types in it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
@@ -176,18 +179,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('sets the location when user changes it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <NavigationWrapper>
-            <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
               isNewReport
               newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="1234"
             />
-          </NavigationWrapper>
-        </MapContext.Provider>
-      </Provider>
     );
 
     const setLocationButton = await screen.findByTestId('set-location-button');
@@ -201,14 +198,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('sets the date when user changes it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <NavigationWrapper>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </NavigationWrapper>
-        </MapContext.Provider>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     const datePickerInput = await screen.findByTestId('datePicker-input');
@@ -220,14 +211,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('sets the time when user changes it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <NavigationWrapper>
-            <ReportDetailView isNewReport={false} reportId="456" />
-          </NavigationWrapper>
-        </MapContext.Provider>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     const timeInput = await screen.findByTestId('time-input');
@@ -240,18 +225,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('updates the JSON form schema when user does a change', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <NavigationWrapper>
-            <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
               isNewReport
               newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
               reportId="1234"
             />
-          </NavigationWrapper>
-        </MapContext.Provider>
-      </Provider>
     );
 
     const typeOfAccidentField = await screen.findByLabelText('Type of accident');
@@ -261,18 +240,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('sets the state when user changes it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <NavigationWrapper>
-            <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
               isNewReport
               newReportTypeId="d0884b8c-4ecb-45da-841d-f2f8d6246abf"
               reportId="1234"
             />
-          </NavigationWrapper>
-        </MapContext.Provider>
-      </Provider>
     );
 
     expect((await screen.queryByRole('button', { name: 'Resolved' }))).toBeNull();
@@ -286,16 +259,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect(navigate).toHaveBeenCalledTimes(0);
@@ -310,18 +279,14 @@ describe('ReportManager - ReportDetailView', () => {
   test('triggers onCancelAddedReport when clicking cancel if it is an added report', async () => {
     const onCancelAddedReport = jest.fn();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isAddedReport
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             onCancelAddedReport={onCancelAddedReport}
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
@@ -333,12 +298,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new attachment', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
@@ -351,12 +312,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new attachment', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
@@ -371,12 +328,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays a new note', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
@@ -388,12 +341,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('deletes a new note', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
@@ -421,12 +370,8 @@ describe('ReportManager - ReportDetailView', () => {
 
     store.data.eventStore = { initial: mockReport };
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
     );
 
     await waitFor(() => {
@@ -456,12 +401,8 @@ describe('ReportManager - ReportDetailView', () => {
 
     store.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="initial" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="initial" />
     );
 
     await waitFor(() => {
@@ -496,16 +437,12 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEventMock = jest.fn(() => () => incidentCollection);
     fetchEvent.mockImplementation(fetchEventMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="1234"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     await waitFor(() => {
@@ -521,12 +458,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if users modified the opened report', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
@@ -537,12 +470,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds an attachment', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
@@ -553,12 +482,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('enables the save button if user adds a note, edits it and saves it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
@@ -574,17 +499,13 @@ describe('ReportManager - ReportDetailView', () => {
   test('triggers the formProps onSaveSuccess callback if there is a report is saved', async () => {
     const onSaveSuccess = jest.fn();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             formProps={{ onSaveSuccess }}
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -602,16 +523,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('executes save actions when clicking save and navigates to report feed', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -632,16 +549,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('shows the loading overlay while saving', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -659,17 +572,13 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.reject());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             formProps={{ onSaveError }}
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -690,16 +599,12 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.reject());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -714,12 +619,8 @@ describe('ReportManager - ReportDetailView', () => {
   test('omits duplicated attachment files', async () => {
     window.alert = jest.fn();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
@@ -739,12 +640,8 @@ describe('ReportManager - ReportDetailView', () => {
   test('displays a new note', async () => {
     window.alert = jest.fn();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
@@ -759,16 +656,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not display neither the activity section nor its anchor if there are no items to show', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
@@ -776,16 +669,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays the activity section and its anchor after adding an item', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
@@ -799,16 +688,12 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not display neither the history section nor its anchor if the report is new', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect((await screen.queryByTestId('reportManager-historySection'))).toBeNull();
@@ -816,12 +701,8 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('displays the history section and its anchor if the report is saved', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findByTestId('reportManager-historySection'))).toBeDefined();
@@ -829,17 +710,13 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if formProps relationshipButtonDisabled is true', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             formProps={{ relationshipButtonDisabled: true }}
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
@@ -848,12 +725,8 @@ describe('ReportManager - ReportDetailView', () => {
   test('does not show add report button if report belongs to a collection', async () => {
     store.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
@@ -863,41 +736,29 @@ describe('ReportManager - ReportDetailView', () => {
     store.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
 
     cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
   });
 
   test('does not show add report button if this is an added report', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView
+    renderWithWrapper(
+      <ReportDetailView
             isAddedReport
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
           />
-        </NavigationWrapper>
-      </Provider>
     );
 
     expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
   });
 
   test('shows the add report button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportDetailView isNewReport={false} reportId="456" />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
