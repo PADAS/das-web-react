@@ -1,16 +1,12 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import addMinutes from 'date-fns/add_minutes';
-import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
+import React, { memo, useCallback, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import { default as BootstrapPopover } from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
 import TimeOptionsPopover from './TimeOptionsPopover';
-
-
 
 const TimePicker = ({
   className,
@@ -25,22 +21,19 @@ const TimePicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [writtenValue, setWrittenValue] = useState(null);
-  const defaultTimeRef = useRef();
-
   const isTimeBelowMax = useCallback((time) => !maxTime || maxTime >= time, [maxTime]);
 
-  const CustomPopover = (props) => {
-    return <Popover className={styles.popoverOptions} {...props} >
+  const Popover = useCallback((props) => {
+    return <BootstrapPopover className={styles.popoverOptions} {...props} >
       <TimeOptionsPopover
           isTimeBelowMax={isTimeBelowMax}
           showDurationFromStartTime={showDurationFromStartTime}
           onChange={onChange}
           value={value}
           minutesInterval={minutesInterval}
-          ref={defaultTimeRef}
       />
-    </Popover>;
-  };
+    </BootstrapPopover>;
+  }, [isTimeBelowMax, showDurationFromStartTime, onChange, value, minutesInterval]);
 
   const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
 
@@ -68,7 +61,7 @@ const TimePicker = ({
 
     <OverlayTrigger
       onToggle={onToggle}
-      overlay={CustomPopover}
+      overlay={Popover}
       placement="bottom-start"
       trigger="focus"
     >

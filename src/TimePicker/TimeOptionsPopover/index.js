@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   durationHumanizer,
   getHoursAndMinutesString,
@@ -13,61 +13,65 @@ const timeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
 timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
+const TimeOptionsPopover = ({ isTimeBelowMax, minutesInterval, onChange, showDurationFromStartTime, value }) => {
 
-// eslint-disable-next-line react/display-name
-const TimeOptionsPopover = forwardRef(({ isTimeBelowMax, minutesInterval, onChange, showDurationFromStartTime, value }, ref) => {
-  const initialTimeDate = new Date();
-  const initialTime = getHoursAndMinutesString(initialTimeDate);
-  const [defaultHour, defaultMinutes] = (value ?? initialTime).split(':');
+  const defaultTimeRef = useRef();
+  const initialTimeDate = useMemo(() => new Date(), []);
   initialTimeDate.setHours(0, 0, 0);
-  const optionsToDisplay = Math.floor ((60 / minutesInterval) * 24);
-  const currentDateValue = new Date();
-  currentDateValue.setHours(defaultHour, defaultMinutes, 0);
+  const initialTime = useMemo(() => getHoursAndMinutesString(initialTimeDate), [initialTimeDate]);
+  const [defaultHour, defaultMinutes] = useMemo(() => (value ?? initialTime).split(':'), [value, initialTime]);
+  const optionsToDisplay = useMemo(() => Math.floor ((60 / minutesInterval) * 24), [minutesInterval]);
+  const currentValueDate = useMemo(() => new Date(), []);
+  currentValueDate.setHours(defaultHour, defaultMinutes, 0);
 
-  const options = [];
-  let accumulatedMinutes = 0;
+  const getMinutesDiff = useCallback((startDate, endDate) => Math.round(
+    Math.abs( endDate.getTime() - startDate.getTime() ) / 60000
+  ), []);
 
-  const getDiff = (startDate, endDate) => {
-    const diff = endDate.getTime() - startDate.getTime();
-    return  Math.round(diff / 60000);
-  };
+  const options = useMemo(() => {
+    const options = [];
+    let accumulatedMinutes = 0;
+    let diffMinutes = Number.MAX_VALUE;
+    let nearestHourIndex = -1;
+    let arrayIndex = 0;
 
-  while (options.length < optionsToDisplay) {
-    const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
-    const timeValue = getHoursAndMinutesString(dateWithAccumulation);
-    const timeDisplay = getUserLocaleTime(dateWithAccumulation);
-    /*
-        const nextDateItem = addMinutes(initialTimeDate, accumulatedMinutes + minutesInterval);
-  
-        const curentDateDiff = getDiff(dateWithAccumulation)*/
+    while (options.length < optionsToDisplay) {
+      const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
+      const timeValue = getHoursAndMinutesString(dateWithAccumulation);
+      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
+      const currentMinutesDiff = getMinutesDiff(dateWithAccumulation, currentValueDate);
+      if (currentMinutesDiff < diffMinutes){
+        diffMinutes = currentMinutesDiff;
+        nearestHourIndex = arrayIndex;
+      }
 
+      options.push({
+        disabled: !isTimeBelowMax(timeValue),
+        display: timeDisplay,
+        duration: showDurationFromStartTime
+          ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
+          : null,
+        value: timeValue
+      });
 
-    const [currentHour, currentMinutes] = timeValue.split(':');
-    const nextMinutesInterval = parseInt(currentMinutes) + minutesInterval;
-    const isSameHour = parseInt(currentHour) === parseInt(defaultHour);
-    const isBetweenMinutes = parseInt(defaultMinutes) > parseInt(currentMinutes) && parseInt(defaultMinutes) < nextMinutesInterval;
+      accumulatedMinutes += minutesInterval;
+      arrayIndex++;
+    }
 
-    options.push({
-      disabled: !isTimeBelowMax(timeValue),
-      display: timeDisplay,
-      duration: showDurationFromStartTime
-        ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
-        : null,
-      value: timeValue,
-      defaultTimeRef: isSameHour && isBetweenMinutes ? ref : null
-    });
+    if (options.slice(-1)?.[0]?.value === value) {
+      options.pop();
+    }
 
-    accumulatedMinutes += minutesInterval;
-  }
+    if ( nearestHourIndex > -1 ){
+      options[nearestHourIndex].ref = defaultTimeRef;
+    }
 
-  if (options.slice(-1)?.[0]?.value === value) {
-    options.pop();
-  }
+    return options;
+  }, [initialTimeDate, isTimeBelowMax, minutesInterval, optionsToDisplay, defaultTimeRef, showDurationFromStartTime, value, currentValueDate, getMinutesDiff]);
 
   useEffect(() => {
-    console.log(ref);
-    if (ref?.current){
-      ref.current?.scrollIntoView();
+    if (defaultTimeRef?.current){
+      defaultTimeRef.current?.scrollIntoView();
     }
   }, []);
 
@@ -77,12 +81,12 @@ const TimeOptionsPopover = forwardRef(({ isTimeBelowMax, minutesInterval, onChan
                 key={option.value}
                 onClick={() => !option.disabled && onChange(option.value)}
                 onMouseDown={(event) => option.disabled && event.preventDefault()}
-                ref={option.defaultTimeRef}
+                ref={option.ref}
             >
       <span>{option.display}</span>
       {option.duration && <span>{option.duration}</span>}
     </li>)}
   </ul>;
-});
+};
 
 export default memo(TimeOptionsPopover);
