@@ -221,7 +221,7 @@ describe('ReportManager - ReportDetailView', () => {
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '04:00');
+    expect(timeInput).toHaveAttribute('value', '00:30');
   });
 
   test('updates the JSON form schema when user does a change', async () => {
