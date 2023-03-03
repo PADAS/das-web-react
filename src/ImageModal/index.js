@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ImageModal = ({ id, src, title, url }) => {
+const ImageModal = ({ id, src, title, url, tracker }) => {
   const dispatch = useDispatch();
 
   const imageRef = useRef();
@@ -27,19 +27,25 @@ const ImageModal = ({ id, src, title, url }) => {
   const setImageLoaded = useCallback(() => setLoadState(true), []);
 
   const setImageError = useCallback(() => {
+    tracker?.track('Error loading image');
+
     setErrorState(true);
     setImageLoaded();
-  }, [setImageLoaded]);
+  }, [setImageLoaded, tracker]);
 
   const onClickDownload = useCallback(() => {
+    tracker?.track('Click image download button');
+
     downloadFileFromUrl(url, { filename: title });
-  }, [title, url]);
+  }, [title, tracker, url]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!imageRef.current?.contains(event.target)
         && !downloadIconRef.current?.contains(event.target)
         && !titleRef.current?.contains(event.target)) {
+        tracker?.track('Click modal background to close image modal');
+
         dispatch(removeModal(id));
       }
     };
@@ -47,7 +53,7 @@ const ImageModal = ({ id, src, title, url }) => {
     document.addEventListener('mousedown', handleClickOutside);
 
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [dispatch, id]);
+  }, [dispatch, id, tracker]);
 
   return <>
     <Header className={styles.header}>

@@ -1,8 +1,8 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
-import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
+import { INCIDENT_REPORT_CATEGORY, EVENT_REPORT_CATEGORY, MAP_LAYERS_CATEGORY, TrackerContext } from '../../utils/analytics';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';
@@ -15,6 +15,12 @@ import styles from './styles.module.scss';
 const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
   const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
+  const category = report?.is_collection
+    ? INCIDENT_REPORT_CATEGORY
+    : EVENT_REPORT_CATEGORY;
+
+  const reportTracker = useContext(TrackerContext);
+
   const titleInput = useRef();
 
   const isNewReport = !report.id;
@@ -25,9 +31,10 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
     if (!event.target.textContent) {
       titleInput.current.innerHTML = eventTypeTitle;
     }
+    reportTracker.track('Change title');
     onChangeTitle(event.target.textContent || eventTypeTitle);
     event.target.scrollTop = 0;
-  }, [eventTypeTitle, onChangeTitle]);
+  }, [eventTypeTitle, onChangeTitle, reportTracker]);
 
   const hasPatrols = !!report?.patrols?.length;
 
@@ -73,8 +80,8 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
     {!!coordinates?.length && <div className={styles.locationJumpButton}>
       <LocationJumpButton
         clickAnalytics={[
-          MAP_LAYERS_CATEGORY,
-          'Click Jump To Report Location button',
+          category,
+          'Click header "jump to location" button',
           `Report Type:${report.event_type}`,
         ]}
         coordinates={coordinates}

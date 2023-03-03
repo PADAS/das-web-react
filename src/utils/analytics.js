@@ -1,6 +1,10 @@
+import { createContext } from 'react';
+import ReactGA from 'react-ga';
 import debounce from 'lodash/debounce';
 
 import { CLIENT_BUILD_VERSION } from '../constants';
+
+export const TrackerContext = createContext(null);
 
 /**
  * ReactGA convenience functions.
@@ -8,7 +12,6 @@ import { CLIENT_BUILD_VERSION } from '../constants';
  * This file defines several convenience functions for Google Analytics calls
  * that rely on the ReactGA library.
  */
-import ReactGA from 'react-ga';
 
 export const MAP_INTERACTION_CATEGORY = 'Map Interaction';
 export const DRAWER_CATEGORY = 'Map Drawer';
@@ -21,7 +24,6 @@ export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';
-export const REPORT_DETAIL_VIEW_CATEGORY = 'Report Detail View';
 export const REPORT_MODAL_CATEGORY = 'Report Modal';
 export const REPORT_EXPORT_CATEGORY = 'Report Export';
 export const INCIDENT_REPORT_CATEGORY = 'Incident Report';
@@ -34,6 +36,7 @@ export const ADD_INCIDENT_CATEGORY = 'Add To Incident';
 export const GPS_FORMAT_CATEGORY = 'GPS Format';
 export const ALERTS_CATEGORY = 'Alerts';
 export const FEED_CATEGORY = 'Feed';
+export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
 
 /**
  * Function to emit a GA event.
@@ -51,7 +54,7 @@ export function trackEvent(category, action, label=null) {
  * Function to create a tracker for provided category
  * @param {string} category 
  */
-export function trackEventFactory (category, tracker = trackEvent) {
+export const trackEventFactory = (category, tracker = trackEvent) => {
   const track = (action, label) => tracker(category, action, label);
 
   return {
