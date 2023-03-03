@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
-import TimeOptionsPopover from './TimeOptionsPopover';
+import TimeOptions from './TimeOptions';
 
 const TimePicker = ({
   className,
@@ -25,7 +25,7 @@ const TimePicker = ({
 
   const Popover = useCallback((props) => {
     return <BootstrapPopover className={styles.popoverOptions} {...props} >
-      <TimeOptionsPopover
+      <TimeOptions
           isTimeBelowMax={isTimeBelowMax}
           showDurationFromStartTime={showDurationFromStartTime}
           onChange={onChange}
@@ -85,7 +85,6 @@ TimePicker.defaultProps = {
   className: '',
   maxTime: '',
   minutesInterval: 30,
-  optionsToDisplay: 5,
   showDurationFromStartTime: false,
   startTime: '',
   value: '',
@@ -96,7 +95,6 @@ TimePicker.propTypes = {
   maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,
-  optionsToDisplay: PropTypes.number,
   showDurationFromStartTime: PropTypes.bool,
   startTime: PropTypes.string,
   value: PropTypes.string,

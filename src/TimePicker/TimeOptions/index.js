@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef} from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   durationHumanizer,
   getHoursAndMinutesString,
@@ -13,7 +13,7 @@ const timeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
 timeConfig.units = ['h', 'm'];
 const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
 
-const TimeOptionsPopover = ({ isTimeBelowMax, minutesInterval, onChange, showDurationFromStartTime, value }) => {
+const TimeOptions = ({ isTimeBelowMax, minutesInterval, onChange, showDurationFromStartTime, value }) => {
 
   const defaultTimeRef = useRef();
   const initialTimeDate = useMemo(() => new Date(), []);
@@ -71,7 +71,7 @@ const TimeOptionsPopover = ({ isTimeBelowMax, minutesInterval, onChange, showDur
 
   useEffect(() => {
     if (defaultTimeRef?.current){
-      defaultTimeRef.current?.scrollIntoView();
+      defaultTimeRef.current?.scrollIntoView?.();
     }
   }, []);
 
@@ -89,4 +89,4 @@ const TimeOptionsPopover = ({ isTimeBelowMax, minutesInterval, onChange, showDur
   </ul>;
 };
 
-export default memo(TimeOptionsPopover);
+export default memo(TimeOptions);

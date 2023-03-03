@@ -4,40 +4,48 @@ import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
 import TimePicker from '.';
+import addMinutes from 'date-fns/add_minutes';
+import { getUserLocaleTime } from '../utils/datetime';
 
 describe('TimePicker', () => {
   const onChange = jest.fn();
+
+  const createTimeOptions = (minutesInterval = 30) => {
+    const optionsToDisplay = Math.floor ((60 / minutesInterval) * 24);
+    const initialTimeDate = new Date();
+    initialTimeDate.setHours(0, 0, 0);
+    const options = [];
+    let accumulatedMinutes = 0;
+
+    while (options.length < optionsToDisplay) {
+      const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
+      options.push(getUserLocaleTime(dateWithAccumulation));
+      accumulatedMinutes += minutesInterval;
+    }
+    return options;
+  };
+
+  const getMinutesDiff = (startDate, endDate) => Math.round(
+    ( endDate.getTime() - startDate.getTime() ) / 60000
+  );
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test('renders only the amount of options specified by optionsToDisplay', async () => {
-    render(<TimePicker onChange={onChange} optionsToDisplay={15} value="10:00" />);
-
+  test('time options should be given in intervals of the value specified by minutesInterval', async () => {
+    const minutesInterval = 5;
+    render(<TimePicker onChange={onChange} minutesInterval={minutesInterval} value="10:00" />);
+    const timeOptions = createTimeOptions(minutesInterval);
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
 
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems.length).toBe(15);
-  });
-
-  test('time options should be given in intervals of the value specified by minutesInterval starting by the value', async () => {
-    render(<TimePicker onChange={onChange} minutesInterval={5} value="10:00" />);
-
-    const timeInput = await screen.findByTestId('time-input');
-    userEvent.click(timeInput);
-
-    const optionsList = await screen.findByRole('list');
-    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
-
-    expect(timeOptionsListItems[0].textContent.slice(0, 5)).toBe('10:05');
-    expect(timeOptionsListItems[1].textContent.slice(0, 5)).toBe('10:10');
-    expect(timeOptionsListItems[2].textContent.slice(0, 5)).toBe('10:15');
-    expect(timeOptionsListItems[3].textContent.slice(0, 5)).toBe('10:20');
-    expect(timeOptionsListItems[4].textContent.slice(0, 5)).toBe('10:25');
+    timeOptions.forEach((option, index) => {
+      expect(timeOptionsListItems[index].textContent).toBe(option);
+    });
   });
 
   test('shows only the duration time in options if showDurationFromStartTime is true', async () => {
@@ -49,11 +57,12 @@ describe('TimePicker', () => {
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(30m)');
-    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(1h)');
-    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(1h 30m)');
-    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(2h)');
-    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(2h 30m)');
+
+    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(0m)');
+    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(30m)');
+    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(1h)');
+    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(1h 30m)');
+    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(2h)');
   });
 
   test('calls onChange and send a date with the time chosen', async () => {
@@ -67,10 +76,11 @@ describe('TimePicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(timeOptionsListItems[2]);
+    const [timeOption] = timeOptionsListItems;
+    userEvent.click(timeOption);
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith('11:30');
+    expect(onChange).toHaveBeenCalledWith('00:00');
   });
 
   test('sets the arrow as open if input is on focus', async () => {
@@ -91,23 +101,43 @@ describe('TimePicker', () => {
   });
 
   test('disables the options that are above maxTime', async () => {
-    render(<TimePicker maxTime="14:00" onChange={onChange} value="12:00" />);
+    let accumulatedMinutes = 0;
+    const minutesInterval = 30;
+    const maxTime = '14:00';
+    render(<TimePicker maxTime={maxTime} onChange={onChange} value="12:00" minutesInterval={minutesInterval} />);
 
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
 
     expect(onChange).toHaveBeenCalledTimes(0);
 
+    const options = createTimeOptions();
     const optionsList = await screen.findByRole('list');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
-    expect(timeOptionsListItems[3]).toHaveTextContent('02:00');
-    expect(timeOptionsListItems[3]).not.toHaveClass('disabled');
-    expect(timeOptionsListItems[4]).toHaveTextContent('02:30');
-    expect(timeOptionsListItems[4]).toHaveClass('disabled');
+    const maxTimeDate = new Date();
+    const [hour, minutes] = maxTime.split(':');
+    maxTimeDate.setHours(hour, minutes, 0);
 
-    userEvent.click(timeOptionsListItems[4]);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0);
 
-    expect(onChange).toHaveBeenCalledTimes(0);
+    timeOptionsListItems.forEach((timeOption, index) => {
+      const option = options[index];
+      const currentDisplayHour = timeOption.firstChild.innerHTML;
+
+      expect(currentDisplayHour).toBe(option);
+
+      const dateWithAccumulation = addMinutes(currentDate, accumulatedMinutes);
+      const minutesDiff = getMinutesDiff(maxTimeDate, dateWithAccumulation);
+
+      if (minutesDiff > 0){
+        expect(timeOption).toHaveClass('disabled');
+      } else {
+        expect(timeOption).not.toHaveClass('disabled');
+      }
+
+      accumulatedMinutes+=minutesInterval;
+    });
   });
 });
