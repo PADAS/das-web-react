@@ -9,24 +9,26 @@ import addMinutes from 'date-fns/add_minutes';
 import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
 import styles from '../styles.module.scss';
 
-const timeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
-timeConfig.units = ['h', 'm'];
-const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
+const TIME_CONFIG = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
+TIME_CONFIG.units = ['h', 'm'];
+const getHumanizedTimeDuration =  durationHumanizer(TIME_CONFIG);
 
 const TimeOptions = ({ isTimeBelowMax, minutesInterval, onChange, showDurationFromStartTime, value }) => {
-
+  const seconds = 60;
+  const hours = 24;
+  const milliseconds = 60000;
   const defaultTimeRef = useRef();
   const initialTimeDate = useMemo(() => new Date(), []);
   initialTimeDate.setHours(0, 0, 0);
   const initialTime = useMemo(() => getHoursAndMinutesString(initialTimeDate), [initialTimeDate]);
   const [defaultHour, defaultMinutes] = useMemo(() => (value ?? initialTime).split(':'), [value, initialTime]);
-  const optionsToDisplay = useMemo(() => Math.floor ((60 / minutesInterval) * 24), [minutesInterval]);
+  const optionsToDisplay = useMemo(() => Math.floor ((seconds / minutesInterval) * hours), [minutesInterval]);
   const currentValueDate = useMemo(() => new Date(), []);
   currentValueDate.setHours(defaultHour, defaultMinutes, 0);
 
   const getMinutesDiff = useCallback((startDate, endDate) => Math.round(
-    Math.abs( endDate.getTime() - startDate.getTime() ) / 60000
-  ), []);
+    Math.abs( endDate.getTime() - startDate.getTime() ) / milliseconds
+  ), [milliseconds]);
 
   const options = useMemo(() => {
     const options = [];
@@ -75,17 +77,16 @@ const TimeOptions = ({ isTimeBelowMax, minutesInterval, onChange, showDurationFr
     }
   }, []);
 
-  return <ul data-testid="timePicker-popoverOptionsList">
-    {options.map((option) => <li
-                className={option.disabled ? styles.disabled : ''}
-                key={option.value}
-                onClick={() => !option.disabled && onChange(option.value)}
-                onMouseDown={(event) => option.disabled && event.preventDefault()}
-                ref={option.ref}
-            >
-      <span>{option.display}</span>
-      {option.duration && <span>{option.duration}</span>}
-    </li>)}
+  return <ul data-testid="timePicker-OptionsList">
+    {options.map((option) =>
+      <li className={option.disabled ? styles.disabled : ''}
+          key={option.value}
+          onClick={() => !option.disabled && onChange(option.value)}
+          onMouseDown={(event) => option.disabled && event.preventDefault()}
+          ref={option.ref}>
+        <span>{option.display}</span>
+        {option.duration && <span>{option.duration}</span>}
+      </li>)}
   </ul>;
 };
 

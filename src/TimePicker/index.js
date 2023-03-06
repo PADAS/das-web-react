@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { default as BootstrapPopover } from 'react-bootstrap/Popover';
+import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
@@ -23,8 +23,8 @@ const TimePicker = ({
   const [writtenValue, setWrittenValue] = useState(null);
   const isTimeBelowMax = useCallback((time) => !maxTime || maxTime >= time, [maxTime]);
 
-  const Popover = useCallback((props) => {
-    return <BootstrapPopover className={styles.popoverOptions} {...props} >
+  const TimeOptionsPopover = useCallback((props) => {
+    return <Popover className={styles.popoverOptions} {...props} >
       <TimeOptions
           isTimeBelowMax={isTimeBelowMax}
           showDurationFromStartTime={showDurationFromStartTime}
@@ -32,7 +32,7 @@ const TimePicker = ({
           value={value}
           minutesInterval={minutesInterval}
       />
-    </BootstrapPopover>;
+    </Popover>;
   }, [isTimeBelowMax, showDurationFromStartTime, onChange, value, minutesInterval]);
 
   const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
@@ -61,7 +61,7 @@ const TimePicker = ({
 
     <OverlayTrigger
       onToggle={onToggle}
-      overlay={Popover}
+      overlay={TimeOptionsPopover}
       placement="bottom-start"
       trigger="focus"
     >
