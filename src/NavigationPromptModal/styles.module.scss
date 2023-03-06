@@ -1,5 +1,16 @@
 @import '../common/styles/vars/colors';
 
+@mixin continueButton($background: $bright-red) {
+  align-items: center;
+  border: none;
+  background-color: $background;
+  display: flex;
+  justify-content: center;
+  svg {
+    margin-right: 0.25rem;
+  }
+}
+
 .footer {
   border-top: none;
 
@@ -9,16 +20,13 @@
     color: $secondary-medium-gray;
     margin-right: 0.5rem;
   }
-  
-  .continueButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: $bright-red;
-    border: none;
-  
-    svg {
-      margin-right: 0.25rem;
-    }
+
+  .negativeContinue {
+    @include continueButton;
   }
+
+  .positiveContinue {
+    @include continueButton($primary-button-color);
+  }
+
 }

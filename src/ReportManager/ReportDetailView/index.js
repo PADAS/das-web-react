@@ -26,6 +26,7 @@ import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
+import { useLocation } from 'react-router-dom';
 
 import ActivitySection from '../ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
@@ -61,6 +62,7 @@ const ReportDetailView = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
@@ -157,7 +159,7 @@ const ReportDetailView = ({
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
-  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded;
+  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded || isAddedReport;
 
   const showAddReportButton = !isAddedReport
     && !relationshipButtonDisabled
@@ -436,14 +438,25 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
+  const onNavigationContinue = useCallback((shouldSave = false) => {
+    if (shouldSave) {
+      onSaveReport();
+    } else {
+      if (isAddedReport) {
+        onCancelAddedReport?.();
+      }
+      trackDiscard();
+    }
+  }, [isAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
     if (isAddedReport) {
-      onCancelAddedReport();
+      navigate(location.pathname);
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, navigate, onCancelAddedReport, reportTracker]);
+  }, [isAddedReport, location.pathname, navigate, reportTracker]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -485,7 +498,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    {!isAddedReport && <NavigationPromptModal onContinue={trackDiscard} when={isReportModified && !redirectTo} />}
+    <NavigationPromptModal onContinue={onNavigationContinue} when={!isSaving && isReportModified && !redirectTo} />
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
@@ -569,7 +582,7 @@ const ReportDetailView = ({
             </div>
 
             <div>
-              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+              <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 Cancel
               </Button>
 
@@ -594,8 +607,8 @@ ReportDetailView.defaulProps = {
   isAddedReport: false,
   newReportTypeId: null,
   onAddReport: null,
-  onCancelAddedReport: null,
   onSaveAddedReport: null,
+  onCancelAddedReport: null,
   reportData: null,
 };
 
@@ -610,7 +623,6 @@ ReportDetailView.propTypes = {
   isNewReport: PropTypes.bool.isRequired,
   newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,
-  onCancelAddedReport: PropTypes.func,
   onSaveAddedReport: PropTypes.func,
   reportData: PropTypes.object,
   reportId: PropTypes.string.isRequired,

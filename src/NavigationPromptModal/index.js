@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
@@ -10,9 +10,16 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
+const createContinueHandler = (blocker, onContinue, positive = false) => () => {
+  blocker.proceed();
+
+  onContinue?.(positive);
+};
+
 const NavigationPromptModal = ({
   cancelNavigationButtonText,
-  continueNavigationButtonText,
+  continueNavigationNegativeButtonText,
+  continueNavigationPositiveButtonText,
   description,
   onCancel,
   onContinue,
@@ -28,11 +35,13 @@ const NavigationPromptModal = ({
     onCancel?.();
   }, [blocker, onCancel]);
 
-  const handleContinue = useCallback(() => {
-    blocker.proceed();
+  const handlePositiveContinue = useMemo(() =>
+    createContinueHandler(blocker, onContinue, true)
+  , [blocker, onContinue]);
 
-    onContinue?.();
-  }, [blocker, onContinue]);
+  const handleNegativeContinue = useMemo(() =>
+    createContinueHandler(blocker, onContinue, false)
+  , [blocker, onContinue]);
 
   return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
     <Modal.Header closeButton>
@@ -47,30 +56,41 @@ const NavigationPromptModal = ({
       </Button>
 
       <Button
-        className={styles.continueButton}
-        onClick={handleContinue}
+        className={styles.negativeContinue}
+        onClick={handleNegativeContinue}
         onFocus={(event) => event.target.blur()}
         variant="primary"
       >
         <TrashCanIcon />
-        {continueNavigationButtonText}
+        {continueNavigationNegativeButtonText}
+      </Button>
+
+      <Button
+        className={styles.positiveContinue}
+        onClick={handlePositiveContinue}
+        onFocus={(event) => event.target.blur()}
+        variant="primary"
+      >
+        <TrashCanIcon />
+        {continueNavigationPositiveButtonText}
       </Button>
     </Modal.Footer>
   </Modal>;
 };
 
 NavigationPromptModal.defaultProps = {
-  cancelNavigationButtonText: 'Cancel',
-  continueNavigationButtonText: 'Discard',
-  description: 'Would you like to discard changes?',
+  cancelNavigationButtonText: 'Go Back',
+  continueNavigationNegativeButtonText: 'Discard',
+  continueNavigationPositiveButtonText: 'Save',
+  description: 'You have unsaved changes. Would you like to go back and review them, discard them, or save them?',
   onCancel: null,
   onContinue: null,
-  title: 'Discard changes',
+  title: 'Unsaved Changes',
 };
 
 NavigationPromptModal.propTypes = {
   cancelNavigationButtonText: PropTypes.string,
-  continueNavigationButtonText: PropTypes.string,
+  continueNavigationNegativeButtonText: PropTypes.string,
   description: PropTypes.string,
   onCancel: PropTypes.func,
   onContinue: PropTypes.func,

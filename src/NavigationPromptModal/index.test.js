@@ -43,7 +43,7 @@ describe('NavigationPromptModal', () => {
     </NavigationWrapper>);
 
     await waitFor(async () => {
-      expect((await screen.findByText('Discard changes'))).toBeDefined();
+      expect((await screen.findByText('Unsaved Changes'))).toBeDefined();
     });
   });
 
@@ -53,7 +53,7 @@ describe('NavigationPromptModal', () => {
     </NavigationWrapper>);
 
     await waitFor(async () => {
-      expect((await screen.findByText('Discard changes'))).toBeDefined();
+      expect((await screen.findByText('Unsaved Changes'))).toBeDefined();
     });
   });
 
@@ -83,7 +83,7 @@ describe('NavigationPromptModal', () => {
     </NavigationWrapper>);
 
     const continueButton = await screen.queryByText('Discard');
-    userEvent.click(continueButton);
+    continueButton.click();
 
     await waitFor(async () => {
       expect((await screen.queryByText('Discard changes'))).toBeNull();
@@ -119,11 +119,11 @@ describe('NavigationPromptModal', () => {
       <NavigationPromptModal when />
     </NavigationWrapper>);
 
-    const cancelButton = await screen.queryByText('Cancel');
-    userEvent.click(cancelButton);
+    const goBackButton = await screen.findByText('Go Back');
+    userEvent.click(goBackButton);
 
     await waitFor(async () => {
-      expect((await screen.queryByText('Discard changes'))).toBeNull();
+      expect((await screen.queryByText('Unsaved Changes'))).toBeNull();
     });
   });
 });
