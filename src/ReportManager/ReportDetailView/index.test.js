@@ -757,6 +757,27 @@ describe('ReportManager - ReportDetailView', () => {
           />
       );
 
+      expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('You have unsaved changes. Would you like to go back and review them, discard them, or save them?');
+    });
+
+    test('discarding unsaved changes', async () => {
+      const onCancelAddedReport = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView
+            isAddedReport
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            onCancelAddedReport={onCancelAddedReport}
+            reportId="1234"
+          />
+      );
 
       expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
 
@@ -767,6 +788,41 @@ describe('ReportManager - ReportDetailView', () => {
       discardButton.click();
 
       expect(onCancelAddedReport).toHaveBeenCalledTimes(1);
+    });
+
+    test('saving unsaved changes', async () => {
+      const onSaveSuccess = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView
+            formProps={{ onSaveSuccess }}
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
+      );
+
+      const titleTextBox = await screen.findByTestId('reportManager-header-title');
+      userEvent.type(titleTextBox, '2');
+      userEvent.tab();
+
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      expect(onSaveSuccess).not.toHaveBeenCalled();
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('You have unsaved changes. Would you like to go back and review them, discard them, or save them?');
+
+      const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
+      promptSaveBtn.click();
+
+      await new Promise(res => setTimeout(() => {
+        expect(onSaveSuccess).toHaveBeenCalledTimes(1);
+        res();
+      }));
+
     });
   });
 });

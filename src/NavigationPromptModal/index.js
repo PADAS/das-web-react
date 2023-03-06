@@ -68,6 +68,7 @@ const NavigationPromptModal = ({
       <Button
         className={styles.positiveContinue}
         onClick={handlePositiveContinue}
+        data-testid='navigation-prompt-positive-continue-btn'
         onFocus={(event) => event.target.blur()}
         variant="primary"
       >
