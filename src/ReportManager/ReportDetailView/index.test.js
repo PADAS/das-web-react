@@ -490,7 +490,7 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.click(addNoteButton);
     const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-');
     userEvent.type(noteTextArea, 'note...');
-    const saveNoteButton = await screen.findByText('Save Note');
+    const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
 
     expect(await screen.findByText('Save')).not.toBeDisabled();
