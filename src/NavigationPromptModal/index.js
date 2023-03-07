@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
@@ -9,6 +9,12 @@ import { BLOCKER_STATES } from '../NavigationContextProvider';
 import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
+
+const handleContinue = (blocker, onContinue, positive = false) => {
+  blocker.proceed();
+
+  onContinue?.(positive);
+};
 
 const NavigationPromptModal = ({
   cancelNavigationButtonText,
