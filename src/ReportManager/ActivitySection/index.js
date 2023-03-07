@@ -28,6 +28,8 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
+  onChangeNotes,
+  onCancelNote,
 }) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
   const reportTracker = useContext(TrackerContext);
@@ -112,8 +114,10 @@ const ActivitySection = ({
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
+      onChangeNote={onChangeNotes}
+      onCancelNote={onCancelNote}
     />,
-  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
+  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onChangeNotes, onCancelNote]);
 
   const sortableList = useMemo(() => [
     ...containedReportsRendered,

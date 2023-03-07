@@ -84,6 +84,7 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
+  const [noteHasChanged, setNoteHasChanged] = useState(false);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -153,11 +154,15 @@ const ReportDetailView = ({
     return Object.entries(extractObjectDifference(reportForm, originalReport))
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
+
+  const newNoteHasChanged = () => setNoteHasChanged(true);
+  const onCancelNote = () => setNoteHasChanged(false);
+
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
-  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded;
+  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded || noteHasChanged;
 
   const showAddReportButton = !isAddedReport
     && !relationshipButtonDisabled
@@ -337,6 +342,7 @@ const ReportDetailView = ({
 
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
+    setNoteHasChanged(false);
   }, [notesToAdd]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
@@ -351,7 +357,7 @@ const ReportDetailView = ({
         notes: reportNotes.map((reportNote) => reportNote === originalNote ? editedNote : reportNote),
       });
     }
-
+    setNoteHasChanged(false);
     return editedNote;
   }, [notesToAdd, reportForm, reportNotes, setReportForm]);
 
@@ -539,6 +545,8 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
+                onChangeNotes={newNoteHasChanged}
+                onCancelNote={onCancelNote}
               />
             </QuickLinks.Section>
 
