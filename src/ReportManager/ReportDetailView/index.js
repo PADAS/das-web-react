@@ -155,8 +155,8 @@ const ReportDetailView = ({
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
 
-  const newNoteHasChanged = () => setNoteHasChanged(true);
-  const onCancelNote = () => setNoteHasChanged(false);
+  const newNoteHasChanged = useCallback(() => setNoteHasChanged(true), []);
+  const onCancelNote = useCallback(() => setNoteHasChanged(false), []);
 
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),

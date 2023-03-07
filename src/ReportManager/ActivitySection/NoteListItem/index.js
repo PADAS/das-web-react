@@ -58,7 +58,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const onChangeTextArea = useCallback((event) => {
     const text = !event.target.value.trim() ? '' : event.target.value;
     setText(text);
-    onChangeNote && onChangeNote({ ...note, text });
+    onChangeNote?.({ ...note, text });
   }, [onChangeNote, note]);
 
   const onClickCancelButton = useCallback(() => {
@@ -69,7 +69,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       reportTracker.track('Cancel editing existing note');
       setText(note.text);
     }
-    onCancelNote();
+    onCancelNote?.();
     setIsEditing(false);
   }, [isNewAndUnAdded, onDelete, note.text, reportTracker, onCancelNote]);
 
@@ -181,6 +181,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
 NoteListItem.defaultProps = {
   onDelete: null,
+  onChangeNote: null,
+  onCancelNote: null,
 };
 
 NoteListItem.propTypes = {
@@ -196,6 +198,8 @@ NoteListItem.propTypes = {
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  onChangeNote: PropTypes.func,
+  onCancelNote: PropTypes.func,
 };
 
 export default memo(forwardRef(NoteListItem));

@@ -204,6 +204,11 @@ const ActivitySection = ({
   </div>;
 };
 
+ActivitySection.defaultProps = {
+  onChangeNote: null,
+  onCancelNote: null,
+};
+
 ActivitySection.propTypes = {
   attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
@@ -231,6 +236,8 @@ ActivitySection.propTypes = {
     id: PropTypes.string,
     updated_at: PropTypes.string,
   })).isRequired,
+  onChangeNote: PropTypes.func,
+  onCancelNote: PropTypes.func,
 };
 
 export default memo(ActivitySection);
