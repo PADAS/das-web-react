@@ -10,12 +10,6 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
-const createContinueHandler = (blocker, onContinue, positive = false) => () => {
-  blocker.proceed();
-
-  onContinue?.(positive);
-};
-
 const NavigationPromptModal = ({
   cancelNavigationButtonText,
   continueNavigationNegativeButtonText,
@@ -35,12 +29,12 @@ const NavigationPromptModal = ({
     onCancel?.();
   }, [blocker, onCancel]);
 
-  const handlePositiveContinue = useMemo(() =>
-    createContinueHandler(blocker, onContinue, true)
+  const handlePositiveContinue = useCallback(() =>
+    handleContinue(blocker, onContinue, true)
   , [blocker, onContinue]);
 
-  const handleNegativeContinue = useMemo(() =>
-    createContinueHandler(blocker, onContinue, false)
+  const handleNegativeContinue = useCallback(() =>
+    handleContinue(blocker, onContinue, false)
   , [blocker, onContinue]);
 
   return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
