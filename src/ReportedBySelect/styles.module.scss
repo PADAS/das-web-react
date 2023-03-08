@@ -17,6 +17,7 @@
   }
 
   &:active, &:hover {
+    cursor: pointer;
     div {
       background-color: rgba($bright-blue, 0.3);
       color: white;
