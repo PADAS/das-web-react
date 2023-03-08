@@ -32,7 +32,7 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License](LINK_TO_LICENSE_FILE_HERE) that covers the project. Feel free to contact the maintainers if that's a concern.
 
 ## Report bugs using Github's [issues](https://github.com/briandk/transcriptase-atom/issues)
-We use GitHub issues to track public bugs. Report a bug by [opening a new issue](); it's that easy!
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue]().
 
 **When filing a bug report**, make sure to include:
 - A quick summary and/or background
@@ -55,7 +55,7 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 
 ## The Lifecycle of a Pull Request
 1. First a contributor will file their pull request, adhering to the standards of the pull request template. Reviewers may return the PR to the contributor if the template is not filled completely.
-2. Reviewers within the EarthRanger core team will review the code, explore its functionality, and evaluate it. This is on an ad hoc basis, so no time boundaries are guaranteed, but we will always put in our best effort to review in a timely manner.
+2. Reviewers within the EarthRanger core team will review the code, explore its functionality, and evaluate it. This is on an ad hoc basis, with no guaranteed time boundaries, but we will always put in our best effort to review in a timely manner.
 3. Comments, approvals, and change requests will be issued by the EarthRanger team's reviewers. If any changes are necessary, the pull request will be re-assigned to the contributor for further work and review. Once the contributor's work is ready for re-review, they simply click the "request re-review" button next to each reviewer's name to trigger another cycle of review.
 4. Once work has been reviewed and approved by the EarthRanger core team, it will be merged into the `develop` branch where it will undergo full regression testing before releasing into production.
 
