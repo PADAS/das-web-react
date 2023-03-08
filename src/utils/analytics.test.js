@@ -5,6 +5,8 @@ let tracker;
 
 beforeEach(() => {
   tracker = jest.fn();
+
+  jest.useFakeTimers();
 });
 
 test('it will trigger track for provided category', () => {
@@ -20,9 +22,9 @@ test('it will trigger track after specific delay by calling debouncedTrack', asy
   const debounceTracker = mapInteractionTracker.debouncedTrack(10);
   debounceTracker('my action', 'my label');
 
-  await waitFor(() => {
-    expect(tracker).toHaveBeenCalledWith(REPORTS_CATEGORY, 'my action', 'my label');
-    expect(tracker).toHaveBeenCalledTimes(1);
-  }, { timeout: 60 });
+  jest.runAllTimers();
+
+  expect(tracker).toHaveBeenCalledWith(REPORTS_CATEGORY, 'my action', 'my label');
+  expect(tracker).toHaveBeenCalledTimes(1);
 
 });

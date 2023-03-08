@@ -128,6 +128,7 @@ describe('Map', () => {
         user: { permissions: [] },
       },
       view: {
+        featureFlagOverrides: {},
         heatmapSubjectIDs: [],
         homeMap: { center: [] },
         mapClusterConfig: {},

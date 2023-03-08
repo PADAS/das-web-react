@@ -1,16 +1,16 @@
 import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import TimeAgo from '../TimeAgo';
 
 import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
-import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
+import Select from '../Select';
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 
@@ -35,7 +35,6 @@ const ReportedBySelect = (props) => {
 
   const optionalProps = {};
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     valueContainer: (provided) => ({
       ...provided,
       maxHeight: '12rem',
@@ -46,7 +45,7 @@ const ReportedBySelect = (props) => {
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
     selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
-  };
+  }
 
   const selected = useMemo(() => {
     if (!Boolean(value)) return null;
@@ -155,6 +154,7 @@ const ReportedBySelect = (props) => {
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
+    menuShouldScrollIntoView={false}
     {...optionalProps}
   />;
 };

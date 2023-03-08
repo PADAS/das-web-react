@@ -491,7 +491,7 @@ describe('ReportManager - DetailsSection', () => {
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
 
-    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
     expect(onReportTimeChange).toHaveBeenCalledTimes(0);

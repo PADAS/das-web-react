@@ -1,19 +1,18 @@
 import React, { useCallback, memo } from 'react';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import PropTypes from 'prop-types';
 
 import {
-  DEFAULT_SELECT_STYLES,
   REPORT_PRIORITIES,
   REPORT_PRIORITY_HIGH, REPORT_PRIORITY_LOW, REPORT_PRIORITY_MEDIUM
 } from '../constants';
 
 import styles from './styles.module.scss';
+import Select from '../Select';
 
 const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
   const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     valueContainer: (provided) => ({
       ...provided,
       maxHeight: '12rem',

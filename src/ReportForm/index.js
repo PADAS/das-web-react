@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS, VALID_EVENT_GEOMETRY_TYPES } from '../constants';
+import { FEATURE_FLAG_LABELS, TAB_KEYS, VALID_EVENT_GEOMETRY_TYPES } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
@@ -24,6 +24,7 @@ import {
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
+import { useFeatureFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import { addModal } from '../ducks/modals';
@@ -49,7 +50,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const ACTIVE_STATES = ['active', 'new'];
 
@@ -62,6 +63,9 @@ const ReportForm = (props) => {
     fetchPatrol } = props;
 
   const navigate = useNavigate();
+
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -353,7 +357,7 @@ const ReportForm = (props) => {
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
-      if (ENABLE_REPORT_NEW_UI) {
+      if (enableNewReportUI) {
         navigate(`/${TAB_KEYS.REPORTS}/${data.id}`, null, { formProps });
       } else {
         openModalForReport(data, map, formProps);
@@ -410,14 +414,14 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-      if (ENABLE_REPORT_NEW_UI) {
+      if (enableNewReportUI) {
         navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
       } else {
         openModalForReport(data, map);
       }
       removeModal();
     });
-  }, [addEventToIncident, createEvent, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
+  }, [addEventToIncident, createEvent, enableNewReportUI, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
@@ -426,14 +430,14 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
-      if (ENABLE_REPORT_NEW_UI) {
+      if (enableNewReportUI) {
         navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
       } else {
         openModalForReport(data, map);
       }
       removeModal();
     });
-  }, [addEventToIncident, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
+  }, [addEventToIncident, enableNewReportUI, fetchEvent, map, removeModal, reportTracker, saveChanges, navigate]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
     const patrolId = patrol.id;
@@ -446,14 +450,14 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (ENABLE_PATROL_NEW_UI) {
+    if (enableNewPatrolUI) {
       return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
     }
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, navigate]);
+  }, [enableNewPatrolUI, fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, navigate]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -479,7 +483,7 @@ const ReportForm = (props) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
-              if (ENABLE_REPORT_NEW_UI) {
+              if (enableNewReportUI) {
                 return navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
               } else {
                 openModalForReport(data, map);
@@ -494,7 +498,7 @@ const ReportForm = (props) => {
             return fetchEvent(incidentID).then((results) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
-              if (ENABLE_REPORT_NEW_UI) {
+              if (enableNewReportUI) {
                 navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
               } else {
                 openModalForReport(data, map);

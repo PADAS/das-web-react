@@ -1,7 +1,9 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+
+import { TrackerContext } from '../../../utils/analytics';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
@@ -21,8 +23,10 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand, reportTracker }) => {
+const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref = null) => {
   const dispatch = useDispatch();
+
+  const reportTracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
@@ -36,18 +40,21 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   const onShowImageFullScreen = useCallback((event) => {
     event.stopPropagation();
 
+    reportTracker.track('View fullscreen image from activity section');
+
     dispatch(addModal({
       content: ImageModal,
       src: currentImageSource,
       title: attachment.filename,
+      tracker: reportTracker,
       url: attachment.url,
     }));
-  }, [attachment.filename, attachment.url, currentImageSource, dispatch]);
+  }, [attachment.filename, attachment.url, currentImageSource, dispatch, reportTracker]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
 
-    reportTracker.track('Open Report Attachment');
+    reportTracker.track('Download report attachment');
   }, [attachment.filename, attachment.url, reportTracker]);
 
   useEffect(() => {
@@ -84,7 +91,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   }, [attachment.file_type, attachment.images?.original]);
 
   if (attachment.file_type === 'image') {
-    return <li className={isOpen ? styles.openItem : ''}>
+    return <li className={isOpen ? styles.openItem : ''} ref={ref}>
       <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse : onExpand}>
         {!!imageIconSource
           ? <img
@@ -139,7 +146,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     </li>;
   }
 
-  return <li className={styles.itemRow}>
+  return <li className={styles.itemRow} ref={ref}>
     <div className={styles.itemIcon}>
       <AttachmentIcon />
     </div>
@@ -196,4 +203,4 @@ AttachmentListItem.propTypes = {
   }),
 };
 
-export default memo(AttachmentListItem);
+export default memo(forwardRef(AttachmentListItem));

@@ -2,10 +2,24 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TrackerContext } from '../../../utils/analytics';
+
 import NoteListItem from '.';
 
+
+
 describe('ReportManager - ActivitySection - Note', () => {
+  const saveButtonText = 'Done';
   const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), onSave = jest.fn();
+  let Wrapper, renderWithWrapper;
+
+  beforeEach(() => {
+    Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
+      <TrackerContext.Provider value={{ track: jest.fn() }}>
+        {children}
+      </TrackerContext.Provider>;
+    renderWithWrapper = Component => render(Component, { wrapper: Wrapper });
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -13,7 +27,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('sets the name New note to a new added note', async () => {
     const note = { text: '' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -27,7 +41,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('adds the text New note: before the note text if the note is not part of the report yet', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -42,7 +56,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('does not add the text New note: if the note is saved in the report already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -55,7 +69,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('shows the date time of the last update of the note if it is saved in the report already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -68,7 +82,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('does not show the date time if it is a new note', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -82,7 +96,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('user can delete a new note', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -101,7 +115,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('user can not delete an existing note', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -114,7 +128,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('user can edit a note', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[]}
       note={note}
       onCollapse={onCollapse}
@@ -124,20 +138,20 @@ describe('ReportManager - ActivitySection - Note', () => {
     />);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', true);
 
     const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
     userEvent.click(editButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
-    expect((await screen.findByText('Save Note'))).toBeDefined();
+    expect((await screen.findByText(saveButtonText))).toBeDefined();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', false);
   });
 
   test('user can open the note collapsible', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[]}
       note={note}
       onCollapse={onCollapse}
@@ -157,7 +171,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('user can close the note collapsible', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -177,7 +191,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('user can cancel the edit of a note', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -200,12 +214,12 @@ describe('ReportManager - ActivitySection - Note', () => {
     userEvent.click(cancelButton);
 
     expect(noteTextArea).toHaveTextContent('note');
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
   });
 
   test('user can save edits to a new note', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -226,17 +240,17 @@ describe('ReportManager - ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('edition');
 
-    const saveButton = await screen.findByText('Save Note');
+    const saveButton = await screen.findByText(saveButtonText);
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
   });
 
   test('user can not type an empty space at the beginning of a note', async () => {
     const note = { text: '' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -257,7 +271,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('empty spaces at the end of a note get trimmed before saving', async () => {
     const note = { text: 'note' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}
@@ -272,7 +286,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition     ');
-    const saveButton = await screen.findByText('Save Note');
+    const saveButton = await screen.findByText(saveButtonText);
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
@@ -281,7 +295,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   test('edit button is disabled while editing a new empty note', async () => {
     const note = { text: '' };
-    render(<NoteListItem
+    renderWithWrapper(<NoteListItem
       cardsExpanded={[note]}
       note={note}
       onCollapse={onCollapse}

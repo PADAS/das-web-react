@@ -23,7 +23,15 @@ describe('AddReport', () => {
   let map, navigate, store, useNavigateMock;
   beforeEach(() => {
     map = createMapMock();
-    store = mockStore({ data: { eventTypes } });
+    store = mockStore({
+      data: {
+        eventTypes
+      },
+      view: {
+        featureFlagOverrides: {}
+      }
+    }
+    );
 
     render(
       <Provider store={store}>

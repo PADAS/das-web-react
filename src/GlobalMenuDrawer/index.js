@@ -16,17 +16,18 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  FEATURE_FLAGS,
+  SYSTEM_CONFIG_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
+import BetaToggles from './BetaToggles';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
@@ -62,9 +63,9 @@ const GlobalMenuDrawer = ({
   selectedUserProfile,
   user,
 }) => {
-  const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
-  const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const dailyReportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.DAILY_REPORT);
+  const kmlExportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.KML_EXPORT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
@@ -227,6 +228,9 @@ const GlobalMenuDrawer = ({
       <div className={styles.section}>
         <h6>EXPORTS</h6>
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
+      </div>
+      <div className={styles.section}>
+        <BetaToggles />
       </div>
     </div>
 

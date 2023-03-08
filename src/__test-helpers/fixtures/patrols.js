@@ -1098,7 +1098,7 @@ export const newPatrol = {
   ],
   'files': [],
   'notes': [],
-  'title': null
+  'title': 'title'
 };
 
 const today = new Date();
@@ -1324,7 +1324,7 @@ export const overduePatrol = {
   'state': 'open',
   'objective': 'very ambitious objective',
   'serial_number': 1551,
-  'title': null,
+  'title': 'title',
   'files': [],
   'notes': [],
   'patrol_segments': [
@@ -1461,7 +1461,7 @@ export const donePatrol = {
   'state': 'done',
   'objective': null,
   'serial_number': 1647,
-  'title': null,
+  'title': 'title',
   'files': [],
   'notes': [],
   'patrol_segments': [
@@ -1686,6 +1686,7 @@ export const patrolDefaultStoreData = {
     }],
   },
   view: {
+    featureFlagOverrides: {},
     timeSliderState: {
       active: false
     },

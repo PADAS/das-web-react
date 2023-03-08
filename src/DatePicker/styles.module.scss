@@ -44,12 +44,15 @@
 
 .inputWrapper {
   @include defaultTextInput;
-
   align-items: center;
   display: flex;
   height: 2.5rem;
   position: relative;
   width: 100%;
+
+  &.disabled {
+    background-color: $disabled-field-gray;
+  }
 
   svg {
     box-sizing: border-box;
@@ -67,6 +70,7 @@
     border: none;
     font-size: 1rem;
     padding: 0 0 0 2rem;
+    width: 100%;
 
     &::placeholder {
       font-size: 0.875rem;
@@ -74,9 +78,7 @@
   }
 
   .triangle {
-    border-color: $secondary-medium-light-gray transparent transparent transparent;
-    border-style: solid;
-    border-width: 0.375rem 0.25rem 0 0.25rem;
+    @include dropdown-caret;
     position: absolute;
     right: 0.5rem;
     top: 45%;

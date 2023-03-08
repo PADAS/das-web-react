@@ -15,7 +15,6 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
-  DEVELOPMENT_FEATURE_FLAGS,
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
@@ -33,8 +32,6 @@ const {
   EVENT_GEOMETRY_LAYER,
   SUBJECT_SYMBOLS,
 } = LAYER_IDS;
-
-const { ENABLE_EVENT_GEOMETRY } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
@@ -288,7 +285,7 @@ const EventsLayer = ({
         />
       </>}
 
-      {ENABLE_EVENT_GEOMETRY && isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
+      {isEventsLayerReady && <EventGeometryLayer onClick={onEventSymbolClick} />}
     </>}
 
     {!!eventPointFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer

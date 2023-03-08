@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
@@ -9,13 +8,12 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { fetchPatrols } from '../ducks/patrols';
+import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
-import { getPatrolList } from '../selectors/patrols';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useSystemConfigFlag, usePermissions } from '../hooks';
+import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -31,7 +29,7 @@ import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
-import PatrolsTab from './PatrolsTab';
+import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
@@ -39,16 +37,14 @@ import styles from './styles.module.scss';
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
-  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const patrolFilter = useSelector((state) => state.data.patrolFilter);
-  const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
 
-  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+  const reportsFeed = useFetchReportsFeed();
 
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
@@ -58,22 +54,12 @@ const SideBar = () => {
 
   const sidebarOpen = !!currentTab;
 
-  const patrolFetchRef = useRef(null);
-
-  const [loadingPatrols, setPatrolLoadState] = useState(true);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
-
-  const patrolFilterParams = useMemo(() => {
-    const filterParams = cloneDeep(patrolFilter);
-    delete filterParams.filter.overlap;
-
-    return filterParams;
-  }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
@@ -87,17 +73,6 @@ const SideBar = () => {
       return '';
     }
   }, [currentTab]);
-
-  const fetchAndLoadPatrolData = useCallback(() => {
-    patrolFetchRef.current = dispatch(fetchPatrols());
-
-    patrolFetchRef.current.request
-      .finally(() => {
-        setPatrolLoadState(false);
-        patrolFetchRef.current = null;
-      });
-
-  }, [dispatch]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
@@ -132,22 +107,6 @@ const SideBar = () => {
       };
     }
   }, [sidebarOpen, currentTab, socket]);
-
-  // fetch patrols if filter itself has changed
-  useEffect(() => {
-    if (showPatrols) {
-      setPatrolLoadState(true);
-      fetchAndLoadPatrolData();
-
-      return () => {
-        const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
-
-        if (priorRequestCancelToken) {
-          priorRequestCancelToken.cancel();
-        }
-      };
-    }
-  }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
     if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {
@@ -199,7 +158,13 @@ const SideBar = () => {
                 />}
             </div>
 
-            <h3>{tabTitle}</h3>
+            <h3>{tabTitle}
+              <Routes>
+                <Route path="reports">
+                  <Route path=":id/*" element={<span className={styles.betaPreviewLabel}> (Beta Preview)</span>} />
+                </Route>
+              </Routes>
+            </h3>
 
             <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
               <CrossIcon />
@@ -212,20 +177,21 @@ const SideBar = () => {
               <Route path="/" element={null} />
 
               <Route path="reports">
-                <Route index element={<ReportsFeedTab />} />
+                <Route index element={<ReportsFeedTab
+                  feedSort={reportsFeed.feedSort}
+                  loadFeedEvents={reportsFeed.loadFeedEvents}
+                  loadingEventFeed={reportsFeed.loadingEventFeed}
+                  setFeedSort={reportsFeed.setFeedSort}
+                  shouldExcludeContained={reportsFeed.shouldExcludeContained}
+                />} />
 
                 <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
-              {/* TODO: Remove Outlet and follow the same approach than in /reports */}
-              <Route
-                path="patrols"
-                element={<PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />}
-              >
-                <Route
-                  path=":id/*"
-                  element={<PatrolDetailView className={styles.patrolDetailView} />}
-                />
+              <Route path="patrols">
+                <Route index element={<PatrolsFeedTab />} />
+
+                <Route path=":id/*" element={<PatrolDetailView />} />
               </Route>
 
               <Route

@@ -71,12 +71,24 @@
 }
 
 .dateTimeWidget {
+  display: flex;
   height: 2.5rem;
   width: 100%;
 
-  span {
-    text-align: left;
-    width: 100%;
+  .datePicker {
+    flex: 1;
+    width: 0;
+
+    span {
+      text-align: left;
+      width: 100%;
+    }
+  }
+
+  .timePicker {
+    flex: 1;
+    margin-left: 0.5rem;
+    width: 0;
   }
 }
 

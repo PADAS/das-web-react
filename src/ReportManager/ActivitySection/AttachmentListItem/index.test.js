@@ -3,6 +3,8 @@ import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TrackerContext } from '../../../utils/analytics';
+
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { mockStore } from '../../../__test-helpers/MockStore';
@@ -20,6 +22,7 @@ jest.mock('../../../utils/file', () => ({
 }));
 
 describe('ReportManager - ActivitySection - AttachmentListItem', () => {
+  let Wrapper, renderWithWrapper;
   const savedImageAttachment = {
     file_type: 'image',
     id: '1234',
@@ -28,7 +31,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
   };
   const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), track = jest.fn();
-  let downloadFileFromUrlMock, fetchImageAsBase64FromUrlMock, store;
+  let downloadFileFromUrlMock, fetchImageAsBase64FromUrlMock, store, mockStoreInstance;
   beforeEach(() => {
     downloadFileFromUrlMock = jest.fn();
     downloadFileFromUrl.mockImplementation(downloadFileFromUrlMock);
@@ -36,6 +39,19 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
     store = { data: {}, view: { fullScreenImage: {} } };
+
+    mockStoreInstance = mockStore(store);
+
+
+    Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
+      <Provider store={mockStoreInstance}>
+        <TrackerContext.Provider value={{ track: jest.fn() }}>
+          {children}
+        </TrackerContext.Provider>
+      </Provider>;
+
+    renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+
   });
 
   afterEach(() => {
@@ -43,9 +59,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('sets the filename as the title if it is defined', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem
+    renderWithWrapper(
+      <AttachmentListItem
           attachment={{
             filename: 'file.txt',
             id: '1234',
@@ -54,7 +69,6 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
           }}
           reportTracker={{ track }}
         />
-      </Provider>
     );
 
     const title = await screen.findByText('file.txt');
@@ -64,10 +78,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('sets the name as the title if a filename is not defined', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
     );
 
     const title = await screen.findByText('file.txt');
@@ -77,9 +89,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('shows the last update time if it is an existing attachment', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem
+    renderWithWrapper(
+      <AttachmentListItem
           attachment={{
             filename: 'file.txt',
             id: '1234',
@@ -88,16 +99,14 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
           }}
           reportTracker={{ track }}
         />
-      </Provider>
     );
 
     expect((await screen.findByTestId('reportManager-activitySection-dateTime-1234'))).toBeDefined();
   });
 
   test('user can download existing attachments', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem
+    renderWithWrapper(
+      <AttachmentListItem
           attachment={{
             filename: 'file.txt',
             id: '1234',
@@ -106,7 +115,6 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
           }}
           reportTracker={{ track }}
         />
-      </Provider>
     );
 
     expect(downloadFileFromUrl).toHaveBeenCalledTimes(0);
@@ -119,9 +127,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('user can not delete existing attachments', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem
+    renderWithWrapper(
+      <AttachmentListItem
           attachment={{
             filename: 'file.txt',
             id: '1234',
@@ -130,17 +137,14 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
           }}
           reportTracker={{ track }}
         />
-      </Provider>
     );
 
     expect((await screen.queryByText('trash-can.svg'))).toBeNull();
   });
 
   test('user can not download new attachments', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
     );
 
     expect((await screen.queryByText('download-arrow.svg'))).toBeNull();
@@ -148,10 +152,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
 
   test('user can delete new attachments', async () => {
     const attachment = { name: 'file.txt' };
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} onDelete={onDelete} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={attachment} onDelete={onDelete} />
     );
 
     expect(onDelete).toHaveBeenCalledTimes(0);
@@ -163,10 +165,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('saved images are collapsibles', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect((await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'))))
@@ -174,10 +174,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('fetches the different image sizes for saved images', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledTimes(3);
@@ -188,10 +186,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
 
   test('does not render collapsibles nor fetches images for non saved images', async () => {
     const attachment = { name: 'file.png' };
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={attachment} onDelete={onDelete} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={attachment} onDelete={onDelete} />
     );
 
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledTimes(0);
@@ -203,11 +199,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
@@ -215,20 +208,19 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     const expandArrowIcon = await screen.findByText('expand-arrow.svg');
     userEvent.click(expandArrowIcon);
 
-    expect(mockStoreInstance.getActions()).toHaveLength(1);
-    expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
-    expect(mockStoreInstance.getActions()[0].payload.src).toEqual('original');
+    await waitFor(() => {
+      expect(mockStoreInstance.getActions()).toHaveLength(1);
+      expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
+      expect(mockStoreInstance.getActions()[0].payload.src).toEqual('original');
+    });
   });
 
   test('opens the thumbnail of an existing image in fullscreen when pressing the expand icon if the original is not loaded yet', async () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => url === 'original' ? undefined : Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
@@ -242,10 +234,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('user can open the image collapsible', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(onExpand).toHaveBeenCalledTimes(0);
@@ -258,15 +248,13 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
   });
 
   test('user can close the image collapsible', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem
+    renderWithWrapper(
+      <AttachmentListItem
           attachment={savedImageAttachment}
           cardsExpanded={[savedImageAttachment]}
           onCollapse={onCollapse}
           onExpand={onExpand}
         />
-      </Provider>
     );
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
@@ -282,11 +270,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     fetchImageAsBase64FromUrlMock = jest.fn((url) => Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
@@ -305,10 +290,8 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
       : Promise.resolve(url));
     fetchImageAsBase64FromUrl.mockImplementation(fetchImageAsBase64FromUrlMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
-      </Provider>
+    renderWithWrapper(
+      <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
     const expandedImage = await screen.findByRole('img');

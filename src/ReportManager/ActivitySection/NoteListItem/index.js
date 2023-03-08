@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
@@ -9,6 +9,8 @@ import { ReactComponent as NoteIcon } from '../../../common/images/icons/note.sv
 import { ReactComponent as PencilIcon } from '../../../common/images/icons/pencil.svg';
 import { ReactComponent as TrashCanIcon } from '../../../common/images/icons/trash-can.svg';
 
+import { TrackerContext } from '../../../utils/analytics';
+
 import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
 
@@ -16,6 +18,8 @@ import styles from '../styles.module.scss';
 
 const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }, ref = null) => {
   const textareaRef = useRef();
+
+  const reportTracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !note.id, [note.id]);
   const isNewAndUnAdded = useMemo(() => isNew && !note.text, [isNew, note.text]);
@@ -34,26 +38,35 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
 
+    reportTracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
+
     onDelete();
-  }, [onDelete]);
+  }, [reportTracker, onDelete, isNew]);
 
   const onClickPencilIcon = useCallback((event) => {
+    const newEditState = !isOpen || !isEditing;
+
     event.stopPropagation();
 
     onExpand();
-    setIsEditing(!isOpen || !isEditing);
-  }, [isEditing, isOpen, onExpand]);
+
+    reportTracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
+
+    setIsEditing(newEditState);
+  }, [reportTracker, isEditing, isNew, isOpen, onExpand]);
 
   const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
+      reportTracker.track('Cancel writing new note');
       onDelete();
     } else {
+      reportTracker.track('Cancel editing existing note');
       setText(note.text);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, onDelete, note.text]);
+  }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -64,9 +77,11 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       text: trimmedText,
     };
 
+    reportTracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
+
     onSave(newNote);
     setText(trimmedText);
-  }, [note, onSave, text]);
+  }, [isNew, note, onSave, reportTracker, text]);
 
   useEffect(() => {
     if (isEditing) {
@@ -150,8 +165,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
             Cancel
           </Button>
 
-          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button">
-            Save Note
+          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
+            Done
           </Button>
         </div>}
       </div>

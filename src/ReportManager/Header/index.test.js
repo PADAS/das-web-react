@@ -3,38 +3,58 @@ import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TrackerContext } from '../../utils/analytics';
+
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import Header from './';
+
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('ReportManager - Header', () => {
+  let store = mockStore({
+    data: {
+      eventTypes,
+      patrolTypes,
+    },
+    view: {
+      featureFlagOverrides: {},
+    },
+  });
+
   const onChangeTitle = jest.fn();
+  let Wrapper, renderWithWrapper;
+
+  beforeEach(() => {
+
+    Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
+      <Provider store={store}>
+        <NavigationWrapper>
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            {children}
+          </TrackerContext.Provider>
+        </NavigationWrapper>
+      </Provider>;
+
+    renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+  });
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('renders correctly case of a 300 priority report', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect((await screen.findByTestId('reportDetailHeader-icon'))).toHaveClass('priority-300');
   });
 
   test('sets the display title as the title if it was empty without changing the form', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect((await screen.findByTestId('reportManager-header-title'))).toHaveTextContent('Light');
@@ -43,12 +63,8 @@ describe('ReportManager - Header', () => {
 
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
     report.title = 'Light';
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -63,12 +79,8 @@ describe('ReportManager - Header', () => {
 
   test('sets the event type title if user leaves the title input empty', async () => {
     report.title = 'Light';
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -81,12 +93,8 @@ describe('ReportManager - Header', () => {
 
   test('shows the event type label if the title does not match the event type title', async () => {
     report.title = 'Report!';
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     const eventTypeLabel = await screen.findByTestId('reportManager-header-eventType');
@@ -96,24 +104,16 @@ describe('ReportManager - Header', () => {
 
   test('doest not show the event type label if the title matches the event type title', async () => {
     report.title = 'Light';
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect((await screen.queryByTestId('reportManager-header-eventType'))).toBeNull();
   });
 
   test('renders the priority and date values if report is not new', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect(await screen.findByTestId('reportManager-header-priorityAndDate')).toBeDefined();
@@ -121,24 +121,16 @@ describe('ReportManager - Header', () => {
 
   test('does not render the priority and date values if report is new', async () => {
     report.id = undefined;
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect(await screen.queryByTestId('reportManager-header-priorityAndDate')).toBeNull();
   });
 
   test('renders the location jump button if the report has coordinates', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect(await screen.findByTitle('Jump to this location')).toBeDefined();
@@ -146,24 +138,16 @@ describe('ReportManager - Header', () => {
 
   test('does not render the location jump button if the report does not have coordinates', async () => {
     report.geojson.geometry.coordinates = null;
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     expect(await screen.queryByTitle('Jump to this location')).toBeNull();
   });
 
   test('rendering a small "p" indicator if the report is associated with patrols', async () => {
-    const { rerender } = render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+    const { rerender } = renderWithWrapper(
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     let reportIcon = await screen.queryByRole('img');
@@ -172,11 +156,7 @@ describe('ReportManager - Header', () => {
     report.patrols = ['dfasd-x-adfasxf-1'];
 
     rerender(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <NavigationWrapper>
-          <Header report={report} onChangeTitle={onChangeTitle} />
-        </NavigationWrapper>
-      </Provider>
+      <Header report={report} onChangeTitle={onChangeTitle} />
     );
 
     reportIcon = await screen.queryByRole('img');

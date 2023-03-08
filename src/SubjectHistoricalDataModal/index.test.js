@@ -10,7 +10,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { GPS_FORMATS } from '../utils/location';
 import mockedObservationsData from '../__test-helpers/fixtures/observations';
 
-import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties } from './';
+import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties, SORT_BY } from './';
 
 jest.mock('../ducks/observations', () => ({
   ...jest.requireActual('../ducks/observations'),
@@ -34,7 +34,7 @@ describe('SubjectHistoricalDataModal', () => {
       <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
     </Provider>);
 
-    expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
+    expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
   });
 
   describe('rendering table correctly', () => {
@@ -100,7 +100,7 @@ describe('SubjectHistoricalDataModal', () => {
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
 
       await waitFor(() => {
         paginationListItems = screen.getAllByRole('listitem');
@@ -110,7 +110,7 @@ describe('SubjectHistoricalDataModal', () => {
       expect(pageLink).toHaveTextContent('2');
       userEvent.click(pageLink);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 2, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 2, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
     });
   });
 });
