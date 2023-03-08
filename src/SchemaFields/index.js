@@ -367,7 +367,6 @@ export const DateTimeWidget = ({
         disabled={disabled}
         minutesInterval={15}
         onChange={handleTimeChange}
-        optionsToDisplay={96}
         readOnly={readonly}
         required={required}
         value={getHoursAndMinutesString(date) || '00:00'}

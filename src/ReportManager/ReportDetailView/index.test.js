@@ -222,11 +222,11 @@ describe('ReportManager - ReportDetailView', () => {
 
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
-    const optionsList = await screen.findByTestId('timePicker-popoverOptionsList');
+    const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '04:00');
+    expect(timeInput).toHaveAttribute('value', '00:30');
   });
 
   test('updates the JSON form schema when user does a change', async () => {

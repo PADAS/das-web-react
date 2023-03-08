@@ -156,7 +156,6 @@ const PlanSection = ({
             <TimePicker
               minutesInterval={15}
               onChange={handleStartTimeChange}
-              optionsToDisplay={96}
               value={getHoursAndMinutesString(startDate)}
             />
           </label>
@@ -207,7 +206,6 @@ const PlanSection = ({
             <TimePicker
               minutesInterval={15}
               onChange={handleEndTimeChange}
-              optionsToDisplay={96}
               showDurationFromStartTime={!endDate || startDate?.toDateString() === endDate?.toDateString()}
               startTime={getHoursAndMinutesString(startDate)}
               value={getHoursAndMinutesString(endDate)}

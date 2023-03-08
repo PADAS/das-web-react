@@ -1,24 +1,12 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import addMinutes from 'date-fns/add_minutes';
-import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
+import React, { memo, useCallback, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
-import {
-  durationHumanizer,
-  getHoursAndMinutesString,
-  getUserLocaleTime,
-  HUMANIZED_DURATION_CONFIGS,
-} from '../utils/datetime';
-
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
-
-const timeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
-timeConfig.units = ['h', 'm'];
-const getHumanizedTimeDuration =  durationHumanizer(timeConfig);
+import TimeOptions from './TimeOptions';
 
 const TimePicker = ({
   className,
@@ -26,7 +14,6 @@ const TimePicker = ({
   minutesInterval,
   onChange,
   onKeyDown,
-  optionsToDisplay,
   showDurationFromStartTime,
   startTime,
   value,
@@ -34,55 +21,19 @@ const TimePicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [writtenValue, setWrittenValue] = useState(null);
-
   const isTimeBelowMax = useCallback((time) => !maxTime || maxTime >= time, [maxTime]);
 
-  const TimeOptionsPopover = useMemo(() => {
-    const initialTimeParts = (startTime || value).split(':');
-    const initialTimeDate = new Date();
-    initialTimeDate.setHours(initialTimeParts[0], initialTimeParts[1], '00');
-
-    const millisecondsInterval = 1000 * 60 * minutesInterval;
-    initialTimeDate.setTime(Math.floor(initialTimeDate.getTime() / millisecondsInterval) * millisecondsInterval);
-
-    const options = [];
-    let accumulatedMinutes = minutesInterval;
-
-    while (options.length < optionsToDisplay) {
-      const dateWithAccumulation = addMinutes(initialTimeDate, accumulatedMinutes);
-      const timeValue = getHoursAndMinutesString(dateWithAccumulation);
-      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
-
-      options.push({
-        disabled: !isTimeBelowMax(timeValue),
-        display: timeDisplay,
-        duration: showDurationFromStartTime
-          ? ` (${getHumanizedTimeDuration(differenceInMilliseconds(dateWithAccumulation, initialTimeDate))})`
-          : null,
-        value: timeValue,
-      });
-
-      accumulatedMinutes += minutesInterval;
-    }
-
-    if (options.slice(-1)?.[0]?.value === value) {
-      options.pop();
-    }
-
-    return <Popover className={styles.popoverOptions}>
-      <ul data-testid="timePicker-popoverOptionsList">
-        {options.map((option) => <li
-          className={option.disabled ? styles.disabled : ''}
-          key={option.value}
-          onClick={() => !option.disabled && onChange(option.value)}
-          onMouseDown={(event) => option.disabled && event.preventDefault()}
-        >
-          <span>{option.display}</span>
-          {option.duration && <span>{option.duration}</span>}
-        </li>)}
-      </ul>
+  const TimeOptionsPopover = useCallback((props) => {
+    return <Popover className={styles.popoverOptions} {...props} >
+      <TimeOptions
+          isTimeBelowMax={isTimeBelowMax}
+          showDurationFromStartTime={showDurationFromStartTime}
+          onChange={onChange}
+          value={value}
+          minutesInterval={minutesInterval}
+      />
     </Popover>;
-  }, [isTimeBelowMax, minutesInterval, onChange, optionsToDisplay, showDurationFromStartTime, startTime, value]);
+  }, [isTimeBelowMax, showDurationFromStartTime, onChange, value, minutesInterval]);
 
   const handleChange = useCallback((event) => setWrittenValue(event.target.value), [setWrittenValue]);
 
@@ -96,7 +47,6 @@ const TimePicker = ({
 
   const onToggle = useCallback((show) => {
     setIsOpen(show);
-
     if (!show && writtenValue) {
       if (isTimeBelowMax(writtenValue)) {
         onChange(writtenValue);
@@ -135,7 +85,6 @@ TimePicker.defaultProps = {
   className: '',
   maxTime: '',
   minutesInterval: 30,
-  optionsToDisplay: 5,
   showDurationFromStartTime: false,
   startTime: '',
   value: '',
@@ -146,7 +95,6 @@ TimePicker.propTypes = {
   maxTime: PropTypes.string,
   minutesInterval: PropTypes.number,
   onChange: PropTypes.func.isRequired,
-  optionsToDisplay: PropTypes.number,
   showDurationFromStartTime: PropTypes.bool,
   startTime: PropTypes.string,
   value: PropTypes.string,

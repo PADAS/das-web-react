@@ -173,7 +173,7 @@ describe('ReportManager - ActivitySection', () => {
     userEvent.click(editNoteIcon);
     const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.type(noteTextArea, 'edited');
-    const saveNoteButton = await screen.findByText('Save Note');
+    const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
 
     expect(onSaveNote).toHaveBeenCalledTimes(1);
@@ -222,7 +222,7 @@ describe('ReportManager - ActivitySection', () => {
     userEvent.click(editNoteIcon);
     const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-note1');
     userEvent.type(noteTextArea, 'edited');
-    const saveNoteButton = await screen.findByText('Save Note');
+    const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
 
     expect(onSaveNote).toHaveBeenCalledTimes(1);
