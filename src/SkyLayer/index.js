@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 
 import { getSunPosition, updateSunPosition } from '../utils/sky';
@@ -26,18 +27,24 @@ export const DEFAULT_SKY_LAYER_CONFIG = {
   }
 };
 
+const virtualDateSelector = ({ view: { timeSliderState } }) => {
+  const { active: timeSliderActive, virtualDate } = timeSliderState;
+  return timeSliderActive && virtualDate;
+};
+
 const SkyLayer = (props) => {
   const { map } = props;
+  const virtualDate = useSelector(virtualDateSelector);
 
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  const mapMoveHandler = useCallback(debounce(() => {
+  const setSunPosition = useMemo(() => debounce(() => {
     if (map) {
-      const newPosition = getSunPosition(map);
+      const newPosition = getSunPosition(map, virtualDate);
       updateSunPosition(map, newPosition);
     }
-  }), [map]);
+  }), [map, virtualDate]);
 
-  useMapEventBinding('moveend', mapMoveHandler);
+  useEffect(setSunPosition, [setSunPosition]);
+  useMapEventBinding('moveend', setSunPosition);
 
   useEffect(() => {
 
