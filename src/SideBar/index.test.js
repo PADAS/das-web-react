@@ -22,6 +22,7 @@ import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../App';
+import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -223,6 +224,90 @@ describe('SideBar', () => {
     await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
     });
+  });
+
+  test.only('XXXX', async () => {
+
+    const { id } = report;
+    useLocationMock = jest.fn((() => ({ pathname: `/reports/${id}` })));
+    useLocation.mockImplementation(useLocationMock);
+
+    const altStore = {
+      data: {
+        analyzerFeatures: { data: [] },
+        eventFilter: {
+          filter: {
+            date_range: { lower: null, upper: null },
+            event_type: [],
+            event_category: [],
+            text: '',
+            duration: null,
+            priority: [],
+            reported_by: [],
+          },
+        },
+        eventSchemas: {},
+        eventStore: {},
+        eventTypes,
+        featureSets: { data: [] },
+        feedEvents: { results: [] },
+        mapLayerFilter: { filter: { text: '' } },
+        patrolFilter: {
+          filter: {
+            date_range: { lower: null, upper: null },
+            patrols_overlap_daterange: false,
+            patrol_type: [],
+            text: '',
+            tracked_by: [],
+          },
+          status: INITIAL_FILTER_STATE.status,
+        },
+        patrolStore: patrols.reduce((accumulator, patrol) => ({ ...accumulator, [patrol.id]: patrol }), {}),
+        patrols: INITIAL_PATROLS_STATE,
+        patrolTypes,
+        subjectGroups: [],
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+          }
+        },
+      },
+      view: {
+        featureFlagOverrides: {
+          ENABLE_REPORT_NEW_UI: true,
+        },
+        hiddenAnalyzerIDs: [],
+        userPreferences: {},
+        sideBar: {},
+        systemConfig: {
+          patrol_enabled: true,
+        },
+      },
+    };
+
+    render(
+      <Provider store={mockStore(altStore)}>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <MapContext.Provider value={map}>
+              <SideBar />
+            </MapContext.Provider>
+          </MockSocketProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    screen.debug(undefined, 9999999);
+
+    expect(screen.queryByTestId('badgeIcon')).toBeNull();
+
+    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('badgeIcon')).toBeDefined();
+    });
+
+
   });
 
   test('shows the reports badge when a new event comes through the socket and sidebar is closed', async () => {
