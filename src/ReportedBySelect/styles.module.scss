@@ -1,9 +1,13 @@
 @import '../common/styles/vars/colors';
 
+
 .option {
   align-items: center;
   display: flex;
+  font-size: 0.85rem;
+  height: 2.3175rem;
   justify-content: space-between;
+  overflow: hidden;
 
   img {
     margin-right: 0.5rem;
@@ -13,6 +17,7 @@
 
   &:active, &:hover {
     * {
+      background-color: $bright-blue;
       color: white;
     }
   }
@@ -20,6 +25,14 @@
   &.hidden {
     color: $light-font-color;
     font-style: italic;
+  }
+  &.optionLabel {
+    pointer-events: none;
+    * {
+      color: $secondary-medium-gray; 
+      font-size: 0.65rem;
+      text-transform: uppercase;
+    }
   }
 }
 
