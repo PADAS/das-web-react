@@ -12823,7 +12823,7 @@ sugarss@^2.0.0:
   dependencies:
     postcss "^7.0.2"
 
-suncalc@^1.8.0:
+suncalc@^1.9.0:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/suncalc/-/suncalc-1.9.0.tgz#26212353fae61edb287c2d558fc4932ecf0e1532"
   integrity sha512-vMJ8Byp1uIPoj+wb9c1AdK4jpkSKVAywgHX0lqY7zt6+EWRRC3Z+0Ucfjy/0yxTVO1hwwchZe4uoFNqrIC24+A==
