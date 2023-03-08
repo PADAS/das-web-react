@@ -34,6 +34,7 @@ let store = mockStore({
     tracks: {},
   },
   view: {
+    featureFlagOverrides: {},
     heatmapSubjectIDs: [],
     timeSliderState: {
       active: false,

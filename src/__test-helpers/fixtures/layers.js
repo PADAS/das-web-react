@@ -89,7 +89,7 @@ const layers = [
     'id': '8b297282-164d-4604-a144-ceedefef605a',
     'name': 'Mapbox Satellite Map',
     'attributes': {
-      'url': 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoidmpvZWxtIiwiYSI6ImNpZ3RzNXdmeDA4cm90N2tuZzhsd3duZm0ifQ.YcHUz9BmCk2oVOsL48VgVQ',
+      'url': 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png',
       'type': 'tile_server',
       'title': 'Mapbox Satellite Map'
     },

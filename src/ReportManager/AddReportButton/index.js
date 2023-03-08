@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as DocumentIcon } from '../../common/images/icons/document.svg';
@@ -12,12 +12,9 @@ import styles from './styles.module.scss';
 const AddReportButton = ({ className, onAddReport, onSaveAddedReport }) => {
   const addReportButtonRef = useRef();
 
-  const onReportButtonClick = useCallback(() => addReportButtonRef.current.click(), []);
-
   return <div
     className={`${className} ${styles.addReportButton}`}
     data-testid="reportManager-addReportButton"
-    onClick={onReportButtonClick}
     >
     <AddReport
       analyticsMetadata={{ category: REPORT_MODAL_CATEGORY, location: 'report modal' }}

@@ -1,10 +1,14 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { events, eventWithPoint } from '../__test-helpers/fixtures/events';
+import { EVENTS_API_URL, EVENT_API_URL } from '../ducks/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
@@ -29,6 +33,21 @@ jest.mock('../ducks/patrols', () => ({
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
+const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
+
+const server = setupServer(
+  rest.get(EVENTS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(eventFeedResponse));
+  }),
+  rest.get(`${EVENT_API_URL}:id`, (req, res, ctx) => {
+    return res(ctx.json({ data: eventWithPoint }));
+  }),
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('SideBar', () => {
   let fetchPatrolsMock, map, navigate, store, useLocationMock, useNavigateMock;
@@ -84,6 +103,7 @@ describe('SideBar', () => {
         },
       },
       view: {
+        featureFlagOverrides: {},
         hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
@@ -312,7 +332,7 @@ describe('SideBar', () => {
     expect(screen.getByTestId('sideBar-addReportButton')).toHaveClass('hidden');
   });
 
-  test('closes the sidebar tabs when clicking the cross button', () => {
+  test('closes the sidebar tabs when clicking the cross button', async () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
@@ -328,11 +348,15 @@ describe('SideBar', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    const closeButton = screen.getByTestId('sideBar-closeButton');
-    userEvent.click(closeButton);
+    await waitFor(() => {
+      const closeButton = screen.getByTestId('sideBar-closeButton');
+      userEvent.click(closeButton);
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/');
 
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/');
+    });
+
+
   });
 
   test('shows a back button if the detail view of the current tab is open', () => {

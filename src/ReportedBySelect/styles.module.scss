@@ -8,6 +8,7 @@
   height: 2.3175rem;
   justify-content: space-between;
   overflow: hidden;
+  font-weight: normal;
 
   img {
     margin-right: 0.5rem;
@@ -47,6 +48,7 @@
 .multiValue {
   display: flex;
   align-items: center;
+  font-weight: normal;
 
   img {
     margin-left: 0.125rem;
@@ -64,6 +66,7 @@
   display: flex;
   align-items: center;
   padding-left: 1rem;
+  font-weight: normal;
 
   img {
     margin-left: -1.25rem;

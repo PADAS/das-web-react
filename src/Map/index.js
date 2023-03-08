@@ -37,7 +37,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import {
-  DEVELOPMENT_FEATURE_FLAGS,
+  FEATURE_FLAG_LABELS,
   LAYER_IDS,
   MAX_ZOOM,
   TAB_KEYS,
@@ -80,11 +80,11 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import ReportGeometryDrawer from '../ReportGeometryDrawer';
 
 import './Map.scss';
-import { useMapEventBinding } from '../hooks';
+import { useFeatureFlag, useMapEventBinding } from '../hooks';
 
 const {
   ENABLE_REPORT_NEW_UI,
-} = DEVELOPMENT_FEATURE_FLAGS;
+} = FEATURE_FLAG_LABELS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -138,6 +138,8 @@ const Map = ({
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
@@ -270,7 +272,7 @@ const Map = ({
       setTimeout(() => {
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
-        if (ENABLE_REPORT_NEW_UI) {
+        if (enableNewReportUI) {
           navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
         } else {
           const fromStore = eventStore[event.id];

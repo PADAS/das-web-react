@@ -1,15 +1,33 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { MapContext } from '../App';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
-import { MIN_ZOOM, MAX_ZOOM } from '../constants';
 
-export const useFeatureFlag = flag =>
+import { MapContext } from '../App';
+
+import { DEVELOPMENT_FEATURE_FLAGS, MIN_ZOOM, MAX_ZOOM } from '../constants';
+
+export const useSystemConfigFlag = flag =>
   useSelector(state =>
     !!state?.view?.systemConfig?.[flag]
   );
+
+
+export const useFeatureFlag = (flagName) => {
+  const featureFlagOverrides = useSelector(state =>
+    state.view.featureFlagOverrides
+  );
+
+  if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
+    throw new Error('no feature flag with that name exists');
+  };
+
+  return featureFlagOverrides.hasOwnProperty(flagName)
+    ? featureFlagOverrides[flagName].value
+    : DEVELOPMENT_FEATURE_FLAGS[flagName];
+};
+
 
 export const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {

@@ -21,10 +21,10 @@ describe('#useSortedNodesWithToggleBtn', () => {
     ];
 
     const TestComponent = ({ list }) => {
-      const [sortButton, sortedResults] = useSortedNodesWithToggleBtn(list);
+      const [SortButton, sortedResults] = useSortedNodesWithToggleBtn(list);
 
       return <>
-        {sortButton}
+        <SortButton />
         <ul>
           {sortedResults}
         </ul>

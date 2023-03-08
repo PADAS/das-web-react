@@ -1,14 +1,14 @@
 @import '../common/styles/vars/colors';
 
-.select{
+.select {
   height: 2.5rem;
 }
 
-.priorityItem{
+.priorityItem {
   display: flex;
   align-items: center;
 
-  .circle{
+  .circle {
     width: .75rem;
     height: .75rem;
     border-radius: 50%;
@@ -27,9 +27,13 @@
   .lowPriority {
     background: $low-priority;
   }
+
+  span {
+    font-weight: normal;
+  }
 }
 
-.control{
+.control {
   border: none !important;;
   min-height: 0 !important;
 }

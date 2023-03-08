@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { TrackerContext } from '../../utils/analytics';
+
+
 import HistorySection from './';
 
 describe('ReportManager - HistorySection', () => {
@@ -22,8 +25,13 @@ describe('ReportManager - HistorySection', () => {
     user: { first_name: 'Kim', last_name: 'Johanna' },
   }];
 
+  const Wrapper = ({ children }) =>
+    <TrackerContext.Provider value={{ track: jest.fn() }}>
+      {children}
+    </TrackerContext.Provider>;
+
   test('renders the updates automatically in descending order', async () => {
-    render(<HistorySection reportUpdates={reportUpdatesMock} />);
+    render(<HistorySection reportUpdates={reportUpdatesMock} />, { wrapper: Wrapper });
 
     const items = await screen.findAllByRole('listitem');
 
@@ -33,7 +41,7 @@ describe('ReportManager - HistorySection', () => {
   });
 
   test('orders the updates in ascending order when clicking the sort button', async () => {
-    render(<HistorySection reportUpdates={reportUpdatesMock} />);
+    render(<HistorySection reportUpdates={reportUpdatesMock} />, { wrapper: Wrapper });
 
     const sortButton = await screen.findByRole('button');
     userEvent.click(sortButton);

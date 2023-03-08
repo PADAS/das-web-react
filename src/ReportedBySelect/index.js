@@ -1,16 +1,16 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Select, { components } from 'react-select';
+import { components } from 'react-select';
 import { FixedSizeList as List } from 'react-window';
-
-import TimeAgo from '../TimeAgo';
 
 import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
-import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
+
+import TimeAgo from '../TimeAgo';
+import Select from '../Select';
 
 import styles from './styles.module.scss';
 
@@ -143,7 +143,6 @@ const ReportedBySelect = (props) => {
 
   const optionalProps = {};
   const selectStyles = {
-    ...DEFAULT_SELECT_STYLES,
     option(styles, { isDisabled: _isDisabled }) {
       return styles;
     },
@@ -157,7 +156,7 @@ const ReportedBySelect = (props) => {
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
     selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
-  };
+  }
 
   const selected = useMemo(() => {
     if (!Boolean(value)) return null;
@@ -177,16 +176,6 @@ const ReportedBySelect = (props) => {
 
   }, [isMulti, selections, value]);
 
-  const options = useMemo(() => [
-    {
-      label: 'Recent radios',
-      options: recentRadios,
-    },
-    {
-      label: 'All',
-      options: displayOptions || [],
-    },
-  ], [displayOptions, recentRadios]);
 
   const newOptions = useMemo(() =>
     !!recentRadios.length ?
@@ -222,6 +211,7 @@ const ReportedBySelect = (props) => {
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
+    menuShouldScrollIntoView={false}
     {...optionalProps}
   />;
 };

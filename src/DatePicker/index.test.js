@@ -22,7 +22,7 @@ describe('DatePicker', () => {
   test('renders the default placeholder if it is not provided', async () => {
     rerender(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock} />);
 
-    expect((await screen.findByPlaceholderText('DD/MM/YYYY'))).toBeDefined();
+    expect((await screen.findByPlaceholderText('YYYY/MM/DD'))).toBeDefined();
   });
 
   test('renders the placeholder if it is provided', async () => {

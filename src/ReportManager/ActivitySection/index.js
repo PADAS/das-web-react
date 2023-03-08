@@ -1,8 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { TrackerContext } from '../../utils/analytics';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
+
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
@@ -12,6 +14,10 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
+const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
+const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
+const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
+const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
 
 const ActivitySection = ({
   attachmentsToAdd,
@@ -22,21 +28,29 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
-  reportTracker,
 }) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
+  const reportTracker = useContext(TrackerContext);
 
-  const onCollapseCard = useCallback((card) => {
+  const onCollapseCard = useCallback((card, analyticsLabel) => {
     if (cardsExpanded.includes(card)) {
+      if (analyticsLabel) {
+        reportTracker.track(`Collapse ${analyticsLabel} card in the activity section`);
+      }
+
       setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== card)]);
     }
-  }, [cardsExpanded]);
+  }, [cardsExpanded, reportTracker]);
 
-  const onExpandCard = useCallback((card) => {
+  const onExpandCard = useCallback((card, analyticsLabel) => {
     if (!cardsExpanded.includes(card)) {
+      if (analyticsLabel) {
+        reportTracker.track(`Expand ${analyticsLabel} card in the activity section`);
+      }
+
       setCardsExpanded([...cardsExpanded, card]);
     }
-  }, [cardsExpanded]);
+  }, [cardsExpanded, reportTracker]);
 
   const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
     const editedNote = onSaveNote(originalNote, updatedNote);
@@ -48,8 +62,8 @@ const ActivitySection = ({
     node: <ContainedReportListItem
       cardsExpanded={cardsExpanded}
       key={containedReport.id}
-      onCollapse={() => onCollapseCard(containedReport)}
-      onExpand={() => onExpandCard(containedReport)}
+      onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
       report={containedReport}
     />,
   })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
@@ -60,11 +74,10 @@ const ActivitySection = ({
       attachment={reportAttachment}
       cardsExpanded={cardsExpanded}
       key={reportAttachment.id}
-      onCollapse={() => onCollapseCard(reportAttachment)}
-      onExpand={() => onExpandCard(reportAttachment)}
-      reportTracker={reportTracker}
+      onCollapse={() => onCollapseCard(reportAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(reportAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
     />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments, reportTracker]);
+  })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
     sortDate: new Date(attachmentToAdd.creationDate),
@@ -72,6 +85,7 @@ const ActivitySection = ({
       attachment={attachmentToAdd.file}
       key={attachmentToAdd.file.name}
       onDelete={() => onDeleteAttachment(attachmentToAdd.file)}
+      ref={attachmentToAdd.ref}
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
@@ -81,8 +95,8 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={reportNote.id}
       note={reportNote}
-      onCollapse={() => onCollapseCard(reportNote)}
-      onExpand={() => onExpandCard(reportNote)}
+      onCollapse={() => onCollapseCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
     />,
   })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
@@ -94,9 +108,9 @@ const ActivitySection = ({
       key={noteToAdd.text}
       note={noteToAdd}
       ref={noteToAdd.ref}
-      onCollapse={() => onCollapseCard(noteToAdd)}
+      onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
-      onExpand={() => onExpandCard(noteToAdd)}
+      onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
     />,
   })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
@@ -115,7 +129,11 @@ const ActivitySection = ({
     notesToAddRendered,
   ]);
 
-  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList);
+  const onSort = useCallback((order) => {
+    reportTracker.track(`Sort activity section in ${order} order`);
+  }, [reportTracker]);
+
+  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
   const reportImageAttachments = useMemo(
     () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
@@ -138,10 +156,12 @@ const ActivitySection = ({
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
+    reportTracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
+
     setCardsExpanded(areAllItemsExpanded
       ? []
       : [...reportNotes, ...notesToAdd, ...reportImageAttachments, ...containedReports]);
-  }, [areAllItemsExpanded, containedReports, notesToAdd, reportImageAttachments, reportNotes]);
+  }, [areAllItemsExpanded, containedReports, notesToAdd, reportImageAttachments, reportNotes, reportTracker]);
 
 
   useEffect(() => {
@@ -159,7 +179,7 @@ const ActivitySection = ({
       {sortableList.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
-        {sortButton}
+        <SortButton />
 
         <Button
           className={styles.expandCollapseButton}
@@ -207,7 +227,6 @@ ActivitySection.propTypes = {
     id: PropTypes.string,
     updated_at: PropTypes.string,
   })).isRequired,
-  reportTracker: PropTypes.object.isRequired,
 };
 
 export default memo(ActivitySection);

@@ -2,11 +2,12 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../constants';
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
+import { useFeatureFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
@@ -19,7 +20,7 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const RelationshipButton = (props) => {
   const {
@@ -33,6 +34,9 @@ const RelationshipButton = (props) => {
   } = props;
 
   const navigate = useNavigate();
+
+  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const report = useContext(FormDataContext);
 
@@ -50,13 +54,13 @@ const RelationshipButton = (props) => {
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
-      if (ENABLE_REPORT_NEW_UI) {
+      if (enableNewReportUI) {
         navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
       } else {
         openModalForReport(data, map);
       }
     });
-  }, [fetchEvent, map, removeModal, report, reportTracker, navigate]);
+  }, [enableNewReportUI, fetchEvent, map, removeModal, report, reportTracker, navigate]);
 
   const goToParentPatrol = useCallback(() => {
     const [patrolId] = report.patrols;
@@ -64,13 +68,13 @@ const RelationshipButton = (props) => {
     reportTracker.track('Click \'Go to Patrol\' button');
 
     removeModal();
-    if (ENABLE_PATROL_NEW_UI) {
+    if (enableNewPatrolUI) {
       return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
     }
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, navigate]);
+  }, [enableNewPatrolUI, fetchPatrol, map, removeModal, report.patrols, reportTracker, navigate]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>

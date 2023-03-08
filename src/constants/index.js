@@ -2,7 +2,8 @@ import { toast } from 'react-toastify';
 
 import * as packageJson from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-
+import colorVars  from '../common/styles/vars/colors.module.scss';
+import controlsVars  from '../common/styles/vars/controls.module.scss';
 import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS } = toast;
@@ -149,7 +150,7 @@ export const LAYER_PICKER_IDS = [
   LAYER_IDS.EVENT_GEOMETRY_LAYER,
 ];
 
-export const FEATURE_FLAGS = {
+export const SYSTEM_CONFIG_FLAGS = {
   PATROL_MANAGEMENT: 'patrol_enabled',
   ALERTS: 'alerts_enabled',
   DAILY_REPORT: 'daily_report_enabled',
@@ -259,24 +260,6 @@ export const REPORT_PRIORITIES = [
   REPORT_PRIORITY_NONE
 ];
 
-export const DEFAULT_SELECT_STYLES = {
-  option(styles, state) {
-    const { isDisabled, isFocused } = state;
-    return {
-      ...styles,
-      backgroundColor: isFocused ? '#006cd9' : 'white',
-      color: isFocused ? 'white' : 'inherit',
-      display: isDisabled ? 'none' : 'block',
-    };
-  },
-  menu(styles) {
-    return {
-      ...styles,
-      zIndex: 5,
-    };
-  }
-};
-
 export const DATEPICKER_DEFAULT_CONFIG = {
   dateFormat: 'yyyy-MM-dd HH:mm',
   minDate: new Date('2010-01-01'),
@@ -337,9 +320,12 @@ export const VALID_EVENT_GEOMETRY_TYPES = {
   POINT: 'Point',
 };
 
+export const FEATURE_FLAG_LABELS = {
+  ENABLE_REPORT_NEW_UI: 'ENABLE_REPORT_NEW_UI',
+  ENABLE_PATROL_NEW_UI: 'ENABLE_PATROL_NEW_UI',
+};
+
 export const DEVELOPMENT_FEATURE_FLAGS = {
-  ENABLE_PATROL_NEW_UI: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
-  ENABLE_REPORT_NEW_UI: process.env.REACT_APP_ENABLE_REPORT_NEW_UI === 'true',
-  ENABLE_GEOPERMISSION_UI: process.env.REACT_APP_ENABLE_GEOPERMISSION_UI === 'true',
-  ENABLE_EVENT_GEOMETRY: process.env.REACT_APP_ENABLE_EVENT_GEOMETRY === 'true',
+  [FEATURE_FLAG_LABELS.ENABLE_PATROL_NEW_UI]: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
+  [FEATURE_FLAG_LABELS.ENABLE_REPORT_NEW_UI]: process.env.REACT_APP_ENABLE_REPORT_NEW_UI === 'true',
 };
