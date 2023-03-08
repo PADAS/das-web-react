@@ -226,6 +226,14 @@ export const eventSchemas = {
               content_type: 'activity.community'
             },
             title: 'Informant'
+          },
+          {
+            value: {
+              name: 'Informant2',
+              id: '9ec20ec8-516c-40bd-a4a3-9a2b49f5ea41',
+              content_type: 'activity.community'
+            },
+            title: 'Informant2'
           }
         ]
       },

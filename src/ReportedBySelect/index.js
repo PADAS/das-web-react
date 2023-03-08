@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { components } from 'react-select';
@@ -85,9 +85,12 @@ const SingleValue = ({ data, children, ...props }) => {
 
 const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
   if (hidden) return 'RESTRICTED';
-  return content_type === 'accounts.user'
-    ? `${first_name} ${last_name}`
-    : name;
+
+  if (content_type !== 'accounts.user') return name;
+
+  if (!first_name && !last_name) return name;
+
+  return `${first_name} ${last_name}`;
 };
 
 const getOptionValue = ({ hidden, id }) => {
@@ -95,7 +98,15 @@ const getOptionValue = ({ hidden, id }) => {
   return id;
 };
 
+
+
+const MenuOuterElement = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+  <div ref={ref} {...props} data-testid='reported-by-select-menu-list' />;
+});
+
 const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /* eslint-disable-line react/display-name */
+
+
 
 const MenuList = ({ options, children, maxHeight, getValue }) => {
   const [value] = getValue();
@@ -198,6 +209,7 @@ const ReportedBySelect = (props) => {
 
   return <Select
     className={className}
+    data-testid='reported-by-select'
     components={{ Control, MenuList, MultiValueLabel, Option, SingleValue }}
     value={selected}
     isClearable={true}
