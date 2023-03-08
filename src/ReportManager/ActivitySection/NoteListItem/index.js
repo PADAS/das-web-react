@@ -170,8 +170,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
             Cancel
           </Button>
 
-          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button">
-            Save Note
+          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
+            Done
           </Button>
         </div>}
       </div>
