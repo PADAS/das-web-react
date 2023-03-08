@@ -98,12 +98,6 @@ const getOptionValue = ({ hidden, id }) => {
   return id;
 };
 
-
-
-const MenuOuterElement = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  <div ref={ref} {...props} data-testid='reported-by-select-menu-list' />;
-});
-
 const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /* eslint-disable-line react/display-name */
 
 
