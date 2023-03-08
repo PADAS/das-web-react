@@ -17,8 +17,8 @@
   }
 
   &:active, &:hover {
-    * {
-      background-color: $bright-blue;
+    div {
+      background-color: rgba($bright-blue, 0.3);
       color: white;
     }
   }

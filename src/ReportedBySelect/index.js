@@ -103,9 +103,9 @@ const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /*
 const MenuList = ({ options, children, maxHeight, getValue }) => {
   const [value] = getValue();
   const itemSize = 37;
-  const initialOffset = options.indexOf(value) * itemSize;
+  const initialScrollOffset = options.indexOf(value) * itemSize;
   const itemCount = children.length;
-  const menuHeight = Math.min((itemSize * itemCount), maxHeight);
+  const height = Math.min((itemSize * itemCount), maxHeight);
   const overscanCount = 30;
 
   const renderRow = useCallback(({ index, style }) => {
@@ -114,10 +114,10 @@ const MenuList = ({ options, children, maxHeight, getValue }) => {
 
   return (
     <List
-        height={menuHeight}
-        itemCount={children.length}
+        height={height}
+        itemCount={itemCount}
         itemSize={itemSize}
-        initialScrollOffset={initialOffset}
+        initialScrollOffset={initialScrollOffset}
         overscanCount={overscanCount}
       >
       {renderRow}
