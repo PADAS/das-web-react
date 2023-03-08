@@ -83,12 +83,12 @@ const SingleValue = ({ data, children, ...props }) => {
   </components.SingleValue>;
 };
 
-const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
+const getOptionLabel = ({ content_type, first_name, hidden, last_name, name, username }) => {
   if (hidden) return 'RESTRICTED';
 
   if (content_type !== 'accounts.user') return name;
 
-  if (!first_name && !last_name) return name;
+  if (!first_name && !last_name) return username;
 
   return `${first_name} ${last_name}`;
 };
@@ -99,8 +99,6 @@ const getOptionValue = ({ hidden, id }) => {
 };
 
 const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /* eslint-disable-line react/display-name */
-
-
 
 const MenuList = ({ options, children, maxHeight, getValue }) => {
   const [value] = getValue();
