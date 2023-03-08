@@ -741,7 +741,7 @@ describe('ReportManager - ReportDetailView', () => {
       userEvent.click(cancelButton);
 
       await screen.findByText('Unsaved Changes');
-      await screen.findByText('You have unsaved changes. Would you like to go back and review them, discard them, or save them?');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
     });
 
     test('showing a warning prompt for an added report', async () => {
@@ -763,7 +763,7 @@ describe('ReportManager - ReportDetailView', () => {
       userEvent.click(cancelButton);
 
       await screen.findByText('Unsaved Changes');
-      await screen.findByText('You have unsaved changes. Would you like to go back and review them, discard them, or save them?');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
     });
 
     test('discarding unsaved changes', async () => {
@@ -813,7 +813,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(onSaveSuccess).not.toHaveBeenCalled();
 
       await screen.findByText('Unsaved Changes');
-      await screen.findByText('You have unsaved changes. Would you like to go back and review them, discard them, or save them?');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
 
       const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
       promptSaveBtn.click();

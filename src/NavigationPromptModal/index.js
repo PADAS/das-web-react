@@ -83,7 +83,7 @@ NavigationPromptModal.defaultProps = {
   cancelNavigationButtonText: 'Go Back',
   continueNavigationNegativeButtonText: 'Discard',
   continueNavigationPositiveButtonText: 'Save',
-  description: 'You have unsaved changes. Would you like to go back and review them, discard them, or save them?',
+  description: 'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?',
   onCancel: null,
   onContinue: null,
   title: 'Unsaved Changes',
