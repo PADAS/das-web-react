@@ -31,9 +31,13 @@
     pointer-events: none;
     * {
       color: $secondary-medium-gray; 
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
     }
+  }
+  &:hover, &:focus, &:active {
+    background-color: initial;
+    color: initial;
   }
 }
 

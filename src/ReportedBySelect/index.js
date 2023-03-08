@@ -180,7 +180,7 @@ const ReportedBySelect = (props) => {
   }, [isMulti, selections, value]);
 
 
-  const newOptions = useMemo(() =>
+  const options = useMemo(() =>
     !!recentRadios.length ?
       [
         {
@@ -209,7 +209,7 @@ const ReportedBySelect = (props) => {
     isSearchable={true}
     isMulti={isMulti}
     onChange={onChange}
-    options={newOptions}
+    options={options}
     recentRadios={recentRadios}
     placeholder={placeholder}
     styles={selectStyles}
