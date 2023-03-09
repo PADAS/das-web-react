@@ -92,6 +92,7 @@ NavigationPromptModal.defaultProps = {
 NavigationPromptModal.propTypes = {
   cancelNavigationButtonText: PropTypes.string,
   continueNavigationNegativeButtonText: PropTypes.string,
+  continueNavigationPositiveButtonText: PropTypes.string,
   description: PropTypes.string,
   onCancel: PropTypes.func,
   onContinue: PropTypes.func,

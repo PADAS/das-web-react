@@ -159,7 +159,15 @@ const ReportDetailView = ({
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
-  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded || isAddedReport;
+  const shouldShowNavigationPrompt =
+    !isSaving
+    && !redirectTo
+    && (
+      isAddedReport
+      || attachmentsToAdd.length > 0
+      || newNotesAdded
+      || Object.keys(reportChanges).length > 0
+    );
 
   const showAddReportButton = !isAddedReport
     && !relationshipButtonDisabled
@@ -498,7 +506,7 @@ const ReportDetailView = ({
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    <NavigationPromptModal onContinue={onNavigationContinue} when={!isSaving && isReportModified && !redirectTo} />
+    <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
 
