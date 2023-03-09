@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { components } from 'react-select';
@@ -15,6 +15,9 @@ import Select from '../Select';
 import styles from './styles.module.scss';
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
+
+const MENU_OVERSCAN_COUNT = 30;
+const LIST_ITEM_HEIGHT = 37;
 
 const Control = ({ children, ...props }) => {
   const { hasValue } = props;
@@ -102,11 +105,11 @@ const MenuRow = memo(({ child, style }) => <div style={style}>{child}</div>); /*
 
 const MenuList = ({ options, children, maxHeight, getValue }) => {
   const [value] = getValue();
-  const itemSize = 37;
+  const itemSize = LIST_ITEM_HEIGHT;
   const initialScrollOffset = options.indexOf(value) * itemSize;
   const itemCount = children.length;
   const height = Math.min((itemSize * itemCount), maxHeight);
-  const overscanCount = 30;
+  const overscanCount = MENU_OVERSCAN_COUNT;
 
   const renderRow = useCallback(({ index, style }) => {
     return <MenuRow style={style} child={children[index]} />;
