@@ -647,7 +647,7 @@ ReportForm.defaultProps = {
   onSaveSuccess() {
   },
   onSaveError(e) {
-    console.log('error saving report', e);
+    console.error('error saving report', e);
   },
 };
 
