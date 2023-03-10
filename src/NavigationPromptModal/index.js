@@ -58,7 +58,6 @@ const NavigationPromptModal = ({
       <Button
         className={styles.negativeContinue}
         onClick={handleNegativeContinue}
-        onFocus={(event) => event.target.blur()}
         variant="primary"
       >
         <TrashCanIcon />
@@ -69,7 +68,6 @@ const NavigationPromptModal = ({
         className={styles.positiveContinue}
         onClick={handlePositiveContinue}
         data-testid='navigation-prompt-positive-continue-btn'
-        onFocus={(event) => event.target.blur()}
         variant="primary"
       >
         <TrashCanIcon />
