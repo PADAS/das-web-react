@@ -102,14 +102,12 @@ const PatrolDetailView = () => {
   const isPatrolModified = Object.keys(patrolChanges).length > 0 || filesToAdd.length > 0 || reportsToAdd.length > 0;
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
-    console.log('success');
     setRedirectTo(redirectTo);
 
     patrolDetailViewTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
   }, [isNewPatrol]);
 
   const onSaveError = useCallback((error) => {
-    console.log('error');
     patrolDetailViewTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);
 
     console.warn('failed to save new patrol', error);

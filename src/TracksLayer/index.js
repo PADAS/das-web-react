@@ -55,8 +55,7 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, null)(withMap(memo(TracksLayer),));
 
 TracksLayer.defaultProps = {
-  onPointClick(layer) {
-    console.log('clicked timepoint', layer);
+  onPointClick(_layer) {
   },
   showTimepoints: true,
 };

@@ -8,13 +8,13 @@ services:
       - /app/node_modules
       - .:/app
     restart: on-failure
-  mock_api:
-    build:
-      context: ./mock-api
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /app/node_modules
-      - ./mock-api:/app
+  # mock_api:
+  #   build:
+  #     context: ./mock-api
+  #     dockerfile: Dockerfile.dev
+    # volumes:
+    #   - /app/node_modules
+    #   - ./mock-api:/app
   web_test:
     build:
       context: .
@@ -33,7 +33,7 @@ services:
     restart: always
     depends_on:
       - "web"
-      - "mock_api"
+      # - "mock_api"
     ports:
       - '9000:80'
       - '35729:35729'
