@@ -27,8 +27,6 @@ const BetaToggles = () => {
       flag === value
     )[1].label;
 
-    console.log(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
-
     tracker.track(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
 
     dispatch(

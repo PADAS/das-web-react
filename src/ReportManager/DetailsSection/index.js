@@ -169,7 +169,6 @@ const DetailsSection = ({
               maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
               minutesInterval={15}
               onChange={onReportTimeChange}
-              optionsToDisplay={96}
               value={getHoursAndMinutesString(reportTime)}
             />
           </label>

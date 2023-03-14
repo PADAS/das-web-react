@@ -6,7 +6,10 @@ import { TrackerContext } from '../../../utils/analytics';
 
 import NoteListItem from '.';
 
+
+
 describe('ReportManager - ActivitySection - Note', () => {
+  const saveButtonText = 'Done';
   const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), onSave = jest.fn();
   let Wrapper, renderWithWrapper;
 
@@ -135,14 +138,14 @@ describe('ReportManager - ActivitySection - Note', () => {
     />);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', true);
 
     const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
     userEvent.click(editButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
-    expect((await screen.findByText('Save Note'))).toBeDefined();
+    expect((await screen.findByText(saveButtonText))).toBeDefined();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', false);
   });
 
@@ -211,7 +214,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     userEvent.click(cancelButton);
 
     expect(noteTextArea).toHaveTextContent('note');
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
   });
 
   test('user can save edits to a new note', async () => {
@@ -237,12 +240,12 @@ describe('ReportManager - ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('edition');
 
-    const saveButton = await screen.findByText('Save Note');
+    const saveButton = await screen.findByText(saveButtonText);
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
-    expect((await screen.queryByText('Save Note'))).toBeNull();
+    expect((await screen.queryByText(saveButtonText))).toBeNull();
   });
 
   test('user can not type an empty space at the beginning of a note', async () => {
@@ -283,7 +286,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition     ');
-    const saveButton = await screen.findByText('Save Note');
+    const saveButton = await screen.findByText(saveButtonText);
     userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
