@@ -70,7 +70,6 @@ const NavigationPromptModal = ({
         data-testid='navigation-prompt-positive-continue-btn'
         variant="primary"
       >
-        <TrashCanIcon />
         {continueNavigationPositiveButtonText}
       </Button>
     </Modal.Footer>
