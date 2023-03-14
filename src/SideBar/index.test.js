@@ -115,51 +115,42 @@ describe('SideBar', () => {
     };
   });
 
-  test('shows the patrols tab if user has permissions', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+  const assertBadgeWhenEventSignals = async () => {
+    expect(screen.queryByTestId('badgeIcon')).toBeNull();
 
+    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('badgeIcon')).toBeDefined();
+    });
+  };
+
+  const renderSideBar = (mockedStore = mockStore(store)) => render(
+    <Provider store={mockedStore}>
+      <NavigationWrapper>
+        <MockSocketProvider>
+          <MapContext.Provider value={map}>
+            <SideBar />
+          </MapContext.Provider>
+        </MockSocketProvider>
+      </NavigationWrapper>
+    </Provider>
+  );
+
+  test('shows the patrols tab if user has permissions', async () => {
+    renderSideBar();
     expect(await screen.findByText('Patrols')).toBeDefined();
   });
 
   test('does not show the patrols tab if user has not permissions', () => {
     store.data.user.permissions = {};
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.queryByText('Patrols')).toBeNull();
   });
 
   test('sets the tab title for the Reports tab', () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getByRole('heading')).toHaveTextContent('Reports');
   });
@@ -167,18 +158,7 @@ describe('SideBar', () => {
   test('sets the tab title for the Patrols tab', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Patrols');
   });
@@ -186,18 +166,7 @@ describe('SideBar', () => {
   test('sets the tab title for the Map Layers tab', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Map Layers');
   });
@@ -205,171 +174,37 @@ describe('SideBar', () => {
   test('shows the reports badge when an event update comes through the socket and sidebar is closed', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/' })));
     useLocation.mockImplementation(useLocationMock);
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
-    expect(screen.queryByTestId('badgeIcon')).toBeNull();
-
-    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('badgeIcon')).toBeDefined();
-    });
-  });
-
-  test.only('XXXX', async () => {
-
-    const { id } = report;
-    useLocationMock = jest.fn((() => ({ pathname: `/reports/${id}` })));
-    useLocation.mockImplementation(useLocationMock);
-
-    const altStore = {
-      data: {
-        analyzerFeatures: { data: [] },
-        eventFilter: {
-          filter: {
-            date_range: { lower: null, upper: null },
-            event_type: [],
-            event_category: [],
-            text: '',
-            duration: null,
-            priority: [],
-            reported_by: [],
-          },
-        },
-        eventSchemas: {},
-        eventStore: {},
-        eventTypes,
-        featureSets: { data: [] },
-        feedEvents: { results: [] },
-        mapLayerFilter: { filter: { text: '' } },
-        patrolFilter: {
-          filter: {
-            date_range: { lower: null, upper: null },
-            patrols_overlap_daterange: false,
-            patrol_type: [],
-            text: '',
-            tracked_by: [],
-          },
-          status: INITIAL_FILTER_STATE.status,
-        },
-        patrolStore: patrols.reduce((accumulator, patrol) => ({ ...accumulator, [patrol.id]: patrol }), {}),
-        patrols: INITIAL_PATROLS_STATE,
-        patrolTypes,
-        subjectGroups: [],
-        user: {
-          permissions: {
-            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
-          }
-        },
-      },
-      view: {
-        featureFlagOverrides: {
-          ENABLE_REPORT_NEW_UI: true,
-        },
-        hiddenAnalyzerIDs: [],
-        userPreferences: {},
-        sideBar: {},
-        systemConfig: {
-          patrol_enabled: true,
-        },
-      },
-    };
-
-    render(
-      <Provider store={mockStore(altStore)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    screen.debug(undefined, 9999999);
-
-    expect(screen.queryByTestId('badgeIcon')).toBeNull();
-
-    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('badgeIcon')).toBeDefined();
-    });
-
-
+    await assertBadgeWhenEventSignals();
   });
 
   test('shows the reports badge when a new event comes through the socket and sidebar is closed', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/' })));
     useLocation.mockImplementation(useLocationMock);
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
-    expect(screen.queryByTestId('badgeIcon')).toBeNull();
-
-    mockedSocket.socketClient.emit('new_event', { matches_current_filter: true });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('badgeIcon')).toBeDefined();
-    });
+    await assertBadgeWhenEventSignals();
   });
 
   test('shows the reports badge also when the sidebar is open but not in the reports tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
     useLocation.mockImplementation(useLocationMock);
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
-    expect(screen.queryByTestId('badgeIcon')).toBeNull();
+    await assertBadgeWhenEventSignals();
+  });
 
-    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
+  test('shows the reports badge also when the sidebar is open in the report detail view', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: `/reports/${report.id}` })));
+    useLocation.mockImplementation(useLocationMock);
+    renderSideBar();
 
-    await waitFor(() => {
-      expect(screen.getByTestId('badgeIcon')).toBeDefined();
-    });
+    await assertBadgeWhenEventSignals();
   });
 
   test('does not show the report badge if sidebar is open in reports tab', () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.queryByTestId('badgeIcon')).toBeNull();
 
@@ -383,17 +218,7 @@ describe('SideBar', () => {
   });
 
   test('shows the Add Report button', () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getByTestId('sideBar-addReportButton')).not.toHaveClass('hidden');
   });
@@ -402,34 +227,14 @@ describe('SideBar', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
     useLocation.mockImplementation(useLocationMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getByTestId('sideBar-addReportButton')).toHaveClass('hidden');
   });
 
   test('closes the sidebar tabs when clicking the cross button', async () => {
     const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar(mockStoreInstance);
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
@@ -447,18 +252,7 @@ describe('SideBar', () => {
   test('shows a back button if the detail view of the current tab is open', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(screen.getByTestId('sideBar-backDetailViewButton')).toBeDefined();
   });
@@ -466,18 +260,7 @@ describe('SideBar', () => {
   test('hides the report detail view if it was opened but user clicked the back button', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
@@ -491,18 +274,7 @@ describe('SideBar', () => {
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/new' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
@@ -516,18 +288,7 @@ describe('SideBar', () => {
   test('redirects to map if a tab is not recognized', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/inalid' })));
     useLocation.mockImplementation(useLocationMock);
-
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderSideBar();
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);

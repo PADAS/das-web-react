@@ -57,8 +57,6 @@ const SideBar = () => {
       location.pathname
   ), [location.pathname]);
 
-  console.log(isReportDetailsViewActive);
-
   const sidebarOpen = !!currentTab;
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
