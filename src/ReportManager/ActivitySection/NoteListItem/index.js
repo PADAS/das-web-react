@@ -16,7 +16,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onChangeNote, onCancelNote }, ref = null) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNewNoteHasChanged }, ref = null) => {
   const textareaRef = useRef();
 
   const reportTracker = useContext(TrackerContext);
@@ -56,10 +56,14 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   }, [reportTracker, isEditing, isNew, isOpen, onExpand]);
 
   const onChangeTextArea = useCallback((event) => {
-    const text = !event.target.value.trim() ? '' : event.target.value;
-    setText(text);
-    onChangeNote?.({ ...note, text });
-  }, [onChangeNote, note]);
+    const currentValue = !event.target.value.trim() ? '' : event.target.value;
+    const isEmpty = !currentValue.length;
+    const hasChanged = !text?.length && currentValue.length;
+    setText(currentValue);
+    if (isNewAndUnAdded && (isEmpty || hasChanged)){
+      onNewNoteHasChanged?.();
+    }
+  }, [onNewNoteHasChanged, isNewAndUnAdded, text]);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
@@ -69,9 +73,8 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       reportTracker.track('Cancel editing existing note');
       setText(note.text);
     }
-    onCancelNote?.();
     setIsEditing(false);
-  }, [isNewAndUnAdded, onDelete, note.text, reportTracker, onCancelNote]);
+  }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -181,8 +184,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
 NoteListItem.defaultProps = {
   onDelete: null,
-  onChangeNote: null,
-  onCancelNote: null,
+  onNewNoteHasChanged: null,
 };
 
 NoteListItem.propTypes = {
@@ -198,8 +200,7 @@ NoteListItem.propTypes = {
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onChangeNote: PropTypes.func,
-  onCancelNote: PropTypes.func,
+  onNewNoteHasChanged: PropTypes.func,
 };
 
 export default memo(forwardRef(NoteListItem));

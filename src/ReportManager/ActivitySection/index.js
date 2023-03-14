@@ -28,8 +28,7 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
-  onChangeNotes,
-  onCancelNote,
+  onNewNoteHasChanged,
 }) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
   const reportTracker = useContext(TrackerContext);
@@ -114,10 +113,9 @@ const ActivitySection = ({
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
-      onChangeNote={onChangeNotes}
-      onCancelNote={onCancelNote}
+      onNewNoteHasChanged={onNewNoteHasChanged}
     />,
-  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onChangeNotes, onCancelNote]);
+  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNewNoteHasChanged]);
 
   const sortableList = useMemo(() => [
     ...containedReportsRendered,
@@ -205,8 +203,7 @@ const ActivitySection = ({
 };
 
 ActivitySection.defaultProps = {
-  onChangeNote: null,
-  onCancelNote: null,
+  onNewNoteHasChanged: null,
 };
 
 ActivitySection.propTypes = {
@@ -225,6 +222,7 @@ ActivitySection.propTypes = {
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
+  onNewNoteHasChanged: PropTypes.func,
   onSaveNote: PropTypes.func.isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
@@ -236,8 +234,6 @@ ActivitySection.propTypes = {
     id: PropTypes.string,
     updated_at: PropTypes.string,
   })).isRequired,
-  onChangeNote: PropTypes.func,
-  onCancelNote: PropTypes.func,
 };
 
 export default memo(ActivitySection);

@@ -84,7 +84,7 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [noteHasChanged, setNoteHasChanged] = useState(false);
+  const [newNoteHasChange, setNewNoteHasChange] = useState(false);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -155,14 +155,11 @@ const ReportDetailView = ({
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
 
-  const newNoteHasChanged = useCallback(() => setNoteHasChanged(true), []);
-  const onCancelNote = useCallback(() => setNoteHasChanged(false), []);
-
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
-  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded || noteHasChanged;
+  const isReportModified = Object.keys(reportChanges).length > 0 || attachmentsToAdd.length > 0 || newNotesAdded || newNoteHasChange;
 
   const showAddReportButton = !isAddedReport
     && !relationshipButtonDisabled
@@ -340,14 +337,15 @@ const ReportDetailView = ({
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
 
+  const onNewNoteHasChanged = useCallback(() => setNewNoteHasChange(!newNoteHasChange), [setNewNoteHasChange, newNoteHasChange]);
+
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
-    setNoteHasChanged(false);
+    setNewNoteHasChange(false);
   }, [notesToAdd]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
-
     const isNew = !originalNote.id;
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
@@ -357,7 +355,7 @@ const ReportDetailView = ({
         notes: reportNotes.map((reportNote) => reportNote === originalNote ? editedNote : reportNote),
       });
     }
-    setNoteHasChanged(false);
+    setNewNoteHasChange(false);
     return editedNote;
   }, [notesToAdd, reportForm, reportNotes, setReportForm]);
 
@@ -377,6 +375,7 @@ const ReportDetailView = ({
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
   }, [notesToAdd, reportTracker]);
+
 
   const onAddAttachments = useCallback((files) => {
     const filesArray = convertFileListToArray(files);
@@ -545,8 +544,7 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onChangeNotes={newNoteHasChanged}
-                onCancelNote={onCancelNote}
+                onNewNoteHasChanged={onNewNoteHasChanged}
               />
             </QuickLinks.Section>
 
