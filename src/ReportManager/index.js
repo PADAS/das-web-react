@@ -12,12 +12,11 @@ import { uuid } from '../utils/string';
 import { TrackerContext, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import DelayedUnmount from '../DelayedUnmount';
-import NavigationPromptModal from '../NavigationPromptModal';
 import ReportDetailView from './ReportDetailView';
 import styles from './styles.module.scss';
 
 
-const ADDED_REPORT_TRANSITION_EFFECT_TIME = 450;
+const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
 const ReportManager = () => {
   const dispatch = useDispatch();
@@ -38,27 +37,19 @@ const ReportManager = () => {
   const [addedReportData, setAddedReportData] = useState(null);
   const [addedReportTypeId, setAddedReportTypeId] = useState(null);
   const [showAddedReport, setShowAddedReport] = useState(false);
-  const [showSecondaryReportNavigationPrompt, setShowSecondaryReportNavigationPrompt] = useState(false);
 
-  const onCancelSecondaryReportPrompt = useCallback(() => {
-    setShowSecondaryReportNavigationPrompt(false);
-  }, []);
+  const onCloseAddedReport = useCallback((saved = true) => {
+    reportTracker.track(`${saved ? 'Added' : 'Discarded adding'} report to a report`);
 
-  const onCloseAddedReport = useCallback(() => {
-    reportTracker.track('Discard adding a report to a report');
-
-    setShowSecondaryReportNavigationPrompt(false);
     setShowAddedReport(false);
     setTimeout(() => {
       setAddedReportFormProps(null);
       setAddedReportData(null);
       setAddedReportTypeId(null);
     }, ADDED_REPORT_TRANSITION_EFFECT_TIME);
-  }, []);
+  }, [reportTracker]);
 
-  const onCancelAddedReport = useCallback(() => {
-    setShowSecondaryReportNavigationPrompt(true);
-  }, []);
+  const onCancelAddedReport = useCallback(() => onCloseAddedReport(false), [onCloseAddedReport]);
 
   useEffect(() => {
     setTimeout(() => setAddedReportClassName(`${styles.addedReport} ${showAddedReport ? styles.show : ''}`));
@@ -128,18 +119,11 @@ const ReportManager = () => {
     />}
 
     <DelayedUnmount isMounted={showAddedReport}>
-      <NavigationPromptModal
-        onCancel={onCancelSecondaryReportPrompt}
-        onContinue={onCloseAddedReport}
-        show={showSecondaryReportNavigationPrompt}
-        when={false}
-      />
-
       <ReportDetailView
         className={addedReportClassName}
         formProps={addedReportFormProps}
-        isAddedReport
-        isNewReport
+        isAddedReport={true}
+        isNewReport={true}
         newReportTypeId={addedReportTypeId}
         onCancelAddedReport={onCancelAddedReport}
         onSaveAddedReport={onCloseAddedReport}

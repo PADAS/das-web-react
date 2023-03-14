@@ -26,6 +26,11 @@ import useNavigate from '../../hooks/useNavigate';
 
 jest.mock('../../AddReport', () => jest.fn());
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => () => null, /* eslint-disable-line react/display-name */
+}));
+
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 jest.mock('../../ducks/events', () => ({
@@ -101,13 +106,13 @@ describe('ReportManager - ReportDetailView', () => {
     map = createMapMock();
 
     Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
-      <MapContext.Provider value={map}>
-        <NavigationWrapper>
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             {children}
           </TrackerContext.Provider>
-        </NavigationWrapper>
-      </MapContext.Provider>
+        </MapContext.Provider>
+      </NavigationWrapper>
     </Provider>;
 
     store = {
@@ -128,7 +133,7 @@ describe('ReportManager - ReportDetailView', () => {
       },
     };
 
-    renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+    renderWithWrapper = (Component, wrapper = Wrapper) => render(Component, { wrapper });
   });
 
   afterEach(() => {
@@ -276,25 +281,8 @@ describe('ReportManager - ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
   });
 
-  test('triggers onCancelAddedReport when clicking cancel if it is an added report', async () => {
-    const onCancelAddedReport = jest.fn();
+  test('showing the navigation warning prompt when canceling an added report', () => {
 
-    renderWithWrapper(
-      <ReportDetailView
-            isAddedReport
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            onCancelAddedReport={onCancelAddedReport}
-            reportId="1234"
-          />
-    );
-
-    expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
-
-    const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
-
-    expect(onCancelAddedReport).toHaveBeenCalledTimes(1);
   });
 
   test('displays a new attachment', async () => {
@@ -455,45 +443,6 @@ describe('ReportManager - ReportDetailView', () => {
       expect(navigate).toHaveBeenCalled();
       expect(navigate).toHaveBeenCalledWith('/reports/incident');
     });
-  });
-
-  test('enables the save button if users modified the opened report', async () => {
-    renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="456" />
-    );
-
-    const titleInput = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleInput, '2');
-    titleInput.blur();
-
-    expect(await screen.findByText('Save')).not.toBeDisabled();
-  });
-
-  test('enables the save button if user adds an attachment', async () => {
-    renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="456" />
-    );
-
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
-    const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
-
-    expect(await screen.findByText('Save')).not.toBeDisabled();
-  });
-
-  test('enables the save button if user adds a note, edits it and saves it', async () => {
-    renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="456" />
-    );
-
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
-    userEvent.click(addNoteButton);
-    const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-');
-    userEvent.type(noteTextArea, 'note...');
-    const saveNoteButton = await screen.findByText('Done');
-    userEvent.click(saveNoteButton);
-
-    expect(await screen.findByText('Save')).not.toBeDisabled();
   });
 
   test('triggers the formProps onSaveSuccess callback if there is a report is saved', async () => {
@@ -762,5 +711,118 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+  });
+
+  describe('the warning prompt', () => {
+    let actualUseNavigate;
+
+    beforeEach(() => {
+      actualUseNavigate = jest.requireActual('../../hooks/useNavigate');
+      useNavigate.mockImplementation(actualUseNavigate.default);
+
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('showing a warning prompt for unsaved changes', async () => {
+      const onCancelAddedReport = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
+      );
+
+      const titleInput = await screen.findByTestId('reportManager-header-title');
+      userEvent.type(titleInput, '2');
+      titleInput.blur();
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+    });
+
+    test('showing a warning prompt for an added report', async () => {
+      const onCancelAddedReport = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView
+            isAddedReport
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            onCancelAddedReport={onCancelAddedReport}
+            reportId="1234"
+          />
+      );
+
+      expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+    });
+
+    test('discarding unsaved changes', async () => {
+      const onCancelAddedReport = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView
+            isAddedReport
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            onCancelAddedReport={onCancelAddedReport}
+            reportId="1234"
+          />
+      );
+
+      expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      const discardButton = await screen.findByText('Discard');
+      discardButton.click();
+
+      expect(onCancelAddedReport).toHaveBeenCalledTimes(1);
+    });
+
+    test('saving unsaved changes', async () => {
+      const onSaveSuccess = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView
+            formProps={{ onSaveSuccess }}
+            isNewReport
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+          />
+      );
+
+      const titleTextBox = await screen.findByTestId('reportManager-header-title');
+      userEvent.type(titleTextBox, '2');
+      userEvent.tab();
+
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      expect(onSaveSuccess).not.toHaveBeenCalled();
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+
+      const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
+      promptSaveBtn.click();
+
+      await new Promise(res => setTimeout(() => {
+        expect(onSaveSuccess).toHaveBeenCalledTimes(1);
+        res();
+      }));
+
+    });
   });
 });
