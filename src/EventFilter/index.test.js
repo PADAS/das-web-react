@@ -158,4 +158,17 @@ describe('After filters being applied', () => {
 
     expect(resetMock).toHaveBeenCalledTimes(1);
   });
+
+  test('clicking on reset button should erase the search text value', async () => {
+    const resetWrapper = await screen.getByTestId('general-reset-wrapper');
+    const searchBar = await screen.getByPlaceholderText('Search Reports...');
+    userEvent.type(searchBar, 'Chimpanzee');
+
+    expect(searchBar.value).toBeTruthy();
+
+    const resetButton = await within(resetWrapper).queryByText('Reset');
+    userEvent.click(resetButton);
+
+    expect(searchBar.value).toBeFalsy();
+  });
 });

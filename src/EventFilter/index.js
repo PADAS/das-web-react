@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -36,11 +36,10 @@ import styles from './styles.module.scss';
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
 
-const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop } = props;
+const EventFilter = ({ children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop }) => {
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
-  const eventTypeIDs = eventTypes.map(type => type.id);
+  const eventTypeIDs = useMemo(() => eventTypes.map(type => type.id), [eventTypes]);
 
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
@@ -61,16 +60,18 @@ const EventFilter = (props) => {
 
   const hasChildrenComponents = useMemo(() => !!React.Children.count(children), [children]);
 
-  const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
-    eventFilter.filter.reported_by
-      .map(id =>
-        reporters.find(r => r.id === id)
-      ).filter(item => !!item)
-    : [];
+  const selectedReporters = useMemo(() => {
+    return eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
+      eventFilter.filter.reported_by
+        .map(id =>
+          reporters.find(r => r.id === id)
+        ).filter(item => !!item)
+      : [];
+  }, [reporters, eventFilter.filter.reported_by]);
 
   const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
 
-  const toggleAllReportTypes = (e) => {
+  const toggleAllReportTypes = useCallback((e) => {
     e.stopPropagation();
     if (eventTypeFilterEmpty) {
       eventFilterTracker.track('Uncheck All Event Types Filter');
@@ -79,15 +80,15 @@ const EventFilter = (props) => {
       eventFilterTracker.track('Check All Event Types Filter');
       updateEventFilter({ filter: { event_type: [] } });
     }
-  };
+  }, [eventTypeFilterEmpty, updateEventFilter]);
 
-  const resetReportTypes = (_e) => {
+  const resetReportTypes = useCallback((_e) => {
     eventFilterTracker.track('Reset Event Types Filter');
     setReportTypeFilterText('');
     updateEventFilter({ filter: { event_type: [] } });
-  };
+  }, [updateEventFilter]);
 
-  const onReportCategoryToggle = ({ value }) => {
+  const onReportCategoryToggle = useCallback(({ value }) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
     const allShown = eventTypeFilterEmpty
       ? true
@@ -101,43 +102,31 @@ const EventFilter = (props) => {
 
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
-  };
+  }, [currentFilterReportTypes, eventTypeFilterEmpty, eventTypeIDs, eventTypes, updateEventFilter]);
 
-  const onReportedByChange = (values) => {
+  const onReportedByChange = useCallback((values) => {
     const hasValue = values && !!values.length;
-
-    if (hasValue) {
-      updateEventFilter({
-        filter: {
-          reported_by: uniq(values.map(({ id }) => id)),
-        }
-      });
-    } else {
-      updateEventFilter({
-        filter: {
-          reported_by: [],
-        }
-      });
-    }
+    updateEventFilter({
+      filter: {
+        reported_by: hasValue ? uniq(values.map(({ id }) => id)) : [],
+      }
+    });
     eventFilterTracker.track(`${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
-  };
+  }, [updateEventFilter]);
 
-  const onPriorityChange = (value) => {
+  const onPriorityChange = useCallback((value) => {
     const newVal = priority.includes(value)
       ? priority.filter(item => item !== value)
       : [...priority, value];
-
-
-    eventFilterTracker.track('Set Priority Filter', newVal.toString());
-
     updateEventFilter({
       filter: {
         priority: newVal,
       },
     });
-  };
+    eventFilterTracker.track('Set Priority Filter', newVal.toString());
+  }, [priority, updateEventFilter]);
 
-  const onReportTypeToggle = ({ id }) => {
+  const onReportTypeToggle = useCallback(({ id }) => {
     const visible = eventTypeFilterEmpty ? true : currentFilterReportTypes.includes(id);
     if (visible) {
       eventFilterTracker.track('Uncheck Event Type Filter');
@@ -147,25 +136,24 @@ const EventFilter = (props) => {
       const updatedValue = [...currentFilterReportTypes, id];
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
-  };
+  }, [currentFilterReportTypes, eventTypeFilterEmpty, eventTypeIDs, updateEventFilter]);
 
-  const onFilteredReportsSelect = (types) => {
+  const onFilteredReportsSelect = useCallback((types) => {
     updateEventFilter({ filter: { event_type: types.map(({ id }) => id) } });
-  };
+  }, [updateEventFilter]);
 
   const updateEventFilterDebounced = useRef(debounce(function (update) {
     updateEventFilter(update);
   }, 200));
 
-
-  const onStateSelect = ({ value }) => {
+  const onStateSelect = useCallback(({ value }) => {
     if (!isEqual(state, value)){
       updateEventFilter({ state: value });
       eventFilterTracker.track(`Select '${value}' State Filter`);
     }
-  };
+  }, [state, updateEventFilter]);
 
-  const resetPopoverFilters = () => {
+  const resetPopoverFilters = useCallback(() => {
     updateEventFilter({
       state: INITIAL_FILTER_STATE.state,
       filter: {
@@ -176,71 +164,72 @@ const EventFilter = (props) => {
     });
     setReportTypeFilterText('');
     eventFilterTracker.track('Click Reset All Filters');
-  };
+  }, [updateEventFilter]);
 
-  const clearDateRange = (e) => {
+  const clearDateRange = useCallback((e) => {
     if (e) e.stopPropagation();
     resetGlobalDateRange();
     eventFilterTracker.track('Click Reset Date Range Filter');
-  };
+  }, [resetGlobalDateRange]);
 
-  const resetAllFilters = () => {
+  const onSearchClear = useCallback((e) => {
+    e?.stopPropagation();
+    setFilterText('');
+    eventFilterTracker.track('Clear Search Text Filter');
+  }, []);
+
+  const resetAllFilters = useCallback(() => {
     if (filterModified) resetPopoverFilters();
     if (dateRangeModified) clearDateRange();
+    if (filterText) onSearchClear();
     onResetAll();
-  };
+  }, [clearDateRange, dateRangeModified, filterModified, filterText, onResetAll, onSearchClear, resetPopoverFilters]);
 
-  const resetStateFilter = (e) => {
+  const resetStateFilter = useCallback((e) => {
     e.stopPropagation();
     updateEventFilter({ state: INITIAL_FILTER_STATE.state });
     eventFilterTracker.track('Click Reset State Filter');
-  };
+  }, [updateEventFilter]);
 
-  const resetPriorityFilter = (e) => {
+  const resetPriorityFilter = useCallback((e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { priority: INITIAL_FILTER_STATE.filter.priority } });
     eventFilterTracker.track('Click Reset Priority Filter');
-  };
+  }, [updateEventFilter]);
 
-  const resetReportedByFilter = (e) => {
+  const resetReportedByFilter = useCallback((e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { reported_by: INITIAL_FILTER_STATE.filter.reported_by } });
     eventFilterTracker.track('Click Reset Reported By Filter');
-  };
+  }, [updateEventFilter]);
 
-  const StateSelector = () => (
+  const StateSelector = useCallback(() => (
     <ul className={styles.stateList} data-testid="state-filter-options">
       {EVENT_STATE_CHOICES.map(choice =>
         <li key={choice.value}>
           <Button
-            variant='link'
-            className={isEqual(choice.value, state) ? styles.activeState : ''}
-            onClick={() => onStateSelect(choice)}
-          >
+              variant='link'
+              className={isEqual(choice.value, state) ? styles.activeState : ''}
+              onClick={() => onStateSelect(choice)}
+              >
             {choice.label}
           </Button>
         </li>)}
     </ul>
-  );
+  ), [onStateSelect, state]);
 
-  const onDateFilterIconClicked = () => {
+  const onDateFilterIconClicked = useCallback(() => {
     reportsTracker.track('Dates Icon Clicked');
-  };
+  }, []);
 
-  const onEventFilterIconClicked = () => {
+  const onEventFilterIconClicked = useCallback(() => {
     reportsTracker.track('Filters Icon Clicked');
-  };
+  }, []);
 
-  const onSearchChange = ({ target: { value } }) => {
+  const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
     eventFilterTracker.debouncedTrack('Clear Search Text Filter');
-  };
-
-  const onSearchClear = (e) => {
-    e.stopPropagation();
-    setFilterText('');
-    eventFilterTracker.track('Clear Search Text Filter');
-  };
+  }, []);
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, text)) {
@@ -262,62 +251,66 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover placement='bottom' className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
-    <Popover.Header>
-      <div className={styles.popoverTitle}>
-        <ClockIcon />Date Range
-        <Button type="button" variant='light' size='sm'
-          onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
-      </div>
-    </Popover.Header>
-    <Popover.Body style={{ overflow: 'visible' }}>
-      <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
-    </Popover.Body>
-  </Popover>;
+  const FilterDatePopover = useMemo(() => (
+    <Popover placement='bottom' className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
+      <Popover.Header>
+        <div className={styles.popoverTitle}>
+          <ClockIcon />Date Range
+          <Button type="button" variant='light' size='sm'
+                  onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
+        </div>
+      </Popover.Header>
+      <Popover.Body style={{ overflow: 'visible' }}>
+        <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
+      </Popover.Body>
+    </Popover>
+  ), [clearDateRange, dateRangeModified, styles]);
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover' data-testid='filter-popover'>
-    <Popover.Header>
-      <div className={styles.popoverTitle}>
-        Report Filters
-        <Button type="button" variant='light' size='sm'
-          onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
-      </div>
-    </Popover.Header>
-    <Popover.Body>
-      <div className={styles.filterRow}>
-        {/* state here */}
-        <label>State</label>
-        <StateSelector />
-        <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
-      </div>
-      <div className={`${styles.filterRow} ${styles.priorityRow}`}>
-        <label>Priority</label>
-        <PriorityPicker className={styles.priorityPicker} onSelect={onPriorityChange} selected={priority} isMulti={true} />
-        <Button type="button" variant='light' size='sm' disabled={!priorityFilterModified} onClick={resetPriorityFilter}>Reset</Button>
-      </div>
-      <div className={styles.filterRow}>
-        <UserIcon className={styles.userIcon} />
-        <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
-        <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
-      </div>
-      <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
-        <h5 className={`${styles.filterTitle} ${styles.reportFilterTitle}`}>
-          <div className={styles.toggleAllReportTypes}>
-            <CheckMark fullyChecked={!noReportTypesChecked && !someReportTypesChecked} partiallyChecked={!noReportTypesChecked && someReportTypesChecked} onClick={toggleAllReportTypes} />
-            <span>All</span>
-          </div>
-          Report Types
-          <small className={!eventTypeFilterEmpty ? styles.modified : ''}>
-            {eventTypeFilterEmpty && 'All selected'}
-            {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
-            {noReportTypesChecked && 'None selected'}
-          </small>
-          <Button type="button" variant='light' size='sm' disabled={eventTypeFilterEmpty} onClick={resetReportTypes}>Reset</Button>
-        </h5>
-        <ReportTypeMultiSelect filter={reportTypeFilterText} onFilterChange={setReportTypeFilterText} selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
-      </div>
-    </Popover.Body>
-  </Popover>;
+  const FilterPopover = useMemo(() => (
+    <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover' data-testid='filter-popover'>
+      <Popover.Header>
+        <div className={styles.popoverTitle}>
+          Report Filters
+          <Button type="button" variant='light' size='sm'
+                  onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+        </div>
+      </Popover.Header>
+      <Popover.Body>
+        <div className={styles.filterRow}>
+          {/* state here */}
+          <label>State</label>
+          <StateSelector />
+          <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
+        </div>
+        <div className={`${styles.filterRow} ${styles.priorityRow}`}>
+          <label>Priority</label>
+          <PriorityPicker className={styles.priorityPicker} onSelect={onPriorityChange} selected={priority} isMulti={true} />
+          <Button type="button" variant='light' size='sm' disabled={!priorityFilterModified} onClick={resetPriorityFilter}>Reset</Button>
+        </div>
+        <div className={styles.filterRow}>
+          <UserIcon className={styles.userIcon} />
+          <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
+          <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
+        </div>
+        <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
+          <h5 className={`${styles.filterTitle} ${styles.reportFilterTitle}`}>
+            <div className={styles.toggleAllReportTypes}>
+              <CheckMark fullyChecked={!noReportTypesChecked && !someReportTypesChecked} partiallyChecked={!noReportTypesChecked && someReportTypesChecked} onClick={toggleAllReportTypes} />
+              <span>All</span>
+            </div>
+            Report Types
+            <small className={!eventTypeFilterEmpty ? styles.modified : ''}>
+              {eventTypeFilterEmpty && 'All selected'}
+              {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
+              {noReportTypesChecked && 'None selected'}
+            </small>
+            <Button type="button" variant='light' size='sm' disabled={eventTypeFilterEmpty} onClick={resetReportTypes}>Reset</Button>
+          </h5>
+          <ReportTypeMultiSelect filter={reportTypeFilterText} onFilterChange={setReportTypeFilterText} selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
+        </div>
+      </Popover.Body>
+    </Popover>
+  ), [styles, currentFilterReportTypes, eventTypeFilterEmpty, eventTypeIDs.length, filterModified, noReportTypesChecked, onFilteredReportsSelect, onPriorityChange, onReportCategoryToggle, onReportTypeToggle, onReportedByChange, priority, priorityFilterModified, reportTypeFilterText, reportTypesCheckedCount, reportedByFilterModified, resetPopoverFilters, resetPriorityFilter, resetReportTypes, resetReportedByFilter, resetStateFilter, selectedReporters, someReportTypesChecked, stateFilterModified, toggleAllReportTypes]);
 
 
   return <>
