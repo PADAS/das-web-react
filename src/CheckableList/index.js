@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import CheckMark from '../Checkmark';
-import { uuid } from '../utils/string';
+import { hashCode } from '../utils/string';
 
 const CheckableList = (props) => {
   const { items, itemProps, onCheckClick, itemFullyChecked, itemPartiallyChecked, itemComponent: ItemComponent, className } = props;
@@ -12,7 +12,7 @@ const CheckableList = (props) => {
       const partiallyChecked = itemPartiallyChecked(item);
       const onClick = () => onCheckClick(item);
 
-      return <li key={item.id || uuid()}>
+      return <li key={item.id || hashCode(item.toString())}>
         <CheckMark fullyChecked={fullyChecked} partiallyChecked={partiallyChecked} onClick={onClick} />
         <ItemComponent {...item} {...itemProps} />
       </li>;
