@@ -1,12 +1,13 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useDeferredValue, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
-import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
+import { getAllFeatureIDsInList, getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
+import { LayerFilterContext } from '../MapLayerFilter/context';
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
 import CheckableList from '../CheckableList';
@@ -20,45 +21,35 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
+const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(...featuresByType.reduce((result, { features }) => [...result, ...features], []));
+
+const Trigger = ({ onToggleAllFeatures, allVisible, someVisible }) =>  <div>
+  <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
+  <h5 className={listStyles.trigger}>Features</h5>
+</div>;
+
+
 // eslint-disable-next-line react/display-name
-const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
+const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
+  const { filterText: filterFromContext } = useContext(LayerFilterContext);
 
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
-    .reduce((accumulator, { featuresByType }) =>
-      [...accumulator,
-        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
-      ], [])
-  );
+  const filterText = useDeferredValue(filterFromContext);
 
-  const [searchText, setSearchTextState] = useState('');
-  const [featureFilterEnabled, setFeatureFilterEnabledState] = useState(false);
 
-  useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
-    setSearchTextState(filterText);
-    setFeatureFilterEnabledState(filterText.length > 0);
-  }, [mapLayerFilter]);
+  const featureFilterEnabled = !!filterText.length;
 
-  if (!featureList.length) return null;
-
-  const allFeatureIDs = getAllFeatureIDsInList();
-
-  const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
-  const showAllFeatures = () => showFeatures(...allFeatureIDs);
+  const allFeatureIDs = useMemo(() => getAllFeatureIDsInList(featureList), [featureList]);
 
   const allVisible = !hiddenFeatureIDs.length;
-  const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
 
-  const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(...featuresByType.reduce((result, { features }) => [...result, ...features], []));
+  const allVisibleInSet = useCallback(set =>
+    allVisible
+      || !intersection(getFeatureSetFeatureIDs(set),
+        hiddenFeatureIDs
+      ).length
+  , [allVisible, hiddenFeatureIDs]);
 
-  const allVisibleInSet = set => allVisible || !intersection(getFeatureSetFeatureIDs(set), hiddenFeatureIDs).length;
-
-  const someVisibleInSet = set => {
-    const featureIDs = getFeatureSetFeatureIDs(set);
-    return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
-  };
-
-  const onFeatureSetToggle = (set) => {
+  const onFeatureSetToggle = useCallback((set) => {
     const featureIDs = getFeatureSetFeatureIDs(set);
     if (allVisibleInSet(set)) {
       mapLayerTracker.track('Uncheck Feature Set checkbox', `Feature Set:${set.name}`);
@@ -67,9 +58,12 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
       mapLayerTracker.track('Check Feature Set checkbox', `Feature Set:${set.name}`);
       return showFeatures(...featureIDs);
     }
-  };
+  }, [allVisibleInSet, hideFeatures, showFeatures]);
 
-  const onToggleAllFeatures = (e) => {
+  const hideAllFeatures = useCallback(() => hideFeatures(...allFeatureIDs), [allFeatureIDs, hideFeatures]);
+  const showAllFeatures = useCallback(() => showFeatures(...allFeatureIDs), [allFeatureIDs, showFeatures]);
+
+  const onToggleAllFeatures = useCallback((e) => {
     e.stopPropagation();
 
     if (allVisible) {
@@ -79,25 +73,30 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
       mapLayerTracker.track('Check All Features checkbox');
       return showAllFeatures();
     }
-  };
+  }, [allVisible, hideAllFeatures, showAllFeatures]);
 
-  const featureFilterIsMatch = (feature) => {
-    if (searchText.length === 0) return true;
-    return (feature.properties.title.toLowerCase().includes(searchText));
-  };
+  const featureFilterIsMatch = useCallback((feature) => {
+    if (!featureFilterEnabled) return true;
+    return (feature.properties.title.toLowerCase().includes(filterText));
+  }, [featureFilterEnabled, filterText]);
 
-  const filteredFeatureList = featureFilterEnabled ?
-    filterFeatures(featureList, featureFilterIsMatch) : featureList;
+  const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
 
-  const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
+  const someVisibleInSet = useCallback(set => {
+    const featureIDs = getFeatureSetFeatureIDs(set);
+    return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
+  }, [hiddenFeatureIDs]);
+
+  const filteredFeatureList = useMemo(() =>
+    featureFilterEnabled ?
+      filterFeatures(featureList, featureFilterIsMatch) : featureList
+  , [featureFilterEnabled, featureFilterIsMatch, featureList]);
+
+  const itemProps = useMemo(() => ({ map, featureFilterEnabled, }), [featureFilterEnabled, map]);
+  if (!featureList.length) return null;
   if (featureFilterEnabled && !filteredFeatureList.length) return null;
 
-  const itemProps = { map, featureFilterEnabled, };
-
-  const trigger = <div>
-    <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
-    <h5 className={listStyles.trigger}>Features</h5>
-  </div>;
+  const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
 
   return <ul className={listStyles.list}>
     <li>
@@ -105,7 +104,7 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
         className={listStyles.collapsed}
         openedClassName={listStyles.opened}
         {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-        trigger={trigger}
+        trigger={<Trigger onToggleAllFeatures={onToggleAllFeatures} allVisible={allVisible} someVisible={someVisible} />}
         open={collapsibleShouldBeOpen}>
         <CheckableList
           className={listStyles.list}
@@ -124,7 +123,6 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
 const mapStateToProps = (state) => ({
   featureList: getFeatureLayerListState(state),
   hiddenFeatureIDs: state.view.hiddenFeatureIDs,
-  mapLayerFilter: state.data.mapLayerFilter
 });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureLayerList));

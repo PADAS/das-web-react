@@ -56,10 +56,10 @@ export const calcRecentRadiosFromSubjects = (...subjects) => {
 };
 
 export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator, group) => {
-  if (group.subjects && group.subjects.length) {
+  if (group?.subjects?.length) {
     accumulator.push(...group.subjects);
   }
-  if (group.subgroups && group.subgroups.length) {
+  if (group?.subgroups?.length) {
     accumulator.push(...getSubjectGroupSubjects(...group.subgroups));
   }
   return accumulator;

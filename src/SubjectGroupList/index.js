@@ -1,12 +1,14 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useDeferredValue, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
+import { LayerFilterContext } from '../MapLayerFilter/context';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { getSubjectGroups } from '../selectors/subjects';
 import CheckableList from '../CheckableList';
+
 
 import Content from './Content';
 import listStyles from '../SideBar/styles.module.scss';
@@ -14,16 +16,19 @@ import listStyles from '../SideBar/styles.module.scss';
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const SubjectGroupList = (props) => {
-  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
+  const { subjectGroups, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
-  const searchText = useMemo(() => mapLayerFilter.filter.text || '', [mapLayerFilter.filter.text]);
 
-  const subjectFilterEnabled = searchText.length > 0;
+  const { filterText: filterFromContext } = useContext(LayerFilterContext);
+
+  const filterText = useDeferredValue(filterFromContext);
+
+  const subjectFilterEnabled = filterText.length > 0;
 
   const subjectFilterIsMatch = useCallback((subject) => {
-    if (searchText.length === 0) return true;
-    return (subject.name.toLowerCase().includes(searchText));
-  }, [searchText]);
+    if (!subjectFilterEnabled) return true;
+    return (subject.name.toLowerCase().includes(filterText));
+  }, [filterText, subjectFilterEnabled]);
 
   const groupsInList = useMemo(() => {
     return subjectFilterEnabled ?
@@ -31,20 +36,24 @@ const SubjectGroupList = (props) => {
       subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
   }, [subjectFilterEnabled, subjectFilterIsMatch, subjectGroups]);
 
-  const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
-  const groupIsPartiallyVisible = (group) => {
+  const groupIsFullyVisible = useCallback(group =>
+    !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id))
+  , [hiddenSubjectIDs]);
+
+  const groupIsPartiallyVisible = useCallback((group) => {
     const groupSubjectIDs = getUniqueSubjectGroupSubjects(group).map(item => item.id);
     return !groupIsFullyVisible(group, hiddenSubjectIDs) && !groupSubjectIDs.every(id => hiddenSubjectIDs.includes(id));
-  };
+  }, [groupIsFullyVisible, hiddenSubjectIDs]);
 
-  const onSubjectCheckClick = (subject) => {
+  const subjectIsVisible = useCallback(subject => !hiddenSubjectIDs.includes(subject.id), [hiddenSubjectIDs]);
+
+  const onSubjectCheckClick = useCallback((subject) => {
     if (subjectIsVisible(subject)) return hideSubjects(subject.id);
     return showSubjects(subject.id);
-  };
+  }, [hideSubjects, showSubjects, subjectIsVisible]);
 
-  const subjectIsVisible = subject => !hiddenSubjectIDs.includes(subject.id);
 
-  const onGroupCheckClick = (group) => {
+  const onGroupCheckClick = useCallback((group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
     if (groupIsFullyVisible(group)) {
       mapLayerTracker.track('Uncheck Group Map Layer checkbox', `Group:${group.name}`);
@@ -53,7 +62,7 @@ const SubjectGroupList = (props) => {
       mapLayerTracker.track('Check Group Map Layer checkbox', `Group:${group.name}`);
       return showSubjects(...subjectIDs);
     }
-  };
+  }, [groupIsFullyVisible, hideSubjects, showSubjects]);
 
   const listLevel = 0;
 
@@ -80,8 +89,8 @@ const SubjectGroupList = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { data: { mapLayerFilter }, view: { hiddenSubjectIDs } } = state;
-  return { subjectGroups: getSubjectGroups(state), mapLayerFilter, hiddenSubjectIDs };
+  const { view: { hiddenSubjectIDs } } = state;
+  return { subjectGroups: getSubjectGroups(state), hiddenSubjectIDs };
 };
 
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));

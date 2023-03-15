@@ -25,7 +25,6 @@ import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
-import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import drawerReducer from '../ducks/drawer';
@@ -75,7 +74,6 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),
-    mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: persistReducer(analyzersPersistanceConfig, analyzersReducer),
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,

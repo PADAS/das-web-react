@@ -5,19 +5,19 @@ import { getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 const tracks = ({ data: { tracks } }) => tracks;
-const heatmapEligibleSubjectIDsForGroup = (_, props) => getHeatmapEligibleSubjectsFromGroups(props).map(s => s.id);
+export const heatmapEligibleSubjectIDsForGroup = (_, props) => getHeatmapEligibleSubjectsFromGroups(props).map(s => s.id);
 
-const groupIsFullyHeatmapped = createSelector(
+export const groupIsFullyHeatmapped = createSelector(
   [heatmapSubjectIDs, heatmapEligibleSubjectIDsForGroup],
   (heatmapSubjects, eligibleSubjects) => intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length,
 );
 
-const groupIsPartiallyHeatmapped = createSelector(
+export const groupIsPartiallyHeatmapped = createSelector(
   [heatmapSubjectIDs, heatmapEligibleSubjectIDsForGroup, groupIsFullyHeatmapped],
   (heatmapSubjects, eligibleSubjects, fullyMapped) => !fullyMapped && !!intersection(eligibleSubjects, heatmapSubjects).length,
 );
 
-const unloadedSubjectTrackIDs = createSelector(
+export const unloadedSubjectTrackIDs = createSelector(
   [heatmapEligibleSubjectIDsForGroup, tracks],
   (subjectIDs, tracks) => subjectIDs.filter(id => !tracks[id]),
 );

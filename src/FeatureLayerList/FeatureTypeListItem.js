@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
@@ -18,15 +18,18 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
+const Trigger = memo(({ name }) => /* eslint-disable-line react/display-name */
+  <div className={listStyles.trigger}>
+    <h6>{name}</h6>
+  </div>);
+
 const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, openMapFeatureTypeNames,
     hideFeatures, showFeatures, map, featureFilterEnabled, openMapFeatureType, closeMapFeatureType } = props;
 
-  if (featureFilterEnabled && !features.length) return null;
+  const featureIsVisible = useCallback(item => !hiddenFeatureIDs.includes(item.properties.id), [hiddenFeatureIDs]);
 
-  const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
-
-  const onCheckToggle = (item) => {
+  const onCheckToggle = useCallback((item) => {
     const { properties: { id } } = item;
     if (featureIsVisible(item)) {
       mapLayerTracker.track('Uncheck Feature checkbox');
@@ -35,30 +38,28 @@ const FeatureTypeListItem = (props) => {
       mapLayerTracker.track('Check Feature checkbox');
       return showFeatures(id);
     }
-  };
+  }, [featureIsVisible, hideFeatures, showFeatures]);
 
-  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) ||
-    openMapFeatureTypeNames.includes(name);
+  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length)
+  || openMapFeatureTypeNames.includes(name);
 
-  const onFeatureTypeOpen = () => {
+  const onFeatureTypeOpen = useCallback(() => {
     openMapFeatureType(name);
-  };
+  }, [name, openMapFeatureType]);
 
-  const onFeatureTypeClose = () => {
+  const onFeatureTypeClose = useCallback(() => {
     closeMapFeatureType(name);
-  };
+  }, [closeMapFeatureType, name]);
 
   const itemProps = { map };
 
-  const trigger = <div className={listStyles.trigger}>
-    <h6>{name}</h6>
-  </div>;
+  if (featureFilterEnabled && !features.length) return null;
 
   return <Collapsible
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
-    trigger={trigger}
+    trigger={<Trigger name={name} />}
     onClosing={onFeatureTypeClose}
     onOpening={onFeatureTypeOpen}
     open={collapsibleShouldBeOpen} >

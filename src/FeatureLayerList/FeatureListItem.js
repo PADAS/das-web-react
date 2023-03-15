@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import center from '@turf/center';
 import { feature } from '@turf/helpers';
@@ -20,13 +20,14 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 const FeatureListItem = memo((props) => {
   const { properties, map, geometry, showFeatures, showPopup } = props;
 
-  const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
+  const icon = useMemo(() => {
+    if (properties.analyzer_type === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
+    if (properties.analyzer_type === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
     return null;
-  };
+  }, [properties?.analyzer_type]);
 
-  const onJumpButtonClick = () => {
+
+  const onJumpButtonClick = useCallback(() => {
     showFeatures(properties.id);
     fitMapBoundsToGeoJson(map, { geometry });
     setTimeout(() => {
@@ -44,14 +45,18 @@ const FeatureListItem = memo((props) => {
 
     mapLayerTracker.track('Click Jump To Feature Location button',
       `Feature Type:${properties.type_name}`);
-  };
+  }, [geometry, map, properties, showFeatures, showPopup]);
 
-  const onMouseOverFeature = (enter) => {
+  const onMouseOverFeature = useCallback(enter => {
     setFeatureActiveStateByID(map, properties.id, (enter));
-  };
+  }, [map, properties.id]);
 
-  return <span className={listStyles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
+  const onMouseEnter = useCallback(() => onMouseOverFeature(true), [onMouseOverFeature]);
+  const onMouseLeave = useCallback(() => onMouseOverFeature(false), [onMouseOverFeature]);
+
+
+  return <span className={listStyles.featureTitle} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+    {icon} {properties.title}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 
 });

@@ -1,40 +1,36 @@
-import React, { memo } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useContext } from 'react';
 
-import { updateMapLayerFilter } from '../ducks/map-layer-filter';
+import { LayerFilterContext } from './context';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-const MapLayerFilter = (props) => {
-  const { mapLayerFilter, updateMapLayerFilter } = props;
-  const { filter: { text } } = mapLayerFilter;
-  const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-  const onClearSearch = (e) => {
+const MapLayerFilter = () => {
+
+  const { filterText, setFilterValue } = useContext(LayerFilterContext);
+
+  const onClearSearch = useCallback((e) => {
     e.stopPropagation();
-    updateMapLayerFilter({
-      filter: { text: '' }
-    });
+    setFilterValue('');
     mapLayerTracker.track('Clear Search Text Filter');
-  };
+  }, [setFilterValue]);
 
-  const onSearchChange = ({ target: { value } }) => {
-    updateMapLayerFilter({
-      filter: {
-        text: !!value ? value.toLowerCase() : null,
-      }
-    });
+  const onSearchChange = useCallback(({ target: { value } }) => {
+    setFilterValue(!!value ? value.toLowerCase() : '');
     mapLayerTracker.track('Change Search Text Filter');
-  };
+  }, [setFilterValue]);
 
-  return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <SearchBar className={styles.search} placeholder='Search Layers...' value={text || ''}
+  const onSubmit = useCallback((e) => {
+    e.preventDefault();
+  }, []);
+
+  return <form className={styles.form} onSubmit={onSubmit}>
+    <SearchBar className={styles.search} placeholder='Search Layers...' value={filterText}
       onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
 };
 
-const mapStatetoProps = ({ data: { mapLayerFilter } }) => ({ mapLayerFilter });
-
-export default connect(mapStatetoProps, { updateMapLayerFilter })(memo(MapLayerFilter));
+export default MapLayerFilter;

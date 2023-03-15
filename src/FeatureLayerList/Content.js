@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
@@ -19,43 +19,52 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
+const Trigger = ({ name }) => <h6 className={listStyles.trigger}>{name}</h6>;
+
 const Content = (props) => {
   const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map,
     featureFilterEnabled } = props;
 
-  if (featureFilterEnabled && !featuresByType.length) return null;
 
-  const allVisible = type => !hiddenFeatureIDs.length || !intersection(hiddenFeatureIDs, getUniqueIDsFromFeatures(...type.features)).length;
+  const allVisible = useCallback((type) =>
+    !hiddenFeatureIDs.length
+    || !intersection(
+      hiddenFeatureIDs,
+      getUniqueIDsFromFeatures(...type.features)
+    ).length, [hiddenFeatureIDs]);
 
-  const someVisible = (type) => {
+  const someVisible = useCallback((type) => {
+    if (allVisible(type)) return false;
+
     const featureIDs = getUniqueIDsFromFeatures(...type.features);
-    return !allVisible(type) && intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
-  };
 
-  const onCheckToggle = (type) => {
+    return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
+  }, [hiddenFeatureIDs, allVisible]);
+
+
+
+  const onCheckToggle = useCallback((type) => {
     const featureIDs = getUniqueIDsFromFeatures(...type.features);
     if (allVisible(type)) {
       mapLayerTracker.track('Uncheck Feature Set Type checkbox',
-        `Feature Set Type:${type.name}`);
+      `Feature Set Type:${type.name}`);
       return hideFeatures(...featureIDs);
     } else {
       mapLayerTracker.track('Check Feature Set Type checkbox',
-        `Feature Set Type:${type.name}`);
+      `Feature Set Type:${type.name}`);
       return showFeatures(...featureIDs);
     }
-  };
-
+  }, [allVisible, hideFeatures, showFeatures]);
   const collapsibleShouldBeOpen = featureFilterEnabled && !!featuresByType.length;
+  const itemProps = useMemo(() => ({ map, featureFilterEnabled }), [map, featureFilterEnabled]);
 
-  const itemProps = { map, featureFilterEnabled, };
-
-  const trigger = <h6 className={listStyles.trigger}>{name}</h6>;
+  if (featureFilterEnabled && !featuresByType.length) return null;
 
   return <Collapsible
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
-    trigger={trigger}
+    trigger={<Trigger name={name} />}
     open={collapsibleShouldBeOpen} >
     <CheckableList
       className={listStyles.list}

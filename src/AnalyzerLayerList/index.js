@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useDeferredValue, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
@@ -6,6 +6,7 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
 import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
+import { LayerFilterContext } from '../MapLayerFilter/context';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import CheckableList from '../CheckableList';
@@ -23,16 +24,18 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const AnalyzerLayerList = memo((props) => {
-  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
+  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map } = props;
+
+  const { filterText: filterFromContext } = useContext(LayerFilterContext);
+
+  const filterText = useDeferredValue(filterFromContext);
 
   const analyzers = useMemo(() => {
-    const { filter: { text = '' } } = mapLayerFilter;
+    if (!filterText) return analyzerList[0].features;
 
-    if (!text) return analyzerList[0].features;
+    return analyzerList[0].features.filter(({ name }) => name.toLowerCase().includes(filterText.toLowerCase()));
 
-    return analyzerList[0].features.filter(({ name }) => name.toLowerCase().includes(text.toLowerCase()));
-
-  }, [analyzerList, mapLayerFilter]);
+  }, [analyzerList, filterText]);
 
   const analyzerIds = useMemo(() => analyzers.map(({ id }) => id), [analyzers]);
   const analyzerFeatureIDs = useMemo(() =>
@@ -51,12 +54,10 @@ const AnalyzerLayerList = memo((props) => {
   const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
   const collapsibleShouldBeOpen = useMemo(() => {
-    const { filter: { text = '' } } = mapLayerFilter;
-
-    if (!text) return false;
+    if (!filterText) return false;
 
     return !!analyzers.length;
-  }, [analyzers.length, mapLayerFilter]);
+  }, [analyzers.length, filterText]);
 
 
   const onToggleAllFeatures = useCallback((e) => {
@@ -130,7 +131,6 @@ const mapStateToProps = (state) => ({
   analyzerFeatures: analyzerFeatures(state),
   hiddenAnalyzerIDs: state.view.hiddenAnalyzerIDs,
   analyzerList: getAnalyzerListState(state),
-  mapLayerFilter: state.data.mapLayerFilter,
 });
 
 export default connect(mapStateToProps, { hideAnalyzers, showAnalyzers })(AnalyzerLayerList);
