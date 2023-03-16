@@ -1,0 +1,40 @@
+@import '../../common/styles/vars/colors';
+$cardExpansionTransitionTime: 300ms;
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  svg {
+    color: $secondary-medium-gray;
+    width: 1.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+.list {
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 0;
+
+  li {
+    transition: margin $cardExpansionTransitionTime;
+
+    &.openItem {
+      margin: 0.5rem 0;
+    }
+  }
+}

@@ -36,6 +36,8 @@ import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
+import ActivitySection from './ActivitySection';
+import reportForm from '../ReportForm';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -322,6 +324,12 @@ const PatrolDetailView = () => {
 
   const shouldRenderHistorySection = patrolForm?.updates;
 
+  const patrolAttachments = useMemo(
+    () => Array.isArray(patrolForm?.files) ? patrolForm.files : [],
+    [patrolForm?.files]
+  );
+  const patrolNotes = useMemo(() => Array.isArray(patrolForm?.notes) ? patrolForm.notes : [], [patrolForm?.notes]);
+
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
@@ -356,7 +364,7 @@ const PatrolDetailView = () => {
             <div className={styles.sectionSeparation} />
 
             <QuickLinks.Section anchorTitle="Activity">
-              Activity section
+              <ActivitySection patrolAttachments={patrolAttachments} patrolNotes={patrolNotes} />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
