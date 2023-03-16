@@ -189,6 +189,10 @@ const ReportDetailView = ({
         .map(contained => contained.related_event.id)
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
+
+    const createdReport = results.length ? results[0] : results;
+    dispatch(fetchEvent(createdReport.data.data.id));
+
     return results;
   }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 

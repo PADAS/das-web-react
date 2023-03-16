@@ -396,7 +396,7 @@ describe('ReportManager - ReportDetailView', () => {
     await waitFor(() => {
       expect(addEventToIncident).toHaveBeenCalledTimes(1);
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
-      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('initial');
     });
   });
@@ -438,7 +438,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(addEventToIncident).toHaveBeenCalledTimes(2);
       expect(addEventToIncident).toHaveBeenCalledWith('initial', 'incident');
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'incident');
-      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
       expect(navigate).toHaveBeenCalledWith('/reports/incident');
