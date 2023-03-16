@@ -57,13 +57,14 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
   const onChangeTextArea = useCallback((event) => {
     const currentValue = !event.target.value.trim() ? '' : event.target.value;
-    const isEmpty = !currentValue.length;
-    const hasChanged = !text?.length && currentValue.length;
     setText(currentValue);
-    if (isNewAndUnAdded && (isEmpty || hasChanged)){
-      onNewNoteHasChanged?.();
+  }, []);
+
+  useEffect(() => {
+    if (isNewAndUnAdded){
+      onNewNoteHasChanged?.(note.creationDate, text.length > 0);
     }
-  }, [onNewNoteHasChanged, isNewAndUnAdded, text]);
+  }, [isNewAndUnAdded, note.creationDate, text]);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
