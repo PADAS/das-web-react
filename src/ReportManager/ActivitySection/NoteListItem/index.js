@@ -61,10 +61,11 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   }, []);
 
   useEffect(() => {
-    if (isNewAndUnAdded){
-      onNewNoteHasChanged?.(note.creationDate, text.length > 0);
+    if (isNewAndUnAdded || isEditing){
+      const date = isNewAndUnAdded ? note.creationDate : note.created_at;
+      onNewNoteHasChanged?.(date, text.length > 0);
     }
-  }, [isNewAndUnAdded, note.creationDate, text]);
+  }, [isNewAndUnAdded, note, text, isEditing]);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
@@ -72,6 +73,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       onDelete();
     } else {
       reportTracker.track('Cancel editing existing note');
+      onNewNoteHasChanged?.(note.created_at, false);
       setText(note.text);
     }
     setIsEditing(false);

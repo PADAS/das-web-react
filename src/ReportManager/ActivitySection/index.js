@@ -99,6 +99,7 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
+      onNewNoteHasChanged={onNewNoteHasChanged}
     />,
   })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
 

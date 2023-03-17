@@ -86,7 +86,7 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [notesUnsavedChanges, setNotesUnsavedChanges] = useState({});
+  const [notesUnsavedChanges, setNotesUnsavedChanges] = useState([]);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -162,10 +162,6 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const notesWithUnsavedChanges = useMemo(() => {
-    return Object.values(notesUnsavedChanges).some(hasUnsavedChanges => hasUnsavedChanges);
-  }, [notesUnsavedChanges]);
-
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
@@ -174,7 +170,7 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-      || notesWithUnsavedChanges
+      || notesUnsavedChanges.length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -354,20 +350,26 @@ const ReportDetailView = ({
   }, [attachmentsToAdd]);
 
   const updateNotesUnsavedChanges = useCallback((creationDate, hasUnsavedChanges) => {
-    if (notesUnsavedChanges[creationDate] !== hasUnsavedChanges){
-      setNotesUnsavedChanges({ ...notesUnsavedChanges, [creationDate]: hasUnsavedChanges });
+    const noteIndex = notesUnsavedChanges.findIndex((date) => date === creationDate);
+    const isAdded = noteIndex >= 0;
+    if (hasUnsavedChanges && !isAdded){
+      setNotesUnsavedChanges([ ...notesUnsavedChanges, creationDate ]);
+    } else if (!hasUnsavedChanges && isAdded){
+      const updatedUnsavedNotes = [...notesUnsavedChanges];
+      updatedUnsavedNotes.splice(noteIndex, 1);
+      setNotesUnsavedChanges(updatedUnsavedNotes);
     }
   }, [notesUnsavedChanges]);
 
   const onDeleteNote = useCallback((note) => {
-    updateNotesUnsavedChanges(note.creationDate, false);
+    updateNotesUnsavedChanges(note.creationDate ?? note.created_at, false);
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd, updateNotesUnsavedChanges]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
     const isNew = !originalNote.id;
-    updateNotesUnsavedChanges(editedNote.creationDate, false);
+    updateNotesUnsavedChanges(editedNote.creationDate ?? editedNote.created_at, false);
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
     } else {
