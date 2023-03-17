@@ -497,13 +497,14 @@ const ReportDetailView = ({
       reportChanges?.priority ||
       reportChanges?.time ||
       reportChanges?.title;
-    if (shouldUpdateMapEvent) {
+    if (!isNewReport && shouldUpdateMapEvent) {
       dispatch(setLocallyEditedEvent(reportForm));
     } else {
       dispatch(unsetLocallyEditedEvent());
     }
   }, [
     dispatch,
+    isNewReport,
     reportChanges?.geometry,
     reportChanges?.location,
     reportChanges?.priority,

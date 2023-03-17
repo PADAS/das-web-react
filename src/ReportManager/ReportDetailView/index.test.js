@@ -61,6 +61,7 @@ afterAll(() => server.close());
 describe('ReportManager - ReportDetailView', () => {
   const mockReport = {
     event_type: 'jtar',
+    geojson: {},
     id: '456',
     priority: 0,
     state: 'active',
@@ -450,11 +451,10 @@ describe('ReportManager - ReportDetailView', () => {
 
     renderWithWrapper(
       <ReportDetailView
-            formProps={{ onSaveSuccess }}
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        formProps={{ onSaveSuccess }}
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -474,10 +474,9 @@ describe('ReportManager - ReportDetailView', () => {
   test('executes save actions when clicking save and navigates to report feed', async () => {
     renderWithWrapper(
       <ReportDetailView
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');

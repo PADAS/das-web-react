@@ -504,7 +504,9 @@ export const setLocallyEditedEvent = (event) => (dispatch) => {
     payload.geojson = polygon(payloadGeometry.geometry.coordinates);
   }
 
-  payload.geojson.properties = { locallyEdited: true };
+  if (payload.geojson) {
+    payload.geojson.properties = { locallyEdited: true };
+  }
 
   dispatch({ type: SET_LOCALLY_EDITED_EVENT, payload });
 };
