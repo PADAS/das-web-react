@@ -5,12 +5,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
-import { library, dom } from '@fortawesome/fontawesome-svg-core';
-
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp';
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
 import JiraSupportWidget from './JiraSupportWidget';
 import GeoLocationWatcher from './GeoLocationWatcher';
@@ -43,10 +37,6 @@ const Login = lazy(() => import('./Login'));
 const AppWithTracker = withTracker(App);
 const EulaPageWithTracker = withTracker(EulaPage);
 const LoginWithTracker = withTracker(Login);
-
-// registering icons from fontawesome as needed
-library.add(faPlus, faTimes, faArrowUp, faArrowDown);
-dom.watch();
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' ? true : false });
