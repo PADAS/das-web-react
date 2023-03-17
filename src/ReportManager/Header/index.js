@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
-import { INCIDENT_REPORT_CATEGORY, EVENT_REPORT_CATEGORY, MAP_LAYERS_CATEGORY, TrackerContext } from '../../utils/analytics';
+import { INCIDENT_REPORT_CATEGORY, EVENT_REPORT_CATEGORY, TrackerContext } from '../../utils/analytics';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';
