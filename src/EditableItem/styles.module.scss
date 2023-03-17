@@ -44,7 +44,7 @@
 .headerIcon {
   --dimensions: 1.5rem;
   --half-size: calc(var(--dimensions)/2);
-  svg {
+  img {
     max-height: var(--dimensions);
     width: var(--dimensions);
     @media #{$whenPageIsMediumHeightAndWidth} {
@@ -53,7 +53,7 @@
     &[class*=generic] {
       max-height: var(--half-size);
     }
-    + svg {
+    + img {
       --smaller-dimensions: calc(var(--dimensions)/2);
       left: 23%;
       max-height: var(--smaller-dimensions);

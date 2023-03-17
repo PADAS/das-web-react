@@ -22,6 +22,7 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { getCurrentTabFromURL } from './utils/navigation';
 import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
+import SvgIconContextProvider from './SvgIconDataContext';
 import { MAP_LOCATION_SELECTION_MODES } from './ducks/map-ui';
 
 import Drawer from './Drawer';
@@ -30,7 +31,7 @@ import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
-import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
+// import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
@@ -149,32 +150,34 @@ const App = (props) => {
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
     >
-    <MapContext.Provider value={map}>
-      <MapDrawingToolsContextProvider>
-        <PrintTitle />
+    <SvgIconContextProvider>
+      <MapContext.Provider value={map}>
+        <MapDrawingToolsContextProvider>
+          <PrintTitle />
 
-        <Nav map={map} />
+          <Nav map={map} />
 
-        <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-          {!!map && <SideBar map={map} />}
-          <ModalRenderer />
-        </div>
+          <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+            <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+            {!!map && <SideBar map={map} />}
+            <ModalRenderer />
+          </div>
 
-        <div style={{
+          <div style={{
           display: 'none',
           height: 0,
           width: 0,
         }}>
-          <ReportTypeIconSprite id="reportTypeIconSprite" />
-          <EarthRangerLogoSprite />
-        </div>
+            {/* <ReportTypeIconSprite id="reportTypeIconSprite" /> */}
+            <EarthRangerLogoSprite />
+          </div>
 
-        <Drawer />
+          <Drawer />
 
-        <ServiceWorkerWatcher />
-      </MapDrawingToolsContextProvider>
-    </MapContext.Provider>
+          <ServiceWorkerWatcher />
+        </MapDrawingToolsContextProvider>
+      </MapContext.Provider>
+    </SvgIconContextProvider>
     <ToastContainer transition={Slide} />
   </div>;
 };

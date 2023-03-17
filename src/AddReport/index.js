@@ -290,6 +290,7 @@ const AddReport = forwardRef(({
     analyticsMetadata.category,
     analyticsMetadata.location,
     enableNewReportUI,
+    enableNewPatrolUI,
     formProps,
     map,
     onAddReport,

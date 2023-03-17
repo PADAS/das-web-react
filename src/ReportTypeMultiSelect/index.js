@@ -33,6 +33,20 @@ const filterEventTypes = (eventTypes, filterText) =>
   );
 
 
+const ListItem = memo((props) => { // eslint-disable-line react/display-name
+  const { display, types, onTypeToggle, reportTypeChecked } = props;
+  return <Fragment key={display}>
+    <h5>{display}</h5>
+    <CheckableList
+        items={types}
+        onCheckClick={onTypeToggle}
+        itemComponent={EventTypeListItem}
+        itemFullyChecked={reportTypeChecked}
+      />
+  </Fragment>;
+});
+
+
 const ReportTypeMultiSelect = (props) => {
   const { eventTypes = [], filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
 
@@ -70,20 +84,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const reportTypeChecked = (type) => noEventTypeSetInFilter ? true : selectedReportTypeIDs.includes(type.id);
 
-  const ListItem = (props) => { // eslint-disable-line react/display-name
-    const { display, types } = props;
-    return <Fragment key={display}>
-      <h5>{display}</h5>
-      <CheckableList
-        items={types}
-        onCheckClick={onTypeToggle}
-        itemComponent={EventTypeListItem}
-        itemFullyChecked={reportTypeChecked}
-      />
-    </Fragment>;
-  };
 
-  const MemoizedListItem = memo(ListItem);
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
@@ -102,7 +103,8 @@ const ReportTypeMultiSelect = (props) => {
       className={styles.reportTypeList}
       onCheckClick={onCategoryToggle}
       items={itemsGroupedByCategory}
-      itemComponent={MemoizedListItem}
+      itemProps={{ onTypeToggle, reportTypeChecked }}
+      itemComponent={ListItem}
       itemFullyChecked={categoryFullyChecked}
       itemPartiallyChecked={categoryPartiallyChecked}
     />

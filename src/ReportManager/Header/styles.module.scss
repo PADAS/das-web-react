@@ -56,6 +56,10 @@
   width: 3rem;
   height: 100%;
 
+  [class*=wrapper] {
+    max-width: 90%;
+  }
+
   &.priority-300 {
     @include priority300;
   }

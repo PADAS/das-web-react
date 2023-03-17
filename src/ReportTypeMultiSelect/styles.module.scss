@@ -41,7 +41,7 @@
   }
 
 
-  svg {
+  svg, img {
     --dimensions: 1.5rem;
     --half-size: calc(var(--dimensions)/2);
     cursor: pointer;

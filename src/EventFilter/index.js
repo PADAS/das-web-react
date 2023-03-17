@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
+import React, { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -87,7 +87,7 @@ const EventFilter = (props) => {
     updateEventFilter({ filter: { event_type: [] } });
   };
 
-  const onReportCategoryToggle = ({ value }) => {
+  const onReportCategoryToggle = useCallback(({ value }) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
     const allShown = eventTypeFilterEmpty
       ? true
@@ -101,7 +101,7 @@ const EventFilter = (props) => {
 
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
-  };
+  }, [currentFilterReportTypes, eventTypeFilterEmpty, eventTypeIDs, eventTypes, updateEventFilter]);
 
   const onReportedByChange = (values) => {
     const hasValue = values && !!values.length;
