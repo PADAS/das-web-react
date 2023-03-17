@@ -9,7 +9,14 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
+import {
+  addEventToIncident,
+  createEvent,
+  fetchEvent,
+  setEventState,
+  setLocallyEditedEvent,
+  unsetLocallyEditedEvent,
+} from '../../ducks/events';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
 import { TrackerContext } from '../../utils/analytics';
 import {
@@ -24,7 +31,6 @@ import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
-import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/events';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';

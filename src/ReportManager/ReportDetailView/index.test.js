@@ -21,6 +21,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/events';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -38,6 +39,8 @@ jest.mock('../../ducks/events', () => ({
   addEventToIncident: jest.fn(),
   createEvent: jest.fn(),
   fetchEvent: jest.fn(),
+  setLocallyEditedEvent: jest.fn(),
+  unsetLocallyEditedEvent: jest.fn(),
 }));
 
 jest.mock('../../ducks/event-schemas', () => ({
@@ -80,6 +83,8 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock,
     fetchEventMock,
     fetchEventTypeSchemaMock,
+    setLocallyEditedEventMock,
+    unsetLocallyEditedEventMock,
     map,
     navigate,
     useNavigateMock,
@@ -100,6 +105,10 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEvent.mockImplementation(fetchEventMock);
     fetchEventTypeSchemaMock = jest.fn(() => () => {});
     fetchEventTypeSchema.mockImplementation(fetchEventTypeSchemaMock);
+    setLocallyEditedEventMock = jest.fn(() => () => {});
+    setLocallyEditedEvent.mockImplementation(setLocallyEditedEventMock);
+    unsetLocallyEditedEventMock = jest.fn(() => () => {});
+    unsetLocallyEditedEvent.mockImplementation(unsetLocallyEditedEventMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
@@ -710,6 +719,40 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+  });
+
+  test('sets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+      expect(setLocallyEditedEvent.mock.calls[0][0].id).toBe('456');
+    });
+  });
+
+  test('unsets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+    });
+
+    userEvent.type(titleInput, 't');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('the warning prompt', () => {
