@@ -1,30 +1,30 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import isFuture from 'date-fns/is_future';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import {useDispatch, useSelector} from 'react-redux';
+import {useLocation, useSearchParams} from 'react-router-dom';
 
-import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
-import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
-import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
+import {ReactComponent as BulletListIcon} from '../common/images/icons/bullet-list.svg';
+import {ReactComponent as CalendarIcon} from '../common/images/icons/calendar.svg';
+import {ReactComponent as HistoryIcon} from '../common/images/icons/history.svg';
 
-import { addPatrolSegmentToEvent } from '../utils/events';
-import { createPatrolDataSelector } from '../selectors/patrols';
+import {addPatrolSegmentToEvent} from '../utils/events';
+import {createPatrolDataSelector} from '../selectors/patrols';
 import {
   createNewPatrolForPatrolType,
   displayPatrolSegmentId,
   patrolShouldBeMarkedDone,
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
-import { extractObjectDifference } from '../utils/objects';
-import { fetchPatrol } from '../ducks/patrols';
-import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { getCurrentIdFromURL } from '../utils/navigation';
-import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
+import {extractObjectDifference} from '../utils/objects';
+import {fetchPatrol} from '../ducks/patrols';
+import {executeSaveActions, generateSaveActionsForReportLikeObject} from '../utils/save';
+import {getCurrentIdFromURL} from '../utils/navigation';
+import {PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS} from '../constants';
+import {PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory} from '../utils/analytics';
+import {radioHasRecentActivity, subjectIsARadio} from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
-import { uuid } from '../utils/string';
+import {uuid} from '../utils/string';
 
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
@@ -37,7 +37,6 @@ import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
 import ActivitySection from './ActivitySection';
-import reportForm from '../ReportForm';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -57,9 +56,7 @@ const PatrolDetailView = () => {
 
   const patrolPermissions = useSelector((state) => {
     const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-    const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-    return patrolPermissions ;
+    return permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [] ;
   });
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const patrolType = useSelector(

@@ -43,7 +43,7 @@ const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
         onCollapse={() => onCollapseCard(patrolAttachment)}
         onExpand={() => onExpandCard(patrolAttachment)}
     />,
-  })), [cardsExpanded, patrolAttachments]);
+  })), [cardsExpanded, onCollapseCard, onExpandCard, patrolAttachments]);
 
   const sortableList = useMemo(() => [
     ...patrolAttachmentsRendered,
@@ -71,9 +71,25 @@ const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
-
         <h2>Activity</h2>
       </div>
+
+      {sortableList.length > 0 && <div className={styles.actions}>
+        <label>Time</label>
+
+        <SortButton />
+
+        <Button
+            className={styles.expandCollapseButton}
+            data-testid="reportManager-activitySection-expandCollapseButton"
+            onClick={onClickExpandCollapseButton}
+            type="button"
+            variant="secondary"
+        >
+          {areAllItemsExpanded ? 'Collapse All' : 'Expand All'}
+        </Button>
+      </div>}
+
     </div>
     {!!sortableList.length && <ul className={styles.list} >
       {sortedItemsRendered}

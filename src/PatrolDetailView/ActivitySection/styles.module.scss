@@ -38,3 +38,26 @@ $cardExpansionTransitionTime: 300ms;
     }
   }
 }
+
+.actions {
+  display: flex;
+  align-items: center;
+
+  label {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  button {
+    height: 2.25rem;
+    min-width: 2.25rem;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+}
+
+.expandCollapseButton {
+  background-color: $light-gray;
+  border-color: $light-gray;
+  color: $secondary-medium-gray;
+}
