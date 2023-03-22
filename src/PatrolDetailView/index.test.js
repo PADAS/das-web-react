@@ -175,13 +175,13 @@ describe('PatrolDetailView', () => {
       </Provider>
     );
 
-    const titleInput = (await screen.findAllByRole('textbox'))[0];
+    const titleInput = await screen.findByTestId('patrolDetailView-header-title');
 
-    expect(titleInput).toHaveAttribute('value', 'Unknown patrol type');
+    expect(titleInput).toHaveTextContent('Unknown patrol type');
 
     userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveAttribute('value', 'Unknown patrol type2');
+    expect(titleInput).toHaveTextContent('2nknown patrol type');
   });
 
   test('executes save actions when clicking save and navigates to patrol feed', async () => {
