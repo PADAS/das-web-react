@@ -448,7 +448,7 @@ const ReportDetailView = ({
 
   const onNavigationContinue = useCallback((shouldSave = false) => {
     if (shouldSave) {
-      onSaveReport();
+      onSaveReport(false);
     } else {
       if (isAddedReport) {
         onCancelAddedReport?.();

@@ -133,6 +133,21 @@ describe('Header', () => {
     });
   });
 
+  test('sets the display title if user leaves the title input empty', async () => {
+    render(
+      <Provider store={store}>
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+      </Provider>
+    );
+
+    const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
+    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}');
+    userEvent.tab();
+
+    expect(onChangeTitle).toHaveBeenCalledTimes(1);
+    expect(onChangeTitle).toHaveBeenCalledWith('Future');
+  });
+
   test('triggers startPatrol callback when clicking the start button', async () => {
     render(
       <Provider store={store}>

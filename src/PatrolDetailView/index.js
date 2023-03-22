@@ -115,7 +115,7 @@ const PatrolDetailView = () => {
     console.warn('failed to save new patrol', error);
   }, [isNewPatrol]);
 
-  const onSavePatrol = useCallback(() => {
+  const onSavePatrol = useCallback((shouldRedirectAfterSave = true) => {
     if (isSaving) {
       return;
     }
@@ -144,7 +144,7 @@ const PatrolDetailView = () => {
 
     const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], filesToAdd);
     return executeSaveActions(saveActions)
-      .then(onSaveSuccess(`/${TAB_KEYS.PATROLS}`))
+      .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
@@ -155,7 +155,7 @@ const PatrolDetailView = () => {
 
   const onNavigationContinue = useCallback((shouldSave = false) => {
     if (shouldSave) {
-      onSavePatrol();
+      onSavePatrol(false);
     } else {
       trackDiscard();
     }

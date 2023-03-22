@@ -208,4 +208,67 @@ describe('PatrolDetailView', () => {
       expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
     });
   });
+
+  describe('the warning prompt', () => {
+    let actualUseNavigate;
+
+    beforeEach(() => {
+      actualUseNavigate = jest.requireActual('../hooks/useNavigate');
+      useNavigate.mockImplementation(actualUseNavigate.default);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('showing a warning prompt for unsaved changes', async () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <PatrolDetailView />
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      const titleInput = await screen.findByTestId('patrolDetailView-header-title');
+      userEvent.type(titleInput, '2');
+      titleInput.blur();
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+    });
+
+    test('saving unsaved changes', async () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <PatrolDetailView />
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
+      userEvent.type(titleTextBox, '2');
+      userEvent.tab();
+
+      const cancelButton = await screen.findByText('Cancel');
+      userEvent.click(cancelButton);
+
+      expect(executeSaveActions).toHaveBeenCalledTimes(0);
+      expect(navigate).toHaveBeenCalledTimes(0);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+
+      const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
+      promptSaveBtn.click();
+
+      await waitFor(() => {
+        expect(executeSaveActions).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
 });
