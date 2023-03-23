@@ -28,7 +28,7 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
-  onNewNoteHasChanged,
+  onNoteHasChanged,
 }) => {
   const [cardsExpanded, setCardsExpanded] = useState([]);
   const reportTracker = useContext(TrackerContext);
@@ -99,9 +99,9 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
-      onNewNoteHasChanged={onNewNoteHasChanged}
+      onNoteHasChanged={onNoteHasChanged}
     />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
+  })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes, onNoteHasChanged]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -114,9 +114,9 @@ const ActivitySection = ({
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
-      onNewNoteHasChanged={onNewNoteHasChanged}
+      onNoteHasChanged={onNoteHasChanged}
     />,
-  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNewNoteHasChanged]);
+  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNoteHasChanged]);
 
   const sortableList = useMemo(() => [
     ...containedReportsRendered,
@@ -204,7 +204,7 @@ const ActivitySection = ({
 };
 
 ActivitySection.defaultProps = {
-  onNewNoteHasChanged: null,
+  onNoteHasChanged: null,
 };
 
 ActivitySection.propTypes = {
@@ -225,6 +225,7 @@ ActivitySection.propTypes = {
   onDeleteNote: PropTypes.func.isRequired,
   onNewNoteHasChanged: PropTypes.func,
   onSaveNote: PropTypes.func.isRequired,
+  onNoteHasChanged: PropTypes.func,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,

@@ -16,7 +16,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNewNoteHasChanged }, ref = null) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNoteHasChanged }, ref = null) => {
   const textareaRef = useRef();
 
   const reportTracker = useContext(TrackerContext);
@@ -63,7 +63,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   useEffect(() => {
     if (isNewAndUnAdded || isEditing){
       const date = isNewAndUnAdded ? note.creationDate : note.created_at;
-      onNewNoteHasChanged?.(date, text.length > 0);
+      onNoteHasChanged?.(date, text.length > 0);
     }
   }, [isNewAndUnAdded, note, text, isEditing]);
 
@@ -73,7 +73,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       onDelete();
     } else {
       reportTracker.track('Cancel editing existing note');
-      onNewNoteHasChanged?.(note.created_at, false);
+      onNoteHasChanged?.(note.created_at, false);
       setText(note.text);
     }
     setIsEditing(false);
@@ -187,7 +187,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
 NoteListItem.defaultProps = {
   onDelete: null,
-  onNewNoteHasChanged: null,
+  onNoteHasChanged: null,
 };
 
 NoteListItem.propTypes = {
@@ -203,7 +203,7 @@ NoteListItem.propTypes = {
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onNewNoteHasChanged: PropTypes.func,
+  onNoteHasChanged: PropTypes.func,
 };
 
 export default memo(forwardRef(NoteListItem));
