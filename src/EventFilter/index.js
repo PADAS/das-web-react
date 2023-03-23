@@ -50,7 +50,7 @@ const EventFilter = ({
   const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
 
   const isSortModified = !isEqual(DEFAULT_EVENT_SORT, sortConfig);
-  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
+  const isDateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
   const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
   const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
@@ -87,10 +87,10 @@ const EventFilter = ({
 
   const resetAllFilters = useCallback(() => {
     if (filterModified) resetPopoverFilters();
-    if (dateRangeModified) clearDateRange();
+    if (isDateRangeModified) clearDateRange();
     if (filterText) onSearchClear();
     onResetAll();
-  }, [clearDateRange, dateRangeModified, filterModified, filterText, onResetAll, onSearchClear, resetPopoverFilters]);
+  }, [clearDateRange, isDateRangeModified, filterModified, filterText, onResetAll, onSearchClear, resetPopoverFilters]);
 
   const onDateFilterIconClicked = useCallback(() => {
     reportsTracker.track('Dates Icon Clicked');
@@ -131,15 +131,12 @@ const EventFilter = ({
              id='filter-date-popover'
              data-testid='filter-date-popover'
              {...props}>
-      <DateFilter isDateRangeModified={dateRangeModified} onClearDateRange={clearDateRange} />
+      <DateFilter isDateRangeModified={isDateRangeModified} onClearDateRange={clearDateRange} />
     </Popover>,
-  [clearDateRange, dateRangeModified]);
+  [clearDateRange, isDateRangeModified]);
 
   const FiltersPopover = useCallback((props) => (
-    <Popover id='filter-popover'
-               data-testid='filter-popover'
-               className={`${styles.filterPopover} ${styles.filters}`}
-               {...props}>
+    <Popover id='filter-popover' data-testid='filter-popover' className={`${styles.filterPopover} ${styles.filters}`} {...props}>
       <Filters priority={priority}
                currentFilterReportTypes={currentFilterReportTypes}
                reportTypeFilterText={reportTypeFilterText}
@@ -202,7 +199,7 @@ const EventFilter = ({
         </OverlayTrigger>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
           <Button
-            variant={dateRangeModified ? 'primary' : 'light'}
+            variant={isDateRangeModified ? 'primary' : 'light'}
             size='sm'
             className={styles.popoverTrigger}
             data-testid='date-filter-btn'
@@ -222,7 +219,7 @@ const EventFilter = ({
         sortConfig={sortConfig}
         totalFeedCount={feedEvents.count}
       />
-      {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon />Reset</Button>}
+      {(filterModified || isDateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon />Reset</Button>}
     </div>}
   </>;
 };
