@@ -3,12 +3,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
-import eventStoreReducer, {
-  locallyEditedEventReducer,
-  mapEventsReducer,
-  eventFeedReducer,
-  incidentFeedReducer,
-} from '../ducks/events';
+import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
@@ -46,6 +41,7 @@ import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
+import locallyEditedEventReducer from '../ducks/locally-edited-event';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,

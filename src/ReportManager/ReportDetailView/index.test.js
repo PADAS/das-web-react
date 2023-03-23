@@ -21,7 +21,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
-import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/events';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -39,6 +39,10 @@ jest.mock('../../ducks/events', () => ({
   addEventToIncident: jest.fn(),
   createEvent: jest.fn(),
   fetchEvent: jest.fn(),
+}));
+
+jest.mock('../../ducks/locally-edited-event', () => ({
+  ...jest.requireActual('../../ducks/locally-edited-event'),
   setLocallyEditedEvent: jest.fn(),
   unsetLocallyEditedEvent: jest.fn(),
 }));

@@ -1,5 +1,4 @@
 import axios, { CancelToken, isCancel } from 'axios';
-import { point, polygon } from '@turf/helpers';
 import union from 'lodash/union';
 
 import { API_URL } from '../constants';
@@ -62,9 +61,6 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 const NEW_EVENT_TYPE = 'new_event';
 const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
-
-const SET_LOCALLY_EDITED_EVENT = 'SET_LOCALLY_EDITED_EVENT';
-const UNSET_LOCALLY_EDITED_EVENT = 'UNSET_LOCALLY_EDITED_EVENT';
 
 const shouldAppendLocationToRequest = (state) => {
   return userIsGeoPermissionRestricted(state?.data?.user) && !!state?.view?.userLocation?.coords;
@@ -490,31 +486,6 @@ const updateEventStore = (...results) => ({
 });
 
 
-export const setLocallyEditedEvent = (event) => (dispatch) => {
-  const payload = { ...event };
-
-  if (payload?.location) {
-    payload.geojson = point([payload.location.longitude, payload.location.latitude]);
-  }
-
-  const payloadGeometry = payload?.geometry?.type === 'FeatureCollection'
-    ? payload.geometry.features[0]
-    : payload?.geometry;
-  if (payloadGeometry) {
-    payload.geojson = polygon(payloadGeometry.geometry.coordinates);
-  }
-
-  if (payload.geojson) {
-    payload.geojson.properties = { locallyEdited: true };
-  }
-
-  dispatch({ type: SET_LOCALLY_EDITED_EVENT, payload });
-};
-
-export const unsetLocallyEditedEvent = () => (dispatch) => dispatch({
-  type: UNSET_LOCALLY_EDITED_EVENT,
-});
-
 // higher-order reducers
 const namedFeedReducer = (name, reducer = state => state) => globallyResettableReducer((state, action) => {
   const isInitializationCall = state === undefined;
@@ -721,19 +692,6 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
     };
   }
   return state;
-}, INITIAL_MAP_EVENTS_STATE);
-
-const INITIAL_LOCALLY_EDITED_EVENT_STATE = null;
-
-export const locallyEditedEventReducer = globallyResettableReducer((state, action) => {
-  switch (action.type) {
-  case SET_LOCALLY_EDITED_EVENT:
-    return action.payload;
-  case UNSET_LOCALLY_EDITED_EVENT:
-    return INITIAL_LOCALLY_EDITED_EVENT_STATE;
-  default:
-    return state;
-  }
 }, INITIAL_MAP_EVENTS_STATE);
 
 export default globallyResettableReducer(eventStoreReducer, INITIAL_STORE_STATE);

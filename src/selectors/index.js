@@ -60,21 +60,28 @@ const userCreatableEventTypesByCategory = createSelector(
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore, getEventTypes, locallyEditedEvent],
-  (mapEvents, eventStore, eventTypes, locallyEditedEvent) => createFeatureCollectionFromEvents(mapEvents
-    .map((id) => {
-      if (locallyEditedEvent?.id === id) {
-        const event = {
-          ...eventStore[id],
-          ...pickBy(locallyEditedEvent, (value) => value !== undefined),
-        };
-        event.title = `* ${event.title}`;
+  (mapEvents, eventStore, eventTypes, locallyEditedEvent) => {
+    const eventsInMap = mapEvents;
+    if (locallyEditedEvent && !eventsInMap.includes(locallyEditedEvent.id)) {
+      eventsInMap.push(locallyEditedEvent.id);
+    }
 
-        return event;
-      }
+    return createFeatureCollectionFromEvents(eventsInMap
+      .map((id) => {
+        if (locallyEditedEvent?.id === id) {
+          const event = {
+            ...eventStore[id],
+            ...pickBy(locallyEditedEvent, (value) => value !== undefined),
+            locallyEdited: true,
+          };
 
-      return eventStore[id];
-    })
-    .filter(item => !!item), eventTypes)
+          return event;
+        }
+
+        return eventStore[id];
+      })
+      .filter(item => !!item), eventTypes);
+  }
 );
 
 export const getFeedEvents = createSelector(
