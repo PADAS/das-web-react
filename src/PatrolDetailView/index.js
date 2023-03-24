@@ -26,6 +26,7 @@ import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
+import ActivitySection from './ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
@@ -320,6 +321,7 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
+  const shouldRenderActivitySection = true;
   const shouldRenderHistorySection = patrolForm?.updates;
 
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
@@ -353,10 +355,10 @@ const PatrolDetailView = () => {
               />
             </QuickLinks.Section>
 
-            <div className={styles.sectionSeparation} />
+            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="Activity">
-              Activity section
+            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+              <ActivitySection />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
