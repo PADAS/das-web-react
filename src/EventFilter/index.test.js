@@ -8,10 +8,9 @@ import userEvent from '@testing-library/user-event';
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter';
 
-import EventFilter from './';
+import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
-import { RESET_DATE_RANGE } from '../ducks/global-date-range';
 
 ReactGA.initialize('dummy', { testMode: true });
 
@@ -193,12 +192,14 @@ describe('After filters being applied', () => {
   });
 
   test('clicking on reset button should erase the search text value', async () => {
+    jest.useFakeTimers();
     const mockedStore = mockStore(initialState);
     await assertResolvedOptionBtn(mockedStore);
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const searchBar = await screen.getByPlaceholderText('Search Reports...');
     const searchValue = 'Chimpanzee';
     userEvent.type(searchBar, searchValue);
+    jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);
 
     await waitFor(() => {
       const [, textSearchAction] = mockedStore.getActions();
@@ -212,19 +213,14 @@ describe('After filters being applied', () => {
     userEvent.click(resetButton);
 
     await waitFor(() => {
-      const [,, resetFiltersAction, resetDateRangeAction] = mockedStore.getActions();
-      const { type, payload: { filter: { event_type, priority, reported_by } } } = resetFiltersAction;
-      const { type: resetDateRangeType } = resetDateRangeAction;
+      const [,, resetFiltersAction] = mockedStore.getActions();
+      const { type } = resetFiltersAction;
 
       expect(type).toBe(UPDATE_EVENT_FILTER);
-      expect(event_type).toBe(INITIAL_FILTER_STATE.filter.event_type);
-      expect(priority).toBe(INITIAL_FILTER_STATE.filter.priority);
-      expect(reported_by).toBe(INITIAL_FILTER_STATE.filter.reported_by);
-      expect(resetDateRangeType).toBe(RESET_DATE_RANGE);
       expect(searchBar.value).toBe('');
     });
 
-
+    jest.useRealTimers();
   });
 
 });

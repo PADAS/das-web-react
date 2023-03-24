@@ -27,6 +27,7 @@ import styles from './styles.module.scss';
 import DateFilter from './DateFilter';
 import Filters from './Filters';
 
+export const UPDATE_FILTER_DEBOUNCE_TIME = 200;
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
 
@@ -58,7 +59,7 @@ const EventFilter = ({
 
   const updateEventFilterDebounced = useRef(debounce(function (update) {
     updateEventFilter(update);
-  }, 200));
+  }, UPDATE_FILTER_DEBOUNCE_TIME));
 
   const resetPopoverFilters = useCallback(() => {
     updateEventFilter({
