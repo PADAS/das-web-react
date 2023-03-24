@@ -31,10 +31,14 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
     if (!event.target.textContent) {
       titleInput.current.innerHTML = eventTypeTitle;
     }
-    reportTracker.track('Change title');
-    onChangeTitle(event.target.textContent || eventTypeTitle);
+
+    reportTracker.track('Change report title');
+
+    if (report.title !== null || event.target.textContent !== displayTitle) {
+      onChangeTitle(event.target.textContent || eventTypeTitle);
+    }
     event.target.scrollTop = 0;
-  }, [eventTypeTitle, onChangeTitle, reportTracker]);
+  }, [displayTitle, eventTypeTitle, onChangeTitle, report.title, reportTracker]);
 
   const hasPatrols = !!report?.patrols?.length;
 
