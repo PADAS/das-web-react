@@ -61,9 +61,10 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   }, []);
 
   useEffect(() => {
-    if (isNewAndUnAdded || isEditing){
-      const date = isNewAndUnAdded ? note.creationDate : note.created_at;
-      onNoteHasChanged?.(date, text.length > 0);
+    if (isNewAndUnAdded){
+      onNoteHasChanged?.(note.creationDate, text.length > 0);
+    } else if (isEditing){
+      onNoteHasChanged?.(note.created_at, text !== note.text);
     }
   }, [isNewAndUnAdded, note, text, isEditing]);
 
