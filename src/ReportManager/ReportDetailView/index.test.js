@@ -84,6 +84,7 @@ describe('ReportManager - ReportDetailView', () => {
     useNavigateMock,
     Wrapper,
     renderWithWrapper,
+    state,
     store;
 
   beforeEach(() => {
@@ -105,7 +106,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     map = createMapMock();
 
-    Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
+    Wrapper = ({ children }) => <Provider store={store}> {/* eslint-disable-line react/display-name */}
       <NavigationWrapper>
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
@@ -115,7 +116,7 @@ describe('ReportManager - ReportDetailView', () => {
       </NavigationWrapper>
     </Provider>;
 
-    store = {
+    state = {
       data: {
         subjectStore: {},
         eventStore: { 456: mockReport },
@@ -132,6 +133,8 @@ describe('ReportManager - ReportDetailView', () => {
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
+
+    store = mockStore(() => state);
 
     renderWithWrapper = (Component, wrapper = Wrapper) => render(Component, { wrapper });
   });
@@ -356,7 +359,7 @@ describe('ReportManager - ReportDetailView', () => {
     AddReport.mockImplementation(AddReportMock);
 
 
-    store.data.eventStore = { initial: mockReport };
+    state.data.eventStore = { initial: mockReport };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
@@ -387,7 +390,7 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
 
-    store.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
+    state.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="initial" />
@@ -604,7 +607,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
 
-  test('does not display neither the activity section nor its anchor if there are no items to show', async () => {
+  test('does not display the activity section nor its anchor if there are no items to show', async () => {
     renderWithWrapper(
       <ReportDetailView
             isNewReport
@@ -672,7 +675,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
-    store.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
+    state.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="456" />
@@ -682,7 +685,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
-    store.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
+    state.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
 
     cleanup();
     renderWithWrapper(
@@ -711,6 +714,45 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+  });
+
+
+  test('clicking "save and resolve" to update both the state and form data', async () => {
+    executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
+    const onSaveSuccess = jest.fn();
+
+    renderWithWrapper(
+      <ReportDetailView
+          formProps={{ onSaveSuccess }}
+          isNewReport
+          newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+          reportId="456"
+        />
+    );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
+
+
+    const saveButtonGroup = await screen.findByRole('group');
+    expect(saveButtonGroup).toHaveTextContent('Save');
+
+    const saveBtnDropdownToggle = saveButtonGroup.querySelector('.dropdown-toggle');
+    saveBtnDropdownToggle.click();
+
+    const saveAndResolveBtn = await screen.findByText('Save and resolve');
+
+    saveAndResolveBtn.click();
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+
+      const eventCreated = createEventMock.mock.calls[0][0];
+
+      expect(eventCreated.state).toBe('resolved');
+      expect(eventCreated.title).toBe('2ccident');
+    });
   });
 
   describe('the warning prompt', () => {
