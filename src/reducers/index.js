@@ -41,6 +41,7 @@ import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
+import locallyEditedEventReducer from '../ducks/locally-edited-event';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -68,6 +69,7 @@ const rootReducer = combineReducers({
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
+    locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
     eula: eulaReducer,
     eventFilter: eventFilterReducer,

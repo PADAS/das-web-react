@@ -21,6 +21,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -38,6 +39,12 @@ jest.mock('../../ducks/events', () => ({
   addEventToIncident: jest.fn(),
   createEvent: jest.fn(),
   fetchEvent: jest.fn(),
+}));
+
+jest.mock('../../ducks/locally-edited-event', () => ({
+  ...jest.requireActual('../../ducks/locally-edited-event'),
+  setLocallyEditedEvent: jest.fn(),
+  unsetLocallyEditedEvent: jest.fn(),
 }));
 
 jest.mock('../../ducks/event-schemas', () => ({
@@ -61,6 +68,7 @@ afterAll(() => server.close());
 describe('ReportManager - ReportDetailView', () => {
   const mockReport = {
     event_type: 'jtar',
+    geojson: {},
     id: '456',
     priority: 0,
     state: 'active',
@@ -79,6 +87,8 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock,
     fetchEventMock,
     fetchEventTypeSchemaMock,
+    setLocallyEditedEventMock,
+    unsetLocallyEditedEventMock,
     map,
     navigate,
     useNavigateMock,
@@ -100,6 +110,10 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEvent.mockImplementation(fetchEventMock);
     fetchEventTypeSchemaMock = jest.fn(() => () => {});
     fetchEventTypeSchema.mockImplementation(fetchEventTypeSchemaMock);
+    setLocallyEditedEventMock = jest.fn(() => () => {});
+    setLocallyEditedEvent.mockImplementation(setLocallyEditedEventMock);
+    unsetLocallyEditedEventMock = jest.fn(() => () => {});
+    unsetLocallyEditedEvent.mockImplementation(unsetLocallyEditedEventMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
@@ -453,11 +467,10 @@ describe('ReportManager - ReportDetailView', () => {
 
     renderWithWrapper(
       <ReportDetailView
-            formProps={{ onSaveSuccess }}
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        formProps={{ onSaveSuccess }}
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -477,10 +490,9 @@ describe('ReportManager - ReportDetailView', () => {
   test('executes save actions when clicking save and navigates to report feed', async () => {
     renderWithWrapper(
       <ReportDetailView
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -714,6 +726,40 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+  });
+
+  test('sets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+      expect(setLocallyEditedEvent.mock.calls[0][0].id).toBe('456');
+    });
+  });
+
+  test('unsets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+    });
+
+    userEvent.type(titleInput, 't');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(2);
+    });
   });
 
 

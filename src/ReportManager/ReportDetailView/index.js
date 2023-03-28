@@ -26,6 +26,7 @@ import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
@@ -501,6 +502,30 @@ const ReportDetailView = ({
       navigate(redirectTo);
     }
   }, [navigate, redirectTo]);
+
+  useEffect(() => {
+    const shouldUpdateMapEvent = reportChanges?.geometry ||
+      reportChanges?.location ||
+      reportChanges?.priority ||
+      reportChanges?.time ||
+      reportChanges?.title;
+    if (!isNewReport && shouldUpdateMapEvent) {
+      dispatch(setLocallyEditedEvent(reportForm));
+    } else {
+      dispatch(unsetLocallyEditedEvent());
+    }
+  }, [
+    dispatch,
+    isNewReport,
+    reportChanges?.geometry,
+    reportChanges?.location,
+    reportChanges?.priority,
+    reportChanges?.time,
+    reportChanges?.title,
+    reportForm,
+  ]);
+
+  useEffect(() => () => dispatch(unsetLocallyEditedEvent()), [dispatch]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
