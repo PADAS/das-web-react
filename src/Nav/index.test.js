@@ -59,3 +59,22 @@ describe('Login', () => {
     });
   });
 });
+
+
+describe('changing profiles', () => {
+  beforeEach(() => {
+
+  });
+  test('selecting a non-PIN-protected profile', async () => {
+
+
+  });
+
+  test('selecting the main user', async () => {
+
+  });
+
+  test('selecting a PIN-protected profile', async () => {
+
+  });
+});
