@@ -358,7 +358,14 @@ const PatrolDetailView = () => {
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
-              <ActivitySection />
+              {/* TODO: Add this props once activity section info is implemented */}
+              <ActivitySection
+                containedReports={[]}
+                notesToAdd={[]}
+                onSaveNote={() => {}}
+                patrolAttachments={[]}
+                patrolNotes={[]}
+              />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
