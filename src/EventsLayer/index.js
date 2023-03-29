@@ -198,6 +198,12 @@ const EventsLayer = ({
       6, SCALE_FONT_IF_BOUNCED(8, FONT_SCALE_RATE),
       14, SCALE_FONT_IF_BOUNCED(13, FONT_SCALE_RATE),
     ],
+    'text-font': [
+      'case',
+      ['==', ['get', 'locallyEdited'], true],
+      ['literal', ['Open Sans Italic']],
+      ['literal', ['Open Sans Semibold', 'Arial Unicode MS Bold']],
+    ],
     ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
   }), [SCALE_FONT_IF_BOUNCED, mapUserLayoutConfigByLayerId]);
 

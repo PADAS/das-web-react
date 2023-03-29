@@ -1,31 +1,32 @@
-import React, {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import isFuture from 'date-fns/is_future';
-import {useDispatch, useSelector} from 'react-redux';
-import {useLocation, useSearchParams} from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
-import {ReactComponent as BulletListIcon} from '../common/images/icons/bullet-list.svg';
-import {ReactComponent as CalendarIcon} from '../common/images/icons/calendar.svg';
-import {ReactComponent as HistoryIcon} from '../common/images/icons/history.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
+import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
+import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
-import {addPatrolSegmentToEvent} from '../utils/events';
-import {createPatrolDataSelector} from '../selectors/patrols';
+import { addPatrolSegmentToEvent } from '../utils/events';
+import { createPatrolDataSelector } from '../selectors/patrols';
 import {
   createNewPatrolForPatrolType,
   displayPatrolSegmentId,
   patrolShouldBeMarkedDone,
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
-import {extractObjectDifference} from '../utils/objects';
-import {fetchPatrol} from '../ducks/patrols';
-import {executeSaveActions, generateSaveActionsForReportLikeObject} from '../utils/save';
-import {getCurrentIdFromURL} from '../utils/navigation';
-import {PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS} from '../constants';
-import {PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory} from '../utils/analytics';
-import {radioHasRecentActivity, subjectIsARadio} from '../utils/subjects';
+import { extractObjectDifference } from '../utils/objects';
+import { fetchPatrol } from '../ducks/patrols';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
+import { getCurrentIdFromURL } from '../utils/navigation';
+import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
-import {uuid} from '../utils/string';
+import { uuid } from '../utils/string';
 
+import ActivitySection from './ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
@@ -36,7 +37,6 @@ import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
-import ActivitySection from './ActivitySection';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -98,7 +98,9 @@ const PatrolDetailView = () => {
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
   const patrolSegmentId = patrol && displayPatrolSegmentId(patrol);
 
-  const isPatrolModified = Object.keys(patrolChanges).length > 0 || filesToAdd.length > 0 || reportsToAdd.length > 0;
+  const shouldShowNavigationPrompt = !isSaving
+    && !redirectTo
+    && (filesToAdd.length > 0 || reportsToAdd.length > 0 || Object.keys(patrolChanges).length > 0);
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
@@ -112,7 +114,7 @@ const PatrolDetailView = () => {
     console.warn('failed to save new patrol', error);
   }, [isNewPatrol]);
 
-  const onSavePatrol = useCallback(() => {
+  const onSavePatrol = useCallback((shouldRedirectAfterSave = true) => {
     if (isSaving) {
       return;
     }
@@ -141,10 +143,22 @@ const PatrolDetailView = () => {
 
     const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], filesToAdd);
     return executeSaveActions(saveActions)
-      .then(onSaveSuccess(`/${TAB_KEYS.PATROLS}`))
+      .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
+
+  const trackDiscard = useCallback(() => {
+    patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
+  }, [isNewPatrol]);
+
+  const onNavigationContinue = useCallback((shouldSave = false) => {
+    if (shouldSave) {
+      onSavePatrol(false);
+    } else {
+      trackDiscard();
+    }
+  }, [onSavePatrol, trackDiscard]);
 
   const onChangeTitle = useCallback(
     (newTitle) => setPatrolForm({ ...patrolForm, title: newTitle }),
@@ -319,6 +333,7 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
+  const shouldRenderActivitySection = true;
   const shouldRenderHistorySection = patrolForm?.updates;
 
   const patrolAttachments = useMemo(
@@ -330,7 +345,7 @@ const PatrolDetailView = () => {
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    <NavigationPromptModal when={isPatrolModified && !redirectTo} />
+    <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header onChangeTitle={onChangeTitle} patrol={patrolForm} />
 
@@ -358,10 +373,17 @@ const PatrolDetailView = () => {
               />
             </QuickLinks.Section>
 
-            <div className={styles.sectionSeparation} />
+            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="Activity">
-              <ActivitySection patrolAttachments={patrolAttachments} patrolNotes={patrolNotes} patrol={patrol} />
+            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+              <ActivitySection
+                containedReports={[]}
+                notesToAdd={[]}
+                onSaveNote={() => {}}
+                patrolAttachments={patrolAttachments}
+                patrolNotes={patrolNotes}
+                patrol={patrol}
+              />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
@@ -383,12 +405,7 @@ const PatrolDetailView = () => {
                 Cancel
               </Button>
 
-              <Button
-                className={styles.saveButton}
-                disabled={!isNewPatrol && !isPatrolModified}
-                onClick={onSavePatrol}
-                type="button"
-              >
+              <Button className={styles.saveButton} onClick={onSavePatrol} type="button">
                 Save
               </Button>
             </div>

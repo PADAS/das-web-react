@@ -3,7 +3,7 @@ import globallyResettableReducer from '../reducers/global-resettable';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
 
 // ACTIONS
-const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
+export const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
 
 const defaultDateRange = {
   lower: generateMonthsAgoDate(1).toISOString(),

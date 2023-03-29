@@ -485,6 +485,7 @@ const updateEventStore = (...results) => ({
   payload: results,
 });
 
+
 // higher-order reducers
 const namedFeedReducer = (name, reducer = state => state) => globallyResettableReducer((state, action) => {
   const isInitializationCall = state === undefined;

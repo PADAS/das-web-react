@@ -1,4 +1,7 @@
+@import '../../common/styles/layout';
+@import '../../common/styles/priorities';
 @import '../../common/styles/vars/colors';
+
 $cardExpansionTransitionTime: 300ms;
 
 .sectionHeader {
@@ -60,4 +63,18 @@ $cardExpansionTransitionTime: 300ms;
   background-color: $light-gray;
   border-color: $light-gray;
   color: $secondary-medium-gray;
+}
+
+.list {
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 0;
+
+  li {
+    transition: margin $cardExpansionTransitionTime;
+
+    &.openItem {
+      margin: 0.5rem 0;
+    }
+  }
 }

@@ -21,6 +21,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -38,6 +39,12 @@ jest.mock('../../ducks/events', () => ({
   addEventToIncident: jest.fn(),
   createEvent: jest.fn(),
   fetchEvent: jest.fn(),
+}));
+
+jest.mock('../../ducks/locally-edited-event', () => ({
+  ...jest.requireActual('../../ducks/locally-edited-event'),
+  setLocallyEditedEvent: jest.fn(),
+  unsetLocallyEditedEvent: jest.fn(),
 }));
 
 jest.mock('../../ducks/event-schemas', () => ({
@@ -61,6 +68,7 @@ afterAll(() => server.close());
 describe('ReportManager - ReportDetailView', () => {
   const mockReport = {
     event_type: 'jtar',
+    geojson: {},
     id: '456',
     priority: 0,
     state: 'active',
@@ -79,11 +87,14 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock,
     fetchEventMock,
     fetchEventTypeSchemaMock,
+    setLocallyEditedEventMock,
+    unsetLocallyEditedEventMock,
     map,
     navigate,
     useNavigateMock,
     Wrapper,
     renderWithWrapper,
+    state,
     store;
 
   beforeEach(() => {
@@ -99,13 +110,17 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEvent.mockImplementation(fetchEventMock);
     fetchEventTypeSchemaMock = jest.fn(() => () => {});
     fetchEventTypeSchema.mockImplementation(fetchEventTypeSchemaMock);
+    setLocallyEditedEventMock = jest.fn(() => () => {});
+    setLocallyEditedEvent.mockImplementation(setLocallyEditedEventMock);
+    unsetLocallyEditedEventMock = jest.fn(() => () => {});
+    unsetLocallyEditedEvent.mockImplementation(unsetLocallyEditedEventMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
     map = createMapMock();
 
-    Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
+    Wrapper = ({ children }) => <Provider store={store}> {/* eslint-disable-line react/display-name */}
       <NavigationWrapper>
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
@@ -115,7 +130,7 @@ describe('ReportManager - ReportDetailView', () => {
       </NavigationWrapper>
     </Provider>;
 
-    store = {
+    state = {
       data: {
         subjectStore: {},
         eventStore: { 456: mockReport },
@@ -132,6 +147,8 @@ describe('ReportManager - ReportDetailView', () => {
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
+
+    store = mockStore(() => state);
 
     renderWithWrapper = (Component, wrapper = Wrapper) => render(Component, { wrapper });
   });
@@ -356,7 +373,7 @@ describe('ReportManager - ReportDetailView', () => {
     AddReport.mockImplementation(AddReportMock);
 
 
-    store.data.eventStore = { initial: mockReport };
+    state.data.eventStore = { initial: mockReport };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
@@ -387,7 +404,7 @@ describe('ReportManager - ReportDetailView', () => {
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
 
-    store.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
+    state.data.eventStore = { initial: { ...mockReport, id: 'initial', is_collection: true } };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="initial" />
@@ -450,11 +467,10 @@ describe('ReportManager - ReportDetailView', () => {
 
     renderWithWrapper(
       <ReportDetailView
-            formProps={{ onSaveSuccess }}
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        formProps={{ onSaveSuccess }}
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -474,10 +490,9 @@ describe('ReportManager - ReportDetailView', () => {
   test('executes save actions when clicking save and navigates to report feed', async () => {
     renderWithWrapper(
       <ReportDetailView
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+      />
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
@@ -604,7 +619,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
 
-  test('does not display neither the activity section nor its anchor if there are no items to show', async () => {
+  test('does not display the activity section nor its anchor if there are no items to show', async () => {
     renderWithWrapper(
       <ReportDetailView
             isNewReport
@@ -672,7 +687,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to a collection', async () => {
-    store.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
+    state.data.eventStore = { 456: { ...mockReport, is_contained_in: [{ related_event: { id: '987' } }] } };
 
     renderWithWrapper(
       <ReportDetailView isNewReport={false} reportId="456" />
@@ -682,7 +697,7 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('does not show add report button if report belongs to patrol', async () => {
-    store.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
+    state.data.eventStore = { 456: { ...mockReport, patrols: ['123'] } };
 
     cleanup();
     renderWithWrapper(
@@ -711,6 +726,79 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+  });
+
+  test('sets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+      expect(setLocallyEditedEvent.mock.calls[0][0].id).toBe('456');
+    });
+  });
+
+  test('unsets the locally edited report', async () => {
+    renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
+
+    expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
+
+    const titleInput = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleInput, '2');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
+    });
+
+    userEvent.type(titleInput, 't');
+    titleInput.blur();
+
+    await waitFor(() => {
+      expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(2);
+    });
+  });
+
+
+  test('clicking "save and resolve" to update both the state and form data', async () => {
+    executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
+    const onSaveSuccess = jest.fn();
+
+    renderWithWrapper(
+      <ReportDetailView
+          formProps={{ onSaveSuccess }}
+          isNewReport
+          newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+          reportId="456"
+        />
+    );
+
+    const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    userEvent.type(titleTextBox, '2');
+    userEvent.tab();
+
+
+    const saveButtonGroup = await screen.findByRole('group');
+    expect(saveButtonGroup).toHaveTextContent('Save');
+
+    const saveBtnDropdownToggle = saveButtonGroup.querySelector('.dropdown-toggle');
+    saveBtnDropdownToggle.click();
+
+    const saveAndResolveBtn = await screen.findByText('Save and resolve');
+
+    saveAndResolveBtn.click();
+
+    await waitFor(() => {
+      expect(createEventMock).toHaveBeenCalledTimes(1);
+
+      const eventCreated = createEventMock.mock.calls[0][0];
+
+      expect(eventCreated.state).toBe('resolved');
+      expect(eventCreated.title).toBe('2ccident');
+    });
   });
 
   describe('the warning prompt', () => {
