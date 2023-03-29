@@ -4,9 +4,56 @@ import styles from './styles.module.scss';
 import AttachmentListItem from '../../ReportManager/ActivitySection/AttachmentListItem';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 import Button from 'react-bootstrap/Button';
-import NoteListItem from "../../ReportManager/ActivitySection/NoteListItem";
+import NoteListItem from '../../ReportManager/ActivitySection/NoteListItem';
+import { getEventIdsForCollection } from '../../utils/events';
+import { getReportsForPatrol } from '../../utils/patrols';
+import orderBy from 'lodash-es/orderBy';
+import ContainedReportListItem from '../../ReportManager/ActivitySection/ContainedReportListItem';
+import usePatrol from '../../hooks/usePatrol';
+import DateListItem from './DateListItem';
+import { isGreaterThan } from '../../utils/datetime';
 
-const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
+const ActivitySection = ({ patrolAttachments, patrolNotes, patrol }) => {
+
+  const patrolInfo = usePatrol(patrol);
+  const { actualStartTime, actualEndTime } = patrolInfo ?? {};
+  const patrolDates = useMemo(() => {
+    const dates = [];
+    const now = new Date();
+    const hasStarted = isGreaterThan(now, actualStartTime);
+    const hasEnded = !isGreaterThan(actualEndTime, now);
+    if (hasStarted){
+      dates.push({
+        sortDate: new Date(actualStartTime),
+        node: <DateListItem date={actualStartTime} title="Started" />
+      });
+    }
+    if (hasEnded){
+      dates.push({
+        sortDate: new Date(actualEndTime),
+        node: <DateListItem date={actualEndTime} title="Ended" />
+      });
+    }
+    return dates;
+  }, [actualEndTime, actualStartTime]);
+
+  const patrolReports = useMemo(() =>
+    getReportsForPatrol(patrol)
+  , [patrol]);
+
+  const allPatrolReports = useMemo(() => {
+    // don't show the contained reports, which are also bound to the segment
+    const allReports = [...patrolReports];
+    const incidents = allReports.filter(report => report.is_collection);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])], []);
+    const topLevelReports = allReports.filter(report =>
+      !incidentIds.includes(report.id));
+
+    return orderBy(topLevelReports, [
+      (item) => {
+        return new Date(item.updated_at);
+      }], ['acs']);
+  }, [patrolReports]);
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -22,6 +69,11 @@ const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
     }
   }, [cardsExpanded]);
 
+  const reports = useMemo(() => allPatrolReports.map((report) => ({
+    sortDate: new Date(report.updated_at || report.created_at),
+    node: <ContainedReportListItem report={report} cardsExpanded={[]}/>,
+  })), [allPatrolReports]);
+
   const patrolNotesRendered = useMemo(() => patrolNotes.map((patrolNote) => ({
     sortDate: new Date(patrolNote.updated_at || patrolNote.created_at),
     node: <NoteListItem
@@ -30,7 +82,7 @@ const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
         note={patrolNote}
         onCollapse={() => onCollapseCard(patrolNote)}
         onExpand={() => onExpandCard(patrolNote)}
-        onSave={()=>{}}
+        onSave={() => {}}
     />,
   })), [cardsExpanded, onCollapseCard, onExpandCard, patrolNotes]);
 
@@ -47,8 +99,10 @@ const ActivitySection = ({ patrolAttachments, patrolNotes }) => {
 
   const sortableList = useMemo(() => [
     ...patrolAttachmentsRendered,
-    ...patrolNotesRendered
-  ], [patrolAttachmentsRendered, patrolNotesRendered]);
+    ...patrolNotesRendered,
+    ...reports,
+    ...patrolDates,
+  ], [patrolAttachmentsRendered, patrolNotesRendered, reports, patrolDates]);
 
   const onSort = useCallback(() => {
   }, []);

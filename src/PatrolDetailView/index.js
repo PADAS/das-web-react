@@ -361,7 +361,7 @@ const PatrolDetailView = () => {
             <div className={styles.sectionSeparation} />
 
             <QuickLinks.Section anchorTitle="Activity">
-              <ActivitySection patrolAttachments={patrolAttachments} patrolNotes={patrolNotes} />
+              <ActivitySection patrolAttachments={patrolAttachments} patrolNotes={patrolNotes} patrol={patrol} />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
