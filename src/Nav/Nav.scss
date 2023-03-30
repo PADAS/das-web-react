@@ -2,6 +2,12 @@
 @import '../common/styles/buttons';
 @import '../common/styles/layout';
 
+.profile-pin-modal {
+  .modal-dialog {
+    max-width: 20rem;
+  }
+}
+
 .primary-nav {
   align-items: center;
   background: $title-bar-color;

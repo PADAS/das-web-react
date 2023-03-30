@@ -18,7 +18,7 @@ jest.mock('../ducks/user', () => ({
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('Login', () => {
-  let fetchCurrentUserMock, fetchCurrentUserProfilesMock, map, navigate, setUserProfileMock, store, useNavigateMock;
+  let fetchCurrentUserMock, renderWithWrapper, fetchCurrentUserProfilesMock, map, navigate, setUserProfileMock, store, useNavigateMock;
   beforeEach(() => {
     fetchCurrentUserMock = jest.fn(() => () => Promise.resolve());
     fetchCurrentUser.mockImplementation(fetchCurrentUserMock);
@@ -29,12 +29,19 @@ describe('Login', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-
     map = createMapMock();
     store = mockStore({
       data: { maps: [], user: {}, userProfiles: [], selectedUserProfile: {}, systemStatus: {} },
       view: { homeMap: {} },
     });
+
+    renderWithWrapper = (Component) => render(Component, { wrapper: ({ children }) =>
+      <Provider store={store}>
+        <NavigationWrapper>
+          {children}
+        </NavigationWrapper>
+      </Provider> });
+
   });
 
   afterEach(() => {
@@ -45,12 +52,8 @@ describe('Login', () => {
     fetchCurrentUserMock = jest.fn(() => () => Promise.reject());
     fetchCurrentUser.mockImplementation(fetchCurrentUserMock);
 
-    render(
-      <Provider store={store}>
-        <NavigationWrapper>
-          <Nav map={map} />
-        </NavigationWrapper>
-      </Provider>
+    renderWithWrapper(
+      <Nav map={map} />
     );
 
     await waitFor(() => {
