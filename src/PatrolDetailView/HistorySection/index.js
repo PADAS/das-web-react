@@ -26,7 +26,6 @@ const HistorySection = ({ patrolForm }) => {
       node: <UpdateListItem
         key={update.time}
         message={update.message}
-        secondaryMessage={update.secondaryMessage}
         time={update.time}
         user={update.user}
       />,

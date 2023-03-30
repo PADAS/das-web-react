@@ -76,7 +76,6 @@ describe('ReportManager - ReportDetailView', () => {
     title: 'title',
     updates: [{
       message: 'message',
-      secondaryMessage: 'secondary message',
       time: new Date('2022-12-17T03:26:00'),
       user: { first_name: 'First', last_name: 'Last' },
     }],
