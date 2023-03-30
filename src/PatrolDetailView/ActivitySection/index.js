@@ -10,9 +10,8 @@ import AttachmentListItem from '../../ReportManager/ActivitySection/AttachmentLi
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 import NoteListItem from '../../ReportManager/ActivitySection/NoteListItem';
 import { getEventIdsForCollection } from '../../utils/events';
-import { getReportsForPatrol } from '../../utils/patrols';
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol } from '../../utils/patrols';
 import ContainedReportListItem from '../../ReportManager/ActivitySection/ContainedReportListItem';
-import usePatrol from '../../hooks/usePatrol';
 import DateListItem from './DateListItem';
 import { isGreaterThan } from '../../utils/datetime';
 
@@ -55,13 +54,14 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
   );
 
   const containedReportsRendered = useMemo(() => [], []);
-  const patrolInfo = usePatrol(patrol);
-  const { actualStartTime, actualEndTime } = patrolInfo ?? {};
+  const actualStartTime = actualStartTimeForPatrol(patrol);
+  const actualEndTime = actualEndTimeForPatrol(patrol);
+
   const patrolDates = useMemo(() => {
     const dates = [];
     const now = new Date();
-    const hasStarted = isGreaterThan(now, actualStartTime);
-    const hasEnded = !isGreaterThan(actualEndTime, now);
+    const hasStarted = actualStartTime && isGreaterThan(now, actualStartTime);
+    const hasEnded =  actualEndTime && !isGreaterThan(actualEndTime, now);
     if (hasStarted){
       dates.push({
         sortDate: new Date(actualStartTime),
@@ -97,8 +97,12 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
 
   const reports = useMemo(() => allPatrolReports.map((report) => ({
     sortDate: new Date(report.updated_at || report.created_at),
-    node: <ContainedReportListItem report={report} cardsExpanded={[]}/>,
-  })), [allPatrolReports]);
+    node: <ContainedReportListItem
+        report={report}
+        cardsExpanded={cardsExpanded}
+        onCollapse={() => onCollapseCard(report)}
+        onExpand={() => onExpandCard(report)}/>,
+  })), [allPatrolReports, cardsExpanded, onCollapseCard, onExpandCard]);
 
   const patrolNotesRendered = useMemo(() => patrolNotes.map((patrolNote) => ({
     sortDate: new Date(patrolNote.updated_at || patrolNote.created_at),
@@ -136,25 +140,12 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
-  /*
-  const areAllItemsExpanded = useMemo(
-    () => cardsExpanded.length === (patrolAttachmentsRendered.length + patrolNotesRendered.length ),
-    [cardsExpanded.length, patrolAttachmentsRendered.length, patrolNotesRendered.length]);
-*/
-
   const areAllItemsExpanded = useMemo(
     () => cardsExpanded.length === (
       notesToAdd.length +
-          patrolNotes.length +
-          patrolImageAttachments.length +
-          containedReportsRendered.length),
-    [
-      cardsExpanded.length,
-      containedReportsRendered.length,
-      notesToAdd.length,
-      patrolImageAttachments.length,
-      patrolNotes.length,
-    ],
+        patrolNotesRendered.length +
+        patrolAttachmentsRendered.length ),
+    [cardsExpanded.length, notesToAdd.length, patrolAttachmentsRendered.length, patrolNotesRendered.length],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {

@@ -21,7 +21,11 @@ import { fetchPatrol } from '../ducks/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
+import {
+  TrackerContext,
+  PATROL_DETAIL_VIEW_CATEGORY,
+  trackEventFactory
+} from '../utils/analytics';
 import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
@@ -342,6 +346,8 @@ const PatrolDetailView = () => {
   );
   const patrolNotes = useMemo(() => Array.isArray(patrolForm?.notes) ? patrolForm.notes : [], [patrolForm?.notes]);
 
+  const patrolTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
+
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
@@ -349,70 +355,73 @@ const PatrolDetailView = () => {
 
     <Header onChangeTitle={onChangeTitle} patrol={patrolForm} />
 
-    <div className={styles.body}>
-      <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-        <QuickLinks.NavigationBar>
-          <QuickLinks.Anchor anchorTitle="Plan" iconComponent={<CalendarIcon />} />
+    <TrackerContext.Provider value={patrolTracker}>
+      <div className={styles.body}>
+        <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
+          <QuickLinks.NavigationBar>
+            <QuickLinks.Anchor anchorTitle="Plan" iconComponent={<CalendarIcon />} />
 
-          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+            <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
 
-          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
-        </QuickLinks.NavigationBar>
+            <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+          </QuickLinks.NavigationBar>
 
-        <div className={styles.content}>
-          <QuickLinks.SectionsWrapper>
-            <QuickLinks.Section anchorTitle="Plan">
-              <PlanSection
-                onPatrolEndDateChange={onPatrolEndDateChange}
-                onPatrolEndLocationChange={onPatrolEndLocationChange}
-                onPatrolObjectiveChange={onPatrolObjectiveChange}
-                onPatrolReportedByChange={onPatrolReportedByChange}
-                onPatrolStartDateChange={onPatrolStartDateChange}
-                onPatrolStartLocationChange={onPatrolStartLocationChange}
-                patrolForm={patrolForm}
-              />
-            </QuickLinks.Section>
+          <div className={styles.content}>
+            <QuickLinks.SectionsWrapper>
+              <QuickLinks.Section anchorTitle="Plan">
+                <PlanSection
+                    onPatrolEndDateChange={onPatrolEndDateChange}
+                    onPatrolEndLocationChange={onPatrolEndLocationChange}
+                    onPatrolObjectiveChange={onPatrolObjectiveChange}
+                    onPatrolReportedByChange={onPatrolReportedByChange}
+                    onPatrolStartDateChange={onPatrolStartDateChange}
+                    onPatrolStartLocationChange={onPatrolStartLocationChange}
+                    patrolForm={patrolForm}
+                />
+              </QuickLinks.Section>
 
-            {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
-              <ActivitySection
-                containedReports={[]}
-                notesToAdd={[]}
-                onSaveNote={() => {}}
-                patrolAttachments={patrolAttachments}
-                patrolNotes={patrolNotes}
-                patrol={patrol}
-              />
-            </QuickLinks.Section>
+              <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+                <ActivitySection
+                    containedReports={[]}
+                    notesToAdd={[]}
+                    onSaveNote={() => {}}
+                    patrolAttachments={patrolAttachments}
+                    patrolNotes={patrolNotes}
+                    patrol={patrol}
+                />
+              </QuickLinks.Section>
 
-            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-              <HistorySection patrolForm={patrolForm} />
-            </QuickLinks.Section>
-          </QuickLinks.SectionsWrapper>
+              <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+                <HistorySection patrolForm={patrolForm} />
+              </QuickLinks.Section>
+            </QuickLinks.SectionsWrapper>
 
-          <div className={styles.footer}>
-            <div className={styles.footerActionButtonsContainer}>
-              <AddNoteButton className={styles.footerActionButton} onAddNote={() => console.log('Add note')} />
+            <div className={styles.footer}>
+              <div className={styles.footerActionButtonsContainer}>
+                <AddNoteButton className={styles.footerActionButton} onAddNote={() => console.log('Add note')} />
 
-              <AddAttachmentButton className={styles.footerActionButton} />
-            </div>
+                <AddAttachmentButton className={styles.footerActionButton} />
+              </div>
 
-            <div>
-              <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                Cancel
-              </Button>
+              <div>
+                <Button className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+                  Cancel
+                </Button>
 
-              <Button className={styles.saveButton} onClick={onSavePatrol} type="button">
-                Save
-              </Button>
+                <Button className={styles.saveButton} onClick={onSavePatrol} type="button">
+                  Save
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </QuickLinks>
-    </div>
+        </QuickLinks>
+      </div>
+    </TrackerContext.Provider>
+
   </div> : null;
 };
 
