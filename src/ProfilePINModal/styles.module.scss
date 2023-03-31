@@ -1,20 +1,27 @@
 @import '../common/styles/vars/colors';
 
+$profilePinDimensions: 2.5rem;
+
+.error {
+  color: $error;
+  margin: 1rem 0 0;
+}
+
 .pinFields {
+  align-items: center;
   display: flex;
 
   input {
-    --dimension: 2.5rem;
     border-radius: 0;
     font-size: 1.5rem;
-    height: var(--dimension);
+    height: $profilePinDimensions;
     margin-right: 0.333rem;
     text-align: center;
-    width: var(--dimension);
+    width: $profilePinDimensions;
 
     &:focus,
     &:active {
-      border-color: $bright-blue;
+      border-color: $highlight-color;
     }
   }
 }
@@ -30,14 +37,14 @@
 }
 
 .checkmark {
-  width: 56px;
-  height: 56px;
+  width: $profilePinDimensions;
+  height: $profilePinDimensions;
   border-radius: 50%;
   display: block;
+  margin-left: auto;
   stroke-width: 2;
   stroke: #fff;
   stroke-miterlimit: 10;
-  margin: 10% auto;
   box-shadow: inset 0px 0px 0px #7ac142;
   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both
 }

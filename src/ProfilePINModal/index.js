@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useState, memo } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import PinField from 'react-pin-field';
 import Form from 'react-bootstrap/Form';
@@ -21,6 +21,7 @@ const ConfirmationCheck = () => <svg className={styles.checkmark} xmlns="http://
 const ProfilePINModal = ({ onSuccess, profile }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const pinInputsRef = useRef(null);
 
   const onChange = useCallback(() => {
     if (!error) return;
@@ -42,6 +43,12 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
     return onSuccess();
   }, [onFailure, onSuccess, profile?.pin]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      pinInputsRef?.current?.[0]?.focus();
+    });
+  }, []);
+
   return <Fragment>
     <Header closeButton>
       <Title>Enter Your PIN</Title>
@@ -54,11 +61,13 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
           length={PIN_LENGTH}
           onChange={onChange}
           onComplete={onComplete}
+          ref={pinInputsRef}
+          role='input'
           validate={PIN_VALIDATION_RULES}
           />
           {success && <ConfirmationCheck />}
         </fieldset>
-        {error && <p>Incorrect PIN</p>}
+        {error && <p className={styles.error}>Incorrect PIN</p>}
       </Form>
     </Body>
   </Fragment>;
