@@ -50,15 +50,11 @@ describe('ProfilePINModal', () => {
       pinInputs.forEach((input) => {
         fireEvent.keyDown(input, { key: '1', code: 'key1' });
       });
-    });
 
-    test('displaying an error message', () => {
       expect(screen.queryByText('Incorrect PIN')).toBeInTheDocument();
     });
 
     test('changing the value after an error clears the error message', () => {
-      expect(screen.queryByText('Incorrect PIN')).toBeInTheDocument();
-
       fireEvent.keyDown(pinInputs[1], {
         key: 'Backspace',
         keyCode: 8,
