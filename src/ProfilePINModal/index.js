@@ -4,6 +4,8 @@ import PinField from 'react-pin-field';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 
+import ConfirmationCheck from '../ConfirmationCheck';
+
 import styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
@@ -12,11 +14,6 @@ const { Label } = Form;
 
 const PIN_VALIDATION_RULES = /^[0-9]$/;
 const PIN_LENGTH = 4;
-
-const ConfirmationCheck = () => <svg className={styles.checkmark} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-  <circle className={styles.checkmark__circle} cx="26" cy="26" r="25" fill="none"/>
-  <path className={styles.checkmark__check} fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-</svg>;
 
 const ProfilePINModal = ({ onSuccess, profile }) => {
   const [error, setError] = useState(null);
