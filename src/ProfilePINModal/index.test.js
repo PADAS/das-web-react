@@ -51,6 +51,9 @@ describe('ProfilePINModal', () => {
         fireEvent.keyDown(input, { key: '1', code: 'key1' });
       });
 
+    });
+
+    test('showing an error message', () => {
       expect(screen.queryByText('Incorrect PIN')).toBeInTheDocument();
     });
 
