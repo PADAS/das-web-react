@@ -79,14 +79,34 @@ const ReportDetailView = ({
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
   );
+  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
+
+  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [],
+    [reportForm?.notes]
+  );
+
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
-  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
   const [unsavedNoteDates, setUnsavedNoteDates] = useState([]);
+
+  const initialNotesText = useMemo(() =>
+    reportNotes.reduce((prev, { text, created_at }) => ({ ...prev, [created_at]: text }), {})
+  , [reportNotes]);
+  const [notesText, setNotesText] = useState(initialNotesText);
+  const setNoteText = (noteId, text) => {
+
+    setNotesText({ ...notesText, [noteId]: text });
+  };
+
+  const removeNoteText = (noteId) => {
+    const updatedNotesText = { ...notesText };
+    delete updatedNotesText[noteId];
+    setNotesText(updatedNotesText);
+  };
 
   const reportTracker = useContext(TrackerContext);
 
@@ -142,7 +162,6 @@ const ReportDetailView = ({
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
-  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
 
   const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
@@ -360,7 +379,9 @@ const ReportDetailView = ({
   }, [unsavedNoteDates]);
 
   const onDeleteNote = useCallback((note) => {
-    updateUnsavedNoteDates(note.creationDate ?? note.created_at, false);
+    const id = note.creationDate ?? note.created_at;
+    removeNoteText(id);
+    updateUnsavedNoteDates(id, false);
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd, updateUnsavedNoteDates]);
 
@@ -574,7 +595,7 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onNoteHasChanged={updateUnsavedNoteDates}
+                onNoteHasChanged={updateUnsavedNoteDates} notesText={notesText} setNotesText={setNoteText}
               />
             </QuickLinks.Section>
 

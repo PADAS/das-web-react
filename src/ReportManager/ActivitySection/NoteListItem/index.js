@@ -16,7 +16,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNoteHasChanged }, ref = null) => {
+const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDelete, onExpand, onSave, onNoteHasChanged }, ref = null) => {
   const textareaRef = useRef();
 
   const reportTracker = useContext(TrackerContext);
@@ -33,7 +33,6 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   }, [isNew, note.text]);
 
   const [isEditing, setIsEditing] = useState(isNewAndUnAdded);
-  const [text, setText] = useState(note.text);
 
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
@@ -57,8 +56,9 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
   const onChangeTextArea = useCallback((event) => {
     const currentValue = !event.target.value.trim() ? '' : event.target.value;
-    setText(currentValue);
-  }, []);
+    const id = isNewAndUnAdded ? note.creationDate : note.created_at;
+    setNoteText(id, currentValue);
+  }, [isNewAndUnAdded, note.created_at, note.creationDate, setNoteText]);
 
   useEffect(() => {
     if (isNewAndUnAdded){
@@ -75,24 +75,25 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     } else {
       reportTracker.track('Cancel editing existing note');
       onNoteHasChanged?.(note.created_at, false);
-      setText(note.text);
+      setNoteText(note.created_at, note.text);
     }
     setIsEditing(false);
   }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
-    const trimmedText = text.trim();
 
+    const trimmedText = text.trim();
     const newNote = {
       ...note,
       text: trimmedText,
     };
+    const id = isNewAndUnAdded ? note.creationDate : note.created_at;
 
     reportTracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
 
     onSave(newNote);
-    setText(trimmedText);
+    setNoteText(id, text);
   }, [isNew, note, onSave, reportTracker, text]);
 
   useEffect(() => {

@@ -23,6 +23,8 @@ const ActivitySection = ({
   attachmentsToAdd,
   containedReports,
   notesToAdd,
+  notesText,
+  setNotesText,
   onDeleteAttachment,
   onDeleteNote,
   onSaveNote,
@@ -100,8 +102,10 @@ const ActivitySection = ({
       onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
       onNoteHasChanged={onNoteHasChanged}
+      text={ notesText[reportNote.created_at] }
+      setNoteText={setNotesText}
     />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes, onNoteHasChanged]);
+  })), [reportNotes, cardsExpanded, onSaveNoteKeepExpanded, onNoteHasChanged, notesText, setNotesText, onCollapseCard, onExpandCard]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -115,8 +119,10 @@ const ActivitySection = ({
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
       onNoteHasChanged={onNoteHasChanged}
+      text={ notesText[noteToAdd.creationDate] ?? '' }
+      setNoteText={setNotesText}
     />,
-  })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNoteHasChanged]);
+  })), [notesToAdd, cardsExpanded, onSaveNoteKeepExpanded, onNoteHasChanged, notesText, setNotesText, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
     ...containedReportsRendered,
