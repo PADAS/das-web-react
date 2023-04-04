@@ -1,20 +1,18 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { TrackerContext } from '../../utils/analytics';
-
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 
+import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import UpdateListItem from './UpdateListItem';
 
 import styles from './styles.module.scss';
 
-const FILTERED_UPDATE_MESSAGES = ['Updated fields: '];
+const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
 const HistorySection = ({ reportUpdates }) => {
-
   const reportTracker = useContext(TrackerContext);
 
   const updatesRendered = useMemo(() => reportUpdates.reduce((accumulator, update) => {
@@ -24,7 +22,6 @@ const HistorySection = ({ reportUpdates }) => {
         node: <UpdateListItem
           key={update.time}
           message={update.message}
-          secondaryMessage={update.secondaryMessage}
           time={update.time}
           user={update.user}
         />,
@@ -62,7 +59,6 @@ const HistorySection = ({ reportUpdates }) => {
 HistorySection.propTypes = {
   reportUpdates: PropTypes.arrayOf(PropTypes.shape({
     message: PropTypes.string,
-    secondaryMessage: PropTypes.string,
     time: PropTypes.string,
     user: PropTypes.object,
   })).isRequired,
