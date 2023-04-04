@@ -10,17 +10,14 @@ import HistorySection from './';
 describe('ReportManager - HistorySection', () => {
   const reportUpdatesMock = [{
     message: 'Added the report to an incident',
-    secondaryMessage: '155 Incident collection',
     time: new Date('2022-12-17T03:20:00'),
     user: { first_name: 'John', last_name: 'Nairobi' },
   }, {
     message: 'Automatically resolved the report',
-    secondaryMessage: 'Status: resolved',
     time: new Date('2022-12-15T03:25:00'),
     user: { first_name: 'EarthRanger' },
   }, {
     message: 'Added an attachment',
-    secondaryMessage: null,
     time: new Date('2022-12-15T03:20:00'),
     user: { first_name: 'Kim', last_name: 'Johanna' },
   }];
