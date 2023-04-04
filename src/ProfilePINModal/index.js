@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState, memo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import PinField from 'react-pin-field';
 import Form from 'react-bootstrap/Form';
@@ -49,7 +49,7 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
     });
   }, []);
 
-  return <Fragment>
+  return <>
     <Header closeButton>
       <Title>Enter Your PIN</Title>
     </Header>
@@ -70,7 +70,7 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
         {error && <p className={styles.error}>Incorrect PIN</p>}
       </Form>
     </Body>
-  </Fragment>;
+  </>;
 };
 
 ProfilePINModal.propTypes = {
