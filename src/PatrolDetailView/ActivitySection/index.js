@@ -17,11 +17,10 @@ import { isGreaterThan } from '../../utils/datetime';
 
 import styles from './styles.module.scss';
 
-const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, containedReports, onSaveNote }) => {
+const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, onSaveNote }) => {
   const patrolTracker = useContext(TrackerContext);
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
-  // TODO: This will be used once we add the cards
   const onCollapseCard = useCallback((card, analyticsLabel) => {
     if (cardsExpanded.includes(card)) {
       if (analyticsLabel) {
@@ -53,7 +52,6 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
     [patrolAttachments]
   );
 
-  const containedReportsRendered = useMemo(() => [], []);
   const actualStartTime = actualStartTimeForPatrol(patrol);
   const actualEndTime = actualEndTimeForPatrol(patrol);
 
@@ -95,11 +93,12 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
       }], ['acs']);
   }, [patrolReports]);
 
-  const reports = useMemo(() => allPatrolReports.map((report) => ({
+  const containedReportsRendered = useMemo(() => allPatrolReports.map((report) => ({
     sortDate: new Date(report.updated_at || report.created_at),
     node: <ContainedReportListItem
         report={report}
         cardsExpanded={cardsExpanded}
+        key={report.id}
         onCollapse={() => onCollapseCard(report)}
         onExpand={() => onExpandCard(report)}/>,
   })), [allPatrolReports, cardsExpanded, onCollapseCard, onExpandCard]);
@@ -130,9 +129,9 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
   const sortableList = useMemo(() => [
     ...patrolAttachmentsRendered,
     ...patrolNotesRendered,
-    ...reports,
+    ...containedReportsRendered,
     ...patrolDates,
-  ], [patrolAttachmentsRendered, patrolNotesRendered, reports, patrolDates]);
+  ], [patrolAttachmentsRendered, patrolNotesRendered, containedReportsRendered, patrolDates]);
 
   const onSort = useCallback((order) => {
     patrolTracker.track(`Sort activity section in ${order} order`);
@@ -153,8 +152,8 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
 
     setCardsExpanded(areAllItemsExpanded
       ? []
-      : [...patrolNotes, ...notesToAdd, ...patrolImageAttachments, ...containedReports]);
-  }, [areAllItemsExpanded, containedReports, notesToAdd, patrolImageAttachments, patrolNotes, patrolTracker]);
+      : [...patrolNotes, ...notesToAdd, ...patrolImageAttachments, ...containedReportsRendered]);
+  }, [areAllItemsExpanded, containedReportsRendered, notesToAdd, patrolImageAttachments, patrolNotes, patrolTracker]);
 
   useEffect(() => {
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));

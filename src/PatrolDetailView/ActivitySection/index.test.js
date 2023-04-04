@@ -234,5 +234,38 @@ describe('PatrolDetailView - ActivitySection', () => {
     expect((await screen.queryByText('time-sort-btn'))).toBeNull();
   });
 
+  test.only('expands all expandable items when clicking the button Expand All', async () => {
+    const id = 'patrolDetailView-activitySection-expandCollapseButton';
+    const expandCollapseButton = await screen.findByTestId(id);
+    userEvent.click(expandCollapseButton);
+
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'));
+
+    await waitFor(() => {
+      collapses.forEach((collapse, index) => {
+        console.log(index);
+        expect(collapse).toHaveClass('show');
+      });
+    });
+  });
+
+  test('collapses all expandable items when clicking the button Collapse All', async () => {
+    const id = 'patrolDetailView-activitySection-expandCollapseButton';
+    const expandCollapseButton = await screen.findByTestId(id);
+    userEvent.click(expandCollapseButton);
+
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'));
+
+    await waitFor(() => {
+      collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));
+    });
+
+    userEvent.click(expandCollapseButton);
+
+    await waitFor(() => {
+      collapses.forEach((collapse) => expect(collapse).toHaveClass('collapse'));
+    });
+  });
+
 
 });
