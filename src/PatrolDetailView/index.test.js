@@ -184,6 +184,64 @@ describe('PatrolDetailView', () => {
     expect(titleInput).toHaveTextContent('2nknown patrol type');
   });
 
+  test('displays a new note', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <PatrolDetailView />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('deletes a new note', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <PatrolDetailView />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    userEvent.click(addNoteButton);
+    const deleteNoteButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+  });
+
+  test('can not add a second note without saving the first one', async () => {
+    window.alert = jest.fn();
+
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <PatrolDetailView />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect(window.alert).toHaveBeenCalledTimes(0);
+
+    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    userEvent.click(addNoteButton);
+    userEvent.click(addNoteButton);
+
+    expect(window.alert).toHaveBeenCalledTimes(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
   test('executes save actions when clicking save and navigates to patrol feed', async () => {
     render(
       <Provider store={mockStore(store)}>

@@ -28,20 +28,6 @@ $cardExpansionTransitionTime: 300ms;
   }
 }
 
-.list {
-  display: flex;
-  flex-flow: column;
-  margin-bottom: 0;
-
-  li {
-    transition: margin $cardExpansionTransitionTime;
-
-    &.openItem {
-      margin: 0.5rem 0;
-    }
-  }
-}
-
 .actions {
   display: flex;
   align-items: center;
@@ -77,4 +63,76 @@ $cardExpansionTransitionTime: 300ms;
       margin: 0.5rem 0;
     }
   }
+}
+
+.itemRow {
+  background: $light-gray;
+  border: 0.0625rem solid $light-gray-border;
+  border-radius: 0.1875rem;
+  margin-top: -0.0625rem;
+  display: flex;
+  align-items: center;
+  height: 3.5rem;
+
+  &.collapseRow {
+    cursor: pointer;
+  }
+}
+
+.itemIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 3.5rem;
+  background-color: $very-light-gray;
+
+  svg {
+    height: 1.375rem;
+    width: 1.375rem;
+  }  
+}
+
+.itemDetails {
+  flex: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 0.5rem;
+  overflow: hidden;
+
+  @media (min-width: $md-layout-width-min) {
+    flex: 10;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.itemTitle {
+  font-weight: 500;
+  margin: 0;
+  max-width: 9.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (min-width: $md-layout-width-min) {
+    max-width: 21rem;
+  }
+}
+
+.itemDate {
+  span {
+    font-size: 0.875rem;
+  }
+}
+
+.itemActionButtonContainer {
+  flex: 1;
+}
+
+:export {
+  cardToggleTransitionTime: $cardExpansionTransitionTime
 }

@@ -1,27 +1,39 @@
-import React, { useCallback, useMemo, useState, memo, useContext, useEffect } from 'react';
-import orderBy from 'lodash-es/orderBy';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
+import { isGreaterThan } from '../../utils/datetime';
 import { TrackerContext } from '../../utils/analytics';
-import AttachmentListItem from '../../ReportManager/ActivitySection/AttachmentListItem';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
-import NoteListItem from '../../ReportManager/ActivitySection/NoteListItem';
-import { getEventIdsForCollection } from '../../utils/events';
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, getReportsForPatrol } from '../../utils/patrols';
+
+import AttachmentListItem from '../../ReportManager/ActivitySection/AttachmentListItem';
 import ContainedReportListItem from '../../ReportManager/ActivitySection/ContainedReportListItem';
 import DateListItem from './DateListItem';
-import { isGreaterThan } from '../../utils/datetime';
+import NoteListItem from '../../ReportManager/ActivitySection/NoteListItem';
 
 import styles from './styles.module.scss';
 
-const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, containedReports, onSaveNote }) => {
+const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
+const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
+const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
+const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
+
+const ActivitySection = ({
+  containedReports,
+  onDeleteNote,
+  onNewNoteHasChanged,
+  onSaveNote,
+  patrolAttachments,
+  patrolEndTime,
+  patrolNotes,
+  patrolStartTime,
+}) => {
   const patrolTracker = useContext(TrackerContext);
+
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
-  // TODO: This will be used once we add the cards
   const onCollapseCard = useCallback((card, analyticsLabel) => {
     if (cardsExpanded.includes(card)) {
       if (analyticsLabel) {
@@ -42,97 +54,84 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
     }
   }, [cardsExpanded, patrolTracker]);
 
-  // TODO: This will be used once we add the cards
   const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
     const editedNote = onSaveNote(originalNote, updatedNote);
     setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
   }, [cardsExpanded, onSaveNote]);
 
-  const patrolImageAttachments = useMemo(
-    () => patrolAttachments.filter((patrolAttachment) => patrolAttachment.file_type === 'image'),
-    [patrolAttachments]
-  );
-
-  const containedReportsRendered = useMemo(() => [], []);
-  const actualStartTime = actualStartTimeForPatrol(patrol);
-  const actualEndTime = actualEndTimeForPatrol(patrol);
+  const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
+    sortDate: new Date(containedReport.time),
+    node: <ContainedReportListItem
+      cardsExpanded={cardsExpanded}
+      key={containedReport.id}
+      onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+      report={containedReport}
+    />,
+  })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
 
   const patrolDates = useMemo(() => {
     const dates = [];
     const now = new Date();
-    const hasStarted = actualStartTime && isGreaterThan(now, actualStartTime);
-    const hasEnded =  actualEndTime && !isGreaterThan(actualEndTime, now);
-    if (hasStarted){
+    if (patrolStartTime && isGreaterThan(now, patrolStartTime)){
       dates.push({
-        sortDate: new Date(actualStartTime),
-        node: <DateListItem date={actualStartTime} title="Started" />
+        node: <DateListItem date={patrolStartTime} key="patrolStartTime" title="Started" />,
+        sortDate: new Date(patrolStartTime),
       });
     }
-    if (hasEnded){
+
+    if (patrolEndTime && !isGreaterThan(patrolEndTime, now)){
       dates.push({
-        sortDate: new Date(actualEndTime),
-        node: <DateListItem date={actualEndTime} title="Ended" />
+        node: <DateListItem date={patrolEndTime} key="patrolEndTime" title="Ended" />,
+        sortDate: new Date(patrolEndTime),
       });
     }
+
     return dates;
-  }, [actualEndTime, actualStartTime]);
-
-  const patrolReports = useMemo(() =>
-    getReportsForPatrol(patrol)
-  , [patrol]);
-
-  const allPatrolReports = useMemo(() => {
-    // don't show the contained reports, which are also bound to the segment
-    const allReports = [...patrolReports];
-    const incidents = allReports.filter(report => report.is_collection);
-    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])], []);
-    const topLevelReports = allReports.filter(report =>
-      !incidentIds.includes(report.id));
-
-    return orderBy(topLevelReports, [
-      (item) => {
-        return new Date(item.updated_at);
-      }], ['acs']);
-  }, [patrolReports]);
-
-  const reports = useMemo(() => allPatrolReports.map((report) => ({
-    sortDate: new Date(report.updated_at || report.created_at),
-    node: <ContainedReportListItem
-        report={report}
-        cardsExpanded={cardsExpanded}
-        onCollapse={() => onCollapseCard(report)}
-        onExpand={() => onExpandCard(report)}/>,
-  })), [allPatrolReports, cardsExpanded, onCollapseCard, onExpandCard]);
-
-  const patrolNotesRendered = useMemo(() => patrolNotes.map((patrolNote) => ({
-    sortDate: new Date(patrolNote.updated_at || patrolNote.created_at),
-    node: <NoteListItem
-        cardsExpanded={cardsExpanded}
-        key={patrolNote.id}
-        note={patrolNote}
-        onCollapse={() => onCollapseCard(patrolNote)}
-        onExpand={() => onExpandCard(patrolNote)}
-        onSave={() => {}}
-    />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, patrolNotes]);
+  }, [patrolEndTime, patrolStartTime]);
 
   const patrolAttachmentsRendered = useMemo(() => patrolAttachments.map((patrolAttachment) => ({
     sortDate: new Date(patrolAttachment.updated_at || patrolAttachment.created_at),
     node: <AttachmentListItem
-        attachment={patrolAttachment}
-        cardsExpanded={cardsExpanded}
-        key={patrolAttachment.id}
-        onCollapse={() => onCollapseCard(patrolAttachment)}
-        onExpand={() => onExpandCard(patrolAttachment)}
+      attachment={patrolAttachment}
+      cardsExpanded={cardsExpanded}
+      key={patrolAttachment.id}
+      onCollapse={() => onCollapseCard(patrolAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(patrolAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
     />,
   })), [cardsExpanded, onCollapseCard, onExpandCard, patrolAttachments]);
 
+  const patrolNotesRendered = useMemo(() => patrolNotes.map((patrolNote) => {
+    const isNewNote = !patrolNote.id;
+
+    return {
+      sortDate: new Date(patrolNote.updated_at || patrolNote.created_at),
+      node: <NoteListItem
+        cardsExpanded={cardsExpanded}
+        key={isNewNote ? patrolNote.text : patrolNote.id}
+        note={patrolNote}
+        onCollapse={() => onCollapseCard(
+          patrolNote,
+          isNewNote ? NEW_NOTE_ANALYTICS_SUBSTRING : EXISTING_NOTE_ANALYTICS_SUBSTRING
+        )}
+        onDelete={isNewNote ? () => onDeleteNote(patrolNote) : undefined}
+        onExpand={() => onExpandCard(
+          patrolNote,
+          isNewNote ? NEW_NOTE_ANALYTICS_SUBSTRING : EXISTING_NOTE_ANALYTICS_SUBSTRING
+        )}
+        onNewNoteHasChanged={isNewNote ? onNewNoteHasChanged : undefined}
+        onSave={onSaveNoteKeepExpanded(patrolNote)}
+        ref={isNewNote ? patrolNote.ref : undefined}
+      />,
+    };
+  }), [cardsExpanded, onCollapseCard, onDeleteNote, onExpandCard, onNewNoteHasChanged, onSaveNoteKeepExpanded, patrolNotes]);
+
   const sortableList = useMemo(() => [
+    ...containedReportsRendered,
+    ...patrolDates,
     ...patrolAttachmentsRendered,
     ...patrolNotesRendered,
-    ...reports,
-    ...patrolDates,
-  ], [patrolAttachmentsRendered, patrolNotesRendered, reports, patrolDates]);
+  ], [containedReportsRendered, patrolAttachmentsRendered, patrolDates, patrolNotesRendered]);
 
   const onSort = useCallback((order) => {
     patrolTracker.track(`Sort activity section in ${order} order`);
@@ -140,25 +139,30 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
+  const patrolImageAttachments = useMemo(
+    () => patrolAttachments.filter((patrolAttachment) => patrolAttachment.file_type === 'image'),
+    [patrolAttachments]
+  );
+
   const areAllItemsExpanded = useMemo(
     () => cardsExpanded.length === (
-      notesToAdd.length +
-        patrolNotesRendered.length +
-        patrolAttachmentsRendered.length ),
-    [cardsExpanded.length, notesToAdd.length, patrolAttachmentsRendered.length, patrolNotesRendered.length],
+      patrolNotes.length +
+      patrolImageAttachments.length +
+      containedReportsRendered.length),
+    [cardsExpanded.length, containedReportsRendered.length, patrolImageAttachments.length, patrolNotes.length],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
     patrolTracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
 
-    setCardsExpanded(areAllItemsExpanded
-      ? []
-      : [...patrolNotes, ...notesToAdd, ...patrolImageAttachments, ...containedReports]);
-  }, [areAllItemsExpanded, containedReports, notesToAdd, patrolImageAttachments, patrolNotes, patrolTracker]);
+    setCardsExpanded(areAllItemsExpanded ? [] : [...patrolNotes, ...patrolImageAttachments, ...containedReports]);
+  }, [areAllItemsExpanded, containedReports, patrolImageAttachments, patrolNotes, patrolTracker]);
 
   useEffect(() => {
-    notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
-  }, [notesToAdd, onExpandCard]);
+    patrolNotes
+      .filter((patrolNote) => !patrolNote.id && !patrolNote.text)
+      .forEach((patrolNote) => onExpandCard(patrolNote));
+  }, [onExpandCard, patrolNotes]);
 
   return <div data-testid="patrols-activitySection">
     <div className={styles.sectionHeader}>
@@ -190,25 +194,29 @@ const ActivitySection = ({ patrolAttachments, patrolNotes, notesToAdd, patrol, c
   </div>;
 };
 
+ActivitySection.defaultProps = {
+  onNewNoteHasChanged: null,
+};
+
 ActivitySection.propTypes = {
   containedReports: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
-  notesToAdd: PropTypes.arrayOf(PropTypes.shape({
-    creationDate: PropTypes.string,
-    text: PropTypes.string,
-  })).isRequired,
+  onDeleteNote: PropTypes.func.isRequired,
+  onNewNoteHasChanged: PropTypes.func,
   onSaveNote: PropTypes.func.isRequired,
   patrolAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,
     updated_at: PropTypes.string,
   })).isRequired,
+  patrolEndTime: PropTypes.instanceOf(Date),
   patrolNotes: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,
     updated_at: PropTypes.string,
   })).isRequired,
+  patrolStartTime: PropTypes.instanceOf(Date),
 };
 
 export default memo(ActivitySection);

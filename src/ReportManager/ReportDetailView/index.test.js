@@ -601,7 +601,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
   });
 
-  test('displays a new note', async () => {
+  test('can not add a second note without saving the first one', async () => {
     window.alert = jest.fn();
 
     renderWithWrapper(

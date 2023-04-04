@@ -13,10 +13,10 @@ import ContainedReportListItem from './ContainedReportListItem';
 
 import styles from './styles.module.scss';
 
-const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
-const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
-const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
+const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
+const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
+const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
 
 const ActivitySection = ({
   attachmentsToAdd,
@@ -24,10 +24,10 @@ const ActivitySection = ({
   notesToAdd,
   onDeleteAttachment,
   onDeleteNote,
+  onNewNoteHasChanged,
   onSaveNote,
   reportAttachments,
   reportNotes,
-  onNewNoteHasChanged,
 }) => {
   const reportTracker = useContext(TrackerContext);
 
@@ -108,12 +108,12 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
-      ref={noteToAdd.ref}
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
       onNewNoteHasChanged={onNewNoteHasChanged}
+      ref={noteToAdd.ref}
     />,
   })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNewNoteHasChanged]);
 
