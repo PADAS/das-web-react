@@ -16,7 +16,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }, ref = null) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onBlur, onCancel }, ref = null) => {
   const textareaRef = useRef();
 
   const reportTracker = useContext(TrackerContext);
@@ -64,9 +64,10 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     } else {
       reportTracker.track('Cancel editing existing note');
       setText(note.text);
+      onCancel(note);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
+  }, [isNewAndUnAdded, reportTracker, onDelete, note, onCancel]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -93,6 +94,12 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       });
     }
   }, [isEditing]);
+
+  const onBlurTextArea = ({ target: { value } }) => {
+    if (note.text !== text){
+      onBlur(note, value);
+    }
+  };
 
   return <li className={isOpen ? styles.openItem : ''} ref={ref}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
@@ -150,6 +157,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
           className={styles.noteTextArea}
           data-testid={`reportManager-activitySection-noteTextArea-${note.id || note.text}`}
           onChange={onChangeTextArea}
+          onBlur={onBlurTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
           value={text}
@@ -191,6 +199,8 @@ NoteListItem.propTypes = {
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  onBlur: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 export default memo(forwardRef(NoteListItem));
