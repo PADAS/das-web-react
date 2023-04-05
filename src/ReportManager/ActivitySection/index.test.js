@@ -68,6 +68,8 @@ describe('ReportManager - ActivitySection', () => {
             reportAttachments={files}
             reportNotes={notes}
             reportTracker={{ track }}
+            onBlur={jest.fn()}
+            onCancel={jest.fn()}
           />
           </TrackerContext.Provider>
         </NavigationWrapper>
