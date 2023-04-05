@@ -17,7 +17,7 @@ describe('ReportManager - AddAttachmentButton', () => {
   test('triggers onAddAttachments if user adds a new attachment', async () => {
     expect(onAddAttachments).toHaveBeenCalledTimes(0);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 

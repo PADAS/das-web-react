@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { ReactComponent as ClockIcon } from '../../../common/images/icons/check.svg';
+import { ReactComponent as ClockIcon } from '../../../common/images/icons/clock-icon.svg';
 
 import DateTime from '../../../DateTime';
 

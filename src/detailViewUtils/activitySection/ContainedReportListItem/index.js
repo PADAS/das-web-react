@@ -72,15 +72,15 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       <div className={activitySectionStyles.itemActionButtonContainer}>
         <ItemActionButton>
           {isOpen
-            ? <ArrowUpSimpleIcon data-testid={`patrolDetailView-activitySection-arrowUp-${report.id}`} />
-            : <ArrowDownSimpleIcon data-testid={`patrolDetailView-activitySection-arrowDown-${report.id}`} />}
+            ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${report.id}`} />
+            : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${report.id}`} />}
         </ItemActionButton>
       </div>
     </div>
 
     <Collapse
       className={activitySectionStyles.collapse}
-      data-testid={`patrolDetailView-activitySection-collapse-${report.id}`}
+      data-testid={`activitySection-collapse-${report.id}`}
       in={isOpen}
     >
       <div>

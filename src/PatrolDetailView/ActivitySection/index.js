@@ -8,10 +8,10 @@ import { isGreaterThan } from '../../utils/datetime';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
-import AttachmentListItem from './AttachmentListItem';
-import ContainedReportListItem from './ContainedReportListItem';
-import DateListItem from './DateListItem';
-import NoteListItem from './NoteListItem';
+import AttachmentListItem from '../../detailViewUtils/activitySection/AttachmentListItem';
+import ContainedReportListItem from '../../detailViewUtils/activitySection/ContainedReportListItem';
+import DateListItem from '../../detailViewUtils/activitySection/DateListItem';
+import NoteListItem from '../../detailViewUtils/activitySection/NoteListItem';
 
 import styles from './styles.module.scss';
 

@@ -80,11 +80,11 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('expands a contained report when clicking the down arrow', async () => {
-    const reportCollapse = await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    const reportCollapse = await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
 
     expect(reportCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -93,12 +93,12 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('collapses a contained report when clicking the up arrow', async () => {
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    const collapseButton = await screen.findByTestId('activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
     userEvent.click(collapseButton);
 
-    const reportCollapse = await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    const reportCollapse = await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
 
     await waitFor(() => {
       expect(reportCollapse).toHaveClass('collapse');
@@ -106,11 +106,11 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('expands an existing image attachment when clicking the down arrow', async () => {
-    const imageCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+    const imageCollapse = await screen.findByTestId('activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 
     expect(imageCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -119,12 +119,12 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('collapses an existing image attachment when clicking the up arrow', async () => {
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+    const collapseButton = await screen.findByTestId('activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
     userEvent.click(collapseButton);
 
-    const imageCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
+    const imageCollapse = await screen.findByTestId('activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde21');
 
     await waitFor(() => {
       expect(imageCollapse).toHaveClass('collapse');
@@ -134,18 +134,18 @@ describe('ReportManager - ActivitySection', () => {
   test('removes new attachment from attachments to add when clicking the delete icon', async () => {
     expect(onDeleteAttachment).toHaveBeenCalledTimes(0);
 
-    const deleteNewAttachmentButton = await screen.findByTestId('reportManager-activitySection-trashCan-newFile1.pdf');
+    const deleteNewAttachmentButton = await screen.findByTestId('activitySection-trashCan-newFile1.pdf');
     userEvent.click(deleteNewAttachmentButton);
 
     expect(onDeleteAttachment).toHaveBeenCalledTimes(1);
   });
 
   test('expands an existing note when clicking the down arrow', async () => {
-    const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -154,12 +154,12 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('collapses an existing note when clicking the up arrow', async () => {
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const collapseButton = await screen.findByTestId('activitySection-arrowUp-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(collapseButton);
 
-    const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('collapse');
@@ -169,9 +169,9 @@ describe('ReportManager - ActivitySection', () => {
   test('saves an existing edited note', async () => {
     expect(onSaveNote).toHaveBeenCalledTimes(0);
 
-    const editNoteIcon = await screen.findByTestId('reportManager-activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.type(noteTextArea, 'edited');
     const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
@@ -181,11 +181,11 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('expands a new note when clicking the down arrow', async () => {
-    const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-note1');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-note1');
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-note1');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-note1');
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -194,12 +194,12 @@ describe('ReportManager - ActivitySection', () => {
   });
 
   test('collapses a new note when clicking the up arrow', async () => {
-    const expandButton = await screen.findByTestId('reportManager-activitySection-arrowDown-note1');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-note1');
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('reportManager-activitySection-arrowUp-note1');
+    const collapseButton = await screen.findByTestId('activitySection-arrowUp-note1');
     userEvent.click(collapseButton);
 
-    const noteCollapse = await screen.findByTestId('reportManager-activitySection-collapse-note1');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-note1');
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('collapse');
@@ -209,7 +209,7 @@ describe('ReportManager - ActivitySection', () => {
   test('deletes a new note when clicking the trash button', async () => {
     expect(onDeleteNote).toHaveBeenCalledTimes(0);
 
-    const deleteButton = await screen.findByTestId('reportManager-activitySection-deleteIcon-note1');
+    const deleteButton = await screen.findByTestId('activitySection-deleteIcon-note1');
     userEvent.click(deleteButton);
 
     expect(onDeleteNote).toHaveBeenCalledTimes(1);
@@ -218,9 +218,9 @@ describe('ReportManager - ActivitySection', () => {
   test('saves a new edited note', async () => {
     expect(onSaveNote).toHaveBeenCalledTimes(0);
 
-    const editNoteIcon = await screen.findByTestId('reportManager-activitySection-editIcon-note1');
+    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-note1');
     userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('reportManager-activitySection-noteTextArea-note1');
+    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-note1');
     userEvent.type(noteTextArea, 'edited');
     const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
@@ -256,7 +256,7 @@ describe('ReportManager - ActivitySection', () => {
     const expandCollapseButton = await screen.findByTestId('reportManager-activitySection-expandCollapseButton');
     userEvent.click(expandCollapseButton);
 
-    const collapses = await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'));
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));
@@ -267,7 +267,7 @@ describe('ReportManager - ActivitySection', () => {
     const expandCollapseButton = await screen.findByTestId('reportManager-activitySection-expandCollapseButton');
     userEvent.click(expandCollapseButton);
 
-    const collapses = await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'));
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));

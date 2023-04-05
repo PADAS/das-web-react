@@ -308,7 +308,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 
@@ -322,7 +322,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
     const deleteAttachmentButton = await screen.findByText('trash-can.svg');
@@ -588,7 +588,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 
@@ -842,7 +842,7 @@ describe('ReportManager - ReportDetailView', () => {
       const addNoteButton = await screen.findByTestId('addNoteButton');
       userEvent.click(addNoteButton);
 
-      const textInput = await screen.findByTestId('reportManager-activitySection-noteTextArea-');
+      const textInput = await screen.findByTestId('activitySection-noteTextArea-');
       userEvent.type(textInput, 'this is a new note');
 
       const cancelButton = await screen.findByTestId('report-details-cancel-btn');

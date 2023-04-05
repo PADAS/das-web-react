@@ -6,6 +6,10 @@
 
 .itemIcon {
   background: $light-gray;
+
+  g {
+    stroke: $primary-font-color;
+  }
 }
 
 .itemTitle {

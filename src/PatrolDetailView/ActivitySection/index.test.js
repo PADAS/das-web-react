@@ -1,6 +1,3 @@
-
- 
-
 import React from 'react';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -103,11 +100,11 @@ describe('PatrolDetailView - ActivitySection', () => {
 
   test('expands a contained report when clicking the down arrow', async () => {
     const { id } = containedReports[0];
-    const reportCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${id}`);
+    const reportCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     expect(reportCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${id}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -118,12 +115,12 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('collapses a contained report when clicking the up arrow', async () => {
     const { id } = containedReports[0];
 
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${id}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowUp-${id}`);
+    const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${id}`);
     userEvent.click(collapseButton);
 
-    const reportCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${id}`);
+    const reportCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     await waitFor(() => {
       expect(reportCollapse).toHaveClass('collapse');
@@ -133,11 +130,11 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('expands an existing image attachment when clicking the down arrow', async () => {
     const [, imageAttachment ] = files;
     const { id } = imageAttachment;
-    const imageCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${id}`);
+    const imageCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     expect(imageCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${id}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -149,12 +146,12 @@ describe('PatrolDetailView - ActivitySection', () => {
     const [, imageAttachment ] = files;
     const { id } = imageAttachment;
 
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${id}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowUp-${id}`);
+    const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${id}`);
     userEvent.click(collapseButton);
 
-    const imageCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${id}`);
+    const imageCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
     await waitFor(() => {
       expect(imageCollapse).toHaveClass('collapse');
@@ -164,11 +161,11 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('expands an existing note when clicking the down arrow', async () => {
     const [ note ] = notes;
     const { id: noteId } = note;
-    const noteCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${noteId}`);
+    const noteCollapse = await screen.findByTestId(`activitySection-collapse-${noteId}`);
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${noteId}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${noteId}`);
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -179,12 +176,12 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('collapses an existing note when clicking the up arrow', async () => {
     const [ note ] = notes;
     const { id: noteId } = note;
-    const expandButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowDown-${noteId}`);
+    const expandButton = await screen.findByTestId(`activitySection-arrowDown-${noteId}`);
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId(`patrolDetailView-activitySection-arrowUp-${noteId}`);
+    const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${noteId}`);
     userEvent.click(collapseButton);
 
-    const noteCollapse = await screen.findByTestId(`patrolDetailView-activitySection-collapse-${noteId}`);
+    const noteCollapse = await screen.findByTestId(`activitySection-collapse-${noteId}`);
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('collapse');
@@ -194,9 +191,9 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('saves an existing edited note', async () => {
     expect(onSaveNote).toHaveBeenCalledTimes(0);
 
-    const editNoteIcon = await screen.findByTestId('patrolDetailView-activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('patrolDetailView-activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
+    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.type(noteTextArea, 'edited');
     const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
@@ -206,11 +203,11 @@ describe('PatrolDetailView - ActivitySection', () => {
   });
 
   test('expands a new note when clicking the down arrow', async () => {
-    const noteCollapse = await screen.findByTestId('patrolDetailView-activitySection-collapse-note1');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-note1');
 
     expect(noteCollapse).toHaveClass('collapse');
 
-    const expandButton = await screen.findByTestId('patrolDetailView-activitySection-arrowDown-note1');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-note1');
     userEvent.click(expandButton);
 
     await waitFor(() => {
@@ -219,12 +216,12 @@ describe('PatrolDetailView - ActivitySection', () => {
   });
 
   test('collapses a new note when clicking the up arrow', async () => {
-    const expandButton = await screen.findByTestId('patrolDetailView-activitySection-arrowDown-note1');
+    const expandButton = await screen.findByTestId('activitySection-arrowDown-note1');
     userEvent.click(expandButton);
-    const collapseButton = await screen.findByTestId('patrolDetailView-activitySection-arrowUp-note1');
+    const collapseButton = await screen.findByTestId('activitySection-arrowUp-note1');
     userEvent.click(collapseButton);
 
-    const noteCollapse = await screen.findByTestId('patrolDetailView-activitySection-collapse-note1');
+    const noteCollapse = await screen.findByTestId('activitySection-collapse-note1');
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('collapse');
@@ -234,7 +231,7 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('deletes a new note when clicking the trash button', async () => {
     expect(onDeleteNote).toHaveBeenCalledTimes(0);
 
-    const deleteButton = await screen.findByTestId('patrolDetailView-activitySection-deleteIcon-note1');
+    const deleteButton = await screen.findByTestId('activitySection-deleteIcon-note1');
     userEvent.click(deleteButton);
 
     expect(onDeleteNote).toHaveBeenCalledTimes(1);
@@ -243,9 +240,9 @@ describe('PatrolDetailView - ActivitySection', () => {
   test('saves a new edited note', async () => {
     expect(onSaveNote).toHaveBeenCalledTimes(0);
 
-    const editNoteIcon = await screen.findByTestId('patrolDetailView-activitySection-editIcon-note1');
+    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-note1');
     userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('patrolDetailView-activitySection-noteTextArea-note1');
+    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-note1');
     userEvent.type(noteTextArea, 'edited');
     const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
@@ -289,7 +286,7 @@ describe('PatrolDetailView - ActivitySection', () => {
     const expandCollapseButton = await screen.findByTestId('patrolDetailView-activitySection-expandCollapseButton');
     userEvent.click(expandCollapseButton);
 
-    const collapses = await screen.findAllByTestId((content) => content.startsWith('patrolDetailView-activitySection-collapse'));
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));
@@ -300,7 +297,7 @@ describe('PatrolDetailView - ActivitySection', () => {
     const expandCollapseButton = await screen.findByTestId('patrolDetailView-activitySection-expandCollapseButton');
     userEvent.click(expandCollapseButton);
 
-    const collapses = await screen.findAllByTestId((content) => content.startsWith('patrolDetailView-activitySection-collapse'));
+    const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));

@@ -7,9 +7,9 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
-import AttachmentListItem from './AttachmentListItem';
-import NoteListItem from './NoteListItem';
-import ContainedReportListItem from './ContainedReportListItem';
+import AttachmentListItem from '../../detailViewUtils/activitySection/AttachmentListItem';
+import ContainedReportListItem from '../../detailViewUtils/activitySection/ContainedReportListItem';
+import NoteListItem from '../../detailViewUtils/activitySection/NoteListItem';
 
 import styles from './styles.module.scss';
 
@@ -198,7 +198,6 @@ const ActivitySection = ({
     {!!sortableList.length && <ul className={styles.list} >
       {sortedItemsRendered}
     </ul>}
-
   </div>;
 };
 
