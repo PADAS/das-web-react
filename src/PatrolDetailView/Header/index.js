@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -40,6 +40,8 @@ const Header = ({ onChangeTitle, patrol }) => {
     startPatrol,
   } = usePatrol(patrol);
 
+  const titleInput = useRef();
+
   const isNewPatrol = !patrol.id;
 
   const titleDetails = useMemo(() => {
@@ -61,6 +63,19 @@ const Header = ({ onChangeTitle, patrol }) => {
     patrolElapsedTime,
     scheduledStartTime,
   ]);
+
+  const onTitleBlur = useCallback((event) => {
+    if (!event.target.textContent) {
+      titleInput.current.innerHTML = displayTitle;
+    }
+
+    patrolDetailViewTracker.track('Change title');
+
+    onChangeTitle(event.target.textContent || displayTitle);
+    event.target.scrollTop = 0;
+  }, [displayTitle, onChangeTitle]);
+
+  const onTitleFocus = useCallback((event) => window.getSelection().selectAllChildren(event.target), []);
 
   const restorePatrolAndTrack = useCallback(() => {
     restorePatrol();
@@ -87,8 +102,18 @@ const Header = ({ onChangeTitle, patrol }) => {
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>
 
-    <div className={styles.title}>
-      <input onChange={(event) => onChangeTitle(event.target.value)} type="text" value={title} />
+    <div className={styles.titleAndDetails}>
+      {title && <div
+        className={styles.title}
+        contentEditable
+        data-testid="patrolDetailView-header-title"
+        onBlur={onTitleBlur}
+        onFocus={onTitleFocus}
+        ref={titleInput}
+        suppressContentEditableWarning
+      >
+        {title}
+      </div>}
 
       {!isNewPatrol && titleDetails}
     </div>

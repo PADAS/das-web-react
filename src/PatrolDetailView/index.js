@@ -100,7 +100,9 @@ const PatrolDetailView = () => {
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
   const patrolSegmentId = patrol && displayPatrolSegmentId(patrol);
 
-  const isPatrolModified = Object.keys(patrolChanges).length > 0 || filesToAdd.length > 0 || reportsToAdd.length > 0;
+  const shouldShowNavigationPrompt = !isSaving
+    && !redirectTo
+    && (filesToAdd.length > 0 || reportsToAdd.length > 0 || Object.keys(patrolChanges).length > 0);
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
@@ -114,7 +116,7 @@ const PatrolDetailView = () => {
     console.warn('failed to save new patrol', error);
   }, [isNewPatrol]);
 
-  const onSavePatrol = useCallback(() => {
+  const onSavePatrol = useCallback((shouldRedirectAfterSave = true) => {
     if (isSaving) {
       return;
     }
@@ -143,10 +145,22 @@ const PatrolDetailView = () => {
 
     const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], filesToAdd);
     return executeSaveActions(saveActions)
-      .then(onSaveSuccess(`/${TAB_KEYS.PATROLS}`))
+      .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
+
+  const trackDiscard = useCallback(() => {
+    patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
+  }, [isNewPatrol]);
+
+  const onNavigationContinue = useCallback((shouldSave = false) => {
+    if (shouldSave) {
+      onSavePatrol(false);
+    } else {
+      trackDiscard();
+    }
+  }, [onSavePatrol, trackDiscard]);
 
   const onChangeTitle = useCallback(
     (newTitle) => setPatrolForm({ ...patrolForm, title: newTitle }),
@@ -327,7 +341,7 @@ const PatrolDetailView = () => {
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
-    <NavigationPromptModal when={isPatrolModified && !redirectTo} />
+    <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
     <Header onChangeTitle={onChangeTitle} patrol={patrolForm} />
 
@@ -358,7 +372,14 @@ const PatrolDetailView = () => {
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
-              <ActivitySection />
+              {/* TODO: Add this props once activity section info is implemented */}
+              <ActivitySection
+                containedReports={[]}
+                notesToAdd={[]}
+                onSaveNote={() => {}}
+                patrolAttachments={[]}
+                patrolNotes={[]}
+              />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
@@ -380,12 +401,7 @@ const PatrolDetailView = () => {
                 Cancel
               </Button>
 
-              <Button
-                className={styles.saveButton}
-                disabled={!isNewPatrol && !isPatrolModified}
-                onClick={onSavePatrol}
-                type="button"
-              >
+              <Button className={styles.saveButton} onClick={onSavePatrol} type="button">
                 Save
               </Button>
             </div>

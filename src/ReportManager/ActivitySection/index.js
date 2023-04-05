@@ -1,16 +1,15 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import { TrackerContext } from '../../utils/analytics';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
+import { TrackerContext } from '../../utils/analytics';
+import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import AttachmentListItem from './AttachmentListItem';
 import NoteListItem from './NoteListItem';
 import ContainedReportListItem from './ContainedReportListItem';
-
-import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import styles from './styles.module.scss';
 
@@ -32,8 +31,9 @@ const ActivitySection = ({
   reportNotes,
   onNoteHasChanged,
 }) => {
-  const [cardsExpanded, setCardsExpanded] = useState([]);
   const reportTracker = useContext(TrackerContext);
+
+  const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
     if (cardsExpanded.includes(card)) {

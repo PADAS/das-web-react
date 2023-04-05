@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
-import { INCIDENT_REPORT_CATEGORY, EVENT_REPORT_CATEGORY, MAP_LAYERS_CATEGORY, TrackerContext } from '../../utils/analytics';
+import { INCIDENT_REPORT_CATEGORY, EVENT_REPORT_CATEGORY, TrackerContext } from '../../utils/analytics';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';
@@ -31,10 +31,14 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
     if (!event.target.textContent) {
       titleInput.current.innerHTML = eventTypeTitle;
     }
-    reportTracker.track('Change title');
-    onChangeTitle(event.target.textContent || eventTypeTitle);
+
+    reportTracker.track('Change report title');
+
+    if (report.title !== null || event.target.textContent !== displayTitle) {
+      onChangeTitle(event.target.textContent || eventTypeTitle);
+    }
     event.target.scrollTop = 0;
-  }, [eventTypeTitle, onChangeTitle, reportTracker]);
+  }, [displayTitle, eventTypeTitle, onChangeTitle, report.title, reportTracker]);
 
   const hasPatrols = !!report?.patrols?.length;
 

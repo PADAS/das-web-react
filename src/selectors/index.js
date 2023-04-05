@@ -3,6 +3,7 @@ import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect'
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 import isEqual from 'react-fast-compare';
+import pickBy from 'lodash/pickBy';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
@@ -13,6 +14,7 @@ export const createEqualitySelector = createSelectorCreator(
   isEqual,
 );
 
+const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
@@ -57,10 +59,29 @@ const userCreatableEventTypesByCategory = createSelector(
 );
 
 export const getMapEventFeatureCollection = createSelector(
-  [mapEvents, eventStore, getEventTypes],
-  (mapEvents, eventStore, eventTypes) => createFeatureCollectionFromEvents(mapEvents
-    .map(id => eventStore[id])
-    .filter(item => !!item), eventTypes)
+  [mapEvents, eventStore, getEventTypes, locallyEditedEvent],
+  (mapEvents, eventStore, eventTypes, locallyEditedEvent) => {
+    const eventsInMap = mapEvents;
+    if (locallyEditedEvent && !eventsInMap.includes(locallyEditedEvent.id)) {
+      eventsInMap.push(locallyEditedEvent.id);
+    }
+
+    return createFeatureCollectionFromEvents(eventsInMap
+      .map((id) => {
+        if (locallyEditedEvent?.id === id) {
+          const event = {
+            ...eventStore[id],
+            ...pickBy(locallyEditedEvent, (value) => value !== undefined),
+            locallyEdited: true,
+          };
+
+          return event;
+        }
+
+        return eventStore[id];
+      })
+      .filter(item => !!item), eventTypes);
+  }
 );
 
 export const getFeedEvents = createSelector(

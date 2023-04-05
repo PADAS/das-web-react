@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Header from './';
@@ -116,20 +116,36 @@ describe('Header', () => {
     expect((await screen.findByRole('button'))).toHaveTextContent('Restore');
   });
 
-  test('triggers onChangeTitle callback when changing the title', async () => {
+  test('triggers setTitle callback when the contenteditable loses focus', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
       </Provider>
     );
 
-    expect(onChangeTitle).toHaveBeenCalledTimes(0);
+    const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
+    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}2');
+    userEvent.tab();
 
-    const titleTextBox = await screen.findByRole('textbox');
-    userEvent.type(titleTextBox, '2');
+    await waitFor(() => {
+      expect(onChangeTitle).toHaveBeenCalledTimes(1);
+      expect(onChangeTitle).toHaveBeenCalledWith('2');
+    });
+  });
+
+  test('sets the display title if user leaves the title input empty', async () => {
+    render(
+      <Provider store={store}>
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+      </Provider>
+    );
+
+    const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
+    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}');
+    userEvent.tab();
 
     expect(onChangeTitle).toHaveBeenCalledTimes(1);
-    expect(onChangeTitle).toHaveBeenCalledWith('title2');
+    expect(onChangeTitle).toHaveBeenCalledWith('Future');
   });
 
   test('triggers startPatrol callback when clicking the start button', async () => {

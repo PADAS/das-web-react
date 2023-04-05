@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import SplitButton from 'react-bootstrap/SplitButton';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,6 +26,7 @@ import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
+import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
@@ -47,6 +50,8 @@ import activitySectionStyles from '../ActivitySection/styles.module.scss';
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
+
+const ACTIVE_STATES = ['active', 'new'];
 
 const ReportDetailView = ({
   className,
@@ -117,6 +122,7 @@ const ReportDetailView = ({
   } = formProps || {};
 
   const originalReport = isNewReport ? newReport : eventStore[reportId];
+  const isActive = ACTIVE_STATES.includes(originalReport?.state);
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
@@ -477,13 +483,20 @@ const ReportDetailView = ({
     }
   }, [onSaveReport, reportForm?.is_collection, reportTracker]);
 
+  const onClickSaveAndToggleStateButton = useCallback(() => {
+    setReportForm({ ...reportForm, state: isActive ? 'resolved' : 'active' });
+    setTimeout(() => {
+      onClickSaveButton();
+    });
+  }, [isActive, onClickSaveButton, reportForm]);
+
   const trackDiscard = useCallback(() => {
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
   const onNavigationContinue = useCallback((shouldSave = false) => {
     if (shouldSave) {
-      onSaveReport();
+      onSaveReport(false);
     } else {
       if (isAddedReport) {
         onCancelAddedReport?.();
@@ -524,6 +537,30 @@ const ReportDetailView = ({
       navigate(redirectTo);
     }
   }, [navigate, redirectTo]);
+
+  useEffect(() => {
+    const shouldUpdateMapEvent = reportChanges?.geometry ||
+      reportChanges?.location ||
+      reportChanges?.priority ||
+      reportChanges?.time ||
+      reportChanges?.title;
+    if (!isNewReport && shouldUpdateMapEvent) {
+      dispatch(setLocallyEditedEvent(reportForm));
+    } else {
+      dispatch(unsetLocallyEditedEvent());
+    }
+  }, [
+    dispatch,
+    isNewReport,
+    reportChanges?.geometry,
+    reportChanges?.location,
+    reportChanges?.priority,
+    reportChanges?.time,
+    reportChanges?.title,
+    reportForm,
+  ]);
+
+  useEffect(() => () => dispatch(unsetLocallyEditedEvent()), [dispatch]);
 
   const shouldRenderActivitySection = (reportAttachments.length
     + attachmentsToAdd.length
@@ -630,13 +667,13 @@ const ReportDetailView = ({
                 Cancel
               </Button>
 
-              <Button
-                  className={styles.saveButton}
-                  onClick={onClickSaveButton}
-                  type="button"
-                >
-                Save
-              </Button>
+              <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title='Save' onClick={onClickSaveButton}>
+                <Dropdown.Item data-testid='report-details-resolve-btn-toggle'>
+                  <Button  type='button' variant='primary' onClick={onClickSaveAndToggleStateButton}>
+                    {isActive ? 'Save and resolve' : 'Save and reopen'}
+                  </Button>
+                </Dropdown.Item>
+              </SplitButton>
             </div>
           </div>
         </div>
