@@ -802,8 +802,6 @@ describe('ReportManager - ReportDetailView', () => {
 
   describe('the warning prompt', () => {
     let actualUseNavigate;
-    const modalPromptTitle = 'Unsaved Changes';
-    const modalPromptText = 'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?';
 
     beforeEach(() => {
       actualUseNavigate = jest.requireActual('../../hooks/useNavigate');
@@ -829,28 +827,8 @@ describe('ReportManager - ReportDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       userEvent.click(cancelButton);
 
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
-    });
-
-    test('showing a warning prompt for an ongoing note', async () => {
-      const onCancelAddedReport = jest.fn();
-
-      renderWithWrapper(
-        <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
-      );
-
-      const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
-      userEvent.click(addNoteButton);
-
-      const textInput = await screen.findByTestId('reportManager-activitySection-noteTextArea-');
-      userEvent.type(textInput, 'this is a new note');
-
-      const cancelButton = await screen.findByTestId('report-details-cancel-btn');
-      userEvent.click(cancelButton);
-
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
     });
 
     test('showing a warning prompt for an added report', async () => {
@@ -871,8 +849,8 @@ describe('ReportManager - ReportDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       userEvent.click(cancelButton);
 
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
     });
 
     test('discarding unsaved changes', async () => {
@@ -921,8 +899,8 @@ describe('ReportManager - ReportDetailView', () => {
 
       expect(onSaveSuccess).not.toHaveBeenCalled();
 
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
 
       const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
       promptSaveBtn.click();

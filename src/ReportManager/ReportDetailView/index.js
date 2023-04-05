@@ -84,34 +84,13 @@ const ReportDetailView = ({
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
     [reportData, reportType]
   );
-  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
-
-  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [],
-    [reportForm?.notes]
-  );
-
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
+  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [unsavedNoteDates, setUnsavedNoteDates] = useState([]);
-
-  const initialNotesText = useMemo(() =>
-    reportNotes.reduce((prev, { text, created_at }) => ({ ...prev, [created_at]: text }), {})
-  , [reportNotes]);
-  const [notesText, setNotesText] = useState(initialNotesText);
-  const setNoteText = (noteId, text) => {
-
-    setNotesText({ ...notesText, [noteId]: text });
-  };
-
-  const removeNoteText = (noteId) => {
-    const updatedNotesText = { ...notesText };
-    delete updatedNotesText[noteId];
-    setNotesText(updatedNotesText);
-  };
 
   const reportTracker = useContext(TrackerContext);
 
@@ -168,6 +147,7 @@ const ReportDetailView = ({
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
+  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
 
   const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
@@ -181,12 +161,10 @@ const ReportDetailView = ({
     return Object.entries(extractObjectDifference(reportForm, originalReport))
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
-
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
-
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
@@ -195,7 +173,6 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-      || unsavedNoteDates.length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -374,27 +351,14 @@ const ReportDetailView = ({
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
 
-  const updateUnsavedNoteDates = useCallback((creationDate, hasUnsavedChanges) => {
-    const noteIndex = unsavedNoteDates.findIndex((date) => date === creationDate);
-    const isAdded = noteIndex >= 0;
-    if (hasUnsavedChanges && !isAdded){
-      setUnsavedNoteDates([ ...unsavedNoteDates, creationDate ]);
-    } else if (!hasUnsavedChanges && isAdded){
-      setUnsavedNoteDates(unsavedNoteDates.filter((noteDate) => noteDate !== creationDate));
-    }
-  }, [unsavedNoteDates]);
-
   const onDeleteNote = useCallback((note) => {
-    const id = note.creationDate ?? note.created_at;
-    removeNoteText(id);
-    updateUnsavedNoteDates(id, false);
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
-  }, [notesToAdd, updateUnsavedNoteDates]);
+  }, [notesToAdd]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
+
     const isNew = !originalNote.id;
-    updateUnsavedNoteDates(editedNote.creationDate ?? editedNote.created_at, false);
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
     } else {
@@ -403,8 +367,9 @@ const ReportDetailView = ({
         notes: reportNotes.map((reportNote) => reportNote === originalNote ? editedNote : reportNote),
       });
     }
+
     return editedNote;
-  }, [notesToAdd, reportForm, reportNotes, updateUnsavedNoteDates]);
+  }, [notesToAdd, reportForm, reportNotes, setReportForm]);
 
   const onAddNote = useCallback(() => {
     const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.text);
@@ -632,7 +597,6 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onNoteHasChanged={updateUnsavedNoteDates} notesText={notesText} setNotesText={setNoteText}
               />
             </QuickLinks.Section>
 

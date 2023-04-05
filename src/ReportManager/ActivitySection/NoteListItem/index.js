@@ -16,7 +16,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDelete, onExpand, onSave, onNoteHasChanged }, ref = null) => {
+const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave }, ref = null) => {
   const textareaRef = useRef();
 
   const reportTracker = useContext(TrackerContext);
@@ -33,6 +33,7 @@ const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDe
   }, [isNew, note.text]);
 
   const [isEditing, setIsEditing] = useState(isNewAndUnAdded);
+  const [text, setText] = useState(note.text);
 
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
@@ -54,19 +55,7 @@ const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDe
     setIsEditing(newEditState);
   }, [reportTracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => {
-    const currentValue = !event.target.value.trim() ? '' : event.target.value;
-    const id = isNewAndUnAdded ? note.creationDate : note.created_at;
-    setNoteText(id, currentValue);
-  }, [isNewAndUnAdded, note.created_at, note.creationDate, setNoteText]);
-
-  useEffect(() => {
-    if (isNewAndUnAdded){
-      onNoteHasChanged?.(note.creationDate, text.length > 0);
-    } else if (isEditing){
-      onNoteHasChanged?.(note.created_at, text !== note.text);
-    }
-  }, [isNewAndUnAdded, note, text, isEditing]);
+  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
@@ -74,26 +63,24 @@ const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDe
       onDelete();
     } else {
       reportTracker.track('Cancel editing existing note');
-      onNoteHasChanged?.(note.created_at, false);
-      setNoteText(note.created_at, note.text);
+      setText(note.text);
     }
     setIsEditing(false);
   }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
-
     const trimmedText = text.trim();
+
     const newNote = {
       ...note,
       text: trimmedText,
     };
-    const id = isNewAndUnAdded ? note.creationDate : note.created_at;
 
     reportTracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
 
     onSave(newNote);
-    setNoteText(id, text);
+    setText(trimmedText);
   }, [isNew, note, onSave, reportTracker, text]);
 
   useEffect(() => {
@@ -189,7 +176,6 @@ const NoteListItem = ({ cardsExpanded, note, text, setNoteText, onCollapse, onDe
 
 NoteListItem.defaultProps = {
   onDelete: null,
-  onNoteHasChanged: null,
 };
 
 NoteListItem.propTypes = {
@@ -205,7 +191,6 @@ NoteListItem.propTypes = {
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onNoteHasChanged: PropTypes.func,
 };
 
 export default memo(forwardRef(NoteListItem));
