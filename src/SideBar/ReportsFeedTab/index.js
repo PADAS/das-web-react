@@ -65,7 +65,6 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
 
   const onScroll = useCallback(
     () => {
-      console.log('onScroll');
       events.next && dispatch(fetchNextEventFeedPage(events.next));
     },
     [dispatch, events.next]

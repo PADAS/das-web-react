@@ -1,37 +1,68 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import ReactGA from 'react-ga';
 import store from '../store';
 import userEvent from '@testing-library/user-event';
 
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter';
 
-import EventFilter from './';
+import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';
+import { mockStore } from '../__test-helpers/MockStore';
+import { eventTypes } from '../__test-helpers/fixtures/event-types';
 
 ReactGA.initialize('dummy', { testMode: true });
+
 const feedSort = DEFAULT_EVENT_SORT;
 const resetMock = jest.fn();
+const initialState = {
+  data: {
+    subjectStore: {},
+    eventTypes,
+    eventFilter: {
+      filter: {
+        date_range: {
+          lower: null,
+          upper: null,
+        },
+        event_type: [],
+        text: '',
+        priority: []
+      },
+    },
+    eventSchemas: {
+      globalSchema: {
+        properties: {
+          reported_by: {
+            enum_ext: [{
+              value: { id: 'Leader 1' },
+            }, {
+              value: { id: 'Leader 2' },
+            }],
+          },
+        },
+      },
+    },
+    feedEvents: { results: [] }
+  }
+};
 
-test('rendering without crashing', () => {
+const renderEventFilter = (mockedStore = store) => {
   render(
-    <Provider store={store}>
+    <Provider store={mockedStore}>
       <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
     </Provider>
   );
+};
+
+test('rendering without crashing', () => {
+  renderEventFilter();
 });
 
 describe('default filters state', () => {
 
-  beforeEach(() => {
-
-    render(
-      <Provider store={store}>
-        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
-      </Provider>
-    );
-  });
+  beforeEach(() =>     renderEventFilter());
 
   test('the default state for "Filter" button should be light', async () => {
     const filterBtn = screen.getByTestId('filter-btn');
@@ -103,26 +134,24 @@ describe('default filters state', () => {
 });
 
 describe('After filters being applied', () => {
-  beforeEach(async () => {
-    render(
-      <Provider store={store}>
-        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
-      </Provider>
-    );
 
+  const assertResolvedOptionBtn = async (store) => {
+    renderEventFilter(store);
     const filterBtn = await screen.getByTestId('filter-btn');
     userEvent.click(filterBtn);
     const filterPopover = await screen.getByTestId('filter-popover');
     const resolvedOptionBtn = await within(filterPopover).queryByText('Resolved');
     userEvent.click(resolvedOptionBtn);
-  });
+  };
 
   test('the state color for "Filter" button after filters being applied should be primary', async () => {
+    await assertResolvedOptionBtn();
     const filterBtn = await screen.getByTestId('filter-btn');
     expect(filterBtn.className).toEqual(expect.stringContaining('btn-primary'));
   });
 
   test('the state color for "Date" button after filters being applied should be primary', async () => {
+    await assertResolvedOptionBtn();
     const dateFilterBtn = await screen.getByTestId('date-filter-btn');
     userEvent.click(dateFilterBtn);
     const dateFilterPopover = await screen.getByTestId('filter-date-popover');
@@ -133,6 +162,7 @@ describe('After filters being applied', () => {
   });
 
   test('the reset button is displayed only when a filter is applied', async () => {
+    await assertResolvedOptionBtn();
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
     expect(resetButton).toBeDefined();
@@ -143,6 +173,7 @@ describe('After filters being applied', () => {
   });
 
   test('all the applied filters disappear when the reset button is clicked', async () => {
+    await assertResolvedOptionBtn();
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
     userEvent.click(resetButton);
@@ -152,10 +183,44 @@ describe('After filters being applied', () => {
   });
 
   test('clicking on reset button should call onResetAll', async () => {
+    await assertResolvedOptionBtn();
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
     userEvent.click(resetButton);
 
     expect(resetMock).toHaveBeenCalledTimes(1);
   });
+
+  test('clicking on reset button should erase the search text value', async () => {
+    jest.useFakeTimers();
+    const mockedStore = mockStore(initialState);
+    await assertResolvedOptionBtn(mockedStore);
+    const resetWrapper = await screen.getByTestId('general-reset-wrapper');
+    const searchBar = await screen.getByPlaceholderText('Search Reports...');
+    const searchValue = 'Chimpanzee';
+    userEvent.type(searchBar, searchValue);
+    jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);
+
+    await waitFor(() => {
+      const [, textSearchAction] = mockedStore.getActions();
+      const { type, payload: { filter: { text } } } = textSearchAction;
+
+      expect(type).toBe(UPDATE_EVENT_FILTER);
+      expect(text).toBe(searchValue);
+    });
+
+    const resetButton = await within(resetWrapper).queryByText('Reset');
+    userEvent.click(resetButton);
+
+    await waitFor(() => {
+      const [,, resetFiltersAction] = mockedStore.getActions();
+      const { type } = resetFiltersAction;
+
+      expect(type).toBe(UPDATE_EVENT_FILTER);
+      expect(searchBar.value).toBe('');
+    });
+
+    jest.useRealTimers();
+  });
+
 });

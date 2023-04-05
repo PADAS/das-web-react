@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
-
+import { hashCode } from '../utils/string';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
@@ -143,7 +143,12 @@ export const getRenderedClustersData = async (clustersSource, map) => {
   }));
   const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
 
-  const renderedClusterHashes = renderedClusterIds;
+  // const renderedClusterHashes = renderedClusterIds;
+  const renderedClusterHashes = renderedClusterFeatures.map(
+    (clusterFeatures) => hashCode(clusterFeatures.map(
+      clusterFeature => `${clusterFeature.properties.id} ${clusterFeature.properties.updated_at}`).join('')
+    )
+  );
 
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
 };

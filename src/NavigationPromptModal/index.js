@@ -10,9 +10,16 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
+const handleContinue = (blocker, onContinue, positive = false) => {
+  blocker.proceed();
+
+  onContinue?.(positive);
+};
+
 const NavigationPromptModal = ({
   cancelNavigationButtonText,
-  continueNavigationButtonText,
+  continueNavigationNegativeButtonText,
+  continueNavigationPositiveButtonText,
   description,
   onCancel,
   onContinue,
@@ -28,11 +35,13 @@ const NavigationPromptModal = ({
     onCancel?.();
   }, [blocker, onCancel]);
 
-  const handleContinue = useCallback(() => {
-    blocker.proceed();
+  const handlePositiveContinue = useCallback(() =>
+    handleContinue(blocker, onContinue, true)
+  , [blocker, onContinue]);
 
-    onContinue?.();
-  }, [blocker, onContinue]);
+  const handleNegativeContinue = useCallback(() =>
+    handleContinue(blocker, onContinue, false)
+  , [blocker, onContinue]);
 
   return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
     <Modal.Header closeButton>
@@ -47,30 +56,40 @@ const NavigationPromptModal = ({
       </Button>
 
       <Button
-        className={styles.continueButton}
-        onClick={handleContinue}
-        onFocus={(event) => event.target.blur()}
+        className={styles.negativeContinue}
+        onClick={handleNegativeContinue}
         variant="primary"
       >
         <TrashCanIcon />
-        {continueNavigationButtonText}
+        {continueNavigationNegativeButtonText}
+      </Button>
+
+      <Button
+        className={styles.positiveContinue}
+        onClick={handlePositiveContinue}
+        data-testid='navigation-prompt-positive-continue-btn'
+        variant="primary"
+      >
+        {continueNavigationPositiveButtonText}
       </Button>
     </Modal.Footer>
   </Modal>;
 };
 
 NavigationPromptModal.defaultProps = {
-  cancelNavigationButtonText: 'Cancel',
-  continueNavigationButtonText: 'Discard',
-  description: 'Would you like to discard changes?',
+  cancelNavigationButtonText: 'Go Back',
+  continueNavigationNegativeButtonText: 'Discard',
+  continueNavigationPositiveButtonText: 'Save',
+  description: 'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?',
   onCancel: null,
   onContinue: null,
-  title: 'Discard changes',
+  title: 'Unsaved Changes',
 };
 
 NavigationPromptModal.propTypes = {
   cancelNavigationButtonText: PropTypes.string,
-  continueNavigationButtonText: PropTypes.string,
+  continueNavigationNegativeButtonText: PropTypes.string,
+  continueNavigationPositiveButtonText: PropTypes.string,
   description: PropTypes.string,
   onCancel: PropTypes.func,
   onContinue: PropTypes.func,

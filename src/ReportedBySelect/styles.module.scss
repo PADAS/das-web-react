@@ -1,9 +1,13 @@
 @import '../common/styles/vars/colors';
 
+
 .option {
   align-items: center;
   display: flex;
+  font-size: 0.85rem;
+  height: 2.3175rem;
   justify-content: space-between;
+  overflow: hidden;
   font-weight: normal;
 
   img {
@@ -13,14 +17,28 @@
   }
 
   &:active, &:hover {
-    * {
-      color: inherit;
+    cursor: pointer;
+    div {
+      background-color: rgba($bright-blue, 0.3);
+      color: white;
     }
   }
 
   &.hidden {
     color: $light-font-color;
     font-style: italic;
+  }
+  &.optionLabel {
+    pointer-events: none;
+    * {
+      color: $secondary-medium-gray; 
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+  }
+  &:hover, &:focus, &:active {
+    background-color: initial;
+    color: initial;
   }
 }
 

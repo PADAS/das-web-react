@@ -54,10 +54,8 @@ UserMenu.defaultProps = {
   userProfiles: [],
   selectedUserProfile: null,
   onLogOutClick() {
-    console.log('log out click');
   },
   onProfileClick() {
-    console.log('profile click');
   },
 };
 

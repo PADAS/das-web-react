@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
@@ -52,6 +52,11 @@ const SideBar = () => {
   const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
 
+  const isReportDetailsViewActive = useMemo(() => !!matchPath(
+      `/${TAB_KEYS.REPORTS}/:id`,
+      location.pathname
+  ), [location.pathname]);
+
   const sidebarOpen = !!currentTab;
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
@@ -85,15 +90,15 @@ const SideBar = () => {
   }, [currentTab, navigate]);
 
   useEffect(() => {
-    if (showEventsBadge && sidebarOpen && currentTab === TAB_KEYS.REPORTS) {
+    if (showEventsBadge && currentTab === TAB_KEYS.REPORTS && !isReportDetailsViewActive) {
       setShowEventsBadge(false);
     }
-  }, [showEventsBadge, sidebarOpen, currentTab]);
+  }, [showEventsBadge, currentTab, isReportDetailsViewActive]);
 
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (isReportDetailsViewActive || currentTab !== TAB_KEYS.REPORTS || !sidebarOpen) ) {
           setShowEventsBadge(true);
         }
       };
@@ -106,7 +111,7 @@ const SideBar = () => {
         socket.off('update_event', updateEventFnRef);
       };
     }
-  }, [sidebarOpen, currentTab, socket]);
+  }, [sidebarOpen, currentTab, socket, isReportDetailsViewActive]);
 
   useEffect(() => {
     if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {

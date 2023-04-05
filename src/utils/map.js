@@ -154,7 +154,10 @@ const setUpEventGeoJson = (events, eventTypes) => {
       const key = 'geojson';
 
       const withProps = addPropsToGeoJsonByKey(event, key);
-      const displayTitle = withProps.title || getEventTypeTitle(eventTypes, withProps.event_type);
+      let displayTitle = withProps.title || getEventTypeTitle(eventTypes, withProps.event_type);
+      if (event.locallyEdited) {
+        displayTitle = `* ${displayTitle}`;
+      }
 
       return addTitleWithDateToGeoJson(withProps[key], displayTitle);
     });
