@@ -271,4 +271,17 @@ describe('PatrolDetailView', () => {
       });
     });
   });
+  describe('Adding a report to the patrol', () => {
+    test('clicking the "add report" button and selecting a report type shows a report detail form', () => {
+
+    });
+
+    test('saving the new report adds it to the patrol', () => {
+
+    });
+
+    test('canceling the new report goes back to the patrol detail view', () => {
+
+    });
+  });
 });
