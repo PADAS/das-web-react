@@ -1,29 +1,25 @@
-import React, { useMemo } from 'react';
-import FeedListItem from '../../../FeedListItem';
+import React, { memo } from 'react';
+
 import { ReactComponent as ClockIcon } from '../../../common/images/icons/check.svg';
+
 import DateTime from '../../../DateTime';
-import styles  from './styles.module.scss';
 
-const DateListItem = ({ date, title }) => {
+import activitySectionStyles from '../styles.module.scss';
+import styles from './styles.module.scss';
 
-  const renderIcon = useMemo(() => {
-    return <div className={styles.icon}>
-      <ClockIcon />
-    </div>;
-  }, []);
+const DateListItem = ({ date, title }) => <li className={`${activitySectionStyles.itemRow} ${styles.itemRow}`}>
+  <div className={`${activitySectionStyles.itemIcon} ${styles.itemIcon}`}>
+    <ClockIcon />
+  </div>
 
-  const renderDate = useMemo(() => <DateTime
-      date={date}
-      showElapsed={false} className={styles.date}
-  />, [date]);
+  <div className={activitySectionStyles.itemDetails}>
+    <p className={`${activitySectionStyles.itemTitle} ${styles.itemTitle}`}>{title}</p>
 
-  const renderTitle = useMemo(() => <p className={styles.title}>{title}</p>, [title]);
+    <DateTime className={activitySectionStyles.itemDate} date={date} showElapsed={false} />
+  </div>
 
-  return <FeedListItem className={styles.feedItem} themeColor="transparent"
-        IconComponent={renderIcon}
-        DateComponent={renderDate}
-        TitleComponent={renderTitle}
-    />;
-};
+  <div className={activitySectionStyles.itemActionButtonContainer} />
+  <div className={activitySectionStyles.itemActionButtonContainer} />
+</li>;
 
-export default DateListItem;
+export default memo(DateListItem);

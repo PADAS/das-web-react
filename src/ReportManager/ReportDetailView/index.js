@@ -77,8 +77,8 @@ const ReportDetailView = ({
   );
 
   const submitFormButtonRef = useRef(null);
-  const newNoteRef = useRef(null);
   const newAttachmentRef = useRef(null);
+  const newNoteRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -168,9 +168,10 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const notesWithUnsavedChanges = useMemo(() => {
-    return Object.values(notesUnsavedChanges).some(hasUnsavedChanges => hasUnsavedChanges);
-  }, [notesUnsavedChanges]);
+  const notesWithUnsavedChanges = useMemo(
+    () => Object.values(notesUnsavedChanges).some((hasUnsavedChanges) => hasUnsavedChanges),
+    [notesUnsavedChanges]
+  );
 
   const shouldShowNavigationPrompt =
     !isSaving
@@ -179,8 +180,8 @@ const ReportDetailView = ({
       isAddedReport
       || attachmentsToAdd.length > 0
       || newNotesAdded
-      || Object.keys(reportChanges).length > 0
       || notesWithUnsavedChanges
+      || Object.keys(reportChanges).length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -372,8 +373,10 @@ const ReportDetailView = ({
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
-    const isNew = !originalNote.id;
+
     updateNotesUnsavedChanges(editedNote.creationDate, false);
+
+    const isNew = !originalNote.id;
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
     } else {

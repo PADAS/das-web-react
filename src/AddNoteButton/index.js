@@ -15,11 +15,11 @@ const AddNoteButton = ({ className, onAddNote }) => {
   }, [analytics, onAddNote]);
 
   return <Button
-  data-testid="reportManager-addNoteButton"
-  className={className}
-  onClick={onClick}
-  type="button"
-  variant="secondary"
+      data-testid="addNoteButton"
+      className={className}
+      onClick={onClick}
+      type="button"
+      variant="secondary"
     >
     <NoteIcon />
     <label>Note</label>

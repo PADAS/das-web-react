@@ -39,7 +39,6 @@ export const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 // use the same reducer as the results of the restful updat
 export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
-  console.log('patrol_update', patrol_data, matches_current_filter);
   if (matches_current_filter) {
     dispatch({
       type: UPDATE_PATROL_REALTIME,

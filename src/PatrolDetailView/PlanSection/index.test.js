@@ -3,10 +3,12 @@ import { Provider } from 'react-redux';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
-import { newPatrol, overduePatrol, scheduledPatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
-import { mockStore } from '../../__test-helpers/MockStore';
+import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
+import { MapContext } from '../../App';
+import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
+import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
+import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
 
@@ -54,26 +56,38 @@ store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
 );
 
 describe('PatrolDetailView - PlanSection', () => {
+  let map;
+  beforeEach(() => {
+    map = createMapMock();
+  });
+
+  const renderPlanSectionWithWrapper = (overwriteProps) => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <PlanSection
+              onPatrolEndDateChange={onPatrolEndDateChange}
+              onPatrolEndLocationChange={onPatrolEndLocationChange}
+              onPatrolObjectiveChange={onPatrolObjectiveChange}
+              onPatrolReportedByChange={onPatrolReportedByChange}
+              onPatrolStartDateChange={onPatrolStartDateChange}
+              onPatrolStartLocationChange={onPatrolStartLocationChange}
+              patrolForm={newPatrol}
+              {...overwriteProps}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+  };
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('shows the name of the tracking subject for patrols that already exist', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={overduePatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper({ patrolForm: overduePatrol });
 
     const reportedBySelect = await screen.getByTestId('patrolDetailView-reportedBySelect');
     const selectionImage = await screen.getByAltText('Radio icon for Alex value');
@@ -84,21 +98,7 @@ describe('PatrolDetailView - PlanSection', () => {
   });
 
   test('it should show the field empty for new patrols', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={newPatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper();
 
     const reportedBySelect = await screen.getByTestId('patrolDetailView-reportedBySelect');
     const placeholderText = within(reportedBySelect).queryByText('Select Device...');
@@ -107,44 +107,44 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(placeholderText).toBeDefined();
   });
 
+  test('triggers the onPatrolReportedByChange callback when the user selects a subject', async () => {
+    renderPlanSectionWithWrapper();
+
+    const selectReportedBy = await screen.getByText('Select Device...');
+    userEvent.click(selectReportedBy);
+
+    expect(onPatrolReportedByChange).toHaveBeenCalledTimes(0);
+
+    const reporterOption = await screen.getByAltText('Radio icon for Alex option');
+    userEvent.click(reporterOption);
+
+    expect(onPatrolReportedByChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolReportedByChange.mock.calls[0][0].id).toBe('dba0e0a6-0083-41be-a0eb-99e956977748');
+  });
+
   test('it should show the objective for patrols that already exist', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={overduePatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper({ patrolForm: overduePatrol });
 
     const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
 
     expect(objectiveInput).toHaveTextContent('very ambitious objective');
   });
 
+  test('triggers the onPatrolObjectiveChange callback when the user types an objective', async () => {
+    renderPlanSectionWithWrapper();
+
+    const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
+    userEvent.click(objectiveInput);
+
+    expect(onPatrolObjectiveChange).toHaveBeenCalledTimes(0);
+
+    userEvent.type(objectiveInput, 'Great objective');
+
+    expect(onPatrolObjectiveChange).toHaveBeenCalled();
+  });
+
   test('it should show the field empty for new patrols', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={newPatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper();
 
     const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
 
@@ -152,42 +152,72 @@ describe('PatrolDetailView - PlanSection', () => {
   });
 
   test('it should show the start and end location inputs', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={scheduledPatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper();
 
     expect(await screen.getByTestId('patrolDetailView-startLocationSelect')).toBeDefined();
     expect(await screen.getByTestId('patrolDetailView-endLocationSelect')).toBeDefined();
   });
 
+  test('triggers the onPatrolStartDateChange callback', async () => {
+    renderPlanSectionWithWrapper();
+
+    expect(onPatrolStartDateChange).not.toHaveBeenCalled();
+
+    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onPatrolEndDateChange callback', async () => {
+    renderPlanSectionWithWrapper();
+
+    expect(onPatrolEndDateChange).not.toHaveBeenCalled();
+
+    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {
+    renderPlanSectionWithWrapper();
+
+    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[0];
+    userEvent.click(setLocationButton);
+    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
+    userEvent.click(placeMarkerOnMapButton);
+
+    expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(0);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+
+    expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolStartLocationChange).toHaveBeenCalledWith([88, 55]);
+  });
+
+  test('triggers the onPatrolEndLocationChange callback when the user chooses a location in map', async () => {
+    renderPlanSectionWithWrapper();
+
+    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[1];
+    userEvent.click(setLocationButton);
+    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
+    userEvent.click(placeMarkerOnMapButton);
+
+    expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(0);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+
+    expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolEndLocationChange).toHaveBeenCalledWith([88, 55]);
+  });
+
   test('it should show the placeholder for empty values', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <PlanSection
-            onPatrolEndDateChange={onPatrolEndDateChange}
-            onPatrolEndLocationChange={onPatrolEndLocationChange}
-            onPatrolObjectiveChange={onPatrolObjectiveChange}
-            onPatrolReportedByChange={onPatrolReportedByChange}
-            onPatrolStartDateChange={onPatrolStartDateChange}
-            onPatrolStartLocationChange={onPatrolStartLocationChange}
-            patrolForm={overduePatrol}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+    renderPlanSectionWithWrapper();
 
     expect(await screen.findByText('Start Location')).toBeDefined();
     expect(await screen.findByText('End Location')).toBeDefined();

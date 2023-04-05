@@ -26,7 +26,7 @@ import styles from '../styles.module.scss';
 const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref = null) => {
   const dispatch = useDispatch();
 
-  const reportTracker = useContext(TrackerContext);
+  const patrolTracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
@@ -40,22 +40,22 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   const onShowImageFullScreen = useCallback((event) => {
     event.stopPropagation();
 
-    reportTracker.track('View fullscreen image from activity section');
+    patrolTracker.track('View fullscreen image from activity section');
 
     dispatch(addModal({
       content: ImageModal,
       src: currentImageSource,
       title: attachment.filename,
-      tracker: reportTracker,
+      tracker: patrolTracker,
       url: attachment.url,
     }));
-  }, [attachment.filename, attachment.url, currentImageSource, dispatch, reportTracker]);
+  }, [attachment.filename, attachment.url, currentImageSource, dispatch, patrolTracker]);
 
   const onClickDownloadIcon = useCallback(() => {
     downloadFileFromUrl(attachment.url, { filename: attachment.filename });
 
-    reportTracker.track('Download report attachment');
-  }, [attachment.filename, attachment.url, reportTracker]);
+    patrolTracker.track('Download patrol attachment');
+  }, [attachment.filename, attachment.url, patrolTracker]);
 
   useEffect(() => {
     if (attachment.file_type === 'image') {
@@ -108,7 +108,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
           <DateTime
             className={styles.itemDate}
-            data-testid={`reportManager-activitySection-dateTime-${attachment.id}`}
+            data-testid={`patrolDetailView-activitySection-dateTime-${attachment.id}`}
             date={attachment.updates[0].time}
             showElapsed={false}
           />
@@ -123,15 +123,15 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
         <div className={styles.itemActionButtonContainer}>
           <ItemActionButton>
             {isOpen
-              ? <ArrowUpSimpleIcon data-testid={`reportManager-activitySection-arrowUp-${attachment.id}`} />
-              : <ArrowDownSimpleIcon data-testid={`reportManager-activitySection-arrowDown-${attachment.id}`} />}
+              ? <ArrowUpSimpleIcon data-testid={`patrolDetailView-activitySection-arrowUp-${attachment.id}`} />
+              : <ArrowDownSimpleIcon data-testid={`patrolDetailView-activitySection-arrowDown-${attachment.id}`} />}
           </ItemActionButton>
         </div>
       </div>
 
       <Collapse
         className={styles.collapse}
-        data-testid={`reportManager-activitySection-collapse-${attachment.id}`}
+        data-testid={`patrolDetailView-activitySection-collapse-${attachment.id}`}
         in={isOpen}
       >
         <div>
@@ -156,7 +156,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
       {!!attachment.updates && <DateTime
         className={styles.itemDate}
-        data-testid={`reportManager-activitySection-dateTime-${attachment.id}`}
+        data-testid={`patrolDetailView-activitySection-dateTime-${attachment.id}`}
         date={attachment.updates[0].time}
         showElapsed={false}
       />}
@@ -165,9 +165,9 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     <div className={styles.itemActionButtonContainer}>
       <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={!isNew ? 'Download' : 'Delete'}>
         {!isNew
-          ? <DownloadArrowIcon data-testid={`reportManager-activitySection-downloadArrow-${attachment.id}`} />
+          ? <DownloadArrowIcon data-testid={`patrolDetailView-activitySection-downloadArrow-${attachment.id}`} />
           : <TrashCanIcon
-            data-testid={`reportManager-activitySection-trashCan-${attachment.filename || attachment.name}`}
+            data-testid={`patrolDetailView-activitySection-trashCan-${attachment.filename || attachment.name}`}
           />}
       </ItemActionButton>
     </div>

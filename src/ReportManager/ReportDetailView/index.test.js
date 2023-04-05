@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -338,7 +338,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
@@ -351,7 +351,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
     const deleteNoteButton = await screen.findByText('trash-can.svg');
     userEvent.click(deleteNoteButton);
@@ -600,7 +600,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
   });
 
-  test('displays a new note', async () => {
+  test('can not add a second note without saving the first one', async () => {
     window.alert = jest.fn();
 
     renderWithWrapper(
@@ -610,7 +610,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
     expect(window.alert).toHaveBeenCalledTimes(0);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
     userEvent.click(addNoteButton);
 
@@ -643,7 +643,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('reportManager-activitySection'))).toBeDefined();
@@ -761,7 +761,6 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-
   test('clicking "save and resolve" to update both the state and form data', async () => {
     executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
     const onSaveSuccess = jest.fn();
@@ -840,7 +839,7 @@ describe('ReportManager - ReportDetailView', () => {
         <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
       );
 
-      const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+      const addNoteButton = await screen.findByTestId('addNoteButton');
       userEvent.click(addNoteButton);
 
       const textInput = await screen.findByTestId('reportManager-activitySection-noteTextArea-');
