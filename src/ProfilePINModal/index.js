@@ -50,7 +50,7 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
     <Header closeButton>
       <Title>Enter Your PIN</Title>
     </Header>
-    <Body>
+    <Body className={styles.modalBody}>
       <Form>
         <Label>User: {profile.username}</Label>
         <fieldset className={styles.pinFields}>
@@ -60,6 +60,7 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
           onComplete={onComplete}
           ref={pinInputsRef}
           role='input'
+          type='password'
           validate={PIN_VALIDATION_RULES}
           />
           {success && <ConfirmationCheck />}

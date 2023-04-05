@@ -2,6 +2,10 @@
 
 $profilePinDimensions: 2.5rem;
 
+.modalBody {
+  min-height: 9.5rem;
+}
+
 .error {
   color: $error;
   margin: 1rem 0 0;

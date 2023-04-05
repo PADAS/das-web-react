@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
@@ -97,8 +97,14 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   }, [map]);
 
 
-  const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
-  const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
+  const onSymbolMouseEnter = useCallback(() => map.getCanvas().style.cursor = 'pointer', [map]);
+  const onSymbolMouseLeave = useCallback(() => map.getCanvas().style.cursor = '', [map]);
+  const removeFeatureHighlightOnMapClick = useCallback(() => {
+    map
+      .queryRenderedFeatures({ layers: [FEATURE_FILLS, FEATURE_LINES] })
+      .forEach(f => map.setFeatureState(f, { 'active': false })
+      );
+  }, [map]);
 
   // find the symbol in the feature layer before propogating to callback
   const onSymbolClick = (e) => {
@@ -120,6 +126,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   useMapEventBinding('click', onSymbolClick, FEATURE_SYMBOLS);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, FEATURE_SYMBOLS);
   useMapEventBinding('mouseleave', onSymbolMouseLeave, FEATURE_SYMBOLS);
+  useMapEventBinding('mousedown', removeFeatureHighlightOnMapClick);
 
   return null;
 };
