@@ -1,8 +1,9 @@
-import React, { lazy, memo, useEffect } from 'react';
+import React, { lazy, memo, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
+import { addModal } from '../ducks/modals';
 import { clearAuth } from '../ducks/auth';
 import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
@@ -20,6 +21,7 @@ import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
 import SystemStatus from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
+import ProfilePINModal from '../ProfilePINModal';
 
 import './Nav.scss';
 
@@ -27,6 +29,7 @@ const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const MessageMenu = lazy(() => import('./MessageMenu'));
 
 const Nav = ({
+  addModal,
   clearAuth,
   clearUserProfile,
   fetchCurrentUser,
@@ -58,9 +61,8 @@ const Nav = ({
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
-  const onProfileClick = (profile) => {
+  const handleProfileChange = useCallback((profile) => {
     const isMainUser = profile.username === user.username;
-
     if (isMainUser) {
       clearUserProfile();
       mainToolbarTracker.track('Select to operate as the main user');
@@ -71,7 +73,24 @@ const Nav = ({
     setTimeout(() => {
       window.location.reload(true);
     }, [1000]);
-  };
+  }, [clearUserProfile, setUserProfile, user.username]);
+
+  const onProfileClick = useCallback((profile) => {
+
+    if (!profile.pin) {
+      return handleProfileChange(profile);
+    }
+
+    return addModal({
+      content: ProfilePINModal,
+      modalProps: {
+        className: 'profile-pin-modal',
+      },
+      profile,
+      onSuccess: () => handleProfileChange(profile),
+    });
+
+  }, [addModal, handleProfileChange]);
 
   useEffect(() => {
     map && maps.length && !homeMap.id && onHomeMapSelect(maps.find(m => m.default) || maps[0]);
@@ -125,5 +144,5 @@ const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile
 
 export default connect(
   mapStatetoProps,
-  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
+  { addModal, clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
 )(memo(Nav));
