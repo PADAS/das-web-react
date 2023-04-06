@@ -3,16 +3,18 @@ import Button from 'react-bootstrap/Button';
 import isFuture from 'date-fns/is_future';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import orderBy from 'lodash/orderBy';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
-import { addPatrolSegmentToEvent } from '../utils/events';
+import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import {
   createNewPatrolForPatrolType,
   displayPatrolSegmentId,
+  getReportsForPatrol,
   patrolShouldBeMarkedDone,
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
@@ -28,6 +30,7 @@ import { uuid } from '../utils/string';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
+import AddReportButton from '../DetailViewComponents/AddReportButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
 import HistorySection from './HistorySection';
@@ -74,9 +77,31 @@ const PatrolDetailView = () => {
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
-  const [reportsToAdd, setReportsToAdd] = useState([]);
+  const [addedReports, setAddedReports] = useState([]);
 
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
+
+  const patrolReports = useMemo(() =>
+    getReportsForPatrol(patrol)
+  , [patrol]);
+
+  const allPatrolReports = useMemo(() => {
+    // don't show the contained reports, which are also bound to the segment
+    const allReports = [...addedReports, ...patrolReports];
+    const incidents = allReports.filter(report => report.is_collection);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])], []);
+    const topLevelReports = allReports.filter(report =>
+      !incidentIds.includes(report.id));
+
+    return orderBy(topLevelReports, [
+      (item) => {
+        return new Date(item.updated_at);
+      }], ['acs']);
+  }, [addedReports, patrolReports]);
+
+  const allPatrolReportIds = useMemo(() => {
+    return (allPatrolReports || []).map(({ id }) => id);
+  }, [allPatrolReports]);
 
   const isNewPatrol = patrolId === 'new';
   const patrolData = location.state?.patrolData;
@@ -102,7 +127,7 @@ const PatrolDetailView = () => {
 
   const shouldShowNavigationPrompt = !isSaving
     && !redirectTo
-    && (filesToAdd.length > 0 || reportsToAdd.length > 0 || Object.keys(patrolChanges).length > 0);
+    && (filesToAdd.length > 0 || addedReports.length > 0 || Object.keys(patrolChanges).length > 0);
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
@@ -138,17 +163,27 @@ const PatrolDetailView = () => {
       }
     });
 
-    // just assign added reportsToAdd to inital segment id for now
-    reportsToAdd.forEach((report) => {
-      addPatrolSegmentToEvent(patrolSegmentId, report.id);
-    });
-
     const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], filesToAdd);
     return executeSaveActions(saveActions)
       .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
-  }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
+  }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
+
+  const onAddReport = useCallback((reportData) => {
+    // patrolModalTracker.track('Save report to patrol');
+    // report form has different payloads resp for incidents and reports
+    const report = reportData.length ? reportData[0] : reportData;
+    const { data: { data } } = report;
+
+    // patch the report to include the segment id
+    addPatrolSegmentToEvent(patrolSegmentId, data.id);
+
+    // dedupe collections
+    if (!allPatrolReportIds.includes(data.id)) {
+      setAddedReports([...addedReports, data]);
+    }
+  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
 
   const trackDiscard = useCallback(() => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -394,6 +429,15 @@ const PatrolDetailView = () => {
               <AddNoteButton className={styles.footerActionButton} onAddNote={() => console.log('Add note')} />
 
               <AddAttachmentButton className={styles.footerActionButton} />
+              <AddReportButton  analyticsMetadata={{
+            category: PATROL_DETAIL_VIEW_CATEGORY,
+            location: 'Patrol Detail View',
+          }}
+          formProps={{
+            hidePatrols: true,
+            onSaveSuccess: onAddReport,
+            isPatrolReport: true,
+          }} />
             </div>
 
             <div>

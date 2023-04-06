@@ -119,31 +119,30 @@ const SideBar = () => {
     }
   }, [currentTab]);
 
-  return <ErrorBoundary>
-    <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
-      <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-        <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
-          <DocumentIcon />
-          {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
-          <span>Reports</span>
-        </Link>
+  return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
+    <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
+        <DocumentIcon />
+        {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+        <span>Reports</span>
+      </Link>
 
-        {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
-          <PatrolIcon />
-          <span>Patrols</span>
+      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
+        <PatrolIcon />
+        <span>Patrols</span>
         </Link>}
 
-        <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
-          <LayersIcon />
-          <span>Map Layers</span>
-        </Link>
-      </div>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
+        <LayersIcon />
+        <span>Map Layers</span>
+      </Link>
+    </div>
 
-      <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
-        <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
-          <div className={styles.header}>
-            <div className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-              {!!itemId
+    <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+      <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
+        <div className={styles.header}>
+          <div className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
+            {!!itemId
                 ? <button
                   className={styles.backButton}
                   type='button'
@@ -161,28 +160,28 @@ const SideBar = () => {
                   showLabel={false}
                   type={currentTab}
                 />}
-            </div>
-
-            <h3>{tabTitle}
-              <Routes>
-                <Route path="reports">
-                  <Route path=":id/*" element={<span className={styles.betaPreviewLabel}> (Beta Preview)</span>} />
-                </Route>
-              </Routes>
-            </h3>
-
-            <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
-              <CrossIcon />
-            </button>
           </div>
 
-          <div className={styles.tabBody}>
+          <h3>{tabTitle}
             <Routes>
-              {/* Gets rid of warning */}
-              <Route path="/" element={null} />
-
               <Route path="reports">
-                <Route index element={<ReportsFeedTab
+                <Route path=":id/*" element={<span className={styles.betaPreviewLabel}> (Beta Preview)</span>} />
+              </Route>
+            </Routes>
+          </h3>
+
+          <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
+            <CrossIcon />
+          </button>
+        </div>
+
+        <div className={styles.tabBody}>
+          <Routes>
+            {/* Gets rid of warning */}
+            <Route path="/" element={null} />
+
+            <Route path="reports">
+              <Route index element={<ReportsFeedTab
                   feedSort={reportsFeed.feedSort}
                   loadFeedEvents={reportsFeed.loadFeedEvents}
                   loadingEventFeed={reportsFeed.loadingEventFeed}
@@ -190,16 +189,16 @@ const SideBar = () => {
                   shouldExcludeContained={reportsFeed.shouldExcludeContained}
                 />} />
 
-                <Route path=":id/*" element={<ReportManager />} />
-              </Route>
+              <Route path=":id/*" element={<ReportManager />} />
+            </Route>
 
-              <Route path="patrols">
-                <Route index element={<PatrolsFeedTab />} />
+            <Route path="patrols">
+              <Route index element={<PatrolsFeedTab />} />
 
-                <Route path=":id/*" element={<PatrolDetailView />} />
-              </Route>
+              <Route path=":id/*" element={<PatrolDetailView />} />
+            </Route>
 
-              <Route
+            <Route
                 path="layers"
                 element={<ErrorBoundary>
                   <MapLayerFilter />
@@ -217,12 +216,11 @@ const SideBar = () => {
                   </div>
                 </ErrorBoundary>}
               />
-            </Routes>
-          </div>
+          </Routes>
         </div>
       </div>
-    </aside>
-  </ErrorBoundary>;
+    </div>
+  </aside>;
 };
 
 export default memo(SideBar);

@@ -34,7 +34,10 @@ import { useLocation } from 'react-router-dom';
 import ActivitySection from '../ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
-import AddReportButton from '../AddReportButton';
+// import AddReportButton from '../AddReportButton';
+
+import AddReportButton from '../../DetailViewComponents/AddReportButton';
+
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
@@ -619,11 +622,16 @@ const ReportDetailView = ({
 
               <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
-              {showAddReportButton && <AddReportButton
-                className={styles.footerActionButton}
-                onAddReport={onAddReport}
-                onSaveAddedReport={onSaveAddedReport}
-              />}
+              {showAddReportButton &&
+              <AddReportButton className={styles.footerActionButton}
+                  onAddReport={onAddReport}
+                  onSaveAddedReport={onSaveAddedReport}
+                  formProps={{
+                    hidePatrols: true,
+                    onSaveSuccess: onSaveAddedReport,
+                    relationshipButtonDisabled: true
+                  }} />
+              }
             </div>
 
             <div>

@@ -252,7 +252,6 @@ const AddReport = forwardRef(({
   const startEditNewReport = useCallback((reportType) => {
     trackEvent(analyticsMetadata.category, `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
 
-    /* PATROL_SCAFFOLD */
     if (patrolsEnabled) {
       const isPatrol = reportType.category.value === 'patrols';
 
@@ -266,9 +265,7 @@ const AddReport = forwardRef(({
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
-
     }
-    /* END PATROL_SCAFFOLD */
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
@@ -289,6 +286,7 @@ const AddReport = forwardRef(({
   }, [
     analyticsMetadata.category,
     analyticsMetadata.location,
+    enableNewPatrolUI,
     enableNewReportUI,
     formProps,
     map,
@@ -299,7 +297,6 @@ const AddReport = forwardRef(({
   ]);
 
   return hasEventCategories &&
-
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={hideReports ? [] : eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>

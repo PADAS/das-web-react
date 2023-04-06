@@ -20,3 +20,12 @@ export const childrenPropType = PropTypes.oneOfType([
   PropTypes.arrayOf(PropTypes.node),
   PropTypes.node
 ]);
+
+
+export const addReportFormProps = PropTypes.shape({
+  relationshipButtonDisabled: PropTypes.bool,
+  onSaveSuccess: PropTypes.func,
+  onSaveError: PropTypes.func,
+  hidePatrols: PropTypes.bool,
+  isPatrolReport: PropTypes.bool,
+});

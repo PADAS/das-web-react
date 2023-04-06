@@ -42,6 +42,7 @@ const ReportManager = () => {
     reportTracker.track(`${saved ? 'Added' : 'Discarded adding'} report to a report`);
 
     setShowAddedReport(false);
+
     setTimeout(() => {
       setAddedReportFormProps(null);
       setAddedReportData(null);
