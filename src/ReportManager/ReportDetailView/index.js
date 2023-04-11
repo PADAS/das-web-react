@@ -228,15 +228,15 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
 
-    if (reportToSubmit.hasNotesChange){
+    if (reportToSubmit?.notes?.length || notesToAdd.length){
       setReportForm({
         ...reportForm,
-        notes: reportToSubmit.notes,
+        notes: [...reportToSubmit.notes, ...notesToAdd],
       });
     }
 
     return results;
-  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback, notesToAdd, reportForm]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -278,7 +278,7 @@ const ReportDetailView = ({
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
-      if (reportChanges.notes || unsavedReportNotes.length) {
+      if (unsavedReportNotes.length > 0) {
         reportToSubmit.notes = reportForm.notes.map((currentNote) => {
           const unsavedReportNote = unsavedReportNotes.find(({ created_at }) => currentNote.created_at === created_at);
           if (unsavedReportNote){
@@ -289,7 +289,6 @@ const ReportDetailView = ({
           }
           return currentNote;
         });
-        reportToSubmit.hasNotesChange = true;
       }
 
       if (reportToSubmit.contains) {
