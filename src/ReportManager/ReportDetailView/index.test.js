@@ -627,7 +627,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
   });
 
@@ -640,13 +640,13 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
 
-    expect((await screen.findByTestId('reportManager-activitySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
   });
 
@@ -659,7 +659,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-historySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-historySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-History'))).toBeNull();
   });
 
@@ -668,7 +668,7 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findByTestId('reportManager-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-historySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
   });
 

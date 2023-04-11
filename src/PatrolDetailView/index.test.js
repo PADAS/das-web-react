@@ -399,20 +399,20 @@ describe('PatrolDetailView', () => {
   test('does not display the activity section nor its anchor if there are no items to show', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.queryByTestId('patrolDetailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
   });
 
   test('displays the activity section and its anchor after adding an item', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.queryByTestId('patrolDetailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
 
-    expect((await screen.findByTestId('patrolDetailView-activitySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
   });
 
@@ -429,7 +429,7 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.findByTestId('patrolDetailView-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-historySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
   });
 

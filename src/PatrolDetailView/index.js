@@ -15,6 +15,7 @@ import {
   actualStartTimeForPatrol,
   createNewPatrolForPatrolType,
   displayPatrolSegmentId,
+  extractAttachmentUpdates,
   getReportsForPatrol,
   patrolShouldBeMarkedDone,
   patrolShouldBeMarkedOpen,
@@ -33,18 +34,18 @@ import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
-import ActivitySection from './ActivitySection';
+import ActivitySection from '../DetailView/ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
-import HistorySection from './HistorySection';
+import HistorySection from '../DetailView/HistorySection';
 import LoadingOverlay from '../LoadingOverlay';
 import NavigationPromptModal from '../NavigationPromptModal';
 import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from './ActivitySection/styles.module.scss';
+import activitySectionStyles from '../DetailView/ActivitySection/styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -128,6 +129,22 @@ const PatrolDetailView = () => {
 
     return extractObjectDifference(patrolForm, originalPatrol);
   }, [originalPatrol, patrolForm]);
+
+  const patrolUpdates = useMemo(() => {
+    if (!patrolForm || isNewPatrol) {
+      return [];
+    }
+
+    const [segmentsFirstLeg] = patrolForm.patrol_segments;
+
+    const topLevelUpdates = patrolForm.updates;
+    const { updates: segmentUpdates } = segmentsFirstLeg;
+    const noteUpdates = extractAttachmentUpdates(patrolForm.notes);
+    const fileUpdates = extractAttachmentUpdates(patrolForm.files);
+    const eventUpdates = extractAttachmentUpdates(segmentsFirstLeg.events);
+
+    return [...topLevelUpdates, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
+  }, [isNewPatrol, patrolForm]);
 
   const newNotesAdded = useMemo(
     () => patrolForm?.notes?.length > 0 && patrolForm.notes.some((note) => !note.id && note.text),
@@ -476,22 +493,24 @@ const PatrolDetailView = () => {
 
               <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
                 <ActivitySection
+                  attachments={patrolAttachments}
+                  attachmentsToAdd={[]}
                   containedReports={containedReports}
+                  endTime={patrolEndTime}
+                  notes={patrolNotes}
+                  onDeleteAttachment={() => {}}
                   onDeleteNote={onDeleteNote}
                   // TODO: Implement once this functionality is done in reports
                   onNewNoteHasChanged={() => {}}
                   onSaveNote={onSaveNote}
-                  patrolAttachments={patrolAttachments}
-                  patrolEndTime={patrolEndTime}
-                  patrolNotes={patrolNotes}
-                  patrolStartTime={patrolStartTime}
+                  startTime={patrolStartTime}
                 />
               </QuickLinks.Section>
 
               {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
               <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-                <HistorySection patrolForm={patrolForm} />
+                <HistorySection updates={patrolUpdates} />
               </QuickLinks.Section>
             </QuickLinks.SectionsWrapper>
 

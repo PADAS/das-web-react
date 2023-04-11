@@ -31,21 +31,21 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
 
-import ActivitySection from '../ActivitySection';
+import ActivitySection from '../../DetailView/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 import AddReportButton from '../AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
-import HistorySection from '../HistorySection';
+import HistorySection from '../../DetailView/HistorySection';
 import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from '../ActivitySection/styles.module.scss';
+import activitySectionStyles from '../../DetailView/ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -606,15 +606,15 @@ const ReportDetailView = ({
 
             <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
               <ActivitySection
+                attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
+                notes={reportNotes}
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}
-                onSaveNote={onSaveNote}
-                reportAttachments={reportAttachments}
-                reportNotes={reportNotes}
                 onNewNoteHasChanged={updateNotesUnsavedChanges}
+                onSaveNote={onSaveNote}
               />
             </QuickLinks.Section>
 
@@ -627,7 +627,7 @@ const ReportDetailView = ({
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-              <HistorySection reportUpdates={reportForm?.updates || []} />
+              <HistorySection updates={reportForm?.updates || []} />
             </QuickLinks.Section>
           </QuickLinks.SectionsWrapper>
 
