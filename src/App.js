@@ -10,7 +10,6 @@ import { useLocation } from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { fetchMaps } from './ducks/maps';
-import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -41,12 +40,6 @@ export const MapContext = createContext(null);
 const MAP_LOCATION_SELECTION_MODE_CLASS_MAP = {
   [MAP_LOCATION_SELECTION_MODES.DEFAULT]: 'picking-location-default',
   [MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY]: 'picking-location-fullscreen',
-};
-
-// use this block to do direct map event binding.
-// also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
-const bindDirectMapEventing = (map) => {
-  setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
 const App = (props) => {
@@ -80,7 +73,6 @@ const App = (props) => {
   const onMapHasLoaded = useCallback((map) => {
     setMap(map);
     fetchFeaturesets();
-    bindDirectMapEventing(map);
   }, [fetchFeaturesets]);
 
   const disallowDragAndDrop = useCallback((e) => {
