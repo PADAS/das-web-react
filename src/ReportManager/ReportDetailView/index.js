@@ -35,7 +35,7 @@ import ActivitySection from '../ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 
-import { AddReportButton } from '../../DetailViewComponents';
+import { AddReportButton } from '../../DetailView';
 
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
@@ -179,7 +179,7 @@ const ReportDetailView = ({
     );
 
   const showAddReportButton = !isAddedReport && !isPatrolReport
-    && !relationshipButtonDisabled && !!isCollectionChild;
+    && !relationshipButtonDisabled && !isCollectionChild;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 

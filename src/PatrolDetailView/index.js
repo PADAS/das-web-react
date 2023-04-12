@@ -30,7 +30,7 @@ import { uuid } from '../utils/string';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
-import AddReportButton from '../DetailViewComponents/AddReportButton';
+import { AddReportButton } from '../DetailView/AddReportButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
 import HistorySection from './HistorySection';
