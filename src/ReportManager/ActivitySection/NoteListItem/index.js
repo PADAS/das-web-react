@@ -95,11 +95,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     }
   }, [isEditing]);
 
-  const onBlurTextArea = ({ target: { value } }) => {
-    if (note.text !== text){
-      onBlur(note, value);
-    }
-  };
+  const onBlurTextArea = useCallback((event) => note.text !== text && onBlur(note, event.target.value), [note, onBlur, text]);
 
   return <li className={isOpen ? styles.openItem : ''} ref={ref}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>

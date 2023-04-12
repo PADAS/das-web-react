@@ -27,8 +27,8 @@ const ActivitySection = ({
   onSaveNote,
   reportAttachments,
   reportNotes,
-  onBlur,
-  onCancel
+  onNoteItemBlur,
+  onNoteItemCancel
 }) => {
   const reportTracker = useContext(TrackerContext);
 
@@ -100,10 +100,10 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(reportNote)}
-      onBlur={onBlur}
-      onCancel={onCancel}
+      onBlur={onNoteItemBlur}
+      onCancel={onNoteItemCancel}
     />,
-  })), [onCancel, cardsExpanded, onBlur, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
+  })), [onNoteItemCancel, cardsExpanded, onNoteItemBlur, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -116,10 +116,10 @@ const ActivitySection = ({
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
-      onBlur={onBlur}
-      onCancel={onCancel}
+      onBlur={onNoteItemBlur}
+      onCancel={onNoteItemCancel}
     />,
-  })), [onCancel, cardsExpanded, notesToAdd, onBlur, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
+  })), [onNoteItemCancel, cardsExpanded, notesToAdd, onNoteItemBlur, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded]);
 
   const sortableList = useMemo(() => [
     ...containedReportsRendered,
@@ -222,8 +222,8 @@ ActivitySection.propTypes = {
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+  onNoteItemBlur: PropTypes.func.isRequired,
+  onNoteItemCancel: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
   reportAttachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,

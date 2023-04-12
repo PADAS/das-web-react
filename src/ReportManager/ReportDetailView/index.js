@@ -321,10 +321,6 @@ const ReportDetailView = ({
     unsavedReportNotes
   ]);
 
-  useEffect(() => {
-
-  }, []);
-
   const onChangeTitle = useCallback(
     (newTitle) => setReportForm({ ...reportForm, title: newTitle }),
     [reportForm, setReportForm]
@@ -655,8 +651,8 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onBlur={onBackupNotes}
-                onCancel={onCancelNote}
+                onNoteItemBlur={onBackupNotes}
+                onNoteItemCancel={onCancelNote}
               />
             </QuickLinks.Section>
 
