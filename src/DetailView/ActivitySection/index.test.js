@@ -53,7 +53,7 @@ describe('DetailView - ActivitySection', () => {
     notes: [
       ...notes,
       {
-        creationDate: new Date(2022, 6, 15).toISOString(),
+        updated_at: new Date(2022, 6, 15).toISOString(),
         text: 'note1',
       }
     ],
@@ -283,9 +283,9 @@ describe('DetailView - ActivitySection', () => {
 
     expect((await within(items[0]).findAllByText('noteToAdd2'))).toBeDefined();
     expect((await within(items[1]).findAllByText('noteToAdd1'))).toBeDefined();
-    expect((await within(items[2]).findAllByText('note1'))).toBeDefined();
-    expect((await within(items[3]).findAllByText('note4'))).toBeDefined();
-    expect((await within(items[4]).findAllByText('note3'))).toBeDefined();
+    expect((await within(items[2]).findAllByText('newFile2.pdf'))).toBeDefined();
+    expect((await within(items[3]).findAllByText('newFile1.pdf'))).toBeDefined();
+    expect((await within(items[4]).findAllByText('note1'))).toBeDefined();
   });
 
   test('inverts the sort direction when clicking the time sort button', async () => {
@@ -296,11 +296,11 @@ describe('DetailView - ActivitySection', () => {
 
     const items = await screen.findAllByRole('listitem');
 
-    expect((await within(items[0]).findAllByText('file1.pdf'))).toBeDefined();
-    expect((await within(items[1]).findAllByText('file2.pdf'))).toBeDefined();
-    expect((await within(items[2]).findAllByText('file1.png'))).toBeDefined();
-    expect((await within(items[3]).findAllByText('Started'))).toBeDefined();
-    expect((await within(items[4]).findAllByText('Ended'))).toBeDefined();
+    expect((await within(items[0]).findAllByText('155027'))).toBeDefined();
+    expect((await within(items[1]).findAllByText('155027'))).toBeDefined();
+    expect((await within(items[2]).findAllByText('155884'))).toBeDefined();
+    expect((await within(items[3]).findAllByText('155884'))).toBeDefined();
+    expect((await within(items[4]).findAllByText('file1.pdf'))).toBeDefined();
   });
 
   test('expands all expandable items when clicking the button Expand All', async () => {

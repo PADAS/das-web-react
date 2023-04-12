@@ -82,7 +82,18 @@ describe('PatrolDetailView', () => {
         updates: [],
       },
     ],
-    updates: [],
+    updates: [{
+      message: 'Patrol Added',
+      time: '2023-04-04T18:41:53.737181+00:00',
+      user: {
+        username: 'admin',
+        first_name: 'DAS',
+        last_name: 'Admin',
+        id: '3880239a-ffcd-47a8-9035-0ce3c9d90bdd',
+        content_type: 'accounts.user'
+      },
+      type: 'add_patrol'
+    }],
   };
 
   let capturedRequestURLs;

@@ -451,11 +451,8 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
-  const shouldRenderActivitySection = (patrolAttachments.length
-    + attachmentsToAdd.length
-    + patrolNotes.length
-    + containedReports.length) > 0;
-  const shouldRenderHistorySection = patrolForm?.updates;
+  const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length) > 0;
+  const shouldRenderHistorySection = !!patrolUpdates.length;
 
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
@@ -497,7 +494,8 @@ const PatrolDetailView = () => {
                   attachmentsToAdd={[]}
                   containedReports={containedReports}
                   endTime={patrolEndTime}
-                  notes={patrolNotes}
+                  notes={patrolNotes.filter((note) => note.id)}
+                  notesToAdd={patrolNotes.filter((note) => !note.id)}
                   onDeleteAttachment={() => {}}
                   onDeleteNote={onDeleteNote}
                   // TODO: Implement once this functionality is done in reports

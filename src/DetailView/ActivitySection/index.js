@@ -63,7 +63,7 @@ const ActivitySection = ({
   }, [cardsExpanded, onSaveNote]);
 
   const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
-    sortDate: new Date(attachment.updated_at || attachment.created_at),
+    sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates[0].time),
     node: <AttachmentListItem
       attachment={attachment}
       cardsExpanded={cardsExpanded}
@@ -84,7 +84,7 @@ const ActivitySection = ({
   })), [attachmentsToAdd, onDeleteAttachment]);
 
   const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
-    sortDate: new Date(containedReport.time),
+    sortDate: new Date(containedReport.time || containedReport.updated_at),
     node: <ContainedReportListItem
       cardsExpanded={cardsExpanded}
       key={containedReport.id}
@@ -114,30 +114,17 @@ const ActivitySection = ({
     return dates;
   }, [endTime, startTime]);
 
-  const notesRendered = useMemo(() => notes.map((note) => {
-    const isNewNote = !note.id;
-
-    return {
-      sortDate: new Date(note.updated_at || note.created_at),
-      node: <NoteListItem
-        cardsExpanded={cardsExpanded}
-        key={isNewNote ? note.text : note.id}
-        note={note}
-        onCollapse={() => onCollapseCard(
-          note,
-          isNewNote ? NEW_NOTE_ANALYTICS_SUBSTRING : EXISTING_NOTE_ANALYTICS_SUBSTRING
-        )}
-        onDelete={isNewNote ? () => onDeleteNote(note) : undefined}
-        onExpand={() => onExpandCard(
-          note,
-          isNewNote ? NEW_NOTE_ANALYTICS_SUBSTRING : EXISTING_NOTE_ANALYTICS_SUBSTRING
-        )}
-        onNewNoteHasChanged={isNewNote ? onNewNoteHasChanged : undefined}
-        onSave={onSaveNoteKeepExpanded(note)}
-        ref={isNewNote ? note.ref : undefined}
-      />,
-    };
-  }), [cardsExpanded, notes, onCollapseCard, onDeleteNote, onExpandCard, onNewNoteHasChanged, onSaveNoteKeepExpanded]);
+  const notesRendered = useMemo(() => notes.map((note) => ({
+    sortDate: new Date(note.updated_at || note.created_at || note.updates[0].time),
+    node: <NoteListItem
+      cardsExpanded={cardsExpanded}
+      key={note.id}
+      note={note}
+      onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
+      onSave={onSaveNoteKeepExpanded(note)}
+    />,
+  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -224,9 +211,9 @@ const ActivitySection = ({
           {areAllItemsExpanded ? 'Collapse All' : 'Expand All'}
         </Button>
       </div>}
-
     </div>
-    {!!sortableList.length && <ul className={styles.list} >
+
+    {!!sortableList.length && <ul className={styles.list}>
       {sortedItemsRendered}
     </ul>}
   </div>;
@@ -234,7 +221,6 @@ const ActivitySection = ({
 
 ActivitySection.defaultProps = {
   endTime: null,
-  notesToAdd: [],
   startTime: null,
 };
 
@@ -262,7 +248,7 @@ ActivitySection.propTypes = {
   notesToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
     text: PropTypes.string,
-  })),
+  })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
   onNewNoteHasChanged: PropTypes.func.isRequired,
