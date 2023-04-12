@@ -228,15 +228,8 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
 
-    if (reportToSubmit?.notes?.length || notesToAdd.length){
-      setReportForm({
-        ...reportForm,
-        notes: [...reportToSubmit.notes, ...notesToAdd],
-      });
-    }
-
     return results;
-  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback, notesToAdd, reportForm]);
+  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
