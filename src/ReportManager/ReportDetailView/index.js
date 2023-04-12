@@ -34,9 +34,8 @@ import { useLocation } from 'react-router-dom';
 import ActivitySection from '../ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
-// import AddReportButton from '../AddReportButton';
 
-import AddReportButton from '../../DetailViewComponents/AddReportButton';
+import { AddReportButton } from '../../DetailViewComponents';
 
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
@@ -60,6 +59,7 @@ const ReportDetailView = ({
   className,
   formProps,
   isAddedReport,
+  isPatrolReport: isPatrolReportFromProps,
   isNewReport,
   newReportTypeId,
   onAddReport,
@@ -108,7 +108,7 @@ const ReportDetailView = ({
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isPatrolReport = eventBelongsToPatrol(reportForm);
+  const isPatrolReport = isPatrolReportFromProps || eventBelongsToPatrol(reportForm);
 
   const containedReports = useMemo(
     () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
@@ -172,22 +172,21 @@ const ReportDetailView = ({
     !isSaving
     && !redirectTo
     && (
-      isAddedReport
+      (isAddedReport || isPatrolReport)
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
     );
 
-  const showAddReportButton = !isAddedReport
-    && !relationshipButtonDisabled
-    && (isCollection || (!isPatrolReport && !isCollectionChild));
+  const showAddReportButton = !isAddedReport && !isPatrolReport
+    && !relationshipButtonDisabled && !!isCollectionChild;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
   const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
     onSaveSuccessCallback?.(results);
 
-    if (isAddedReport) {
+    if (isAddedReport || isPatrolReport) {
       onSaveAddedReportCallback?.();
     } else if (redirectTo) {
       setRedirectTo(redirectTo);
@@ -199,7 +198,7 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
     return results;
-  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, isPatrolReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -466,21 +465,21 @@ const ReportDetailView = ({
     if (shouldSave) {
       onSaveReport(false);
     } else {
-      if (isAddedReport) {
+      if (isAddedReport || isPatrolReport) {
         onCancelAddedReport?.();
       }
       trackDiscard();
     }
-  }, [isAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+  }, [isAddedReport, isPatrolReport, onCancelAddedReport, onSaveReport, trackDiscard]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
-    if (isAddedReport) {
+    if (isAddedReport || isPatrolReport) {
       navigate(location.pathname);
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, location.pathname, navigate, reportTracker]);
+  }, [isAddedReport, isPatrolReport, location.pathname, navigate, reportTracker]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -658,6 +657,7 @@ ReportDetailView.defaulProps = {
   className: '',
   formProps: {},
   isAddedReport: false,
+  isPatrolReport: false,
   newReportTypeId: null,
   onAddReport: null,
   onSaveAddedReport: null,
@@ -673,6 +673,7 @@ ReportDetailView.propTypes = {
     relationshipButtonDisabled: PropTypes.bool,
   }),
   isAddedReport: PropTypes.bool,
+  isPatrolReport: PropTypes.bool,
   isNewReport: PropTypes.bool.isRequired,
   newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,
