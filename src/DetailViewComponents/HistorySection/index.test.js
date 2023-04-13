@@ -6,7 +6,7 @@ import { TrackerContext } from '../../utils/analytics';
 
 import HistorySection from './';
 
-describe('DetailView - HistorySection', () => {
+describe('DetailViewComponents - HistorySection', () => {
   const updatesMock = [{
     message: 'Added the report to an incident',
     time: new Date('2022-12-17T03:20:00'),

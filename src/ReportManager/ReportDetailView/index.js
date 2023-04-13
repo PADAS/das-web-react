@@ -31,21 +31,21 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
 
-import ActivitySection from '../../DetailView/ActivitySection';
+import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 import AddReportButton from '../AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
-import HistorySection from '../../DetailView/HistorySection';
+import HistorySection from '../../DetailViewComponents/HistorySection';
 import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from '../../DetailView/ActivitySection/styles.module.scss';
+import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -633,7 +633,11 @@ const ReportDetailView = ({
 
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
-              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+              <AddNoteButton
+                className={styles.footerActionButton}
+                data-testid={`reportDetailView-addNoteButton-${isAddedReport ? 'added' : 'original'}`}
+                onAddNote={onAddNote}
+              />
 
               <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 

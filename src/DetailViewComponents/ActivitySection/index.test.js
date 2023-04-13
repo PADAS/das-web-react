@@ -34,7 +34,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('DetailView - ActivitySection', () => {
+describe('DetailViewComponents - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(), onDeleteNote = jest.fn(), onNewNoteHasChanged = jest.fn(), onSaveNote = jest.fn();
 
   const containedReports = patrols[2].patrol_segments[0].events;
