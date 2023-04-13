@@ -46,7 +46,7 @@ import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
 
-import activitySectionStyles from '../DetailView/ActivitySection/styles.module.scss';
+import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
