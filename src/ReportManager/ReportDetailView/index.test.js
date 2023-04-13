@@ -338,7 +338,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
@@ -351,7 +351,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
     const deleteNoteButton = await screen.findByText('trash-can.svg');
     userEvent.click(deleteNoteButton);
@@ -610,7 +610,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
     expect(window.alert).toHaveBeenCalledTimes(0);
 
-    const addNoteButton = await screen.findByTestId('addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
     userEvent.click(addNoteButton);
 
@@ -643,7 +643,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
-    const addNoteButton = await screen.findByTestId('addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
@@ -839,7 +839,7 @@ describe('ReportManager - ReportDetailView', () => {
         <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
       );
 
-      const addNoteButton = await screen.findByTestId('addNoteButton');
+      const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
       userEvent.click(addNoteButton);
 
       const textInput = await screen.findByTestId('activitySection-noteTextArea-');

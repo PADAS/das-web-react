@@ -46,7 +46,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
       content: ImageModal,
       src: currentImageSource,
       title: attachment.filename,
-      tracker: tracker,
+      tracker,
       url: attachment.url,
     }));
   }, [attachment.filename, attachment.url, currentImageSource, dispatch, tracker]);
