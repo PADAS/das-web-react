@@ -190,9 +190,6 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
 
-    const createdReport = results.length ? results[0] : results;
-    dispatch(fetchEvent(createdReport.data.data.id));
-
     return results;
   }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
@@ -413,6 +410,7 @@ const ReportDetailView = ({
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
 
           setReportForm(collectionRefreshedResults.data.data);
@@ -423,6 +421,8 @@ const ReportDetailView = ({
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
 
+          dispatch(fetchEvent(thisReportSaved.id));
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
           const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
 
