@@ -493,5 +493,32 @@ describe('PatrolDetailView', () => {
         expect(executeSaveActions).toHaveBeenCalledTimes(1);
       });
     });
+
+    test('displays a new attachment', async () => {
+      renderWithWrapper(<PatrolDetailView />);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+      const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFile);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    });
+
+    test('deletes a new attachment', async () => {
+      renderWithWrapper(<PatrolDetailView />);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+      const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFile);
+      const deleteAttachmentButton = await screen.findByText('trash-can.svg');
+      userEvent.click(deleteAttachmentButton);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+    });
+
   });
 });
