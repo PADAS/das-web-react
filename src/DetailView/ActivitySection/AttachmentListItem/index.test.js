@@ -21,7 +21,7 @@ jest.mock('../../../utils/file', () => ({
   fetchImageAsBase64FromUrl: jest.fn(),
 }));
 
-describe('ReportManager - ActivitySection - AttachmentListItem', () => {
+describe('ActivitySection - AttachmentListItem', () => {
   let Wrapper, renderWithWrapper;
   const savedImageAttachment = {
     file_type: 'image',
@@ -30,7 +30,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     filename: 'file.txt',
     updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
   };
-  const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), track = jest.fn();
+  const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn();
   let downloadFileFromUrlMock, fetchImageAsBase64FromUrlMock, store, mockStoreInstance;
   beforeEach(() => {
     downloadFileFromUrlMock = jest.fn();
@@ -67,7 +67,6 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
             url: '/file.txt',
             updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
           }}
-          reportTracker={{ track }}
         />
     );
 
@@ -97,11 +96,10 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
             url: '/file.txt',
             updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
           }}
-          reportTracker={{ track }}
         />
     );
 
-    expect((await screen.findByTestId('reportManager-activitySection-dateTime-1234'))).toBeDefined();
+    expect((await screen.findByTestId('activitySection-dateTime-1234'))).toBeDefined();
   });
 
   test('user can download existing attachments', async () => {
@@ -113,7 +111,6 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
             url: '/file.txt',
             updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
           }}
-          reportTracker={{ track }}
         />
     );
 
@@ -135,7 +132,6 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
             url: '/file.txt',
             updates: [{ time: '2021-11-10T07:26:19.869873-08:00' }],
           }}
-          reportTracker={{ track }}
         />
     );
 
@@ -169,7 +165,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
       <AttachmentListItem attachment={savedImageAttachment} cardsExpanded={[]} onCollapse={onCollapse} onExpand={onExpand} />
     );
 
-    expect((await screen.findAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'))))
+    expect((await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'))))
       .toHaveLength(1);
   });
 
@@ -191,7 +187,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     );
 
     expect(fetchImageAsBase64FromUrlMock).toHaveBeenCalledTimes(0);
-    expect((await screen.queryAllByTestId((content) => content.startsWith('reportManager-activitySection-collapse'))))
+    expect((await screen.queryAllByTestId((content) => content.startsWith('activitySection-collapse'))))
       .toHaveLength(0);
   });
 
@@ -239,7 +235,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     );
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-1234'))).toHaveClass('collapse');
+    expect((await screen.findByTestId('activitySection-collapse-1234'))).toHaveClass('collapse');
 
     const expandAttachmentButton = await screen.findByText('arrow-down-simple.svg');
     userEvent.click(expandAttachmentButton);
@@ -258,7 +254,7 @@ describe('ReportManager - ActivitySection - AttachmentListItem', () => {
     );
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-1234'))).toHaveClass('show');
+    expect((await screen.findByTestId('activitySection-collapse-1234'))).toHaveClass('show');
 
     const colapseAttachmentButton = await screen.findByText('arrow-up-simple.svg');
     userEvent.click(colapseAttachmentButton);

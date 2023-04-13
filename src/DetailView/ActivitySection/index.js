@@ -4,81 +4,74 @@ import PropTypes from 'prop-types';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
+import { isGreaterThan } from '../../utils/datetime';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import AttachmentListItem from './AttachmentListItem';
-import NoteListItem from './NoteListItem';
 import ContainedReportListItem from './ContainedReportListItem';
+import DateListItem from './DateListItem';
+import NoteListItem from './NoteListItem';
 
 import styles from './styles.module.scss';
 
-const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
-const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
-const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
+const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
+const EXISTING_NOTE_ANALYTICS_SUBSTRING = 'existing note';
+const NEW_NOTE_ANALYTICS_SUBSTRING = 'new note';
 
 const ActivitySection = ({
+  attachments,
   attachmentsToAdd,
   containedReports,
+  endTime,
+  notes,
   notesToAdd,
   onDeleteAttachment,
   onDeleteNote,
-  onSaveNote,
-  reportAttachments,
-  reportNotes,
   onNewNoteHasChanged,
+  onSaveNote,
+  startTime,
 }) => {
-  const reportTracker = useContext(TrackerContext);
+  const tracker = useContext(TrackerContext);
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
     if (cardsExpanded.includes(card)) {
       if (analyticsLabel) {
-        reportTracker.track(`Collapse ${analyticsLabel} card in the activity section`);
+        tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
       }
 
       setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== card)]);
     }
-  }, [cardsExpanded, reportTracker]);
+  }, [cardsExpanded, tracker]);
 
   const onExpandCard = useCallback((card, analyticsLabel) => {
     if (!cardsExpanded.includes(card)) {
       if (analyticsLabel) {
-        reportTracker.track(`Expand ${analyticsLabel} card in the activity section`);
+        tracker.track(`Expand ${analyticsLabel} card in the activity section`);
       }
 
       setCardsExpanded([...cardsExpanded, card]);
     }
-  }, [cardsExpanded, reportTracker]);
+  }, [cardsExpanded, tracker]);
 
   const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
     const editedNote = onSaveNote(originalNote, updatedNote);
     setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
   }, [cardsExpanded, onSaveNote]);
 
-  const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
-    sortDate: new Date(containedReport.time),
-    node: <ContainedReportListItem
-      cardsExpanded={cardsExpanded}
-      key={containedReport.id}
-      onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
-      report={containedReport}
-    />,
-  })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
-
-  const reportAttachmentsRendered = useMemo(() => reportAttachments.map((reportAttachment) => ({
-    sortDate: new Date(reportAttachment.updated_at || reportAttachment.created_at),
+  const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
+    sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates[0].time),
     node: <AttachmentListItem
-      attachment={reportAttachment}
+      attachment={attachment}
       cardsExpanded={cardsExpanded}
-      key={reportAttachment.id}
-      onCollapse={() => onCollapseCard(reportAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(reportAttachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
+      key={attachment.id}
+      onCollapse={() => onCollapseCard(attachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(attachment, ATTACHMENT_ANALYTICS_SUBSTRING)}
     />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, reportAttachments]);
+  })), [attachments, cardsExpanded, onCollapseCard, onExpandCard]);
 
   const attachmentsToAddRendered = useMemo(() => attachmentsToAdd.map((attachmentToAdd) => ({
     sortDate: new Date(attachmentToAdd.creationDate),
@@ -90,17 +83,48 @@ const ActivitySection = ({
     />,
   })), [attachmentsToAdd, onDeleteAttachment]);
 
-  const reportNotesRendered = useMemo(() => reportNotes.map((reportNote) => ({
-    sortDate: new Date(reportNote.updated_at || reportNote.created_at),
+  const containedReportsRendered = useMemo(() => containedReports.map((containedReport) => ({
+    sortDate: new Date(containedReport.time || containedReport.updated_at),
+    node: <ContainedReportListItem
+      cardsExpanded={cardsExpanded}
+      key={containedReport.id}
+      onCollapse={() => onCollapseCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(containedReport, CONTAINED_REPORT_ANALYTICS_SUBSTRING)}
+      report={containedReport}
+    />,
+  })), [cardsExpanded, containedReports, onCollapseCard, onExpandCard]);
+
+  const datesRendered = useMemo(() => {
+    const dates = [];
+    const now = new Date();
+    if (startTime && isGreaterThan(now, startTime)){
+      dates.push({
+        node: <DateListItem date={startTime} key="startTime" title="Started" />,
+        sortDate: new Date(startTime),
+      });
+    }
+
+    if (endTime && !isGreaterThan(endTime, now)){
+      dates.push({
+        node: <DateListItem date={endTime} key="endTime" title="Ended" />,
+        sortDate: new Date(endTime),
+      });
+    }
+
+    return dates;
+  }, [endTime, startTime]);
+
+  const notesRendered = useMemo(() => notes.map((note) => ({
+    sortDate: new Date(note.updated_at || note.created_at || note.updates[0].time),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
-      key={reportNote.id}
-      note={reportNote}
-      onCollapse={() => onCollapseCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
-      onExpand={() => onExpandCard(reportNote, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
-      onSave={onSaveNoteKeepExpanded(reportNote)}
+      key={note.id}
+      note={note}
+      onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
+      onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
+      onSave={onSaveNoteKeepExpanded(note)}
     />,
-  })), [cardsExpanded, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded, reportNotes]);
+  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -108,69 +132,63 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
-      ref={noteToAdd.ref}
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(noteToAdd)}
       onNewNoteHasChanged={onNewNoteHasChanged}
+      ref={noteToAdd.ref}
     />,
   })), [cardsExpanded, notesToAdd, onCollapseCard, onDeleteNote, onExpandCard, onSaveNoteKeepExpanded, onNewNoteHasChanged]);
 
   const sortableList = useMemo(() => [
-    ...containedReportsRendered,
-    ...reportAttachmentsRendered,
-    ...reportNotesRendered,
+    ...attachmentsRendered,
     ...attachmentsToAddRendered,
+    ...containedReportsRendered,
+    ...datesRendered,
+    ...notesRendered,
     ...notesToAddRendered,
   ], [
-    containedReportsRendered,
-    reportAttachmentsRendered,
-    reportNotesRendered,
+    attachmentsRendered,
     attachmentsToAddRendered,
+    containedReportsRendered,
+    datesRendered,
+    notesRendered,
     notesToAddRendered,
   ]);
 
   const onSort = useCallback((order) => {
-    reportTracker.track(`Sort activity section in ${order} order`);
-  }, [reportTracker]);
+    tracker.track(`Sort activity section in ${order} order`);
+  }, [tracker]);
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(sortableList, onSort);
 
-  const reportImageAttachments = useMemo(
-    () => reportAttachments.filter((reportAttachment) => reportAttachment.file_type === 'image'),
-    [reportAttachments]
+  const imageAttachments = useMemo(
+    () => attachments.filter((attachment) => attachment.file_type === 'image'),
+    [attachments]
   );
 
   const areAllItemsExpanded = useMemo(
     () => cardsExpanded.length === (
-      notesToAdd.length +
-      reportNotes.length +
-      reportImageAttachments.length +
-      containedReportsRendered.length),
-    [
-      cardsExpanded.length,
-      containedReportsRendered.length,
-      notesToAdd.length,
-      reportImageAttachments.length,
-      reportNotes.length,
-    ],
+      containedReportsRendered.length +
+      imageAttachments.length +
+      notes.length +
+      notesToAdd.length),
+    [cardsExpanded.length, containedReportsRendered.length, imageAttachments.length, notes.length, notesToAdd.length],
   );
 
   const onClickExpandCollapseButton = useCallback(() => {
-    reportTracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
+    tracker.track(`${areAllItemsExpanded ? 'Collapse' : 'Expand'} All`);
 
-    setCardsExpanded(areAllItemsExpanded
-      ? []
-      : [...reportNotes, ...notesToAdd, ...reportImageAttachments, ...containedReports]);
-  }, [areAllItemsExpanded, containedReports, notesToAdd, reportImageAttachments, reportNotes, reportTracker]);
-
+    setCardsExpanded(areAllItemsExpanded ? [] : [...containedReports, ...imageAttachments, ...notes, ...notesToAdd]);
+  }, [areAllItemsExpanded, containedReports, imageAttachments, notes, notesToAdd, tracker]);
 
   useEffect(() => {
+    notes.filter((note) => !note.id && !note.text).forEach((note) => onExpandCard(note));
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
-  }, [notesToAdd, onExpandCard]);
+  }, [notes, notesToAdd, onExpandCard]);
 
-  return <div data-testid="reportManager-activitySection">
+  return <div data-testid="detailView-activitySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -185,7 +203,7 @@ const ActivitySection = ({
 
         <Button
           className={styles.expandCollapseButton}
-          data-testid="reportManager-activitySection-expandCollapseButton"
+          data-testid="detailView-activitySection-expandCollapseButton"
           onClick={onClickExpandCollapseButton}
           type="button"
           variant="secondary"
@@ -195,18 +213,23 @@ const ActivitySection = ({
       </div>}
     </div>
 
-    {!!sortableList.length && <ul className={styles.list} >
+    {!!sortableList.length && <ul className={styles.list}>
       {sortedItemsRendered}
     </ul>}
-
   </div>;
 };
 
 ActivitySection.defaultProps = {
-  onNewNoteHasChanged: null,
+  endTime: null,
+  startTime: null,
 };
 
 ActivitySection.propTypes = {
+  attachments: PropTypes.arrayOf(PropTypes.shape({
+    created_at: PropTypes.string,
+    id: PropTypes.string,
+    updated_at: PropTypes.string,
+  })).isRequired,
   attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
     file: PropTypes.shape({
@@ -216,24 +239,21 @@ ActivitySection.propTypes = {
   containedReports: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
+  endTime: PropTypes.instanceOf(Date),
+  notes: PropTypes.arrayOf(PropTypes.shape({
+    created_at: PropTypes.string,
+    id: PropTypes.string,
+    updated_at: PropTypes.string,
+  })).isRequired,
   notesToAdd: PropTypes.arrayOf(PropTypes.shape({
     creationDate: PropTypes.string,
     text: PropTypes.string,
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
-  onNewNoteHasChanged: PropTypes.func,
+  onNewNoteHasChanged: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
-  reportAttachments: PropTypes.arrayOf(PropTypes.shape({
-    created_at: PropTypes.string,
-    id: PropTypes.string,
-    updated_at: PropTypes.string,
-  })).isRequired,
-  reportNotes: PropTypes.arrayOf(PropTypes.shape({
-    created_at: PropTypes.string,
-    id: PropTypes.string,
-    updated_at: PropTypes.string,
-  })).isRequired,
+  startTime: PropTypes.instanceOf(Date),
 };
 
 export default memo(ActivitySection);

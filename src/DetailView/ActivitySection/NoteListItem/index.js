@@ -19,7 +19,7 @@ import styles from '../styles.module.scss';
 const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNewNoteHasChanged }, ref = null) => {
   const textareaRef = useRef();
 
-  const reportTracker = useContext(TrackerContext);
+  const tracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !note.id, [note.id]);
   const isNewAndUnAdded = useMemo(() => isNew && !note.text, [isNew, note.text]);
@@ -38,10 +38,10 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
 
-    reportTracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
+    tracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
 
     onDelete();
-  }, [reportTracker, onDelete, isNew]);
+  }, [tracker, onDelete, isNew]);
 
   const onClickPencilIcon = useCallback((event) => {
     const newEditState = !isOpen || !isEditing;
@@ -50,32 +50,29 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
     onExpand();
 
-    reportTracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
+    tracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
 
     setIsEditing(newEditState);
-  }, [reportTracker, isEditing, isNew, isOpen, onExpand]);
+  }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => {
-    const currentValue = !event.target.value.trim() ? '' : event.target.value;
-    setText(currentValue);
-  }, []);
+  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   useEffect(() => {
     if (isNewAndUnAdded){
       onNewNoteHasChanged?.(note.creationDate, text.length > 0);
     }
-  }, [isNewAndUnAdded, note.creationDate, text]);
+  }, [isNewAndUnAdded, note.creationDate, onNewNoteHasChanged, text]);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
-      reportTracker.track('Cancel writing new note');
+      tracker.track('Cancel writing new note');
       onDelete();
     } else {
-      reportTracker.track('Cancel editing existing note');
+      tracker.track('Cancel editing existing note');
       setText(note.text);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, onDelete, note.text, reportTracker]);
+  }, [isNewAndUnAdded, onDelete, note.text, tracker]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -86,11 +83,11 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       text: trimmedText,
     };
 
-    reportTracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
+    tracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
 
     onSave(newNote);
     setText(trimmedText);
-  }, [isNew, note, onSave, reportTracker, text]);
+  }, [isNew, note, onSave, tracker, text]);
 
   useEffect(() => {
     if (isEditing) {
@@ -112,21 +109,21 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       <div className={styles.itemDetails}>
         <p
           className={styles.itemTitle}
-          data-testid={`reportManager-activitySection-noteTitle-${note.id || note.text}`}
+          data-testid={`activitySection-noteTitle-${note.id || note.text}`}
         >
           {title}
         </p>
 
         {!!note.updates && <DateTime
           className={styles.itemDate}
-          data-testid={`reportManager-activitySection-dateTime-${note.id || note.text}`}
+          data-testid={`activitySection-dateTime-${note.id || note.text}`}
           date={note.updates[0].time}
           showElapsed={false}
         />}
 
         {isNew && <div>
           <ItemActionButton onClick={onClickTrashCanIcon} tooltip="Delete">
-            <TrashCanIcon data-testid={`reportManager-activitySection-deleteIcon-${note.id || note.text}`} />
+            <TrashCanIcon data-testid={`activitySection-deleteIcon-${note.id || note.text}`} />
           </ItemActionButton>
         </div>}
       </div>
@@ -135,7 +132,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
         <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
           <PencilIcon
             className={isNewAndUnAdded ? styles.disabled : ''}
-            data-testid={`reportManager-activitySection-editIcon-${note.id || note.text}`}
+            data-testid={`activitySection-editIcon-${note.id || note.text}`}
           />
         </ItemActionButton>
       </div>
@@ -143,21 +140,21 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
       <div className={styles.itemActionButtonContainer}>
         <ItemActionButton>
           {isOpen
-            ? <ArrowUpSimpleIcon data-testid={`reportManager-activitySection-arrowUp-${note.id || note.text}`} />
-            : <ArrowDownSimpleIcon data-testid={`reportManager-activitySection-arrowDown-${note.id || note.text}`} />}
+            ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${note.id || note.text}`} />
+            : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${note.id || note.text}`} />}
         </ItemActionButton>
       </div>
     </div>
 
     <Collapse
       className={styles.collapse}
-      data-testid={`reportManager-activitySection-collapse-${note.id || note.text}`}
+      data-testid={`activitySection-collapse-${note.id || note.text}`}
       in={isOpen}
     >
       <div>
         <textarea
           className={styles.noteTextArea}
-          data-testid={`reportManager-activitySection-noteTextArea-${note.id || note.text}`}
+          data-testid={`activitySection-noteTextArea-${note.id || note.text}`}
           onChange={onChangeTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
