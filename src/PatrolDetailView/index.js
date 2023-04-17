@@ -34,18 +34,18 @@ import { radioHasRecentActivity, subjectIsARadio } from '../utils/subjects';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
-import ActivitySection from '../DetailView/ActivitySection';
+import ActivitySection from '../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
-import HistorySection from '../DetailView/HistorySection';
+import HistorySection from '../DetailViewComponents/HistorySection';
 import LoadingOverlay from '../LoadingOverlay';
 import NavigationPromptModal from '../NavigationPromptModal';
 import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from '../DetailView/ActivitySection/styles.module.scss';
+import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 

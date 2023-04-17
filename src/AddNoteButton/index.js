@@ -6,7 +6,7 @@ import { TrackerContext } from '../utils/analytics';
 
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 
-const AddNoteButton = ({ className, onAddNote }) => {
+const AddNoteButton = ({ className, onAddNote, ...rest }) => {
   const analytics = useContext(TrackerContext);
 
   const onClick = useCallback((...args) => {
@@ -20,6 +20,7 @@ const AddNoteButton = ({ className, onAddNote }) => {
       onClick={onClick}
       type="button"
       variant="secondary"
+      {...rest}
     >
     <NoteIcon />
     <label>Note</label>
