@@ -187,7 +187,7 @@ const ReportDetailView = ({
     }
   }, []);
 
-  const onBackupNotes = useCallback((note, updatedText) => {
+  const onNoteItemBlur = useCallback((note, updatedText) => {
     const isNewNote = !!note.creationDate;
     if (isNewNote){
       backupUnsavedNote(note, updatedText, notesToAdd, setNotesToAdd);
@@ -644,7 +644,7 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onNoteItemBlur={onBackupNotes}
+                onNoteItemBlur={onNoteItemBlur}
                 onNoteItemCancel={onCancelNote}
               />
             </QuickLinks.Section>

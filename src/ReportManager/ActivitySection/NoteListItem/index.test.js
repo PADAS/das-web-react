@@ -23,17 +23,12 @@ describe('ReportManager - ActivitySection - Note', () => {
 
   let Wrapper, renderWithWrapper;
 
-  const renderNoteListItem = ({ onCollapse, onDelete, onExpand, onSave, onBlur, onCancel, note } = initialProps, addNoteExpandedCard = true) => {
-    const cardsExpanded = addNoteExpandedCard ? [note] : [];
-    renderWithWrapper(<NoteListItem
+  const renderNoteListItem = (props, addNoteExpandedCard = true) => {
+    const cardsExpanded = addNoteExpandedCard ? [props.note] : [];
+    return renderWithWrapper(<NoteListItem
+        {...initialProps}
         cardsExpanded={cardsExpanded}
-        note={note}
-        onCollapse={onCollapse}
-        onDelete={onDelete}
-        onExpand={onExpand}
-        onSave={onSave}
-        onBlur={onBlur}
-        onCancel={onCancel}
+        {...props}
     />);
   };
 
@@ -153,7 +148,7 @@ describe('ReportManager - ActivitySection - Note', () => {
   test('user can cancel the edit of a note', async () => {
     const { onCancel } = initialProps;
     const note = { text: 'note' };
-    renderNoteListItem({ ...initialProps, note, onCancel });
+    renderNoteListItem({ ...initialProps, note });
 
     const noteTextArea = await screen.findByRole('textbox');
 
@@ -203,7 +198,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     const { onBlur } = initialProps;
     const note = { text: 'note' };
     const updatedText = 'with a change';
-    renderNoteListItem({ ...initialProps, note, onBlur });
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onBlur).toHaveBeenCalledTimes(0);
 
