@@ -10,6 +10,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 
 import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { createPatrolDataSelector } from '../selectors/patrols';
+import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
@@ -47,7 +48,6 @@ import QuickLinks from '../QuickLinks';
 import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
-import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -401,7 +401,6 @@ const PatrolDetailView = () => {
     }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
     patrolTracker.track('Added Attachment');
-
   }, [attachmentsToAdd, patrolAttachments, patrolTracker]);
 
   const onAddNote = useCallback(() => {
