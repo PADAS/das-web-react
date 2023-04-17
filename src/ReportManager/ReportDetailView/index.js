@@ -91,6 +91,7 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
+  const [unsavedReportNotes, setUnsavedReportNotes] = useState([]);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -161,10 +162,40 @@ const ReportDetailView = ({
     return Object.entries(extractObjectDifference(reportForm, originalReport))
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
+
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
     [notesToAdd]
   );
+
+  const backupUnsavedNote = useCallback((note, updatedText, notes, setter) => {
+    const noteId = note.creationDate ?? note.id;
+    const backupNote = notes.find(({ creationDate, id }) => noteId === creationDate || noteId === id);
+
+    if (!backupNote){
+      setter([...notes, { ...note, text: updatedText }]);
+    } else {
+      const updatedNotes = notes.map((currentNote) => {
+        const { text } = currentNote;
+        const currentId = currentNote.creationDate ?? currentNote.id;
+        if (currentId === noteId && updatedText !== text){
+          return { ...currentNote, text: updatedText };
+        }
+        return currentNote;
+      });
+      setter(updatedNotes);
+    }
+  }, []);
+
+  const onNoteItemBlur = useCallback((note, updatedText) => {
+    const isNewNote = !!note.creationDate;
+    if (isNewNote){
+      backupUnsavedNote(note, updatedText, notesToAdd, setNotesToAdd);
+    } else {
+      backupUnsavedNote(note, updatedText, unsavedReportNotes, setUnsavedReportNotes);
+    }
+  }, [backupUnsavedNote, notesToAdd, unsavedReportNotes]);
+
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
@@ -173,6 +204,7 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
+      || unsavedReportNotes.length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -195,6 +227,7 @@ const ReportDetailView = ({
         .map(contained => contained.related_event.id)
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
+
     return results;
   }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
@@ -238,8 +271,17 @@ const ReportDetailView = ({
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
-      if (reportChanges.notes) {
-        reportToSubmit.notes = reportForm.notes;
+      if (unsavedReportNotes.length > 0) {
+        reportToSubmit.notes = reportForm.notes.map((currentNote) => {
+          const unsavedReportNote = unsavedReportNotes.find(({ created_at }) => currentNote.created_at === created_at);
+          if (unsavedReportNote){
+            return {
+              ...currentNote,
+              text: unsavedReportNote.text
+            };
+          }
+          return currentNote;
+        });
       }
 
       if (reportToSubmit.contains) {
@@ -269,6 +311,7 @@ const ReportDetailView = ({
     reportChanges,
     reportForm,
     reportTracker,
+    unsavedReportNotes
   ]);
 
   const onChangeTitle = useCallback(
@@ -354,6 +397,10 @@ const ReportDetailView = ({
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
+
+  const onCancelNote = useCallback((note) => {
+    setUnsavedReportNotes(unsavedReportNotes.filter(({ id }) => id !== note.id));
+  }, [unsavedReportNotes]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
@@ -597,6 +644,8 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
+                onNoteItemBlur={onNoteItemBlur}
+                onNoteItemCancel={onCancelNote}
               />
             </QuickLinks.Section>
 
