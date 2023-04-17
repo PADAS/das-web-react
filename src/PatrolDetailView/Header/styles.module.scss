@@ -126,15 +126,20 @@
   }
 }
 
-.startPatrolButton {
+.patrolActionButton {
   display: none;
   align-items: center;
   font-size: 1rem;
-  background-color: $green;
-  border-color: $green;
+  background-color: $light-gray;
+  border-color: $light-gray;
   height: 2rem;
   margin-right: 0.5rem;
+  border-radius: 4px;
+  color: $secondary-medium-gray;
+  font-weight: 700;
+}
 
+.startPatrolButton {
   svg {
     width: 0.75rem;
     margin-right: 0.5rem;
@@ -153,14 +158,6 @@
 }
 
 .restorePatrolButton {
-  display: none;
-  align-items: center;
-  font-size: 1rem;
-  background-color: $secondary-light-gray;
-  border-color: $secondary-light-gray;
-  height: 2rem;
-  margin-right: 0.5rem;
-  
   @media (min-width: $md-layout-width-min) {
     display: flex;
     height: 2.75rem;
