@@ -462,6 +462,7 @@ const ReportDetailView = ({
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
 
           setReportForm(collectionRefreshedResults.data.data);
@@ -472,6 +473,8 @@ const ReportDetailView = ({
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
 
+          dispatch(fetchEvent(thisReportSaved.id));
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
           const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
 
