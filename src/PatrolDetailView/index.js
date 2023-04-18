@@ -498,8 +498,6 @@ const PatrolDetailView = () => {
                   notesToAdd={patrolNotes.filter((note) => !note.id)}
                   onDeleteAttachment={() => {}}
                   onDeleteNote={onDeleteNote}
-                  // TODO: Implement once this functionality is done in reports
-                  onNewNoteHasChanged={() => {}}
                   onSaveNote={onSaveNote}
                   startTime={patrolStartTime}
                 />

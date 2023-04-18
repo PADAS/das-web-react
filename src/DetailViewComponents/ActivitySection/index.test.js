@@ -35,7 +35,11 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('DetailViewComponents - ActivitySection', () => {
-  const onDeleteAttachment = jest.fn(), onDeleteNote = jest.fn(), onNewNoteHasChanged = jest.fn(), onSaveNote = jest.fn();
+  const onDeleteAttachment = jest.fn(),
+    onDeleteNote = jest.fn(),
+    onNoteItemBlur = jest.fn(),
+    onNoteItemCancel = jest.fn(),
+    onSaveNote = jest.fn();
 
   const containedReports = patrols[2].patrol_segments[0].events;
   const currentDate = new Date();
@@ -66,7 +70,8 @@ describe('DetailViewComponents - ActivitySection', () => {
     }],
     onDeleteAttachment,
     onDeleteNote,
-    onNewNoteHasChanged,
+    onNoteItemBlur,
+    onNoteItemCancel,
     onSaveNote,
     startTime: new Date(2022, 6, 9),
   };
