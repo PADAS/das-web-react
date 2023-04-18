@@ -10,10 +10,6 @@ const MAX_JUMP_ZOOM = 17;
 export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
 export const getUniqueIDsFromFeatureSets = (...featureSets) => getUniqueIDsFromFeatures(featureSets.reduce((accumulator, set) => [...accumulator, ...set.features], []));
 
-export const setDirectMapBindingsForFeatureHighlightStates = (map) => {
-  map.on('mousedown', () => map.queryRenderedFeatures({ layers: [FEATURE_FILLS, FEATURE_LINES] }).forEach(f => map.setFeatureState(f, { 'active': false })));
-};
-
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
 }, new LngLatBounds(collection[0], collection[0]));

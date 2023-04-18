@@ -3,7 +3,7 @@ import { API_URL } from '../constants';
 import { setUserRole } from '../utils/analytics';
 import globallyResettableReducer from '../reducers/global-resettable';
 
-const USER_API_URL = `${API_URL}user`;
+export const USER_API_URL = `${API_URL}user`;
 export const CURRENT_USER_API_URL = `${USER_API_URL}/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
 

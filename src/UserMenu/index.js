@@ -26,7 +26,7 @@ const UserMenu = (props) => {
   return <Fragment>
     <button hidden id="ot-sdk-btn" className="ot-sdk-show-settings" ref={cookieSettingsRef} />
     <Dropdown align="end" className={styles.menu} {...rest} onToggle={onDropdownToggle}>
-      <Toggle>
+      <Toggle data-testid='user-menu-toggle-btn'>
         <UserIcon className={styles.icon} /><span className={styles.username}>{displayUser.username}</span>
       </Toggle>
       <Menu>
@@ -37,6 +37,7 @@ const UserMenu = (props) => {
             .map((profile, index) =>
               <Item active={profile.username === displayUser.username ? 'active' : null}
                 key={`${profile.id}-${index}`}
+                aria-label={profile.username}
                 onClick={() => onProfileClick(profile)}>
                 {profile.username}
               </Item>

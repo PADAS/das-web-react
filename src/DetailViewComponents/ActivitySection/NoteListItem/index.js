@@ -16,7 +16,16 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onSave, onNewNoteHasChanged }, ref = null) => {
+const NoteListItem = ({
+  cardsExpanded,
+  note,
+  onBlur,
+  onCancel,
+  onCollapse,
+  onDelete,
+  onExpand,
+  onSave,
+}, ref = null) => {
   const textareaRef = useRef();
 
   const tracker = useContext(TrackerContext);
@@ -55,24 +64,23 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
     setIsEditing(newEditState);
   }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
+  const onBlurTextArea = useCallback((event) => note.text !== text && onBlur(note, event.target.value), [note, onBlur, text]);
 
-  useEffect(() => {
-    if (isNewAndUnAdded){
-      onNewNoteHasChanged?.(note.creationDate, text.length > 0);
-    }
-  }, [isNewAndUnAdded, note.creationDate, onNewNoteHasChanged, text]);
+  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
       tracker.track('Cancel writing new note');
+
       onDelete();
     } else {
       tracker.track('Cancel editing existing note');
+
       setText(note.text);
+      onCancel(note);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, onDelete, note.text, tracker]);
+  }, [isNewAndUnAdded, tracker, onDelete, note, onCancel]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -155,6 +163,7 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
         <textarea
           className={styles.noteTextArea}
           data-testid={`activitySection-noteTextArea-${note.id || note.text}`}
+          onBlur={onBlurTextArea}
           onChange={onChangeTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
@@ -182,7 +191,6 @@ const NoteListItem = ({ cardsExpanded, note, onCollapse, onDelete, onExpand, onS
 
 NoteListItem.defaultProps = {
   onDelete: null,
-  onNewNoteHasChanged: null,
 };
 
 NoteListItem.propTypes = {
@@ -194,11 +202,12 @@ NoteListItem.propTypes = {
       time: PropTypes.string,
     })),
   }).isRequired,
+  onBlur: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onCollapse: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onNewNoteHasChanged: PropTypes.func,
 };
 
 export default memo(forwardRef(NoteListItem));

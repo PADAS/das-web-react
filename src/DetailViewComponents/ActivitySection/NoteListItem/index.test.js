@@ -8,8 +8,26 @@ import NoteListItem from '.';
 
 describe('ActivitySection - Note', () => {
   const saveButtonText = 'Done';
-  const onCollapse = jest.fn(), onDelete = jest.fn(), onExpand = jest.fn(), onSave = jest.fn();
+  const initialProps  = {
+    onCollapse: jest.fn(),
+    onDelete: jest.fn(),
+    onExpand: jest.fn(),
+    onSave: jest.fn(),
+    onBlur: jest.fn(),
+    onCancel: jest.fn(),
+    note: {}
+  };
+
   let Wrapper, renderWithWrapper;
+
+  const renderNoteListItem = (props, addNoteExpandedCard = true) => {
+    const cardsExpanded = addNoteExpandedCard ? [props.note] : [];
+    return renderWithWrapper(<NoteListItem
+        {...initialProps}
+        cardsExpanded={cardsExpanded}
+        {...props}
+    />);
+  };
 
   beforeEach(() => {
     Wrapper = ({ children }) => /* eslint-disable-line react/display-name */
@@ -25,28 +43,14 @@ describe('ActivitySection - Note', () => {
 
   test('sets the name New note to a new added note', async () => {
     const note = { text: '' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.findByTestId('activitySection-noteTitle-')).textContent).toBe('New note');
   });
 
   test('adds the text New note: before the note text if the note is not part of the patrol yet', async () => {
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.findByTestId('activitySection-noteTitle-note')).textContent)
       .toBe('New note: note');
@@ -54,54 +58,29 @@ describe('ActivitySection - Note', () => {
 
   test('does not add the text New note: if the note is saved in the patrol already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.findByTestId('activitySection-noteTitle-1234')).textContent).toBe('note');
   });
 
   test('shows the date time of the last update of the note if it is saved in the patrol already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.findByTestId('activitySection-dateTime-1234'))).toBeDefined();
   });
 
   test('does not show the date time if it is a new note', async () => {
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.queryByTestId('activitySection-dateTime-note'))).toBeNull();
   });
 
   test('user can delete a new note', async () => {
+    const { onDelete } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onDelete).toHaveBeenCalledTimes(0);
 
@@ -113,27 +92,15 @@ describe('ActivitySection - Note', () => {
 
   test('user can not delete an existing note', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.queryByTestId('activitySection-deleteIcon-1234'))).toBeNull();
   });
 
   test('user can edit a note', async () => {
+    const { onExpand } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.queryByText(saveButtonText))).toBeNull();
@@ -148,15 +115,9 @@ describe('ActivitySection - Note', () => {
   });
 
   test('user can open the note collapsible', async () => {
+    const { onExpand } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note }, false);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('collapse');
@@ -168,15 +129,9 @@ describe('ActivitySection - Note', () => {
   });
 
   test('user can close the note collapsible', async () => {
+    const { onCollapse } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('show');
@@ -188,19 +143,14 @@ describe('ActivitySection - Note', () => {
   });
 
   test('user can cancel the edit of a note', async () => {
+    const { onCancel } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     const noteTextArea = await screen.findByRole('textbox');
 
     expect(noteTextArea).toHaveTextContent('note');
+    expect(onCancel).not.toBeCalled();
 
     const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
@@ -213,18 +163,13 @@ describe('ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('note');
     expect((await screen.queryByText(saveButtonText))).toBeNull();
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   test('user can save edits to a new note', async () => {
+    const { onSave } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onSave).toHaveBeenCalledTimes(0);
 
@@ -246,16 +191,31 @@ describe('ActivitySection - Note', () => {
     expect((await screen.queryByText(saveButtonText))).toBeNull();
   });
 
+  test('onBlur callback is being called properly', async () => {
+    const { onBlur } = initialProps;
+    const note = { text: 'note' };
+    const updatedText = 'with a change';
+    renderNoteListItem({ ...initialProps, note });
+
+    expect(onBlur).toHaveBeenCalledTimes(0);
+
+    const noteTextArea = await screen.findByRole('textbox');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
+
+    userEvent.click(editButton);
+    userEvent.clear(noteTextArea);
+    userEvent.type(noteTextArea, updatedText);
+
+    const saveButton = await screen.findByText(saveButtonText);
+    userEvent.click(saveButton);
+
+    expect(onBlur).toHaveBeenCalledWith(note, updatedText);
+  });
+
   test('user can not type an empty space at the beginning of a note', async () => {
+    const { onSave } = initialProps;
     const note = { text: '' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onSave).toHaveBeenCalledTimes(0);
 
@@ -268,15 +228,9 @@ describe('ActivitySection - Note', () => {
   });
 
   test('empty spaces at the end of a note get trimmed before saving', async () => {
+    const { onSave } = initialProps;
     const note = { text: 'note' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect(onSave).toHaveBeenCalledTimes(0);
 
@@ -293,14 +247,7 @@ describe('ActivitySection - Note', () => {
 
   test('edit button is disabled while editing a new empty note', async () => {
     const note = { text: '' };
-    renderWithWrapper(<NoteListItem
-      cardsExpanded={[note]}
-      note={note}
-      onCollapse={onCollapse}
-      onDelete={onDelete}
-      onExpand={onExpand}
-      onSave={onSave}
-    />);
+    renderNoteListItem({ ...initialProps, note });
 
     expect((await screen.findByTestId('activitySection-editIcon-'))).toHaveClass('disabled');
   });
