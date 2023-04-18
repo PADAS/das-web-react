@@ -254,11 +254,20 @@ const ReportDetailView = ({
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
     return executeSaveActions(saveActions)
+      .then((results) => {
+        if (reportForm.is_collection && reportChanges.state) {
+          return Promise.all((reportForm?.contains ?? [])
+            .map(contained => contained.related_event.id)
+            .map(id => dispatch(setEventState(id, reportChanges.state))));
+        }
+        return results;
+      })
       .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
+    dispatch,
     isNewReport,
     isSaving,
     notesToAdd,
