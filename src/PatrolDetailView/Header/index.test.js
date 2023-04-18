@@ -57,7 +57,7 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Scheduled');
-    expect(buttons[0]).toHaveTextContent('Start Patrol');
+    expect(buttons[0]).toHaveTextContent('Start');
     expect(buttons[1]).toHaveClass('kebabToggle');
   });
 
@@ -86,7 +86,7 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Start Overdue');
-    expect(buttons[0]).toHaveTextContent('Start Patrol');
+    expect(buttons[0]).toHaveTextContent('Start');
     expect(buttons[1]).toHaveClass('kebabToggle');
   });
 
