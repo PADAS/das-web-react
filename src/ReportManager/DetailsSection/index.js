@@ -176,8 +176,8 @@ const DetailsSection = ({
       </div>}
     </div>
 
-    {!!formSchema && !reportForm.is_collection && <Form
-        className={styles.form}
+    {!!formSchema && <Form
+        className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
         disabled={formSchema?.readonly}
         fields={{ externalLink: ExternalLinkField }}
         formData={reportForm.event_details}
@@ -200,7 +200,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!formSchema && loadingSchema && <ResizeSpinLoader
+    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
