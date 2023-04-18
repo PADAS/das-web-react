@@ -441,12 +441,10 @@ const ReportDetailView = ({
 
   const onClickSaveButton = useCallback(() => {
     reportTracker.track('Click "save" button');
-    if (reportForm?.is_collection) {
-      onSaveReport();
-    } else if (submitFormButtonRef.current) {
-      submitFormButtonRef.current.click();
-    }
-  }, [onSaveReport, reportForm?.is_collection, reportTracker]);
+
+    submitFormButtonRef?.current?.click();
+
+  }, [reportTracker]);
 
   const onClickSaveAndToggleStateButton = useCallback(() => {
     setReportForm({ ...reportForm, state: isActive ? 'resolved' : 'active' });
