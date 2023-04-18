@@ -126,7 +126,7 @@ const Header = ({ onChangeTitle, patrol }) => {
 
     {(isPatrolActive || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
 
-    {(isPatrolScheduled || isPatrolOverdue) && <Button
+    {( (isPatrolScheduled || isPatrolOverdue) && !isNewPatrol ) && <Button
       className={`${styles.patrolActionButton} ${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
       onClick={startPatrolAndTrack}
       type="button"
