@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ItemActionButton from '.';
 
-describe('ReportManager - ActivitySection - ItemActionButton', () => {
+describe('ActivitySection - ItemActionButton', () => {
   const onClick = jest.fn();
   beforeEach(() => {
     render(<ItemActionButton onClick={onClick} tooltip="tooltip" />);

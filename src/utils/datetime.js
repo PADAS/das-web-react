@@ -148,3 +148,5 @@ export const getUserLocaleTime = (date = new Date()) => {
 
   return date.toLocaleTimeString(userLanguage, { hour: '2-digit', minute: '2-digit' });
 };
+
+export const isGreaterThan = (date1, date2) => date1.getTime() > date2.getTime();

@@ -6,10 +6,7 @@ import { TrackerContext } from '../../../utils/analytics';
 
 import NoteListItem from '.';
 
-
-
-describe('ReportManager - ActivitySection - Note', () => {
-
+describe('ActivitySection - Note', () => {
   const saveButtonText = 'Done';
   const initialProps  = {
     onCollapse: jest.fn(),
@@ -48,36 +45,36 @@ describe('ReportManager - ActivitySection - Note', () => {
     const note = { text: '' };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('reportManager-activitySection-noteTitle-')).textContent).toBe('New note');
+    expect((await screen.findByTestId('activitySection-noteTitle-')).textContent).toBe('New note');
   });
 
-  test('adds the text New note: before the note text if the note is not part of the report yet', async () => {
+  test('adds the text New note: before the note text if the note is not part of the patrol yet', async () => {
     const note = { text: 'note' };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('reportManager-activitySection-noteTitle-note')).textContent)
+    expect((await screen.findByTestId('activitySection-noteTitle-note')).textContent)
       .toBe('New note: note');
   });
 
-  test('does not add the text New note: if the note is saved in the report already', async () => {
+  test('does not add the text New note: if the note is saved in the patrol already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('reportManager-activitySection-noteTitle-1234')).textContent).toBe('note');
+    expect((await screen.findByTestId('activitySection-noteTitle-1234')).textContent).toBe('note');
   });
 
-  test('shows the date time of the last update of the note if it is saved in the report already', async () => {
+  test('shows the date time of the last update of the note if it is saved in the patrol already', async () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('reportManager-activitySection-dateTime-1234'))).toBeDefined();
+    expect((await screen.findByTestId('activitySection-dateTime-1234'))).toBeDefined();
   });
 
   test('does not show the date time if it is a new note', async () => {
     const note = { text: 'note' };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.queryByTestId('reportManager-activitySection-dateTime-note'))).toBeNull();
+    expect((await screen.queryByTestId('activitySection-dateTime-note'))).toBeNull();
   });
 
   test('user can delete a new note', async () => {
@@ -87,7 +84,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
     expect(onDelete).toHaveBeenCalledTimes(0);
 
-    const deleteButton = await screen.findByTestId('reportManager-activitySection-deleteIcon-note');
+    const deleteButton = await screen.findByTestId('activitySection-deleteIcon-note');
     userEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);
@@ -97,7 +94,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     const note = { id: '1234', text: 'note', updates: [{ time: '2022-06-06T21:58:48.248635+00:00' }] };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.queryByTestId('reportManager-activitySection-deleteIcon-1234'))).toBeNull();
+    expect((await screen.queryByTestId('activitySection-deleteIcon-1234'))).toBeNull();
   });
 
   test('user can edit a note', async () => {
@@ -109,7 +106,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect((await screen.queryByText(saveButtonText))).toBeNull();
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', true);
 
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
@@ -123,7 +120,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     renderNoteListItem({ ...initialProps, note }, false);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-note'))).toHaveClass('collapse');
+    expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('collapse');
 
     const expandNoteButton = await screen.findByText('arrow-down-simple.svg');
     userEvent.click(expandNoteButton);
@@ -137,7 +134,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     renderNoteListItem({ ...initialProps, note });
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-note'))).toHaveClass('show');
+    expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('show');
 
     const colapseNoteButton = await screen.findByText('arrow-up-simple.svg');
     userEvent.click(colapseNoteButton);
@@ -155,7 +152,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect(noteTextArea).toHaveTextContent('note');
     expect(onCancel).not.toBeCalled();
 
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition');
 
@@ -180,7 +177,7 @@ describe('ReportManager - ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('note');
 
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition');
 
@@ -203,7 +200,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect(onBlur).toHaveBeenCalledTimes(0);
 
     const noteTextArea = await screen.findByRole('textbox');
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
 
     userEvent.click(editButton);
     userEvent.clear(noteTextArea);
@@ -223,7 +220,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect(onSave).toHaveBeenCalledTimes(0);
 
     const noteTextArea = await screen.findByRole('textbox');
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-');
+    const editButton = await screen.findByTestId('activitySection-editIcon-');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, ' ');
 
@@ -238,7 +235,7 @@ describe('ReportManager - ActivitySection - Note', () => {
     expect(onSave).toHaveBeenCalledTimes(0);
 
     const noteTextArea = await screen.findByRole('textbox');
-    const editButton = await screen.findByTestId('reportManager-activitySection-editIcon-note');
+    const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
     userEvent.type(noteTextArea, 'edition     ');
     const saveButton = await screen.findByText(saveButtonText);
@@ -252,6 +249,6 @@ describe('ReportManager - ActivitySection - Note', () => {
     const note = { text: '' };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('reportManager-activitySection-editIcon-'))).toHaveClass('disabled');
+    expect((await screen.findByTestId('activitySection-editIcon-'))).toHaveClass('disabled');
   });
 });
