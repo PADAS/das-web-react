@@ -6,6 +6,8 @@ import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { addReportFormProps } from '../../proptypes';
+
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
@@ -59,11 +61,10 @@ const ReportDetailView = ({
   className,
   formProps,
   isAddedReport,
-  isPatrolReport: isPatrolReportFromProps,
   isNewReport,
+  navigateToOnSave = `/${TAB_KEYS.REPORTS}`,
   newReportTypeId,
   onAddReport,
-  onCancelAddedReport,
   onSaveAddedReport: onSaveAddedReportCallback,
   reportData,
   reportId,
@@ -98,6 +99,7 @@ const ReportDetailView = ({
   const reportTracker = useContext(TrackerContext);
 
   const {
+    onCancelAddedReport,
     onSaveError: onSaveErrorCallback,
     onSaveSuccess: onSaveSuccessCallback,
     relationshipButtonDisabled,
@@ -108,7 +110,9 @@ const ReportDetailView = ({
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isPatrolReport = isPatrolReportFromProps || eventBelongsToPatrol(reportForm);
+  const isPatrolReport = formProps?.hasOwnProperty('isPatrolReport')
+    ? formProps.isPatrolReport
+    : eventBelongsToPatrol(reportForm);
 
   const containedReports = useMemo(
     () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
@@ -256,13 +260,14 @@ const ReportDetailView = ({
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
     return executeSaveActions(saveActions)
-      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
+      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? navigateToOnSave : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
     isNewReport,
     isSaving,
+    navigateToOnSave,
     notesToAdd,
     onSaveError,
     onSaveSuccess,
@@ -473,12 +478,12 @@ const ReportDetailView = ({
   }, [isAddedReport, isPatrolReport, onCancelAddedReport, onSaveReport, trackDiscard]);
 
   const onClickCancelButton = useCallback(() => {
+    const cancelNavDestination = (isAddedReport || isPatrolReport)
+      ? location.pathname
+      : `/${TAB_KEYS.REPORTS}`;
+
     reportTracker.track('Click "cancel" button');
-    if (isAddedReport || isPatrolReport) {
-      navigate(location.pathname);
-    } else {
-      navigate(`/${TAB_KEYS.REPORTS}`);
-    }
+    navigate(cancelNavDestination);
   }, [isAddedReport, isPatrolReport, location.pathname, navigate, reportTracker]);
 
   useEffect(() => {
@@ -657,7 +662,6 @@ ReportDetailView.defaulProps = {
   className: '',
   formProps: {},
   isAddedReport: false,
-  isPatrolReport: false,
   newReportTypeId: null,
   onAddReport: null,
   onSaveAddedReport: null,
@@ -667,13 +671,8 @@ ReportDetailView.defaulProps = {
 
 ReportDetailView.propTypes = {
   className: PropTypes.string,
-  formProps: PropTypes.shape({
-    onSaveError: PropTypes.func,
-    onSaveSuccess: PropTypes.func,
-    relationshipButtonDisabled: PropTypes.bool,
-  }),
+  formProps: addReportFormProps,
   isAddedReport: PropTypes.bool,
-  isPatrolReport: PropTypes.bool,
   isNewReport: PropTypes.bool.isRequired,
   newReportTypeId: PropTypes.string,
   onAddReport: PropTypes.func,

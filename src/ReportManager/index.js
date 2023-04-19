@@ -74,11 +74,11 @@ const ReportManager = () => {
   const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
-    setAddedReportFormProps(formProps);
+    setAddedReportFormProps({ formProps, onCancelAddedReport });
     setAddedReportData(reportData);
     setAddedReportTypeId(reportTypeId);
     setShowAddedReport(true);
-  }, []);
+  }, [onCancelAddedReport]);
 
   useEffect(() => {
     if (isNewReport || eventStore[reportId]) {
@@ -126,7 +126,6 @@ const ReportManager = () => {
         isAddedReport={true}
         isNewReport={true}
         newReportTypeId={addedReportTypeId}
-        onCancelAddedReport={onCancelAddedReport}
         onSaveAddedReport={onCloseAddedReport}
         reportData={addedReportData}
         reportId={addedReportTypeId || 'added'}

@@ -30,7 +30,7 @@ import { uuid } from '../utils/string';
 
 import ActivitySection from './ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
-import { AddReportButton } from '../DetailView/AddReportButton';
+import { AddReportButton } from '../DetailView';
 import AddNoteButton from '../AddNoteButton';
 import Header from './Header';
 import HistorySection from './HistorySection';
@@ -71,6 +71,8 @@ const PatrolDetailView = () => {
 
   const temporalIdRef = useRef(null);
 
+  const priorLocationRef = useRef(null);
+
   const [filesToAdd, setFilesToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
@@ -78,6 +80,7 @@ const PatrolDetailView = () => {
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
   const [addedReports, setAddedReports] = useState([]);
+
 
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
@@ -106,6 +109,8 @@ const PatrolDetailView = () => {
   const isNewPatrol = patrolId === 'new';
   const patrolData = location.state?.patrolData;
   const shouldRenderPatrolDetailView = !!(isNewPatrol ? patrolType : (patrolStore[patrolId] && !isLoadingPatrol));
+
+  const showAddReport = !isNewPatrol;
 
   const newPatrol = useMemo(
     () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
@@ -171,7 +176,11 @@ const PatrolDetailView = () => {
   }, [filesToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
 
   const onAddReport = useCallback((reportData) => {
-    // patrolModalTracker.track('Save report to patrol');
+    priorLocationRef.current
+    && navigate(...priorLocationRef.current);
+
+
+    patrolDetailViewTracker.track('Save report to patrol');
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
@@ -183,7 +192,7 @@ const PatrolDetailView = () => {
     if (!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
+  }, [addedReports, allPatrolReportIds, navigate, patrolSegmentId]);
 
   const trackDiscard = useCallback(() => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -370,6 +379,23 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
+  const onCancelAddedReport = () => {
+    if (priorLocationRef.current) {
+      navigate(...priorLocationRef.current);
+      priorLocationRef.current = null;
+    }
+  };
+
+  const onAddReportButtonClick = () => {
+    priorLocationRef.current = [
+      {
+        pathname: location.pathname,
+        search: location.search,
+      },
+      { state: location.state }
+    ];
+  };
+
   const shouldRenderActivitySection = true;
   const shouldRenderHistorySection = patrolForm?.updates;
 
@@ -429,15 +455,18 @@ const PatrolDetailView = () => {
               <AddNoteButton className={styles.footerActionButton} onAddNote={() => console.log('Add note')} />
 
               <AddAttachmentButton className={styles.footerActionButton} />
-              <AddReportButton  analyticsMetadata={{
-            category: PATROL_DETAIL_VIEW_CATEGORY,
-            location: 'Patrol Detail View',
-          }}
-          formProps={{
-            hidePatrols: true,
-            onSaveSuccess: onAddReport,
-            isPatrolReport: true,
-          }} />
+              {showAddReport && <AddReportButton
+                analyticsMetadata={{
+                  category: PATROL_DETAIL_VIEW_CATEGORY,
+                  location: 'Patrol Detail View',
+                }}
+                clickSideEffect={onAddReportButtonClick}
+                formProps={{
+                  isPatrolReport: true,
+                  hidePatrols: true,
+                  onCancelAddedReport,
+                  onSaveSuccess: onAddReport,
+                }} />}
             </div>
 
             <div>

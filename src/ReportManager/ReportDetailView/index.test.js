@@ -817,7 +817,7 @@ describe('ReportManager - ReportDetailView', () => {
       const onCancelAddedReport = jest.fn();
 
       renderWithWrapper(
-        <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
+        <ReportDetailView formProps={{ onCancelAddedReport }} isNewReport={false} reportId="456" />,
       );
 
       const titleInput = await screen.findByTestId('reportManager-header-title');
@@ -838,8 +838,8 @@ describe('ReportManager - ReportDetailView', () => {
         <ReportDetailView
             isAddedReport
             isNewReport
+            formProps={{ onCancelAddedReport }}
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            onCancelAddedReport={onCancelAddedReport}
             reportId="1234"
           />
       );
@@ -861,7 +861,7 @@ describe('ReportManager - ReportDetailView', () => {
             isAddedReport
             isNewReport
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            onCancelAddedReport={onCancelAddedReport}
+            formProps={{ onCancelAddedReport }}
             reportId="1234"
           />
       );

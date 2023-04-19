@@ -89,8 +89,8 @@ export const eventHasLocation = (evt) => {
   return !!evt.location;
 };
 
-export const eventBelongsToCollection = evt => !!evt?.is_contained_in?.length;
-export const eventBelongsToPatrol = evt => !!evt?.patrols?.length && !!evt?.patrols?.[0];
+export const eventBelongsToCollection = event => !!event?.is_contained_in?.length;
+export const eventBelongsToPatrol = event => !!event?.patrol_segments?.length;
 
 export const uniqueEventIds = (value, index, self) => {
   return self.indexOf(value) === index;

@@ -9,7 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { MapContext } from '../App';
-import { analyticsMetadata } from '../proptypes';
+import { analyticsMetadata, addReportFormProps } from '../proptypes';
 import { useFeatureFlag, useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
@@ -361,13 +361,7 @@ AddReport.propTypes = {
   popoverPlacement: PropTypes.string,
   reportData: PropTypes.object,
   variant: PropTypes.string,
-  formProps: PropTypes.shape({
-    relationshipButtonDisabled: PropTypes.bool,
-    onSaveSuccess: PropTypes.func,
-    onSaveError: PropTypes.func,
-    hidePatrols: PropTypes.bool,
-    isPatrolReport: PropTypes.bool,
-  }),
+  formProps: addReportFormProps,
   hideReports: PropTypes.bool,
   onAddReport: PropTypes.func,
 };

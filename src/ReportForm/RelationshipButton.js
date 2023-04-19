@@ -6,7 +6,7 @@ import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../constants';
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
-import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
+import { eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { useFeatureFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -29,6 +29,7 @@ const RelationshipButton = (props) => {
     hidePatrols,
     navigateRelationships = true,
     onNewReportSaved,
+    isPatrolReport,
     map,
     removeModal,
   } = props;
@@ -40,7 +41,6 @@ const RelationshipButton = (props) => {
 
   const report = useContext(FormDataContext);
 
-  const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
   const isCollection = !!report.is_collection;
   const isCollectionChild = useMemo(() => eventBelongsToCollection(report), [report]);
 

@@ -8,10 +8,11 @@ import AddReport from '../../AddReport';
 
 import styles from './styles.module.scss';
 
-const AddReportButton = ({ analyticsMetadata, className, formProps, onAddReport }, ref) => {
+const AddReportButton = ({ analyticsMetadata, className, clickSideEffect, formProps, onAddReport }, ref) => {
   return  <AddReport
     className={`${className} ${styles.addReportButton}`}
     analyticsMetadata={analyticsMetadata}
+    clickSideEffect={clickSideEffect}
     formProps={formProps}
     onAddReport={onAddReport}
     popoverPlacement="top"
@@ -27,6 +28,7 @@ AddReportButton.propTypes = {
   onAddReport: PropTypes.func,
   onSaveAddedReport: PropTypes.func,
   className: PropTypes.string,
+  clickSideEffect: PropTypes.func,
 };
 
 export default forwardRef(AddReportButton);
