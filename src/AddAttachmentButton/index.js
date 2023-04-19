@@ -70,7 +70,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
   return <>
     <input
       accept={ATTACHMENT_FILE_TYPES_ACCEPTED.join(', ')}
-      data-testid="reportManager-addAttachmentButton"
+      data-testid="addAttachmentButton"
       multiple
       onChange={onChangeFileInput}
       ref={fileInputRef}

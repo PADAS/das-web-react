@@ -22,6 +22,6 @@ DateTime.defaultProps = {
 };
 
 DateTime.propTypes = {
-  date: PropTypes.string.isRequired,
+  date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
   showElapsed: PropTypes.bool,
 };

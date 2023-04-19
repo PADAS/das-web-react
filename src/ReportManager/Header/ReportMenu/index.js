@@ -52,6 +52,7 @@ const ReportMenu = ({ report, onReportChange }) => {
 
     reportTracker.track('Added report to new incident');
 
+    dispatch(fetchEvent(thisReport.id));
     dispatch(fetchEvent(newIncident.id)).then(({ data: { data } }) => {
       removeModal();
       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
@@ -64,6 +65,7 @@ const ReportMenu = ({ report, onReportChange }) => {
 
     reportTracker.track('Added report to existing incident');
 
+    dispatch(fetchEvent(thisReport.id));
     return dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
       navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);

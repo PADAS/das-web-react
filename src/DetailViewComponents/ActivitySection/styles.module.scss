@@ -58,11 +58,11 @@ $cardExpansionTransitionTime: 300ms;
   
   li {
     transition: margin $cardExpansionTransitionTime;
-
-    &.openItem {
-      margin: 0.5rem 0;
-    }
   }
+}
+
+.openItem {
+  margin: 0.5rem 0;
 }
 
 .itemRow {
