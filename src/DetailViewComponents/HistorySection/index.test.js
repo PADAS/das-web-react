@@ -4,11 +4,10 @@ import userEvent from '@testing-library/user-event';
 
 import { TrackerContext } from '../../utils/analytics';
 
-
 import HistorySection from './';
 
-describe('ReportManager - HistorySection', () => {
-  const reportUpdatesMock = [{
+describe('DetailViewComponents - HistorySection', () => {
+  const updatesMock = [{
     message: 'Added the report to an incident',
     time: new Date('2022-12-17T03:20:00'),
     user: { first_name: 'John', last_name: 'Nairobi' },
@@ -28,7 +27,7 @@ describe('ReportManager - HistorySection', () => {
     </TrackerContext.Provider>;
 
   test('renders the updates automatically in descending order', async () => {
-    render(<HistorySection reportUpdates={reportUpdatesMock} />, { wrapper: Wrapper });
+    render(<HistorySection updates={updatesMock} />, { wrapper: Wrapper });
 
     const items = await screen.findAllByRole('listitem');
 
@@ -38,7 +37,7 @@ describe('ReportManager - HistorySection', () => {
   });
 
   test('orders the updates in ascending order when clicking the sort button', async () => {
-    render(<HistorySection reportUpdates={reportUpdatesMock} />, { wrapper: Wrapper });
+    render(<HistorySection updates={updatesMock} />, { wrapper: Wrapper });
 
     const sortButton = await screen.findByRole('button');
     userEvent.click(sortButton);

@@ -12,10 +12,10 @@ import styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
-const HistorySection = ({ reportUpdates }) => {
-  const reportTracker = useContext(TrackerContext);
+const HistorySection = ({ updates }) => {
+  const tracker = useContext(TrackerContext);
 
-  const updatesRendered = useMemo(() => reportUpdates.reduce((accumulator, update) => {
+  const updatesRendered = useMemo(() => updates.reduce((accumulator, update) => {
     if (!FILTERED_UPDATE_MESSAGES.includes(update.message)) {
       accumulator.push({
         sortDate: new Date(update.time),
@@ -29,15 +29,15 @@ const HistorySection = ({ reportUpdates }) => {
     }
 
     return accumulator;
-  }, []), [reportUpdates]);
+  }, []), [updates]);
 
   const onSort = useCallback((order) => {
-    reportTracker.track(`Sort activity section in ${order} order`);
-  }, [reportTracker]);
+    tracker.track(`Sort history section in ${order} order`);
+  }, [tracker]);
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
 
-  return <div data-testid="reportManager-historySection">
+  return <div data-testid="detailView-historySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <HistoryIcon />
@@ -57,11 +57,12 @@ const HistorySection = ({ reportUpdates }) => {
 };
 
 HistorySection.propTypes = {
-  reportUpdates: PropTypes.arrayOf(PropTypes.shape({
-    message: PropTypes.string,
-    time: PropTypes.string,
-    user: PropTypes.object,
-  })).isRequired,
+  patrolForm: PropTypes.shape({
+    files: PropTypes.array,
+    notes: PropTypes.array,
+    patrol_segments: PropTypes.array,
+    updates: PropTypes.array,
+  }).isRequired,
 };
 
 export default memo(HistorySection);

@@ -16,7 +16,7 @@ describe('ReportManager - AddNoteButton', () => {
 
     expect(onAddNote).toHaveBeenCalledTimes(0);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('addNoteButton');
     userEvent.click(addNoteButton);
 
     expect(onAddNote).toHaveBeenCalledTimes(1);

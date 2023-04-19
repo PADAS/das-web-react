@@ -1,59 +1,117 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import userEvent from '@testing-library/user-event';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
 
+import { createMapMock } from '../__test-helpers/mocks';
 import { executeSaveActions } from '../utils/save';
+import { GPS_FORMATS } from '../utils/location';
+import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData, scheduledPatrol } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
 import { PATROLS_API_URL } from '../ducks/patrols';
 import { TAB_KEYS } from '../constants';
+import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
-import { GPS_FORMATS } from '../utils/location';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
+
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
   executeSaveActions: jest.fn(),
 }));
 
 const server = setupServer(
-  rest.get(
-    `${PATROLS_API_URL}:id`,
-    (req, res, ctx) => res(ctx.json({ data: scheduledPatrol }))
-  )
+  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: scheduledPatrol })))
 );
 
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-let store = patrolDefaultStoreData;
-store.data.subjectStore = {};
-store.data.user = { permissions: { patrol: ['change'] } };
-store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
-store.view.mapLocationSelection = {};
-
 describe('PatrolDetailView', () => {
+  const mockPatrol = {
+    id: '123',
+    priority: 0,
+    state: 'open',
+    objective: null,
+    serial_number: 1595,
+    title: 'The great patrol',
+    files: [],
+    notes: [],
+    patrol_segments: [
+      {
+        id: '123',
+        patrol_type: 'The_Great_Patrol',
+        leader: {
+          content_type: 'observations.subject',
+          id: '456',
+          name: 'Alex',
+          subject_type: 'person',
+          subject_subtype: 'ranger',
+          common_name: null,
+          additional: {},
+          created_at: '2021-08-31T14:42:06.701541-07:00',
+          updated_at: '2021-08-31T14:42:06.701557-07:00',
+          is_active: true,
+          tracks_available: false,
+          image_url: '/static/ranger-black.svg'
+        },
+        scheduled_start: null,
+        scheduled_end: '2022-01-08T10:17:00-08:00',
+        time_range: {
+          start_time: '2022-01-18T13:42:39.502000-08:00',
+          end_time: null
+        },
+        start_location: null,
+        end_location: null,
+        events: [],
+        image_url: 'https://develop.pamdas.org/static/sprite-src/suspicious_person_rep.svg',
+        icon_id: 'suspicious_person_rep',
+        updates: [],
+      },
+    ],
+    updates: [{
+      message: 'Patrol Added',
+      time: '2023-04-04T18:41:53.737181+00:00',
+      user: {
+        username: 'admin',
+        first_name: 'DAS',
+        last_name: 'Admin',
+        id: '3880239a-ffcd-47a8-9035-0ce3c9d90bdd',
+        content_type: 'accounts.user'
+      },
+      type: 'add_patrol'
+    }],
+  };
+
   let capturedRequestURLs;
   const logRequest = (req) => {
     capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
   };
 
-  let executeSaveActionsMock, navigate, useLocationMock, useSearchParamsMock, useNavigateMock;
+  let executeSaveActionsMock,
+    map,
+    navigate,
+    renderWithWrapper,
+    store,
+    useLocationMock,
+    useSearchParamsMock,
+    useNavigateMock,
+    Wrapper;
 
   beforeEach(() => {
-    capturedRequestURLs = [];
     navigate = jest.fn();
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
@@ -63,6 +121,29 @@ describe('PatrolDetailView', () => {
     useNavigate.mockImplementation(useNavigateMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
+
+    capturedRequestURLs = [];
+
+    store = patrolDefaultStoreData;
+    store.data.patrolStore = { 123: mockPatrol };
+    store.data.subjectStore = {};
+    store.data.user = { permissions: { patrol: ['change'] } };
+    store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
+    store.view.mapLocationSelection = {};
+
+    map = createMapMock();
+
+    Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
+      <NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            {children}
+          </TrackerContext.Provider>
+        </MapContext.Provider>
+      </NavigationWrapper>
+    </Provider>;
+
+    renderWithWrapper = (Component, wrapper = Wrapper) => render(Component, { wrapper });
   });
 
   server.events.on('request:match', (req) => logRequest(req));
@@ -78,13 +159,7 @@ describe('PatrolDetailView', () => {
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'invalid' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
@@ -96,13 +171,7 @@ describe('PatrolDetailView', () => {
     useLocationMock = jest.fn(() => ({ pathname: '/patrols/new', search: '?patrolType=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
@@ -114,19 +183,13 @@ describe('PatrolDetailView', () => {
   });
 
   test('fetches the patrol data if there is an id specified in the URL', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/456' })));
     useLocation.mockImplementation(useLocationMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).toBeDefined();
+      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}456`))).toBeDefined();
     });
   });
 
@@ -135,13 +198,7 @@ describe('PatrolDetailView', () => {
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: scheduledPatrol };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
@@ -152,14 +209,7 @@ describe('PatrolDetailView', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
     useLocation.mockImplementation(useLocationMock);
 
-    store.data.eventStore = { 123: scheduledPatrol };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
@@ -167,13 +217,7 @@ describe('PatrolDetailView', () => {
   });
 
   test('updates the title when user types in it', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     const titleInput = await screen.findByTestId('patrolDetailView-header-title');
 
@@ -184,14 +228,140 @@ describe('PatrolDetailView', () => {
     expect(titleInput).toHaveTextContent('2nknown patrol type');
   });
 
+  test('sets the start location when user changes it', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[0];
+    userEvent.click(setLocationButton);
+    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
+    userEvent.click(placeMarkerOnMapButton);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+
+    expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('sets the start date when user changes it', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(datePickerInput).toHaveAttribute('value', '2022/01/18');
+  });
+
+  test('sets the start time when user changes it', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    const timeInput = (await screen.findAllByTestId('time-input'))[0];
+    userEvent.click(timeInput);
+    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(timeInput).toHaveAttribute('value', '00:30');
+  });
+
+  test('sets the end location when user changes it', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[1];
+    userEvent.click(setLocationButton);
+    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
+    userEvent.click(placeMarkerOnMapButton);
+
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 56 } });
+
+    expect((await screen.findByText('56.000000°, 88.000000°'))).toBeDefined();
+  });
+
+  test('sets the end date when user changes it', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
+
+    expect(datePickerInput).toHaveAttribute('value', '2022/01/20');
+  });
+
+  test('sets the end time when user changes it', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    const timeInput = (await screen.findAllByTestId('time-input'))[1];
+    userEvent.click(timeInput);
+    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    userEvent.click(timeOptionsListItems[2]);
+
+    expect(timeInput).toHaveAttribute('value', '00:30');
+  });
+
+  test('sets the objective when user changes it', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
+
+    expect(objectiveInput).not.toHaveTextContent('great objective');
+
+    userEvent.type(objectiveInput, 'great objective');
+
+    expect(objectiveInput).toHaveTextContent('great objective');
+  });
+
+  test('hides the detail view when clicking the cancel button', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect(navigate).toHaveBeenCalledTimes(0);
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
+  });
+
+  test('displays a new note', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('deletes a new note', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+
+    const addNoteButton = await screen.findByTestId('addNoteButton');
+    userEvent.click(addNoteButton);
+    const deleteNoteButton = await screen.findByText('trash-can.svg');
+    userEvent.click(deleteNoteButton);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+  });
+
   test('executes save actions when clicking save and navigates to patrol feed', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <PatrolDetailView />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderWithWrapper(<PatrolDetailView />);
 
     const titleInput = (await screen.findAllByRole('textbox'))[0];
     userEvent.type(titleInput, '2');
@@ -209,6 +379,71 @@ describe('PatrolDetailView', () => {
     });
   });
 
+  test('shows the loading overlay while saving', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    const titleInput = (await screen.findAllByRole('textbox'))[0];
+    userEvent.type(titleInput, '2');
+    userEvent.tab();
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    expect(await screen.findByText('Saving...')).toBeDefined();
+  });
+
+  test('can not add a second note without saving the first one', async () => {
+    window.alert = jest.fn();
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect(window.alert).toHaveBeenCalledTimes(0);
+
+    const addNoteButton = await screen.findByTestId('addNoteButton');
+    userEvent.click(addNoteButton);
+    userEvent.click(addNoteButton);
+
+    expect(window.alert).toHaveBeenCalledTimes(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+  });
+
+  test('does not display the activity section nor its anchor if there are no items to show', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
+  });
+
+  test('displays the activity section and its anchor after adding an item', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
+
+    const addNoteButton = await screen.findByTestId('addNoteButton');
+    userEvent.click(addNoteButton);
+
+    expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
+  });
+
+  test('does not display neither the history section nor its anchor if the patrol is new', async () => {
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.queryByTestId('patrolDetailView-historySection'))).toBeNull();
+    expect((await screen.queryByTestId('quickLinks-anchor-History'))).toBeNull();
+  });
+
+  test('displays the history section and its anchor if the patrol is saved', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect((await screen.findByTestId('detailView-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
+  });
+
   describe('the warning prompt', () => {
     let actualUseNavigate;
 
@@ -222,13 +457,7 @@ describe('PatrolDetailView', () => {
     });
 
     test('showing a warning prompt for unsaved changes', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <PatrolDetailView />
-          </NavigationWrapper>
-        </Provider>
-      );
+      renderWithWrapper(<PatrolDetailView />);
 
       const titleInput = await screen.findByTestId('patrolDetailView-header-title');
       userEvent.type(titleInput, '2');
@@ -242,13 +471,7 @@ describe('PatrolDetailView', () => {
     });
 
     test('saving unsaved changes', async () => {
-      render(
-        <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <PatrolDetailView />
-          </NavigationWrapper>
-        </Provider>
-      );
+      renderWithWrapper(<PatrolDetailView />);
 
       const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
       userEvent.type(titleTextBox, '2');
