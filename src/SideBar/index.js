@@ -13,7 +13,7 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
-import useFetchReportsFeed from './useFetchReportsFeed';
+import useFetchFeed from './useFetchFeed';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -44,7 +44,7 @@ const SideBar = () => {
 
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const reportsFeed = useFetchReportsFeed();
+  const { patrolsFetchFeed, reportsFetchFeed } = useFetchFeed();
 
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
@@ -183,18 +183,18 @@ const SideBar = () => {
 
               <Route path="reports">
                 <Route index element={<ReportsFeedTab
-                  feedSort={reportsFeed.feedSort}
-                  loadFeedEvents={reportsFeed.loadFeedEvents}
-                  loadingEventFeed={reportsFeed.loadingEventFeed}
-                  setFeedSort={reportsFeed.setFeedSort}
-                  shouldExcludeContained={reportsFeed.shouldExcludeContained}
+                  feedSort={reportsFetchFeed.feedSort}
+                  loadFeedEvents={reportsFetchFeed.loadFeedEvents}
+                  loadingEventFeed={reportsFetchFeed.loadingEventFeed}
+                  setFeedSort={reportsFetchFeed.setFeedSort}
+                  shouldExcludeContained={reportsFetchFeed.shouldExcludeContained}
                 />} />
 
                 <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
               <Route path="patrols">
-                <Route index element={<PatrolsFeedTab />} />
+                <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFetchFeed.loadingPatrolsFeed} />} />
 
                 <Route path=":id/*" element={<PatrolDetailView />} />
               </Route>
