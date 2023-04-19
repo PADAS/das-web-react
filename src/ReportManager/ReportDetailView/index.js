@@ -158,10 +158,16 @@ const ReportDetailView = ({
     if (!originalReport || !reportForm) {
       return {};
     }
-
-    return Object.entries(extractObjectDifference(reportForm, originalReport))
-      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
-  }, [originalReport, reportForm]);
+    const { properties } = reportSchemas?.schema ?? {};
+    return Object.entries(extractObjectDifference(reportForm, originalReport)).reduce((accumulator, [key, value]) => {
+      const changesObj = Object.entries(value).reduce((acc, [changesKey, changesData]) => {
+        return !properties[changesKey]?.default ? { ...acc, [changesKey]: changesData } : acc;
+      }, {});
+      return key !== 'contains' && Object.entries(changesObj).length > 0
+        ? { ...accumulator, [key]: changesObj }
+        : accumulator;
+    }, {});
+  }, [originalReport, reportForm, reportSchemas]);
 
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
