@@ -13,7 +13,8 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
-import useFetchFeed from './useFetchFeed';
+import useFetchPatrolsFeed from './useFetchPatrolsFeed';
+import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
@@ -42,9 +43,10 @@ const SideBar = () => {
 
   const sideBar = useSelector((state) => state.view.sideBar);
 
+  const patrolsFeed = useFetchPatrolsFeed();
+  const reportsFeed = useFetchReportsFeed();
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const { patrolsFetchFeed, reportsFetchFeed } = useFetchFeed();
 
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
@@ -183,18 +185,18 @@ const SideBar = () => {
 
               <Route path="reports">
                 <Route index element={<ReportsFeedTab
-                  feedSort={reportsFetchFeed.feedSort}
-                  loadFeedEvents={reportsFetchFeed.loadFeedEvents}
-                  loadingEventFeed={reportsFetchFeed.loadingEventFeed}
-                  setFeedSort={reportsFetchFeed.setFeedSort}
-                  shouldExcludeContained={reportsFetchFeed.shouldExcludeContained}
+                  feedSort={reportsFeed.feedSort}
+                  loadFeedEvents={reportsFeed.loadFeedEvents}
+                  loadingEventFeed={reportsFeed.loadingEventFeed}
+                  setFeedSort={reportsFeed.setFeedSort}
+                  shouldExcludeContained={reportsFeed.shouldExcludeContained}
                 />} />
 
                 <Route path=":id/*" element={<ReportManager />} />
               </Route>
 
               <Route path="patrols">
-                <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFetchFeed.loadingPatrolsFeed} />} />
+                <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
 
                 <Route path=":id/*" element={<PatrolDetailView />} />
               </Route>

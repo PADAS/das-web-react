@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
@@ -7,16 +7,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { calcEventFilterForRequest, DEFAULT_EVENT_SORT } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
-import { fetchPatrols } from '../../ducks/patrols';
 import { getFeedEvents } from '../../selectors';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
-const useFetchFeed = () => {
+const useFetchReportsFeed = () => {
   const dispatch = useDispatch();
-
-  // Reports feed
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const events = useSelector((state) => getFeedEvents(state));
@@ -82,54 +79,13 @@ const useFetchFeed = () => {
     }
   }, [events.error, loadingEventFeed]);
 
-  const reportsFetchFeed = {
+  return {
     feedSort,
     loadFeedEvents,
     loadingEventFeed,
     setFeedSort,
     shouldExcludeContained,
   };
-
-  // Patrols feed
-
-  const patrolFilter = useSelector((state) => state.data.patrolFilter);
-
-  const patrolFetchRef = useRef(null);
-
-  const [loadingPatrolsFeed, setLoadingPatrolsFeed] = useState(true);
-
-  const patrolFilterParams = useMemo(() => {
-    const filterParams = cloneDeep(patrolFilter);
-    delete filterParams.filter.overlap;
-
-    return filterParams;
-  }, [patrolFilter]);
-
-  const fetchAndLoadPatrolData = useCallback(() => {
-    patrolFetchRef.current = dispatch(fetchPatrols());
-
-    patrolFetchRef.current.request.finally(() => {
-      setLoadingPatrolsFeed(false);
-      patrolFetchRef.current = null;
-    });
-  }, [dispatch]);
-
-  useEffect(() => {
-    setLoadingPatrolsFeed(true);
-    fetchAndLoadPatrolData();
-
-    return () => {
-      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
-
-      if (priorRequestCancelToken) {
-        priorRequestCancelToken.cancel();
-      }
-    };
-  }, [fetchAndLoadPatrolData, patrolFilterParams]);
-
-  const patrolsFetchFeed = { loadingPatrolsFeed };
-
-  return { patrolsFetchFeed, reportsFetchFeed };
 };
 
-export default useFetchFeed;
+export default useFetchReportsFeed;
