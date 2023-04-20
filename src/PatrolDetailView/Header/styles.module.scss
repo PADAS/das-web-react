@@ -27,10 +27,6 @@
     height: 1.5rem;
     fill: white;
 
-    &[class*=newPatrol] {
-      fill: $dark-gray;
-    }
-
     @media (min-width: $md-layout-width-min) {
       width: 2rem;
       height: 2rem;
@@ -126,12 +122,12 @@
   }
 }
 
-.patrolActionButton {
+.actionButton {
   display: none;
   align-items: center;
   font-size: 1rem;
-  background-color: $patrol-action-button;
-  border-color: $patrol-action-button;
+  background-color: $transparent-dark-gray;
+  border: none;
   height: 2rem;
   border-radius: 4px;
   color: $secondary-medium-gray;
@@ -143,12 +139,6 @@
   svg {
     width: 0.75rem;
     margin-right: 0.5rem;
-  }
-
-  &[class*=newPatrol] {
-    display: flex;
-    margin-left: auto;
-    margin-right: 1rem;
   }
 
   @media (min-width: $md-layout-width-min) {

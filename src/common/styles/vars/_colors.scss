@@ -21,6 +21,7 @@ $mustard-yellow: #d1c22e;
 $off-white: #fbfbfb;
 $off-black: #333;
 $dark-gray: darken($secondary-medium-gray, 20%);
+$transparent-dark-gray: rgba(0, 0, 0, 0.05);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
 
@@ -72,8 +73,6 @@ $alert-text: $bright-red;
 $highlight-color: $bright-blue;
 
 $info-toast-bg: rgba($off-black, 0.9);
-
-$patrol-action-button: #E2E7E7;
 
 /////
 
