@@ -213,7 +213,7 @@ const ReportDetailView = ({
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
-  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
+  const onSaveSuccess = useCallback((reportToSubmit, redirectTo, shouldFetchReport) => (results) => {
     onSaveSuccessCallback?.(results);
 
     if (isAddedReport) {
@@ -228,6 +228,11 @@ const ReportDetailView = ({
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
     }
 
+    if (shouldFetchReport) {
+      const createdReport = results.length ? results[0] : results;
+      dispatch(fetchEvent(createdReport.data.data.id));
+    }
+
     return results;
   }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
@@ -237,7 +242,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback]);
 
-  const onSaveReport = useCallback((shouldRedirectAfterSave = true) => {
+  const onSaveReport = useCallback((shouldRedirectAfterSave = true, shouldFetchAfterSave = !isAddedReport) => {
     if (isSaving) {
       return;
     }
@@ -304,12 +309,17 @@ const ReportDetailView = ({
         }
         return results;
       })
-      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
+      .then(onSaveSuccess(
+        reportToSubmit,
+        shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined,
+        shouldFetchAfterSave
+      ))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
     dispatch,
+    isAddedReport,
     isNewReport,
     isSaving,
     notesToAdd,
@@ -466,7 +476,7 @@ const ReportDetailView = ({
 
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     try {
-      onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
+      onSaveReport(false, false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
