@@ -400,14 +400,16 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
-  const onFormError = (errors) => {
+  const onFormError = useCallback((errors) => {
     const formattedErrors = errors.map((error) => ({
       ...error,
       label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
     }));
 
     setSaveError([...formattedErrors]);
-  };
+  }, [reportSchemas?.schema?.properties]);
+
+  const onFormSubmit = useCallback(() => onSaveReport(), [onSaveReport]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -638,7 +640,7 @@ const ReportDetailView = ({
                 loadingSchema={!!eventSchemas.loading}
                 onFormChange={onFormChange}
                 onFormError={onFormError}
-                onFormSubmit={onSaveReport}
+                onFormSubmit={onFormSubmit}
                 onPriorityChange={onPriorityChange}
                 onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}
