@@ -27,14 +27,13 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const filteredSchema = useMemo(() => {
     const { properties } = schema;
     const eventDetailsKeys = Object.keys(report?.event_details ?? {});
-    const updatedProperties = Object.entries(properties).reduce((acc, [key, value]) => {
-      return eventDetailsKeys.includes(key) ? { ...acc, [key]: value } : acc;
-    }, {});
     return {
       ...schema,
-      properties: updatedProperties
+      properties: Object.entries(properties).reduce((acc, [key, value]) => {
+        return eventDetailsKeys.includes(key) ? { ...acc, [key]: value } : acc;
+      }, {})
     };
-  }, [report?.event_details, schema]);
+  }, [report, schema]);
 
   return <div className={`${styles.reportFormSummary} ${className}`}>
     <div className={styles.nonSchemaFields}>
