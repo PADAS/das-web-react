@@ -25,7 +25,7 @@ const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDra
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const { eventTypeTitle } = useReport(report);
   const filteredSchema = useMemo(() => {
-    const { properties } = schema;
+    const { properties = {} } = schema ?? {};
     const eventDetailsKeys = Object.keys(report?.event_details ?? {});
     return {
       ...schema,
