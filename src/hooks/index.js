@@ -87,7 +87,7 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
       map?.off?.(...args);
     };
   }, [map, condition, eventType, layerId, handlerFn]);
-}; 
+};
 
 export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
   const map = useContext(MapContext);
