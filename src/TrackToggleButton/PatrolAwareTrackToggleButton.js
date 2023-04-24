@@ -60,7 +60,7 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, dispatch: _dispatch, patrolDa
     }
   }, [leader, patrol.id, patrolToggleStates, patrolTrackHidden, patrolTrackPinned, patrolTrackVisible, subjectToggleStates, subjectTrackHidden, subjectTrackPinned, subjectTrackVisible, togglePatrolTrackState, toggleTrackState]);
 
-  return <TrackToggleButton ref={buttonRef} disabled={!leader} trackVisible={patrolTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} {...rest} />;
+  return <TrackToggleButton ref={buttonRef} disabled={!leader} trackVisible={patrolTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} showTransparentIcon {...rest} />;
 };
 
 
