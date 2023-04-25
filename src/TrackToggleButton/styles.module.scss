@@ -12,23 +12,20 @@
     background-color: rgba($green, 0.1);
   }
 
-  .default {
-    @include buttonBackground('tracks_off');
-  }
-
-  .defaultTransparent {
-    @include buttonBackground('tracks_off_transparent');
-  }
-
-  .visible {
-    @include buttonBackground('tracks_on');
-  }
-
-  .pinned {
-    @include buttonBackground('tracks_pinned');
-  }
 }
 
+.default {
+  @include buttonBackground('tracks_off', true);
+}
+.defaultTransparent {
+  @include buttonBackground('tracks_off_transparent', true);
+}
+.visible {
+  @include buttonBackground('tracks_on', true);
+}
+.pinned {
+  @include buttonBackground('tracks_pinned', true);
+}
 
 
 div.loadingOverlay {
