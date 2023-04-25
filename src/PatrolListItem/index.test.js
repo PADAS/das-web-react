@@ -243,7 +243,7 @@ describe('for active patrols', () => {
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.DONE);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBe(mockCurrentDate.toISOString());
+    expect(updatePatrol.mock.calls[0][0].patrol_segments?.[0].time_range.end_time).toBe(mockCurrentDate.toISOString());
   });
 
   test('theming', async () => {

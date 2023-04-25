@@ -242,7 +242,7 @@ const PatrolDetailView = () => {
         {
           ...patrolForm.patrol_segments[0],
           scheduled_end: isScheduled ? endDate : null,
-          time_range: { ...patrolForm.patrol_segments[0].time_range, end_time: !isScheduled ? endDate : null },
+          time_range: { ...(patrolForm.patrol_segments[0]?.time_range ?? {}), end_time: !isScheduled ? endDate : null },
         },
         ...patrolForm.patrol_segments.slice(1),
       ],

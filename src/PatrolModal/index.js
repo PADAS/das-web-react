@@ -294,7 +294,7 @@ const PatrolModal = (props) => {
             (isAuto ? null : update)
             : null,
           time_range: {
-            ...segment.time_range,
+            ...(segment?.time_range ?? {}),
             end_time: value ?
               (isAuto ? update : null)
               : null,
@@ -485,13 +485,11 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const displayAutoStart = useMemo(() => {
-    const { time_range: { start_time } } = statePatrol.patrol_segments[0];
-    return (!!start_time);
+    return !!statePatrol.patrol_segments?.[0]?.time_range?.start_time;
   }, [statePatrol]);
 
   const displayAutoEnd = useMemo(() => {
-    const { time_range: { end_time } }  = statePatrol.patrol_segments[0];
-    return (!!end_time);
+    return (!!statePatrol.patrol_segments?.[0]?.time_range?.end_time);
   }, [statePatrol]);
 
   const allPatrolUpdateHistory = useMemo(() => {

@@ -38,9 +38,9 @@ export const getPatrolList = createSelector(
 export const assemblePatrolDataForPatrol = (patrol, leader, trackData, timeSliderState) => {
   const [firstLeg] = patrol.patrol_segments;
   const timeRange = !!firstLeg && firstLeg.time_range;
-  const hasTrackDataWithinPatrolWindow = !!trackData && patrolStateAllowsTrackDisplay(patrol) && trackHasDataWithinTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+  const hasTrackDataWithinPatrolWindow = !!trackData && patrolStateAllowsTrackDisplay(patrol) && trackHasDataWithinTimeRange(trackData, timeRange?.start_time, timeRange?.end_time);
 
-  const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+  const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange?.start_time, timeRange?.end_time);
 
   const patrolData = {
     patrol, leader, trackData: trimmed || null,
