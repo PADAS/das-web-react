@@ -493,5 +493,21 @@ describe('PatrolDetailView', () => {
         expect(executeSaveActions).toHaveBeenCalledTimes(1);
       });
     });
+
+    test('showing a warning prompt for an ongoing note', async () => {
+      renderWithWrapper(<PatrolDetailView />);
+
+      const addNoteButton = await screen.findByTestId('addNoteButton');
+      userEvent.click(addNoteButton);
+
+      const textInput = await screen.findByTestId('activitySection-noteTextArea-');
+      userEvent.type(textInput, 'this is a new note');
+
+      const cancelButton = await screen.findByTestId('patrol-details-cancel-btn');
+      userEvent.click(cancelButton);
+
+      await screen.findByText('Unsaved Changes');
+      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+    });
   });
 });

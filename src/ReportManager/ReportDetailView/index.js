@@ -91,7 +91,7 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [unsavedReportNotes, setUnsavedReportNotes] = useState([]);
+  const [unsavedNotes, setUnsavedNotes] = useState([]);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -192,9 +192,9 @@ const ReportDetailView = ({
     if (isNewNote){
       backupUnsavedNote(note, updatedText, notesToAdd, setNotesToAdd);
     } else {
-      backupUnsavedNote(note, updatedText, unsavedReportNotes, setUnsavedReportNotes);
+      backupUnsavedNote(note, updatedText, unsavedNotes, setUnsavedNotes);
     }
-  }, [backupUnsavedNote, notesToAdd, unsavedReportNotes]);
+  }, [backupUnsavedNote, notesToAdd, unsavedNotes]);
 
   const shouldShowNavigationPrompt =
     !isSaving
@@ -204,7 +204,7 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-      || unsavedReportNotes.length > 0
+      || unsavedNotes.length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -271,9 +271,9 @@ const ReportDetailView = ({
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
-      if (unsavedReportNotes.length > 0) {
+      if (unsavedNotes.length > 0) {
         reportToSubmit.notes = reportForm.notes.map((currentNote) => {
-          const unsavedReportNote = unsavedReportNotes.find(({ created_at }) => currentNote.created_at === created_at);
+          const unsavedReportNote = unsavedNotes.find(({ created_at }) => currentNote.created_at === created_at);
           if (unsavedReportNote){
             return {
               ...currentNote,
@@ -320,7 +320,7 @@ const ReportDetailView = ({
     reportChanges,
     reportForm,
     reportTracker,
-    unsavedReportNotes
+    unsavedNotes
   ]);
 
   const onChangeTitle = useCallback(
@@ -408,8 +408,8 @@ const ReportDetailView = ({
   }, [notesToAdd]);
 
   const onCancelNote = useCallback((note) => {
-    setUnsavedReportNotes(unsavedReportNotes.filter(({ id }) => id !== note.id));
-  }, [unsavedReportNotes]);
+    setUnsavedNotes(unsavedNotes.filter(({ id }) => id !== note.id));
+  }, [unsavedNotes]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
@@ -656,8 +656,6 @@ const ReportDetailView = ({
                 onNoteItemBlur={onNoteItemBlur}
                 onNoteItemCancel={onCancelNote}
                 onSaveNote={onSaveNote}
-                reportAttachments={reportAttachments}
-                reportNotes={reportNotes}
               />
             </QuickLinks.Section>
 
@@ -692,7 +690,13 @@ const ReportDetailView = ({
             </div>
 
             <div>
-              <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
+              <Button
+                className={styles.cancelButton}
+                data-testid='report-details-cancel-btn'
+                onClick={onClickCancelButton}
+                type="button"
+                variant="secondary"
+              >
                 Cancel
               </Button>
 
