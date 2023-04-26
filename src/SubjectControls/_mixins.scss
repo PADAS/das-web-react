@@ -2,13 +2,8 @@
 @import '../common/styles/vars/colors';
 
 
-@mixin buttonBackground($image: 'tracks_off', $override: false) {
-  $background_image_url: '../common/images/icons/#{$image}.svg';
-  @if($override == true){
-    background-image: url($background_image_url) !important;
-  }@else {
-    background-image: url($background_image_url);
-  }
+@mixin buttonBackground($image: 'tracks_off') {
+  background-image: url('../common/images/icons/#{$image}.svg');
 }
 
 @mixin control {

@@ -17,7 +17,8 @@ const TrackToggleButton = (props, ref) => {
   }, [trackPinned, trackVisible]);
 
   const buttonClasses = useMemo(() => {
-    const defaultIcon = showTransparentIcon ? styles.defaultTransparent : styles.default;
+    const buttonClass = styles.button;
+    const defaultIcon = showTransparentIcon ? `${buttonClass} ${styles.defaultTransparent}` : `${buttonClass} ${styles.default}`;
     let string = `${defaultIcon} ${className}`;
     if (trackPinned) string+= ` ${styles.pinned}`;
     if (!trackPinned && trackVisible) string+= ` ${styles.visible}`;
