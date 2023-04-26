@@ -1,10 +1,11 @@
-import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
 import { FEATURE_FLAG_LABELS } from '../constants';
 import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
+import { MapContext } from '../App';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -37,7 +38,9 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
+const PatrolList = ({ patrols = [], loading, onItemClick }) => {
+  const map = useContext(MapContext);
+
   const [listItems, setListItems] = useState(patrols);
 
   const onPatrolSelfManagedStateChange = useCallback(() => {
@@ -51,12 +54,12 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return <Fragment>
+  return <>
     {!!listItems.length && <Flipper
-      flipKey={listItems}
-      element='ul'
-      className={styles.patrolList}
-    >
+        flipKey={listItems}
+        element='ul'
+        className={styles.patrolList}
+      >
       {listItems.map((item) =>
         <ListItem
           patrol={item}
@@ -67,7 +70,7 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
       )}
     </Flipper>}
     {!listItems.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
-  </Fragment>;
+  </>;
 };
 
 export default memo(PatrolList);
