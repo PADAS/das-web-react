@@ -31,21 +31,21 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
 
-import ActivitySection from '../ActivitySection';
+import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 import AddReportButton from '../AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
-import HistorySection from '../HistorySection';
+import HistorySection from '../../DetailViewComponents/HistorySection';
 import LinksSection from '../LinksSection';
 import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from '../ActivitySection/styles.module.scss';
+import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -77,8 +77,8 @@ const ReportDetailView = ({
   );
 
   const submitFormButtonRef = useRef(null);
-  const newNoteRef = useRef(null);
   const newAttachmentRef = useRef(null);
+  const newNoteRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -302,11 +302,20 @@ const ReportDetailView = ({
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments);
     return executeSaveActions(saveActions)
+      .then((results) => {
+        if (reportForm.is_collection && reportChanges.state) {
+          return Promise.all((reportForm?.contains ?? [])
+            .map(contained => contained.related_event.id)
+            .map(id => dispatch(setEventState(id, reportChanges.state))));
+        }
+        return results;
+      })
       .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
+    dispatch,
     isNewReport,
     isSaving,
     notesToAdd,
@@ -468,6 +477,7 @@ const ReportDetailView = ({
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(thisReportSaved.id));
 
           setReportForm(collectionRefreshedResults.data.data);
@@ -478,6 +488,8 @@ const ReportDetailView = ({
           await Promise.all([thisReportSaved.id, secondReportSaved.id]
             .map(id => dispatch(addEventToIncident(id, incidentCollection.id))));
 
+          dispatch(fetchEvent(thisReportSaved.id));
+          dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
           const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
 
@@ -494,12 +506,10 @@ const ReportDetailView = ({
 
   const onClickSaveButton = useCallback(() => {
     reportTracker.track('Click "save" button');
-    if (reportForm?.is_collection) {
-      onSaveReport();
-    } else if (submitFormButtonRef.current) {
-      submitFormButtonRef.current.click();
-    }
-  }, [onSaveReport, reportForm?.is_collection, reportTracker]);
+
+    submitFormButtonRef?.current?.click();
+
+  }, [reportTracker]);
 
   const onClickSaveAndToggleStateButton = useCallback(() => {
     setReportForm({ ...reportForm, state: isActive ? 'resolved' : 'active' });
@@ -642,16 +652,18 @@ const ReportDetailView = ({
 
             <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
               <ActivitySection
+                attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
                 containedReports={containedReports}
+                notes={reportNotes}
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}
+                onNoteItemBlur={onNoteItemBlur}
+                onNoteItemCancel={onCancelNote}
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
-                onNoteItemBlur={onNoteItemBlur}
-                onNoteItemCancel={onCancelNote}
               />
             </QuickLinks.Section>
 
@@ -664,13 +676,17 @@ const ReportDetailView = ({
             {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-              <HistorySection reportUpdates={reportForm?.updates || []} />
+              <HistorySection updates={reportForm?.updates || []} />
             </QuickLinks.Section>
           </QuickLinks.SectionsWrapper>
 
           <div className={styles.footer}>
             <div className={styles.footerActionButtonsContainer}>
-              <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
+              <AddNoteButton
+                className={styles.footerActionButton}
+                data-testid={`reportDetailView-addNoteButton-${isAddedReport ? 'added' : 'original'}`}
+                onAddNote={onAddNote}
+              />
 
               <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 

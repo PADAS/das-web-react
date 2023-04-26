@@ -1,0 +1,17 @@
+@import '../../../common/styles/vars/colors';
+
+.itemRow {
+  background: $light-gray;
+}
+
+.itemIcon {
+  background: $light-gray;
+
+  g {
+    stroke: $primary-font-color;
+  }
+}
+
+.itemTitle {
+  font-weight: 500;
+}

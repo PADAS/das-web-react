@@ -4,6 +4,7 @@ on:
     branches:
       - "das-2-*-*"
       - "ERA-*"
+      - "era-*"
       - "develop"
 
 env:

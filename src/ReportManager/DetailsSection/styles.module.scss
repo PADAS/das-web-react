@@ -112,6 +112,10 @@
   margin-top: 1.5rem;
   font-size: 0.85rem;
 
+  &.hidden {
+    display: none;
+  }
+
   [class*=row] {
     padding: 0;
 
