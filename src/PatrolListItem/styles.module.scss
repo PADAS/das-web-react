@@ -66,5 +66,6 @@
 }
 
 .stateDependantControl {
-  background: $transparent-dark-gray;
+  background: $transparent-dark-gray !important;
+  border: none;
 }
