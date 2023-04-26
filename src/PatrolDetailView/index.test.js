@@ -18,7 +18,7 @@ import { PATROLS_API_URL } from '../ducks/patrols';
 import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
-import ReportDetailView from "../ReportManager/ReportDetailView";
+import ReportDetailView from '../ReportManager/ReportDetailView';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
