@@ -167,25 +167,6 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const backupUnsavedNote = useCallback((note, updatedText, notes, setter) => {
-    const noteId = note.creationDate ?? note.id;
-    const backupNote = notes.find(({ creationDate, id }) => noteId === creationDate || noteId === id);
-
-    if (!backupNote){
-      setter([...notes, { ...note, text: updatedText }]);
-    } else {
-      const updatedNotes = notes.map((currentNote) => {
-        const { text } = currentNote;
-        const currentId = currentNote.creationDate ?? currentNote.id;
-        if (currentId === noteId && updatedText !== text){
-          return { ...currentNote, text: updatedText };
-        }
-        return currentNote;
-      });
-      setter(updatedNotes);
-    }
-  }, []);
-
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
