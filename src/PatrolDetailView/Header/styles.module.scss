@@ -28,7 +28,7 @@
     fill: white;
 
     &[class*=newPatrol] {
-      fill: $off-black;
+      fill: $dark-gray;
     }
 
     @media (min-width: $md-layout-width-min) {
