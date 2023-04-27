@@ -6,11 +6,11 @@ import controlsVars from '../common/styles/vars/controls.module.scss';
 
 import styles from './styles.module.scss';
 
-const DropdownIndicator = (props) => <components.DropdownIndicator {...props}>
-  <div className={styles.caret} />
+const DropdownIndicator = ({ isDisabled, ...restProps }) => <components.DropdownIndicator {...restProps}>
+  { !isDisabled && <div className={styles.caret} /> }
 </components.DropdownIndicator>;
 
-const Select = ({ styles: customStyles, components, isDisabled, ...rest }) => {
+const Select = ({ styles: customStyles, components, ...rest }) => {
   const selectStyles = useMemo(() => ({
     ...customStyles,
     option: (styles, state) => {
@@ -39,7 +39,7 @@ const Select = ({ styles: customStyles, components, isDisabled, ...rest }) => {
   }), [customStyles]);
 
   return <ReactSelect
-      components={ isDisabled ? components : { DropdownIndicator, ...components } }
+      components={{ DropdownIndicator, ...components }}
       styles={selectStyles}
       {...rest}
   />;
