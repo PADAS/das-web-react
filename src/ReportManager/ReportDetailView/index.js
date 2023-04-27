@@ -213,7 +213,7 @@ const ReportDetailView = ({
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
-  const onSaveSuccess = useCallback((reportToSubmit, redirectTo, shouldFetchReport) => (results) => {
+  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
     onSaveSuccessCallback?.(results);
 
     if (isAddedReport) {
@@ -226,11 +226,6 @@ const ReportDetailView = ({
       return Promise.all(reportToSubmit.contains
         .map(contained => contained.related_event.id)
         .map(id => dispatch(setEventState(id, reportToSubmit.state))));
-    }
-
-    if (shouldFetchReport) {
-      const createdReport = results.length ? results[0] : results;
-      dispatch(fetchEvent(createdReport.data.data.id));
     }
 
     return results;
@@ -309,11 +304,14 @@ const ReportDetailView = ({
         }
         return results;
       })
-      .then(onSaveSuccess(
-        reportToSubmit,
-        shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined,
-        shouldFetchAfterSave
-      ))
+      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
+      .then((results) => {
+        if (shouldFetchAfterSave) {
+          const createdReport = results.length ? results[0] : results;
+          dispatch(fetchEvent(createdReport.data.data.id));
+        }
+        return results;
+      })
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
@@ -502,7 +500,6 @@ const ReportDetailView = ({
           reportTracker.track('Added report to report');
           onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
         }
-
       });
     } catch (e) {
       setIsSaving(false);
