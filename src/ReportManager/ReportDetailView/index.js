@@ -154,17 +154,36 @@ const ReportDetailView = ({
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
+
+  /*const reportChanges = useMemo(() => {
+    if (!originalReport || !reportForm) {
+      return {};
+    }
+
+    return Object.entries(extractObjectDifference(reportForm, originalReport))
+      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
+  }, [originalReport, reportForm]);*/
+
+  // Al momento de eliminar el valor del input, lo toma como undefinded en el reportForm, asi lo inyecta la libreria en el onFormChange, ese dato tendria que venir en el object diff
   const reportChanges = useMemo(() => {
     if (!originalReport || !reportForm) {
       return {};
     }
-    const { properties } = reportSchemas?.schema ?? {};
-    return Object.entries(extractObjectDifference(reportForm, originalReport)).reduce((accumulator, [key, value]) => {
-      const changesObj = Object.entries(value).reduce((acc, [changesKey, changesData]) => {
-        return !properties[changesKey]?.default ? { ...acc, [changesKey]: changesData } : acc;
+    const { properties: schemaProps } = reportSchemas?.schema ?? {};
+    const reportsDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
+
+
+    return reportsDifferences.reduce((accumulator, [key, reportDiff]) => {
+      const reportDataWithoutDefValue = Object.entries(reportDiff).reduce((acc, [reportDiffKey, reportData]) => {
+        const reportFieldValue = reportDiff[reportDiffKey];
+        const schemaDefaultValue = schemaProps[reportDiffKey]?.default;
+        return !schemaDefaultValue || reportFieldValue !== schemaDefaultValue ? { ...acc, [reportDiffKey]: reportData } : acc;
       }, {});
-      return key !== 'contains' && Object.entries(changesObj).length > 0
-        ? { ...accumulator, [key]: changesObj }
+
+      const hasReportData = Object.entries(reportDataWithoutDefValue).length > 0;
+
+      return key !== 'contains' && hasReportData
+        ? { ...accumulator, [key]: reportDataWithoutDefValue }
         : accumulator;
     }, {});
   }, [originalReport, reportForm, reportSchemas]);
