@@ -1,11 +1,11 @@
+@import "src/common/styles/vars/colors";
+
 .patrolTrackControls {
-  --buttonDimensions: 1.75rem;
   display: flex;
   
   button {
-    height: var(--buttonDimensions);
-    width: var(--buttonDimensions);
     margin: 0 0.25rem;
     border-radius: 0.25rem;
+    background-color: $transparent-dark-gray !important;
   }
 }

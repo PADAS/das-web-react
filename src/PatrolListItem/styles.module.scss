@@ -64,3 +64,8 @@
 .item {
   cursor: pointer;
 }
+
+.stateDependantControl {
+  background: $transparent-dark-gray !important;
+  border: none;
+}
