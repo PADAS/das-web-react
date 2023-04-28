@@ -126,18 +126,18 @@ const Header = ({ onChangeTitle, patrol }) => {
 
     {(isPatrolActive || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
 
-    {(isPatrolScheduled || isPatrolOverdue) && <Button
-      className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
+    {( (isPatrolScheduled || isPatrolOverdue) && !isNewPatrol ) && <Button
+      className={`${styles.actionButton} ${styles.startPatrolButton}`}
       onClick={startPatrolAndTrack}
       type="button"
       variant="secondary"
     >
       <PlayIcon />
-      Start Patrol
+      Start
     </Button>}
 
     {isPatrolCancelled && <Button
-      className={styles.restorePatrolButton}
+      className={`${styles.actionButton} ${styles.restorePatrolButton}`}
       onClick={restorePatrolAndTrack}
       type="button"
       variant="secondary"

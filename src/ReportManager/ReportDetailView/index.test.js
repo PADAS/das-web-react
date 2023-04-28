@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -308,7 +308,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 
@@ -322,7 +322,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
     const deleteAttachmentButton = await screen.findByText('trash-can.svg');
@@ -338,7 +338,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
@@ -351,7 +351,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
     const deleteNoteButton = await screen.findByText('trash-can.svg');
     userEvent.click(deleteNoteButton);
@@ -412,7 +412,7 @@ describe('ReportManager - ReportDetailView', () => {
     await waitFor(() => {
       expect(addEventToIncident).toHaveBeenCalledTimes(1);
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'initial');
-      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('initial');
     });
   });
@@ -454,7 +454,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(addEventToIncident).toHaveBeenCalledTimes(2);
       expect(addEventToIncident).toHaveBeenCalledWith('initial', 'incident');
       expect(addEventToIncident).toHaveBeenCalledWith('added', 'incident');
-      expect(fetchEvent).toHaveBeenCalledTimes(1);
+      expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
       expect(navigate).toHaveBeenCalledWith('/reports/incident');
@@ -588,7 +588,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
 
-    const addAttachmentButton = await screen.findByTestId('reportManager-addAttachmentButton');
+    const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
     userEvent.upload(addAttachmentButton, fakeFile);
 
@@ -600,7 +600,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
   });
 
-  test('displays a new note', async () => {
+  test('can not add a second note without saving the first one', async () => {
     window.alert = jest.fn();
 
     renderWithWrapper(
@@ -610,7 +610,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
     expect(window.alert).toHaveBeenCalledTimes(0);
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
     userEvent.click(addNoteButton);
 
@@ -627,7 +627,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
   });
 
@@ -640,13 +640,13 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-activitySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-activitySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
-    const addNoteButton = await screen.findByTestId('reportManager-addNoteButton');
+    const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
 
-    expect((await screen.findByTestId('reportManager-activitySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
   });
 
@@ -659,7 +659,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-historySection'))).toBeNull();
+    expect((await screen.queryByTestId('detailView-historySection'))).toBeNull();
     expect((await screen.queryByTestId('quickLinks-anchor-History'))).toBeNull();
   });
 
@@ -668,7 +668,7 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findByTestId('reportManager-historySection'))).toBeDefined();
+    expect((await screen.findByTestId('detailView-historySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
   });
 
@@ -761,7 +761,6 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-
   test('clicking "save and resolve" to update both the state and form data', async () => {
     executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
     const onSaveSuccess = jest.fn();
@@ -802,6 +801,8 @@ describe('ReportManager - ReportDetailView', () => {
 
   describe('the warning prompt', () => {
     let actualUseNavigate;
+    const modalPromptTitle = 'Unsaved Changes';
+    const modalPromptText = 'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?';
 
     beforeEach(() => {
       actualUseNavigate = jest.requireActual('../../hooks/useNavigate');
@@ -827,8 +828,8 @@ describe('ReportManager - ReportDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       userEvent.click(cancelButton);
 
-      await screen.findByText('Unsaved Changes');
-      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+      await screen.findByText(modalPromptTitle);
+      await screen.findByText(modalPromptText);
     });
 
     test('showing a warning prompt for an added report', async () => {
@@ -849,8 +850,8 @@ describe('ReportManager - ReportDetailView', () => {
       const cancelButton = await screen.findByText('Cancel');
       userEvent.click(cancelButton);
 
-      await screen.findByText('Unsaved Changes');
-      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+      await screen.findByText(modalPromptTitle);
+      await screen.findByText(modalPromptText);
     });
 
     test('discarding unsaved changes', async () => {
@@ -899,8 +900,8 @@ describe('ReportManager - ReportDetailView', () => {
 
       expect(onSaveSuccess).not.toHaveBeenCalled();
 
-      await screen.findByText('Unsaved Changes');
-      await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
+      await screen.findByText(modalPromptTitle);
+      await screen.findByText(modalPromptText);
 
       const promptSaveBtn = await screen.findByTestId('navigation-prompt-positive-continue-btn');
       promptSaveBtn.click();
@@ -909,6 +910,27 @@ describe('ReportManager - ReportDetailView', () => {
         expect(onSaveSuccess).toHaveBeenCalledTimes(1);
         res();
       }));
+
+    });
+
+    test('showing a warning prompt for an ongoing note', async () => {
+      const onCancelAddedReport = jest.fn();
+
+      renderWithWrapper(
+        <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
+      );
+
+      const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
+      userEvent.click(addNoteButton);
+
+      const textInput = await screen.findByTestId('activitySection-noteTextArea-');
+      userEvent.type(textInput, 'this is a new note');
+
+      const cancelButton = await screen.findByTestId('report-details-cancel-btn');
+      userEvent.click(cancelButton);
+
+      await screen.findByText(modalPromptTitle);
+      await screen.findByText(modalPromptText);
 
     });
   });

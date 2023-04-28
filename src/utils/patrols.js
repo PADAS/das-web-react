@@ -13,7 +13,6 @@ import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
-import pluralize from 'pluralize';
 
 import TimeAgo from '../TimeAgo';
 
@@ -219,7 +218,7 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { scheduled_end, time_range: { end_time }= {} } = firstLeg;
+  const { scheduled_end, time_range: { end_time } = {} } = firstLeg;
 
   const value = end_time || scheduled_end;
 

@@ -12,7 +12,7 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
 import { report } from '../../../__test-helpers/fixtures/reports';
 
-import ReportListItem from '.';
+import ContainedReportListItem from '.';
 
 const server = setupServer(
   rest.get(
@@ -29,7 +29,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('ReportManager - ActivitySection - ReportListItem', () => {
+describe('ActivitySection - ContainedReportListItem', () => {
   const onCollapse = jest.fn(), onExpand = jest.fn();
   let store;
   beforeEach(() => {
@@ -45,7 +45,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockedStore}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[report]}
             report={report}
             onCollapse={onCollapse}
@@ -68,7 +68,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockedStore}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[report]}
             report={report}
             onCollapse={onCollapse}
@@ -91,7 +91,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockedStore}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[report]}
             report={report}
             onCollapse={onCollapse}
@@ -115,7 +115,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockedStore}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[report]}
             report={report}
             onCollapse={onCollapse}
@@ -136,7 +136,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -154,7 +154,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -171,7 +171,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -182,7 +182,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     );
 
     expect(onExpand).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
+    expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('collapse');
 
     const expandNoteButton = await screen.findByText('arrow-down-simple.svg');
@@ -195,7 +195,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[report]}
             report={report}
             onCollapse={onCollapse}
@@ -206,7 +206,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     );
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
-    expect((await screen.findByTestId('reportManager-activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
+    expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('show');
 
     const colapseNoteButton = await screen.findByText('arrow-up-simple.svg');
@@ -219,7 +219,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -240,7 +240,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -258,7 +258,7 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
@@ -272,14 +272,19 @@ describe('ReportManager - ActivitySection - ReportListItem', () => {
   });
 
   test('once the schema loads, the schema form shows up', async () => {
-    store.data.eventStore[report.id] = report;
+    store.data.eventStore[report.id] = {
+      ...report,
+      event_details: {
+        wildlifesightingrep_species: 'cheetah'
+      }
+    };
     store.data.eventSchemas[report.event_type] = {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
-          <ReportListItem
+          <ContainedReportListItem
             cardsExpanded={[]}
             report={report}
             onCollapse={onCollapse}
