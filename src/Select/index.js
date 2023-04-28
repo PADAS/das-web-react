@@ -7,7 +7,7 @@ import controlsVars from '../common/styles/vars/controls.module.scss';
 import styles from './styles.module.scss';
 
 const DropdownIndicator = ({ isDisabled, ...restProps }) => <components.DropdownIndicator {...restProps}>
-  { !isDisabled && <div className={styles.caret} /> }
+  <div className={ !isDisabled ? styles.caret : styles.disabled } />
 </components.DropdownIndicator>;
 
 const Select = ({ styles: customStyles, components, ...rest }) => {
