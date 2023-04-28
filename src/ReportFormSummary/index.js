@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { customizeValidator } from '@rjsf/validator-ajv6';
 import Form from '@rjsf/bootstrap-4';
 import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
@@ -24,6 +24,16 @@ const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDra
 
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const { eventTypeTitle } = useReport(report);
+  const filteredSchema = useMemo(() => {
+    const { properties = {} } = schema ?? {};
+    const eventDetailsKeys = Object.keys(report?.event_details ?? {});
+    return {
+      ...schema,
+      properties: Object.entries(properties).reduce((acc, [key, value]) => {
+        return eventDetailsKeys.includes(key) ? { ...acc, [key]: value } : acc;
+      }, {})
+    };
+  }, [report, schema]);
 
   return <div className={`${styles.reportFormSummary} ${className}`}>
     <div className={styles.nonSchemaFields}>
@@ -35,21 +45,23 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
         {eventTypeTitle}
       </div>
 
-      <div className={styles.nonSchemaField}>
-        <label>
-          Reported By
-        </label>
-
-        {report.reported_by?.name}
-      </div>
+      {
+        report.reported_by?.name &&
+        <div className={styles.nonSchemaField}>
+          <label>
+            Reported By
+          </label>
+          {report.reported_by?.name}
+        </div>
+      }
     </div>
 
     {schema && <Form
       className={styles.form}
       disabled
       fields={{ externalLink: ExternalLinkField }}
-      formData={report.event_details}
-      schema={schema}
+      formData={report?.event_details}
+      schema={filteredSchema}
       showErrorList={false}
       templates={{
         ArrayFieldItemTemplate,

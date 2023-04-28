@@ -120,6 +120,7 @@ const PatrolListItem = ({
           onClick={restorePatrolAndTrack}
           size="sm"
           variant="light"
+          className={styles.stateDependantControl}
         >
         Restore
       </Button>;
@@ -131,6 +132,7 @@ const PatrolListItem = ({
           onClick={startPatrolAndTrack}
           size="sm"
           variant="light"
+          className={styles.stateDependantControl}
         >
         Start
       </Button>;

@@ -272,7 +272,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
   });
 
   test('once the schema loads, the schema form shows up', async () => {
-    store.data.eventStore[report.id] = report;
+    store.data.eventStore[report.id] = {
+      ...report,
+      event_details: {
+        wildlifesightingrep_species: 'cheetah'
+      }
+    };
     store.data.eventSchemas[report.event_type] = {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
