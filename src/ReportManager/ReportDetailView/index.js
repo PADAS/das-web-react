@@ -164,7 +164,7 @@ const ReportDetailView = ({
     return reportDifferences.reduce((accumulator, [key, reportDiff]) => {
       const reportDataChanges = Object.entries(reportDiff).reduce((acc, [reportDiffKey, reportDiffValue]) => {
         const reportFieldValue = reportDiff[reportDiffKey];
-        const schemaDefaultValue = schemaProps[reportDiffKey]?.default;
+        const schemaDefaultValue = schemaProps?.[reportDiffKey]?.default;
         const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
         const hasReportValue = !schemaDefaultValue && reportDiffValue;
         return defValueHasChanged || hasReportValue ? { ...acc, [reportDiffKey]: reportDiffValue } : acc;
