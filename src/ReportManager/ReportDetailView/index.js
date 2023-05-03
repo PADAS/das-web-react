@@ -154,36 +154,25 @@ const ReportDetailView = ({
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
     : null;
 
-
-  /*const reportChanges = useMemo(() => {
-    if (!originalReport || !reportForm) {
-      return {};
-    }
-
-    return Object.entries(extractObjectDifference(reportForm, originalReport))
-      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
-  }, [originalReport, reportForm]);*/
-
-  // Al momento de eliminar el valor del input, lo toma como undefinded en el reportForm, asi lo inyecta la libreria en el onFormChange, ese dato tendria que venir en el object diff
   const reportChanges = useMemo(() => {
     if (!originalReport || !reportForm) {
       return {};
     }
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
-    const reportsDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
+    const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
 
-
-    return reportsDifferences.reduce((accumulator, [key, reportDiff]) => {
-      const reportDataWithoutDefValue = Object.entries(reportDiff).reduce((acc, [reportDiffKey, reportData]) => {
+    return reportDifferences.reduce((accumulator, [key, reportDiff]) => {
+      const reportDataChanges = Object.entries(reportDiff).reduce((acc, [reportDiffKey, reportDiffValue]) => {
         const reportFieldValue = reportDiff[reportDiffKey];
         const schemaDefaultValue = schemaProps[reportDiffKey]?.default;
-        return !schemaDefaultValue || reportFieldValue !== schemaDefaultValue ? { ...acc, [reportDiffKey]: reportData } : acc;
+        const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
+        const hasReportValue = !schemaDefaultValue && reportDiffValue;
+        return defValueHasChanged || hasReportValue ? { ...acc, [reportDiffKey]: reportDiffValue } : acc;
       }, {});
 
-      const hasReportData = Object.entries(reportDataWithoutDefValue).length > 0;
-
-      return key !== 'contains' && hasReportData
-        ? { ...accumulator, [key]: reportDataWithoutDefValue }
+      const hasChanges = Object.entries(reportDataChanges).length > 0;
+      return key !== 'contains' && hasChanges
+        ? { ...accumulator, [key]: reportDataChanges }
         : accumulator;
     }, {});
   }, [originalReport, reportForm, reportSchemas]);
@@ -418,8 +407,12 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onFormChange = useCallback((event) => {
-    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
+    const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
+      ...acc,
+      [formKey]: formData === undefined ? '' : formData
+    }), {});
 
+    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
     reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
