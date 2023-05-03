@@ -3,3 +3,7 @@
 .caret{
   @include dropdown-caret;
 }
+
+.disabled{
+  display: none;
+}

@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 import SubjectControlButton from '../SubjectControls/button';
 
 const TrackToggleButton = (props, ref) => {
-  const { className = '', trackVisible, trackPinned, ...rest } = props;
+  const { className = '', trackVisible, trackPinned, showTransparentIcon, ...rest } = props;
   const containerClasses = useMemo(() => {
     let string = styles.container;
 
@@ -17,12 +17,14 @@ const TrackToggleButton = (props, ref) => {
   }, [trackPinned, trackVisible]);
 
   const buttonClasses = useMemo(() => {
-    let string = `${styles.button} ${className}`;
+    const buttonClass = styles.button;
+    const defaultIcon = showTransparentIcon ? `${buttonClass} ${styles.defaultTransparent}` : `${buttonClass} ${styles.default}`;
+    let string = `${defaultIcon} ${className}`;
     if (trackPinned) string+= ` ${styles.pinned}`;
     if (!trackPinned && trackVisible) string+= ` ${styles.visible}`;
 
     return string;
-  }, [className, trackPinned, trackVisible]);
+  }, [className, showTransparentIcon, trackPinned, trackVisible]);
 
   const labelText = (trackPinned && 'Tracks pinned') || (trackVisible && 'Tracks on') || 'Tracks off';
 
@@ -35,6 +37,7 @@ TrackToggleButton.defaultProps = {
   onClick: noop,
   showLabel: true,
   loading: false,
+  showTransparentIcon: false,
 };
 
 TrackToggleButton.propTypes = {
@@ -43,4 +46,5 @@ TrackToggleButton.propTypes = {
   onClick: PropTypes.func,
   showLabel: PropTypes.bool,
   loading: PropTypes.bool,
+  showTransparentIcon: PropTypes.bool,
 };
