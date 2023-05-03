@@ -68,7 +68,7 @@ const ReportDetailView = ({
   reportId,
 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate({});
+  const navigate = useNavigate();
   const location = useLocation();
 
   const patrolStore = useSelector((state) => state.data.patrolStore);

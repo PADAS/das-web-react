@@ -10,11 +10,10 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
-const handleContinue = async (blocker, onContinue, positive = false) => {
-  await onContinue?.(positive);
-
-  console.log('proceeding');
+const handleContinue = (blocker, onContinue, positive = false) => {
   blocker.proceed();
+
+  onContinue?.(positive);
 };
 
 const NavigationPromptModal = ({

@@ -229,9 +229,9 @@ const PatrolDetailView = () => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
   }, [isNewPatrol]);
 
-  const onNavigationContinue = useCallback(async (shouldSave = false) => {
+  const onNavigationContinue = useCallback((shouldSave = false) => {
     if (shouldSave) {
-      await onSavePatrol(false);
+      onSavePatrol(false);
     } else {
       trackDiscard();
     }
