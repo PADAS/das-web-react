@@ -3,7 +3,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
-import { analyticsMetadata } from '../proptypes';
+import { analyticsMetadataProps } from '../proptypes';
 import { BREAKPOINTS } from '../constants';
 import { FormDataContext } from './context';
 import { trackEvent } from '../utils/analytics';
@@ -175,7 +175,7 @@ const EditableItemHeader = ({
 
 EditableItemHeader.propTypes = {
   afterMenuToggle: PropTypes.func,
-  analyticsMetadata,
+  analyticsMetadata: analyticsMetadataProps,
   data: PropTypes.object,
   Icon: PropTypes.oneOfType([PropTypes.element, PropTypes.node]),
   maxTitleLength: PropTypes.number,

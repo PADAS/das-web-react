@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import isFuture from 'date-fns/is_future';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import orderBy from 'lodash/orderBy';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
@@ -38,8 +37,8 @@ import { uuid } from '../utils/string';
 
 import ActivitySection from '../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
-import { AddReportButton } from '../DetailView';
 import AddNoteButton from '../AddNoteButton';
+import AddReportButton from '../DetailView/AddReportButton';
 import Header from './Header';
 import HistorySection from '../DetailViewComponents/HistorySection';
 import LoadingOverlay from '../LoadingOverlay';
@@ -79,10 +78,8 @@ const PatrolDetailView = () => {
 
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
-  const priorLocationRef = useRef(null);
   const temporalIdRef = useRef(null);
 
-  const [addedReports, setAddedReports] = useState([]);
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
@@ -95,33 +92,9 @@ const PatrolDetailView = () => {
 
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
-  const patrolReports = useMemo(() =>
-    getReportsForPatrol(patrol)
-  , [patrol]);
-
-  const allPatrolReports = useMemo(() => {
-    // don't show the contained reports, which are also bound to the segment
-    const allReports = [...addedReports, ...patrolReports];
-    const incidents = allReports.filter(report => report.is_collection);
-    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])], []);
-    const topLevelReports = allReports.filter(report =>
-      !incidentIds.includes(report.id));
-
-    return orderBy(topLevelReports, [
-      (item) => {
-        return new Date(item.updated_at);
-      }], ['acs']);
-  }, [addedReports, patrolReports]);
-
-  const allPatrolReportIds = useMemo(() => {
-    return (allPatrolReports || []).map(({ id }) => id);
-  }, [allPatrolReports]);
-
   const isNewPatrol = patrolId === 'new';
   const patrolData = location.state?.patrolData;
   const shouldRenderPatrolDetailView = !!(isNewPatrol ? patrolType : (patrolStore[patrolId] && !isLoadingPatrol));
-
-  const showAddReport = !isNewPatrol;
 
   const newPatrol = useMemo(
     () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
@@ -193,7 +166,6 @@ const PatrolDetailView = () => {
   const shouldShowNavigationPrompt = !isSaving
     && !redirectTo
     && (attachmentsToAdd.length > 0
-      || addedReports.length > 0
       || newNotesAdded
       || notesWithUnsavedChanges
       || Object.keys(patrolChanges).length > 0);
@@ -240,35 +212,26 @@ const PatrolDetailView = () => {
       .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
-
   }, [attachmentsToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
 
-  const onAddReport = useCallback((reportData) => {
-    priorLocationRef.current
-    && navigate(...priorLocationRef.current);
-
+  const onAddReport = useCallback(async (reportData, navigateFromReport) => {
+    const { data: { data } } = reportData.length ? reportData[0] : reportData;
+    await addPatrolSegmentToEvent(patrolSegmentId, data.id);
 
     patrolDetailViewTracker.track('Save report to patrol');
-    // report form has different payloads resp for incidents and reports
-    const report = reportData.length ? reportData[0] : reportData;
-    const { data: { data } } = report;
 
-    // patch the report to include the segment id
-    addPatrolSegmentToEvent(patrolSegmentId, data.id);
+    await dispatch(fetchPatrol(patrolId));
 
-    // dedupe collections
-    if (!allPatrolReportIds.includes(data.id)) {
-      setAddedReports([...addedReports, data]);
-    }
-  }, [addedReports, allPatrolReportIds, navigate, patrolSegmentId]);
+    navigateFromReport({ pathname: location.pathname, search: location.search }, { state: location.state });
+  }, [dispatch, location.pathname, location.search, location.state, patrolId, patrolSegmentId]);
 
   const trackDiscard = useCallback(() => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
   }, [isNewPatrol]);
 
-  const onNavigationContinue = useCallback((shouldSave = false) => {
+  const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave) {
-      onSavePatrol(false);
+      await onSavePatrol(false);
     } else {
       trackDiscard();
     }
@@ -461,6 +424,10 @@ const PatrolDetailView = () => {
     }
   }, [patrolForm, patrolTracker]);
 
+  const onCancelAddedReport = useCallback((navigateFromReport) => {
+    navigateFromReport({ pathname: location.pathname, search: location.search }, { state: location.state });
+  }, [location.pathname, location.search, location.state]);
+
   const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 
   useEffect(() => {
@@ -521,23 +488,6 @@ const PatrolDetailView = () => {
       navigate(redirectTo);
     }
   }, [navigate, redirectTo]);
-
-  const onCancelAddedReport = () => {
-    if (priorLocationRef.current) {
-      navigate(...priorLocationRef.current);
-      priorLocationRef.current = null;
-    }
-  };
-
-  const onAddReportButtonClick = () => {
-    priorLocationRef.current = [
-      {
-        pathname: location.pathname,
-        search: location.search,
-      },
-      { state: location.state }
-    ];
-  };
 
   const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length) > 0;
   const shouldRenderHistorySection = !!patrolUpdates.length;
@@ -604,9 +554,8 @@ const PatrolDetailView = () => {
 
                 <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
-                {showAddReport && <AddReportButton
+                {!isNewPatrol && <AddReportButton
                   analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
-                  clickSideEffect={onAddReportButtonClick}
                   formProps={{
                     hidePatrols: true,
                     isPatrolReport: true,

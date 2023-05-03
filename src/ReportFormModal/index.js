@@ -7,7 +7,6 @@ import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { fetchEvent } from '../ducks/events';
 import { removeModal } from '../ducks/modals';
 
-import { eventBelongsToPatrol } from '../utils/events';
 import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 
 import EditableItem from '../EditableItem';
@@ -61,7 +60,7 @@ const ReportFormModal = (props) => {
     return <LoadingOverlay className={styles.loadingOverlay} message='Loading...' />;
   }
 
-  const isPatrolReport = eventBelongsToPatrol(stateReport);
+  const isPatrolReport = !!stateReport.patrol_segments && !!stateReport.patrol_segments.length;
 
   return loaded && <EditableItem data={stateReport}>
     <EditableItem.Modal>

@@ -9,7 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { MapContext } from '../App';
-import { analyticsMetadata, addReportFormProps } from '../proptypes';
+import { addReportFormProps, analyticsMetadataProps } from '../proptypes';
 import { useFeatureFlag, useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
@@ -353,7 +353,7 @@ AddReport.defaultProps = {
 };
 
 AddReport.propTypes = {
-  analyticsMetadata,
+  analyticsMetadata: analyticsMetadataProps,
   iconComponent: PropTypes.node,
   showLabel: PropTypes.bool,
   title: PropTypes.string,

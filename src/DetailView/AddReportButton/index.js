@@ -1,34 +1,21 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as DocumentIcon } from '../../common/images/icons/document.svg';
 
-import { analyticsMetadata, addReportFormProps } from '../../proptypes';
 import AddReport from '../../AddReport';
 
 import styles from './styles.module.scss';
 
-const AddReportButton = ({ analyticsMetadata, className, clickSideEffect, formProps, onAddReport }, ref) => {
-  return  <AddReport
-    className={`${className} ${styles.addReportButton}`}
-    analyticsMetadata={analyticsMetadata}
-    clickSideEffect={clickSideEffect}
-    formProps={formProps}
-    onAddReport={onAddReport}
-    popoverPlacement="top"
-    ref={ref}
-    iconComponent={<DocumentIcon />}
-    title="Report"
-  />;
-};
+const AddReportButton = ({ className, ...rest }, ref) => <AddReport
+  className={`${className} ${styles.addReportButton}`}
+  iconComponent={<DocumentIcon />}
+  popoverPlacement="top"
+  ref={ref}
+  title="Report"
+  {...rest}
+/>;
 
-AddReportButton.propTypes = {
-  analyticsMetadata: analyticsMetadata.isRequired,
-  formProps: addReportFormProps,
-  onAddReport: PropTypes.func,
-  onSaveAddedReport: PropTypes.func,
-  className: PropTypes.string,
-  clickSideEffect: PropTypes.func,
-};
+AddReportButton.propTypes = { className: PropTypes.string };
 
-export default forwardRef(AddReportButton);
+export default memo(forwardRef(AddReportButton));

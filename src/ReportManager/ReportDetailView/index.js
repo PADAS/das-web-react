@@ -37,8 +37,7 @@ import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 
-import { AddReportButton } from '../../DetailView';
-
+import AddReportButton from '../../DetailView/AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
@@ -62,7 +61,6 @@ const ReportDetailView = ({
   formProps,
   isAddedReport,
   isNewReport,
-  navigateToOnSave = `/${TAB_KEYS.REPORTS}`,
   newReportTypeId,
   onAddReport,
   onSaveAddedReport: onSaveAddedReportCallback,
@@ -70,7 +68,7 @@ const ReportDetailView = ({
   reportId,
 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useNavigate({});
   const location = useLocation();
 
   const patrolStore = useSelector((state) => state.data.patrolStore);
@@ -111,9 +109,8 @@ const ReportDetailView = ({
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isPatrolReport = formProps?.hasOwnProperty('isPatrolReport')
-    ? formProps.isPatrolReport
-    : eventBelongsToPatrol(reportForm);
+  const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
+  const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
   const containedReports = useMemo(
     () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
@@ -207,24 +204,27 @@ const ReportDetailView = ({
     !isSaving
     && !redirectTo
     && (
-      (isAddedReport || isPatrolReport)
+      (isAddedReport || isPatrolAddedReport)
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
       || unsavedReportNotes.length > 0
     );
 
-  const showAddReportButton = !isAddedReport && !isPatrolReport
-    && !relationshipButtonDisabled && !isCollectionChild;
+  const showAddReportButton = !isAddedReport
+    && !isPatrolAddedReport
+    && !belongsToPatrol
+    && !relationshipButtonDisabled
+    && !isCollectionChild;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
   const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
-    onSaveSuccessCallback?.(results);
+    onSaveSuccessCallback?.(results, navigate);
 
-    if (isAddedReport || isPatrolReport) {
+    if (isAddedReport) {
       onSaveAddedReportCallback?.();
-    } else if (redirectTo) {
+    } else if (redirectTo && !isPatrolAddedReport) {
       setRedirectTo(redirectTo);
     }
 
@@ -235,7 +235,7 @@ const ReportDetailView = ({
     }
 
     return results;
-  }, [dispatch, isAddedReport, isPatrolReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, isPatrolAddedReport, navigate, onSaveAddedReportCallback, onSaveSuccessCallback]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -310,7 +310,7 @@ const ReportDetailView = ({
         }
         return results;
       })
-      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? navigateToOnSave : undefined))
+      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
@@ -318,7 +318,6 @@ const ReportDetailView = ({
     dispatch,
     isNewReport,
     isSaving,
-    navigateToOnSave,
     notesToAdd,
     onSaveError,
     onSaveSuccess,
@@ -527,21 +526,24 @@ const ReportDetailView = ({
     if (shouldSave) {
       onSaveReport(false);
     } else {
-      if (isAddedReport || isPatrolReport) {
+      if (isAddedReport) {
         onCancelAddedReport?.();
       }
       trackDiscard();
     }
-  }, [isAddedReport, isPatrolReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+  }, [isAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
 
   const onClickCancelButton = useCallback(() => {
-    const cancelNavDestination = (isAddedReport || isPatrolReport)
-      ? location.pathname
-      : `/${TAB_KEYS.REPORTS}`;
-
     reportTracker.track('Click "cancel" button');
-    navigate(cancelNavDestination);
-  }, [isAddedReport, isPatrolReport, location.pathname, navigate, reportTracker]);
+
+    if (isAddedReport) {
+      navigate(location.pathname);
+    } else if (isPatrolAddedReport) {
+      onCancelAddedReport?.(navigate);
+    } else {
+      navigate(`/${TAB_KEYS.REPORTS}`);
+    }
+  }, [isAddedReport, isPatrolAddedReport, location.pathname, navigate, onCancelAddedReport, reportTracker]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -691,16 +693,16 @@ const ReportDetailView = ({
 
               <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
 
-              {showAddReportButton &&
-              <AddReportButton className={styles.footerActionButton}
-                  onAddReport={onAddReport}
-                  onSaveAddedReport={onSaveAddedReport}
-                  formProps={{
-                    hidePatrols: true,
-                    onSaveSuccess: onSaveAddedReport,
-                    relationshipButtonDisabled: true
-                  }} />
-              }
+              {showAddReportButton && <AddReportButton
+                className={styles.footerActionButton}
+                formProps={{
+                  hidePatrols: true,
+                  onSaveSuccess: onSaveAddedReport,
+                  relationshipButtonDisabled: true
+                }}
+                onAddReport={onAddReport}
+                onSaveAddedReport={onSaveAddedReport}
+              />}
             </div>
 
             <div>
@@ -730,7 +732,6 @@ ReportDetailView.defaulProps = {
   newReportTypeId: null,
   onAddReport: null,
   onSaveAddedReport: null,
-  onCancelAddedReport: null,
   reportData: null,
 };
 

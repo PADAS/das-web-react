@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-export const analyticsMetadata = PropTypes.shape({
+export const analyticsMetadataProps = PropTypes.shape({
   category: PropTypes.string.isRequired,
   location: PropTypes.string,
 });

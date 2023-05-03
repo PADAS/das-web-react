@@ -59,7 +59,7 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState,
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport,
     fetchPatrol } = props;
 
   const navigate = useNavigate();
@@ -87,10 +87,6 @@ const ReportForm = (props) => {
 
   const reportTitle = displayTitleForEvent(report, eventTypes);
   const reportTypeTitle = eventTypeTitleForEvent(report);
-
-  const isPatrolReport = formProps?.hasOwnProperty('isPatrolReport') ?
-    formProps.isPatrolReport
-    : eventBelongsToPatrol(report);
 
   const isActive = reportIsActive(report.state);
 
@@ -540,15 +536,6 @@ const ReportForm = (props) => {
 
   if (!schema) return null;
 
-  const MenuContent = schema.readonly
-    ? null
-    : () =>
-      <HeaderMenuContent onPrioritySelect={onPrioritySelect}
-       onStartAddToIncident={onStartAddToIncident}
-       onStartAddToPatrol={onStartAddToPatrol}
-       isPatrolReport={isPatrolReport}
-        />;
-
   return <ContextProvider value={report}>
 
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
@@ -559,7 +546,7 @@ const ReportForm = (props) => {
         location: 'report modal',
       }}
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<MenuContent  />}
+      menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority} readonly={schema.readonly}
       title={reportTitle} onTitleChange={onReportTitleChange}
     />
@@ -622,7 +609,7 @@ const ReportForm = (props) => {
         map={map}
         navigateRelationships={navigateRelationships}
         isCollectionChild={eventBelongsToCollection(report)}
-        isPatrolReport={isPatrolReport}
+        isPatrolReport={eventBelongsToPatrol(report)}
         hidePatrols={true}
         onNewReportSaved={onReportAdded}
       />}
