@@ -74,7 +74,7 @@ const ReportManager = () => {
   const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
-    setAddedReportFormProps({ formProps, onCancelAddedReport });
+    setAddedReportFormProps({ ...formProps, onCancelAddedReport });
     setAddedReportData(reportData);
     setAddedReportTypeId(reportTypeId);
     setShowAddedReport(true);

@@ -221,9 +221,7 @@ const PatrolDetailView = () => {
     patrolDetailViewTracker.track('Save report to patrol');
 
     await dispatch(fetchPatrol(patrolId));
-
-    navigateFromReport({ pathname: location.pathname, search: location.search }, { state: location.state });
-  }, [dispatch, location.pathname, location.search, location.state, patrolId, patrolSegmentId]);
+  }, [dispatch, patrolId, patrolSegmentId]);
 
   const trackDiscard = useCallback(() => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -424,10 +422,6 @@ const PatrolDetailView = () => {
     }
   }, [patrolForm, patrolTracker]);
 
-  const onCancelAddedReport = useCallback((navigateFromReport) => {
-    navigateFromReport({ pathname: location.pathname, search: location.search }, { state: location.state });
-  }, [location.pathname, location.search, location.state]);
-
   const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 
   useEffect(() => {
@@ -559,8 +553,8 @@ const PatrolDetailView = () => {
                   formProps={{
                     hidePatrols: true,
                     isPatrolReport: true,
-                    onCancelAddedReport,
                     onSaveSuccess: onAddReport,
+                    redirectTo: [{ pathname: location.pathname, search: location.search }, { state: location.state }],
                   }}
                 />}
               </div>

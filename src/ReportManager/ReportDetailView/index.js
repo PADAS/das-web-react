@@ -102,6 +102,7 @@ const ReportDetailView = ({
     onSaveError: onSaveErrorCallback,
     onSaveSuccess: onSaveSuccessCallback,
     relationshipButtonDisabled,
+    redirectTo: redirectToFromFormProps,
   } = formProps || {};
 
   const originalReport = isNewReport ? newReport : eventStore[reportId];
@@ -219,13 +220,14 @@ const ReportDetailView = ({
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
-  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
-    onSaveSuccessCallback?.(results, navigate);
+  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => async (results) => {
+    console.log('calling: ', onSaveSuccessCallback);
+    await onSaveSuccessCallback?.(results, navigate);
 
     if (isAddedReport) {
       onSaveAddedReportCallback?.();
-    } else if (redirectTo && !isPatrolAddedReport) {
-      setRedirectTo(redirectTo);
+    } else if (redirectToFromFormProps || redirectTo) {
+      setRedirectTo(redirectToFromFormProps || redirectTo);
     }
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
@@ -235,7 +237,7 @@ const ReportDetailView = ({
     }
 
     return results;
-  }, [dispatch, isAddedReport, isPatrolAddedReport, navigate, onSaveAddedReportCallback, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, navigate, onSaveAddedReportCallback, onSaveSuccessCallback, redirectToFromFormProps]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -471,6 +473,7 @@ const ReportDetailView = ({
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
+    console.log('called');
     try {
       onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
@@ -496,7 +499,6 @@ const ReportDetailView = ({
           reportTracker.track('Added report to report');
           onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
         }
-
       });
     } catch (e) {
       setIsSaving(false);
@@ -522,9 +524,13 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
-  const onNavigationContinue = useCallback((shouldSave = false) => {
+  const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave) {
-      onSaveReport(false);
+      if (isPatrolAddedReport) {
+        await onSaveReport(false);
+      } else {
+        onSaveReport(false);
+      }
     } else {
       if (isAddedReport) {
         onCancelAddedReport?.();
@@ -539,11 +545,11 @@ const ReportDetailView = ({
     if (isAddedReport) {
       navigate(location.pathname);
     } else if (isPatrolAddedReport) {
-      onCancelAddedReport?.(navigate);
+      navigate(...redirectToFromFormProps);
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, isPatrolAddedReport, location.pathname, navigate, onCancelAddedReport, reportTracker]);
+  }, [isAddedReport, isPatrolAddedReport, location.pathname, navigate, redirectToFromFormProps, reportTracker]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -565,7 +571,7 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (redirectTo) {
-      navigate(redirectTo);
+      navigate(...(Array.isArray(redirectTo) ? redirectTo : [redirectTo]));
     }
   }, [navigate, redirectTo]);
 
@@ -701,7 +707,6 @@ const ReportDetailView = ({
                   relationshipButtonDisabled: true
                 }}
                 onAddReport={onAddReport}
-                onSaveAddedReport={onSaveAddedReport}
               />}
             </div>
 
