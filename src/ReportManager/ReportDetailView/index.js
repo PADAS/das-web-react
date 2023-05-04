@@ -93,7 +93,6 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [unsavedReportNotes, setUnsavedReportNotes] = useState([]);
 
   const reportTracker = useContext(TrackerContext);
 
@@ -173,34 +172,6 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const backupUnsavedNote = useCallback((note, updatedText, notes, setter) => {
-    const noteId = note.creationDate ?? note.id;
-    const backupNote = notes.find(({ creationDate, id }) => noteId === creationDate || noteId === id);
-
-    if (!backupNote){
-      setter([...notes, { ...note, text: updatedText }]);
-    } else {
-      const updatedNotes = notes.map((currentNote) => {
-        const { text } = currentNote;
-        const currentId = currentNote.creationDate ?? currentNote.id;
-        if (currentId === noteId && updatedText !== text){
-          return { ...currentNote, text: updatedText };
-        }
-        return currentNote;
-      });
-      setter(updatedNotes);
-    }
-  }, []);
-
-  const onNoteItemBlur = useCallback((note, updatedText) => {
-    const isNewNote = !!note.creationDate;
-    if (isNewNote){
-      backupUnsavedNote(note, updatedText, notesToAdd, setNotesToAdd);
-    } else {
-      backupUnsavedNote(note, updatedText, unsavedReportNotes, setUnsavedReportNotes);
-    }
-  }, [backupUnsavedNote, notesToAdd, unsavedReportNotes]);
-
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
@@ -209,7 +180,6 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-      || unsavedReportNotes.length > 0
     );
 
   const showAddReportButton = !isAddedReport
@@ -245,7 +215,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback]);
 
-  const onSaveReport = useCallback((shouldRedirectAfterSave = true) => {
+  const onSaveReport = useCallback((shouldRedirectAfterSave = true, shouldFetchAfterSave = !isAddedReport) => {
     if (isSaving) {
       return;
     }
@@ -279,17 +249,8 @@ const ReportDetailView = ({
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
-      if (unsavedReportNotes.length > 0) {
-        reportToSubmit.notes = reportForm.notes.map((currentNote) => {
-          const unsavedReportNote = unsavedReportNotes.find(({ created_at }) => currentNote.created_at === created_at);
-          if (unsavedReportNote){
-            return {
-              ...currentNote,
-              text: unsavedReportNote.text
-            };
-          }
-          return currentNote;
-        });
+      if (reportChanges.notes) {
+        reportToSubmit.notes = reportForm.notes;
       }
 
       if (reportToSubmit.contains) {
@@ -313,11 +274,19 @@ const ReportDetailView = ({
         return results;
       })
       .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
+      .then((results) => {
+        if (shouldFetchAfterSave) {
+          const createdReport = results.length ? results[0] : results;
+          dispatch(fetchEvent(createdReport.data.data.id));
+        }
+        return results;
+      })
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
     attachmentsToAdd,
     dispatch,
+    isAddedReport,
     isNewReport,
     isSaving,
     notesToAdd,
@@ -327,8 +296,7 @@ const ReportDetailView = ({
     originalReport.location,
     reportChanges,
     reportForm,
-    reportTracker,
-    unsavedReportNotes
+    reportTracker
   ]);
 
   const onChangeTitle = useCallback(
@@ -398,14 +366,16 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
-  const onFormError = (errors) => {
+  const onFormError = useCallback((errors) => {
     const formattedErrors = errors.map((error) => ({
       ...error,
       label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
     }));
 
     setSaveError([...formattedErrors]);
-  };
+  }, [reportSchemas?.schema?.properties]);
+
+  const onFormSubmit = useCallback(() => onSaveReport(), [onSaveReport]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -414,10 +384,6 @@ const ReportDetailView = ({
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
-
-  const onCancelNote = useCallback((note) => {
-    setUnsavedReportNotes(unsavedReportNotes.filter(({ id }) => id !== note.id));
-  }, [unsavedReportNotes]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
@@ -475,7 +441,7 @@ const ReportDetailView = ({
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     console.log('called');
     try {
-      onSaveReport(false).then(async ([{ data: { data: thisReportSaved } }]) => {
+      onSaveReport(false, false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
@@ -655,7 +621,7 @@ const ReportDetailView = ({
                 loadingSchema={!!eventSchemas.loading}
                 onFormChange={onFormChange}
                 onFormError={onFormError}
-                onFormSubmit={onSaveReport}
+                onFormSubmit={onFormSubmit}
                 onPriorityChange={onPriorityChange}
                 onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}
@@ -680,8 +646,6 @@ const ReportDetailView = ({
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}
-                onNoteItemBlur={onNoteItemBlur}
-                onNoteItemCancel={onCancelNote}
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}

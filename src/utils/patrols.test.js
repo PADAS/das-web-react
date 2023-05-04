@@ -1,4 +1,4 @@
-import { calcPatrolState, sortPatrolList } from './patrols';
+import { calcPatrolState, createNewPatrolForPatrolType, sortPatrolList } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
 import {
   newPatrol,
@@ -9,6 +9,7 @@ import {
   donePatrol,
   cancelledPatrol,
 } from '../__test-helpers/fixtures/patrols';
+import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 
 const { SCHEDULED, READY_TO_START, ACTIVE, START_OVERDUE, DONE, CANCELLED, INVALID } = PATROL_UI_STATES;
 
@@ -42,8 +43,56 @@ describe('Patrols utils', () => {
       const patrolWithoutSegments = { ...newPatrol, ...{ patrol_segments: [] } };
       expect(calcPatrolState(patrolWithoutSegments)).toBe(INVALID);
     });
-
   });
+
+  describe('createNewPatrolForPatrolType', () => {
+    const data = {
+      location: {
+        latitude: 0.20972935311753815,
+        longitude: 37.414685045175275
+      },
+      reportedById: 'reportedById',
+      time: new Date(2020, 1),
+    };
+
+    test('returns a new patrol from a type', () => {
+      expect(createNewPatrolForPatrolType(patrolTypes[0], data)).toMatchObject({
+        files: [],
+        icon_id: 'suspicious_person_rep',
+        is_collection: false,
+        notes: [],
+        patrol_segments: [{
+          end_location: null,
+          events: [],
+          leader: null,
+          patrol_type: 'The_Don_Patrol',
+          priority: 0,
+          scheduled_start: null,
+          start_location: {
+            latitude: 0.20972935311753815,
+            longitude: 37.414685045175275,
+          },
+          time_range: {
+            start_time: new Date(2020, 1),
+            end_time: null,
+          },
+        }],
+        priority: 0,
+        title: null,
+      });
+    });
+
+    test('returns a new patrol with automatic start off', () => {
+      expect(createNewPatrolForPatrolType(patrolTypes[0], data, false)).toMatchObject({
+        patrol_segments: [{
+          patrol_type: 'The_Don_Patrol',
+          scheduled_start: new Date(2020, 1),
+          time_range: { start_time: null },
+        }],
+      });
+    });
+  });
+
   describe('sortPatrolList', () => {
     test('should return patrols in correct sort', async () => {
 

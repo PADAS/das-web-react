@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import isFuture from 'date-fns/is_future';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
@@ -66,6 +65,7 @@ const PatrolDetailView = () => {
   const newPatrolTemporalId = location.state?.temporalId;
   const newPatrolTypeId = searchParams.get('patrolType');
 
+  const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const patrolPermissions = useSelector((state) => {
     const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
     return permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [] ;
@@ -97,8 +97,8 @@ const PatrolDetailView = () => {
   const shouldRenderPatrolDetailView = !!(isNewPatrol ? patrolType : (patrolStore[patrolId] && !isLoadingPatrol));
 
   const newPatrol = useMemo(
-    () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
-    [patrolData, patrolType]
+    () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData, isAutoStart) : null,
+    [isAutoStart, patrolData, patrolType]
   );
   const originalPatrol = isNewPatrol ? newPatrol : patrolStore[patrolId];
 
@@ -241,18 +241,14 @@ const PatrolDetailView = () => {
   );
 
   const onPatrolEndDateChange = useCallback((endDate, isAutoEnd) => {
-    const isScheduled = !isAutoEnd && isFuture(endDate);
-
+    const [segment] = patrolForm.patrol_segments;
     setPatrolForm({
       ...patrolForm,
-      patrol_segments: [
-        {
-          ...patrolForm.patrol_segments[0],
-          scheduled_end: isScheduled ? endDate : null,
-          time_range: { ...patrolForm.patrol_segments[0].time_range, end_time: !isScheduled ? endDate : null },
-        },
-        ...patrolForm.patrol_segments.slice(1),
-      ],
+      patrol_segments: [{
+        ...segment,
+        scheduled_end: !endDate || isAutoEnd ? null : endDate,
+        time_range: { ...segment.time_range, end_time: endDate && isAutoEnd ? endDate : null },
+      }],
     });
 
     patrolDetailViewTracker.track('Set patrol end date');
@@ -316,18 +312,14 @@ const PatrolDetailView = () => {
   }, [isNewPatrol, patrolForm]);
 
   const onPatrolStartDateChange = useCallback((startDate, isAutoStart) => {
-    const isScheduled = !isAutoStart && isFuture(startDate);
-
+    const [segment] = patrolForm.patrol_segments;
     setPatrolForm({
       ...patrolForm,
-      patrol_segments: [
-        {
-          ...patrolForm.patrol_segments[0],
-          scheduled_start: isScheduled ? startDate : null,
-          time_range: { ...patrolForm.patrol_segments[0].time_range, start_time: !isScheduled ? startDate : null },
-        },
-        ...patrolForm.patrol_segments.slice(1),
-      ],
+      patrol_segments: [{
+        ...segment,
+        scheduled_start: isAutoStart ? null : startDate,
+        time_range: { ...segment.time_range, start_time: isAutoStart ? startDate : null },
+      }],
     });
 
     patrolDetailViewTracker.track('Set patrol start date');

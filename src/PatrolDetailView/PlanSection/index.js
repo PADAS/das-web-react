@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
 import isFuture from 'date-fns/is_future';
@@ -11,6 +11,7 @@ import { BREAKPOINTS } from '../../constants';
 import { displayEndTimeForPatrol, displayStartTimeForPatrol } from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
+import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 
 import DatePicker from '../../DatePicker';
@@ -33,15 +34,12 @@ const PlanSection = ({
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
+  const isAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
+  const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const patrolLeaderSchema = useSelector((state) => state.data.patrolLeaderSchema);
 
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
-
-  const [isAutoEnd, setIsAutoEnd] = useState(() => isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
-  const [isAutoStart, setIsAutoStart] = useState(
-    () => isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start
-  );
 
   const startLocation = useMemo(() => {
     const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
@@ -59,11 +57,11 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    onPatrolEndDateChange(date, !isAutoEnd);
+    onPatrolEndDateChange(date, isAutoEnd);
   }, [isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartDateChange = useCallback((date) => {
-    onPatrolStartDateChange(date, !isAutoStart);
+    onPatrolStartDateChange(date, isAutoStart);
   }, [isAutoStart, onPatrolStartDateChange]);
 
   const handleEndTimeChange = useCallback((endTime) => {
@@ -71,7 +69,7 @@ const PlanSection = ({
     const updatedEndDateTime = endDate ? new Date(endDate) : new Date();
     updatedEndDateTime.setHours(newEndTimeParts[0], newEndTimeParts[1], '00');
 
-    onPatrolEndDateChange(updatedEndDateTime, !isAutoEnd);
+    onPatrolEndDateChange(updatedEndDateTime, isAutoEnd);
   }, [endDate, isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartTimeChange = useCallback((startTime) => {
@@ -79,18 +77,18 @@ const PlanSection = ({
     const updatedStartDateTime = startDate ? new Date(startDate) : new Date();
     updatedStartDateTime.setHours(newStartTimeParts[0], newStartTimeParts[1], '00');
 
-    onPatrolStartDateChange(updatedStartDateTime, !isAutoStart);
-  }, [isAutoStart, onPatrolStartDateChange, startDate]);
-
-  const handleAutoStartChange = useCallback(() => {
-    setIsAutoStart(!isAutoStart);
-    onPatrolStartDateChange(startDate, !isAutoStart);
+    onPatrolStartDateChange(updatedStartDateTime, isAutoStart);
   }, [isAutoStart, onPatrolStartDateChange, startDate]);
 
   const handleAutoEndChange = useCallback(() => {
-    setIsAutoEnd(!isAutoEnd);
-    onPatrolEndDateChange(endDate, !isAutoEnd);
-  }, [isAutoEnd, onPatrolEndDateChange, endDate]);
+    dispatch(updateUserPreferences({ autoEndPatrols: !isAutoEnd }));
+    onPatrolEndDateChange(startDate, !isAutoEnd);
+  }, [dispatch, isAutoEnd, onPatrolEndDateChange, startDate]);
+
+  const handleAutoStartChange = useCallback(() => {
+    dispatch(updateUserPreferences({ autoStartPatrols: !isAutoStart }));
+    onPatrolStartDateChange(startDate, !isAutoStart);
+  }, [dispatch, isAutoStart, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)) {

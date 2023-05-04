@@ -19,8 +19,6 @@ import styles from '../styles.module.scss';
 const NoteListItem = ({
   cardsExpanded,
   note,
-  onBlur,
-  onCancel,
   onCollapse,
   onDelete,
   onExpand,
@@ -64,23 +62,18 @@ const NoteListItem = ({
     setIsEditing(newEditState);
   }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onBlurTextArea = useCallback((event) => note.text !== text && onBlur(note, event.target.value), [note, onBlur, text]);
-
   const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
 
   const onClickCancelButton = useCallback(() => {
     if (isNewAndUnAdded) {
       tracker.track('Cancel writing new note');
-
       onDelete();
     } else {
       tracker.track('Cancel editing existing note');
-
       setText(note.text);
-      onCancel(note);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, tracker, onDelete, note, onCancel]);
+  }, [isNewAndUnAdded, tracker, onDelete, note]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
@@ -163,7 +156,6 @@ const NoteListItem = ({
         <textarea
           className={styles.noteTextArea}
           data-testid={`activitySection-noteTextArea-${note.id || note.text}`}
-          onBlur={onBlurTextArea}
           onChange={onChangeTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
@@ -202,8 +194,6 @@ NoteListItem.propTypes = {
       time: PropTypes.string,
     })),
   }).isRequired,
-  onBlur: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
   onCollapse: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
