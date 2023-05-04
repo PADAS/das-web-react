@@ -13,8 +13,6 @@ describe('ActivitySection - Note', () => {
     onDelete: jest.fn(),
     onExpand: jest.fn(),
     onSave: jest.fn(),
-    onBlur: jest.fn(),
-    onCancel: jest.fn(),
     note: {}
   };
 
@@ -143,14 +141,12 @@ describe('ActivitySection - Note', () => {
   });
 
   test('user can cancel the edit of a note', async () => {
-    const { onCancel } = initialProps;
     const note = { text: 'note' };
     renderNoteListItem({ ...initialProps, note });
 
     const noteTextArea = await screen.findByRole('textbox');
 
     expect(noteTextArea).toHaveTextContent('note');
-    expect(onCancel).not.toBeCalled();
 
     const editButton = await screen.findByTestId('activitySection-editIcon-note');
     userEvent.click(editButton);
@@ -163,7 +159,6 @@ describe('ActivitySection - Note', () => {
 
     expect(noteTextArea).toHaveTextContent('note');
     expect((await screen.queryByText(saveButtonText))).toBeNull();
-    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   test('user can save edits to a new note', async () => {
@@ -189,27 +184,6 @@ describe('ActivitySection - Note', () => {
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
     expect((await screen.queryByText(saveButtonText))).toBeNull();
-  });
-
-  test('onBlur callback is being called properly', async () => {
-    const { onBlur } = initialProps;
-    const note = { text: 'note' };
-    const updatedText = 'with a change';
-    renderNoteListItem({ ...initialProps, note });
-
-    expect(onBlur).toHaveBeenCalledTimes(0);
-
-    const noteTextArea = await screen.findByRole('textbox');
-    const editButton = await screen.findByTestId('activitySection-editIcon-note');
-
-    userEvent.click(editButton);
-    userEvent.clear(noteTextArea);
-    userEvent.type(noteTextArea, updatedText);
-
-    const saveButton = await screen.findByText(saveButtonText);
-    userEvent.click(saveButton);
-
-    expect(onBlur).toHaveBeenCalledWith(note, updatedText);
   });
 
   test('user can not type an empty space at the beginning of a note', async () => {

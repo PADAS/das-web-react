@@ -37,8 +37,6 @@ afterAll(() => server.close());
 describe('DetailViewComponents - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(),
     onDeleteNote = jest.fn(),
-    onNoteItemBlur = jest.fn(),
-    onNoteItemCancel = jest.fn(),
     onSaveNote = jest.fn();
 
   const containedReports = patrols[2].patrol_segments[0].events;
@@ -70,8 +68,6 @@ describe('DetailViewComponents - ActivitySection', () => {
     }],
     onDeleteAttachment,
     onDeleteNote,
-    onNoteItemBlur,
-    onNoteItemCancel,
     onSaveNote,
     startTime: new Date(2022, 6, 9),
   };
