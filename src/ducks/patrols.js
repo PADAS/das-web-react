@@ -104,6 +104,7 @@ export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`
   })
   .catch((error) => {
     console.warn('error fetching patrol', error);
+    throw error;
   });
 
 export const fetchPatrols = () => (dispatch) => {

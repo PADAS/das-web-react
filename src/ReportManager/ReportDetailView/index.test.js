@@ -913,25 +913,5 @@ describe('ReportManager - ReportDetailView', () => {
 
     });
 
-    test('showing a warning prompt for an ongoing note', async () => {
-      const onCancelAddedReport = jest.fn();
-
-      renderWithWrapper(
-        <ReportDetailView isNewReport={false} onCancelAddedReport={onCancelAddedReport} reportId="456" />,
-      );
-
-      const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
-      userEvent.click(addNoteButton);
-
-      const textInput = await screen.findByTestId('activitySection-noteTextArea-');
-      userEvent.type(textInput, 'this is a new note');
-
-      const cancelButton = await screen.findByTestId('report-details-cancel-btn');
-      userEvent.click(cancelButton);
-
-      await screen.findByText(modalPromptTitle);
-      await screen.findByText(modalPromptText);
-
-    });
   });
 });

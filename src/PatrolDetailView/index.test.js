@@ -18,6 +18,7 @@ import { PATROLS_API_URL } from '../ducks/patrols';
 import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
+import ReportDetailView from '../ReportManager/ReportDetailView';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -493,5 +494,50 @@ describe('PatrolDetailView', () => {
         expect(executeSaveActions).toHaveBeenCalledTimes(1);
       });
     });
+
+    test('displays a new attachment', async () => {
+      renderWithWrapper(<PatrolDetailView />);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+      const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFile);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    });
+
+    test('deletes a new attachment', async () => {
+      renderWithWrapper(<PatrolDetailView />);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+      const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFile);
+      const deleteAttachmentButton = await screen.findByText('trash-can.svg');
+      userEvent.click(deleteAttachmentButton);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+    });
+
+    test('omits duplicated attachment files', async () => {
+      window.alert = jest.fn();
+      renderWithWrapper(<PatrolDetailView />);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+
+      const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
+      const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFile);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+
+      const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
+      userEvent.upload(addAttachmentButton, fakeFileAgain);
+
+      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    });
+
   });
 });

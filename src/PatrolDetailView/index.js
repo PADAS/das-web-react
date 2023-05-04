@@ -9,6 +9,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 
 import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { createPatrolDataSelector } from '../selectors/patrols';
+import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
@@ -44,6 +45,7 @@ import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
 import styles from './styles.module.scss';
+
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
@@ -75,6 +77,7 @@ const PatrolDetailView = () => {
 
   const newNoteRef = useRef(null);
   const temporalIdRef = useRef(null);
+  const newAttachmentRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -209,7 +212,8 @@ const PatrolDetailView = () => {
 
     patrolToSubmit.notes = patrolToSubmit.notes.map((note) => ({ ...note, ref: undefined }));
 
-    const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], attachmentsToAdd);
+    const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
+    const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newAttachments);
     return executeSaveActions(saveActions)
       .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
@@ -366,6 +370,31 @@ const PatrolDetailView = () => {
     return editedNote;
   }, [patrolForm, updateNotesUnsavedChanges]);
 
+  const onDeleteAttachment = useCallback((attachment) => {
+    setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
+  }, [attachmentsToAdd]);
+
+  const onAddAttachments = useCallback((files) => {
+    const filesArray = convertFileListToArray(files);
+    const uploadableFiles = filterDuplicateUploadFilenames(
+      [...patrolAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
+      filesArray
+    );
+
+    setAttachmentsToAdd([
+      ...attachmentsToAdd,
+      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString(), ref: newAttachmentRef })),
+    ]);
+
+    setTimeout(() => {
+      newAttachmentRef?.current?.scrollIntoView?.({
+        behavior: 'smooth',
+      });
+    }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
+
+    patrolTracker.track('Added Attachment');
+  }, [attachmentsToAdd, patrolAttachments, patrolTracker]);
+
   const onAddNote = useCallback(() => {
     const userHasNewNoteEmpty = patrolForm.notes.some((note) => !note.text);
     if (userHasNewNoteEmpty) {
@@ -483,12 +512,12 @@ const PatrolDetailView = () => {
               <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
                 <ActivitySection
                   attachments={patrolAttachments}
-                  attachmentsToAdd={[]}
+                  attachmentsToAdd={attachmentsToAdd}
                   containedReports={containedReports}
                   endTime={patrolEndTime}
                   notes={patrolNotes.filter((note) => note.id)}
                   notesToAdd={patrolNotes.filter((note) => !note.id)}
-                  onDeleteAttachment={() => {}}
+                  onDeleteAttachment={onDeleteAttachment}
                   onDeleteNote={onDeleteNote}
                   onSaveNote={onSaveNote}
                   startTime={patrolStartTime}
@@ -506,7 +535,7 @@ const PatrolDetailView = () => {
               <div className={styles.footerActionButtonsContainer}>
                 <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 
-                <AddAttachmentButton className={styles.footerActionButton} />
+                <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
               </div>
 
               <div>

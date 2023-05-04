@@ -29,8 +29,6 @@ const ActivitySection = ({
   notesToAdd,
   onDeleteAttachment,
   onDeleteNote,
-  onNoteItemBlur,
-  onNoteItemCancel,
   onSaveNote,
   startTime,
 }) => {
@@ -121,13 +119,11 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={note.id}
       note={note}
-      onBlur={onNoteItemBlur}
-      onCancel={onNoteItemCancel}
       onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onSave={onSaveNoteKeepExpanded(note)}
     />,
-  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onNoteItemBlur, onNoteItemCancel, onSaveNoteKeepExpanded]);
+  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -135,8 +131,6 @@ const ActivitySection = ({
       cardsExpanded={cardsExpanded}
       key={noteToAdd.text}
       note={noteToAdd}
-      onBlur={onNoteItemBlur}
-      onCancel={onNoteItemCancel}
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
@@ -146,8 +140,6 @@ const ActivitySection = ({
   })), [
     notesToAdd,
     cardsExpanded,
-    onNoteItemBlur,
-    onNoteItemCancel,
     onSaveNoteKeepExpanded,
     onCollapseCard,
     onDeleteNote,
@@ -264,8 +256,6 @@ ActivitySection.propTypes = {
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
-  onNoteItemBlur: PropTypes.func.isRequired,
-  onNoteItemCancel: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
   startTime: PropTypes.instanceOf(Date),
 };

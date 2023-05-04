@@ -197,7 +197,7 @@ export const displayStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { start_time }, scheduled_start } = firstLeg;
+  const { time_range: { start_time } = {}, scheduled_start } = firstLeg;
 
   return (start_time || scheduled_start)
     ? new Date((start_time || scheduled_start))
@@ -208,7 +208,7 @@ export const actualStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { start_time } } = firstLeg;
+  const { time_range: { start_time } = {} } = firstLeg;
 
   return start_time
     ? new Date(start_time)
@@ -221,7 +221,7 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { scheduled_end, time_range: { end_time } } = firstLeg;
+  const { scheduled_end, time_range: { end_time } = {} } = firstLeg;
 
   const value = end_time || scheduled_end;
 
@@ -234,7 +234,7 @@ export const actualEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { end_time } } = firstLeg;
+  const { time_range: { end_time } = {} } = firstLeg;
 
   const value = end_time;
 
@@ -378,27 +378,27 @@ export const displayPatrolSegmentId = (patrol) => {
   return id || null;
 };
 export const isSegmentOverdue = (patrolSegment) => {
-  const { time_range: { start_time }, scheduled_start } = patrolSegment;
+  const { time_range: { start_time } = {}, scheduled_start } = patrolSegment;
   return !start_time
     && !!scheduled_start
     && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
 };
 
 export const isSegmentOverdueToEnd = (patrolSegment) => {
-  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
   return !end_time
     && !!scheduled_end
     && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
 };
 export const isSegmentPending = (patrolSegment) => {
-  const { time_range: { start_time } } = patrolSegment;
+  const { time_range: { start_time } = {} } = patrolSegment;
 
   return !start_time
   || (!!start_time && addMinutes(new Date(start_time), DELTA_FOR_OVERDUE).getTime() > new Date().getTime());
 };
 
 export const isSegmentActive = (patrolSegment) => {
-  const { time_range: { start_time, end_time } } = patrolSegment;
+  const { time_range: { start_time, end_time } = {} } = patrolSegment;
   const nowTime = new Date().getTime();
 
   return !!start_time
@@ -410,12 +410,12 @@ export const isSegmentActive = (patrolSegment) => {
 };
 
 export const isSegmentFinished = (patrolSegment) => {
-  const { time_range: { end_time } } = patrolSegment;
+  const { time_range: { end_time } = {} } = patrolSegment;
   return !!end_time && new Date(end_time).getTime() < new Date().getTime();
 };
 
 export const isSegmentEndScheduled = (patrolSegment) => {
-  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
   const time = end_time || scheduled_end;
 
   return !!time && new Date(time).getTime() > new Date().getTime();
@@ -544,7 +544,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 
 export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, rawTrack) => {
   const { patrol_segments: [firstLeg] } = patrol;
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
+  const { icon_id, start_location, end_location, time_range: { start_time, end_time } = {} } = firstLeg;
 
   const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
