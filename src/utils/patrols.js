@@ -121,7 +121,8 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
 };
 
 
-export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, default_priority: priority = 0 }, data) => {
+export const createNewPatrolForPatrolType = (patrolType, data, isAutoStart = true) => {
+  const { value: patrol_type, icon_id, default_priority: priority = 0 } = patrolType;
   const location = data && data.location;
   const reportedById = data && data.reportedById;
   const time = data && data.time;
@@ -129,6 +130,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
   const trackingSubject = reportedById && getReporterById(reportedById);
 
   const leader = trackingSubject ? trackingSubject : null;
+  const startTime = time ? new Date(time) : new Date();
 
   return {
     icon_id,
@@ -141,11 +143,11 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         patrol_type,
         priority,
         events: [],
-        scheduled_start: null,
+        scheduled_start: isAutoStart ? null : startTime,
         leader,
         start_location: location ? { ...location } : null,
         time_range: {
-          start_time: time ? new Date(time) : new Date(),
+          start_time: isAutoStart ? startTime : null,
           end_time: null,
         },
         end_location: null,
