@@ -201,23 +201,23 @@ const SideBar = () => {
             </Route>
 
             <Route
-                path="layers"
-                element={<ErrorBoundary>
-                  <MapLayerFilter />
+              path="layers"
+              element={<ErrorBoundary>
+                <MapLayerFilter />
 
-                  <div className={styles.mapLayers}>
-                    <ReportMapControl/>
-                    <SubjectGroupList map={map} />
-                    <FeatureLayerList map={map} />
-                    <AnalyzerLayerList map={map} />
-                    <div className={styles.noItems}>No items to display.</div>
-                  </div>
+                <div className={styles.mapLayers}>
+                  <ReportMapControl/>
+                  <SubjectGroupList map={map} />
+                  <FeatureLayerList map={map} />
+                  <AnalyzerLayerList map={map} />
+                  <div className={styles.noItems}>No items to display.</div>
+                </div>
 
-                  <div className={styles.mapLayerFooter}>
-                    <ClearAllControl map={map} />
-                  </div>
-                </ErrorBoundary>}
-              />
+                <div className={styles.mapLayerFooter}>
+                  <ClearAllControl map={map} />
+                </div>
+              </ErrorBoundary>}
+            />
           </Routes>
         </div>
       </div>

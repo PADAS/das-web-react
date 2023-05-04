@@ -537,19 +537,31 @@ const ReportDetailView = ({
       }
       trackDiscard();
     }
-  }, [isAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+  }, [isAddedReport, isPatrolAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
 
     if (isAddedReport) {
-      navigate(location.pathname);
+      navigate(
+        `${location.pathname}${location.search}`,
+        { replace: true, state: location.state }
+      );
     } else if (isPatrolAddedReport) {
       navigate(...redirectToFromFormProps);
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, isPatrolAddedReport, location.pathname, navigate, redirectToFromFormProps, reportTracker]);
+  }, [
+    isAddedReport,
+    isPatrolAddedReport,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+    redirectToFromFormProps,
+    reportTracker,
+  ]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
