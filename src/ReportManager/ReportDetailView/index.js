@@ -37,7 +37,7 @@ import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
 
-import AddReportButton from '../../DetailView/AddReportButton';
+import AddReportButton from '../../DetailViewComponents/AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
@@ -191,7 +191,6 @@ const ReportDetailView = ({
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
   const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => async (results) => {
-    console.log('calling: ', onSaveSuccessCallback);
     await onSaveSuccessCallback?.(results, navigate);
 
     if (isAddedReport) {
@@ -439,7 +438,6 @@ const ReportDetailView = ({
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
-    console.log('called');
     try {
       onSaveReport(false, false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {

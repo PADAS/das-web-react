@@ -3,12 +3,12 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AddReportButton from './';
+import AddReportButton from '.';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { mockStore } from '../../__test-helpers/MockStore';
 
-describe('ReportManager - AddReportButton', () => {
+describe('DetailView - AddReportButton', () => {
   const onAddReport = jest.fn();
   let store;
   beforeEach(() => {

@@ -37,7 +37,7 @@ import { uuid } from '../utils/string';
 import ActivitySection from '../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
-import AddReportButton from '../DetailView/AddReportButton';
+import AddReportButton from '../DetailViewComponents/AddReportButton';
 import Header from './Header';
 import HistorySection from '../DetailViewComponents/HistorySection';
 import LoadingOverlay from '../LoadingOverlay';

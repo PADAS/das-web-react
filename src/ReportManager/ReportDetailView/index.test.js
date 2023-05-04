@@ -97,7 +97,7 @@ describe('ReportManager - ReportDetailView', () => {
     store;
 
   beforeEach(() => {
-    AddReportMock = jest.fn(() => null);
+    AddReportMock = jest.fn(() => <button data-testid="addReport-button" />);
     AddReport.mockImplementation(AddReportMock);
     addEventToIncidentMock = jest.fn(() => () => {});
     addEventToIncident.mockImplementation(addEventToIncidentMock);
@@ -716,7 +716,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('reportManager-addReportButton'))).toBeNull();
+    expect((await screen.queryByTestId('addReport-button'))).toBeNull();
   });
 
   test('shows the add report button', async () => {
@@ -724,7 +724,7 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findByTestId('reportManager-addReportButton'))).toBeDefined();
+    expect((await screen.findByTestId('addReport-button'))).toBeDefined();
   });
 
   test('sets the locally edited report', async () => {
@@ -910,8 +910,6 @@ describe('ReportManager - ReportDetailView', () => {
         expect(onSaveSuccess).toHaveBeenCalledTimes(1);
         res();
       }));
-
     });
-
   });
 });
