@@ -13,6 +13,7 @@ import { TrackerContext } from '../../../utils/analytics';
 
 import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
+import { areCardsEquals } from '../../../utils/events';
 
 import styles from '../styles.module.scss';
 
@@ -20,17 +21,19 @@ const NoteListItem = ({
   cardsExpanded,
   note,
   onCollapse,
+  onChange,
   onDelete,
+  onCancel,
   onExpand,
-  onSave,
 }, ref = null) => {
   const textareaRef = useRef();
 
   const tracker = useContext(TrackerContext);
 
   const isNew = useMemo(() => !note.id, [note.id]);
-  const isNewAndUnAdded = useMemo(() => isNew && !note.text, [isNew, note.text]);
-  const isOpen = useMemo(() => cardsExpanded.includes(note), [cardsExpanded, note]);
+  const isBeingEdited = useMemo(() => isNew || note.originalText !== note.text, [isNew, note.originalText, note.text]);
+  const isOpen = useMemo(() => !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, note)), [cardsExpanded, note]);
+  const [isEditing, setIsEditing] = useState(isBeingEdited);
 
   const title = useMemo(() => {
     if (isNew) {
@@ -39,56 +42,38 @@ const NoteListItem = ({
     return note.text;
   }, [isNew, note.text]);
 
-  const [isEditing, setIsEditing] = useState(isNewAndUnAdded);
-  const [text, setText] = useState(note.text);
 
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
-
     tracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
-
     onDelete();
   }, [tracker, onDelete, isNew]);
 
   const onClickPencilIcon = useCallback((event) => {
-    const newEditState = !isOpen || !isEditing;
-
     event.stopPropagation();
-
-    onExpand();
-
+    const newEditState = !isOpen || !isEditing;
     tracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
-
+    onExpand();
     setIsEditing(newEditState);
   }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
+  const onChangeTextArea = useCallback((event) => onChange(event), [onChange]);
 
   const onClickCancelButton = useCallback(() => {
-    if (isNewAndUnAdded) {
+    if (isNew) {
       tracker.track('Cancel writing new note');
       onDelete();
     } else {
+      onCancel(note);
       tracker.track('Cancel editing existing note');
-      setText(note.text);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, tracker, onDelete, note]);
+  }, [isNew, tracker, onDelete, onCancel, note]);
 
   const onClickSaveButton = useCallback(() => {
     setIsEditing(false);
-    const trimmedText = text.trim();
-
-    const newNote = {
-      ...note,
-      text: trimmedText,
-    };
-
     tracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
-
-    onSave(newNote);
-    setText(trimmedText);
-  }, [isNew, note, onSave, tracker, text]);
+  }, [isNew, tracker]);
 
   useEffect(() => {
     if (isEditing) {
@@ -132,7 +117,7 @@ const NoteListItem = ({
       <div className={styles.itemActionButtonContainer}>
         <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
           <PencilIcon
-            className={isNewAndUnAdded ? styles.disabled : ''}
+            className={isEditing ? styles.disabled : ''}
             data-testid={`activitySection-editIcon-${note.id || note.text}`}
           />
         </ItemActionButton>
@@ -159,7 +144,7 @@ const NoteListItem = ({
           onChange={onChangeTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
-          value={text}
+          value={note.text}
         />
 
         {isEditing && <div className={styles.editingNoteActions}>
@@ -172,7 +157,7 @@ const NoteListItem = ({
             Cancel
           </Button>
 
-          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
+          <Button disabled={!note.text || note?.originalText === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
             Done
           </Button>
         </div>}
@@ -195,9 +180,10 @@ NoteListItem.propTypes = {
     })),
   }).isRequired,
   onCollapse: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   onExpand: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
 };
 
 export default memo(forwardRef(NoteListItem));

@@ -85,11 +85,19 @@ const ReportDetailView = ({
     [reportData, reportType]
   );
 
+  const reportStore = eventStore[reportId];
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
-  const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
+  const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportStore);
+
+  useEffect(() => {
+    if (!isNewReport){
+      setReportForm(reportStore);
+    }
+  }, [reportStore, isNewReport]);
+
   const [saveError, setSaveError] = useState(null);
 
   const reportTracker = useContext(TrackerContext);
@@ -100,7 +108,7 @@ const ReportDetailView = ({
     relationshipButtonDisabled,
   } = formProps || {};
 
-  const originalReport = isNewReport ? newReport : eventStore[reportId];
+  const originalReport = isNewReport ? newReport : reportStore;
   const isActive = ACTIVE_STATES.includes(originalReport?.state);
 
   const isCollection = !!reportForm?.is_collection;
@@ -147,7 +155,11 @@ const ReportDetailView = ({
     () => Array.isArray(reportForm?.files) ? reportForm.files : [],
     [reportForm?.files]
   );
-  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? reportForm.notes : [], [reportForm?.notes]);
+
+  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes)
+    ? [...reportForm.notes].map((note) => ({ ...note, originalText: !note.originalText ? note.text : note.originalText })) // requires attention
+    : [],
+  [reportForm?.notes]);
 
   const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
@@ -158,7 +170,8 @@ const ReportDetailView = ({
       return {};
     }
 
-    return Object.entries(extractObjectDifference(reportForm, originalReport))
+    const a = extractObjectDifference(reportForm, originalReport);
+    return Object.entries(a)
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
 
@@ -373,12 +386,32 @@ const ReportDetailView = ({
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
 
+  const onCancelNote = useCallback((note) => {
+    setReportForm({
+      ...reportForm,
+      notes: reportNotes.map((reportNote) => {
+        if (reportNote.id === note.id){
+          return {
+            ...reportNote,
+            text: reportNote.originalText,
+            originalText: '',
+          };
+        }
+        return reportNote;
+      }),
+    });
+  }, [reportForm, reportNotes]);
+
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
 
-  const onSaveNote = useCallback((originalNote, updatedNote) => {
-    const editedNote = { ...originalNote, text: updatedNote.text };
+  const onSaveNote = useCallback((originalNote, { target: { value } }) => {
+    const updatedText = !value.trim() ? '' : value;
+    const editedNote = {
+      ...originalNote,
+      text: updatedText,
+    };
 
     const isNew = !originalNote.id;
     if (isNew) {
@@ -621,6 +654,7 @@ const ReportDetailView = ({
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
+                onCancelNote={onCancelNote}
               />
             </QuickLinks.Section>
 

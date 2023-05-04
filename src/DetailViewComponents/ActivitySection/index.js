@@ -7,6 +7,7 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 import { isGreaterThan } from '../../utils/datetime';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
+import { areCardsEquals } from '../../utils/events';
 
 import AttachmentListItem from './AttachmentListItem';
 import ContainedReportListItem from './ContainedReportListItem';
@@ -28,6 +29,7 @@ const ActivitySection = ({
   notes,
   notesToAdd,
   onDeleteAttachment,
+  onCancelNote,
   onDeleteNote,
   onSaveNote,
   startTime,
@@ -37,17 +39,19 @@ const ActivitySection = ({
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
-    if (cardsExpanded.includes(card)) {
+    const isCardIncluded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (isCardIncluded) {
       if (analyticsLabel) {
         tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
       }
-
-      setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== card)]);
+      const filtered = [...cardsExpanded.filter((cardExpanded) => !areCardsEquals(cardExpanded, card))];
+      setCardsExpanded(filtered);
     }
   }, [cardsExpanded, tracker]);
 
   const onExpandCard = useCallback((card, analyticsLabel) => {
-    if (!cardsExpanded.includes(card)) {
+    const isCardIncluded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (!isCardIncluded) {
       if (analyticsLabel) {
         tracker.track(`Expand ${analyticsLabel} card in the activity section`);
       }
@@ -56,9 +60,10 @@ const ActivitySection = ({
     }
   }, [cardsExpanded, tracker]);
 
-  const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
-    const editedNote = onSaveNote(originalNote, updatedNote);
-    setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
+  const onChangeNoteKeepExpanded = useCallback((originalNote) => (event) => {
+    const editedNote = onSaveNote(originalNote, event);
+    const cards = [...cardsExpanded].filter((cardExpanded) => cardExpanded.created_at !== originalNote.created_at);
+    setCardsExpanded([...cards, editedNote]);
   }, [cardsExpanded, onSaveNote]);
 
   const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
@@ -121,9 +126,10 @@ const ActivitySection = ({
       note={note}
       onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
-      onSave={onSaveNoteKeepExpanded(note)}
+      onCancel={onCancelNote}
+      onChange={onChangeNoteKeepExpanded(note)}
     />,
-  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded]);
+  })), [cardsExpanded, notes, onCancelNote, onChangeNoteKeepExpanded, onCollapseCard, onExpandCard]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -134,17 +140,10 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
-      onSave={onSaveNoteKeepExpanded(noteToAdd)}
       ref={noteToAdd.ref}
+      onChange={onChangeNoteKeepExpanded(noteToAdd)}
     />,
-  })), [
-    notesToAdd,
-    cardsExpanded,
-    onSaveNoteKeepExpanded,
-    onCollapseCard,
-    onDeleteNote,
-    onExpandCard,
-  ]);
+  })), [notesToAdd, cardsExpanded, onChangeNoteKeepExpanded, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
     ...attachmentsRendered,
@@ -257,6 +256,7 @@ ActivitySection.propTypes = {
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
+  onCancelNote: PropTypes.func.isRequired,
   startTime: PropTypes.instanceOf(Date),
 };
 
