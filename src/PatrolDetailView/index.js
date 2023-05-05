@@ -214,7 +214,7 @@ const PatrolDetailView = () => {
       .finally(() => setIsSaving(false));
   }, [attachmentsToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
 
-  const onAddReport = useCallback(async (reportData, navigateFromReport) => {
+  const onAddReport = useCallback(async (reportData) => {
     const { data: { data } } = reportData.length ? reportData[0] : reportData;
     await addPatrolSegmentToEvent(patrolSegmentId, data.id);
 

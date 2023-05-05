@@ -191,7 +191,7 @@ const ReportDetailView = ({
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
   const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => async (results) => {
-    await onSaveSuccessCallback?.(results, navigate);
+    await onSaveSuccessCallback?.(results);
 
     if (isAddedReport) {
       onSaveAddedReportCallback?.();
@@ -206,7 +206,7 @@ const ReportDetailView = ({
     }
 
     return results;
-  }, [dispatch, isAddedReport, navigate, onSaveAddedReportCallback, onSaveSuccessCallback, redirectToFromFormProps]);
+  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback, redirectToFromFormProps]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));

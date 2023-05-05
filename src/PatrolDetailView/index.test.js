@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { rest } from 'msw';
@@ -6,25 +6,28 @@ import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
+import AddReport from '../AddReport';
 import { createMapMock } from '../__test-helpers/mocks';
 import { executeSaveActions } from '../utils/save';
+import { EVENT_API_URL } from '../ducks/events';
+import { PATROLS_API_URL } from '../ducks/patrols';
 import { GPS_FORMATS } from '../utils/location';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData, scheduledPatrol } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
-import { PATROLS_API_URL } from '../ducks/patrols';
 import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
-import ReportDetailView from '../ReportManager/ReportDetailView';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
+
+jest.mock('../AddReport', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
@@ -34,7 +37,12 @@ jest.mock('../utils/save', () => ({
 }));
 
 const server = setupServer(
-  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: scheduledPatrol })))
+  rest.get(
+    `${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: scheduledPatrol }))
+  ),
+  rest.patch(
+    `${EVENT_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: {} }))
+  ),
 );
 
 beforeAll(() => server.listen());
@@ -102,7 +110,8 @@ describe('PatrolDetailView', () => {
     capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
   };
 
-  let executeSaveActionsMock,
+  let AddReportMock,
+    executeSaveActionsMock,
     map,
     navigate,
     renderWithWrapper,
@@ -113,6 +122,8 @@ describe('PatrolDetailView', () => {
     Wrapper;
 
   beforeEach(() => {
+    AddReportMock = jest.fn(() => <button data-testid="addReport-button" />);
+    AddReport.mockImplementation(AddReportMock);
     navigate = jest.fn();
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
@@ -408,6 +419,30 @@ describe('PatrolDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
   });
 
+  test('after adding a report it is added to the patrol segment', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    const addedReport = [{ data: { data: { id: 'added' } } }];
+
+    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+      useEffect(() => {
+        formProps.onSaveSuccess(addedReport);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return null;
+    };
+    AddReport.mockImplementation(AddReportMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    await waitFor(() => {
+      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}added`))).toBeDefined();
+      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).toBeDefined();
+    });
+  });
+
   test('does not display the activity section nor its anchor if there are no items to show', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
@@ -539,18 +574,5 @@ describe('PatrolDetailView', () => {
       expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
     });
 
-  });
-  describe('Adding a report to the patrol', () => {
-    test('clicking the "add report" button and selecting a report type shows a report detail form', () => {
-
-    });
-
-    test('saving the new report adds it to the patrol', () => {
-
-    });
-
-    test('canceling the new report goes back to the patrol detail view', () => {
-
-    });
   });
 });
