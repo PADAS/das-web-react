@@ -542,6 +542,7 @@ const PatrolDetailView = () => {
 
                 {!isNewPatrol && <AddReportButton
                   analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
+                  className={styles.footerActionButton}
                   formProps={{
                     hidePatrols: true,
                     isPatrolReport: true,
