@@ -281,6 +281,24 @@ describe('GlobalMenuDrawer', () => {
     expect(mockHelpButton.click).toHaveBeenCalled();
   });
 
+  test('opens a page to the help center site when clicking the Help Center button', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <GlobalMenuDrawer />
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    expect(global.open).toHaveBeenCalledTimes(0);
+
+    const helpCenterButton = await screen.findByText('Help Center');
+    userEvent.click(helpCenterButton);
+
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/', '_blank', 'noopener,noreferrer');
+  });
+
   test('opens a page to the community site when clicking the Community button', async () => {
     render(
       <Provider store={mockStore(store)}>
