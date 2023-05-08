@@ -9,7 +9,7 @@ import Tab from 'react-bootstrap/Tab';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { MapContext } from '../App';
-import { analyticsMetadata } from '../proptypes';
+import { addReportFormProps, analyticsMetadataProps } from '../proptypes';
 import { useFeatureFlag, useSystemConfigFlag, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
@@ -252,7 +252,6 @@ const AddReport = forwardRef(({
   const startEditNewReport = useCallback((reportType) => {
     trackEvent(analyticsMetadata.category, `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
 
-    /* PATROL_SCAFFOLD */
     if (patrolsEnabled) {
       const isPatrol = reportType.category.value === 'patrols';
 
@@ -266,9 +265,7 @@ const AddReport = forwardRef(({
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
-
     }
-    /* END PATROL_SCAFFOLD */
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
@@ -289,6 +286,7 @@ const AddReport = forwardRef(({
   }, [
     analyticsMetadata.category,
     analyticsMetadata.location,
+    enableNewPatrolUI,
     enableNewReportUI,
     formProps,
     map,
@@ -299,7 +297,6 @@ const AddReport = forwardRef(({
   ]);
 
   return hasEventCategories &&
-
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={hideReports ? [] : eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
@@ -356,7 +353,7 @@ AddReport.defaultProps = {
 };
 
 AddReport.propTypes = {
-  analyticsMetadata,
+  analyticsMetadata: analyticsMetadataProps,
   iconComponent: PropTypes.node,
   showLabel: PropTypes.bool,
   title: PropTypes.string,
@@ -364,13 +361,7 @@ AddReport.propTypes = {
   popoverPlacement: PropTypes.string,
   reportData: PropTypes.object,
   variant: PropTypes.string,
-  formProps: PropTypes.shape({
-    relationshipButtonDisabled: PropTypes.bool,
-    onSaveSuccess: PropTypes.func,
-    onSaveError: PropTypes.func,
-    hidePatrols: PropTypes.bool,
-    isPatrolReport: PropTypes.bool,
-  }),
+  formProps: addReportFormProps,
   hideReports: PropTypes.bool,
   onAddReport: PropTypes.func,
 };

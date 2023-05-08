@@ -13,7 +13,6 @@ import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
-import pluralize from 'pluralize';
 
 import TimeAgo from '../TimeAgo';
 
@@ -327,8 +326,7 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    const formatter = (val, unit, _suffix) => `${val} ${pluralize(unit, val)}`;
-    return <TimeAgo date={displayStartTime} formatterFn={formatter} />;
+    return <TimeAgo date={displayStartTime} />;
   }
 
   return distanceInWords(displayStartTime, displayEndTime);

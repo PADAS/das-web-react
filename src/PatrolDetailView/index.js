@@ -37,6 +37,7 @@ import { uuid } from '../utils/string';
 import ActivitySection from '../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../AddAttachmentButton';
 import AddNoteButton from '../AddNoteButton';
+import AddReportButton from '../DetailViewComponents/AddReportButton';
 import Header from './Header';
 import HistorySection from '../DetailViewComponents/HistorySection';
 import LoadingOverlay from '../LoadingOverlay';
@@ -75,9 +76,9 @@ const PatrolDetailView = () => {
   );
   const state = useSelector((state) => state);
 
+  const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
   const temporalIdRef = useRef(null);
-  const newAttachmentRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -86,7 +87,6 @@ const PatrolDetailView = () => {
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
-  const [reportsToAdd, setReportsToAdd] = useState([]);
 
   const patrolTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -165,13 +165,10 @@ const PatrolDetailView = () => {
 
   const shouldShowNavigationPrompt = !isSaving
     && !redirectTo
-    && (
-      attachmentsToAdd.length > 0
+    && (attachmentsToAdd.length > 0
       || newNotesAdded
       || notesWithUnsavedChanges
-      || Object.keys(patrolChanges).length > 0
-      || reportsToAdd.length > 0
-    );
+      || Object.keys(patrolChanges).length > 0);
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
@@ -207,9 +204,6 @@ const PatrolDetailView = () => {
       }
     });
 
-    // just assign added reportsToAdd to inital segment id for now
-    reportsToAdd.forEach((report) => addPatrolSegmentToEvent(patrolSegmentId, report.id));
-
     patrolToSubmit.notes = patrolToSubmit.notes.map((note) => ({ ...note, ref: undefined }));
 
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
@@ -218,7 +212,16 @@ const PatrolDetailView = () => {
       .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
-  }, [attachmentsToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm, patrolSegmentId, reportsToAdd]);
+  }, [attachmentsToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
+
+  const onAddReport = useCallback(async (reportData) => {
+    const { data: { data } } = reportData.length ? reportData[0] : reportData;
+    await addPatrolSegmentToEvent(patrolSegmentId, data.id);
+
+    patrolDetailViewTracker.track('Save report to patrol');
+
+    await dispatch(fetchPatrol(patrolId));
+  }, [dispatch, patrolId, patrolSegmentId]);
 
   const trackDiscard = useCallback(() => {
     patrolDetailViewTracker.track(`Discard changes to ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -536,6 +539,17 @@ const PatrolDetailView = () => {
                 <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 
                 <AddAttachmentButton className={styles.footerActionButton} onAddAttachments={onAddAttachments} />
+
+                {!isNewPatrol && <AddReportButton
+                  analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
+                  className={styles.footerActionButton}
+                  formProps={{
+                    hidePatrols: true,
+                    isPatrolReport: true,
+                    onSaveSuccess: onAddReport,
+                    redirectTo: [{ pathname: location.pathname, search: location.search }, { state: location.state }],
+                  }}
+                />}
               </div>
 
               <div>

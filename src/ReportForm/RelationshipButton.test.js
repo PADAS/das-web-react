@@ -73,7 +73,7 @@ describe('RelationshipButton', () => {
     render(
       <Provider store={store}>
         <NavigationWrapper>
-          <FormDataContext.Provider value={{ patrols: ['patrol1234'] }}>
+          <FormDataContext.Provider value={{ patrols: ['patrol1234'], patrol_segments: [{}] }}>
             <RelationshipButton removeModal={removeModal} />
           </FormDataContext.Provider>
         </NavigationWrapper>
