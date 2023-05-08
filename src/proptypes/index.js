@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-export const analyticsMetadata = PropTypes.shape({
+export const analyticsMetadataProps = PropTypes.shape({
   category: PropTypes.string.isRequired,
   location: PropTypes.string,
 });
@@ -20,3 +20,12 @@ export const childrenPropType = PropTypes.oneOfType([
   PropTypes.arrayOf(PropTypes.node),
   PropTypes.node
 ]);
+
+
+export const addReportFormProps = PropTypes.shape({
+  hidePatrols: PropTypes.bool,
+  isPatrolReport: PropTypes.bool,
+  onSaveError: PropTypes.func,
+  onSaveSuccess: PropTypes.func,
+  relationshipButtonDisabled: PropTypes.bool,
+});
