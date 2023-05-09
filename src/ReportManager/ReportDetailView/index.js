@@ -56,6 +56,13 @@ const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ACTIVE_STATES = ['active', 'new'];
 
+const extractReportFieldsChanges = (reportField, reportSchemaProps) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
+  const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
+  const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
+  const hasReportValue = !schemaDefaultValue && reportFieldValue;
+  return defValueHasChanged || hasReportValue ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
+}, {});
+
 const ReportDetailView = ({
   className,
   formProps,
@@ -164,19 +171,11 @@ const ReportDetailView = ({
     }
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
-
-    return reportDifferences.reduce((accumulator, [key, reportDiff]) => {
-      const reportDataChanges = Object.entries(reportDiff).reduce((acc, [reportDiffKey, reportDiffValue]) => {
-        const reportFieldValue = reportDiff[reportDiffKey];
-        const schemaDefaultValue = schemaProps?.[reportDiffKey]?.default;
-        const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
-        const hasReportValue = !schemaDefaultValue && reportDiffValue;
-        return defValueHasChanged || hasReportValue ? { ...acc, [reportDiffKey]: reportDiffValue } : acc;
-      }, {});
-
-      const hasChanges = Object.entries(reportDataChanges).length > 0;
-      return key !== 'contains' && hasChanges
-        ? { ...accumulator, [key]: reportDataChanges }
+    return reportDifferences.reduce((accumulator, [key, reportField]) => {
+      const reportFieldsChanges = extractReportFieldsChanges(reportField, schemaProps);
+      const reportFieldHasChanges = Object.entries(reportFieldsChanges).length > 0;
+      return key !== 'contains' && reportFieldHasChanges
+        ? { ...accumulator, [key]: reportFieldsChanges }
         : accumulator;
     }, {});
   }, [originalReport, reportForm, reportSchemas]);
