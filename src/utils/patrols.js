@@ -13,7 +13,6 @@ import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
-import pluralize from 'pluralize';
 
 import TimeAgo from '../TimeAgo';
 
@@ -121,7 +120,8 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
 };
 
 
-export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, default_priority: priority = 0 }, data) => {
+export const createNewPatrolForPatrolType = (patrolType, data, isAutoStart = true) => {
+  const { value: patrol_type, icon_id, default_priority: priority = 0 } = patrolType;
   const location = data && data.location;
   const reportedById = data && data.reportedById;
   const time = data && data.time;
@@ -129,6 +129,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
   const trackingSubject = reportedById && getReporterById(reportedById);
 
   const leader = trackingSubject ? trackingSubject : null;
+  const startTime = time ? new Date(time) : new Date();
 
   return {
     icon_id,
@@ -141,11 +142,11 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         patrol_type,
         priority,
         events: [],
-        scheduled_start: null,
+        scheduled_start: isAutoStart ? null : startTime,
         leader,
         start_location: location ? { ...location } : null,
         time_range: {
-          start_time: time ? new Date(time) : new Date(),
+          start_time: isAutoStart ? startTime : null,
           end_time: null,
         },
         end_location: null,
@@ -325,8 +326,7 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    const formatter = (val, unit, _suffix) => `${val} ${pluralize(unit, val)}`;
-    return <TimeAgo date={displayStartTime} formatterFn={formatter} />;
+    return <TimeAgo date={displayStartTime} />;
   }
 
   return distanceInWords(displayStartTime, displayEndTime);

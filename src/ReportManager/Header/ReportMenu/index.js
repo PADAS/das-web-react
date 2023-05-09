@@ -1,8 +1,7 @@
-import React, { useCallback, useContext, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-
-import PropTypes from 'prop-types';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
+import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 
 import { MapContext } from '../../../App';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
@@ -14,32 +13,32 @@ import { openModalForPatrol } from '../../../utils/patrols';
 import { useFeatureFlag } from '../../../hooks';
 import useNavigate from '../../../hooks/useNavigate';
 
-import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
-import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
-import KebabMenuIcon from '../../../KebabMenuIcon';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
 
 import { TrackerContext } from '../../../utils/analytics';
+
+import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
+import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
+import KebabMenuIcon from '../../../KebabMenuIcon';
 
 import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-
-const ReportMenu = ({ report, onReportChange }) => {
-
-  const reportTracker = useContext(TrackerContext);
-  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
-
-  const navigate = useNavigate();
-  const map = useContext(MapContext);
+const ReportMenu = ({ onReportChange, report }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const map = useContext(MapContext);
+  const reportTracker = useContext(TrackerContext);
+
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const { is_collection } = report;
   const reportBelongsToCollection = useMemo(() => eventBelongsToCollection(report), [report]);
-  const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
+  const canAddToIncident = !is_collection && !reportBelongsToCollection;
   const reportBelongsToPatrol = useMemo(() => eventBelongsToPatrol(report), [report]);
 
   const onAddToNewIncident = useCallback(async () => {
@@ -115,6 +114,7 @@ const ReportMenu = ({ report, onReportChange }) => {
     <Toggle as="button" className={styles.kebabToggle} data-testid="reportMenu-kebab-button">
       <KebabMenuIcon />
     </Toggle>
+
     <Menu className={styles.menuDropdown}>
       {canAddToIncident && <Item className={styles.itemBtn} data-testid="reportMenu-add-to-incident" variant='link' onClick={onStartAddToIncident}>
         <IncidentIcon className={styles.itemIcon} />Add to Incident
@@ -128,9 +128,9 @@ const ReportMenu = ({ report, onReportChange }) => {
   </Dropdown>;
 };
 
-export default ReportMenu;
+export default memo(ReportMenu);
 
 ReportMenu.propTypes = {
-  report: PropTypes.object.isRequired,
   onReportChange: PropTypes.func.isRequired,
+  report: PropTypes.object.isRequired,
 };

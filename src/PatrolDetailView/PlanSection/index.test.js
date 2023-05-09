@@ -56,14 +56,15 @@ store.data.patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.push(
 );
 
 describe('PatrolDetailView - PlanSection', () => {
-  let map;
+  let map, mockedStore;
   beforeEach(() => {
     map = createMapMock();
   });
 
   const renderPlanSectionWithWrapper = (overwriteProps) => {
+    mockedStore = mockStore(store);
     render(
-      <Provider store={mockStore(store)}>
+      <Provider store={mockedStore}>
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <PlanSection
@@ -171,6 +172,34 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
   });
 
+  test('triggers the onPatrolStartDateChange callback when user changes auto start value', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const futurePatrol = {
+      ...newPatrol,
+      patrol_segments: [{
+        ...newPatrol.patrol_segments[0],
+        time_range: {
+          ...newPatrol.patrol_segments[0].time_range,
+          start_time: tomorrow,
+        },
+      }],
+    };
+
+    renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
+
+    expect(onPatrolStartDateChange).not.toHaveBeenCalled();
+
+    const autoStartInput = (await screen.findAllByRole('checkbox'))[0];
+    userEvent.click(autoStartInput);
+
+    const actions = mockedStore.getActions();
+
+    expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
+    expect(actions).toContainEqual({ payload: { autoStartPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
+  });
+
   test('triggers the onPatrolEndDateChange callback', async () => {
     renderPlanSectionWithWrapper();
 
@@ -182,6 +211,34 @@ describe('PatrolDetailView - PlanSection', () => {
     userEvent.click(options[25]);
 
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onPatrolEndDateChange callback when user changes auto end value', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const futurePatrol = {
+      ...newPatrol,
+      patrol_segments: [{
+        ...newPatrol.patrol_segments[0],
+        time_range: {
+          ...newPatrol.patrol_segments[0].time_range,
+          end_time: tomorrow,
+        },
+      }],
+    };
+
+    renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
+
+    expect(onPatrolEndDateChange).not.toHaveBeenCalled();
+
+    const autoEndInput = (await screen.findAllByRole('checkbox'))[1];
+    userEvent.click(autoEndInput);
+
+    const actions = mockedStore.getActions();
+
+    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+    expect(actions).toContainEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
   });
 
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {
