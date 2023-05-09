@@ -257,7 +257,7 @@ const ReportDetailView = ({
       }
 
       if (reportChanges.notes) {
-        reportToSubmit.notes = reportForm.notes;
+        reportToSubmit.notes = reportForm.notes.map((note) => ({ ...note, text: note.text.trim() }));
       }
 
       if (reportToSubmit.contains) {
@@ -266,7 +266,7 @@ const ReportDetailView = ({
     }
 
     const newNotes = notesToAdd.reduce(
-      (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text }] : accumulator,
+      (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text.trim() }] : accumulator,
       []
     );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
@@ -391,11 +391,19 @@ const ReportDetailView = ({
   const onDoneNote = useCallback((note) => {
     const isNew = !!note.tmpId;
     const notes = isNew ? notesToAdd : reportNotes;
-    const updatedNotes = notes.map((currentNote) =>
-      areNotesEqual(currentNote, note)
-        ? { ...currentNote, originalText: currentNote.text, isDone: true }
-        : currentNote
-    );
+    const updatedNotes = notes.map((currentNote) => {
+      if (areNotesEqual(currentNote, note)){
+        const text = currentNote.text.trim();
+        return {
+          ...currentNote,
+          originalText: text,
+          isDone: true,
+          text
+        };
+      }
+      return currentNote;
+    });
+
     if (isNew){
       setNotesToAdd(updatedNotes);
     } else {
@@ -427,10 +435,9 @@ const ReportDetailView = ({
   }, [notesToAdd, onDeleteNote, reportForm, reportNotes]);
 
   const onSaveNote = useCallback((originalNote, { target: { value } }) => {
-    const updatedText = !value.trim() ? '' : value;
     const editedNote = {
       ...originalNote,
-      text: updatedText,
+      text: value,
     };
     const isNew = !!originalNote.tmpId;
 

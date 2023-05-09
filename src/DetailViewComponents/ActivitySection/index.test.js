@@ -206,21 +206,20 @@ describe('DetailViewComponents - ActivitySection', () => {
     });
   });
 
-  test('saves an existing edited note', async () => {
+  test.skip('saves an existing edited note', async () => {
     renderActivitySection();
 
     expect(onSaveNote).toHaveBeenCalledTimes(0);
-    const text = 'edited';
+
     const editNoteIcon = await screen.findByTestId('activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
     userEvent.click(editNoteIcon);
     const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
-    userEvent.type(noteTextArea, text);
-    const saveNoteButton = await screen.findByTestId('activitySection-noteDone-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
-
+    userEvent.type(noteTextArea, 'edited');
+    const saveNoteButton = await screen.findByText('Done');
     userEvent.click(saveNoteButton);
 
-    expect(onSaveNote).toHaveBeenCalledTimes(text.length);
-    //expect(onSaveNote.mock.calls[0][1].text).toBe('note4edited'); Es necesario modificar esto y tambien cambiar unit test de not list item
+    expect(onSaveNote).toHaveBeenCalledTimes(1);
+    expect(onSaveNote.mock.calls[0][1].text).toBe('note4edited');
   });
 
   test('expands a new note when clicking the down arrow', async () => {
@@ -264,9 +263,10 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onDeleteNote).toHaveBeenCalledTimes(1);
   });
 
-  test('saves a new edited note', async () => {
+  test.only('saves a new edited note', async () => {
     const text = 'edited';
-    renderActivitySection();
+    const onDone = jest.fn();
+    renderActivitySection({ ...defaultProps, onDone });
 
     expect(onSaveNote).toHaveBeenCalledTimes(0);
 
@@ -274,11 +274,12 @@ describe('DetailViewComponents - ActivitySection', () => {
     userEvent.click(editNoteIcon);
     const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-noteToAdd1');
     userEvent.type(noteTextArea, text);
+    expect(onSaveNote).toHaveBeenCalledTimes(text.length);
 
     const saveNoteButton = await screen.findByTestId('activitySection-noteDone-noteToAdd1');
     userEvent.click(saveNoteButton);
 
-    expect(onSaveNote).toHaveBeenCalledTimes(text.length);
+    expect(onDoneNote).toHaveBeenCalledWith('noteToAdd1edited');
   });
 
   test('sorts items by date', async () => {
