@@ -46,6 +46,8 @@ import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
 import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import { uuid } from '../../utils/string';
+import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -85,19 +87,12 @@ const ReportDetailView = ({
     [reportData, reportType]
   );
 
-  const reportStore = eventStore[reportId];
+  const reportFromStore = eventStore[reportId];
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
-  const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportStore);
-
-  useEffect(() => {
-    if (!isNewReport){
-      setReportForm(reportStore);
-    }
-  }, [reportStore, isNewReport]);
-
+  const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportFromStore);
   const [saveError, setSaveError] = useState(null);
 
   const reportTracker = useContext(TrackerContext);
@@ -108,7 +103,7 @@ const ReportDetailView = ({
     relationshipButtonDisabled,
   } = formProps || {};
 
-  const originalReport = isNewReport ? newReport : reportStore;
+  const originalReport = useMemo(() => isNewReport ? newReport : reportFromStore, [isNewReport, newReport, reportFromStore]);
   const isActive = ACTIVE_STATES.includes(originalReport?.state);
 
   const isCollection = !!reportForm?.is_collection;
@@ -386,25 +381,43 @@ const ReportDetailView = ({
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
   }, [attachmentsToAdd]);
 
-  const onCancelNote = useCallback((note) => {
-    setReportForm({
-      ...reportForm,
-      notes: reportNotes.map((reportNote) => {
-        if (reportNote.id === note.id){
-          return {
-            ...reportNote,
-            text: reportNote.originalText,
-            originalText: '',
-          };
-        }
-        return reportNote;
-      }),
-    });
-  }, [reportForm, reportNotes]);
+  const onDoneNote = useCallback((note) => {
+    const isNew = !!note.tmpId;
+    const notes = isNew ? notesToAdd : reportNotes;
+    const updatedNotes = notes.map((currentNote) =>
+      areNotesEqual(currentNote, note)
+        ? { ...currentNote, originalText: currentNote.text, isDone: true }
+        : currentNote
+    );
+    if (isNew){
+      setNotesToAdd(updatedNotes);
+    } else {
+      setReportForm({ ...reportForm, notes: updatedNotes });
+    }
+  }, [notesToAdd, reportForm, reportNotes]);
 
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
+
+  const onCancelNote = useCallback((note) => {
+    const isNew = !!note.tmpId;
+    const notes = isNew ? notesToAdd : reportNotes;
+    if (isNew && !note.isDone){
+      onDeleteNote(note);
+      return;
+    }
+    const updatedNotes = notes.map((currentNote) =>
+      areNotesEqual(currentNote, note)
+        ? { ...currentNote, text: currentNote.originalText }
+        : currentNote
+    );
+    if (isNew){
+      setNotesToAdd(updatedNotes);
+    } else {
+      setReportForm({ ...reportForm, notes: updatedNotes });
+    }
+  }, [notesToAdd, onDeleteNote, reportForm, reportNotes]);
 
   const onSaveNote = useCallback((originalNote, { target: { value } }) => {
     const updatedText = !value.trim() ? '' : value;
@@ -412,8 +425,8 @@ const ReportDetailView = ({
       ...originalNote,
       text: updatedText,
     };
+    const isNew = !!originalNote.tmpId;
 
-    const isNew = !originalNote.id;
     if (isNew) {
       setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
     } else {
@@ -431,7 +444,13 @@ const ReportDetailView = ({
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), ref: newNoteRef, text: '' };
+      const newNote = {
+        creationDate: new Date().toISOString(),
+        ref: newNoteRef,
+        text: '',
+        tmpId: uuid(),
+        isDone: false
+      };
       setNotesToAdd([...notesToAdd, newNote]);
       reportTracker.track('Added Note');
 
@@ -655,6 +674,7 @@ const ReportDetailView = ({
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
                 onCancelNote={onCancelNote}
+                onDoneNote={onDoneNote}
               />
             </QuickLinks.Section>
 

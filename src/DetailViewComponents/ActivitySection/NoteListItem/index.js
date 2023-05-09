@@ -13,9 +13,9 @@ import { TrackerContext } from '../../../utils/analytics';
 
 import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
-import { areCardsEquals } from '../../../utils/events';
 
 import styles from '../styles.module.scss';
+import { areCardsEquals } from '../../utils';
 
 const NoteListItem = ({
   cardsExpanded,
@@ -24,16 +24,14 @@ const NoteListItem = ({
   onChange,
   onDelete,
   onCancel,
+  onDone,
   onExpand,
 }, ref = null) => {
   const textareaRef = useRef();
-
   const tracker = useContext(TrackerContext);
-
   const isNew = useMemo(() => !note.id, [note.id]);
-  const isBeingEdited = useMemo(() => isNew || note.originalText !== note.text, [isNew, note.originalText, note.text]);
   const isOpen = useMemo(() => !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, note)), [cardsExpanded, note]);
-  const [isEditing, setIsEditing] = useState(isBeingEdited);
+  const [isEditing, setIsEditing] = useState(isNew);
 
   const title = useMemo(() => {
     if (isNew) {
@@ -57,23 +55,19 @@ const NoteListItem = ({
     setIsEditing(newEditState);
   }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => onChange(event), [onChange]);
+  const onChangeTextArea = useCallback((event) => onChange(note, event), [note, onChange]);
 
   const onClickCancelButton = useCallback(() => {
-    if (isNew) {
-      tracker.track('Cancel writing new note');
-      onDelete();
-    } else {
-      onCancel(note);
-      tracker.track('Cancel editing existing note');
-    }
+    onCancel(note);
+    tracker.track(isNew ? 'Cancel writing new note' : 'Cancel editing existing note');
     setIsEditing(false);
-  }, [isNew, tracker, onDelete, onCancel, note]);
+  }, [isNew, tracker, onCancel, note]);
 
-  const onClickSaveButton = useCallback(() => {
+  const onClickDoneButton = useCallback(() => {
+    onDone(note);
     setIsEditing(false);
     tracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
-  }, [isNew, tracker]);
+  }, [isNew, note, onDone, tracker]);
 
   useEffect(() => {
     if (isEditing) {
@@ -157,7 +151,11 @@ const NoteListItem = ({
             Cancel
           </Button>
 
-          <Button disabled={!note.text || note?.originalText === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
+          <Button
+              disabled={!note.text || note?.originalText === note.text}
+              onClick={onClickDoneButton}
+              type="button"
+              data-testid={`activitySection-noteDone-${note.id || note.text}`}>
             Done
           </Button>
         </div>}
@@ -183,6 +181,7 @@ NoteListItem.propTypes = {
   onChange: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
+  onDone: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
 };
 

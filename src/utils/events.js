@@ -357,5 +357,3 @@ export const PRIORITY_COLOR_MAP = {
     name: 'None',
   },
 };
-
-export const areCardsEquals = () => (cardExpanded, card) => card?.id === cardExpanded?.id || card?.created_at === cardExpanded?.created_at;

@@ -7,7 +7,6 @@ import { ReactComponent as BulletListIcon } from '../../common/images/icons/bull
 import { isGreaterThan } from '../../utils/datetime';
 import { TrackerContext } from '../../utils/analytics';
 import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
-import { areCardsEquals } from '../../utils/events';
 
 import AttachmentListItem from './AttachmentListItem';
 import ContainedReportListItem from './ContainedReportListItem';
@@ -15,6 +14,7 @@ import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
 import styles from './styles.module.scss';
+import { areCardsEquals } from '../utils';
 
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
 const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
@@ -32,6 +32,7 @@ const ActivitySection = ({
   onCancelNote,
   onDeleteNote,
   onSaveNote,
+  onDoneNote,
   startTime,
 }) => {
   const tracker = useContext(TrackerContext);
@@ -39,8 +40,8 @@ const ActivitySection = ({
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
-    const isCardIncluded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
-    if (isCardIncluded) {
+    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (isCardExpanded) {
       if (analyticsLabel) {
         tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
       }
@@ -50,8 +51,8 @@ const ActivitySection = ({
   }, [cardsExpanded, tracker]);
 
   const onExpandCard = useCallback((card, analyticsLabel) => {
-    const isCardIncluded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
-    if (!isCardIncluded) {
+    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (!isCardExpanded) {
       if (analyticsLabel) {
         tracker.track(`Expand ${analyticsLabel} card in the activity section`);
       }
@@ -59,12 +60,6 @@ const ActivitySection = ({
       setCardsExpanded([...cardsExpanded, card]);
     }
   }, [cardsExpanded, tracker]);
-
-  const onChangeNoteKeepExpanded = useCallback((originalNote) => (event) => {
-    const editedNote = onSaveNote(originalNote, event);
-    const cards = [...cardsExpanded].filter((cardExpanded) => cardExpanded.created_at !== originalNote.created_at);
-    setCardsExpanded([...cards, editedNote]);
-  }, [cardsExpanded, onSaveNote]);
 
   const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
     sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates[0].time),
@@ -127,23 +122,26 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onCancel={onCancelNote}
-      onChange={onChangeNoteKeepExpanded(note)}
+      onChange={onSaveNote}
+      onDone={onDoneNote}
     />,
-  })), [cardsExpanded, notes, onCancelNote, onChangeNoteKeepExpanded, onCollapseCard, onExpandCard]);
+  })), [cardsExpanded, notes, onCancelNote, onCollapseCard, onDoneNote, onExpandCard, onSaveNote]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
-      key={noteToAdd.text}
+      key={noteToAdd.tmpId}
       note={noteToAdd}
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       ref={noteToAdd.ref}
-      onChange={onChangeNoteKeepExpanded(noteToAdd)}
+      onChange={onSaveNote}
+      onCancel={onCancelNote}
+      onDone={onDoneNote}
     />,
-  })), [notesToAdd, cardsExpanded, onChangeNoteKeepExpanded, onCollapseCard, onDeleteNote, onExpandCard]);
+  })), [notesToAdd, cardsExpanded, onSaveNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
     ...attachmentsRendered,
@@ -257,6 +255,7 @@ ActivitySection.propTypes = {
   onDeleteNote: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
   onCancelNote: PropTypes.func.isRequired,
+  onDoneNote: PropTypes.func.isRequired,
   startTime: PropTypes.instanceOf(Date),
 };
 
