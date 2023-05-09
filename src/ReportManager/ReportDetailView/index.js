@@ -6,6 +6,8 @@ import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { addReportFormProps } from '../../proptypes';
+
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
@@ -34,7 +36,8 @@ import { useLocation } from 'react-router-dom';
 import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
-import AddReportButton from '../AddReportButton';
+
+import AddReportButton from '../../DetailViewComponents/AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
 import Header from '../Header';
@@ -60,7 +63,6 @@ const ReportDetailView = ({
   isNewReport,
   newReportTypeId,
   onAddReport,
-  onCancelAddedReport,
   onSaveAddedReport: onSaveAddedReportCallback,
   reportData,
   reportId,
@@ -91,14 +93,15 @@ const ReportDetailView = ({
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : eventStore[reportId]);
   const [saveError, setSaveError] = useState(null);
-  const [unsavedReportNotes, setUnsavedReportNotes] = useState([]);
 
   const reportTracker = useContext(TrackerContext);
 
   const {
+    onCancelAddedReport,
     onSaveError: onSaveErrorCallback,
     onSaveSuccess: onSaveSuccessCallback,
     relationshipButtonDisabled,
+    redirectTo: redirectToFromFormProps,
   } = formProps || {};
 
   const originalReport = isNewReport ? newReport : eventStore[reportId];
@@ -106,7 +109,8 @@ const ReportDetailView = ({
 
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isPatrolReport = eventBelongsToPatrol(reportForm);
+  const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
+  const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
   const containedReports = useMemo(
     () => reportForm?.contains?.map(({ related_event: report }) => report) || [],
@@ -182,58 +186,31 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const backupUnsavedNote = useCallback((note, updatedText, notes, setter) => {
-    const noteId = note.creationDate ?? note.id;
-    const backupNote = notes.find(({ creationDate, id }) => noteId === creationDate || noteId === id);
-
-    if (!backupNote){
-      setter([...notes, { ...note, text: updatedText }]);
-    } else {
-      const updatedNotes = notes.map((currentNote) => {
-        const { text } = currentNote;
-        const currentId = currentNote.creationDate ?? currentNote.id;
-        if (currentId === noteId && updatedText !== text){
-          return { ...currentNote, text: updatedText };
-        }
-        return currentNote;
-      });
-      setter(updatedNotes);
-    }
-  }, []);
-
-  const onNoteItemBlur = useCallback((note, updatedText) => {
-    const isNewNote = !!note.creationDate;
-    if (isNewNote){
-      backupUnsavedNote(note, updatedText, notesToAdd, setNotesToAdd);
-    } else {
-      backupUnsavedNote(note, updatedText, unsavedReportNotes, setUnsavedReportNotes);
-    }
-  }, [backupUnsavedNote, notesToAdd, unsavedReportNotes]);
-
   const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
     && (
-      isAddedReport
+      (isAddedReport || isPatrolAddedReport)
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-      || unsavedReportNotes.length > 0
     );
 
   const showAddReportButton = !isAddedReport
+    && !isPatrolAddedReport
+    && !belongsToPatrol
     && !relationshipButtonDisabled
-    && (isCollection || (!isPatrolReport && !isCollectionChild));
+    && !isCollectionChild;
 
   const onClearErrors = useCallback(() => setSaveError(null), []);
 
-  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => (results) => {
-    onSaveSuccessCallback?.(results);
+  const onSaveSuccess = useCallback((reportToSubmit, redirectTo) => async (results) => {
+    await onSaveSuccessCallback?.(results);
 
     if (isAddedReport) {
       onSaveAddedReportCallback?.();
-    } else if (redirectTo) {
-      setRedirectTo(redirectTo);
+    } else if (redirectToFromFormProps || redirectTo) {
+      setRedirectTo(redirectToFromFormProps || redirectTo);
     }
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
@@ -243,7 +220,7 @@ const ReportDetailView = ({
     }
 
     return results;
-  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback]);
+  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback, redirectToFromFormProps]);
 
   const onSaveError = useCallback((e) => {
     setSaveError(generateErrorListForApiResponseDetails(e));
@@ -285,17 +262,8 @@ const ReportDetailView = ({
         reportToSubmit.reported_by = reportForm.reported_by;
       }
 
-      if (unsavedReportNotes.length > 0) {
-        reportToSubmit.notes = reportForm.notes.map((currentNote) => {
-          const unsavedReportNote = unsavedReportNotes.find(({ created_at }) => currentNote.created_at === created_at);
-          if (unsavedReportNote){
-            return {
-              ...currentNote,
-              text: unsavedReportNote.text
-            };
-          }
-          return currentNote;
-        });
+      if (reportChanges.notes) {
+        reportToSubmit.notes = reportForm.notes;
       }
 
       if (reportToSubmit.contains) {
@@ -341,8 +309,7 @@ const ReportDetailView = ({
     originalReport.location,
     reportChanges,
     reportForm,
-    reportTracker,
-    unsavedReportNotes
+    reportTracker
   ]);
 
   const onChangeTitle = useCallback(
@@ -434,10 +401,6 @@ const ReportDetailView = ({
   const onDeleteNote = useCallback((note) => {
     setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
   }, [notesToAdd]);
-
-  const onCancelNote = useCallback((note) => {
-    setUnsavedReportNotes(unsavedReportNotes.filter(({ id }) => id !== note.id));
-  }, [unsavedReportNotes]);
 
   const onSaveNote = useCallback((originalNote, updatedNote) => {
     const editedNote = { ...originalNote, text: updatedNote.text };
@@ -543,25 +506,44 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
-  const onNavigationContinue = useCallback((shouldSave = false) => {
+  const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave) {
-      onSaveReport(false);
+      if (isPatrolAddedReport) {
+        await onSaveReport(false);
+      } else {
+        onSaveReport(false);
+      }
     } else {
       if (isAddedReport) {
         onCancelAddedReport?.();
       }
       trackDiscard();
     }
-  }, [isAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+  }, [isAddedReport, isPatrolAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
+
     if (isAddedReport) {
-      navigate(location.pathname);
+      navigate(
+        `${location.pathname}${location.search}`,
+        { replace: true, state: location.state }
+      );
+    } else if (isPatrolAddedReport) {
+      navigate(...redirectToFromFormProps);
     } else {
       navigate(`/${TAB_KEYS.REPORTS}`);
     }
-  }, [isAddedReport, location.pathname, navigate, reportTracker]);
+  }, [
+    isAddedReport,
+    isPatrolAddedReport,
+    location.pathname,
+    location.search,
+    location.state,
+    navigate,
+    redirectToFromFormProps,
+    reportTracker,
+  ]);
 
   useEffect(() => {
     if (!!reportForm && !reportSchemas) {
@@ -583,7 +565,7 @@ const ReportDetailView = ({
 
   useEffect(() => {
     if (redirectTo) {
-      navigate(redirectTo);
+      navigate(...(Array.isArray(redirectTo) ? redirectTo : [redirectTo]));
     }
   }, [navigate, redirectTo]);
 
@@ -680,8 +662,6 @@ const ReportDetailView = ({
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}
-                onNoteItemBlur={onNoteItemBlur}
-                onNoteItemCancel={onCancelNote}
                 onSaveNote={onSaveNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
@@ -713,8 +693,12 @@ const ReportDetailView = ({
 
               {showAddReportButton && <AddReportButton
                 className={styles.footerActionButton}
+                formProps={{
+                  hidePatrols: true,
+                  onSaveSuccess: onSaveAddedReport,
+                  relationshipButtonDisabled: true
+                }}
                 onAddReport={onAddReport}
-                onSaveAddedReport={onSaveAddedReport}
               />}
             </div>
 
@@ -745,17 +729,12 @@ ReportDetailView.defaulProps = {
   newReportTypeId: null,
   onAddReport: null,
   onSaveAddedReport: null,
-  onCancelAddedReport: null,
   reportData: null,
 };
 
 ReportDetailView.propTypes = {
   className: PropTypes.string,
-  formProps: PropTypes.shape({
-    onSaveError: PropTypes.func,
-    onSaveSuccess: PropTypes.func,
-    relationshipButtonDisabled: PropTypes.bool,
-  }),
+  formProps: addReportFormProps,
   isAddedReport: PropTypes.bool,
   isNewReport: PropTypes.bool.isRequired,
   newReportTypeId: PropTypes.string,

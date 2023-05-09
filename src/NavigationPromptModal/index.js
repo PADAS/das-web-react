@@ -10,12 +10,6 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
 import styles from './styles.module.scss';
 
-const handleContinue = (blocker, onContinue, positive = false) => {
-  blocker.proceed();
-
-  onContinue?.(positive);
-};
-
 const NavigationPromptModal = ({
   cancelNavigationButtonText,
   continueNavigationNegativeButtonText,
@@ -29,19 +23,23 @@ const NavigationPromptModal = ({
 }) => {
   const blocker = useNavigationBlocker(when);
 
-  const handleCancel = useCallback(() => {
-    blocker.reset();
+  const handleCancel = useCallback(async () => {
+    await onCancel?.();
 
-    onCancel?.();
+    blocker.reset();
   }, [blocker, onCancel]);
 
-  const handlePositiveContinue = useCallback(() =>
-    handleContinue(blocker, onContinue, true)
-  , [blocker, onContinue]);
+  const handlePositiveContinue = useCallback(async () => {
+    await onContinue?.(true);
 
-  const handleNegativeContinue = useCallback(() =>
-    handleContinue(blocker, onContinue, false)
-  , [blocker, onContinue]);
+    blocker.proceed();
+  }, [blocker, onContinue]);
+
+  const handleNegativeContinue = useCallback(async () => {
+    await onContinue?.(false);
+
+    blocker.proceed();
+  }, [blocker, onContinue]);
 
   return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
     <Modal.Header closeButton>

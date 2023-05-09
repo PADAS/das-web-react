@@ -95,7 +95,7 @@ describe('Menu report options', () => {
   });
 
   test('should not show the patrol option if the report belongs to a patrol', async () => {
-    const reportWithCollection = { ...report, ...{ patrols: ['f60d2f14-dc57-48a8-8258-88877982cc45'] } };
+    const reportWithCollection = { ...report, ...{ patrol_segments: [{}] } };
     renderWithWrapper(
       <ReportMenu report={reportWithCollection} saveReport={saveReport} />
     );
@@ -108,7 +108,7 @@ describe('Menu report options', () => {
   });
 
   test('should not show the kebab button if a report belongs to a patrol and collection', async () => {
-    const reportWithCollection = { ...report, ...{ patrols: ['f60d2f14-dc57-48a8-8258-88877982cc45'] }, ...{ is_collection: true } };
+    const reportWithCollection = { ...report, ...{ patrol_segments: [{}] }, ...{ is_collection: true } };
     renderWithWrapper(
       <ReportMenu report={reportWithCollection} saveReport={saveReport} />
     );

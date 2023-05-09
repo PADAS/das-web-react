@@ -9,9 +9,11 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 const TITLE_TEXT = 'Unsaved Changes';
 
 describe('NavigationPromptModal', () => {
+  const onCancel = jest.fn(), onContinue = jest.fn();
+
   test('does not show the prompt modal "when" is false', async () => {
     render(<NavigationWrapper>
-      <NavigationPromptModal when={false} />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when={false} />
     </NavigationWrapper>);
 
     await expect(async () => await screen.findByText(TITLE_TEXT))
@@ -21,7 +23,7 @@ describe('NavigationPromptModal', () => {
 
   test('does not show the prompt modal if there is not a pending navigation attempt', async () => {
     render(<NavigationWrapper>
-      <NavigationPromptModal when />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
     </NavigationWrapper>);
 
     await expect(async () => await screen.findByText(TITLE_TEXT))
@@ -45,7 +47,7 @@ describe('NavigationPromptModal', () => {
     render(<NavigationWrapper>
       <ChildComponent />
 
-      <NavigationPromptModal when />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
     </NavigationWrapper>);
 
     await screen.findByText(TITLE_TEXT);
@@ -59,7 +61,7 @@ describe('NavigationPromptModal', () => {
     await screen.findByText(TITLE_TEXT);
   });
 
-  test('removes the modal if the navigation attempt is continued in the negative', async () => {
+  test('triggers onContinue and closes the modal if navigation attempt is continued in the negative', async () => {
     const ChildComponent = () => {
       const { isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
@@ -75,7 +77,7 @@ describe('NavigationPromptModal', () => {
     render(<NavigationWrapper>
       <ChildComponent />
 
-      <NavigationPromptModal when />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
     </NavigationWrapper>);
 
     await screen.findByText(TITLE_TEXT);
@@ -83,13 +85,15 @@ describe('NavigationPromptModal', () => {
     const discardButton = await screen.findByText('Discard');
     discardButton.click();
 
-
     await waitFor(async () => {
+      expect(onCancel).toHaveBeenCalledTimes(0);
+      expect(onContinue).toHaveBeenCalledTimes(1);
+      expect(onContinue).toHaveBeenCalledWith(false);
       expect(screen.queryByText(TITLE_TEXT)).toBeNull();
     });
   });
 
-  test('removes the modal if the navigation attempt is continued in the affirmative', async () => {
+  test('triggers onContinue and closes the modal if navigation attempt is continued in the affirmative', async () => {
     const ChildComponent = () => {
       const { isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
@@ -105,7 +109,7 @@ describe('NavigationPromptModal', () => {
     render(<NavigationWrapper>
       <ChildComponent />
 
-      <NavigationPromptModal when />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
     </NavigationWrapper>);
 
     await screen.findByText(TITLE_TEXT);
@@ -114,11 +118,14 @@ describe('NavigationPromptModal', () => {
     saveButton.click();
 
     await waitFor(async () => {
+      expect(onCancel).toHaveBeenCalledTimes(0);
+      expect(onContinue).toHaveBeenCalledTimes(1);
+      expect(onContinue).toHaveBeenCalledWith(true);
       expect((screen.queryByText(TITLE_TEXT))).toBeNull();
     });
   });
 
-  test('removes the modal if the navigation attempt is resolved (clicking "go back" button)', async () => {
+  test('triggers onCancel and closes the modal if navigation attempt is resolved (clicking "go back" button)', async () => {
     const ChildComponent = () => {
       const {
         isNavigationBlocked,
@@ -137,7 +144,7 @@ describe('NavigationPromptModal', () => {
     render(<NavigationWrapper>
       <ChildComponent />
 
-      <NavigationPromptModal when />
+      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
     </NavigationWrapper>);
 
     await screen.findByText(TITLE_TEXT);
@@ -146,6 +153,8 @@ describe('NavigationPromptModal', () => {
     userEvent.click(goBackButton);
 
     await waitFor(async () => {
+      expect(onCancel).toHaveBeenCalledTimes(1);
+      expect(onContinue).toHaveBeenCalledTimes(0);
       expect((screen.queryByText(TITLE_TEXT))).toBeNull();
     });
   });
