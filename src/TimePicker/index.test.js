@@ -48,8 +48,8 @@ describe('TimePicker', () => {
     });
   });
 
-  test('shows only the duration time in options if showDurationFromStartTime is true', async () => {
-    render(<TimePicker onChange={onChange} showDurationFromStartTime value="10:00" />);
+  test('shows only the duration time in options if showDurationFromMinTime is true', async () => {
+    render(<TimePicker onChange={onChange} showDurationFromMinTime minTime="10:00" value="10:00" />);
 
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
@@ -58,11 +58,11 @@ describe('TimePicker', () => {
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
 
-    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(0m)');
-    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(30m)');
-    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(1h)');
-    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(1h 30m)');
-    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(2h)');
+    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(-10h)');
+    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(-9h 30m)');
+    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(-9h)');
+    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(-8h 30m)');
+    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(-8h)');
   });
 
   test('calls onChange and send a date with the time chosen', async () => {
