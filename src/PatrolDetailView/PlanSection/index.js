@@ -100,7 +100,7 @@ const PlanSection = ({
 
   useEffect(() => {
     if (endDate && startDate > endDate) {
-      onPatrolEndDateChange(startDate, isAutoEnd);
+      onPatrolEndDateChange(undefined, isAutoEnd);
     }
   }, [endDate, isAutoEnd, onPatrolEndDateChange, startDate]);
 
