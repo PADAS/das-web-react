@@ -84,9 +84,11 @@ const OptionsPopover = ({
         const minTimeDate = new Date();
         minTimeDate.setHours(minTimeParts[0], minTimeParts[1], '00');
 
+        const isDateOverMinTimeDate =  dateWithAccumulation > minTimeDate;
+        const correctiveMilisecondsForDuration = isDateOverMinTimeDate ? 59999 : 0;
         const millisecondsFromMinTime = differenceInMilliseconds(dateWithAccumulation, minTimeDate);
-        const humanizedDuration = getHumanizedTimeDuration(millisecondsFromMinTime);
-        const sign = dateWithAccumulation > minTimeDate || humanizedDuration === '0m' ? '' : '-';
+        const humanizedDuration = getHumanizedTimeDuration(millisecondsFromMinTime + correctiveMilisecondsForDuration);
+        const sign = isDateOverMinTimeDate || humanizedDuration === '0m' ? '' : '-';
 
         duration = ` (${sign}${humanizedDuration})`;
       }

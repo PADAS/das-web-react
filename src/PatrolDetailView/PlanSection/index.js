@@ -84,8 +84,8 @@ const PlanSection = ({
 
   const handleAutoEndChange = useCallback(() => {
     dispatch(updateUserPreferences({ autoEndPatrols: !isAutoEnd }));
-    onPatrolEndDateChange(startDate, !isAutoEnd);
-  }, [dispatch, isAutoEnd, onPatrolEndDateChange, startDate]);
+    onPatrolEndDateChange(endDate, !isAutoEnd);
+  }, [dispatch, isAutoEnd, onPatrolEndDateChange, endDate]);
 
   const handleAutoStartChange = useCallback(() => {
     dispatch(updateUserPreferences({ autoStartPatrols: !isAutoStart }));
