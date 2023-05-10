@@ -59,8 +59,6 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    console.log(date);
-    console.log(startDate);
     onPatrolEndDateChange(date < startDate ? startDate : date, isAutoEnd);
   }, [isAutoEnd, onPatrolEndDateChange, startDate]);
 
@@ -99,6 +97,12 @@ const PlanSection = ({
       dispatch(fetchTrackedBySchema());
     }
   }, [dispatch, patrolLeaderSchema]);
+
+  useEffect(() => {
+    if (endDate && startDate > endDate) {
+      onPatrolEndDateChange(startDate, isAutoEnd);
+    }
+  }, [endDate, isAutoEnd, onPatrolEndDateChange, startDate]);
 
   return <>
     <div className={styles.sectionHeader}>
@@ -145,7 +149,6 @@ const PlanSection = ({
             Start Date
             <DatePicker
               className={styles.datepicker}
-              maxDate={endDate}
               onChange={handleStartDateChange}
               selected={startDate ?? new Date()}
               selectsStart

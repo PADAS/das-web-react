@@ -86,7 +86,6 @@ const OptionsPopover = ({
 
         const millisecondsFromMinTime = differenceInMilliseconds(dateWithAccumulation, minTimeDate);
         const humanizedDuration = getHumanizedTimeDuration(millisecondsFromMinTime);
-        console.log(humanizedDuration);
         const sign = dateWithAccumulation > minTimeDate || humanizedDuration === '0m' ? '' : '-';
 
         duration = ` (${sign}${humanizedDuration})`;
