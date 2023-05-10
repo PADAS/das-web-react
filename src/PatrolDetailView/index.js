@@ -7,7 +7,7 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
-import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
+import { addPatrolSegmentToEvent, getEventIdsForCollection, setOriginalTextToEventNotes } from '../utils/events';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
@@ -48,6 +48,7 @@ import QuickLinks from '../QuickLinks';
 import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
+import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -83,10 +84,11 @@ const PatrolDetailView = () => {
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPatrol, setIsLoadingPatrol] = useState(true);
-  const [notesUnsavedChanges, setNotesUnsavedChanges] = useState({});
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
+  const [notesToAdd, setNotesToAdd] = useState([]);
+
 
   const patrolTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -100,7 +102,7 @@ const PatrolDetailView = () => {
     () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData, isAutoStart) : null,
     [isAutoStart, patrolData, patrolType]
   );
-  const originalPatrol = isNewPatrol ? newPatrol : patrolStore[patrolId];
+  const originalPatrol = isNewPatrol ? newPatrol : setOriginalTextToEventNotes(patrolStore[patrolId]);
 
   const containedReports = useMemo(() => {
     const patrolReports = getReportsForPatrol(patrol);
@@ -123,7 +125,7 @@ const PatrolDetailView = () => {
     () => Array.isArray(patrolForm?.files) ? patrolForm.files : [],
     [patrolForm?.files]
   );
-  const patrolNotes = useMemo(() => Array.isArray(patrolForm?.notes) ? patrolForm.notes : [], [patrolForm?.notes]);
+  const patrolNotes = useMemo(() => Array.isArray(patrolForm?.notes) ? [...patrolForm.notes] : [], [patrolForm?.notes]);
 
   const patrolChanges = useMemo(() => {
     if (!originalPatrol || !patrolForm) {
@@ -150,24 +152,18 @@ const PatrolDetailView = () => {
   }, [isNewPatrol, patrolForm]);
 
   const newNotesAdded = useMemo(
-    () => patrolForm?.notes?.length > 0 && patrolForm.notes.some((note) => !note.id && note.text),
-    [patrolForm?.notes]
+    () => notesToAdd.length > 0 && notesToAdd.some((note) => note.text),
+    [notesToAdd]
   );
 
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
   const patrolSegmentId = patrol && displayPatrolSegmentId(patrol);
 
-  const notesWithUnsavedChanges = useMemo(
-    () => Object.values(notesUnsavedChanges).some((hasUnsavedChanges) => hasUnsavedChanges),
-    [notesUnsavedChanges]
-  );
-
   const shouldShowNavigationPrompt = !isSaving
     && !redirectTo
     && (attachmentsToAdd.length > 0
       || newNotesAdded
-      || notesWithUnsavedChanges
       || Object.keys(patrolChanges).length > 0);
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
@@ -204,7 +200,8 @@ const PatrolDetailView = () => {
       }
     });
 
-    patrolToSubmit.notes = patrolToSubmit.notes.map((note) => ({ ...note, ref: undefined }));
+    const newNotes = notesToAdd.map((note) => ({ ...note, ref: undefined }));
+    patrolToSubmit.notes = [ ...patrolToSubmit.notes, ...newNotes ];
 
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newAttachments);
@@ -212,7 +209,7 @@ const PatrolDetailView = () => {
       .then(onSaveSuccess(shouldRedirectAfterSave ? `/${TAB_KEYS.PATROLS}` : undefined))
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
-  }, [attachmentsToAdd, isNewPatrol, isSaving, onSaveError, onSaveSuccess, patrolForm]);
+  }, [attachmentsToAdd, isNewPatrol, isSaving, notesToAdd, onSaveError, onSaveSuccess, patrolForm]);
 
   const onAddReport = useCallback(async (reportData) => {
     const { data: { data } } = reportData.length ? reportData[0] : reportData;
@@ -339,39 +336,70 @@ const PatrolDetailView = () => {
     patrolDetailViewTracker.track('Set patrol start location');
   }, [patrolForm]);
 
-  const updateNotesUnsavedChanges = useCallback((creationDate, hasUnsavedChanges) => {
-    if (notesUnsavedChanges[creationDate] !== hasUnsavedChanges){
-      setNotesUnsavedChanges({ ...notesUnsavedChanges, [creationDate]: hasUnsavedChanges });
-    }
-  }, [notesUnsavedChanges]);
-
-  const onDeleteNote = useCallback((noteToDelete) => {
-    updateNotesUnsavedChanges(noteToDelete.creationDate, false);
-    setPatrolForm({
-      ...patrolForm,
-      notes: patrolForm.notes.filter((note) => note.text !== noteToDelete.text),
+  const onDoneNote = useCallback((note) => {
+    const isNew = !!note.tmpId;
+    const notes = isNew ? notesToAdd : patrolNotes;
+    const updatedNotes = notes.map((currentNote) => {
+      if (areNotesEqual(currentNote, note)){
+        const text = currentNote.text.trim();
+        return {
+          ...currentNote,
+          originalText: text,
+          isDone: true,
+          text
+        };
+      }
+      return currentNote;
     });
-  }, [patrolForm, updateNotesUnsavedChanges]);
 
-  const onSaveNote = useCallback((originalNote, updatedNote) => {
-    const editedNote = { ...originalNote, text: updatedNote.text };
+    if (isNew){
+      setNotesToAdd(updatedNotes);
+    } else {
+      setPatrolForm({ ...patrolForm, notes: updatedNotes });
+    }
+  }, [notesToAdd, patrolForm, patrolNotes]);
 
-    updateNotesUnsavedChanges(editedNote.creationDate, false);
+  const onDeleteNote = useCallback((note) => {
+    setNotesToAdd(notesToAdd.filter((noteToAdd) => noteToAdd !== note));
+  }, [notesToAdd]);
 
-    const isNew = !originalNote.id;
+  const onCancelNote = useCallback((note) => {
+    const isNew = !!note.tmpId;
+    const notes = isNew ? notesToAdd : patrolNotes;
+    if (isNew && !note.isDone){
+      onDeleteNote(note);
+      return;
+    }
+    const updatedNotes = notes.map((currentNote) =>
+      areNotesEqual(currentNote, note)
+        ? { ...currentNote, text: currentNote.originalText }
+        : currentNote
+    );
+    if (isNew){
+      setNotesToAdd(updatedNotes);
+    } else {
+      setPatrolForm({ ...patrolForm, notes: updatedNotes });
+    }
+  }, [notesToAdd, onDeleteNote, patrolForm, patrolNotes]);
+
+  const onChangeNote = useCallback((originalNote, { target: { value } }) => {
+    const editedNote = {
+      ...originalNote,
+      text: value,
+    };
+    const isNew = !!originalNote.tmpId;
+
     if (isNew) {
-      setPatrolForm({
-        ...patrolForm,
-        notes: patrolForm.notes.map((note) => note.text === originalNote.text ? editedNote : note),
-      });
+      setNotesToAdd(notesToAdd.map((noteToAdd) => noteToAdd === originalNote ? editedNote : noteToAdd));
     } else {
       setPatrolForm({
         ...patrolForm,
-        notes: patrolForm.notes.map((note) => note.id === originalNote.id ? editedNote : note),
+        notes: patrolNotes.map((reportNote) => reportNote === originalNote ? editedNote : reportNote),
       });
     }
+
     return editedNote;
-  }, [patrolForm, updateNotesUnsavedChanges]);
+  }, [notesToAdd, patrolForm, patrolNotes]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -399,20 +427,27 @@ const PatrolDetailView = () => {
   }, [attachmentsToAdd, patrolAttachments, patrolTracker]);
 
   const onAddNote = useCallback(() => {
-    const userHasNewNoteEmpty = patrolForm.notes.some((note) => !note.text);
+    const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.text);
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
-      const newNote = { creationDate: new Date().toISOString(), ref: newNoteRef, text: '' };
-      setPatrolForm({ ...patrolForm, notes: [...patrolForm.notes, newNote] });
-
-      patrolTracker.track('Added Note');
+      const newNote = {
+        creationDate: new Date().toISOString(),
+        ref: newNoteRef,
+        text: '',
+        tmpId: uuid(),
+        isDone: false
+      };
+      setNotesToAdd([...notesToAdd, newNote]);
+      patrolDetailViewTracker.track('Added Note');
 
       setTimeout(() => {
-        newNoteRef?.current?.scrollIntoView?.({ behavior: 'smooth' });
+        newNoteRef?.current?.scrollIntoView?.({
+          behavior: 'smooth',
+        });
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
-  }, [patrolForm, patrolTracker]);
+  }, [notesToAdd]);
 
   const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 
@@ -475,7 +510,7 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
-  const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length) > 0;
+  const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
   const shouldRenderHistorySection = !!patrolUpdates.length;
 
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
@@ -518,11 +553,13 @@ const PatrolDetailView = () => {
                   attachmentsToAdd={attachmentsToAdd}
                   containedReports={containedReports}
                   endTime={patrolEndTime}
-                  notes={patrolNotes.filter((note) => note.id)}
-                  notesToAdd={patrolNotes.filter((note) => !note.id)}
+                  notes={patrolNotes}
+                  notesToAdd={notesToAdd}
                   onDeleteAttachment={onDeleteAttachment}
+                  onChangeNote={onChangeNote}
+                  onCancelNote={onCancelNote}
+                  onDoneNote={onDoneNote}
                   onDeleteNote={onDeleteNote}
-                  onSaveNote={onSaveNote}
                   startTime={patrolStartTime}
                 />
               </QuickLinks.Section>

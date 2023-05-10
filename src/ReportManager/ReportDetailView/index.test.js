@@ -24,6 +24,7 @@ import ReportDetailView from './';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
+import { notes } from '../../__test-helpers/fixtures/reports';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -66,10 +67,25 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('ReportManager - ReportDetailView', () => {
-  const mockReport = {
+  const mockReportWithNotes = {
     event_type: 'jtar',
     geojson: {},
     id: '456',
+    notes: notes,
+    priority: 0,
+    state: 'active',
+    time: new Date('2022-12-17T03:24:00'),
+    title: 'title',
+    updates: [{
+      message: 'message',
+      time: new Date('2022-12-17T03:26:00'),
+      user: { first_name: 'First', last_name: 'Last' },
+    }],
+  };
+  const mockReport = {
+    event_type: 'jtar',
+    geojson: {},
+    id: '123',
     priority: 0,
     state: 'active',
     time: new Date('2022-12-17T03:24:00'),
@@ -132,7 +148,7 @@ describe('ReportManager - ReportDetailView', () => {
     state = {
       data: {
         subjectStore: {},
-        eventStore: { 456: mockReport },
+        eventStore: { 456: mockReportWithNotes, 123: mockReport },
         eventTypes,
         patrolTypes,
         eventSchemas,
@@ -336,17 +352,17 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(notes.length + 1);
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
     userEvent.click(addNoteButton);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(notes.length + 2);
   });
 
   test('deletes a new note', async () => {
     renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="456" />
+      <ReportDetailView isNewReport={false} reportId="123" />
     );
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
@@ -511,6 +527,42 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
+  const assertNoteEdition = async (updatedText, noteId) => {
+    renderWithWrapper(
+      <ReportDetailView
+            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+            reportId="456"
+        />
+    );
+
+    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
+    userEvent.click(editNoteIcon);
+    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+    userEvent.type(noteTextArea, updatedText);
+    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
+    userEvent.click(doneNoteButton);
+    const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+
+    return { textArea, doneNoteButton, };
+  };
+
+  test('saves a new edited note', async () => {
+    const updatedText = ' with changes';
+    const [note] = notes;
+    const { textArea, doneNoteButton } = await assertNoteEdition(updatedText, note.id);
+
+    expect(textArea.value).toBe(`${note.text}${updatedText}`);
+    expect(doneNoteButton).not.toBeInTheDocument();
+  });
+
+  test('empty spaces at the end of a note get trimmed before saving', async () => {
+    const updatedText = ' with spaces  ';
+    const [note] = notes;
+    const { textArea } = await assertNoteEdition(updatedText, note.id);
+
+    expect(textArea.value).toBe(`${note.text} with spaces`);
+  });
+
   test('shows the loading overlay while saving', async () => {
     renderWithWrapper(
       <ReportDetailView
@@ -604,7 +656,7 @@ describe('ReportManager - ReportDetailView', () => {
     window.alert = jest.fn();
 
     renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="456" />
+      <ReportDetailView isNewReport={false} reportId="123" />
     );
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);

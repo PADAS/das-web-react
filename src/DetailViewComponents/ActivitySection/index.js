@@ -31,7 +31,7 @@ const ActivitySection = ({
   onDeleteAttachment,
   onCancelNote,
   onDeleteNote,
-  onSaveNote,
+  onChangeNote,
   onDoneNote,
   startTime,
 }) => {
@@ -122,10 +122,10 @@ const ActivitySection = ({
       onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onCancel={onCancelNote}
-      onChange={onSaveNote}
+      onChange={onChangeNote}
       onDone={onDoneNote}
     />,
-  })), [cardsExpanded, notes, onCancelNote, onCollapseCard, onDoneNote, onExpandCard, onSaveNote]);
+  })), [cardsExpanded, notes, onCancelNote, onCollapseCard, onDoneNote, onExpandCard, onChangeNote]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
@@ -137,11 +137,11 @@ const ActivitySection = ({
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       ref={noteToAdd.ref}
-      onChange={onSaveNote}
+      onChange={onChangeNote}
       onCancel={onCancelNote}
       onDone={onDoneNote}
     />,
-  })), [notesToAdd, cardsExpanded, onSaveNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
+  })), [notesToAdd, cardsExpanded, onChangeNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
     ...attachmentsRendered,
@@ -253,7 +253,7 @@ ActivitySection.propTypes = {
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
-  onSaveNote: PropTypes.func.isRequired,
+  onChangeNote: PropTypes.func.isRequired,
   onCancelNote: PropTypes.func.isRequired,
   onDoneNote: PropTypes.func.isRequired,
   startTime: PropTypes.instanceOf(Date),

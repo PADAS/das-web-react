@@ -200,23 +200,6 @@ describe('ActivitySection - Note', () => {
     expect(noteTextArea).toHaveTextContent('');
   });
 
-  test.skip('empty spaces at the end of a note get trimmed before saving', async () => {
-    const { onDone, onChange } = initialProps;
-    const note = { text: 'note' };
-    renderNoteListItem({ ...initialProps, note });
-
-    expect(onChange).toHaveBeenCalledTimes(0);
-
-    const noteTextArea = await screen.findByRole('textbox');
-    userEvent.type(noteTextArea, 'edition     ');
-
-    const saveButton = await screen.findByText(saveButtonText);
-    userEvent.click(saveButton);
-
-    /*expect(onChange).toHaveBeenCalledTimes(1);*/
-    expect(onDone).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
-  });
-
   test('edit button is disabled while editing a new empty note', async () => {
     const note = { text: '' };
     renderNoteListItem({ ...initialProps, note });

@@ -38,10 +38,18 @@ describe('DetailViewComponents - ActivitySection', () => {
   const onDeleteAttachment = jest.fn(),
     onDeleteNote = jest.fn(),
     onDoneNote = jest.fn(),
-    onSaveNote = jest.fn();
+    onChangeNote = jest.fn();
+
+  const currentDate = new Date();
+  const notesToAdd = [{
+    creationDate: new Date(currentDate.getTime() + 3).toISOString(),
+    text: 'noteToAdd1',
+  }, {
+    creationDate: new Date(currentDate.getTime() + 4).toISOString(),
+    text: 'noteToAdd2',
+  }];
 
   const containedReports = patrols[2].patrol_segments[0].events;
-  const currentDate = new Date();
   const defaultProps = {
     attachments: files,
     attachmentsToAdd: [{
@@ -60,17 +68,11 @@ describe('DetailViewComponents - ActivitySection', () => {
         text: 'note1',
       }
     ],
-    notesToAdd: [{
-      creationDate: new Date(currentDate.getTime() + 3).toISOString(),
-      text: 'noteToAdd1',
-    }, {
-      creationDate: new Date(currentDate.getTime() + 4).toISOString(),
-      text: 'noteToAdd2',
-    }],
+    notesToAdd,
     startTime: new Date(2022, 6, 9),
     onDeleteAttachment,
     onDeleteNote,
-    onSaveNote,
+    onChangeNote,
     onDoneNote,
   };
 
@@ -206,22 +208,6 @@ describe('DetailViewComponents - ActivitySection', () => {
     });
   });
 
-  test.skip('saves an existing edited note', async () => {
-    renderActivitySection();
-
-    expect(onSaveNote).toHaveBeenCalledTimes(0);
-
-    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
-    userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-b1a3951e-20b7-4516-b0a2-df6f3e4bde20');
-    userEvent.type(noteTextArea, 'edited');
-    const saveNoteButton = await screen.findByText('Done');
-    userEvent.click(saveNoteButton);
-
-    expect(onSaveNote).toHaveBeenCalledTimes(1);
-    expect(onSaveNote.mock.calls[0][1].text).toBe('note4edited');
-  });
-
   test('expands a new note when clicking the down arrow', async () => {
     renderActivitySection();
 
@@ -263,23 +249,25 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onDeleteNote).toHaveBeenCalledTimes(1);
   });
 
-  test.only('saves a new edited note', async () => {
-    const text = 'edited';
+  test('saves an edited note', async () => {
+    const [note] = notesToAdd;
+    const { text } = note;
+    const updatedText = ' with changes';
     const onDone = jest.fn();
     renderActivitySection({ ...defaultProps, onDone });
 
-    expect(onSaveNote).toHaveBeenCalledTimes(0);
+    expect(onChangeNote).toHaveBeenCalledTimes(0);
 
-    const editNoteIcon = await screen.findByTestId('activitySection-editIcon-noteToAdd1');
+    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${text}`);
     userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId('activitySection-noteTextArea-noteToAdd1');
-    userEvent.type(noteTextArea, text);
-    expect(onSaveNote).toHaveBeenCalledTimes(text.length);
+    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${text}`);
+    userEvent.type(noteTextArea, updatedText);
+    expect(onChangeNote).toHaveBeenCalledTimes(updatedText.length);
 
-    const saveNoteButton = await screen.findByTestId('activitySection-noteDone-noteToAdd1');
-    userEvent.click(saveNoteButton);
+    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${text}`);
+    userEvent.click(doneNoteButton);
 
-    expect(onDoneNote).toHaveBeenCalledWith('noteToAdd1edited');
+    expect(onDoneNote).toHaveBeenCalledWith(note);
   });
 
   test('sorts items by date', async () => {

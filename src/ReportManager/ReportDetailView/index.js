@@ -20,7 +20,8 @@ import {
   createNewIncidentCollection,
   eventBelongsToCollection,
   eventBelongsToPatrol,
-  generateErrorListForApiResponseDetails
+  generateErrorListForApiResponseDetails,
+  setOriginalTextToEventNotes
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
 import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
@@ -89,7 +90,8 @@ const ReportDetailView = ({
     [reportData, reportType]
   );
 
-  const reportFromStore = eventStore[reportId];
+  const reportFromStore = setOriginalTextToEventNotes(eventStore[reportId]);
+
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [redirectTo, setRedirectTo] = useState(null);
@@ -108,8 +110,8 @@ const ReportDetailView = ({
   } = formProps || {};
 
   const originalReport = useMemo(() => isNewReport ? newReport : reportFromStore, [isNewReport, newReport, reportFromStore]);
-  const isActive = ACTIVE_STATES.includes(originalReport?.state);
 
+  const isActive = ACTIVE_STATES.includes(originalReport?.state);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
@@ -156,10 +158,7 @@ const ReportDetailView = ({
     [reportForm?.files]
   );
 
-  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes)
-    ? [...reportForm.notes].map((note) => ({ ...note, originalText: !note.originalText ? note.text : note.originalText })) // requires attention
-    : [],
-  [reportForm?.notes]);
+  const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? [...reportForm.notes] : [], [reportForm?.notes]);
 
   const reportSchemas = reportForm
     ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
@@ -266,7 +265,7 @@ const ReportDetailView = ({
     }
 
     const newNotes = notesToAdd.reduce(
-      (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text.trim() }] : accumulator,
+      (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text.trim(), tmpId: undefined }] : accumulator,
       []
     );
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
@@ -434,7 +433,7 @@ const ReportDetailView = ({
     }
   }, [notesToAdd, onDeleteNote, reportForm, reportNotes]);
 
-  const onSaveNote = useCallback((originalNote, { target: { value } }) => {
+  const onChangeNote = useCallback((originalNote, { target: { value } }) => {
     const editedNote = {
       ...originalNote,
       text: value,
@@ -703,7 +702,7 @@ const ReportDetailView = ({
                 notesToAdd={notesToAdd}
                 onDeleteAttachment={onDeleteAttachment}
                 onDeleteNote={onDeleteNote}
-                onSaveNote={onSaveNote}
+                onChangeNote={onChangeNote}
                 reportAttachments={reportAttachments}
                 reportNotes={reportNotes}
                 onCancelNote={onCancelNote}
