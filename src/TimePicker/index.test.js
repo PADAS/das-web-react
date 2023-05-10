@@ -140,4 +140,26 @@ describe('TimePicker', () => {
       accumulatedMinutes+=minutesInterval;
     });
   });
+
+  test.only('disables the options that are below maxTime', async () => {
+    const minTime = '10:00';
+    render(<TimePicker minTime={minTime} onChange={onChange} value="12:00" minutesInterval={30} />);
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+
+    expect(onChange).toHaveBeenCalledTimes(0);
+
+    const optionsList = await screen.findByRole('list');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+
+    expect(timeOptionsListItems[0]).toHaveTextContent('12:00 AM');
+    expect(timeOptionsListItems[0]).toHaveClass('disabled');
+    expect(timeOptionsListItems[19]).toHaveTextContent('09:30 AM');
+    expect(timeOptionsListItems[19]).toHaveClass('disabled');
+    expect(timeOptionsListItems[20]).toHaveTextContent('10:00 AM');
+    expect(timeOptionsListItems[20]).not.toHaveClass('disabled');
+    expect(timeOptionsListItems[21]).toHaveTextContent('10:30 AM');
+    expect(timeOptionsListItems[21]).not.toHaveClass('disabled');
+  });
 });

@@ -213,6 +213,25 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
   });
 
+  test('triggers the onPatrolEndDateChange callback with undefined if user chooses start date after end', async () => {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    const patrolForm = {
+      ...newPatrol,
+      patrol_segments: [{
+        time_range: {
+          start_time: tomorrow,
+          end_time: today,
+        }
+      }]
+    };
+    renderPlanSectionWithWrapper({ patrolForm });
+
+    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolEndDateChange).toHaveBeenCalledWith(undefined, undefined);
+  });
+
   test('triggers the onPatrolEndDateChange callback when user changes auto end value', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -239,6 +258,34 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
     expect(actions).toContainEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
+  });
+
+  test('disables end time picker while there is no end date', async () => {
+    renderPlanSectionWithWrapper();
+
+    const timePickerInput = (await screen.findAllByTestId('time-input'))[1];
+
+    expect(timePickerInput).toBeDisabled();
+  });
+
+  test('enables end time picker when there is an end date', async () => {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    const patrolForm = {
+      ...newPatrol,
+      patrol_segments: [{
+        time_range: {
+          start_time: tomorrow,
+          end_time: today,
+        }
+      }]
+    };
+    renderPlanSectionWithWrapper({ patrolForm });
+
+    const timePickerInput = (await screen.findAllByTestId('time-input'))[1];
+
+    expect(timePickerInput).toBeEnabled();
   });
 
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {
