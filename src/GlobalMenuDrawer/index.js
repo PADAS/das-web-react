@@ -48,6 +48,7 @@ const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
 export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
+export const HELP_CENTER_SITE_URL = 'https://support.earthranger.com/';
 export const USERS_GUIDE_SITE_URL = 'https://community.earthranger.com/t/earthranger-users-guide/60';
 
 const GlobalMenuDrawer = ({
@@ -147,14 +148,19 @@ const GlobalMenuDrawer = ({
       if (userInput) {
         userInput.value = username;
       }
-
     } else {
       window.open(
         `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
         '_self'
       );
     }
+  };
 
+  const onHelpCenterClick = () => {
+    mainToolbarTracker.track('Click \'Help Center\' menu item');
+
+    const newWindow = window.open(HELP_CENTER_SITE_URL, '_blank', 'noopener,noreferrer');
+    if (newWindow) newWindow.opener = null;
   };
 
   const onCommunityClick = () => {
@@ -212,6 +218,7 @@ const GlobalMenuDrawer = ({
         onClick={onNavigationItemClick(navigationItem)}
       >
         {navigationItem.icon}
+
         <span>{navigationItem.title}</span>
       </button>)}
     </div>}
@@ -221,14 +228,17 @@ const GlobalMenuDrawer = ({
         {!!tableauEnabled && <button onClick={() => openTableauReport()}>Tableau</button>}
         {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick}>Alerts</button>}
         <button onClick={onContactSupportClick}>Contact Support</button>
+        <button onClick={onHelpCenterClick}>Help Center</button>
         <button onClick={onCommunityClick}>Community</button>
         <button onClick={onUsersGuideClick}>User&apos;s Guide</button>
       </div>
 
       <div className={styles.section}>
         <h6>EXPORTS</h6>
+
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
       </div>
+
       <div className={styles.section}>
         <BetaToggles />
       </div>
@@ -242,16 +252,20 @@ const GlobalMenuDrawer = ({
         <br />
         &copy;{getYear(new Date())} EarthRanger
       </p>
+
       <ul className={styles.policies}>
         <li>
           <a data-testid='eula-link' rel="noreferrer" href="https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf" target="_blank">EULA</a>
         </li>
+
         <li>
           <a data-testid='terms-and-conditions-link' rel="noreferrer" href="https://allenai.org/terms" target="_blank">Terms & Conditions</a>
         </li>
+
         <li>
           <a data-testid='website-privacy-policy' rel="noreferrer" href="https://www.earthranger.com/privacy-policy" target="_blank">Website Privacy Policy</a>
         </li>
+
         <li>
           <a data-testid='data-privacy-policy' rel="noreferrer" href="https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf" target="_blank">Data Privacy Policy</a>
         </li>
