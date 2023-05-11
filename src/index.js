@@ -40,9 +40,9 @@ const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
 
-const AppWithTracker = withTracker(App);
-const EulaPageWithTracker = withTracker(EulaPage);
-const LoginWithTracker = withTracker(Login);
+const AppWithTracker = withTracker(App, 'EarthRanger');
+const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
+const LoginWithTracker = withTracker(Login, 'Login');
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' });
