@@ -56,6 +56,15 @@ const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ACTIVE_STATES = ['active', 'new'];
 
+const convertPrimitiveFieldsToObject = (reportFields) => reportFields.map((reportField) => {
+  const [key, value] = reportField;
+  const entries = Object.entries(value);
+  if (!entries.length){
+    return [key, { tmpValue: value }];
+  }
+  return reportField;
+});
+
 const extractReportFieldsChanges = (reportField, reportSchemaProps) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
@@ -171,11 +180,12 @@ const ReportDetailView = ({
     }
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
-    return reportDifferences.reduce((accumulator, [key, reportField]) => {
+    const formattedReportDiffs = convertPrimitiveFieldsToObject(reportDifferences);
+    return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
       const reportFieldsChanges = extractReportFieldsChanges(reportField, schemaProps);
       const reportFieldHasChanges = Object.entries(reportFieldsChanges).length > 0;
       return key !== 'contains' && reportFieldHasChanges
-        ? { ...accumulator, [key]: reportFieldsChanges }
+        ? { ...accumulator, [key]: reportFieldsChanges?.tmpValue ?? reportFieldsChanges  }
         : accumulator;
     }, {});
   }, [originalReport, reportForm, reportSchemas]);
