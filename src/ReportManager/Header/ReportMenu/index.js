@@ -85,18 +85,19 @@ const ReportMenu = ({ onReportChange, report }) => {
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
 
     if (!patrolSegmentId) return;
-    const [{ data: { data: thisReport } }] = await onReportChange();
+    const [{ data: { data: thisReport } }] = await onReportChange(false);
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
     reportTracker.track(`Added ${is_collection ? 'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (enableNewPatrolUI) {
-      return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
-    }
 
     return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
-      openModalForPatrol(data, map);
+      if (enableNewPatrolUI) {
+        navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
+      } else {
+        openModalForPatrol(data, map);
+      }
     });
   }, [dispatch, enableNewPatrolUI, is_collection, map, navigate, onReportChange, reportTracker]);
 
