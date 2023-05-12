@@ -214,7 +214,7 @@ const ReportDetailView = ({
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
   }, [onClearErrors, onSaveErrorCallback]);
 
-  const onSaveReport = useCallback((shouldRedirectAfterSave = true, shouldFetchAfterSave = !isAddedReport) => {
+  const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport) => {
     if (isSaving) {
       return;
     }
@@ -272,7 +272,7 @@ const ReportDetailView = ({
         }
         return results;
       })
-      .then(onSaveSuccess(reportToSubmit, shouldRedirectAfterSave ? `/${TAB_KEYS.REPORTS}` : undefined))
+      .then(onSaveSuccess(reportToSubmit, redirectToAfterSave))
       .then((results) => {
         if (shouldFetchAfterSave) {
           const createdReport = results.length ? results[0] : results;
@@ -374,7 +374,7 @@ const ReportDetailView = ({
     setSaveError([...formattedErrors]);
   }, [reportSchemas?.schema?.properties]);
 
-  const onFormSubmit = useCallback(() => onSaveReport(), [onSaveReport]);
+  const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.REPORTS}`), [onSaveReport]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -439,7 +439,7 @@ const ReportDetailView = ({
 
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {
     try {
-      onSaveReport(false, false).then(async ([{ data: { data: thisReportSaved } }]) => {
+      onSaveReport(undefined, false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
           reportTracker.track('Added report to incident');
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
@@ -491,9 +491,9 @@ const ReportDetailView = ({
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave) {
       if (isPatrolAddedReport) {
-        await onSaveReport(false);
+        await onSaveReport();
       } else {
-        onSaveReport(false);
+        onSaveReport();
       }
     } else {
       if (isAddedReport) {
@@ -593,7 +593,13 @@ const ReportDetailView = ({
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
-    <Header isReadOnly={isReadOnly} onChangeTitle={onChangeTitle} report={reportForm} onReportChange={onSaveReport}/>
+    <Header
+      isReadOnly={isReadOnly}
+      onChangeTitle={onChangeTitle}
+      report={reportForm}
+      onSaveReport={onSaveReport}
+      setRedirectTo={setRedirectTo}
+    />
 
     {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
 
