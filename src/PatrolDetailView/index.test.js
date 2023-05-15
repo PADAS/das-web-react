@@ -20,6 +20,8 @@ import PatrolDetailView from './';
 import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
+import { notes } from '../__test-helpers/fixtures/reports';
+import { assertNoteEdition } from '../utils/tests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -50,6 +52,13 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('PatrolDetailView', () => {
+  const user = {
+    username: 'admin',
+    first_name: 'DAS',
+    last_name: 'Admin',
+    id: '3880239a-ffcd-47a8-9035-0ce3c9d90bdd',
+    content_type: 'accounts.user'
+  };
   const mockPatrol = {
     id: '123',
     priority: 0,
@@ -58,7 +67,7 @@ describe('PatrolDetailView', () => {
     serial_number: 1595,
     title: 'The great patrol',
     files: [],
-    notes: [],
+    notes: notes,
     patrol_segments: [
       {
         id: '123',
@@ -94,13 +103,7 @@ describe('PatrolDetailView', () => {
     updates: [{
       message: 'Patrol Added',
       time: '2023-04-04T18:41:53.737181+00:00',
-      user: {
-        username: 'admin',
-        first_name: 'DAS',
-        last_name: 'Admin',
-        id: '3880239a-ffcd-47a8-9035-0ce3c9d90bdd',
-        content_type: 'accounts.user'
-      },
+      user,
       type: 'add_patrol'
     }],
   };
@@ -478,6 +481,44 @@ describe('PatrolDetailView', () => {
 
     expect((await screen.findByTestId('detailView-historySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-History'))).toBeDefined();
+  });
+
+  const renderAndAssertNoteEdition = async (updatedText, noteId) => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+    renderWithWrapper(<PatrolDetailView />);
+    return assertNoteEdition(updatedText, noteId);
+  };
+
+  test('user can cancel the edit of a note', async () => {
+    const [note] = notes;
+    const updatedText = 'edition';
+    const { textArea, doneNoteButton } = await renderAndAssertNoteEdition(updatedText, note.id);
+
+    expect(textArea).toHaveValue(`${note.text}${updatedText}`);
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect(textArea).toHaveTextContent(note.text);
+    expect( (await screen.queryByText(doneNoteButton)) ).toBeNull();
+  });
+
+  test('saves a new edited note', async () => {
+    const updatedText = ' with changes';
+    const [note] = notes;
+    const { textArea, doneNoteButton } = await renderAndAssertNoteEdition(updatedText, note.id);
+
+    expect(textArea.value).toBe(`${note.text}${updatedText}`);
+    expect(doneNoteButton).not.toBeInTheDocument();
+  });
+
+  test('empty spaces at the end of a note get trimmed before saving', async () => {
+    const updatedText = ' with spaces  ';
+    const [note] = notes;
+    const { textArea } = await renderAndAssertNoteEdition(updatedText, note.id);
+
+    expect(textArea.value).toBe(`${note.text} with spaces`);
   });
 
   describe('the warning prompt', () => {

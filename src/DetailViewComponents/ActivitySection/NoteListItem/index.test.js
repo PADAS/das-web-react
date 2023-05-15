@@ -142,49 +142,6 @@ describe('ActivitySection - Note', () => {
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
 
-  test.skip('user can cancel the edit of a note', async () => {
-    const note = { text: 'note', id: 'someID' };
-    renderNoteListItem({ ...initialProps, note });
-
-    const noteTextArea = await screen.findByRole('textbox');
-
-    expect(noteTextArea).toHaveTextContent('note');
-
-    const editButton = await screen.findByTestId('activitySection-editIcon-someID');
-    userEvent.click(editButton);
-    userEvent.type(noteTextArea, 'edition');
-
-    expect(noteTextArea).toHaveTextContent('edition');
-
-    const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
-
-    expect(noteTextArea).toHaveTextContent('note');
-    expect((await screen.queryByText(saveButtonText))).toBeNull();
-  });
-
-  test.skip('user can save edits to a new note', async () => {
-    const { onSave } = initialProps;
-    const note = { text: 'note' };
-    renderNoteListItem({ ...initialProps, note });
-
-    expect(onSave).toHaveBeenCalledTimes(0);
-
-    const noteTextArea = await screen.findByRole('textbox');
-
-    expect(noteTextArea).toHaveTextContent('note');
-    userEvent.type(noteTextArea, 'edition');
-
-    expect(noteTextArea).toHaveTextContent('edition');
-
-    const saveButton = await screen.findByText(saveButtonText);
-    userEvent.click(saveButton);
-
-    expect(onSave).toHaveBeenCalledTimes(1);
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ text: 'noteedition' }));
-    expect((await screen.queryByText(saveButtonText))).toBeNull();
-  });
-
   test('user can not type an empty space at the beginning of a note', async () => {
     const { onSave } = initialProps;
     const note = { text: '' };

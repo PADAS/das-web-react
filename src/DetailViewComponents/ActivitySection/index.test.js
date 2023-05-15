@@ -13,6 +13,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrols from '../../__test-helpers/fixtures/patrols';
 import { TrackerContext } from '../../utils/analytics';
+import { assertNoteEdition } from '../../utils/tests';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),
@@ -268,6 +269,22 @@ describe('DetailViewComponents - ActivitySection', () => {
     userEvent.click(doneNoteButton);
 
     expect(onDoneNote).toHaveBeenCalledWith(note);
+  });
+
+  test('user can save edits to a new note', async () => {
+    const [note] = notes;
+    const updatedText = ' with changes';
+    const onDoneNote = jest.fn();
+    renderActivitySection({ ...defaultProps, onDoneNote });
+
+    expect(onDoneNote).toHaveBeenCalledTimes(0);
+
+    const { doneNoteButton } = await assertNoteEdition(updatedText, note.id);
+    userEvent.click(doneNoteButton);
+
+    expect(onDoneNote).toHaveBeenCalledTimes(1);
+    expect(onDoneNote).toHaveBeenCalledWith(expect.objectContaining(note));
+    expect((await screen.queryByText(doneNoteButton))).toBeNull();
   });
 
   test('sorts items by date', async () => {

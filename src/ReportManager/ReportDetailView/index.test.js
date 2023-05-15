@@ -25,6 +25,7 @@ import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/loca
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
+import { assertNoteEdition } from '../../utils/tests';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -527,29 +528,35 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-  const assertNoteEdition = async (updatedText, noteId) => {
+  const renderAndAssertNoteEdition = async (updatedText, noteId) => {
     renderWithWrapper(
       <ReportDetailView
             newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
             reportId="456"
         />
     );
-
-    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
-    userEvent.click(editNoteIcon);
-    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
-    userEvent.type(noteTextArea, updatedText);
-    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
-    userEvent.click(doneNoteButton);
-    const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
-
-    return { textArea, doneNoteButton, };
+    return assertNoteEdition(updatedText, noteId);
   };
+
+  test('user can cancel the edit of a note', async () => {
+    const [note] = notes;
+    const updatedText = 'edition';
+
+    const { textArea, doneNoteButton } = await renderAndAssertNoteEdition(updatedText, note.id);
+
+    expect(textArea).toHaveValue(`${note.text}${updatedText}`);
+
+    const cancelButton = await screen.findByText('Cancel');
+    userEvent.click(cancelButton);
+
+    expect(textArea).toHaveTextContent(note.text);
+    expect((await screen.queryByText(doneNoteButton))).toBeNull();
+  });
 
   test('saves a new edited note', async () => {
     const updatedText = ' with changes';
     const [note] = notes;
-    const { textArea, doneNoteButton } = await assertNoteEdition(updatedText, note.id);
+    const { textArea, doneNoteButton } = await renderAndAssertNoteEdition(updatedText, note.id);
 
     expect(textArea.value).toBe(`${note.text}${updatedText}`);
     expect(doneNoteButton).not.toBeInTheDocument();
@@ -558,7 +565,7 @@ describe('ReportManager - ReportDetailView', () => {
   test('empty spaces at the end of a note get trimmed before saving', async () => {
     const updatedText = ' with spaces  ';
     const [note] = notes;
-    const { textArea } = await assertNoteEdition(updatedText, note.id);
+    const { textArea } = await renderAndAssertNoteEdition(updatedText, note.id);
 
     expect(textArea.value).toBe(`${note.text} with spaces`);
   });
