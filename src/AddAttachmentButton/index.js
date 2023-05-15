@@ -38,7 +38,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
     analytics?.track('Start adding attachment');
 
-    fileInputRef?.current?.click();
+    fileInputRef.current.click();
   }, []);
 
   const onAttachmentButtonDragLeave = useCallback((event) => {
