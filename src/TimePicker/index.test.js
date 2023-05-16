@@ -48,8 +48,8 @@ describe('TimePicker', () => {
     });
   });
 
-  test('shows only the duration time in options if showDurationFromStartTime is true', async () => {
-    render(<TimePicker onChange={onChange} showDurationFromStartTime value="10:00" />);
+  test('shows only the duration time in options if showDurationFromMinTime is true', async () => {
+    render(<TimePicker onChange={onChange} showDurationFromMinTime minTime="10:00" value="10:00" />);
 
     const timeInput = await screen.findByTestId('time-input');
     userEvent.click(timeInput);
@@ -58,11 +58,11 @@ describe('TimePicker', () => {
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
 
-    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(0m)');
-    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(30m)');
-    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(1h)');
-    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(1h 30m)');
-    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(2h)');
+    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(-10h)');
+    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(-9h 30m)');
+    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(-9h)');
+    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(-8h 30m)');
+    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(-8h)');
   });
 
   test('calls onChange and send a date with the time chosen', async () => {
@@ -139,5 +139,27 @@ describe('TimePicker', () => {
 
       accumulatedMinutes+=minutesInterval;
     });
+  });
+
+  test.only('disables the options that are below maxTime', async () => {
+    const minTime = '10:00';
+    render(<TimePicker minTime={minTime} onChange={onChange} value="12:00" minutesInterval={30} />);
+
+    const timeInput = await screen.findByTestId('time-input');
+    userEvent.click(timeInput);
+
+    expect(onChange).toHaveBeenCalledTimes(0);
+
+    const optionsList = await screen.findByRole('list');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+
+    expect(timeOptionsListItems[0]).toHaveTextContent('12:00 AM');
+    expect(timeOptionsListItems[0]).toHaveClass('disabled');
+    expect(timeOptionsListItems[19]).toHaveTextContent('09:30 AM');
+    expect(timeOptionsListItems[19]).toHaveClass('disabled');
+    expect(timeOptionsListItems[20]).toHaveTextContent('10:00 AM');
+    expect(timeOptionsListItems[20]).not.toHaveClass('disabled');
+    expect(timeOptionsListItems[21]).toHaveTextContent('10:30 AM');
+    expect(timeOptionsListItems[21]).not.toHaveClass('disabled');
   });
 });
