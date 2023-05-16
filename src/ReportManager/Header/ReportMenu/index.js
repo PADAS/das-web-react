@@ -43,7 +43,7 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
     const incident = createNewIncidentCollection({ priority: report.priority });
 
     const { data: { data: newIncident } } = await dispatch(createEvent(incident));
-    const [{ data: { data: thisReport } }] = await onSaveReport();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
 
     await dispatch(addEventToIncident(thisReport.id, newIncident.id));
 
@@ -57,7 +57,7 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
   }, [report.priority, dispatch, onSaveReport, reportTracker, setRedirectTo]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
-    const [{ data: { data: thisReport } }] = await onSaveReport();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
     await dispatch(addEventToIncident(thisReport.id, incident.id));
 
     reportTracker.track('Added report to existing incident');
@@ -83,12 +83,14 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
 
     if (!patrolSegmentId) return;
-    const [{ data: { data: thisReport } }] = await onSaveReport();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
     reportTracker.track(`Added ${is_collection ? 'Incident':'Event'} to Patrol`);
 
     removeModal();
+
+    dispatch(fetchEvent(thisReport.id));
     return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
       if (enableNewPatrolUI) {
         setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrolId}`);
