@@ -28,11 +28,6 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
   const [draggingOver, setDraggingOver] = useState(false);
 
-  const addAttachments = useCallback((files) => {
-    onAddAttachments(files);
-    fileInputRef.current.value = null;
-  }, [onAddAttachments]);
-
   const onAttachmentButtonClick = useCallback((event) => {
     event.preventDefault();
 
@@ -61,16 +56,18 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
     analytics?.track('Drop dragged attachment');
 
     setDraggingOver(false);
-    addAttachments(event.dataTransfer.files);
-  }, [analytics, addAttachments]);
+    onAddAttachments(event.dataTransfer.files);
+    fileInputRef.current.value = null;
+  }, [analytics, onAddAttachments]);
 
   const onChangeFileInput = useCallback((event) => {
     event.preventDefault();
 
     analytics?.track('Add attachment');
 
-    addAttachments(fileInputRef.current.files);
-  }, [analytics, addAttachments]);
+    onAddAttachments(fileInputRef.current.files);
+    fileInputRef.current.value = null;
+  }, [analytics, onAddAttachments]);
 
   return <>
     <input
