@@ -41,6 +41,8 @@ const PlanSection = ({
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
 
+  const endDayIsSameAsStart = endDate && startDate?.toDateString() === endDate?.toDateString();
+
   const startLocation = useMemo(() => {
     const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
 
@@ -57,8 +59,8 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    onPatrolEndDateChange(date, isAutoEnd);
-  }, [isAutoEnd, onPatrolEndDateChange]);
+    onPatrolEndDateChange(date < startDate ? startDate : date, isAutoEnd);
+  }, [isAutoEnd, onPatrolEndDateChange, startDate]);
 
   const handleStartDateChange = useCallback((date) => {
     onPatrolStartDateChange(date, isAutoStart);
@@ -82,8 +84,8 @@ const PlanSection = ({
 
   const handleAutoEndChange = useCallback(() => {
     dispatch(updateUserPreferences({ autoEndPatrols: !isAutoEnd }));
-    onPatrolEndDateChange(startDate, !isAutoEnd);
-  }, [dispatch, isAutoEnd, onPatrolEndDateChange, startDate]);
+    onPatrolEndDateChange(endDate, !isAutoEnd);
+  }, [dispatch, isAutoEnd, onPatrolEndDateChange, endDate]);
 
   const handleAutoStartChange = useCallback(() => {
     dispatch(updateUserPreferences({ autoStartPatrols: !isAutoStart }));
@@ -95,6 +97,12 @@ const PlanSection = ({
       dispatch(fetchTrackedBySchema());
     }
   }, [dispatch, patrolLeaderSchema]);
+
+  useEffect(() => {
+    if (endDate && startDate > endDate) {
+      onPatrolEndDateChange(undefined, isAutoEnd);
+    }
+  }, [endDate, isAutoEnd, onPatrolEndDateChange, startDate]);
 
   return <>
     <div className={styles.sectionHeader}>
@@ -141,7 +149,6 @@ const PlanSection = ({
             Start Date
             <DatePicker
               className={styles.datepicker}
-              maxDate={endDate}
               onChange={handleStartDateChange}
               selected={startDate ?? new Date()}
               selectsStart
@@ -202,10 +209,11 @@ const PlanSection = ({
           <label data-testid="patrolDetailView-endTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             End Time
             <TimePicker
+              disabled={!endDate}
+              minTime={endDayIsSameAsStart ? getHoursAndMinutesString(startDate) : null}
               minutesInterval={15}
               onChange={handleEndTimeChange}
-              showDurationFromStartTime={!endDate || startDate?.toDateString() === endDate?.toDateString()}
-              startTime={getHoursAndMinutesString(startDate)}
+              showDurationFromMinTime={endDayIsSameAsStart}
               value={getHoursAndMinutesString(endDate)}
             />
           </label>
