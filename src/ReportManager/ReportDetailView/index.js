@@ -56,19 +56,22 @@ const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ACTIVE_STATES = ['active', 'new'];
 
-const convertPrimitiveFieldsToObject = (reportFields) => reportFields.map((reportField) => {
-  const [key, value] = reportField;
-  const entries = Object.entries(value);
-  if (!entries.length){
-    return [key, { tmpValue: value }];
-  }
-  return reportField;
-});
+const calculateFormattedReportDiffs = (reportForm, originalReport) => {
+  const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
+  return reportDifferences.map((reportField) => {
+    const [key, value] = reportField;
+    const entries = Object.entries(value);
+    if (!entries.length){
+      return [key, { tmpValue: value }];
+    }
+    return reportField;
+  });
+};
 
 const extractReportFieldsChanges = (reportField, reportSchemaProps) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
-  const hasReportValue = !schemaDefaultValue && reportFieldValue;
+  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined && reportFieldValue !== '' );
   return defValueHasChanged || hasReportValue ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
 }, {});
 
@@ -179,8 +182,7 @@ const ReportDetailView = ({
       return {};
     }
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
-    const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
-    const formattedReportDiffs = convertPrimitiveFieldsToObject(reportDifferences);
+    const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
       const reportFieldsChanges = extractReportFieldsChanges(reportField, schemaProps);
       const reportFieldHasChanges = Object.entries(reportFieldsChanges).length > 0;
