@@ -24,7 +24,7 @@ jest.mock('../../ducks/patrols', () => ({
 const store = mockStore(patrolDefaultStoreData);
 
 describe('Header', () => {
-  const onChangeTitle = jest.fn();
+  const onChangeTitle = jest.fn(), setRedirectTo = jest.fn();
   let updatePatrolMock;
   beforeEach(() => {
     updatePatrolMock = jest.fn(() => () => {});
@@ -38,7 +38,7 @@ describe('Header', () => {
   test('renders correctly case of a new patrol', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -49,7 +49,7 @@ describe('Header', () => {
   test('renders correctly case of a scheduled patrol', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -64,7 +64,7 @@ describe('Header', () => {
   test('renders correctly case of an active patrol', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={activePatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={activePatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -78,7 +78,7 @@ describe('Header', () => {
   test('renders correctly case of an overdue patrol', async () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {}, tracks: [] }, view: {} })}>
-        <Header patrol={overduePatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={overduePatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -93,7 +93,7 @@ describe('Header', () => {
   test('renders correctly case of an done patrol', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={donePatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={donePatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -107,7 +107,7 @@ describe('Header', () => {
   test('renders correctly case of an cancelled patrol', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -119,7 +119,7 @@ describe('Header', () => {
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -136,7 +136,7 @@ describe('Header', () => {
   test('sets the display title if user leaves the title input empty', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
@@ -148,35 +148,41 @@ describe('Header', () => {
     expect(onChangeTitle).toHaveBeenCalledWith('Future');
   });
 
-  test('triggers startPatrol callback when clicking the start button', async () => {
+  test('triggers startPatrol callback when clicking the start button and redirects to feed', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
+    expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const buttons = await screen.findAllByRole('button');
     userEvent.click(buttons[0]);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
+    expect(setRedirectTo).toHaveBeenCalledTimes(1);
+    expect(setRedirectTo).toHaveBeenCalledWith('/patrols');
   });
 
-  test('triggers restorePatrol callback when clicking the restore button', async () => {
+  test('triggers restorePatrol callback when clicking the restore button and redirects to feed', async () => {
     render(
       <Provider store={store}>
-        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
+        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} setRedirectTo={setRedirectTo} />
       </Provider>
     );
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
+    expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const restorePatrolButton = await screen.findByRole('button');
     userEvent.click(restorePatrolButton);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
+    expect(setRedirectTo).toHaveBeenCalledTimes(1);
+    expect(setRedirectTo).toHaveBeenCalledWith('/patrols');
   });
 });
