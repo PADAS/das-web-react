@@ -1,0 +1,39 @@
+@import '../../common/styles/inputs';
+@import '../../common/styles/vars/colors';
+
+.asw {
+  border: none !important;
+  border-radius: 0.25rem !important;
+  font-size: 1rem !important;
+  max-height: 10rem;
+  min-width: 6rem;
+  overflow-y: scroll;
+  text-align: center !important;
+  @include boxShadow;
+
+  ul {
+    margin-bottom: 0rem;
+
+    li {
+      margin: 0.25rem 0;
+
+      &:hover {
+        @include dropdown-options-hover;
+      }
+
+      &.disabled {
+        background-color: unset;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+    
+      > span:not(:first-child){
+        color: $secondary-medium-light-gray;
+      }
+    }
+  }
+
+  [class*=popover-arrow] { 
+    display: none;
+  }
+}

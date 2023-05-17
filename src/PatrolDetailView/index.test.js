@@ -267,7 +267,7 @@ describe('PatrolDetailView', () => {
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '2022/01/18');
+    expect(datePickerInput).toHaveAttribute('value', '2022/01/20');
   });
 
   test('sets the start time when user changes it', async () => {
@@ -304,12 +304,28 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
-    userEvent.click(datePickerInput);
-    const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    const endDatePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
+    userEvent.click(endDatePickerInput);
+    const endDateOptions = await screen.findAllByRole('option');
+    userEvent.click(endDateOptions[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '2022/01/20');
+    const startDatePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
+    userEvent.click(startDatePickerInput);
+    const startDateOptions = await screen.findAllByRole('option');
+    userEvent.click(startDateOptions[26]);
+
+    expect(endDatePickerInput).toHaveAttribute('value', undefined);
+  });
+
+  test('end time is disabled while there is no end date', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    const timeInput = (await screen.findAllByTestId('time-input'))[1];
+
+    expect(timeInput).toHaveAttribute('disabled');
   });
 
   test('sets the end time when user changes it', async () => {
@@ -317,6 +333,11 @@ describe('PatrolDetailView', () => {
     useLocation.mockImplementation(useLocationMock);
 
     renderWithWrapper(<PatrolDetailView />);
+
+    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
+    userEvent.click(datePickerInput);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[25]);
 
     const timeInput = (await screen.findAllByTestId('time-input'))[1];
     userEvent.click(timeInput);
