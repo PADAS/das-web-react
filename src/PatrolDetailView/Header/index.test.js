@@ -24,34 +24,34 @@ jest.mock('../../ducks/patrols', () => ({
 const store = mockStore(patrolDefaultStoreData);
 
 describe('Header', () => {
-  const onChangeTitle = jest.fn();
+  const onChangeTitle = jest.fn(), setRedirectTo = jest.fn();
   let updatePatrolMock;
   beforeEach(() => {
     updatePatrolMock = jest.fn(() => () => {});
     updatePatrol.mockImplementation(updatePatrolMock);
   });
 
+  const renderHeader = (overwriteProps) => {
+    return render(
+      <Provider store={store}>
+        <Header onChangeTitle={onChangeTitle} patrol={newPatrol} setRedirectTo={setRedirectTo} {...overwriteProps} />
+      </Provider>
+    );
+  };
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('renders correctly case of a new patrol', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={newPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader();
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeNull();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toBeNull();
   });
 
   test('renders correctly case of a scheduled patrol', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: scheduledPatrol });
 
     const buttons = await screen.findAllByRole('button');
 
@@ -62,11 +62,7 @@ describe('Header', () => {
   });
 
   test('renders correctly case of an active patrol', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={activePatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: activePatrol });
 
     const buttons = await screen.findAllByRole('button');
 
@@ -76,11 +72,7 @@ describe('Header', () => {
   });
 
   test('renders correctly case of an overdue patrol', async () => {
-    render(
-      <Provider store={mockStore({ data: { subjectStore: {}, tracks: [] }, view: {} })}>
-        <Header patrol={overduePatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: overduePatrol });
 
     const buttons = await screen.findAllByRole('button');
 
@@ -91,11 +83,7 @@ describe('Header', () => {
   });
 
   test('renders correctly case of an done patrol', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={donePatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: donePatrol });
 
     const buttons = await screen.findAllByRole('button');
 
@@ -105,11 +93,7 @@ describe('Header', () => {
   });
 
   test('renders correctly case of an cancelled patrol', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: cancelledPatrol });
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Cancelled');
@@ -117,11 +101,7 @@ describe('Header', () => {
   });
 
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: scheduledPatrol });
 
     const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
     userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}2');
@@ -134,11 +114,7 @@ describe('Header', () => {
   });
 
   test('sets the display title if user leaves the title input empty', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+    renderHeader({ patrol: scheduledPatrol });
 
     const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
     userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}');
@@ -148,35 +124,33 @@ describe('Header', () => {
     expect(onChangeTitle).toHaveBeenCalledWith('Future');
   });
 
-  test('triggers startPatrol callback when clicking the start button', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={scheduledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+  test('triggers startPatrol callback when clicking the start button and redirects to feed', async () => {
+    renderHeader({ patrol: scheduledPatrol });
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
+    expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const buttons = await screen.findAllByRole('button');
     userEvent.click(buttons[0]);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
+    expect(setRedirectTo).toHaveBeenCalledTimes(1);
+    expect(setRedirectTo).toHaveBeenCalledWith('/patrols');
   });
 
-  test('triggers restorePatrol callback when clicking the restore button', async () => {
-    render(
-      <Provider store={store}>
-        <Header patrol={cancelledPatrol} onChangeTitle={onChangeTitle} />
-      </Provider>
-    );
+  test('triggers restorePatrol callback when clicking the restore button and redirects to feed', async () => {
+    renderHeader({ patrol: cancelledPatrol });
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
+    expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const restorePatrolButton = await screen.findByRole('button');
     userEvent.click(restorePatrolButton);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
+    expect(setRedirectTo).toHaveBeenCalledTimes(1);
+    expect(setRedirectTo).toHaveBeenCalledWith('/patrols');
   });
 });

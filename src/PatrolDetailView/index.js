@@ -483,7 +483,7 @@ const PatrolDetailView = () => {
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
-    <Header onChangeTitle={onChangeTitle} patrol={patrolForm} />
+    <Header onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
     <TrackerContext.Provider value={patrolTracker}>
       <div className={styles.body}>

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { TAB_KEYS } from '../../constants';
 import usePatrol from '../../hooks/usePatrol';
 
 import DasIcon from '../../DasIcon';
@@ -16,7 +17,7 @@ import styles from './styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
-const Header = ({ onChangeTitle, patrol }) => {
+const Header = ({ onChangeTitle, patrol, setRedirectTo }) => {
   const {
     patrolData,
 
@@ -35,7 +36,7 @@ const Header = ({ onChangeTitle, patrol }) => {
 
     dateComponentDateString,
 
-    onPatrolChange,
+    onPatrolChange: onSavePatrolChange,
     restorePatrol,
     startPatrol,
   } = usePatrol(patrol);
@@ -79,19 +80,26 @@ const Header = ({ onChangeTitle, patrol }) => {
 
   const restorePatrolAndTrack = useCallback(() => {
     restorePatrol();
+    setRedirectTo(`/${TAB_KEYS.PATROLS}`);
 
     patrolDetailViewTracker.track('Restore patrol from patrol detail view header');
-  }, [restorePatrol]);
+  }, [restorePatrol, setRedirectTo]);
 
   const startPatrolAndTrack = useCallback(() => {
     startPatrol();
+    setRedirectTo(`/${TAB_KEYS.PATROLS}`);
 
     patrolDetailViewTracker.track('Start patrol from patrol detail view header');
-  }, [startPatrol]);
+  }, [setRedirectTo, startPatrol]);
 
   const onLocationClick = useCallback(() => {
     patrolDetailViewTracker.track('Click "jump to location" from patrol detail view');
   }, []);
+
+  const onPatrolChange = useCallback((value) => {
+    onSavePatrolChange(value);
+    setRedirectTo(`/${TAB_KEYS.PATROLS}`);
+  }, [onSavePatrolChange, setRedirectTo]);
 
   const title = patrol.title || displayTitle;
 
