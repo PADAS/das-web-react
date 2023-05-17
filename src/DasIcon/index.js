@@ -29,7 +29,6 @@ const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className,
 
   const isGeneric = svgHref.includes('generic');
 
-
   return (
     <svg className={`${className || ''} ${isGeneric ? 'generic' : ''}`} {...rest} fill={color}>
       <use href={svgHref} />

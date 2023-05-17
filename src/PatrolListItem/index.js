@@ -191,7 +191,7 @@ const PatrolListItem = ({
       data-testid={`patrol-list-item-icon-${patrol.id}`}
       type="button"
     >
-    <DasIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} type="events" />
+    <DasIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="events" />
   </button>;
 
   const renderedTitleComponent = <>
