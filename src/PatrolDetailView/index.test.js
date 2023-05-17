@@ -21,7 +21,6 @@ import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
 import { notes } from '../__test-helpers/fixtures/reports';
-import { assertNoteEdition } from '../utils/tests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -507,8 +506,19 @@ describe('PatrolDetailView', () => {
   const renderAndAssertNoteEdition = async (updatedText, noteId) => {
     useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
     useLocation.mockImplementation(useLocationMock);
-    renderWithWrapper(<PatrolDetailView />);
-    return assertNoteEdition(updatedText, noteId);
+    renderWithWrapper(<PatrolDetailView/>);
+
+    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
+    userEvent.click(editNoteIcon);
+
+    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+    userEvent.type(noteTextArea, updatedText);
+
+    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
+    userEvent.click(doneNoteButton);
+
+    const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+    return { textArea, doneNoteButton, };
   };
 
   test('user can cancel the edit of a note', async () => {

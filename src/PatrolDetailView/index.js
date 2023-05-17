@@ -366,10 +366,6 @@ const PatrolDetailView = () => {
   const onCancelNote = useCallback((note) => {
     const isNew = !!note.tmpId;
     const notes = isNew ? notesToAdd : patrolNotes;
-    if (isNew && !note.isDone){
-      onDeleteNote(note);
-      return;
-    }
     const updatedNotes = notes.map((currentNote) =>
       areNotesEqual(currentNote, note)
         ? { ...currentNote, text: currentNote.originalText }

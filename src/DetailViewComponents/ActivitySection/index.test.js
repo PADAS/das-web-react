@@ -13,7 +13,6 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrols from '../../__test-helpers/fixtures/patrols';
 import { TrackerContext } from '../../utils/analytics';
-import { assertNoteEdition } from '../../utils/tests';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),
@@ -279,7 +278,13 @@ describe('DetailViewComponents - ActivitySection', () => {
 
     expect(onDoneNote).toHaveBeenCalledTimes(0);
 
-    const { doneNoteButton } = await assertNoteEdition(updatedText, note.id);
+    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${note.id}`);
+    userEvent.click(editNoteIcon);
+
+    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${note.id}`);
+    userEvent.type(noteTextArea, updatedText);
+
+    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${note.id}`);
     userEvent.click(doneNoteButton);
 
     expect(onDoneNote).toHaveBeenCalledTimes(1);

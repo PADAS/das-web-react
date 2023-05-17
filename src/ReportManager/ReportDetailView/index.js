@@ -169,8 +169,7 @@ const ReportDetailView = ({
       return {};
     }
 
-    const a = extractObjectDifference(reportForm, originalReport);
-    return Object.entries(a)
+    return Object.entries( extractObjectDifference(reportForm, originalReport) )
       .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
   }, [originalReport, reportForm]);
 
@@ -417,10 +416,6 @@ const ReportDetailView = ({
   const onCancelNote = useCallback((note) => {
     const isNew = !!note.tmpId;
     const notes = isNew ? notesToAdd : reportNotes;
-    if (isNew && !note.isDone){
-      onDeleteNote(note);
-      return;
-    }
     const updatedNotes = notes.map((currentNote) =>
       areNotesEqual(currentNote, note)
         ? { ...currentNote, text: currentNote.originalText }
@@ -431,12 +426,12 @@ const ReportDetailView = ({
     } else {
       setReportForm({ ...reportForm, notes: updatedNotes });
     }
-  }, [notesToAdd, onDeleteNote, reportForm, reportNotes]);
+  }, [notesToAdd, reportForm, reportNotes]);
 
   const onChangeNote = useCallback((originalNote, { target: { value } }) => {
     const editedNote = {
       ...originalNote,
-      text: value,
+      text: value
     };
     const isNew = !!originalNote.tmpId;
 

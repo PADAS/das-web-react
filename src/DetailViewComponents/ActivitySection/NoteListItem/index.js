@@ -58,10 +58,15 @@ const NoteListItem = ({
   const onChangeTextArea = useCallback((event) => onChange(note, event), [note, onChange]);
 
   const onClickCancelButton = useCallback(() => {
-    onCancel(note);
-    tracker.track(isNew ? 'Cancel writing new note' : 'Cancel editing existing note');
+    if (note.tmpId && !note.isDone) {
+      tracker.track('Cancel writing new note');
+      onDelete();
+    } else {
+      tracker.track('Cancel editing existing note');
+      onCancel();
+    }
     setIsEditing(false);
-  }, [isNew, tracker, onCancel, note]);
+  }, [note, tracker, onDelete, onCancel]);
 
   const onClickDoneButton = useCallback(() => {
     onDone(note);
@@ -147,7 +152,7 @@ const NoteListItem = ({
             onClick={onClickCancelButton}
             type="button"
             variant="secondary"
-          >
+            data-testid={`activitySection-noteCancel-${note.id || note.text}`}>
             Cancel
           </Button>
 

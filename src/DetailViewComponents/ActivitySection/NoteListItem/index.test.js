@@ -13,6 +13,7 @@ describe('ActivitySection - Note', () => {
     onChange: jest.fn(),
     onDone: jest.fn(),
     onDelete: jest.fn(),
+    onCancel: jest.fn(),
     onExpand: jest.fn(),
     onSave: jest.fn(),
     note: {}
@@ -88,6 +89,32 @@ describe('ActivitySection - Note', () => {
     userEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  test('user can complete a note', async () => {
+    const { onDone } = initialProps;
+    const note = { text: 'note' };
+    renderNoteListItem({ ...initialProps, note });
+
+    expect(onDone).toHaveBeenCalledTimes(0);
+
+    const cancelButton = await screen.findByTestId('activitySection-noteDone-note');
+    userEvent.click(cancelButton);
+
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test('user can cancel a note', async () => {
+    const { onCancel } = initialProps;
+    const note = { text: 'note' };
+    renderNoteListItem({ ...initialProps, note });
+
+    expect(onCancel).toHaveBeenCalledTimes(0);
+
+    const cancelButton = await screen.findByTestId('activitySection-noteCancel-note');
+    userEvent.click(cancelButton);
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   test('user can not delete an existing note', async () => {

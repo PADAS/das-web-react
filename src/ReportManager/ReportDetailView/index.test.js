@@ -25,7 +25,6 @@ import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/loca
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
-import { assertNoteEdition } from '../../utils/tests';
 
 jest.mock('../../AddReport', () => jest.fn());
 
@@ -535,7 +534,17 @@ describe('ReportManager - ReportDetailView', () => {
             reportId="456"
         />
     );
-    return assertNoteEdition(updatedText, noteId);
+    const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
+    userEvent.click(editNoteIcon);
+
+    const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+    userEvent.type(noteTextArea, updatedText);
+
+    const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
+    userEvent.click(doneNoteButton);
+
+    const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
+    return { textArea, doneNoteButton };
   };
 
   test('user can cancel the edit of a note', async () => {
@@ -663,10 +672,10 @@ describe('ReportManager - ReportDetailView', () => {
     window.alert = jest.fn();
 
     renderWithWrapper(
-      <ReportDetailView isNewReport={false} reportId="123" />
+      <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(3);
     expect(window.alert).toHaveBeenCalledTimes(0);
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
@@ -674,7 +683,7 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.click(addNoteButton);
 
     expect(window.alert).toHaveBeenCalledTimes(1);
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+    expect((await screen.findAllByText('note.svg'))).toHaveLength(4);
   });
 
   test('does not display the activity section nor its anchor if there are no items to show', async () => {
