@@ -452,18 +452,22 @@ const ReportDetailView = ({
       [...reportAttachments, ...attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file)],
       filesArray
     );
-    setAttachmentsToAdd([
-      ...attachmentsToAdd,
-      ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString(), ref: newAttachmentRef })),
-    ]);
 
-    setTimeout(() => {
-      newAttachmentRef?.current?.scrollIntoView?.({
-        behavior: 'smooth',
-      });
-    }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
+    if (uploadableFiles.length){
+      setTimeout(() => {
+        newAttachmentRef?.current?.scrollIntoView?.({
+          behavior: 'smooth',
+        });
+      }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
-    reportTracker.track('Added Attachment');
+      setAttachmentsToAdd([
+        ...attachmentsToAdd,
+        ...uploadableFiles.map((uploadableFile) => ({ file: uploadableFile, creationDate: new Date().toISOString(), ref: newAttachmentRef })),
+      ]);
+
+      reportTracker.track('Added Attachment');
+    }
+
   }, [attachmentsToAdd, reportAttachments, reportTracker]);
 
   const onSaveAddedReport = useCallback(([{ data: { data: secondReportSaved } }]) => {

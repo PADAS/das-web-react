@@ -57,6 +57,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
     setDraggingOver(false);
     onAddAttachments(event.dataTransfer.files);
+    fileInputRef.current.value = null;
   }, [analytics, onAddAttachments]);
 
   const onChangeFileInput = useCallback((event) => {
@@ -65,6 +66,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
     analytics?.track('Add attachment');
 
     onAddAttachments(fileInputRef.current.files);
+    fileInputRef.current.value = null;
   }, [analytics, onAddAttachments]);
 
   return <>
