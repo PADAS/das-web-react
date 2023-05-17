@@ -56,6 +56,25 @@ const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 
 const ACTIVE_STATES = ['active', 'new'];
 
+const calculateFormattedReportDiffs = (reportForm, originalReport) => {
+  const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
+  return reportDifferences.map((reportField) => {
+    const [key, value] = reportField;
+    const entries = Object.entries(value);
+    if (!entries.length){
+      return [key, { tmpValue: value }];
+    }
+    return reportField;
+  });
+};
+
+const extractReportFieldsChanges = (reportField, reportSchemaProps) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
+  const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
+  const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
+  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined && reportFieldValue !== '' );
+  return defValueHasChanged || hasReportValue ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
+}, {});
+
 const ReportDetailView = ({
   className,
   formProps,
@@ -162,10 +181,16 @@ const ReportDetailView = ({
     if (!originalReport || !reportForm) {
       return {};
     }
-
-    return Object.entries(extractObjectDifference(reportForm, originalReport))
-      .reduce((accumulator, [key, value]) => key !== 'contains' ? { ...accumulator, [key]: value } : accumulator, {});
-  }, [originalReport, reportForm]);
+    const { properties: schemaProps } = reportSchemas?.schema ?? {};
+    const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
+    return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
+      const reportFieldsChanges = extractReportFieldsChanges(reportField, schemaProps);
+      const reportFieldHasChanges = Object.entries(reportFieldsChanges).length > 0;
+      return key !== 'contains' && reportFieldHasChanges
+        ? { ...accumulator, [key]: reportFieldsChanges?.tmpValue ?? reportFieldsChanges  }
+        : accumulator;
+    }, {});
+  }, [originalReport, reportForm, reportSchemas]);
 
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
@@ -360,8 +385,12 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onFormChange = useCallback((event) => {
-    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...event.formData } });
+    const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
+      ...acc,
+      [formKey]: formData === undefined ? '' : formData
+    }), {});
 
+    setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
     reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
