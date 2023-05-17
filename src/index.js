@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import ReactGA from 'react-ga';
+import ReactGA4 from 'react-ga4';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
@@ -11,7 +12,12 @@ import GeoLocationWatcher from './GeoLocationWatcher';
 
 import store from './store';
 
-import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
+import {
+  EXTERNAL_SAME_DOMAIN_ROUTES,
+  REACT_APP_ROUTE_PREFIX,
+  REACT_APP_GA_TRACKING_ID,
+  REACT_APP_GA4_TRACKING_ID,
+} from './constants';
 
 import registerServiceWorker from './registerServiceWorker';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,12 +40,13 @@ const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
 
-const AppWithTracker = withTracker(App);
-const EulaPageWithTracker = withTracker(EulaPage);
-const LoginWithTracker = withTracker(Login);
+const AppWithTracker = withTracker(App, 'EarthRanger');
+const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
+const LoginWithTracker = withTracker(Login, 'Login');
 
 // Initialize ReactGA with const from .env
-ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' ? true : false });
+ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' });
+ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' });
 setClientReleaseIdentifier();
 
 const persistor = persistStore(store);
