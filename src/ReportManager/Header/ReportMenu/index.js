@@ -11,7 +11,6 @@ import { fetchPatrol } from '../../../ducks/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
 import { useFeatureFlag } from '../../../hooks';
-import useNavigate from '../../../hooks/useNavigate';
 
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
@@ -27,9 +26,8 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-const ReportMenu = ({ onReportChange, report }) => {
+const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const map = useContext(MapContext);
   const reportTracker = useContext(TrackerContext);
@@ -45,7 +43,7 @@ const ReportMenu = ({ onReportChange, report }) => {
     const incident = createNewIncidentCollection({ priority: report.priority });
 
     const { data: { data: newIncident } } = await dispatch(createEvent(incident));
-    const [{ data: { data: thisReport } }] = await onReportChange();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
 
     await dispatch(addEventToIncident(thisReport.id, newIncident.id));
 
@@ -54,12 +52,12 @@ const ReportMenu = ({ onReportChange, report }) => {
     dispatch(fetchEvent(thisReport.id));
     dispatch(fetchEvent(newIncident.id)).then(({ data: { data } }) => {
       removeModal();
-      navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+      setRedirectTo(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [report.priority, dispatch, onReportChange, navigate, reportTracker]);
+  }, [report.priority, dispatch, onSaveReport, reportTracker, setRedirectTo]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
-    const [{ data: { data: thisReport } }] = await onReportChange();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
     await dispatch(addEventToIncident(thisReport.id, incident.id));
 
     reportTracker.track('Added report to existing incident');
@@ -67,9 +65,9 @@ const ReportMenu = ({ onReportChange, report }) => {
     dispatch(fetchEvent(thisReport.id));
     return dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
-      navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+      setRedirectTo(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [dispatch, navigate, onReportChange, reportTracker]);
+  }, [dispatch, onSaveReport, reportTracker, setRedirectTo]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -85,20 +83,22 @@ const ReportMenu = ({ onReportChange, report }) => {
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
 
     if (!patrolSegmentId) return;
-    const [{ data: { data: thisReport } }] = await onReportChange();
+    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
     reportTracker.track(`Added ${is_collection ? 'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (enableNewPatrolUI) {
-      return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
-    }
 
+    dispatch(fetchEvent(thisReport.id));
     return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
-      openModalForPatrol(data, map);
+      if (enableNewPatrolUI) {
+        setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrolId}`);
+      } else {
+        openModalForPatrol(data, map);
+      }
     });
-  }, [dispatch, enableNewPatrolUI, is_collection, map, navigate, onReportChange, reportTracker]);
+  }, [dispatch, enableNewPatrolUI, is_collection, map, onSaveReport, reportTracker, setRedirectTo]);
 
   const onStartAddToPatrol = useCallback(() => {
     dispatch(addModal({
@@ -131,6 +131,7 @@ const ReportMenu = ({ onReportChange, report }) => {
 export default memo(ReportMenu);
 
 ReportMenu.propTypes = {
-  onReportChange: PropTypes.func.isRequired,
+  onSaveReport: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
+  setRedirectTo: PropTypes.func.isRequired,
 };

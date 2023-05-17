@@ -12,7 +12,7 @@ import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
+const Header = ({ onChangeTitle, report, onSaveReport, isReadOnly, setRedirectTo }) => {
   const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const category = report?.is_collection
@@ -93,7 +93,7 @@ const Header = ({ onChangeTitle, report, onReportChange, isReadOnly }) => {
       />
     </div>}
     <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
-      <ReportMenu report={report} onReportChange={onReportChange}></ReportMenu>
+      <ReportMenu report={report} onSaveReport={onSaveReport} setRedirectTo={setRedirectTo} />
     </div>
   </div>;
 };
@@ -106,7 +106,8 @@ Header.propTypes = {
   isReadOnly: PropTypes.bool,
   onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
-  onReportChange: PropTypes.func.isRequired,
+  onSaveReport: PropTypes.func.isRequired,
+  setRedirectTo: PropTypes.func.isRequired,
 };
 
 export default memo(Header);
