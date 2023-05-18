@@ -15,22 +15,23 @@ import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
+import { areCardsEquals } from '../../utils';
 
 const NoteListItem = ({
   cardsExpanded,
   note,
   onCollapse,
+  onChange,
   onDelete,
+  onCancel,
+  onDone,
   onExpand,
-  onSave,
 }, ref = null) => {
   const textareaRef = useRef();
-
   const tracker = useContext(TrackerContext);
-
   const isNew = useMemo(() => !note.id, [note.id]);
-  const isNewAndUnAdded = useMemo(() => isNew && !note.text, [isNew, note.text]);
-  const isOpen = useMemo(() => cardsExpanded.includes(note), [cardsExpanded, note]);
+  const isOpen = useMemo(() => !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, note)), [cardsExpanded, note]);
+  const [isEditing, setIsEditing] = useState(isNew);
 
   const title = useMemo(() => {
     if (isNew) {
@@ -39,56 +40,39 @@ const NoteListItem = ({
     return note.text;
   }, [isNew, note.text]);
 
-  const [isEditing, setIsEditing] = useState(isNewAndUnAdded);
-  const [text, setText] = useState(note.text);
 
   const onClickTrashCanIcon = useCallback((event) => {
     event.stopPropagation();
-
     tracker.track(`Delete ${isNew ? 'new' : 'existing'} note`);
-
     onDelete();
   }, [tracker, onDelete, isNew]);
 
   const onClickPencilIcon = useCallback((event) => {
-    const newEditState = !isOpen || !isEditing;
-
     event.stopPropagation();
-
-    onExpand();
-
+    const newEditState = !isOpen || !isEditing;
     tracker.track(`${newEditState ? 'Start' : 'Stop'} editing ${isNew ? 'new' : 'existing'} note`);
-
+    onExpand();
     setIsEditing(newEditState);
   }, [tracker, isEditing, isNew, isOpen, onExpand]);
 
-  const onChangeTextArea = useCallback((event) => setText(!event.target.value.trim() ? '' : event.target.value), []);
+  const onChangeTextArea = useCallback((event) => onChange(note, event), [note, onChange]);
 
   const onClickCancelButton = useCallback(() => {
-    if (isNewAndUnAdded) {
+    if (note.tmpId && !note.originalText) {
       tracker.track('Cancel writing new note');
-      onDelete();
+      onDelete(note);
     } else {
       tracker.track('Cancel editing existing note');
-      setText(note.text);
+      onCancel(note);
     }
     setIsEditing(false);
-  }, [isNewAndUnAdded, tracker, onDelete, note]);
+  }, [note, tracker, onDelete, onCancel]);
 
-  const onClickSaveButton = useCallback(() => {
+  const onClickDoneButton = useCallback(() => {
+    onDone(note);
     setIsEditing(false);
-    const trimmedText = text.trim();
-
-    const newNote = {
-      ...note,
-      text: trimmedText,
-    };
-
     tracker.track(`Save ${isNew ? 'new' : 'existing'} note`);
-
-    onSave(newNote);
-    setText(trimmedText);
-  }, [isNew, note, onSave, tracker, text]);
+  }, [isNew, note, onDone, tracker]);
 
   useEffect(() => {
     if (isEditing) {
@@ -132,7 +116,7 @@ const NoteListItem = ({
       <div className={styles.itemActionButtonContainer}>
         <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
           <PencilIcon
-            className={isNewAndUnAdded ? styles.disabled : ''}
+            className={isEditing ? styles.disabled : ''}
             data-testid={`activitySection-editIcon-${note.id || note.text}`}
           />
         </ItemActionButton>
@@ -159,7 +143,7 @@ const NoteListItem = ({
           onChange={onChangeTextArea}
           readOnly={!isEditing}
           ref={textareaRef}
-          value={text}
+          value={note.text}
         />
 
         {isEditing && <div className={styles.editingNoteActions}>
@@ -168,11 +152,15 @@ const NoteListItem = ({
             onClick={onClickCancelButton}
             type="button"
             variant="secondary"
-          >
+            data-testid={`activitySection-noteCancel-${note.id || note.text}`}>
             Cancel
           </Button>
 
-          <Button disabled={!text || text === note.text} onClick={onClickSaveButton} type="button" data-testid='note_done' >
+          <Button
+              disabled={!note.text || note?.originalText === note.text}
+              onClick={onClickDoneButton}
+              type="button"
+              data-testid={`activitySection-noteDone-${note.id || note.text}`}>
             Done
           </Button>
         </div>}
@@ -195,9 +183,11 @@ NoteListItem.propTypes = {
     })),
   }).isRequired,
   onCollapse: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
+  onDone: PropTypes.func.isRequired,
   onExpand: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
 };
 
 export default memo(forwardRef(NoteListItem));
