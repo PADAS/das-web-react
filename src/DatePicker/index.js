@@ -28,8 +28,14 @@ const CustomHeader = ({
 }) => {
   const monthYearPickerRef = createRef();
 
-  const CustomMonthYearPickerHeader = ({ date, decreaseYear, increaseYear }) => <div className={styles.header}>
-    <button type='button' onClick={decreaseYear}>
+  const CustomMonthYearPickerHeader = ({
+    date,
+    decreaseYear,
+    increaseYear,
+    nextYearButtonDisabled,
+    prevYearButtonDisabled,
+  }) => <div className={styles.header}>
+    <button disabled={prevYearButtonDisabled} onClick={decreaseYear} type="button">
       <ChevronLeft/>
     </button>
 
@@ -37,7 +43,7 @@ const CustomHeader = ({
       {getYear(date)}
     </div>
 
-    <button type='button' onClick={increaseYear}>
+    <button disabled={nextYearButtonDisabled} onClick={increaseYear} type="button">
       <ChevronRight/>
     </button>
   </div>;
@@ -64,7 +70,7 @@ const CustomHeader = ({
 
   return <div className={styles.header}>
     <button
-      type='button'
+      type="button"
       data-testid="datePicker-decreaseYear"
       disabled={prevYearButtonDisabled}
       onClick={decreaseYear}
@@ -74,7 +80,7 @@ const CustomHeader = ({
     </button>
 
     <button
-      type='button'
+      type="button"
       data-testid="datePicker-decreaseMonth"
       disabled={prevMonthButtonDisabled}
       onClick={decreaseMonth}
@@ -99,7 +105,7 @@ const CustomHeader = ({
       data-testid="datePicker-increaseMonth"
       disabled={nextMonthButtonDisabled}
       onClick={increaseMonth}
-      type='button'
+      type="button"
     >
       <ChevronRight/>
     </button>
@@ -108,7 +114,7 @@ const CustomHeader = ({
       data-testid="datePicker-increaseYear"
       disabled={nextYearButtonDisabled}
       onClick={increaseYear}
-      type='button'
+      type="button"
     >
       <ChevronRight/>
       <ChevronRight/>
