@@ -58,12 +58,12 @@ const NoteListItem = ({
   const onChangeTextArea = useCallback((event) => onChange(note, event), [note, onChange]);
 
   const onClickCancelButton = useCallback(() => {
-    if (note.tmpId && !note.isDone) {
+    if (note.tmpId && !note.originalText) {
       tracker.track('Cancel writing new note');
-      onDelete();
+      onDelete(note);
     } else {
       tracker.track('Cancel editing existing note');
-      onCancel();
+      onCancel(note);
     }
     setIsEditing(false);
   }, [note, tracker, onDelete, onCancel]);

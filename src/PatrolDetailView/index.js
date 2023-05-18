@@ -345,7 +345,6 @@ const PatrolDetailView = () => {
         return {
           ...currentNote,
           originalText: text,
-          isDone: true,
           text
         };
       }
@@ -423,7 +422,7 @@ const PatrolDetailView = () => {
   }, [attachmentsToAdd, patrolAttachments, patrolTracker]);
 
   const onAddNote = useCallback(() => {
-    const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.text);
+    const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.originalText);
     if (userHasNewNoteEmpty) {
       window.alert('Can not add a new note: there\'s an empty note not saved yet');
     } else {
@@ -432,7 +431,6 @@ const PatrolDetailView = () => {
         ref: newNoteRef,
         text: '',
         tmpId: uuid(),
-        isDone: false
       };
       setNotesToAdd([...notesToAdd, newNote]);
       patrolDetailViewTracker.track('Added Note');
