@@ -60,7 +60,7 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
   const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
   return reportDifferences.map((reportField) => {
     const [key, value] = reportField;
-    const entries = Object.entries(value);
+    const entries = Object.entries(value ?? {});
     if (!entries.length && key === EVENT_DETAILS_KEY){
       return [key, { tmpValue: value }];
     }
