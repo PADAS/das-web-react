@@ -357,3 +357,14 @@ export const PRIORITY_COLOR_MAP = {
     name: 'None',
   },
 };
+
+export const setOriginalTextToEventNotes = (event) => {
+  if (!event){
+    return null;
+  }
+  const { notes = [] } = event;
+  return {
+    ...event,
+    notes: notes.map((note) => ({ ...note, originalText: !note.originalText ? note.text : note.originalText }))
+  };
+};

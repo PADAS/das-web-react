@@ -14,6 +14,7 @@ import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
 import styles from './styles.module.scss';
+import { areCardsEquals } from '../utils';
 
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
 const CONTAINED_REPORT_ANALYTICS_SUBSTRING = 'contained report';
@@ -28,8 +29,10 @@ const ActivitySection = ({
   notes,
   notesToAdd,
   onDeleteAttachment,
+  onCancelNote,
   onDeleteNote,
-  onSaveNote,
+  onChangeNote,
+  onDoneNote,
   startTime,
 }) => {
   const tracker = useContext(TrackerContext);
@@ -37,17 +40,19 @@ const ActivitySection = ({
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
   const onCollapseCard = useCallback((card, analyticsLabel) => {
-    if (cardsExpanded.includes(card)) {
+    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (isCardExpanded) {
       if (analyticsLabel) {
         tracker.track(`Collapse ${analyticsLabel} card in the activity section`);
       }
-
-      setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== card)]);
+      const filtered = [...cardsExpanded.filter((cardExpanded) => !areCardsEquals(cardExpanded, card))];
+      setCardsExpanded(filtered);
     }
   }, [cardsExpanded, tracker]);
 
   const onExpandCard = useCallback((card, analyticsLabel) => {
-    if (!cardsExpanded.includes(card)) {
+    const isCardExpanded = !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, card));
+    if (!isCardExpanded) {
       if (analyticsLabel) {
         tracker.track(`Expand ${analyticsLabel} card in the activity section`);
       }
@@ -55,11 +60,6 @@ const ActivitySection = ({
       setCardsExpanded([...cardsExpanded, card]);
     }
   }, [cardsExpanded, tracker]);
-
-  const onSaveNoteKeepExpanded = useCallback((originalNote) => (updatedNote) => {
-    const editedNote = onSaveNote(originalNote, updatedNote);
-    setCardsExpanded([...cardsExpanded.filter((cardExpanded) => cardExpanded !== originalNote), editedNote]);
-  }, [cardsExpanded, onSaveNote]);
 
   const attachmentsRendered = useMemo(() => attachments.map((attachment) => ({
     sortDate: new Date(attachment.updated_at || attachment.created_at || attachment.updates[0].time),
@@ -121,30 +121,27 @@ const ActivitySection = ({
       note={note}
       onCollapse={() => onCollapseCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
       onExpand={() => onExpandCard(note, EXISTING_NOTE_ANALYTICS_SUBSTRING)}
-      onSave={onSaveNoteKeepExpanded(note)}
+      onCancel={onCancelNote}
+      onChange={onChangeNote}
+      onDone={onDoneNote}
     />,
-  })), [cardsExpanded, notes, onCollapseCard, onExpandCard, onSaveNoteKeepExpanded]);
+  })), [cardsExpanded, notes, onCancelNote, onCollapseCard, onDoneNote, onExpandCard, onChangeNote]);
 
   const notesToAddRendered = useMemo(() => notesToAdd.map((noteToAdd) => ({
     sortDate: new Date(noteToAdd.creationDate),
     node: <NoteListItem
       cardsExpanded={cardsExpanded}
-      key={noteToAdd.text}
+      key={noteToAdd.tmpId}
       note={noteToAdd}
       onCollapse={() => onCollapseCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
       onDelete={() => onDeleteNote(noteToAdd)}
       onExpand={() => onExpandCard(noteToAdd, NEW_NOTE_ANALYTICS_SUBSTRING)}
-      onSave={onSaveNoteKeepExpanded(noteToAdd)}
       ref={noteToAdd.ref}
+      onChange={onChangeNote}
+      onCancel={onCancelNote}
+      onDone={onDoneNote}
     />,
-  })), [
-    notesToAdd,
-    cardsExpanded,
-    onSaveNoteKeepExpanded,
-    onCollapseCard,
-    onDeleteNote,
-    onExpandCard,
-  ]);
+  })), [notesToAdd, cardsExpanded, onChangeNote, onCancelNote, onDoneNote, onCollapseCard, onDeleteNote, onExpandCard]);
 
   const sortableList = useMemo(() => [
     ...attachmentsRendered,
@@ -256,7 +253,9 @@ ActivitySection.propTypes = {
   })).isRequired,
   onDeleteAttachment: PropTypes.func.isRequired,
   onDeleteNote: PropTypes.func.isRequired,
-  onSaveNote: PropTypes.func.isRequired,
+  onChangeNote: PropTypes.func.isRequired,
+  onCancelNote: PropTypes.func.isRequired,
+  onDoneNote: PropTypes.func.isRequired,
   startTime: PropTypes.instanceOf(Date),
 };
 
