@@ -38,10 +38,8 @@ const symbolPaint = {
   'text-halo-width': 0.5,
 };
 
-const labelPaint = {
-  'icon-opacity': 1,
-  'text-color': '#ffffff',
-  'text-halo-color': 'rgba(0,0,0,0.7)',
+const textLayout = {
+  'text-field': '{title}',
 };
 
 const symbolFilter = ['==', ['geometry-type'], 'Point'];
@@ -88,7 +86,6 @@ const StartStopLayer = (props) => {
     features: patrolPointFeatures,
   }), [patrolPointFeatures]);
 
-  const layerLabelPaint = useMemo(() => ({ ...labelPaint, 'icon-color': ['get', 'stroke'] }), []);
   const layerSymbolPaint = useMemo(() => ({ ...symbolPaint, 'text-color': ['get', 'stroke'] }), []);
   const layerLinePaint = useMemo(() => ({ ...linePaint, 'line-color': ['get', 'stroke'] }), []);
 
@@ -97,8 +94,8 @@ const StartStopLayer = (props) => {
 
   if (!points && !lines) return null;
 
-  return <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
-      id={layerId} filter={symbolFilter}  {...rest}
+  return <LabeledPatrolSymbolLayer paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
+      id={layerId} filter={symbolFilter} textLayout={textLayout} {...rest}
     />;
 };
 

@@ -14,7 +14,7 @@ const withMapViewConfig = Component => connect(mapStatetoProps, null)(({ showMap
     const matchedLayerID = Object.keys(showMapNames).find(id => layerId.includes(id));
     return {
       ...mapUserLayoutConfig,
-      ...!showMapNames[matchedLayerID]?.enabled && { 'text-size': 0 }
+      ...!showMapNames[matchedLayerID]?.enabled && { 'text-size': 0, 'icon-size': 0 }
     };
   };
 
