@@ -274,33 +274,30 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolReportedByChange = useCallback((selection) => {
-    let startLocation, timeRange;
-    if (isNewPatrol) {
-      const shouldAssignTrackedSubjectLocationAndTime = radioHasRecentActivity(selection)
+    const shouldAssignTrackedSubjectLocationAndTime = radioHasRecentActivity(selection)
         && subjectIsARadio(selection)
         && !!selection?.last_position?.geometry?.coordinates
-        && !!selection?.last_position?.properties?.coordinateProperties?.time;
-      if (shouldAssignTrackedSubjectLocationAndTime) {
-        startLocation = {
+        && !!selection?.last_position?.properties?.coordinateProperties?.time
+        && isNewPatrol;
+    const updatedProps = shouldAssignTrackedSubjectLocationAndTime
+      ? {
+        start_location: {
           latitude: selection.last_position.geometry.coordinates[1],
           longitude: selection.last_position.geometry.coordinates[0],
-        };
-        timeRange = { start_time: selection.last_position.properties.coordinateProperties.time };
-      } else if (!selection) {
-        startLocation = null;
-        timeRange = { start_time: new Date().toISOString() };
-      }
-    }
+        },
+        time_range: { start_time: selection.last_position.properties.coordinateProperties.time }
+      } : {};
+
+    const newSegment = {
+      ...patrolForm?.patrol_segments[0],
+      ...updatedProps,
+      leader: selection || null,
+    };
 
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        {
-          ...patrolForm.patrol_segments[0],
-          leader: selection || null,
-          start_location: startLocation,
-          time_range: timeRange,
-        },
+        newSegment,
         ...patrolForm.patrol_segments.slice(1),
       ],
     });
