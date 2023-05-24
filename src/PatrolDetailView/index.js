@@ -274,31 +274,44 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolReportedByChange = useCallback((selection) => {
-    const shouldAssignTrackedSubjectLocationAndTime = radioHasRecentActivity(selection)
-        && subjectIsARadio(selection)
-        && !!selection?.last_position?.geometry?.coordinates
-        && !!selection?.last_position?.properties?.coordinateProperties?.time
-        && isNewPatrol;
-    const updatedProps = shouldAssignTrackedSubjectLocationAndTime
-      ? {
-        start_location: {
-          latitude: selection.last_position.geometry.coordinates[1],
-          longitude: selection.last_position.geometry.coordinates[0],
-        },
-        time_range: { start_time: selection.last_position.properties.coordinateProperties.time }
-      } : {};
-
-    const newSegment = {
-      ...patrolForm?.patrol_segments[0],
-      ...updatedProps,
+    patrolDetailViewTracker.track(`${selection ? 'Set' : 'Unset'} patrol tracked subject`);
+    const update = {
       leader: selection || null,
     };
+
+    if (isNewPatrol) {
+      const trackedSubjectLocation = selection?.last_position?.geometry?.coordinates;
+      const trackedSubjectLocationTime = selection?.last_position?.properties?.coordinateProperties?.time;
+      if (radioHasRecentActivity(selection)
+          && subjectIsARadio(selection)
+          && !!trackedSubjectLocation
+          && !!trackedSubjectLocationTime) {
+
+        update.start_location = {
+          latitude: trackedSubjectLocation[1],
+          longitude: trackedSubjectLocation[0],
+        };
+
+        update.time_range = {
+          start_time: trackedSubjectLocationTime,
+        };
+      } else if (!selection) {
+
+        update.start_location = null;
+        update.time_range = {
+          start_time: new Date().toISOString(),
+        };
+      }
+    }
 
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        newSegment,
-        ...patrolForm.patrol_segments.slice(1),
+        {
+          ...patrolForm?.patrol_segments[0],
+          ...update,
+        },
+        ...patrolForm?.patrol_segments.slice(1),
       ],
     });
 
