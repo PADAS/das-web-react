@@ -29,7 +29,7 @@ import colorVariables from '../common/styles/vars/colors.module.scss';
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
 const DEFAULT_STROKE = '#FF0080';
-const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
+export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_UI_STATES.SCHEDULED.status]: {
@@ -375,42 +375,6 @@ export const displayPatrolSegmentId = (patrol) => {
   const { id } = firstLeg;
   return id || null;
 };
-export const isSegmentOverdue = (patrolSegment) => {
-  const { time_range: { start_time } = {}, scheduled_start } = patrolSegment;
-  return !start_time
-    && !!scheduled_start
-    && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
-};
-
-export const isSegmentOverdueToEnd = (patrolSegment) => {
-  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
-  return !end_time
-    && !!scheduled_end
-    && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
-};
-export const isSegmentPending = (patrolSegment) => {
-  const { time_range: { start_time } = {} } = patrolSegment;
-
-  return !start_time
-  || (!!start_time && addMinutes(new Date(start_time), DELTA_FOR_OVERDUE).getTime() > new Date().getTime());
-};
-
-export const isSegmentActive = (patrolSegment) => {
-  const { time_range: { start_time, end_time } = {} } = patrolSegment;
-  const nowTime = new Date().getTime();
-
-  return !!start_time
-    && new Date(start_time).getTime() < nowTime
-    && (
-      !end_time
-      || (!!end_time && new Date(end_time).getTime() > nowTime)
-    );
-};
-
-export const isSegmentFinished = (patrolSegment) => {
-  const { time_range: { end_time } = {} } = patrolSegment;
-  return !!end_time && new Date(end_time).getTime() < new Date().getTime();
-};
 
 export const isSegmentEndScheduled = (patrolSegment) => {
   const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
@@ -420,12 +384,75 @@ export const isSegmentEndScheduled = (patrolSegment) => {
 };
 
 
-export const  isPatrolCancelled = (patrol) => {
-  return (patrol.state === 'cancelled');
+export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
+
+export const isPatrolDone = (patrol) => patrol.state === 'done';
+
+export const isSegmentFinished = (patrolSegment) => {
+  const { time_range: { end_time } = {} } = patrolSegment;
+
+  if (!!end_time) {
+    const patrolEndDate = new Date(end_time);
+    const now = new Date();
+
+    return patrolEndDate.getTime() < now.getTime();
+  }
+  return false;
 };
 
-export const isPatrolDone = (patrol) => {
-  return (patrol.state === 'done');
+export const isSegmentOverdue = (patrolSegment) => {
+  const { scheduled_start, time_range: { start_time } = {} } = patrolSegment;
+
+  if (!start_time && !!scheduled_start) {
+    const patrolStartDate = new Date(scheduled_start);
+    const patrolStartOverdueDate = addMinutes(patrolStartDate.getTime(), DELTA_FOR_OVERDUE);
+    const now = new Date();
+
+    return patrolStartOverdueDate < now.getTime();
+  }
+  return false;
+};
+
+export const isSegmentActive = (patrolSegment) => {
+  const { time_range: { start_time, end_time } = {} } = patrolSegment;
+
+  if (!!start_time) {
+    const patrolStartDate = new Date(start_time);
+    const now = new Date();
+    if (patrolStartDate.getTime() < now.getTime()) {
+      const patrolEndDate = !!end_time && new Date(end_time);
+
+      return !patrolEndDate || patrolEndDate.getTime() > now.getTime();
+    }
+  }
+  return false;
+};
+
+export const isSegmentPending = (patrolSegment) => {
+  const { time_range: { start_time } = {} } = patrolSegment;
+
+  let isPatrolStartDateInTheFuture = false;
+  if (!!start_time) {
+    const patrolStartDate = new Date(start_time);
+    const now = new Date();
+
+    isPatrolStartDateInTheFuture = patrolStartDate > now.getTime();
+  }
+
+  return !start_time || isPatrolStartDateInTheFuture;
+};
+
+export const isSegmentOverdueToEnd = (patrolSegment) => {
+  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
+
+  if (!end_time && !!scheduled_end) {
+    const patrolEndDate = new Date(scheduled_end);
+    const patrolEndOverdueDate = addMinutes(patrolEndDate.getTime(), DELTA_FOR_OVERDUE);
+    const now = new Date();
+
+    return patrolEndOverdueDate < now.getTime();
+  }
+  return false;
 };
 
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
@@ -473,10 +500,12 @@ export const calcPatrolState = (patrol) => {
   if (isPatrolDone(patrol)) {
     return DONE;
   }
-  const { patrol_segments } = patrol;
-  if (!patrol_segments.length) return INVALID;
+  if (!patrol.patrol_segments.length) {
+    return INVALID;
+  }
 
-  const [segment]  = patrol_segments;
+  const [segment] = patrol.patrol_segments;
+
   if (isSegmentFinished(segment)) {
     return DONE;
   }
@@ -487,9 +516,13 @@ export const calcPatrolState = (patrol) => {
     return ACTIVE;
   }
   if (isSegmentPending(segment)) {
-    const todayInTheNextHour = new Date().setHours(new Date().getHours() + 1);
-    const happensTheNextHour = isWithinRange(displayStartTimeForPatrol(patrol), new Date(), todayInTheNextHour);
-    return happensTheNextHour ? READY_TO_START : SCHEDULED;
+    const now = new Date();
+    const nextHour = now.setHours(now.getHours() + 1);
+    const patrolStartDate = displayStartTimeForPatrol(patrol);
+    const happensTheNextHour = isWithinRange(patrolStartDate, now, nextHour);
+    const isPatrolInOverdueDelta = patrolStartDate.getTime() < now.getTime();
+
+    return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
 };
