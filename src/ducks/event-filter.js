@@ -1,4 +1,5 @@
-import { generateMonthsAgoDate } from '../utils/datetime';
+import { REACT_APP_EVENT_FILTER_DATE_RANGE_LOWER } from '../constants';
+import { generateDaysAgoDate } from '../utils/datetime';
 import globallyResettableReducer from '../reducers/global-resettable';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
 
@@ -6,7 +7,7 @@ import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_
 export const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
 
 const defaultDateRange = {
-  lower: generateMonthsAgoDate(1).toISOString(),
+  lower: generateDaysAgoDate(REACT_APP_EVENT_FILTER_DATE_RANGE_LOWER).toISOString(),
   upper: null,
 };
 
