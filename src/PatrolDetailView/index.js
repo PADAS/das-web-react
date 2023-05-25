@@ -274,32 +274,25 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolReportedByChange = useCallback((selection) => {
-    patrolDetailViewTracker.track(`${selection ? 'Set' : 'Unset'} patrol tracked subject`);
     const update = {
       leader: selection || null,
     };
-
-    if (isNewPatrol) {
+    if (isNewPatrol && selection) {
+      const [patrolSegment] = patrolForm?.patrol_segments;
+      const { start_location, time_range } = patrolSegment;
       const trackedSubjectLocation = selection?.last_position?.geometry?.coordinates;
       const trackedSubjectLocationTime = selection?.last_position?.properties?.coordinateProperties?.time;
-      if (radioHasRecentActivity(selection)
-          && subjectIsARadio(selection)
-          && !!trackedSubjectLocation
-          && !!trackedSubjectLocationTime) {
+      const isRadioAndHasRecentAct = subjectIsARadio(selection) && radioHasRecentActivity(selection);
 
+      if ( !start_location && isRadioAndHasRecentAct && !!trackedSubjectLocation) {
         update.start_location = {
           latitude: trackedSubjectLocation[1],
           longitude: trackedSubjectLocation[0],
         };
-
+      }
+      if (!time_range?.start_time && isRadioAndHasRecentAct && !!trackedSubjectLocationTime){
         update.time_range = {
           start_time: trackedSubjectLocationTime,
-        };
-      } else if (!selection) {
-
-        update.start_location = null;
-        update.time_range = {
-          start_time: new Date().toISOString(),
         };
       }
     }
