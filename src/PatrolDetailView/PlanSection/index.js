@@ -21,6 +21,8 @@ import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 
+const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
+
 const PlanSection = ({
   onPatrolEndDateChange,
   onPatrolEndLocationChange,
@@ -59,11 +61,11 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    onPatrolEndDateChange(date < startDate ? startDate : date, isAutoEnd);
-  }, [isAutoEnd, onPatrolEndDateChange, startDate]);
+    onPatrolEndDateChange(date, shouldScheduleDate(date, isAutoEnd));
+  }, [isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartDateChange = useCallback((date) => {
-    onPatrolStartDateChange(date, isAutoStart);
+    onPatrolStartDateChange(date, shouldScheduleDate(date, isAutoStart));
   }, [isAutoStart, onPatrolStartDateChange]);
 
   const handleEndTimeChange = useCallback((endTime) => {
@@ -71,7 +73,7 @@ const PlanSection = ({
     const updatedEndDateTime = endDate ? new Date(endDate) : new Date();
     updatedEndDateTime.setHours(newEndTimeParts[0], newEndTimeParts[1], '00');
 
-    onPatrolEndDateChange(updatedEndDateTime, isAutoEnd);
+    onPatrolEndDateChange(updatedEndDateTime, shouldScheduleDate(updatedEndDateTime, isAutoEnd));
   }, [endDate, isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartTimeChange = useCallback((startTime) => {
@@ -79,17 +81,19 @@ const PlanSection = ({
     const updatedStartDateTime = startDate ? new Date(startDate) : new Date();
     updatedStartDateTime.setHours(newStartTimeParts[0], newStartTimeParts[1], '00');
 
-    onPatrolStartDateChange(updatedStartDateTime, isAutoStart);
+    onPatrolStartDateChange(updatedStartDateTime, shouldScheduleDate(updatedStartDateTime, isAutoStart));
   }, [isAutoStart, onPatrolStartDateChange, startDate]);
 
   const handleAutoEndChange = useCallback(() => {
     dispatch(updateUserPreferences({ autoEndPatrols: !isAutoEnd }));
-    onPatrolEndDateChange(endDate, !isAutoEnd);
+    onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, isAutoEnd));
   }, [dispatch, isAutoEnd, onPatrolEndDateChange, endDate]);
 
   const handleAutoStartChange = useCallback(() => {
-    dispatch(updateUserPreferences({ autoStartPatrols: !isAutoStart }));
-    onPatrolStartDateChange(startDate, !isAutoStart);
+    const newIsAutoStart = !isAutoStart;
+    dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
+
+    onPatrolStartDateChange(startDate, shouldScheduleDate(startDate, newIsAutoStart));
   }, [dispatch, isAutoStart, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
