@@ -1,4 +1,4 @@
-import React, { createRef, forwardRef, memo, useCallback, useRef, useState } from 'react';
+import React, { createRef, forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import getMonth from 'date-fns/get_month';
 import getYear from 'date-fns/get_year';
@@ -13,85 +13,119 @@ import styles from './styles.module.scss';
 
 const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
-const CustomHeader = ({
-  changeMonth,
-  changeYear,
-  date,
-  decreaseMonth,
-  decreaseYear,
-  increaseMonth,
-  increaseYear,
-  nextMonthButtonDisabled,
-  prevMonthButtonDisabled,
-}) => {
-  const monthYearPickerRef = createRef();
+const renderCustomHeader = (maxDate, minDate) => {
+  const CustomHeader = ({
+    changeMonth,
+    changeYear,
+    date,
+    decreaseMonth,
+    decreaseYear,
+    increaseMonth,
+    increaseYear,
+    nextMonthButtonDisabled,
+    nextYearButtonDisabled,
+    prevMonthButtonDisabled,
+    prevYearButtonDisabled,
+  }) => {
+    const monthYearPickerRef = createRef();
 
-  const CustomMonthYearPickerHeader = ({ date, decreaseYear, increaseYear }) => <div className={styles.header}>
-    <button type='button' onClick={decreaseYear}>
-      <ChevronLeft/>
-    </button>
+    const CustomMonthYearPickerHeader = ({
+      date,
+      decreaseYear,
+      increaseYear,
+      nextYearButtonDisabled,
+      prevYearButtonDisabled,
+    }) => <div className={styles.header}>
+      <button disabled={prevYearButtonDisabled} onClick={decreaseYear} type="button">
+        <ChevronLeft/>
+      </button>
 
-    <div className={`${styles.headerTitle} ${styles.customMonthYearPickerHeaderTitle}`}>
-      {getYear(date)}
-    </div>
+      <div className={`${styles.headerTitle} ${styles.customMonthYearPickerHeaderTitle}`}>
+        {getYear(date)}
+      </div>
 
-    <button type='button' onClick={increaseYear}>
-      <ChevronRight/>
-    </button>
-  </div>;
+      <button disabled={nextYearButtonDisabled} onClick={increaseYear} type="button">
+        <ChevronRight/>
+      </button>
+    </div>;
 
-  const CustomMonthYearPickerInput = <div
-      className={styles.headerTitle}
-      data-testid="datePicker-monthYearPicker-input"
-    >
-    {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
+    const CustomMonthYearPickerInput = <div
+        className={styles.headerTitle}
+        data-testid="datePicker-monthYearPicker-input"
+      >
+      {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
 
-    <div className={styles.triangle} />
-  </div>;
+      <div className={styles.triangle} />
+    </div>;
 
-  const onChangeDate = (date) => {
-    changeMonth(getMonth(date));
-    changeYear(getYear(date));
+    const onChangeDate = (date) => {
+      changeMonth(getMonth(date));
+      changeYear(getYear(date));
+    };
+
+    const onInputClick = () => {
+      if (monthYearPickerRef.current.isCalendarOpen()) {
+        monthYearPickerRef.current.setOpen(false);
+      }
+    };
+
+    return <div className={styles.header}>
+      <button
+        type="button"
+        data-testid="datePicker-decreaseYear"
+        disabled={prevYearButtonDisabled}
+        onClick={decreaseYear}
+      >
+        <ChevronLeft/>
+        <ChevronLeft/>
+      </button>
+
+      <button
+        type="button"
+        data-testid="datePicker-decreaseMonth"
+        disabled={prevMonthButtonDisabled}
+        onClick={decreaseMonth}
+      >
+        <ChevronLeft/>
+      </button>
+
+      <DatePicker
+        customInput={CustomMonthYearPickerInput}
+        dateFormat="yyyy"
+        maxDate={maxDate}
+        minDate={minDate}
+        onChange={onChangeDate}
+        onInputClick={onInputClick}
+        popperPlacement="bottom"
+        ref={monthYearPickerRef}
+        renderCustomHeader={CustomMonthYearPickerHeader}
+        selected={date}
+        showMonthYearPicker
+        showPopperArrow={false}
+      />
+
+      <button
+        data-testid="datePicker-increaseMonth"
+        disabled={nextMonthButtonDisabled}
+        onClick={increaseMonth}
+        type="button"
+      >
+        <ChevronRight/>
+      </button>
+
+      <button
+        data-testid="datePicker-increaseYear"
+        disabled={nextYearButtonDisabled}
+        onClick={increaseYear}
+        type="button"
+      >
+        <ChevronRight/>
+        <ChevronRight/>
+      </button>
+    </div>;
   };
 
-  const onInputClick = () => {
-    if (monthYearPickerRef.current.isCalendarOpen()) {
-      monthYearPickerRef.current.setOpen(false);
-    }
-  };
-
-  return <div className={styles.header}>
-    <button type='button' data-testid="datePicker-decreaseYear" onClick={decreaseYear}>
-      <ChevronLeft/>
-      <ChevronLeft/>
-    </button>
-
-    <button type='button' data-testid="datePicker-decreaseMonth" disabled={prevMonthButtonDisabled} onClick={decreaseMonth}>
-      <ChevronLeft/>
-    </button>
-
-    <DatePicker
-      customInput={CustomMonthYearPickerInput}
-      dateFormat="yyyy"
-      onChange={onChangeDate}
-      onInputClick={onInputClick}
-      popperPlacement="bottom"
-      ref={monthYearPickerRef}
-      renderCustomHeader={CustomMonthYearPickerHeader}
-      selected={date}
-      showMonthYearPicker
-      showPopperArrow={false}
-    />
-
-    <button type='button' data-testid="datePicker-increaseMonth" disabled={nextMonthButtonDisabled} onClick={increaseMonth}>
-      <ChevronRight/>
-    </button>
-
-    <button type='button' data-testid="datePicker-increaseYear" onClick={increaseYear}>
-      <ChevronRight/>
-      <ChevronRight/>
-    </button>
-  </div>;
+  return CustomHeader;
 };
 
 
@@ -179,6 +213,8 @@ const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeho
     setIsOpen(false);
     onCalendarClose?.();
   }, [onCalendarClose]);
+
+  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate), [rest?.maxDate, rest?.minDate]);
 
   return <DatePicker
     customInput={<CustomInputForwardRef isPopperOpen={isOpen} />}
