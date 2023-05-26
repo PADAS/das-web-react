@@ -1,7 +1,7 @@
-import { generateDaysAgoDate } from '../utils/datetime';
-import globallyResettableReducer from '../reducers/global-resettable';
-import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
-import { EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../constants';
+import { EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
+import { generateDaysAgoDate } from '../../utils/datetime';
+import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
+import globallyResettableReducer from '../../reducers/global-resettable';
 
 const defaultDateRange = {
   lower: generateDaysAgoDate(REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS).toISOString(),
@@ -55,53 +55,30 @@ export const setDefaultDateRange = (lower, upper) => {
 
 // REDUCER
 const eventFilterReducer = (state, action) => {
-  const { type, payload } = action;
-
-  if (type === UPDATE_EVENT_FILTER) {
+  switch (action.type) {
+  case UPDATE_EVENT_FILTER:
     return {
       ...state,
-      ...payload,
+      ...action.payload,
       filter: {
         ...state.filter,
-        ...payload.filter,
-      }
+        ...action.payload.filter,
+      },
     };
-  }
 
-  if (type === UPDATE_DATE_RANGE || type === RESET_DATE_RANGE) {
+  case UPDATE_DATE_RANGE:
+  case RESET_DATE_RANGE:
     return {
       ...state,
       filter: {
         ...state.filter,
         date_range: dateRangeReducer(state, action),
-      }
+      },
     };
+
+  default:
+    return state;
   }
-  return state;
 };
 
 export default globallyResettableReducer(eventFilterReducer, INITIAL_FILTER_STATE);
-
-/*
-{
-  state: Array<String> | of ‘new’, ‘active’, ‘resolved’,
-  bbox: String | (Number,Number,Number,Number},
-  is_collection: Bool,
-  exclude_contained: Bool,
-  include_files: Bool,
-  include_notes: Bool,
-  include_details: Bool,
-  include_related_events: Bool,
-  filter: {
-    event_type: Array<String> | of event_type IDs,
-    event_category: Array<String> | of event_category IDs,
-    reported_by: Array<String> | of reported_by IDs,
-    text: String | search substring,
-    date_range: {
-      lower: String | ISO8601 date,
-      upper: String | ISO8601 date,
-    },
-    duration: String | ISO8601 duration value ("in the last X days"),
-    priority: Array<Int> | of priority levels (0, 100, 200, 300)
-  }
-*/

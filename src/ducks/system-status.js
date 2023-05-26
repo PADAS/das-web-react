@@ -10,7 +10,7 @@ import { setDefaultDateRange as setDefaultPatrolDateRange } from './patrol-filte
 export const STATUS_API_URL = `${API_URL}status`;
 
 // actions
-const FETCH_SYSTEM_STATUS_SUCCESS = 'FETCH_SYSTEM_STATUS_SUCCESS';
+export const FETCH_SYSTEM_STATUS_SUCCESS = 'FETCH_SYSTEM_STATUS_SUCCESS';
 const FETCH_SYSTEM_STATUS_ERROR = 'FETCH_SYSTEM_STATUS_ERROR';
 
 const NETWORK_STATUS_CHANGE = 'NETWORK_STATUS_CHANGE';
@@ -63,7 +63,6 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
   })
   .catch(error => {
     dispatch(fetchSystemStatusError(error));
-    // throw error;
   });
 
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
