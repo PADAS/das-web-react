@@ -189,7 +189,7 @@ const PlanSection = ({
           onChange={handleAutoStartChange}
           type="checkbox"
         />
-        <span>Automatically start the patrol at this time</span>
+        <span>Automatically start the patrol in EarthRanger at this time</span>
       </label>
 
       <div className={styles.row}>
@@ -242,7 +242,7 @@ const PlanSection = ({
           onChange={handleAutoEndChange}
           type="checkbox"
         />
-        <span>Automatically end the patrol at this time</span>
+        <span>Automatically end the patrol in EarthRanger at this time</span>
       </label>
     </div>
   </>;
