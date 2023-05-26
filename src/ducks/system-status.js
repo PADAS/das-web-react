@@ -2,7 +2,10 @@ import axios from 'axios';
 import { combineReducers } from 'redux';
 
 import { API_URL, DAS_HOST, SYSTEM_CONFIG_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
+import { endOfToday, generateDaysAgoDate } from '../utils/datetime';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
+import { setDefaultDateRange as setDefaultEventDateRange } from './event-filter';
+import { setDefaultDateRange as setDefaultPatrolDateRange } from './patrol-filter';
 
 export const STATUS_API_URL = `${API_URL}status`;
 
@@ -19,15 +22,7 @@ export const SOCKET_UNHEALTHY_STATUS = 'SOCKET_UNHEALTHY_STATUS';
 export const SOCKET_WARNING_STATUS = 'SOCKET_WARNING_STATUS';
 export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
 
-export const SET_DAILY_REPORT_ENABLED = 'SET_DAILY_REPORT_ENABLED';
-export const SET_EXPORT_KML_ENABLED = 'SET_EXPORT_KML_ENABLED';
-export const SET_PATROL_MANAGEMENT_ENABLED = 'SET_PATROL_MANAGEMENT_ENABLED';
-export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
-export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
-export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
-export const SET_GEOPERMISSIONS_ENABLED = 'SET_GEOPERMISSIONS_ENABLED';
-export const SET_SITENAME = 'SET_SITENAME';
-export const SET_TABLEAU_ENABLED = 'SET_TABLEAU_ENABLED';
+export const SET_SYSTEM_CONFIG = 'SET_SYSTEM_CONFIG';
 
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
 
@@ -72,42 +67,42 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
   });
 
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
+  const sitename = data.site_name || window.location.hostname;
+  setSitenameDimension(sitename);
+
   dispatch({
-    type: SET_DAILY_REPORT_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.DAILY_REPORT],
+    type: SET_SYSTEM_CONFIG,
+    payload: {
+      [SYSTEM_CONFIG_FLAGS.ALERTS]: data[SYSTEM_CONFIG_FLAGS.ALERTS],
+      [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: data[SYSTEM_CONFIG_FLAGS.DAILY_REPORT],
+      [SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]: data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS],
+      [SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]:
+        data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS],
+      [SYSTEM_CONFIG_FLAGS.EULA]: data[SYSTEM_CONFIG_FLAGS.EULA],
+      // Change the following line to "true" to test the functionality of appending 'location' params to map event
+      // requests
+      [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: data?.geoPermissionsEnabled ?? false,
+      [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: data[SYSTEM_CONFIG_FLAGS.KML_EXPORT],
+      [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: data[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT],
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: data[SYSTEM_CONFIG_FLAGS.TABLEAU],
+      showTrackDays: data.show_track_days,
+      sitename,
+    },
   });
-  dispatch({
-    type: SET_EXPORT_KML_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.KML_EXPORT],
-  });
-  dispatch({
-    type: SET_PATROL_MANAGEMENT_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT],
-  });
-  dispatch({
-    type: SET_ALERTS_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.ALERTS],
-  });
-  dispatch({
-    type: SET_EULA_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.EULA],
-  });
-  dispatch({
-    type: SET_TABLEAU_ENABLED,
-    payload: data[SYSTEM_CONFIG_FLAGS.TABLEAU],
-  });
-  dispatch({
-    type: SET_SHOW_TRACK_DAYS,
-    payload: data.show_track_days,
-  });
-  dispatch({
-    type: SET_GEOPERMISSIONS_ENABLED,
-    payload: data?.geoPermissionsEnabled ?? false, // change this line to "true" to test the functionality of appending 'location' params to map event requests
-  });
-  dispatch({
-    type: SET_SITENAME,
-    payload: data.site_name || window.location.hostname,
-  });
+
+  if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]) {
+    dispatch(setDefaultEventDateRange(
+      generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
+      null
+    ));
+  }
+
+  if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]) {
+    dispatch(setDefaultPatrolDateRange(
+      generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]).toISOString(),
+      endOfToday().toISOString()
+    ));
+  }
 };
 
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
@@ -318,49 +313,21 @@ export default combineReducers({
 });
 
 const INITIAL_SYSTEM_CONFIG_STATE = {
-  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
-  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
-  [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: false,
   [SYSTEM_CONFIG_FLAGS.ALERTS]: false,
+  [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: false,
+  [SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]: null,
+  [SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]: null,
   [SYSTEM_CONFIG_FLAGS.EULA]: false,
   [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: false,
+  [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: false,
+  [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
+
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
-  switch (type) {
-  case (SET_DAILY_REPORT_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.DAILY_REPORT]: payload, };
+  if (type === SET_SYSTEM_CONFIG) {
+    return { ...state, ...payload, };
   }
-  case (SET_EXPORT_KML_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.KML_EXPORT]: payload, };
-  }
-
-  case (SET_PATROL_MANAGEMENT_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: payload, };
-  }
-
-  case (SET_ALERTS_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.ALERTS]: payload, };
-  }
-  case (SET_SHOW_TRACK_DAYS): {
-    return { ...state, showTrackDays: payload, };
-  }
-  case (SET_GEOPERMISSIONS_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.GEOPERMISSIONS]: payload };
-  }
-  case (SET_EULA_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.EULA]: payload, };
-  }
-  case (SET_TABLEAU_ENABLED): {
-    return { ...state, [SYSTEM_CONFIG_FLAGS.TABLEAU]: payload, };
-  }
-  case (SET_SITENAME): {
-    setSitenameDimension(payload);
-    return { ...state, sitename: payload };
-  }
-  default: {
-    return state;
-  }
-  }
+  return state;
 };
