@@ -1,4 +1,6 @@
-import { calcPatrolState, createNewPatrolForPatrolType, sortPatrolList } from './patrols';
+import addMinutes from 'date-fns/add_minutes';
+
+import { calcPatrolState, createNewPatrolForPatrolType, DELTA_FOR_OVERDUE, sortPatrolList } from './patrols';
 import { PATROL_UI_STATES } from '../constants';
 import {
   newPatrol,
@@ -20,6 +22,13 @@ describe('Patrols utils', () => {
     });
 
     test('returns ready to start for patrols with time range in the same current day but few hours previous current time', () => {
+      expect(calcPatrolState(readyToStartPatrol)).toBe(READY_TO_START);
+    });
+
+    test('returns ready to start for patrols with scheduled start in the past, before overdue delta', () => {
+      const now = new Date();
+      readyToStartPatrol.patrol_segments[0].scheduled_start = addMinutes(now, DELTA_FOR_OVERDUE - 1);
+
       expect(calcPatrolState(readyToStartPatrol)).toBe(READY_TO_START);
     });
 
