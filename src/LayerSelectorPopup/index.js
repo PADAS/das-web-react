@@ -75,7 +75,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
           <img
             alt={layer.properties.display_title || layer.properties.name || layer.properties.title}
             src={imgSrc}
-            style={{ ...(subjectIsStatic(layer) ? { filter: 'invert(1) opacity(60%)' } : {}) }}
+            style={{ ...(subjectIsStatic(layer) ? { filter: 'brightness(0) opacity(60%)' } : {}) }}
           />
           <span>{layer.properties.display_title || layer.properties.name || layer.properties.title}</span>
         </li>;
