@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { endOfToday, startOfToday } from '../utils/datetime';
+import { endOfToday, generateDaysAgoDate } from '../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import PatrolFilter, { PATROL_TEXT_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -24,7 +24,7 @@ describe('PatrolFilter', () => {
         patrolFilter: {
           filter: {
             date_range: {
-              lower: startOfToday().toISOString(),
+              lower: generateDaysAgoDate(1).toISOString(),
               upper: endOfToday().toISOString(),
             },
             tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,

@@ -9,7 +9,7 @@ import FeedDateFilter from '../FeedDateFilter';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const EventFilterDateRangeSelector = (props) => {
+const PatrolFilterDateRangeSelector = (props) => {
   const { patrolFilter, onFilterSettingsToggle, updateGlobalDateRange, placement, filterSettings } = props;
 
   const { filter: { date_range: dateRange } } = patrolFilter;
@@ -28,7 +28,6 @@ const EventFilterDateRangeSelector = (props) => {
 
   return <FeedDateFilter
     dateRange={dateRange}
-    defaultFriendlyString='Showing Current Patrols'
     defaultRange={INITIAL_FILTER_STATE.filter.date_range}
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
@@ -47,4 +46,4 @@ const EventFilterDateRangeSelector = (props) => {
 const mapStatetoProps = ({ data: { patrolFilter } }) => ({ patrolFilter });
 
 
-export default connect(mapStatetoProps, { updateGlobalDateRange })(memo(EventFilterDateRangeSelector));
+export default connect(mapStatetoProps, { updateGlobalDateRange })(memo(PatrolFilterDateRangeSelector));
