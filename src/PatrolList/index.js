@@ -18,7 +18,7 @@ const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onPatrolSelfManagedStateChange, patrol, onItemClick, ...rest } = props;
+  const { map, patrol, onItemClick, ...rest } = props;
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const onClick = useCallback(() => {
@@ -31,7 +31,6 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
     <PatrolListItem
       ref={ref}
       onClick={onClick}
-      onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={patrol}
       map={map}
       {...rest} />
@@ -41,38 +40,23 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
 
-  const [listItems, setListItems] = useState(patrols);
-
-  const onPatrolSelfManagedStateChange = useCallback(() => {
-    setListItems(sortPatrolList(patrols));
-  }, [patrols]);
-
-  useEffect(() => {
-    setListItems(sortPatrolList(patrols));
-    console.log(sortPatrolList(patrols));
-    console.log(patrols);
-    console.log('\n\n\n');
-  }, [patrols]);
-
-
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <>
-    {!!listItems.length && <Flipper
-        flipKey={listItems}
+    {!!patrols.length && <Flipper
+        flipKey={patrols}
         element='ul'
         className={styles.patrolList}
       >
-      {listItems.map((item) =>
+      {patrols.map((item) =>
         <ListItem
           patrol={item}
-          onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}
           key={item.id}
           onItemClick={onItemClick}/>
       )}
     </Flipper>}
-    {!listItems.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
+    {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
   </>;
 };
 
