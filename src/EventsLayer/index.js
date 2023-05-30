@@ -75,6 +75,7 @@ const EventsLayer = ({
   bounceEventIDs,
   map,
   mapImages,
+  mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
   onEventClick,
@@ -175,9 +176,9 @@ const EventsLayer = ({
         ],
         ''],
     ],
-    ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
     'text-size': 0,
-  }), [SCALE_ICON_IF_BOUNCED, mapUserLayoutConfigByLayerId]);
+    ...mapUserLayoutConfig,
+  }), [SCALE_ICON_IF_BOUNCED, mapUserLayoutConfig]);
 
   const SCALE_FONT_IF_BOUNCED = useCallback((fontSize, fontScale) => [
     'match',
