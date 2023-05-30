@@ -27,7 +27,14 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
     openModalForPatrol(patrol, map);
   }, [enableNewPatrolUI, map, onItemClick, patrol]);
 
-  return <Flipped flipId={patrol.id}>
+  const should = (prev, curr) => {
+    console.log(prev);
+    console.log(curr);
+    console.log('\n\n\n');
+    return true;
+  };
+
+  return <Flipped flipId={patrol.id} shouldFlip={should}>
     <PatrolListItem
       ref={ref}
       onClick={onClick}
@@ -48,14 +55,18 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   }, [patrols]);
 
   useEffect(() => {
+    console.log(patrols);
+    console.log(sortPatrolList(patrols));
     setListItems(sortPatrolList(patrols));
+    console.log('\n\n\n');
+    console.log('\n\n\n');
   }, [patrols]);
 
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <>
-    {!!listItems.length && <Flipper
+    {!!listItems.length && <Flipper decisionData={listItems}
         flipKey={listItems}
         element='ul'
         className={styles.patrolList}
