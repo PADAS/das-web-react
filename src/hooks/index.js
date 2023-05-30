@@ -8,11 +8,7 @@ import { MapContext } from '../App';
 
 import { DEVELOPMENT_FEATURE_FLAGS, MIN_ZOOM, MAX_ZOOM } from '../constants';
 
-export const useSystemConfigFlag = flag =>
-  useSelector(state =>
-    !!state?.view?.systemConfig?.[flag]
-  );
-
+export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
 
 export const useFeatureFlag = (flagName) => {
   const featureFlagOverrides = useSelector(state =>

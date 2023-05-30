@@ -1,9 +1,6 @@
 import { toast } from 'react-toastify';
 
 import * as packageJson from '../../package.json';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import colorVars  from '../common/styles/vars/colors.module.scss';
-import controlsVars  from '../common/styles/vars/controls.module.scss';
 import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS } = toast;
@@ -17,6 +14,8 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_GA4_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
+  REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS,
+  REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS,
 } = process.env;
 
 export const DAS_HOST = process.env.REACT_APP_DAS_HOST
@@ -142,6 +141,7 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
   [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
   [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
   [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
+  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
 };
 
 export const LAYER_PICKER_IDS = [
@@ -160,6 +160,8 @@ export const SYSTEM_CONFIG_FLAGS = {
   KML_EXPORT: 'export_kml_enabled',
   TABLEAU: 'tableau_enabled',
   GEOPERMISSIONS: 'geopermissions_enabled',
+  DEFAULT_EVENT_FILTER_FROM_DAYS: 'default_event_filter_from_days',
+  DEFAULT_PATROL_FILTER_FROM_DAYS: 'default_patrol_filter_from_days',
 };
 
 
@@ -216,7 +218,7 @@ export const DEFAULT_SYMBOL_PAINT = {
 export const EVENT_STATE_CHOICES = [
   {
     label: 'Active',
-    value: INITIAL_FILTER_STATE.state,
+    value: ['active', 'new'],
   },
   {
     label: 'Resolved',

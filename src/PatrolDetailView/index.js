@@ -237,14 +237,14 @@ const PatrolDetailView = () => {
     [patrolForm, setPatrolForm]
   );
 
-  const onPatrolEndDateChange = useCallback((endDate, isAutoEnd) => {
+  const onPatrolEndDateChange = useCallback((endDate, shouldSchedule) => {
     const [segment] = patrolForm.patrol_segments;
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [{
         ...segment,
-        scheduled_end: !endDate || isAutoEnd ? null : endDate,
-        time_range: { ...segment.time_range, end_time: endDate && isAutoEnd ? endDate : null },
+        scheduled_end: endDate && shouldSchedule ? endDate : null,
+        time_range: { ...segment.time_range, end_time: !endDate || shouldSchedule ? null : endDate },
       }],
     });
 
@@ -311,14 +311,14 @@ const PatrolDetailView = () => {
     patrolDetailViewTracker.track(`${selection ? 'Set' : 'Unset'} patrol tracked subject`);
   }, [isNewPatrol, patrolForm]);
 
-  const onPatrolStartDateChange = useCallback((startDate, isAutoStart) => {
+  const onPatrolStartDateChange = useCallback((startDate, shouldSchedule) => {
     const [segment] = patrolForm.patrol_segments;
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [{
         ...segment,
-        scheduled_start: isAutoStart ? null : startDate,
-        time_range: { ...segment.time_range, start_time: isAutoStart ? startDate : null },
+        scheduled_start: shouldSchedule ? startDate : null,
+        time_range: { ...segment.time_range, start_time: shouldSchedule ?  null : startDate },
       }],
     });
 
@@ -378,7 +378,7 @@ const PatrolDetailView = () => {
     } else {
       setPatrolForm({ ...patrolForm, notes: updatedNotes });
     }
-  }, [notesToAdd, onDeleteNote, patrolForm, patrolNotes]);
+  }, [notesToAdd, patrolForm, patrolNotes]);
 
   const onChangeNote = useCallback((originalNote, { target: { value } }) => {
     const editedNote = {

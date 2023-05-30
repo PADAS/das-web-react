@@ -1,4 +1,10 @@
-import patrolFilterReducer, { INITIAL_FILTER_STATE, UPDATE_PATROL_FILTER } from './';
+import { generateDaysAgoDate } from '../../utils/datetime';
+import patrolFilterReducer, {
+  INITIAL_FILTER_STATE,
+  setDefaultDateRange,
+  updatePatrolFilter,
+  UPDATE_PATROL_FILTER,
+} from './';
 
 describe('Ducks - Patrol filter', () => {
   describe('patrolFilterReducer', () => {
@@ -33,5 +39,26 @@ describe('Ducks - Patrol filter', () => {
 
       expect(patrolFilterReducer(previousState, action)).toEqual(expectedState);
     });
+  });
+
+  test('updatePatrolFilter dispatches the UPDATE_PATROL_FILTER action', () => {
+    const dispatch = jest.fn();
+
+    const update = { filter: { text: 'filter text' } };
+    updatePatrolFilter(update)(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).toHaveBeenCalledWith({ payload: update, type: UPDATE_PATROL_FILTER });
+  });
+
+  test('setDefaultDateRange creates the UPDATE_PATROL_FILTER action and updates the INITIAL_FILTER_STATE', () => {
+    const lower = generateDaysAgoDate(5).toISOString();
+    const upper = null;
+
+    const action = setDefaultDateRange(lower, upper);
+
+    expect(action).toEqual({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_PATROL_FILTER });
+    expect(INITIAL_FILTER_STATE.filter.date_range.lower).toBe(lower);
+    expect(INITIAL_FILTER_STATE.filter.date_range.upper).toBe(upper);
   });
 });
