@@ -20,7 +20,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import {getPatrolLeaderSchema, getPatrolLeadersWithLocationData} from "../../selectors/patrols";
+import { getPatrolLeaderSchema, getPatrolLeadersWithLocationData } from '../../selectors/patrols';
 
 const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
 
