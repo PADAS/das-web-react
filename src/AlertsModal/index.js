@@ -7,6 +7,8 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
+const ALERTS_URL = `${DAS_HOST}/alerts`;
+
 const AlertsModal = ({ title }) => {
   const [loading, setLoadState] = useState(true);
 
@@ -21,7 +23,7 @@ const AlertsModal = ({ title }) => {
       <iframe
         className={styles.alerts}
         onLoad={() => setLoadState(false)}
-        src={`${DAS_HOST}/alerts`}
+        src={ALERTS_URL}
         title='Configure your EarthRanger alerts'
       />
 
