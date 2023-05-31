@@ -130,5 +130,23 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
   }),
 );
 
+export const getPatrolLeaderSchema = ({ data: { patrolLeaderSchema } }) => patrolLeaderSchema;
 
-// patrol, trackForPatrol, subjectStore, trackTimeEnvelope
+const getPatrolLeaders = createSelector([getPatrolLeaderSchema], (patrolLeaderSchema) =>
+  patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? []
+);
+
+export const getPatrolLeadersWithLocationData = createSelector(
+  [getPatrolLeaders, getSubjectStore],
+  (patrolLeaders, subjects) => patrolLeaders.map((patrolLeader) => {
+    const { id, last_position } = patrolLeader;
+    const subject = subjects[id];
+    if (!last_position && subject && subject.last_position){
+      return {
+        ...patrolLeader,
+        last_position: subject.last_position
+      };
+    }
+    return patrolLeader;
+  })
+);
