@@ -73,7 +73,8 @@ const OptionsPopover = ({
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
       const timeDisplay = getUserLocaleTime(dateWithAccumulation);
       const currentMinutesDiff = getMinutesDiff(dateWithAccumulation, currentValueDate);
-      if (currentMinutesDiff < diffMinutes){
+
+      if (currentMinutesDiff > 0 && currentMinutesDiff < diffMinutes){
         diffMinutes = currentMinutesDiff;
         nearestHourIndex = arrayIndex;
       }
