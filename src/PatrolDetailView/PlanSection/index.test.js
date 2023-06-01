@@ -213,25 +213,6 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
   });
 
-  test('triggers the onPatrolEndDateChange callback with undefined if user chooses start date after end', async () => {
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    const patrolForm = {
-      ...newPatrol,
-      patrol_segments: [{
-        time_range: {
-          start_time: tomorrow,
-          end_time: today,
-        }
-      }]
-    };
-    renderPlanSectionWithWrapper({ patrolForm });
-
-    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
-    expect(onPatrolEndDateChange).toHaveBeenCalledWith(undefined, undefined);
-  });
-
   test('triggers the onPatrolEndDateChange callback when user changes auto end value', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);

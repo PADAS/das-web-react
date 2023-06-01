@@ -58,54 +58,6 @@ describe('PatrolDetailView', () => {
     id: '3880239a-ffcd-47a8-9035-0ce3c9d90bdd',
     content_type: 'accounts.user'
   };
-  const mockPatrol = {
-    id: '123',
-    priority: 0,
-    state: 'open',
-    objective: null,
-    serial_number: 1595,
-    title: 'The great patrol',
-    files: [],
-    notes: notes,
-    patrol_segments: [
-      {
-        id: '123',
-        patrol_type: 'The_Great_Patrol',
-        leader: {
-          content_type: 'observations.subject',
-          id: '456',
-          name: 'Alex',
-          subject_type: 'person',
-          subject_subtype: 'ranger',
-          common_name: null,
-          additional: {},
-          created_at: '2021-08-31T14:42:06.701541-07:00',
-          updated_at: '2021-08-31T14:42:06.701557-07:00',
-          is_active: true,
-          tracks_available: false,
-          image_url: '/static/ranger-black.svg'
-        },
-        scheduled_start: null,
-        scheduled_end: '2022-01-08T10:17:00-08:00',
-        time_range: {
-          start_time: '2022-01-18T13:42:39.502000-08:00',
-          end_time: null
-        },
-        start_location: null,
-        end_location: null,
-        events: [],
-        image_url: 'https://develop.pamdas.org/static/sprite-src/suspicious_person_rep.svg',
-        icon_id: 'suspicious_person_rep',
-        updates: [],
-      },
-    ],
-    updates: [{
-      message: 'Patrol Added',
-      time: '2023-04-04T18:41:53.737181+00:00',
-      user,
-      type: 'add_patrol'
-    }],
-  };
 
   let capturedRequestURLs;
   const logRequest = (req) => {
@@ -115,6 +67,7 @@ describe('PatrolDetailView', () => {
   let AddReportMock,
     executeSaveActionsMock,
     map,
+    mockPatrol,
     navigate,
     renderWithWrapper,
     store,
@@ -137,6 +90,55 @@ describe('PatrolDetailView', () => {
     useSearchParams.mockImplementation(useSearchParamsMock);
 
     capturedRequestURLs = [];
+
+    mockPatrol = {
+      id: '123',
+      priority: 0,
+      state: 'open',
+      objective: null,
+      serial_number: 1595,
+      title: 'The great patrol',
+      files: [],
+      notes: notes,
+      patrol_segments: [
+        {
+          id: '123',
+          patrol_type: 'The_Great_Patrol',
+          leader: {
+            content_type: 'observations.subject',
+            id: '456',
+            name: 'Alex',
+            subject_type: 'person',
+            subject_subtype: 'ranger',
+            common_name: null,
+            additional: {},
+            created_at: '2021-08-31T14:42:06.701541-07:00',
+            updated_at: '2021-08-31T14:42:06.701557-07:00',
+            is_active: true,
+            tracks_available: false,
+            image_url: '/static/ranger-black.svg'
+          },
+          scheduled_start: null,
+          scheduled_end: '2022-01-08T10:17:00-08:00',
+          time_range: {
+            start_time: '2022-01-18T13:42:39.502000-08:00',
+            end_time: null
+          },
+          start_location: null,
+          end_location: null,
+          events: [],
+          image_url: 'https://develop.pamdas.org/static/sprite-src/suspicious_person_rep.svg',
+          icon_id: 'suspicious_person_rep',
+          updates: [],
+        },
+      ],
+      updates: [{
+        message: 'Patrol Added',
+        time: '2023-04-04T18:41:53.737181+00:00',
+        user,
+        type: 'add_patrol'
+      }],
+    };
 
     store = patrolDefaultStoreData;
     store.data.patrolStore = { 123: mockPatrol };
@@ -317,6 +319,9 @@ describe('PatrolDetailView', () => {
   });
 
   test('end time is disabled while there is no end date', async () => {
+    mockPatrol.patrol_segments[0].scheduled_end = null;
+    store.data.patrolStore = { 123: mockPatrol };
+
     useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
     useLocation.mockImplementation(useLocationMock);
 
@@ -393,6 +398,29 @@ describe('PatrolDetailView', () => {
     userEvent.click(deleteNoteButton);
 
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+  });
+
+  test('shows invalid dates modal and does not save if dates are invalid', async () => {
+    const now = new Date();
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(now.getHours() - 1);
+    mockPatrol.patrol_segments[0].scheduled_end = oneHourAgo;
+    mockPatrol.patrol_segments[0].scheduled_start = now;
+    mockPatrol.patrol_segments[0].time_range.start_time = null;
+    store.data.patrolStore = { 123: mockPatrol };
+
+    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderWithWrapper(<PatrolDetailView />);
+
+    expect(executeSaveActions).toHaveBeenCalledTimes(0);
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    expect(executeSaveActions).toHaveBeenCalledTimes(0);
+    expect((await screen.findByText('Invalid Patrol Times'))).toBeDefined();
   });
 
   test('executes save actions when clicking save and navigates to patrol feed', async () => {
