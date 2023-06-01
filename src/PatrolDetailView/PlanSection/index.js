@@ -20,7 +20,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import { getPatrolLeaderSchema, calculateLocationDataForPatrolLeaders } from '../../selectors/patrols';
+import { getPatrolLeadersWithLocation } from '../../selectors/patrols';
 
 const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
 
@@ -39,8 +39,7 @@ const PlanSection = ({
 
   const isAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
-  const patrolLeaderSchema = useSelector(getPatrolLeaderSchema);
-  const patrolLeaders = useSelector(calculateLocationDataForPatrolLeaders);
+  const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
 
@@ -97,10 +96,10 @@ const PlanSection = ({
   }, [dispatch, isAutoStart, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
-    if (isEmpty(patrolLeaderSchema)) {
+    if (isEmpty(patrolLeaders)) {
       dispatch(fetchTrackedBySchema());
     }
-  }, [dispatch, patrolLeaderSchema]);
+  }, [dispatch, patrolLeaders]);
 
   useEffect(() => {
     if (endDate && startDate > endDate) {
