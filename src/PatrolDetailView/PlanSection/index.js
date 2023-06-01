@@ -57,8 +57,6 @@ const PlanSection = ({
     return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
   }, [patrolForm.patrol_segments]);
 
-
-
   const handleEndDateChange = useCallback((date) => {
     onPatrolEndDateChange(date, shouldScheduleDate(date, isAutoEnd));
   }, [isAutoEnd, onPatrolEndDateChange]);
