@@ -105,10 +105,6 @@ const OptionsPopover = ({
       arrayIndex++;
     }
 
-    if (options.slice(-1)?.[0]?.value === value) {
-      options.pop();
-    }
-
     if ( nearestHourIndex > -1 ){
       options[nearestHourIndex].ref = defaultTimeRef;
     }
