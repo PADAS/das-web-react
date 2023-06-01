@@ -61,10 +61,8 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    const newEndDate = date < startDate ? startDate : date;
-
-    onPatrolEndDateChange(newEndDate, shouldScheduleDate(newEndDate, isAutoEnd));
-  }, [isAutoEnd, onPatrolEndDateChange, startDate]);
+    onPatrolEndDateChange(date, shouldScheduleDate(date, isAutoEnd));
+  }, [isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartDateChange = useCallback((date) => {
     onPatrolStartDateChange(date, shouldScheduleDate(date, isAutoStart));
@@ -103,12 +101,6 @@ const PlanSection = ({
       dispatch(fetchTrackedBySchema());
     }
   }, [dispatch, patrolLeaderSchema]);
-
-  useEffect(() => {
-    if (endDate && startDate > endDate) {
-      onPatrolEndDateChange(undefined, isAutoEnd);
-    }
-  }, [endDate, isAutoEnd, onPatrolEndDateChange, startDate]);
 
   return <>
     <div className={styles.sectionHeader}>
