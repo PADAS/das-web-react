@@ -61,8 +61,10 @@ const PlanSection = ({
     ?.map(({ value }) => value) ?? [];
 
   const handleEndDateChange = useCallback((date) => {
-    onPatrolEndDateChange(date, shouldScheduleDate(date, isAutoEnd));
-  }, [isAutoEnd, onPatrolEndDateChange]);
+    const newEndDate = date < startDate ? startDate : date;
+
+    onPatrolEndDateChange(newEndDate, shouldScheduleDate(newEndDate, isAutoEnd));
+  }, [isAutoEnd, onPatrolEndDateChange, startDate]);
 
   const handleStartDateChange = useCallback((date) => {
     onPatrolStartDateChange(date, shouldScheduleDate(date, isAutoStart));
