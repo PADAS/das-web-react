@@ -14,7 +14,9 @@ import {
   actualEndTimeForPatrol,
   actualStartTimeForPatrol,
   createNewPatrolForPatrolType,
+  displayEndTimeForPatrol,
   displayPatrolSegmentId,
+  displayStartTimeForPatrol,
   extractAttachmentUpdates,
   getReportsForPatrol,
   patrolShouldBeMarkedDone,
@@ -40,6 +42,7 @@ import AddNoteButton from '../AddNoteButton';
 import AddReportButton from '../DetailViewComponents/AddReportButton';
 import Header from './Header';
 import HistorySection from '../DetailViewComponents/HistorySection';
+import InvalidDatesModal from './InvalidDatesModal';
 import LoadingOverlay from '../LoadingOverlay';
 import NavigationPromptModal from '../NavigationPromptModal';
 import PlanSection from './PlanSection';
@@ -88,7 +91,7 @@ const PatrolDetailView = () => {
   const [patrolForm, setPatrolForm] = useState();
   const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
-
+  const [showInvalidDatesModal, setShowInvalidDatesModal] = useState(false);
 
   const patrolTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -181,6 +184,12 @@ const PatrolDetailView = () => {
   const onSavePatrol = useCallback((shouldRedirectAfterSave = true) => {
     if (isSaving) {
       return;
+    }
+
+    const endDate = displayEndTimeForPatrol(patrolForm);
+    const startDate = displayStartTimeForPatrol(patrolForm);
+    if (endDate && startDate > endDate) {
+      return setShowInvalidDatesModal(true);
     }
 
     patrolDetailViewTracker.track(`Click 'Save' button for ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -445,6 +454,8 @@ const PatrolDetailView = () => {
 
   const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 
+  const onHideInvalidDatesModal = useCallback(() => setShowInvalidDatesModal(false), []);
+
   useEffect(() => {
     if (patrol) {
       setPatrolForm({ ...patrol });
@@ -598,6 +609,7 @@ const PatrolDetailView = () => {
       </div>
     </TrackerContext.Provider>
 
+    <InvalidDatesModal onHide={onHideInvalidDatesModal} show={showInvalidDatesModal} />
   </div> : null;
 };
 

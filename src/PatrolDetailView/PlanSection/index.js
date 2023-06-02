@@ -102,12 +102,6 @@ const PlanSection = ({
     }
   }, [dispatch, patrolLeaderSchema]);
 
-  useEffect(() => {
-    if (endDate && startDate > endDate) {
-      onPatrolEndDateChange(undefined, isAutoEnd);
-    }
-  }, [endDate, isAutoEnd, onPatrolEndDateChange, startDate]);
-
   return <>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
