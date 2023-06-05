@@ -283,21 +283,26 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolReportedByChange = useCallback((selection) => {
-    let startLocation, timeRange;
-    if (isNewPatrol) {
-      const shouldAssignTrackedSubjectLocationAndTime = radioHasRecentActivity(selection)
-        && subjectIsARadio(selection)
-        && !!selection?.last_position?.geometry?.coordinates
-        && !!selection?.last_position?.properties?.coordinateProperties?.time;
-      if (shouldAssignTrackedSubjectLocationAndTime) {
-        startLocation = {
-          latitude: selection.last_position.geometry.coordinates[1],
-          longitude: selection.last_position.geometry.coordinates[0],
+    const update = {
+      leader: selection || null,
+    };
+    if (isNewPatrol && selection) {
+      const [patrolSegment] = patrolForm?.patrol_segments;
+      const { start_location, time_range } = patrolSegment;
+      const trackedSubjectLocation = selection?.last_position?.geometry?.coordinates;
+      const trackedSubjectLocationTime = selection?.last_position?.properties?.coordinateProperties?.time;
+      const isRadioAndHasRecentAct = subjectIsARadio(selection) && radioHasRecentActivity(selection);
+
+      if ( !start_location && isRadioAndHasRecentAct && !!trackedSubjectLocation) {
+        update.start_location = {
+          latitude: trackedSubjectLocation[1],
+          longitude: trackedSubjectLocation[0],
         };
-        timeRange = { start_time: selection.last_position.properties.coordinateProperties.time };
-      } else if (!selection) {
-        startLocation = null;
-        timeRange = { start_time: new Date().toISOString() };
+      }
+      if (!time_range?.start_time && isRadioAndHasRecentAct && !!trackedSubjectLocationTime){
+        update.time_range = {
+          start_time: trackedSubjectLocationTime,
+        };
       }
     }
 
@@ -305,12 +310,10 @@ const PatrolDetailView = () => {
       ...patrolForm,
       patrol_segments: [
         {
-          ...patrolForm.patrol_segments[0],
-          leader: selection || null,
-          start_location: startLocation,
-          time_range: timeRange,
+          ...patrolForm?.patrol_segments[0],
+          ...update,
         },
-        ...patrolForm.patrol_segments.slice(1),
+        ...patrolForm?.patrol_segments.slice(1),
       ],
     });
 
