@@ -13,6 +13,16 @@ import styles from './styles.module.scss';
 
 const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
+const CustomTimePicker = (({ value: initialValue, onChange }) => {
+  const [time, setTime] = useState(initialValue);
+  const onTimeChange = useCallback(({ target: { value } }) => {
+    setTime(value);
+    onChange(value);
+  }, [onChange]);
+
+  return <input value={time} onChange={onTimeChange} type='time' />;
+});
+
 const renderCustomHeader = (maxDate, minDate) => {
   const CustomHeader = ({
     changeMonth,
@@ -201,9 +211,8 @@ const CustomInput = ({ className, disabled, isPopperOpen, onChange, onKeyDown, o
 const CustomInputForwardRef = forwardRef(CustomInput);
 
 
-const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, ...rest }, ref) => {
+const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, showTimeInput, ...rest }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
     onCalendarOpen?.();
@@ -226,6 +235,8 @@ const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeho
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
     timeInputLabel={DEFAULT_TIME_INPUT_LABEL}
+    showTimeInput={showTimeInput}
+    customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
     {...rest}
   />;
 };
