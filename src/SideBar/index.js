@@ -15,7 +15,6 @@ import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useFetchReportsFeed from './useFetchReportsFeed';
-import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -34,13 +33,12 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
+import useNavigationSet from '../hooks/useNavigationSet';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
+  const { location, navigate, navigationState, goBack } = useNavigationSet();
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const patrolsFeed = useFetchPatrolsFeed();
@@ -83,7 +81,7 @@ const SideBar = () => {
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
-  const onClickBackFromDetailView = useCallback(() => navigate(`/${currentTab}`), [currentTab, navigate]);
+  const onClickBackFromDetailView = useCallback(() => goBack(), [goBack]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
@@ -123,18 +121,18 @@ const SideBar = () => {
 
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'} state={navigationState}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <span>Reports</span>
       </Link>
 
-      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
+      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'} state={navigationState}>
         <PatrolIcon />
         <span>Patrols</span>
         </Link>}
 
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'} state={navigationState}>
         <LayersIcon />
         <span>Map Layers</span>
       </Link>

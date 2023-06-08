@@ -210,7 +210,7 @@ const ReportDetailView = ({
     [notesToAdd]
   );
 
-  const shouldShowNavigationPrompt =
+  /*const shouldShowNavigationPrompt =
     !isSaving
     && !redirectTo
     && (
@@ -218,7 +218,9 @@ const ReportDetailView = ({
       || attachmentsToAdd.length > 0
       || newNotesAdded
       || Object.keys(reportChanges).length > 0
-    );
+    );*/
+
+  const shouldShowNavigationPrompt = false;
 
   const showAddReportButton = !isAddedReport
     && !isPatrolAddedReport
