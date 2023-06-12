@@ -5,7 +5,7 @@ import store from '../store';
 
 import { API_URL } from '../constants';
 
-import { recursivePaginatedQuery } from '../utils/query';
+import { objectToParamString, recursivePaginatedQuery } from '../utils/query';
 
 
 import { messageIsValidForDisplay } from '../utils/messaging';
@@ -36,9 +36,13 @@ export const removeMessageById = id => ({
 
 const { get, post, patch } = axios;
 
-export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { params: {
-  include_additional_data: false, page_size: 25, ...params,
-} });
+export const fetchMessages = (params = {}) => {
+  const paramString = objectToParamString(
+    { include_additional_data: false, page_size: 25, ...params },
+  );
+
+ return get(`${MESSAGING_API_URL}?${paramString}`);
+};
 
 export const fetchAllMessages = (params = {}) =>
   recursivePaginatedQuery(
