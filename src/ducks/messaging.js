@@ -41,7 +41,7 @@ export const fetchMessages = (params = {}) => {
     { include_additional_data: false, page_size: 25, ...params },
   );
 
- return get(`${MESSAGING_API_URL}?${paramString}`);
+  return get(`${MESSAGING_API_URL}?${paramString}`);
 };
 
 export const fetchAllMessages = (params = {}) =>
