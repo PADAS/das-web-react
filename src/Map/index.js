@@ -80,8 +80,6 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import ReportOverview from '../ReportGeometryDrawer/ReportOverview';
 
-import Popup from '../Popup';
-
 import './Map.scss';
 import { useFeatureFlag, useMapEventBinding } from '../hooks';
 
