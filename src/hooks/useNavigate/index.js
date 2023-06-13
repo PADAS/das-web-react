@@ -23,7 +23,7 @@ const useNavigate = (options = {}) => {
 
   const [navigationAttemptParameters, setNavigationAttemptParameters] = useState(null);
 
-  const navigate = useCallback((to, options= {}, navigationContextData = null, skipBlocker = false) => {
+  const navigate = useCallback((to, options, navigationContextData = null, skipBlocker = false) => {
     if (!skipBlocker && isNavigationBlocked) {
       setNavigationAttemptParameters({ to, options, navigationContextData });
       onNavigationAttemptBlocked();

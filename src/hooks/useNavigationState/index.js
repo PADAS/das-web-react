@@ -14,7 +14,7 @@ const useNavigationState = () => {
     if (location?.state?.from){
       navigate(location.state.from);
     } else {
-      navigate(getCurrentTabFromURL(location.pathname));
+      navigate(`/${getCurrentTabFromURL(location.pathname)}`);
     }
   }, [location.pathname, location?.state?.from, navigate]);
 
