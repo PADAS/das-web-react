@@ -1,6 +1,4 @@
 import React, { memo, useCallback, useContext } from 'react';
-// TODO: Replace with custom link after ERA-8169
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { TrackerContext } from '../../../utils/analytics';
@@ -14,6 +12,8 @@ import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
 
 import styles from './styles.module.scss';
+import Link from '../../../Link';
+import useNavigationState from '../../../hooks/useNavigationState';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
@@ -22,6 +22,7 @@ const LINK_TYPES = { PATROL: 'patrol', REPORT: 'report' };
 const LinkItem = ({ item, to, type }) => {
   const map = useContext(MapContext);
   const analytics = useContext(TrackerContext);
+  const { navigationState } = useNavigationState();
 
   const onClick = useCallback(() => {
     analytics?.track(`Navigate to ${type} from links section`);
@@ -31,7 +32,7 @@ const LinkItem = ({ item, to, type }) => {
 
   if (type === LINK_TYPES.PATROL) {
     if (enableNewPatrolUI) {
-      return <Link className={styles.link} to={`/${TAB_KEYS.PATROLS}/${item.id}`}>
+      return <Link className={styles.link} to={`/${TAB_KEYS.PATROLS}/${item.id}`} state={navigationState}>
         <PatrolListItem
           className={styles.item}
           patrol={item}

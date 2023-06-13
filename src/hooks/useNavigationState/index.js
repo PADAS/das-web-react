@@ -11,7 +11,6 @@ const useNavigationState = () => {
   }), [location.pathname]);
 
   const goBack = useCallback(() => {
-    console.log(location);
     if (location?.state?.from){
       navigate(location.state.from);
     } else {

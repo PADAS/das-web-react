@@ -1,6 +1,6 @@
 import useNavigationState from './';
 import useNavigate from '../useNavigate';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import React, { useEffect } from 'react';
@@ -15,6 +15,8 @@ jest.mock('react-router-dom', () => ({
 
 describe('useNavigationState', () => {
 
+  let useLocationSpy;
+
   const mockStoreInstance = mockStore({}),
     onNavigationAttemptBlocked = jest.fn(),
     reset = jest.fn(),
@@ -27,60 +29,97 @@ describe('useNavigationState', () => {
     setNavigationData,
   };
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  const renderComponent = (Component) => {
+  const renderComponent = (Component, props) => {
     return render(
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <NavigationContext.Provider value={navigationContextValue}>
-            <Component/>
+            <Component {...props} />
           </NavigationContext.Provider>
         </NavigationWrapper>
       </Provider>
     );
   };
 
-  test.only('it injects navigation state to a redirection', async () => {
-    const Component = () => {
-      const { navigationState } = useNavigationState();
-      const navigate = useNavigate();
-
-      useEffect(() => {
-        navigate('/patrols', { state: navigationState });
-      }, []);
-
-      return null;
-    };
-
-    renderComponent(Component);
-
-    await waitFor(() => {
-      expect(routeData.useNavigate).toHaveBeenCalledWith('/patrols', { state: { from: '/' } });
-    });
+  beforeEach(() => {
+    useLocationSpy = jest.spyOn(reactRouterPackage, 'useLocation');
   });
 
-  test('it goes back to prev location when nav state is present ', async () => {
-    const useLocationSpy = jest.spyOn(reactRouterPackage, 'useLocation');
-    const Component = () => {
-      const { navigationState, goBack } = useNavigationState();
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('it goes back to parent feed when nav state is not present ', async () => {
+    const url = '/patrols/234235';
+    const Component = ({ url }) => {
+      const { goBack } = useNavigationState();
       const navigate = useNavigate();
 
       useEffect(() => {
-        navigate('/patrols', { state: navigationState });
+        navigate(url);
       }, []);
 
       return <button onClick={goBack}>Go back</button>;
     };
 
-    renderComponent(Component);
+    renderComponent(Component, { url });
 
     const goBackButton = screen.getByText('Go back');
     userEvent.click(goBackButton);
 
-    const visitedPaths = useLocationSpy.mock.results.map(({ value: { pathname } }) => pathname);
-    expect(visitedPaths).toEqual(['/', '/patrols', '/']);
+    const paths = [
+      {
+        pathname: '/',
+        state: null,
+      },
+      {
+        pathname: url,
+        state: null,
+      },
+      {
+        pathname: '/patrols',
+        state: null,
+      }
+    ];
+
+    const visitedPaths = useLocationSpy.mock.results.map(({ value: { pathname, state } }) => ({ pathname, state }));
+    expect(visitedPaths).toEqual(paths);
+  });
+
+  test('it goes back to prev location when nav state is present ', async () => {
+    const url = '/patrols';
+    const Component = ({ url }) => {
+      const { navigationState, goBack } = useNavigationState();
+      const navigate = useNavigate();
+
+      useEffect(() => {
+        navigate(url, { state: navigationState });
+      }, []);
+
+      return <button onClick={goBack}>Go back</button>;
+    };
+
+    renderComponent(Component, { url });
+
+    const goBackButton = screen.getByText('Go back');
+    userEvent.click(goBackButton);
+
+    const paths = [
+      {
+        pathname: '/',
+        state: null,
+      },
+      {
+        pathname: '/patrols',
+        state: { from: '/' },
+      },
+      {
+        pathname: '/',
+        state: null,
+      }
+    ];
+
+    const visitedPaths = useLocationSpy.mock.results.map(({ value: { pathname, state } }) => ({ pathname, state }));
+    expect(visitedPaths).toEqual(paths);
   });
 });
