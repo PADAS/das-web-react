@@ -33,12 +33,15 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
-import useNavigationSet from '../hooks/useNavigationSet';
+import useNavigationState from '../hooks/useNavigationState';
+import useNavigate from '../hooks/useNavigate';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
-  const { location, navigate, navigationState, goBack } = useNavigationSet();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { navigationState, goBack } = useNavigationState();
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const patrolsFeed = useFetchPatrolsFeed();

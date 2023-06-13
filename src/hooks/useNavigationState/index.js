@@ -1,9 +1,9 @@
 import { useLocation } from 'react-router-dom';
-import useNavigate from './useNavigate';
-import { getCurrentTabFromURL } from '../utils/navigation';
+import useNavigate from '../useNavigate';
+import { getCurrentTabFromURL } from '../../utils/navigation';
 import { useCallback, useMemo } from 'react';
 
-const useNavigationSet = () => {
+const useNavigationState = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationState = useMemo(() => ({
@@ -11,6 +11,7 @@ const useNavigationSet = () => {
   }), [location.pathname]);
 
   const goBack = useCallback(() => {
+    console.log(location);
     if (location?.state?.from){
       navigate(location.state.from);
     } else {
@@ -18,7 +19,7 @@ const useNavigationSet = () => {
     }
   }, [location.pathname, location?.state?.from, navigate]);
 
-  return { location, navigate, navigationState, goBack };
+  return { navigationState, goBack };
 };
 
-export default useNavigationSet;
+export default useNavigationState;

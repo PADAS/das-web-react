@@ -25,7 +25,8 @@ import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
-import useNavigationSet from '../../hooks/useNavigationSet';
+import useNavigationState from '../../hooks/useNavigationState';
+import useNavigate from '../../hooks/useNavigate';
 
 const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
@@ -44,7 +45,8 @@ const excludeContainedReports = (events) => {
 
 const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
-  const { navigate, navigationState } = useNavigationSet();
+  const navigate = useNavigate();
+  const { navigationState } = useNavigationState();
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
   const map = useContext(MapContext);
 
