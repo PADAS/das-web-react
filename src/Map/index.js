@@ -78,6 +78,9 @@ import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import ReportGeometryDrawer from '../ReportGeometryDrawer';
+import ReportOverview from '../ReportGeometryDrawer/ReportOverview';
+
+import Popup from '../Popup';
 
 import './Map.scss';
 import { useFeatureFlag, useMapEventBinding } from '../hooks';
@@ -147,8 +150,12 @@ const Map = ({
   const lngLatFromParams = useRef();
 
   const timeSliderActive = timeSliderState.active;
+
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+
+  const isSelectingEventLocation = mapLocationSelection.isPickingLocation
+    && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 
@@ -634,6 +641,19 @@ const Map = ({
       </DelayedUnmount>
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
+      {isSelectingEventLocation && <>
+        <ReportOverview />
+        <Popup
+          map={map}
+          // className={styles.cursorPopup}
+          offset={[-8, 0]}
+          anchor="left"
+          trackPointer={true}
+          >
+          Click to select a report location
+        </Popup>
+      </>
+      }
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >

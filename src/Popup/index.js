@@ -7,7 +7,7 @@ import mapboxgl from 'mapbox-gl';
 import xor from 'lodash/xor';
 
 const Popup = (props) => {
-  const { className, offset, coordinates, anchor, children, map } = props;
+  const { className, trackPointer, offset, coordinates, anchor, children, map } = props;
 
   const classNameRef = useRef('');
 
@@ -18,7 +18,12 @@ const Popup = (props) => {
     if (!popupRef.current) {
       const popup = new mapboxgl.Popup({ className, offset, anchor, closeButton: false });
       popup.setDOMContent(popupContainerRef.current);
-      popup.setLngLat(coordinates);
+
+      if (trackPointer) {
+        popup.trackPointer();
+      } else {
+        popup.setLngLat(coordinates);
+      }
 
       popup.on('close', () => {
         popupRef.current = null;
@@ -29,9 +34,7 @@ const Popup = (props) => {
 
       popupRef.current.addTo(map);
     }
-
-
-  }, [anchor, className, offset, coordinates, map]);
+  }, [anchor, className, coordinates, map, offset, trackPointer]);
 
   useEffect(() => {
     if (popupRef.current) {
@@ -53,10 +56,12 @@ const Popup = (props) => {
   }, [className]);
 
   useEffect(() => {
-    if (popupRef.current) {
-      popupRef?.current?.setLngLat(coordinates);
+    if (!trackPointer)  {
+      if (popupRef.current && coordinates) {
+        popupRef?.current?.setLngLat(coordinates);
+      }
     }
-  }, [coordinates]);
+  }, [coordinates, trackPointer]);
 
   useEffect(() => {
     if (popupRef.current) {
@@ -90,10 +95,12 @@ Popup.propTypes = {
     PropTypes.array,
     PropTypes.object,
   ]),
+  trackPointer: PropTypes.bool,
 };
 
 Popup.defaultProps = {
   clasName: '',
+  trackPointer: false,
 };
 
 export default withMap(Popup);
