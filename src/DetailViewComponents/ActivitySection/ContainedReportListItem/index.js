@@ -13,6 +13,7 @@ import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../../utils/event-schemas';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
+import useNavigationState from '../../../hooks/useNavigationState';
 
 import ItemActionButton from '../ItemActionButton';
 import ReportFormSummary from '../../../ReportFormSummary';
@@ -27,6 +28,7 @@ const LOADER_SIZE = 4;
 const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { navigationState } = useNavigationState();
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
@@ -37,7 +39,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
     ? getSchemasForEventTypeByEventId(eventSchemas, reportFromEventStore.event_type, reportFromEventStore.id)
     : null;
 
-  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.REPORTS}/${report.id}`), [navigate, report]);
+  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.REPORTS}/${report.id}`, { state: navigationState }), [navigate, report]);
 
   useEffect(() => {
     if (!reportFromEventStore) {
