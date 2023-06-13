@@ -45,8 +45,6 @@ const ReportOverview = ({
       === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY
     );
 
-  console.log({ isDrawingEventGeometry });
-
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isOpen, setIsOpen] = useState(true);

@@ -641,19 +641,7 @@ const Map = ({
       </DelayedUnmount>
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
-      {isSelectingEventLocation && <>
-        <ReportOverview />
-        <Popup
-          map={map}
-          // className={styles.cursorPopup}
-          offset={[-8, 0]}
-          anchor="left"
-          trackPointer={true}
-          >
-          Click to select a report location
-        </Popup>
-      </>
-      }
+      {isSelectingEventLocation && <ReportOverview />}
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >
