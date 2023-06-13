@@ -34,7 +34,7 @@ const FeedDateFilter = (props) => {
       ...dateRange,
       upper: dateIsValid(val)
         ? val.toISOString()
-        : val === null
+        : val === null || isNaN(val.getTime())
           ? nullUpperOverride
           : val,
     };
