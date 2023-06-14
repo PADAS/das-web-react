@@ -13,12 +13,12 @@ import styles from './styles.module.scss';
 
 const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
-const CustomTimePicker = (({ value: initialValue, onChange }) => {
+const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) => {
   const [time, setTime] = useState(initialValue);
   const onTimeChange = useCallback(({ target: { value } }) => {
     setTime(value);
-    onChange(value);
-  }, [onChange]);
+    notifyTimeChange(value);
+  }, [notifyTimeChange]);
 
   return <input value={time} onChange={onTimeChange} type='time' />;
 });
