@@ -2,12 +2,14 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { Link as RouterLink } from 'react-router-dom';
 
 import { BLOCKER_STATES, NavigationContext } from '../NavigationContextProvider';
+import useNavigationState from '../hooks/useNavigationState';
 
 const Link = ({ onClick, ...rest }) => {
   const { blocker, isNavigationBlocked, onNavigationAttemptBlocked } = useContext(NavigationContext);
 
   const blockedEventRef = useRef();
   const linkRef = useRef();
+  const navigationState = useNavigationState();
 
   const [skipBlocker, setSkipBlocker] = useState(false);
   const [wasClicked, setWasClicked] = useState(false);
@@ -44,7 +46,7 @@ const Link = ({ onClick, ...rest }) => {
     }
   }, [blocker.state]);
 
-  return <RouterLink onClick={handleClick} ref={linkRef} {...rest} />;
+  return <RouterLink onClick={handleClick} ref={linkRef} {...rest} state={navigationState} />;
 };
 
 export default Link;

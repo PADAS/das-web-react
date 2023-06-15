@@ -14,7 +14,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('useNavigate', () => {
-  const navigationState = { from: '/' };
+  const navigationState = { hasHistory: true };
   let mockStoreInstance = mockStore({});
   const routerNavigate = jest.fn(),
     onNavigationAttemptBlocked = jest.fn(),
@@ -88,7 +88,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: { from: '/' } });
+      expect(routerNavigate).toHaveBeenCalledWith('/', { state: navigationState });
       expect(setNavigationData).not.toHaveBeenCalled();
       expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
     });
@@ -114,7 +114,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: { from: '/' } });
+      expect(routerNavigate).toHaveBeenCalledWith('/', { state: navigationState });
       expect(setNavigationData).toHaveBeenCalledWith({});
       expect(mockStoreInstance.getActions()).toHaveLength(0);
     });

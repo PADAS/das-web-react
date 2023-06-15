@@ -68,12 +68,12 @@ const SideBar = () => {
   );
 
   const goBack = useCallback(() => {
-    if (location?.state?.from){
-      navigate(location.state.from);
+    if (location?.state?.hasHistory){
+      navigate(-1);
     } else {
       navigate(`/${getCurrentTabFromURL(location.pathname)}`);
     }
-  }, [location.pathname, location?.state?.from, navigate]);
+  }, [location.pathname, location?.state?.hasHistory, navigate]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
