@@ -25,7 +25,6 @@ import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
-import useNavigationState from '../../hooks/useNavigationState';
 import useNavigate from '../../hooks/useNavigate';
 
 const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
@@ -46,7 +45,6 @@ const excludeContainedReports = (events) => {
 const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { navigationState } = useNavigationState();
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
   const map = useContext(MapContext);
 
@@ -73,13 +71,13 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
 
   const onEventTitleClick = useCallback((event) => {
     if (enableNewReportUI) {
-      navigate(event.id, { state: navigationState });
+      navigate(event.id);
     } else {
       openModalForReport(event, map);
     }
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [enableNewReportUI, map, navigate, navigationState]);
+  }, [enableNewReportUI, map, navigate]);
 
   useEffect(() => {
     setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);

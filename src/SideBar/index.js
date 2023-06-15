@@ -41,7 +41,7 @@ const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { navigationState, goBack } = useNavigationState();
+  const { goBack } = useNavigationState();
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const patrolsFeed = useFetchPatrolsFeed();
@@ -124,18 +124,18 @@ const SideBar = () => {
 
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'} state={navigationState}>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <span>Reports</span>
       </Link>
 
-      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'} state={navigationState}>
+      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
         <PatrolIcon />
         <span>Patrols</span>
         </Link>}
 
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'} state={navigationState}>
+      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
         <LayersIcon />
         <span>Map Layers</span>
       </Link>

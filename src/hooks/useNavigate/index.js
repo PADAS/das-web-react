@@ -5,12 +5,13 @@ import { useDispatch } from 'react-redux';
 import { showSideBar } from '../../ducks/side-bar';
 
 import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
+import useNavigationState from '../useNavigationState';
 
 // Custom useNavigate hook to handle blocking navigation, context navigation
 // data and synchronization with sidebar reducer
 const useNavigate = (options = {}) => {
   const { clearContext = true, dispatchShowSideBar = true } = options;
-
+  const { navigationState } = useNavigationState();
   const dispatch = useDispatch();
   const routerNavigate = useRouterNavigate();
 
@@ -23,7 +24,7 @@ const useNavigate = (options = {}) => {
 
   const [navigationAttemptParameters, setNavigationAttemptParameters] = useState(null);
 
-  const navigate = useCallback((to, options, navigationContextData = null, skipBlocker = false) => {
+  const navigate = useCallback((to, options = {}, navigationContextData = null, skipBlocker = false) => {
     if (!skipBlocker && isNavigationBlocked) {
       setNavigationAttemptParameters({ to, options, navigationContextData });
       onNavigationAttemptBlocked();
@@ -36,7 +37,10 @@ const useNavigate = (options = {}) => {
         dispatch(showSideBar());
       }
 
-      routerNavigate(to, options);
+      routerNavigate(to, {
+        ...options,
+        state: !!options.state ? { ...options.state, ...navigationState } : navigationState
+      });
     }
   }, [
     clearContext,
@@ -46,6 +50,7 @@ const useNavigate = (options = {}) => {
     onNavigationAttemptBlocked,
     routerNavigate,
     setNavigationData,
+    navigationState,
   ]);
 
   useEffect(() => {
