@@ -1,17 +1,20 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate as useRouterNavigate } from 'react-router-dom';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import { showSideBar } from '../../ducks/side-bar';
 
 import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
-import useNavigationState from '../useNavigationState';
 
 // Custom useNavigate hook to handle blocking navigation, context navigation
 // data and synchronization with sidebar reducer
 const useNavigate = (options = {}) => {
   const { clearContext = true, dispatchShowSideBar = true } = options;
-  const { navigationState } = useNavigationState();
+  const location = useLocation();
+  const navigationState = useMemo(() => ({
+    from: location.pathname
+  }), [location.pathname]);
+
   const dispatch = useDispatch();
   const routerNavigate = useRouterNavigate();
 

@@ -33,7 +33,6 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
-import useNavigationState from '../hooks/useNavigationState';
 import useNavigate from '../hooks/useNavigate';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
@@ -41,7 +40,6 @@ const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { goBack } = useNavigationState();
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const patrolsFeed = useFetchPatrolsFeed();
@@ -68,6 +66,14 @@ const SideBar = () => {
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
+
+  const goBack = useCallback(() => {
+    if (location?.state?.from){
+      navigate(location.state.from);
+    } else {
+      navigate(`/${getCurrentTabFromURL(location.pathname)}`);
+    }
+  }, [location.pathname, location?.state?.from, navigate]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
