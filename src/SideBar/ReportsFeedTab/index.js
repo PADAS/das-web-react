@@ -17,6 +17,7 @@ import { getFeedEvents } from '../../selectors';
 import { MapContext } from '../../App';
 import { openModalForReport } from '../../utils/events';
 import { useFeatureFlag } from '../../hooks';
+import useNavigate from '../../hooks/useNavigate';
 
 import ColumnSort from '../../ColumnSort';
 import ErrorBoundary from '../../ErrorBoundary';
@@ -25,7 +26,6 @@ import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
-import useNavigate from '../../hooks/useNavigate';
 
 const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
@@ -45,6 +45,7 @@ const excludeContainedReports = (events) => {
 const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
   const map = useContext(MapContext);
 
