@@ -23,6 +23,11 @@ const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) 
   return <input value={time} onChange={onTimeChange} type='time' />;
 });
 
+CustomTimePicker.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 const renderCustomHeader = (maxDate, minDate) => {
   const CustomHeader = ({
     changeMonth,
