@@ -1,5 +1,5 @@
 import React, { memo, useRef } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
@@ -7,8 +7,11 @@ import Button from 'react-bootstrap/Button';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { withMap } from '../EarthRangerMap';
+import Popup from '../Popup';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
+
+import styles from './styles.module.scss';
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);
@@ -22,7 +25,10 @@ const unbindExternal = (map, eventType, func) => {
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLocationPicker = (props) => {
-  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setIsPickingLocation, showCancelButton, wrapperClassName } = props;
+  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, showCancelButton, wrapperClassName } = props;
+
+  const dispatch = useDispatch();
+  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
@@ -43,42 +49,55 @@ const MapLocationPicker = (props) => {
   };
 
   const onCancel = () => {
-    setIsPickingLocation(false);
+    dispatch(setIsPickingLocation(false));
     unbindMapEvents();
     onLocationSelectCancel();
     mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
   const onSelect = (e) => {
-    setIsPickingLocation(false);
+    dispatch(setIsPickingLocation(false));
     unbindMapEvents();
     onLocationSelect(e);
     mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
   const onSelectStart = () => {
-    setIsPickingLocation(true);
+    dispatch(setIsPickingLocation(true));
     bindMapEvents();
     onLocationSelectStart();
     mapInteractionTracker.track('Click \'Drop Marker\' button');
   };
 
-  return <div className={wrapperClassName}>
-    {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
-    <button
+  return  <>
+    <div className={wrapperClassName}>
+      {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+      <button
       disabled={disabled}
       type='button'
       className={`${className} controlButton`}
       onClick={onSelectStart}
       title='Place marker on map'
     >
-      <LocationIcon />
-      <span>{label}</span>
-    </button>
-  </div>;
+        <LocationIcon />
+        <span>{label}</span>
+      </button>
+    </div>
+    {isPickingLocation &&
+      <Popup
+            map={map}
+            className={styles.popup}
+            offset={[-8, 0]}
+            anchor="left"
+            trackPointer={true}
+        >
+        <p>Click to select a report location</p>
+      </Popup>
+    }
+  </>;
 };
 
-export default connect(null, { setIsPickingLocation })(withMap(memo(MapLocationPicker)));
+export default withMap(memo(MapLocationPicker));
 
 MapLocationPicker.defaultProps = {
   className: '',

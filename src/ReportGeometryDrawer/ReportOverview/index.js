@@ -17,6 +17,7 @@ import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
 import ReportListItem from '../../ReportListItem';
 
+import { MAP_LOCATION_SELECTION_MODES } from '../../ducks/map-ui';
 import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
 
 import styles from './styles.module.scss';
@@ -35,6 +36,14 @@ const ReportOverview = ({
 }) => {
   const event = useSelector((state) => state.view.mapLocationSelection.event);
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
+  const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
+
+  const isDrawingEventGeometry =
+    !!mapLocationSelection.isPickingLocation
+    && (
+      mapLocationSelection.mode
+      === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY
+    );
 
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
@@ -68,12 +77,17 @@ const ReportOverview = ({
     eventReportTracker.track('Clicks discard while drawing area');
   }, [onClickDiscardCallback]);
 
+  const title =
+  isDrawingEventGeometry
+    ? 'Create report area'
+    : 'Choose report location';
+
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
-      <h2>Create Report Area</h2>
+      <h2>{title}</h2>
 
       <div className={styles.actions}>
-        <InformationIcon onClick={onClickInformationIcon} />
+        {onShowInformationModal && <InformationIcon onClick={onClickInformationIcon} />}
 
         {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
       </div>
@@ -83,25 +97,28 @@ const ReportOverview = ({
       <div className={styles.body}>
         <ReportListItem className={styles.reportItem} report={event} />
 
-        <div className={styles.measurements}>
-          <div>
-            {`Area: ${areaDisplayString}`}
+        {isDrawingEventGeometry &&
+          <div className={styles.measurements}>
+            <div>
+              {`Area: ${areaDisplayString}`}
+            </div>
+
+            <div>
+              {`Perimeter: ${perimeterDisplayString}`}
+            </div>
           </div>
+        }
 
-          <div>
-            {`Perimeter: ${perimeterDisplayString}`}
-          </div>
-        </div>
+        {isDrawingEventGeometry && <>
+          <div className={styles.separator} />
 
-        <div className={styles.separator} />
-
-        <div className={styles.buttons}>
-          <OverlayTrigger
+          <div className={styles.buttons}>
+            <OverlayTrigger
             delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Reverse your last action</Tooltip>}
             placement="bottom"
           >
-            <Button
+              <Button
               className={styles.undoButton}
               disabled={isUndoButtonDisabled}
               onClick={onClickUndo}
@@ -109,17 +126,17 @@ const ReportOverview = ({
               type="button"
               variant="secondary"
             >
-              <UndoArrowIcon />
-              Undo
-            </Button>
-          </OverlayTrigger>
+                <UndoArrowIcon />
+                Undo
+              </Button>
+            </OverlayTrigger>
 
-          <OverlayTrigger
+            <OverlayTrigger
             delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
             overlay={(props) => <Tooltip {...props}>Remove all points</Tooltip>}
             placement="bottom"
           >
-            <Button
+              <Button
               className={styles.discardButton}
               disabled={isDiscardButtonDisabled}
               onClick={onClickDiscard}
@@ -127,11 +144,13 @@ const ReportOverview = ({
               type="button"
               variant="secondary"
             >
-              <TrashCanIcon />
-              Discard
-            </Button>
-          </OverlayTrigger>
-        </div>
+                <TrashCanIcon />
+                Discard
+              </Button>
+            </OverlayTrigger>
+          </div>
+        </>
+        }
       </div>
     </Collapse>
   </div>;
