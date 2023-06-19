@@ -66,7 +66,7 @@ const SideBar = () => {
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
 
-  const goBack = useCallback(() => {
+  const onClickBackFromDetailView = useCallback(() => {
     if (reportIsBeingAdded){
       return navigate(location.pathname);
     }
@@ -91,8 +91,6 @@ const SideBar = () => {
   }, [currentTab]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
-
-  const onClickBackFromDetailView = useCallback(() => goBack(), [goBack]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
