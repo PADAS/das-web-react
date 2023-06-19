@@ -14,11 +14,12 @@ import { TrackerContext, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackE
 import DelayedUnmount from '../DelayedUnmount';
 import ReportDetailView from './ReportDetailView';
 import styles from './styles.module.scss';
+import PropTypes from "prop-types";
 
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
-const ReportManager = () => {
+const ReportManager = ({ onReportBeingAdded }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,6 +55,10 @@ const ReportManager = () => {
 
   useEffect(() => {
     setTimeout(() => setAddedReportClassName(`${styles.addedReport} ${showAddedReport ? styles.show : ''}`));
+  }, [showAddedReport]);
+
+  useEffect(() => {
+    onReportBeingAdded?.(showAddedReport);
   }, [showAddedReport]);
 
   // Primary report
@@ -132,6 +137,14 @@ const ReportManager = () => {
       />
     </DelayedUnmount>
   </TrackerContext.Provider>;
+};
+
+ReportManager.defaultProps = {
+  onReportBeingAdded: null,
+};
+
+ReportManager.propTypes = {
+  onReportBeingAdded: PropTypes.func,
 };
 
 export default memo(ReportManager);

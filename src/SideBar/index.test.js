@@ -257,9 +257,8 @@ describe('SideBar', () => {
     expect(screen.getByTestId('sideBar-backDetailViewButton')).toBeDefined();
   });
 
-  test('hides the report detail view if it was opened but user clicked the back button', () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
-    useLocation.mockImplementation(useLocationMock);
+  const assertBehaviorOfDetailViewBackButton = (locationMock, expectedInvocationParams) => {
+    useLocation.mockImplementation(locationMock);
     renderSideBar();
 
     expect(navigate).toHaveBeenCalledTimes(0);
@@ -268,21 +267,27 @@ describe('SideBar', () => {
     userEvent.click(backDetailViewButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/reports');
+    expect(navigate).toHaveBeenCalledWith(expectedInvocationParams);
+  };
+
+  test('hides the report detail view if it was opened but user clicked the back button', () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
+    assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
   });
 
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/new' })));
-    useLocation.mockImplementation(useLocationMock);
-    renderSideBar();
+    assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
+  });
 
-    expect(navigate).toHaveBeenCalledTimes(0);
+  test('return to report feed when user clicked the back button coming from a deep link', () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/123123', key: 'default' })));
+    assertBehaviorOfDetailViewBackButton(useLocationMock, '/reports');
+  });
 
-    const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
-    userEvent.click(backDetailViewButton);
-
-    expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols');
+  test('return to patrol feed when user clicked the back button coming from a deep link', () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/123123', key: 'default' })));
+    assertBehaviorOfDetailViewBackButton(useLocationMock, '/patrols');
   });
 
   test('redirects to map if a tab is not recognized', async () => {
