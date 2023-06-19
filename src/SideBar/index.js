@@ -37,7 +37,7 @@ import useNavigate from '../hooks/useNavigate';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
-const SideBar = (factory, deps) => {
+const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const sideBar = useSelector((state) => state.view.sideBar);
