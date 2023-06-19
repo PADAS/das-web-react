@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
+import PropTypes from 'prop-types';
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
@@ -14,7 +14,6 @@ import { TrackerContext, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackE
 import DelayedUnmount from '../DelayedUnmount';
 import ReportDetailView from './ReportDetailView';
 import styles from './styles.module.scss';
-import PropTypes from "prop-types";
 
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
