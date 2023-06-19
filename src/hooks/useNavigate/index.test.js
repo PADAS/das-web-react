@@ -14,7 +14,6 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('useNavigate', () => {
-  const navigationState = { hasHistory: true };
   let mockStoreInstance = mockStore({});
   const routerNavigate = jest.fn(),
     onNavigationAttemptBlocked = jest.fn(),
@@ -39,15 +38,9 @@ describe('useNavigate', () => {
   });
 
   test('Uses React Router navigate cleaning context and showing the sidebar by default', async () => {
-    const stateData = {
-      some: 'data'
-    };
-    const Component = ({ stateData }) => {
+    const Component = () => {
       const navigate = useNavigate();
-      useEffect(() => {
-        navigate('/', { state: stateData });
-      }, [navigate]);
-
+      useEffect(() => { navigate('/', { state: 'stateee' }); }, [navigate]);
       return null;
     };
 
@@ -55,7 +48,7 @@ describe('useNavigate', () => {
       <Provider store={mockStoreInstance}>
         <NavigationWrapper>
           <NavigationContext.Provider value={navigationContextValue}>
-            <Component stateData={stateData} />
+            <Component />
           </NavigationContext.Provider>
         </NavigationWrapper>
       </Provider>
@@ -63,7 +56,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: { ...stateData, ...navigationState } });
+      expect(routerNavigate).toHaveBeenCalledWith('/', { state: 'stateee' });
       expect(setNavigationData).toHaveBeenCalledWith({});
       expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
     });
@@ -88,7 +81,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: navigationState });
+      expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
       expect(setNavigationData).not.toHaveBeenCalled();
       expect(mockStoreInstance.getActions()[0].type).toEqual('SET_SHOW_SIDE_BAR');
     });
@@ -114,7 +107,7 @@ describe('useNavigate', () => {
 
     await waitFor(() => {
       expect(routerNavigate).toHaveBeenCalledTimes(1);
-      expect(routerNavigate).toHaveBeenCalledWith('/', { state: navigationState });
+      expect(routerNavigate).toHaveBeenCalledWith('/', undefined);
       expect(setNavigationData).toHaveBeenCalledWith({});
       expect(mockStoreInstance.getActions()).toHaveLength(0);
     });
