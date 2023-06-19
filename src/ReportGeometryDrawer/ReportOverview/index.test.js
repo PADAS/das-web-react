@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import cloneDeep from 'lodash/cloneDeep';
 
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { MAP_LOCATION_SELECTION_MODES } from '../../ducks/map-ui';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
@@ -51,7 +52,7 @@ describe('ReportOverview', () => {
         patrolTypes: []
       },
       view: {
-        mapLocationSelection: { event: mockReport }
+        mapLocationSelection: { event: mockReport, isPickingLocation: true, mode: MAP_LOCATION_SELECTION_MODES.DEFAULT },
       },
     };
 
@@ -103,105 +104,138 @@ describe('ReportOverview', () => {
     });
   });
 
-  test('renders default values for area and perimeter', async () => {
-    expect((await screen.findByText('Area: 0km²'))).toBeDefined();
-    expect((await screen.findByText('Perimeter: 0km'))).toBeDefined();
+  describe('with a single-point location', () => {
+    test('the title is "Choose report location"', async () => {
+      await screen.findByText('Choose report location');
+    });
   });
 
-  test('renders the given values for area and perimeter', async () => {
-    const mapDrawingData = {
-      fillPolygon: mockGeometry,
-    };
-    rerender(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
-            <ReportOverview
-              isDiscardButtonDisabled={false}
-              isUndoButtonDisabled={false}
-              onClickDiscard={onClickDiscard}
-              onClickUndo={onClickUndo}
-            />
-          </MapDrawingToolsContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
+  describe('with geometry', () => {
+    beforeEach(() => {
+      store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
-    expect((await screen.findByText('Area: 37.74km²'))).toBeDefined();
-    expect((await screen.findByText('Perimeter: 62.89km'))).toBeDefined();
-  });
-
-  test('triggers onClickUndo', async () => {
-    expect(onClickUndo).toHaveBeenCalledTimes(0);
-
-    const undoButton = await screen.findByText('Undo');
-    userEvent.click(undoButton);
-
-    expect(onClickUndo).toHaveBeenCalledTimes(1);
-  });
-
-  test('disables undo button', async () => {
-    rerender(
-      <Provider store={mockStore(store)}>
+      rerender(<Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
             <ReportOverview
-              isDiscardButtonDisabled={false}
-              isUndoButtonDisabled
-              onClickDiscard={onClickDiscard}
-              onClickUndo={onClickUndo}
-            />
+            isDiscardButtonDisabled={false}
+            isUndoButtonDisabled={false}
+            onClickDiscard={onClickDiscard}
+            onClickUndo={onClickUndo}
+            onShowInformationModal={onShowInformationModal}
+          />
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
-      </Provider>
-    );
+      </Provider>);
+    });
 
-    expect((await screen.findByText('Undo'))).toHaveProperty('disabled');
+    test('the title is "Create report area"', async () => {
+      await screen.findByText('Create report area');
+    });
+
+    test('renders default values for area and perimeter', async () => {
+      expect((await screen.findByText('Area: 0km²'))).toBeDefined();
+      expect((await screen.findByText('Perimeter: 0km'))).toBeDefined();
+    });
+
+    test('renders the given values for area and perimeter', async () => {
+      const mapDrawingData = {
+        fillPolygon: mockGeometry,
+      };
+      rerender(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+              <ReportOverview
+                isDiscardButtonDisabled={false}
+                isUndoButtonDisabled={false}
+                onClickDiscard={onClickDiscard}
+                onClickUndo={onClickUndo}
+              />
+            </MapDrawingToolsContext.Provider>
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      expect((await screen.findByText('Area: 37.74km²'))).toBeDefined();
+      expect((await screen.findByText('Perimeter: 62.89km'))).toBeDefined();
+    });
+
+    test('triggers onClickUndo', async () => {
+      expect(onClickUndo).toHaveBeenCalledTimes(0);
+
+      const undoButton = await screen.findByText('Undo');
+      userEvent.click(undoButton);
+
+      expect(onClickUndo).toHaveBeenCalledTimes(1);
+    });
+
+    test('disables undo button', async () => {
+      rerender(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <MapDrawingToolsContextProvider>
+              <ReportOverview
+                isDiscardButtonDisabled={false}
+                isUndoButtonDisabled
+                onClickDiscard={onClickDiscard}
+                onClickUndo={onClickUndo}
+              />
+            </MapDrawingToolsContextProvider>
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      expect((await screen.findByText('Undo'))).toHaveProperty('disabled');
+    });
+
+    test('shows the undo button tooltip', async () => {
+      expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+      const undoButton = await screen.findByText('Undo');
+      userEvent.hover(undoButton);
+
+      expect((await screen.findByRole('tooltip'))).toHaveTextContent('Reverse your last action');
+    });
+
+    test('triggers onClickDiscard', async () => {
+      expect(onClickDiscard).toHaveBeenCalledTimes(0);
+
+      const discardButton = await screen.findByText('Discard');
+      userEvent.click(discardButton);
+
+      expect(onClickDiscard).toHaveBeenCalledTimes(1);
+    });
+
+    test('disables discard button', async () => {
+      rerender(
+        <Provider store={mockStore(store)}>
+          <NavigationWrapper>
+            <MapDrawingToolsContextProvider>
+              <ReportOverview
+                isDiscardButtonDisabled
+                isUndoButtonDisabled={false}
+                onClickDiscard={onClickDiscard}
+                onClickUndo={onClickUndo}
+              />
+            </MapDrawingToolsContextProvider>
+          </NavigationWrapper>
+        </Provider>
+      );
+
+      expect((await screen.findByText('Discard'))).toHaveProperty('disabled');
+    });
+
+    test('shows the discard button tooltip', async () => {
+      expect((await screen.queryByRole('tooltip'))).toBeNull();
+
+      const discardButton = await screen.findByText('Discard');
+      userEvent.hover(discardButton);
+
+      expect((await screen.findByRole('tooltip'))).toHaveTextContent('Remove all points');
+    });
   });
 
-  test('shows the undo button tooltip', async () => {
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
 
-    const undoButton = await screen.findByText('Undo');
-    userEvent.hover(undoButton);
 
-    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Reverse your last action');
-  });
-
-  test('triggers onClickDiscard', async () => {
-    expect(onClickDiscard).toHaveBeenCalledTimes(0);
-
-    const discardButton = await screen.findByText('Discard');
-    userEvent.click(discardButton);
-
-    expect(onClickDiscard).toHaveBeenCalledTimes(1);
-  });
-
-  test('disables discard button', async () => {
-    rerender(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <ReportOverview
-              isDiscardButtonDisabled
-              isUndoButtonDisabled={false}
-              onClickDiscard={onClickDiscard}
-              onClickUndo={onClickUndo}
-            />
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect((await screen.findByText('Discard'))).toHaveProperty('disabled');
-  });
-
-  test('shows the discard button tooltip', async () => {
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
-
-    const discardButton = await screen.findByText('Discard');
-    userEvent.hover(discardButton);
-
-    expect((await screen.findByRole('tooltip'))).toHaveTextContent('Remove all points');
-  });
 });

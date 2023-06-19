@@ -101,15 +101,6 @@ body {
   display: flex;
   flex-flow: column;
 
-  &.picking-location-default {
-    .floating-report-filter,
-    .mapboxgl-ctrl-bottom-right,
-    .mapboxgl-ctrl-scale,
-    .mapbox-zoom-ctrl {
-      display: none !important;
-    }
-  }
-
   &.picking-location-fullscreen {
     .map-legends,
     .dropped-marker-popup,

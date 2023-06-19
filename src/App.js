@@ -21,7 +21,6 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { getCurrentTabFromURL } from './utils/navigation';
 import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
-import { MAP_LOCATION_SELECTION_MODES } from './ducks/map-ui';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -36,11 +35,6 @@ import './App.scss';
 import { showToast } from './utils/toast';
 
 export const MapContext = createContext(null);
-
-const MAP_LOCATION_SELECTION_MODE_CLASS_MAP = {
-  [MAP_LOCATION_SELECTION_MODES.DEFAULT]: 'picking-location-default',
-  [MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY]: 'picking-location-fullscreen',
-};
 
 const App = (props) => {
   const {
@@ -131,7 +125,7 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation
-    ? MAP_LOCATION_SELECTION_MODE_CLASS_MAP[mapLocationSelection.mode]
+    ? 'picking-location-fullscreen'
     : '';
 
   return <div
