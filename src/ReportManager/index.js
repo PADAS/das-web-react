@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
@@ -58,7 +58,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
 
   useEffect(() => {
     onReportBeingAdded?.(showAddedReport);
-  }, [showAddedReport]);
+  }, [onReportBeingAdded, showAddedReport]);
 
   // Primary report
   const existingReportId = getCurrentIdFromURL(location.pathname);

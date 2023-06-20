@@ -267,7 +267,7 @@ describe('SideBar', () => {
     userEvent.click(backDetailViewButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(expectedInvocationParams);
+    expect(navigate).toHaveBeenCalledWith(expectedInvocationParams, {});
   };
 
   test('hides the report detail view if it was opened but user clicked the back button', () => {

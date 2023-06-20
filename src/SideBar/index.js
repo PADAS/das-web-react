@@ -68,13 +68,13 @@ const SideBar = () => {
 
   const onClickBackFromDetailView = useCallback(() => {
     if (reportIsBeingAdded){
-      return navigate(location.pathname);
+      return navigate(location.pathname, { replace: true });
     }
     if (!hasRouteHistory) {
-      return navigate(`/${getCurrentTabFromURL(location.pathname)}`);
+      return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 
-    return navigate(-1);
+    return navigate(-1, {});
   }, [hasRouteHistory, location.pathname, navigate, reportIsBeingAdded]);
 
   const tabTitle = useMemo(() => {
