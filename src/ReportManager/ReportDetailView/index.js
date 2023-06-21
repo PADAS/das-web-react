@@ -555,7 +555,7 @@ const ReportDetailView = ({
           reportTracker.track('Added report to report');
           onSaveSuccess({}, [
             `/${TAB_KEYS.REPORTS}/${collectionId}`,
-            { state: { relatedEvent: originalReport.related_event.id } }
+            { state: { relatedEvent: originalReport.related_event.id }, replace: true }
           ])(collectionRefreshedResults);
         }
       });

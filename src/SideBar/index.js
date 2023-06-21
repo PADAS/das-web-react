@@ -72,13 +72,10 @@ const SideBar = () => {
     }
     if (location.state?.relatedEvent) {
       return navigate(`/${TAB_KEYS.REPORTS}/${location.state.relatedEvent}`, {
-        replace: true,
-        state: {
-          comesFromRelatedEvent: true
-        }
+        replace: true
       });
     }
-    if (!hasRouteHistory || location.state?.comesFromRelatedEvent) {
+    if (!hasRouteHistory) {
       return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 

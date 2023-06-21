@@ -480,7 +480,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports/incident', { state: { relatedEvent: initialReport.id } });
+      expect(navigate).toHaveBeenCalledWith('/reports/incident', { state: { relatedEvent: initialReport.id }, replace: true });
     });
   });
 
