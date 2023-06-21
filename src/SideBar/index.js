@@ -15,7 +15,6 @@ import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useFetchReportsFeed from './useFetchReportsFeed';
-import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -34,20 +33,19 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
+import useNavigate from '../hooks/useNavigate';
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const sideBar = useSelector((state) => state.view.sideBar);
-
   const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useFetchReportsFeed();
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-
+  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
@@ -58,7 +56,7 @@ const SideBar = () => {
       `/${TAB_KEYS.REPORTS}/:id`,
       location.pathname
   ), [location.pathname]);
-
+  const hasRouteHistory = useMemo(() => location.key !== 'default', [location]);
   const sidebarOpen = !!currentTab;
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
@@ -67,6 +65,17 @@ const SideBar = () => {
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
+
+  const onClickBackFromDetailView = useCallback(() => {
+    if (reportIsBeingAdded){
+      return navigate(location.pathname, { replace: true });
+    }
+    if (!hasRouteHistory) {
+      return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
+    }
+
+    return navigate(-1, {});
+  }, [hasRouteHistory, location.pathname, navigate, reportIsBeingAdded]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
@@ -82,8 +91,6 @@ const SideBar = () => {
   }, [currentTab]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
-
-  const onClickBackFromDetailView = useCallback(() => navigate(`/${currentTab}`), [currentTab, navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
@@ -191,7 +198,7 @@ const SideBar = () => {
                   shouldExcludeContained={reportsFeed.shouldExcludeContained}
                 />} />
 
-              <Route path=":id/*" element={<ReportManager />} />
+              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded}/>} />
             </Route>
 
             <Route path="patrols">

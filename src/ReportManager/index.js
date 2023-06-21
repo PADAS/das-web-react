@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
-const ReportManager = () => {
+const ReportManager = ({ onReportBeingAdded }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,6 +55,10 @@ const ReportManager = () => {
   useEffect(() => {
     setTimeout(() => setAddedReportClassName(`${styles.addedReport} ${showAddedReport ? styles.show : ''}`));
   }, [showAddedReport]);
+
+  useEffect(() => {
+    onReportBeingAdded?.(showAddedReport);
+  }, [onReportBeingAdded, showAddedReport]);
 
   // Primary report
   const existingReportId = getCurrentIdFromURL(location.pathname);
@@ -132,6 +136,14 @@ const ReportManager = () => {
       />
     </DelayedUnmount>
   </TrackerContext.Provider>;
+};
+
+ReportManager.defaultProps = {
+  onReportBeingAdded: null,
+};
+
+ReportManager.propTypes = {
+  onReportBeingAdded: PropTypes.func,
 };
 
 export default memo(ReportManager);

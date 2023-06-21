@@ -1,6 +1,4 @@
 import React, { memo, useCallback, useContext } from 'react';
-// TODO: Replace with custom link after ERA-8169
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { TrackerContext } from '../../../utils/analytics';
@@ -14,6 +12,7 @@ import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
 
 import styles from './styles.module.scss';
+import Link from '../../../Link';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
