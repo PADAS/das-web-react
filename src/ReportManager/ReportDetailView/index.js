@@ -549,10 +549,14 @@ const ReportDetailView = ({
           dispatch(fetchEvent(thisReportSaved.id));
           dispatch(fetchEvent(secondReportSaved.id));
           const collectionRefreshedResults = await dispatch(fetchEvent(incidentCollection.id));
-          const { data: { data: { id: collectionId } } } = collectionRefreshedResults;
+          const { data: { data: { id: collectionId, contains } } } = collectionRefreshedResults;
+          const [, originalReport] = contains;
 
           reportTracker.track('Added report to report');
-          onSaveSuccess({}, `/${TAB_KEYS.REPORTS}/${collectionId}`)(collectionRefreshedResults);
+          onSaveSuccess({}, [
+            `/${TAB_KEYS.REPORTS}/${collectionId}`,
+            { state: { relatedEvent: originalReport.related_event.id } }
+          ])(collectionRefreshedResults);
         }
       });
     } catch (e) {

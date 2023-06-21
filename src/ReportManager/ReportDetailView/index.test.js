@@ -434,16 +434,23 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('if the current report is not a collection, adding a new one creates a collections and appends both', async () => {
-    const addedReport = [{ data: { data: { id: 'added' } } }];
-    const initialReport = [{ data: { data: { id: 'initial' } } }];
-    const incidentCollection = { data: { data: { id: 'incident' } } };
+    const addedReport = { id: 'added' };
+    const initialReport = { id: 'initial' };
+    const incidentCollection = {
+      data: {
+        data: {
+          id: 'incident',
+          contains: [{ related_event: addedReport }, { related_event: initialReport }]
+        }
+      }
+    };
 
-    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActionsMock = jest.fn(() => Promise.resolve([{ data: { data: addedReport } }]));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
     AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
-        formProps.onSaveSuccess(addedReport);
+        formProps.onSaveSuccess([{ data: { data: initialReport } }]);
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
@@ -473,7 +480,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports/incident');
+      expect(navigate).toHaveBeenCalledWith('/reports/incident', { state: { relatedEvent: initialReport.id } });
     });
   });
 
