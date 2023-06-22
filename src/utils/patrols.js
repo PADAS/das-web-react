@@ -554,9 +554,9 @@ export const sortPatrolList = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader).toLowerCase();
+  const patrolGetLastUpdate = ({ updates }) => Array.isArray(updates) && updates.length ? new Date(updates[0].time) : null;
 
-  return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+  return orderBy(patrols, [sortFunc, patrolGetLastUpdate], ['asc', 'desc']);
 };
 
 export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
