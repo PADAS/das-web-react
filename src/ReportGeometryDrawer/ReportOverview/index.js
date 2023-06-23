@@ -16,6 +16,7 @@ import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics'
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 
 import ReportListItem from '../../ReportListItem';
+import PatrolListItem from '../../PatrolListItem';
 
 import { MAP_LOCATION_SELECTION_MODES } from '../../ducks/map-ui';
 import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
@@ -34,8 +35,14 @@ const ReportOverview = ({
   onClickUndo: onClickUndoCallback,
   onShowInformationModal,
 }) => {
-  const event = useSelector((state) => state.view.mapLocationSelection.event);
-  const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
+  const event = useSelector((state) => state.view.mapLocationSelection?.event);
+  const patrol = useSelector((state) => state.view.mapLocationSelection?.patrol);
+
+  const originalEvent = useSelector((state) =>
+    event
+    && state.data.eventStore[event.id]
+  );
+
   const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
 
   const isDrawingEventGeometry =
@@ -80,7 +87,7 @@ const ReportOverview = ({
   const title =
   isDrawingEventGeometry
     ? 'Create report area'
-    : 'Choose report location';
+    : `Choose ${patrol ? 'patrol' : 'report'} location`;
 
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
@@ -95,7 +102,11 @@ const ReportOverview = ({
 
     <Collapse data-testid="reportOverview-collapse" in={isOpen}>
       <div className={styles.body}>
-        <ReportListItem className={styles.reportItem} report={event} />
+        {!!event && <ReportListItem className={styles.reportItem} report={event} />}
+        {!!patrol && <PatrolListItem
+                patrol={patrol}
+                showControls={false}
+                 />}
 
         {isDrawingEventGeometry &&
           <div className={styles.measurements}>

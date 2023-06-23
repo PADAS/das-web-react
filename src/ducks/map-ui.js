@@ -31,6 +31,7 @@ export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
 const SET_MAP_LOCATION_SELECTION_EVENT = 'SET_MAP_LOCATION_SELECTION_EVENT';
+const SET_MAP_LOCATION_SELECTION_PATROL = 'SET_MAP_LOCATION_SELECTION_PATROL';
 const SET_IS_PICKING_LOCATION = 'SET_IS_PICKING_LOCATION';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
@@ -167,6 +168,11 @@ export const MAP_LOCATION_SELECTION_MODES = { EVENT_GEOMETRY: 'eventGeometry', D
 export const setMapLocationSelectionEvent = (event) => ({
   type: SET_MAP_LOCATION_SELECTION_EVENT,
   payload: { event },
+});
+
+export const setMapLocationSelectionPatrol = (patrol) => ({
+  type: SET_MAP_LOCATION_SELECTION_PATROL,
+  payload: { patrol },
 });
 
 export const setIsPickingLocation = (isPickingLocation, mode = MAP_LOCATION_SELECTION_MODES.DEFAULT) => ({
@@ -308,7 +314,10 @@ const INITIAL_MAP_LOCATION_SELECTION_STATE = {
 export const mapLocationSelectionReducer = (state = INITIAL_MAP_LOCATION_SELECTION_STATE, action) => {
   switch (action.type) {
   case SET_MAP_LOCATION_SELECTION_EVENT:
-    return { ...state, event: action.payload.event };
+    return { ...state, event: action.payload.event, patrol: null };
+
+  case SET_MAP_LOCATION_SELECTION_PATROL:
+    return { ...state, event: null, patrol: action.payload.patrol };
 
   case SET_IS_PICKING_LOCATION:
     return {

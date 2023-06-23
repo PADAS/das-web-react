@@ -11,6 +11,7 @@ import { isEmpty } from 'lodash';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
+import { setMapLocationSelectionPatrol } from '../ducks/map-ui';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { fetchEvent } from '../ducks/events';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
@@ -85,6 +86,7 @@ const PatrolModal = (props) => {
     updateUserPreferences,
     autoStartPatrols,
     patrolLeaderSchema,
+    setMapLocationSelectionPatrol,
     autoEndPatrols,
     eventStore,
   } = props;
@@ -173,6 +175,10 @@ const PatrolModal = (props) => {
       return () => window.clearTimeout(debouncedTrackFetch.current);
     }
   }, [actualEndTime, actualStartTime, displayTrackingSubject]);
+
+  useEffect(() => {
+    setMapLocationSelectionPatrol(statePatrol);
+  }, [setMapLocationSelectionPatrol, statePatrol]);
 
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
@@ -782,6 +788,7 @@ const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props)
 
 export default connect(mapStateToProps, {
   addModal,
+  setMapLocationSelectionPatrol,
   fetchEvent: (...args) => fetchEvent(...args),
   fetchTrackedBySchema,
   removeModal,
