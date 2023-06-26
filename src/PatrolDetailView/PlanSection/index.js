@@ -12,6 +12,7 @@ import { displayEndTimeForPatrol, displayStartTimeForPatrol } from '../../utils/
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
+import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
 import DatePicker from '../../DatePicker';
@@ -98,6 +99,10 @@ const PlanSection = ({
       dispatch(fetchTrackedBySchema());
     }
   }, [dispatch, patrolLeaders]);
+
+  useEffect(() => {
+    dispatch(setMapLocationSelectionPatrol(patrolForm));
+  }, [dispatch, patrolForm]);
 
   return <>
     <div className={styles.sectionHeader}>

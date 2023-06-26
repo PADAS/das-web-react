@@ -91,7 +91,7 @@ const MapLocationPicker = (props) => {
             anchor="left"
             trackPointer={true}
         >
-        <p>Click to select a report location</p>
+        <p>Click to select a location</p>
       </Popup>
     }
   </>;
