@@ -44,7 +44,6 @@ const useNavigate = (options = {}) => {
     dispatchShowSideBar,
     isNavigationBlocked,
     onNavigationAttemptBlocked,
-    routerNavigate,
     setNavigationData,
   ]);
 
