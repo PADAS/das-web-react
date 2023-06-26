@@ -89,6 +89,10 @@ const ReportOverview = ({
     ? 'Create report area'
     : `Choose ${patrol ? 'patrol' : 'report'} location`;
 
+  const hasData = !!event || !!patrol;
+  
+  if (!hasData) return null;
+
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
       <h2>{title}</h2>

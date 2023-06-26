@@ -95,6 +95,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 
   return <Fragment>
     <MapLocationPicker
+      showPopup={false}
       disabled={isValidLocation || moving}
       showCancelButton={moving}
       className={styles.mapControl}

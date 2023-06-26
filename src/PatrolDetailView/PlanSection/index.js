@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import Form from 'react-bootstrap/Form';
-import isEmpty from 'lodash/isEmpty';
 import isFuture from 'date-fns/is_future';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -102,6 +101,10 @@ const PlanSection = ({
 
   useEffect(() => {
     dispatch(setMapLocationSelectionPatrol(patrolForm));
+
+    return () => {
+      dispatch(setMapLocationSelectionPatrol(null));
+    };
   }, [dispatch, patrolForm]);
 
   return <>
