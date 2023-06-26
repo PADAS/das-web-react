@@ -90,7 +90,7 @@ const ReportOverview = ({
     : `Choose ${patrol ? 'patrol' : 'report'} location`;
 
   const hasData = !!event || !!patrol;
-  
+
   if (!hasData) return null;
 
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
