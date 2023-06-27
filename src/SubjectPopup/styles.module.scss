@@ -56,16 +56,15 @@ $background_image_url: '../common/images/icons/';
 }
 
 .addReport {
-  > button {
-    display: inline;
-    align-items: end;
-    padding: 0.4rem 0 0 0;
-    height: 1.5rem;
+  display: inline;
+  align-items: end;
+  padding: 0.4rem 0 0 0;
+  height: 1.5rem;
+  width: 1.75rem;
 
-    svg {
-      height: 1.75rem;
-      width: 1.75rem;
-    }  
+  svg {
+    height: 1.75rem;
+    width: 1.75rem;
   }
 }
 

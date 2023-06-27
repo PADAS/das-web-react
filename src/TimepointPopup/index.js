@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import AddReport from '../AddReport';
+import AddButton from '../AddButton';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 
@@ -9,7 +9,7 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 export default class TimepointPopup extends PureComponent {
   render() {
-    const { data: { geometry, properties }, popoverPlacement } = this.props;
+    const { data: { geometry, properties } } = this.props;
 
     const locationObject = {
       longitude: geometry.coordinates[0],
@@ -26,14 +26,10 @@ export default class TimepointPopup extends PureComponent {
         {properties.time && <DateTime date={properties.time} />}
         <GpsFormatToggle lng={locationObject.longitude} lat={locationObject.latitude} />
         <hr />
-        <AddReport
-          analyticsMetadata={{
-            category: MAP_INTERACTION_CATEGORY,
-            location: 'track timepoint',
-          }}
+        <AddButton
+          analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
           reportData={{ location: locationObject, reportedById, time }}
           showLabel={false}
-          popoverPlacement={popoverPlacement}
         />
       </>
     );

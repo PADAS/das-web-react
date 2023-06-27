@@ -6,7 +6,7 @@ import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
-import AddReport from '../AddReport';
+import AddButton from '../AddButton';
 import { createMapMock } from '../__test-helpers/mocks';
 import { executeSaveActions } from '../utils/save';
 import { EVENT_API_URL } from '../ducks/events';
@@ -28,7 +28,7 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../AddReport', () => jest.fn());
+jest.mock('../AddButton', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
@@ -64,7 +64,7 @@ describe('PatrolDetailView', () => {
     capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
   };
 
-  let AddReportMock,
+  let AddButtonMock,
     executeSaveActionsMock,
     map,
     mockPatrol,
@@ -77,8 +77,8 @@ describe('PatrolDetailView', () => {
     Wrapper;
 
   beforeEach(() => {
-    AddReportMock = jest.fn(() => <button data-testid="addReport-button" />);
-    AddReport.mockImplementation(AddReportMock);
+    AddButtonMock = jest.fn(() => <button data-testid="addButton-button" />);
+    AddButton.mockImplementation(AddButtonMock);
     navigate = jest.fn();
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
@@ -476,7 +476,7 @@ describe('PatrolDetailView', () => {
 
     const addedReport = [{ data: { data: { id: 'added' } } }];
 
-    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+    AddButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -484,7 +484,7 @@ describe('PatrolDetailView', () => {
 
       return null;
     };
-    AddReport.mockImplementation(AddReportMock);
+    AddButton.mockImplementation(AddButtonMock);
 
     renderWithWrapper(<PatrolDetailView />);
 

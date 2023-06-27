@@ -58,9 +58,12 @@
 
 .footer {
   display: flex;
-  justify-content: space-between;
   padding: 0.875rem 1rem;
   border-top: 1px solid $very-light-gray-alt;
+
+  @media (min-width: $md-layout-width-min) {
+    justify-content: space-between;
+  }
 }
 
 .footerActionButtonsContainer {
@@ -106,7 +109,7 @@
 }
 
 .saveButton {
-  width: 3.75rem;
+  width: 4.5rem;
 
   &:disabled {
     cursor: not-allowed;

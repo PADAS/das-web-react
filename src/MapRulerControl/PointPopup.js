@@ -3,7 +3,7 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import { calculatePopoverPlacement } from '../utils/map';
 import GpsFormatToggle from '../GpsFormatToggle';
-import AddReport from '../AddReport';
+import AddButton from '../AddButton';
 import Popup from '../Popup';
 import { calcPositiveBearing } from '../utils/location';
 
@@ -65,18 +65,14 @@ const PointPopup = (props) => {
           <strong>Distance from start:</strong> {distanceFromStart}
         </p>
       </>}
-      <AddReport
-        analyticsMetadata={{
-          category: MAP_INTERACTION_CATEGORY,
-          location: 'map ruler popup',
-        }}
+      <AddButton
+        analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'map ruler popup' }}
         reportData={{
           location: {
             latitude: point[1],
             longitude: point[0],
           }
         }}
-        popoverPlacement={popoverPlacement}
       />
     </>}
     {

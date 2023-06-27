@@ -254,6 +254,10 @@
         width: 2rem;
       }
     }
+
+    &[class*=addButton] > svg {
+      width: 2.25rem;
+    }
   }
 }
 

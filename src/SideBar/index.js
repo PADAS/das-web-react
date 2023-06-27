@@ -17,7 +17,7 @@ import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
-import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
+import AddButton from '../AddButton';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
@@ -34,8 +34,6 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
-
-const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = () => {
   const location = useLocation();
@@ -115,12 +113,6 @@ const SideBar = () => {
     }
   }, [sidebarOpen, currentTab, socket, isReportDetailsViewActive]);
 
-  useEffect(() => {
-    if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, currentTab);
-    }
-  }, [currentTab]);
-
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
       <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
@@ -153,14 +145,12 @@ const SideBar = () => {
                 >
                   <ArrowLeftIcon />
                 </button>
-                : <AddReport
+                : <AddButton
                   className={styles.addReport}
-                  variant="secondary"
-                  formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
-                  hideReports={currentTab !== TAB_KEYS.REPORTS}
-                  popoverPlacement="bottom"
+                  hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
+                  hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
                   showLabel={false}
-                  type={currentTab}
+                  variant="secondary"
                 />}
           </div>
 

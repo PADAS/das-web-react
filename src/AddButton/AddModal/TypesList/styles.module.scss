@@ -1,0 +1,69 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/layout';
+@import '../../../common/styles/vars/colors';
+
+.typesContainer {
+  height: 20rem;
+  overflow-y: auto;
+
+  .categoryTitle {
+    background: $light-gray-background;
+    line-height: normal;
+    margin: 0;
+    padding: 0.25rem 1rem;
+  }
+
+  .typesList {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    line-height: normal;
+    margin-bottom: 0;
+    width: 100%;
+  
+    button {
+      @include unstyledButton;
+  
+      font-weight: bold;
+      height: 100%;
+      width: 100%;
+  
+      span {
+        align-items: center;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+      }
+  
+      &:hover {
+        border: none;
+        color: $bright-blue;
+        text-decoration: underline;
+  
+        svg {
+          fill: $bright-blue;
+        }      
+      }
+    }
+  
+    svg {
+      --dimensions: 1.666rem;
+  
+      height: var(--dimensions);
+      margin-bottom: 0.25rem;
+      width: var(--dimensions);
+    }
+  
+    &:first-child {
+      border-top: thin solid $light-gray-border;
+    }
+
+    .typeListItem {
+      border: 1px solid $light-gray-border;
+      font-size: 0.8rem;
+      height: 6rem;
+      margin-bottom: auto;
+      width: 25%;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+@import '../common/styles/buttons';
+@import '../common/styles/layout';
+
+.addButton-primary {
+  @include addButton;
+
+  svg {
+    background-color: transparent;
+    border-radius: 50%;
+    box-shadow: unset;
+
+    path {
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    rect {
+      fill: currentColor;
+    }
+  }
+}
+
+.addButton-secondary {
+  @include addButton;
+}
