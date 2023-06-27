@@ -194,10 +194,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const autoStartInput = (await screen.findAllByRole('checkbox'))[0];
     userEvent.click(autoStartInput);
 
-    const actions = mockedStore.getActions();
-
     expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
-    expect(actions).toContainEqual({ payload: { autoStartPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
   });
 
   test('triggers the onPatrolEndDateChange callback', async () => {
@@ -235,10 +232,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const autoEndInput = (await screen.findAllByRole('checkbox'))[1];
     userEvent.click(autoEndInput);
 
-    const actions = mockedStore.getActions();
-
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
-    expect(actions).toContainEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
   });
 
   test('disables end time picker while there is no end date', async () => {
