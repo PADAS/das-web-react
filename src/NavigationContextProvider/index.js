@@ -52,7 +52,7 @@ const NavigationContextProvider = ({ children }) => {
   }, [blockerState]);
 
   const reset = useCallback(() => {
-    if (blockerState === BLOCKER_STATES.BLOCKED || blockerState === BLOCKER_STATES.PROCEEDING) {
+    if (blockerState !== BLOCKER_STATES.UNBLOCKED) {
       setBlockerState(BLOCKER_STATES.UNBLOCKED);
     }
   }, [blockerState]);
