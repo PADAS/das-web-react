@@ -17,7 +17,7 @@ const CategoryList = ({ category, onClickType, showTitle }) => <div>
   </ul>
 </div>;
 
-const TypesList = ({ typesByCategory, filterText, onClickType }, ref) => {
+const TypesList = ({ filterText, onClickType, typesByCategory }, ref) => {
   const filterTextLowerCase = filterText.toLowerCase();
 
   const filteredCategories = typesByCategory.reduce((accumulator, category) => {
@@ -47,14 +47,14 @@ const TypesList = ({ typesByCategory, filterText, onClickType }, ref) => {
 };
 
 TypesList.propTypes = {
+  filterText: PropTypes.string.isRequired,
+  onClickType: PropTypes.func.isRequired,
   typesByCategory: PropTypes.arrayOf(PropTypes.shape({
     display: PropTypes.string,
     id: PropTypes.string,
     types: PropTypes.array,
     value: PropTypes.string,
   })).isRequired,
-  filterText: PropTypes.string.isRequired,
-  onClickType: PropTypes.func.isRequired,
 };
 
 export default memo(forwardRef(TypesList));

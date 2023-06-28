@@ -90,6 +90,7 @@ const AddReportTab = ({ analyticsMetadata, formProps, navigate, onAddReport, onH
 
       <Select
         className={styles.quickJumpSelect}
+        data-testid='addButton-addModal-addReportTab-quickJumpSelect'
         getOptionLabel={getQuickJumpSelectOptionLabel}
         isSearchable
         onChange={onQuickJumpSelectChange}

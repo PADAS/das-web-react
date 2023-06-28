@@ -68,7 +68,7 @@ const AddPatrolTab = ({ analyticsMetadata, formProps, navigate, onAddPatrol, onH
 
   const onSearchTextClear = useCallback(() => setSearchText(''), []);
 
-  return !!patrolCategories?.length && <>
+  return <>
     <div className={styles.typesSearchControls}>
       <SearchBar
         className={styles.searchBar}

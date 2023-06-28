@@ -15,8 +15,8 @@ import AddReportTab from './AddReportTab';
 
 import styles from './styles.module.scss';
 
-const ADD_TAB_KEYS = { ADD_REPORT: 'reports', ADD_PATROL: 'patrols' };
-const STORAGE_KEY = 'selectedAddReportTab';
+export const ADD_TAB_KEYS = { ADD_REPORT: 'reports', ADD_PATROL: 'patrols' };
+export const STORAGE_KEY = 'selectedAddReportTab';
 
 const AddModal = ({
   analyticsMetadata,
@@ -121,7 +121,6 @@ AddModal.defatultProps = {
   hideAddReportTab: false,
   onAddPatrol: null,
   onAddReport: null,
-  onHide: null,
   patrolData: {},
   reportData: {},
 };
@@ -136,7 +135,7 @@ AddModal.propTypes = {
   hideAddReportTab: PropTypes.bool,
   onAddPatrol: PropTypes.func,
   onAddReport: PropTypes.func,
-  onHide: PropTypes.func,
+  onHide: PropTypes.func.isRequired,
   patrolData: PropTypes.object,
   reportData: PropTypes.object,
 };
