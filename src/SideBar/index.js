@@ -70,12 +70,17 @@ const SideBar = () => {
     if (reportIsBeingAdded){
       return navigate(location.pathname, { replace: true });
     }
+    if (location.state?.relatedEvent) {
+      return navigate(`/${TAB_KEYS.REPORTS}/${location.state.relatedEvent}`, {
+        replace: true
+      });
+    }
     if (!hasRouteHistory) {
       return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 
     return navigate(-1, {});
-  }, [hasRouteHistory, location.pathname, navigate, reportIsBeingAdded]);
+  }, [hasRouteHistory, location, navigate, reportIsBeingAdded]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
@@ -130,18 +135,18 @@ const SideBar = () => {
 
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
+      <Link className={styles.navItem} to={TAB_KEYS.REPORTS}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <span>Reports</span>
       </Link>
 
-      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
+      {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
         <PatrolIcon />
         <span>Patrols</span>
         </Link>}
 
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
+      <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
         <LayersIcon />
         <span>Map Layers</span>
       </Link>
