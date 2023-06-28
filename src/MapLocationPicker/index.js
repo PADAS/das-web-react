@@ -25,7 +25,7 @@ const unbindExternal = (map, eventType, func) => {
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLocationPicker = (props) => {
-  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, showCancelButton, wrapperClassName } = props;
+  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, showCancelButton, showPopup, wrapperClassName } = props;
 
   const dispatch = useDispatch();
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
@@ -83,7 +83,7 @@ const MapLocationPicker = (props) => {
         <span>{label}</span>
       </button>
     </div>
-    {isPickingLocation &&
+    {showPopup && isPickingLocation &&
       <Popup
             map={map}
             className={styles.popup}
@@ -110,6 +110,7 @@ MapLocationPicker.defaultProps = {
   label: 'Choose on map',
   disabled: false,
   showCancelButton: false,
+  showPopup: true,
   wrapperClassName: '',
 };
 
@@ -121,5 +122,6 @@ MapLocationPicker.propTypes = {
   map: PropTypes.object.isRequired,
   label: PropTypes.string,
   showCancelButton: PropTypes.bool,
+  showPopup: PropTypes.bool,
   wrapperClassName: PropTypes.string,
 };

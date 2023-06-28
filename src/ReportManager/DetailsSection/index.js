@@ -93,6 +93,10 @@ const DetailsSection = ({
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
+
+    return () => {
+      dispatch(setMapLocationSelectionEvent(null));
+    };
   }, [dispatch, reportForm]);
 
   return <>

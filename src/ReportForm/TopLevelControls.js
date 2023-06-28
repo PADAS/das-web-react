@@ -35,6 +35,10 @@ const ReportFormTopLevelControls = ({
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(report));
+
+    return () => {
+      dispatch(setMapLocationSelectionEvent(null));
+    };
   }, [dispatch, report]);
 
   return <div className={`${styles.reportControls} ${readonly ? styles.readonly : ''}`}>
