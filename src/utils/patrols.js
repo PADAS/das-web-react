@@ -554,7 +554,15 @@ export const sortPatrolList = (patrols) => {
     return 6;
   };
 
-  const patrolGetLastUpdate = ({ updates }) => Array.isArray(updates) && updates.length ? new Date(updates[0].time) : null;
+  const patrolGetLastUpdate = ({ patrol_segments }) => {
+    if (!Array.isArray(patrol_segments) || !patrol_segments.length || !patrol_segments[0].updates?.length){
+      return 0;
+    }
+    const [firstLeg] = patrol_segments;
+    const { updates } = firstLeg;
+    const [update] = updates;
+    return update.time ? new Date(update.time) : 0;
+  };
 
   return orderBy(patrols, [sortFunc, patrolGetLastUpdate], ['asc', 'desc']);
 };

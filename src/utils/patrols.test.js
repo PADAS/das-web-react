@@ -103,28 +103,33 @@ describe('Patrols utils', () => {
   });
 
   describe('sortPatrolList', () => {
+
+    const modifyPatrolUpdatesTime = (patrol, updateTime) => {
+      const { patrol_segments } = patrol;
+      const [firstLeg] = patrol_segments;
+      const { updates } = firstLeg;
+      const [update] = updates;
+      return {
+        ...patrol,
+        patrol_segments: [{
+          ...firstLeg,
+          updates: [{
+            ...update,
+            time: updateTime
+          }]
+        }]
+      };
+    };
+
     test('should return patrols in correct sort', async () => {
-      const donePatrolUpdate = {
-        time: '2023-06-18T22:12:24.207505+00:00'
-      };
-      const donePatrolWithLatestUpdate = {
-        ...donePatrol,
-        updates: [donePatrolUpdate]
-      };
-      const scheduledPatrolUpdate = {
-        time: '2023-06-20T22:12:24.207505+00:00'
-      };
-      const scheduledPatrolWithLatestUpdate = {
-        ...scheduledPatrol,
-        updates: [scheduledPatrolUpdate]
-      };
-      const cancelledPatrolUpdate = {
-        time: '2023-06-21T22:12:24.207505+00:00'
-      };
-      const cancelledPatrolWithLatestUpdate = {
-        ...cancelledPatrol,
-        updates: [cancelledPatrolUpdate]
-      };
+      const donePatrolUpdateTime = '2023-06-18T22:12:24.207505+00:00';
+      const donePatrolWithLatestUpdate = modifyPatrolUpdatesTime(donePatrol, donePatrolUpdateTime);
+
+      const scheduledPatrolUpdateTime = '2023-06-20T22:12:24.207505+00:00';
+      const scheduledPatrolWithLatestUpdate = modifyPatrolUpdatesTime(scheduledPatrol, scheduledPatrolUpdateTime);
+
+      const cancelledPatrolUpdateTime = '2023-06-21T22:12:24.207505+00:00';
+      const cancelledPatrolWithLatestUpdate = modifyPatrolUpdatesTime(cancelledPatrol, cancelledPatrolUpdateTime);
 
       const unorderedPatrols = [donePatrol, scheduledPatrol, activePatrol, cancelledPatrol, overduePatrol, readyToStartPatrol, cancelledPatrolWithLatestUpdate, donePatrolWithLatestUpdate, scheduledPatrolWithLatestUpdate ];
       const expectedPatrolStateOrder = [READY_TO_START, START_OVERDUE, ACTIVE, SCHEDULED, SCHEDULED, DONE, DONE, CANCELLED, CANCELLED];
@@ -136,9 +141,9 @@ describe('Patrols utils', () => {
 
       const [,,, mostRecentScheduledPatrol,, mostRecentDonePatrol,, mostRecentCancelledPatrol] = sortedPatrols;
 
-      expect(mostRecentScheduledPatrol.updates[0].time).toBe(scheduledPatrolUpdate.time);
-      expect(mostRecentDonePatrol.updates[0].time).toBe(donePatrolUpdate.time);
-      expect(mostRecentCancelledPatrol.updates[0].time).toBe(cancelledPatrolUpdate.time);
+      expect(mostRecentScheduledPatrol.patrol_segments[0].updates[0].time).toBe(scheduledPatrolUpdateTime);
+      expect(mostRecentDonePatrol.patrol_segments[0].updates[0].time).toBe(donePatrolUpdateTime);
+      expect(mostRecentCancelledPatrol.patrol_segments[0].updates[0].time).toBe(cancelledPatrolUpdateTime);
     });
   });
 });
