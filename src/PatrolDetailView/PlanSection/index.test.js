@@ -191,7 +191,7 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(onPatrolStartDateChange).not.toHaveBeenCalled();
 
-    const autoStartInput = (await screen.findAllByRole('checkbox'))[0];
+    const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
     userEvent.click(autoStartInput);
 
     expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
@@ -229,10 +229,69 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(onPatrolEndDateChange).not.toHaveBeenCalled();
 
-    const autoEndInput = (await screen.findAllByRole('checkbox'))[1];
+    const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
     userEvent.click(autoEndInput);
 
     expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('updates user preferences when user changes auto end/start value for an existing patrol', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const futurePatrol = {
+      ...newPatrol,
+      id: 'someId',
+      patrol_segments: [{
+        ...newPatrol.patrol_segments[0],
+        time_range: {
+          end_time: tomorrow,
+          start_time: tomorrow,
+        },
+      }],
+    };
+
+    renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
+
+    const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
+    userEvent.click(autoStartInput);
+
+    const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
+    userEvent.click(autoEndInput);
+
+    const [, autoStartAction, autoEndAction] = mockedStore.getActions();
+
+    expect(autoStartAction).toStrictEqual({ payload: { autoStartPatrols: false }, type: 'UPDATE_USER_PREFERENCES' });
+    expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: false }, type: 'UPDATE_USER_PREFERENCES' });
+  });
+
+  test('prevent updating user preferences when user changes auto end/start value for a new patrol', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const futurePatrol = {
+      ...newPatrol,
+      patrol_segments: [{
+        ...newPatrol.patrol_segments[0],
+        time_range: {
+          end_time: tomorrow,
+          start_time: tomorrow,
+        },
+      }],
+    };
+
+    renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
+
+    const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
+    userEvent.click(autoStartInput);
+
+    const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
+    userEvent.click(autoEndInput);
+
+    const [, autoStartAction, autoEndAction] = mockedStore.getActions();
+
+    expect(autoStartAction).toBeUndefined();
+    expect(autoEndAction).toBeUndefined();
   });
 
   test('disables end time picker while there is no end date', async () => {

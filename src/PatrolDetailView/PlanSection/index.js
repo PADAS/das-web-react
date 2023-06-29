@@ -10,6 +10,7 @@ import { BREAKPOINTS } from '../../constants';
 import { displayEndTimeForPatrol, displayStartTimeForPatrol } from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
+import { updateUserPreferences } from '../../ducks/user-preferences';
 import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
@@ -35,15 +36,17 @@ const PlanSection = ({
   const dispatch = useDispatch();
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const isNewPatrol = !patrolForm.id;
+
   const patrolTimeRange = useMemo(() => {
     const { patrol_segments } = patrolForm;
     return patrol_segments.length && !!patrol_segments[0].time_range
       ? patrol_segments[0].time_range
       : { time_range: {} };
   }, [patrolForm]);
-
-  const [isAutoEnd, setIsAutoEnd] = useState(!isNewPatrol && !!patrolTimeRange.end_time);
-  const [isAutoStart, setIsAutoStart] = useState(!isNewPatrol && !!patrolTimeRange.start_time);
+  const userPrefAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
+  const userPrefAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
+  const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!patrolTimeRange.end_time);
+  const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!patrolTimeRange.start_time);
 
   const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
   const endDate = displayEndTimeForPatrol(patrolForm);
@@ -89,15 +92,27 @@ const PlanSection = ({
 
   const handleAutoEndChange = useCallback(() => {
     const newIsAutoEnd = !isAutoEnd;
+
+    if (!isNewPatrol){
+      dispatch(updateUserPreferences({ autoEndPatrols: newIsAutoEnd }));
+
+      console.log("dispatched autoEndPatrols");
+    }
     setIsAutoEnd(newIsAutoEnd);
     onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, newIsAutoEnd));
-  }, [isAutoEnd, onPatrolEndDateChange, endDate]);
+  }, [isAutoEnd, onPatrolEndDateChange, endDate, isNewPatrol, dispatch]);
 
   const handleAutoStartChange = useCallback(() => {
     const newIsAutoStart = !isAutoStart;
+
+    if (!isNewPatrol){
+      dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
+      console.log("dispatched autoStartPatrols");
+
+    }
     setIsAutoStart(newIsAutoStart);
     onPatrolStartDateChange(startDate, shouldScheduleDate(startDate, newIsAutoStart));
-  }, [isAutoStart, onPatrolStartDateChange, startDate]);
+  }, [dispatch, isAutoStart, isNewPatrol, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
     if (!patrolLeaders) {
@@ -189,6 +204,7 @@ const PlanSection = ({
           disabled={!startDate || !isFuture(startDate)}
           onChange={handleAutoStartChange}
           type="checkbox"
+          data-testid="patrol-is-auto-start"
         />
         <span>Automatically start the patrol in EarthRanger at this time</span>
       </label>
@@ -242,6 +258,7 @@ const PlanSection = ({
           disabled={!endDate || !isFuture(endDate)}
           onChange={handleAutoEndChange}
           type="checkbox"
+          data-testid="patrol-is-auto-end"
         />
         <span>Automatically end the patrol in EarthRanger at this time</span>
       </label>
