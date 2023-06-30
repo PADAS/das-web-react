@@ -95,8 +95,6 @@ const PlanSection = ({
 
     if (!isNewPatrol){
       dispatch(updateUserPreferences({ autoEndPatrols: newIsAutoEnd }));
-
-      console.log("dispatched autoEndPatrols");
     }
     setIsAutoEnd(newIsAutoEnd);
     onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, newIsAutoEnd));
@@ -107,8 +105,6 @@ const PlanSection = ({
 
     if (!isNewPatrol){
       dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
-      console.log("dispatched autoStartPatrols");
-
     }
     setIsAutoStart(newIsAutoStart);
     onPatrolStartDateChange(startDate, shouldScheduleDate(startDate, newIsAutoStart));
