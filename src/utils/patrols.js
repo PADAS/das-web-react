@@ -554,17 +554,11 @@ export const sortPatrolList = (patrols) => {
     return 6;
   };
 
-  const patrolGetLastUpdate = ({ patrol_segments }) => {
-    if (!Array.isArray(patrol_segments) || !patrol_segments.length || !patrol_segments[0].updates?.length){
-      return 0;
-    }
-    const [firstLeg] = patrol_segments;
-    const { updates } = firstLeg;
-    const [update] = updates;
-    return update.time ? new Date(update.time) : 0;
+  const patrolGetLastUpdateTime = ({ patrol_segments }) => {
+    return patrol_segments?.[0]?.updates?.[0]?.time ? new Date(patrol_segments[0].updates[0].time) : 0;
   };
 
-  return orderBy(patrols, [sortFunc, patrolGetLastUpdate], ['asc', 'desc']);
+  return orderBy(patrols, [sortFunc, patrolGetLastUpdateTime], ['asc', 'desc']);
 };
 
 export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
