@@ -7,7 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ReactComponent as CalendarIcon } from '../../common/images/icons/calendar.svg';
 
 import { BREAKPOINTS } from '../../constants';
-import { displayEndTimeForPatrol, displayStartTimeForPatrol } from '../../utils/patrols';
+import {
+  actualEndTimeForPatrol,
+  actualStartTimeForPatrol,
+  displayEndTimeForPatrol,
+  displayStartTimeForPatrol
+} from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
@@ -36,22 +41,15 @@ const PlanSection = ({
   const dispatch = useDispatch();
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const isNewPatrol = !patrolForm.id;
-
-  const patrolTimeRange = useMemo(() => {
-    const { patrol_segments } = patrolForm;
-    return patrol_segments.length && !!patrol_segments[0].time_range
-      ? patrol_segments[0].time_range
-      : { time_range: {} };
-  }, [patrolForm]);
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrolForm), [patrolForm]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrolForm), [patrolForm]);
   const userPrefAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
   const userPrefAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
-  const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!patrolTimeRange.end_time);
-  const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!patrolTimeRange.start_time);
-
+  const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!actualEndTime);
+  const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!actualStartTime);
   const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
-
   const endDayIsSameAsStart = endDate && startDate?.toDateString() === endDate?.toDateString();
 
   const startLocation = useMemo(() => {
