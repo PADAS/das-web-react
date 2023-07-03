@@ -1,6 +1,5 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import isEmpty from 'lodash/isEmpty';
 import isFuture from 'date-fns/is_future';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ReactComponent as CalendarIcon } from '../../common/images/icons/calendar.svg';
 
 import { BREAKPOINTS } from '../../constants';
-import { displayEndTimeForPatrol, displayStartTimeForPatrol } from '../../utils/patrols';
+import {
+  actualEndTimeForPatrol,
+  actualStartTimeForPatrol,
+  displayEndTimeForPatrol,
+  displayStartTimeForPatrol
+} from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
@@ -35,15 +39,17 @@ const PlanSection = ({
   patrolForm,
 }) => {
   const dispatch = useDispatch();
-
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
-
-  const isAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
-  const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
+  const isNewPatrol = !patrolForm.id;
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrolForm), [patrolForm]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrolForm), [patrolForm]);
+  const userPrefAutoEnd = useSelector((state) => state.view.userPreferences.autoEndPatrols);
+  const userPrefAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
+  const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!actualEndTime);
+  const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!actualStartTime);
   const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
-
   const endDayIsSameAsStart = endDate && startDate?.toDateString() === endDate?.toDateString();
 
   const startLocation = useMemo(() => {
@@ -83,16 +89,24 @@ const PlanSection = ({
   }, [isAutoStart, onPatrolStartDateChange, startDate]);
 
   const handleAutoEndChange = useCallback(() => {
-    dispatch(updateUserPreferences({ autoEndPatrols: !isAutoEnd }));
-    onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, isAutoEnd));
-  }, [dispatch, isAutoEnd, onPatrolEndDateChange, endDate]);
+    const newIsAutoEnd = !isAutoEnd;
+
+    if (isNewPatrol){
+      dispatch(updateUserPreferences({ autoEndPatrols: newIsAutoEnd }));
+    }
+    setIsAutoEnd(newIsAutoEnd);
+    onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, newIsAutoEnd));
+  }, [isAutoEnd, onPatrolEndDateChange, endDate, isNewPatrol, dispatch]);
 
   const handleAutoStartChange = useCallback(() => {
     const newIsAutoStart = !isAutoStart;
-    dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
 
+    if (isNewPatrol){
+      dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
+    }
+    setIsAutoStart(newIsAutoStart);
     onPatrolStartDateChange(startDate, shouldScheduleDate(startDate, newIsAutoStart));
-  }, [dispatch, isAutoStart, onPatrolStartDateChange, startDate]);
+  }, [dispatch, isAutoStart, isNewPatrol, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
     if (!patrolLeaders) {
@@ -184,6 +198,7 @@ const PlanSection = ({
           disabled={!startDate || !isFuture(startDate)}
           onChange={handleAutoStartChange}
           type="checkbox"
+          data-testid="patrol-is-auto-start"
         />
         <span>Automatically start the patrol in EarthRanger at this time</span>
       </label>
@@ -237,6 +252,7 @@ const PlanSection = ({
           disabled={!endDate || !isFuture(endDate)}
           onChange={handleAutoEndChange}
           type="checkbox"
+          data-testid="patrol-is-auto-end"
         />
         <span>Automatically end the patrol in EarthRanger at this time</span>
       </label>
