@@ -9,7 +9,7 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
-import AddReport from '../AddReport';
+import AddItemButton from '../AddItemButton';
 
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
@@ -19,7 +19,7 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = ({ data, popoverPlacement, timeSliderState }) => {
+const SubjectPopup = ({ data, timeSliderState }) => {
   const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
 
@@ -66,16 +66,12 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState }) => {
           </>}
           <h6>{properties.name}</h6>
         </div>
-        <AddReport
-          analyticsMetadata={{
-            category: MAP_INTERACTION_CATEGORY,
-            location: 'subject popover',
-          }}
+        <AddItemButton
+          analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'subject popover' }}
           className={styles.addReport}
-          variant="secondary"
           reportData={{ location: locationObject, reportedById }}
           showLabel={false}
-          popoverPlacement={popoverPlacement}
+          variant="secondary"
         />
       </div>
       {coordProps.time && <div className={styles.dateTimeWrapper}>

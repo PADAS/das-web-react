@@ -68,7 +68,7 @@ import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
-import AddReport from '../AddReport';
+import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -595,12 +595,7 @@ const Map = ({
     center={lngLatFromParams.current || homeMap.center}
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
     controls={<>
-      <AddReport
-        className="general-add-button"
-        variant="secondary"
-        popoverPlacement="left"
-        showLabel={false}
-      />
+      <AddItemButton className="general-add-button" showLabel={false} variant="secondary" />
       <MapBaseLayerControl />
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />

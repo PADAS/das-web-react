@@ -589,7 +589,6 @@ const PatrolDetailView = () => {
                   analyticsMetadata={{ category: PATROL_DETAIL_VIEW_CATEGORY, location: 'Patrol Detail View' }}
                   className={styles.footerActionButton}
                   formProps={{
-                    hidePatrols: true,
                     isPatrolReport: true,
                     onSaveSuccess: onAddReport,
                     redirectTo: [{ pathname: location.pathname, search: location.search }, { state: location.state }],

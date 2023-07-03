@@ -14,6 +14,7 @@ import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
+import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
 import { TrackerContext } from '../../utils/analytics';
 import {
@@ -33,11 +34,11 @@ import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/loca
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { useLocation } from 'react-router-dom';
+import { uuid } from '../../utils/string';
 
 import ActivitySection from '../../DetailViewComponents/ActivitySection';
 import AddAttachmentButton from '../../AddAttachmentButton';
 import AddNoteButton from '../../AddNoteButton';
-
 import AddReportButton from '../../DetailViewComponents/AddReportButton';
 import DetailsSection from '../DetailsSection';
 import ErrorMessages from '../../ErrorMessages';
@@ -50,8 +51,6 @@ import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
 import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
-import { uuid } from '../../utils/string';
-import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -114,8 +113,8 @@ const ReportDetailView = ({
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [redirectTo, setRedirectTo] = useState(null);
   const [notesToAdd, setNotesToAdd] = useState([]);
+  const [redirectTo, setRedirectTo] = useState(null);
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportFromStore);
   const [saveError, setSaveError] = useState(null);
 
@@ -778,11 +777,7 @@ const ReportDetailView = ({
 
               {showAddReportButton && <AddReportButton
                 className={styles.footerActionButton}
-                formProps={{
-                  hidePatrols: true,
-                  onSaveSuccess: onSaveAddedReport,
-                  relationshipButtonDisabled: true
-                }}
+                formProps={{ onSaveSuccess: onSaveAddedReport, relationshipButtonDisabled: true }}
                 onAddReport={onAddReport}
               />}
             </div>

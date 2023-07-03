@@ -211,7 +211,7 @@
 }
 
 .addReport {
-  button[class*=addReport-secondary] svg {
+  svg {
     width: 2rem;
     height: 2rem;
     background-color: white;
@@ -225,12 +225,6 @@
       rect {
         fill: $secondary-medium-gray;
       }
-    }
-  }
-
-  [class*=arrow] {
-    &::after, &::before {
-      transform: translateX(-0.325rem);
     }
   }
 }

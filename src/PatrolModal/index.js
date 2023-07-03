@@ -43,7 +43,7 @@ import {
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
-import AddReport from '../AddReport';
+import AddItemButton from '../AddItemButton';
 import ReportListItem from '../ReportListItem';
 
 import NoteModal from '../NoteModal';
@@ -751,16 +751,16 @@ const PatrolModal = (props) => {
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport
+        {patrolSegmentId && <AddItemButton
           analyticsMetadata={{
             category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',
           }}
           formProps={{
-            hidePatrols: true,
             onSaveSuccess: onAddReport,
             isPatrolReport: true,
           }}
+          hideAddPatrolTab
         />}
       </AttachmentControls>
       <Footer

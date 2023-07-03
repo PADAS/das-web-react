@@ -1,0 +1,48 @@
+@import '../../common/styles/vars/colors';
+
+.modalBody {
+  padding: 0;
+
+  .tabs {
+    border: 0;
+    background-color: $light-gray;
+
+    button[role=tab] {
+      border: 0;
+      border-bottom: 3px solid $light-gray;
+      color: $secondary-medium-gray;
+
+      &[class*=active] {
+        border-bottom: 3px solid $bright-blue;
+        color: $bright-blue;
+      }
+    }
+  }
+
+  .typesSearchControls {
+    align-items: center;
+    display: flex;
+    margin: 0.5rem 1rem;
+  
+    > * {
+      flex-grow: 1;
+    }
+
+    .searchBar {
+      margin-bottom: 0;
+      max-width: 50%;
+    
+      input {
+        height: 2.275rem;
+      }
+    
+      > button {
+        top: 0.6rem;
+      }
+    }
+
+    .quickJumpSelect {
+      margin-left: 1rem;
+    }
+  }
+}
