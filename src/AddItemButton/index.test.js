@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AddButton from './';
+import AddItemButton from './';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
@@ -23,19 +23,19 @@ jest.mock('../hooks', () => ({
   useSystemConfigFlag: () => true,
 }));
 
-describe('AddButton', () => {
-  let renderAddButton, store;
+describe('AddItemButton', () => {
+  let renderAddItemButton, store;
   beforeEach(() => {
     store = {
       data: { eventTypes, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
       view: { featureFlagOverrides: {} },
     };
 
-    renderAddButton = (props, overrideStore) => {
+    renderAddItemButton = (props, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
           <NavigationWrapper>
-            <AddButton {...props} />
+            <AddItemButton {...props} />
           </NavigationWrapper>
         </Provider>
       );
@@ -47,46 +47,46 @@ describe('AddButton', () => {
   });
 
   test('shows the Add Modal when clicking the button', async () => {
-    renderAddButton();
+    renderAddItemButton();
 
-    expect((await screen.queryByTestId('addButton-addModal'))).toBeNull();
+    expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
 
-    const addButton = await screen.findByTestId('addModal-addButton');
-    userEvent.click(addButton);
+    const addItemButton = await screen.findByTestId('addItemButton');
+    userEvent.click(addItemButton);
 
-    expect((await screen.findByTestId('addButton-addModal'))).toBeDefined();
+    expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();
   });
 
   test('hides the Add Modal', async () => {
-    renderAddButton();
+    renderAddItemButton();
 
-    const addButton = await screen.findByTestId('addModal-addButton');
-    userEvent.click(addButton);
+    const addItemButton = await screen.findByTestId('addItemButton');
+    userEvent.click(addItemButton);
 
-    expect((await screen.findByTestId('addButton-addModal'))).toBeDefined();
+    expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();
 
     const closeButton = await screen.findByLabelText('Close');
     userEvent.click(closeButton);
 
     await waitFor(async () => {
-      expect((await screen.queryByTestId('addButton-addModal'))).toBeNull();
+      expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
     });
   });
 
   test('shows the default button title', async () => {
-    renderAddButton();
+    renderAddItemButton();
 
     expect((await screen.findByText('Add'))).toBeDefined();
   });
 
   test('shows a custom button title', async () => {
-    renderAddButton({ title: 'Title' });
+    renderAddItemButton({ title: 'Title' });
 
     expect((await screen.findByText('Title'))).toBeDefined();
   });
 
   test('hides the button title', async () => {
-    renderAddButton({ showLabel: false, title: 'Title' });
+    renderAddItemButton({ showLabel: false, title: 'Title' });
 
     expect((await screen.queryByText('Title'))).toBeNull();
   });
@@ -94,10 +94,10 @@ describe('AddButton', () => {
   test('triggers onAddReport when clicking a report type button if it is defined', async () => {
     const onAddReport = jest.fn();
 
-    renderAddButton({ onAddReport });
+    renderAddItemButton({ onAddReport });
 
-    const addButton = await screen.findByTestId('addModal-addButton');
-    userEvent.click(addButton);
+    const addItemButton = await screen.findByTestId('addItemButton');
+    userEvent.click(addItemButton);
 
     expect(onAddReport).toHaveBeenCalledTimes(0);
 
@@ -111,10 +111,10 @@ describe('AddButton', () => {
   test('triggers onAddPatrol when clicking a patrol type button if it is defined', async () => {
     const onAddPatrol = jest.fn();
 
-    renderAddButton({ onAddPatrol });
+    renderAddItemButton({ onAddPatrol });
 
-    const addButton = await screen.findByTestId('addModal-addButton');
-    userEvent.click(addButton);
+    const addItemButton = await screen.findByTestId('addItemButton');
+    userEvent.click(addItemButton);
 
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 

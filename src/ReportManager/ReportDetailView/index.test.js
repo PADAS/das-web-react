@@ -5,7 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import AddButton from '../../AddButton';
+import AddItemButton from '../../AddItemButton';
 import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
@@ -26,7 +26,7 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 
-jest.mock('../../AddButton', () => jest.fn());
+jest.mock('../../AddItemButton', () => jest.fn());
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -96,7 +96,7 @@ describe('ReportManager - ReportDetailView', () => {
       user: { first_name: 'First', last_name: 'Last' },
     }],
   };
-  let AddButtonMock,
+  let AddItemButtonMock,
     addEventToIncidentMock,
     createEventMock,
     executeSaveActionsMock,
@@ -113,8 +113,8 @@ describe('ReportManager - ReportDetailView', () => {
     store;
 
   beforeEach(() => {
-    AddButtonMock = jest.fn(() => <button data-testid="addButton-button" />);
-    AddButton.mockImplementation(AddButtonMock);
+    AddItemButtonMock = jest.fn(() => <button data-testid="addItemButton-button" />);
+    AddItemButton.mockImplementation(AddItemButtonMock);
     addEventToIncidentMock = jest.fn(() => () => {});
     addEventToIncident.mockImplementation(addEventToIncidentMock);
     createEventMock = jest.fn(() => () => {});
@@ -382,7 +382,7 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -390,7 +390,7 @@ describe('ReportManager - ReportDetailView', () => {
 
       return null;
     };
-    AddButton.mockImplementation(AddButtonMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
@@ -417,7 +417,7 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -425,7 +425,7 @@ describe('ReportManager - ReportDetailView', () => {
 
       return null;
     };
-    AddButton.mockImplementation(AddButtonMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     createEventMock = jest.fn(() => () => incidentCollection);
     createEvent.mockImplementation(createEventMock);
@@ -760,7 +760,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('addButton-button'))).toBeNull();
+    expect((await screen.queryByTestId('addItemButton-button'))).toBeNull();
   });
 
   test('shows the add report button', async () => {
@@ -768,7 +768,7 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findByTestId('addButton-button'))).toBeDefined();
+    expect((await screen.findByTestId('addItemButton-button'))).toBeDefined();
   });
 
   test('sets the locally edited report', async () => {

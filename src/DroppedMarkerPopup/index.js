@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { hidePopup } from '../ducks/popup';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import GpsFormatToggle from '../GpsFormatToggle';
 
 const DroppedMarkerPopup = ({ data: { location }, id }) => {
@@ -20,7 +20,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
 
     <hr ref={containerRef} />
 
-    <AddButton
+    <AddItemButton
       analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'dropped marker on map' }}
       formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
       reportData={{

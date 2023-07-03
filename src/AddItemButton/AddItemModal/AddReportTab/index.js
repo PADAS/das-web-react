@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { addReportFormProps } from '../../../proptypes';
+import { AddItemContext } from '../..';
 import { createNewReportForEventType, openModalForReport } from '../../../utils/events';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { getUserCreatableEventTypesByCategory } from '../../../selectors';
@@ -21,8 +21,9 @@ const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const SCROLL_OFFSET_CORRECTION = 96;
 
-const AddReportTab = ({ analyticsMetadata, formProps, navigate, onAddReport, onHideModal, reportData }) => {
+const AddReportTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
+  const { analyticsMetadata, formProps, onAddReport, reportData } = useContext(AddItemContext);
 
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
@@ -90,7 +91,7 @@ const AddReportTab = ({ analyticsMetadata, formProps, navigate, onAddReport, onH
 
       <Select
         className={styles.quickJumpSelect}
-        data-testid='addButton-addModal-addReportTab-quickJumpSelect'
+        data-testid='addItemButton-addItemModal-addReportTab-quickJumpSelect'
         getOptionLabel={getQuickJumpSelectOptionLabel}
         isSearchable
         onChange={onQuickJumpSelectChange}
@@ -108,32 +109,9 @@ const AddReportTab = ({ analyticsMetadata, formProps, navigate, onAddReport, onH
   </>;
 };
 
-AddReportTab.defaultProps = {
-  analyticsMetadata: {
-    category: 'Feed',
-    location: null,
-  },
-  formProps: {
-    hidePatrols: false,
-    isPatrolReport: false,
-    onSaveError: null,
-    onSaveSuccess: null,
-    relationshipButtonDisabled: false,
-  },
-  onAddReport: null,
-  reportData: {},
-};
-
 AddReportTab.propTypes = {
-  analyticsMetadata: PropTypes.shape({
-    category: PropTypes.string,
-    location: PropTypes.string,
-  }),
-  formProps: addReportFormProps,
   navigate: PropTypes.func.isRequired,
-  onAddReport: PropTypes.func,
   onHideModal: PropTypes.func.isRequired,
-  reportData: PropTypes.object,
 };
 
 export default memo(AddReportTab);

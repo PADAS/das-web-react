@@ -3,8 +3,10 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AddModal, { ADD_TAB_KEYS, STORAGE_KEY } from './';
+import { AddItemContext } from '../';
+import AddItemModal, { ADD_TAB_KEYS } from './';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { getStoredTab, storeTab } from './utils';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
@@ -23,20 +25,50 @@ jest.mock('../../hooks', () => ({
   useSystemConfigFlag: () => true,
 }));
 
-describe('AddButton - AddModal', () => {
+jest.mock('./utils', () => ({
+  getStoredTab: jest.fn(),
+  storeTab: jest.fn(),
+}));
+
+describe('AddItemButton - AddItemModal', () => {
   const onHide = jest.fn();
-  let renderAddModal, store;
+  let renderAddItemModal, store, storeTabMock;
   beforeEach(() => {
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_REPORT);
+    storeTabMock = jest.fn();
+    storeTab.mockImplementation(storeTabMock);
+
     store = {
       data: { eventTypes, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
       view: { featureFlagOverrides: {} },
     };
 
-    renderAddModal = (props, overrideStore) => {
+    renderAddItemModal = (props, addItemContext, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
           <NavigationWrapper>
-            <AddModal onHide={onHide} show {...props} />
+            <AddItemContext.Provider value={{
+                analyticsMetadata: {
+                  category: 'Feed',
+                  location: null,
+                },
+                formProps: {
+                  hidePatrols: false,
+                  isPatrolReport: false,
+                  onSaveError: null,
+                  onSaveSuccess: null,
+                  relationshipButtonDisabled: false,
+                },
+                hideAddPatrolTab: false,
+                hideAddReportTab: false,
+                onAddPatrol: null,
+                onAddReport: null,
+                patrolData: {},
+                reportData: {},
+              ...addItemContext
+            }}>
+              <AddItemModal onHide={onHide} show {...props} />
+            </AddItemContext.Provider>
           </NavigationWrapper>
         </Provider>
       );
@@ -48,7 +80,7 @@ describe('AddButton - AddModal', () => {
   });
 
   test('starts in the tab Add Report by default', async () => {
-    renderAddModal();
+    renderAddItemModal();
 
     const tabs = await screen.findAllByRole('tab');
 
@@ -59,9 +91,9 @@ describe('AddButton - AddModal', () => {
   });
 
   test('if it is defined, starts in the tab set by local storage', async () => {
-    window.localStorage.setItem(STORAGE_KEY, ADD_TAB_KEYS.ADD_PATROL);
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    renderAddModal();
+    renderAddItemModal();
 
     const tabs = await screen.findAllByRole('tab');
 
@@ -69,12 +101,10 @@ describe('AddButton - AddModal', () => {
     expect(tabs[0]).not.toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).toHaveClass('active');
-
-    window.localStorage.clear(STORAGE_KEY);
   });
 
   test('changes tabs when clicking', async () => {
-    renderAddModal();
+    renderAddItemModal();
 
     const tabs = await screen.findAllByRole('tab');
 
@@ -82,6 +112,8 @@ describe('AddButton - AddModal', () => {
     expect(tabs[0]).toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).not.toHaveClass('active');
+
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
     userEvent.click(tabs[1]);
 
@@ -89,6 +121,10 @@ describe('AddButton - AddModal', () => {
     expect(tabs[0]).not.toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).toHaveClass('active');
+    expect(storeTab).toHaveBeenCalledTimes(1);
+    expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_PATROL);
+
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_REPORT);
 
     userEvent.click(tabs[0]);
 
@@ -96,52 +132,52 @@ describe('AddButton - AddModal', () => {
     expect(tabs[0]).toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).not.toHaveClass('active');
+    expect(storeTab).toHaveBeenCalledTimes(2);
+    expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
   });
 
   test('changes to Add Report tab if Add Patrol is selected but patrols are not enabled', async () => {
-    window.localStorage.setItem(STORAGE_KEY, ADD_TAB_KEYS.ADD_PATROL);
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    renderAddModal({}, { data: { eventTypes, patrolTypes, user: { permissions: {} } } });
+    renderAddItemModal({}, {}, { data: { eventTypes, patrolTypes, user: { permissions: {} } } });
 
     const tabs = await screen.findAllByRole('tab');
 
     expect(tabs).toHaveLength(1);
     expect(tabs[0]).toHaveTextContent('Add Report');
     expect(tabs[0]).toHaveClass('active');
-
-    window.localStorage.clear(STORAGE_KEY);
+    expect(storeTab).toHaveBeenCalledTimes(1);
+    expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
   });
 
   test('hides Add Patrol and switched to Add Report', async () => {
-    window.localStorage.setItem(STORAGE_KEY, ADD_TAB_KEYS.ADD_PATROL);
+    getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    renderAddModal({ hideAddPatrolTab: true });
+    renderAddItemModal({}, { hideAddPatrolTab: true });
 
     const tabs = await screen.findAllByRole('tab');
 
     expect(tabs).toHaveLength(1);
     expect(tabs[0]).toHaveTextContent('Add Report');
     expect(tabs[0]).toHaveClass('active');
-
-    window.localStorage.clear(STORAGE_KEY);
+    expect(storeTab).toHaveBeenCalledTimes(1);
+    expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
   });
 
   test('hides Add Report and switched to Add Patrol', async () => {
-    window.localStorage.setItem(STORAGE_KEY, ADD_TAB_KEYS.ADD_REPORT);
-
-    renderAddModal({ hideAddReportTab: true });
+    renderAddItemModal({}, { hideAddReportTab: true });
 
     const tabs = await screen.findAllByRole('tab');
 
     expect(tabs).toHaveLength(1);
     expect(tabs[0]).toHaveTextContent('Add Patrol');
     expect(tabs[0]).toHaveClass('active');
-
-    window.localStorage.clear(STORAGE_KEY);
+    expect(storeTab).toHaveBeenCalledTimes(1);
+    expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_PATROL);
   });
 
   test('triggers onHide', async () => {
-    renderAddModal();
+    renderAddItemModal();
 
     expect(onHide).toHaveBeenCalledTimes(0);
 
@@ -154,7 +190,7 @@ describe('AddButton - AddModal', () => {
   test('triggers onAddReport when clicking a report type button if it is defined', async () => {
     const onAddReport = jest.fn();
 
-    renderAddModal({ onAddReport });
+    renderAddItemModal({}, { onAddReport });
 
     expect(onAddReport).toHaveBeenCalledTimes(0);
 
@@ -168,7 +204,7 @@ describe('AddButton - AddModal', () => {
   test('triggers onAddPatrol when clicking a patrol type button if it is defined', async () => {
     const onAddPatrol = jest.fn();
 
-    renderAddModal({ onAddPatrol });
+    renderAddItemModal({}, { onAddPatrol });
 
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 

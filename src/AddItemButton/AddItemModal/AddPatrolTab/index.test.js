@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { AddItemContext } from '../../';
 import AddPatrolTab from './';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
@@ -14,16 +15,33 @@ jest.mock('../../../constants', () => ({
   },
 }));
 
-describe('AddButton - AddModal - AddPatrolTab', () => {
+describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
   const navigate = jest.fn(), onHideModal = jest.fn();
   let renderAddPatrolTab, store;
   beforeEach(() => {
     store = { data: { patrolTypes }, view: { featureFlagOverrides: {} } };
 
-    renderAddPatrolTab = (props, overrideStore) => {
+    renderAddPatrolTab = (props, addItemContext, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
-          <AddPatrolTab navigate={navigate} onHideModal={onHideModal} {...props} />
+          <AddItemContext.Provider value={{
+              analyticsMetadata: {
+                category: 'Feed',
+                location: null,
+              },
+              formProps: {
+                hidePatrols: false,
+                isPatrolReport: false,
+                onSaveError: null,
+                onSaveSuccess: null,
+                relationshipButtonDisabled: false,
+              },
+              onAddPatrol: null,
+              patrolData: {},
+            ...addItemContext
+          }}>
+            <AddPatrolTab navigate={navigate} onHideModal={onHideModal} {...props} />
+          </AddItemContext.Provider>
         </Provider>
       );
     };
@@ -64,7 +82,7 @@ describe('AddButton - AddModal - AddPatrolTab', () => {
   test('triggers onAddPatrol if new UI is enabled and the callback was sent', async () => {
     const onAddPatrol = jest.fn();
 
-    renderAddPatrolTab({ onAddPatrol });
+    renderAddPatrolTab({}, { onAddPatrol });
 
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 

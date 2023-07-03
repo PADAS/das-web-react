@@ -5,7 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithPoint } from '../__test-helpers/fixtures/events';
@@ -24,7 +24,7 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../AddButton', () => jest.fn());
+jest.mock('../AddItemButton', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
@@ -49,12 +49,12 @@ describe('ReportManager', () => {
     capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
   };
 
-  let AddButtonMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddItemButtonMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
     capturedRequestURLs = [];
-    AddButtonMock = jest.fn(() => null);
-    AddButton.mockImplementation(AddButtonMock);
+    AddItemButtonMock = jest.fn(() => null);
+    AddItemButton.mockImplementation(AddItemButtonMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
@@ -183,7 +183,7 @@ describe('ReportManager', () => {
   });
 
   test('shows the added report when clicking the add report button', async () => {
-    AddButtonMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         onAddReport({}, {}, 'd0884b8c-4ecb-45da-841d-f2f8d6246abf');
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +191,7 @@ describe('ReportManager', () => {
 
       return null;
     };
-    AddButton.mockImplementation(AddButtonMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     render(
       <Provider store={mockStore(store)}>

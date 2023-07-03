@@ -17,7 +17,7 @@ import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useFetchReportsFeed from './useFetchReportsFeed';
 import useNavigate from '../hooks/useNavigate';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
@@ -145,7 +145,7 @@ const SideBar = () => {
                 >
                   <ArrowLeftIcon />
                 </button>
-                : <AddButton
+                : <AddItemButton
                   className={styles.addReport}
                   hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
                   hideAddReportTab={currentTab === TAB_KEYS.PATROLS}

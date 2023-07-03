@@ -14,7 +14,7 @@ import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REP
 
 import { FormDataContext } from '../EditableItem/context';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import { AttachmentButton } from '../EditableItem/AttachmentControls';
 
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
@@ -81,7 +81,7 @@ const RelationshipButton = (props) => {
       {isPatrolReport && <AttachmentButton icon={PatrolIcon} title='Go To Patrol' onClick={goToParentPatrol} />}
       {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={goToParentCollection} />}
     </Fragment>}
-    {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddButton
+    {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddItemButton
       analyticsMetadata={{ category: REPORT_MODAL_CATEGORY, location: 'report modal' }}
       formProps={{
         onSaveSuccess: onNewReportSaved,

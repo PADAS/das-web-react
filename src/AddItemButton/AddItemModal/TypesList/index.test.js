@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import TypesList from './';
 
-describe('AddButton - AddModal - TypesList', () => {
+describe('AddItemButton - AddItemModal - TypesList', () => {
   const onClickType = jest.fn();
   let renderTypesList;
   beforeEach(() => {

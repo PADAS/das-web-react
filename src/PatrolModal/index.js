@@ -42,7 +42,7 @@ import {
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import ReportListItem from '../ReportListItem';
 
 import NoteModal from '../NoteModal';
@@ -737,7 +737,7 @@ const PatrolModal = (props) => {
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId && <AddButton
+        {patrolSegmentId && <AddItemButton
           analyticsMetadata={{
             category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',

@@ -9,7 +9,7 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
@@ -66,7 +66,7 @@ const SubjectPopup = ({ data, timeSliderState }) => {
           </>}
           <h6>{properties.name}</h6>
         </div>
-        <AddButton
+        <AddItemButton
           analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'subject popover' }}
           className={styles.addReport}
           reportData={{ location: locationObject, reportedById }}

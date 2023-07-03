@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 
@@ -26,7 +26,7 @@ export default class TimepointPopup extends PureComponent {
         {properties.time && <DateTime date={properties.time} />}
         <GpsFormatToggle lng={locationObject.longitude} lat={locationObject.latitude} />
         <hr />
-        <AddButton
+        <AddItemButton
           analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
           reportData={{ location: locationObject, reportedById, time }}
           showLabel={false}

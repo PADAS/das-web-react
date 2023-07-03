@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { createContext, memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
@@ -6,11 +6,14 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { addReportFormProps } from '../proptypes';
 import { trackEvent } from '../utils/analytics';
 
-import AddModal from './AddModal';
+import AddItemModal from './AddItemModal';
+import DelayedUnmount from '../DelayedUnmount';
 
 import styles from './styles.module.scss';
 
-const AddButton = ({
+export const AddItemContext = createContext();
+
+const AddItemButton = ({
   analyticsMetadata,
   className,
   formProps,
@@ -40,24 +43,25 @@ const AddButton = ({
 
   const onHideModal = useCallback(() => setShowModal(false), []);
 
-  return <>
-    <AddModal
-      analyticsMetadata={analyticsMetadata}
-      formProps={formProps}
-      hideAddPatrolTab={hideAddPatrolTab}
-      hideAddReportTab={hideAddReportTab}
-      onAddPatrol={onAddPatrol}
-      onAddReport={onAddReport}
-      patrolData={patrolData}
-      reportData={reportData}
-      {...modalProps}
-      onHide={onHideModal}
-      show={showModal}
-    />
+  const addItemContextValue = {
+    analyticsMetadata,
+    formProps,
+    hideAddPatrolTab,
+    hideAddReportTab,
+    onAddPatrol,
+    onAddReport,
+    patrolData,
+    reportData,
+  };
+
+  return <AddItemContext.Provider value={addItemContextValue}>
+    <DelayedUnmount isMounted={showModal}>
+      <AddItemModal {...modalProps} onHide={onHideModal} show={showModal} />
+    </DelayedUnmount>
 
     <button
-        className={`${styles[`addButton-${variant}`]} ${className}`}
-        data-testid="addModal-addButton"
+        className={`${styles[`addItemButton-${variant}`]} ${className}`}
+        data-testid="addItemButton"
         onClick={onClick}
         title={title}
         type="button"
@@ -67,10 +71,10 @@ const AddButton = ({
 
       {showLabel && <label>{title}</label>}
     </button>
-  </>;
+  </AddItemContext.Provider>;
 };
 
-AddButton.defaultProps = {
+AddItemButton.defaultProps = {
   analyticsMetadata: {
     category: 'Feed',
     location: null,
@@ -96,7 +100,7 @@ AddButton.defaultProps = {
   variant: 'primary',
 };
 
-AddButton.propTypes = {
+AddItemButton.propTypes = {
   analyticsMetadata: PropTypes.shape({
     category: PropTypes.string,
     location: PropTypes.string,
@@ -116,4 +120,4 @@ AddButton.propTypes = {
   variant: PropTypes.oneOf(['primary', 'secondary']),
 };
 
-export default memo(AddButton);
+export default memo(AddItemButton);

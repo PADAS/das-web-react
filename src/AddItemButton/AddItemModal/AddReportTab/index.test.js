@@ -3,20 +3,38 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AddReportTab from './';
+import { AddItemContext } from '../..';
+import AddReportTab from '.';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 
-describe('AddButton - AddModal - AddReportTab', () => {
+describe('AddItemButton - AddItemModal - AddReportTab', () => {
   const navigate = jest.fn(), onHideModal = jest.fn();
   let renderAddReportTab, store;
   beforeEach(() => {
     store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
 
-    renderAddReportTab = (props, overrideStore) => {
+    renderAddReportTab = (props, addItemContext, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
-          <AddReportTab navigate={navigate} onHideModal={onHideModal} {...props} />
+          <AddItemContext.Provider value={{
+              analyticsMetadata: {
+                category: 'Feed',
+                location: null,
+              },
+              formProps: {
+                hidePatrols: false,
+                isPatrolReport: false,
+                onSaveError: null,
+                onSaveSuccess: null,
+                relationshipButtonDisabled: false,
+              },
+              onAddReport: null,
+              reportData: {},
+            ...addItemContext
+          }}>
+            <AddReportTab navigate={navigate} onHideModal={onHideModal} {...props} />
+          </AddItemContext.Provider>
         </Provider>
       );
     };
@@ -57,7 +75,7 @@ describe('AddButton - AddModal - AddReportTab', () => {
   test('triggers onAddReport if new UI is enabled and the callback was sent', async () => {
     const onAddReport = jest.fn();
 
-    renderAddReportTab({ onAddReport });
+    renderAddReportTab({}, { onAddReport });
 
     expect(onAddReport).toHaveBeenCalledTimes(0);
 

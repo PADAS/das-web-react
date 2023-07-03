@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { addReportFormProps } from '../../../proptypes';
+import { AddItemContext } from '../..';
 import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes, openModalForPatrol } from '../../../utils/patrols';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { MapContext } from '../../../App';
@@ -17,8 +17,9 @@ import styles from '../styles.module.scss';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-const AddPatrolTab = ({ analyticsMetadata, formProps, navigate, onAddPatrol, onHideModal, patrolData }) => {
+const AddPatrolTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
+  const { analyticsMetadata, formProps, onAddPatrol, patrolData } = useContext(AddItemContext);
 
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
@@ -83,32 +84,9 @@ const AddPatrolTab = ({ analyticsMetadata, formProps, navigate, onAddPatrol, onH
   </>;
 };
 
-AddPatrolTab.defaultProps = {
-  analyticsMetadata: {
-    category: 'Feed',
-    location: null,
-  },
-  formProps: {
-    hidePatrols: false,
-    isPatrolReport: false,
-    onSaveError: null,
-    onSaveSuccess: null,
-    relationshipButtonDisabled: false,
-  },
-  onAddPatrol: null,
-  patrolData: {},
-};
-
 AddPatrolTab.propTypes = {
-  analyticsMetadata: PropTypes.shape({
-    category: PropTypes.string,
-    location: PropTypes.string,
-  }),
-  formProps: addReportFormProps,
   navigate: PropTypes.func.isRequired,
-  onAddPatrol: PropTypes.func,
   onHideModal: PropTypes.func.isRequired,
-  patrolData: PropTypes.object,
 };
 
 export default memo(AddPatrolTab);

@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { hidePopup } from '../ducks/popup';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
-import AddButton from '../AddButton';
+import AddItemButton from '../AddItemButton';
 import GpsFormatToggle from '../GpsFormatToggle';
 
 const UserCurrentLocationPopup = ({ data: { location }, id }) => {
@@ -24,7 +24,7 @@ const UserCurrentLocationPopup = ({ data: { location }, id }) => {
     <p>Accurate to within {coords.accuracy} meters</p>
     <p>Last checked <TimeAgo date={lastRead} /></p>
     <hr />
-    <AddButton
+    <AddItemButton
       analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'current user location' }}
       formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
       reportData={{
