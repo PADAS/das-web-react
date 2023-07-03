@@ -241,7 +241,6 @@ describe('PatrolDetailView - PlanSection', () => {
 
     const futurePatrol = {
       ...newPatrol,
-      id: 'someId',
       patrol_segments: [{
         ...newPatrol.patrol_segments[0],
         time_range: {
@@ -261,11 +260,11 @@ describe('PatrolDetailView - PlanSection', () => {
 
     const [, autoStartAction, autoEndAction] = mockedStore.getActions();
 
-    expect(autoStartAction).toStrictEqual({ payload: { autoStartPatrols: false }, type: 'UPDATE_USER_PREFERENCES' });
-    expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: false }, type: 'UPDATE_USER_PREFERENCES' });
+    expect(autoStartAction).toStrictEqual({ payload: { autoStartPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
+    expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
   });
 
-  test('prevent updating user preferences when user changes auto end/start value for a new patrol', async () => {
+  test('prevent updating user preferences when user changes auto end/start value for an existing', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -278,6 +277,7 @@ describe('PatrolDetailView - PlanSection', () => {
           start_time: tomorrow,
         },
       }],
+      id: '123456'
     };
 
     renderPlanSectionWithWrapper({ patrolForm: futurePatrol });

@@ -260,14 +260,14 @@ const PatrolModal = (props) => {
   }, []);
 
   const handleAutoStartChange = useCallback((val) => {
-    if (!isNewPatrol){
+    if (isNewPatrol){
       updateUserPreferences({ autoStartPatrols: val });
     }
     setIsAutoStart(val);
   }, [isNewPatrol, updateUserPreferences]);
 
   const handleAutoEndChange = useCallback((val) => {
-    if (!isNewPatrol){
+    if (isNewPatrol){
       updateUserPreferences({ autoEndPatrols: val });
     }
     setIsAutoEnd(val);

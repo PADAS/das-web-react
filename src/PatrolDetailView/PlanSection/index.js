@@ -91,7 +91,7 @@ const PlanSection = ({
   const handleAutoEndChange = useCallback(() => {
     const newIsAutoEnd = !isAutoEnd;
 
-    if (!isNewPatrol){
+    if (isNewPatrol){
       dispatch(updateUserPreferences({ autoEndPatrols: newIsAutoEnd }));
     }
     setIsAutoEnd(newIsAutoEnd);
@@ -101,7 +101,7 @@ const PlanSection = ({
   const handleAutoStartChange = useCallback(() => {
     const newIsAutoStart = !isAutoStart;
 
-    if (!isNewPatrol){
+    if (isNewPatrol){
       dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
     }
     setIsAutoStart(newIsAutoStart);
