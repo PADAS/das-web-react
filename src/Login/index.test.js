@@ -64,7 +64,7 @@ describe('Login', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith({ pathname: '/', search: '' });
+      expect(navigate).toHaveBeenCalledWith({ pathname: '/', search: '' }, null);
     });
   });
 });

@@ -40,12 +40,10 @@ const LoginPage = ({
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
     postAuth({ username, password })
-      .then(() =>
-        navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }, {
-          state: {
-            accessTokenWasRequired: !!location.state?.from
-          }
-        }))
+      .then(() => {
+        const options = location.state?.from ? { state: { accessTokenWasRequired: true } } : null;
+        navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }, options);
+      })
       .catch((error) => {
         const errorObject = error.toJSON();
 
