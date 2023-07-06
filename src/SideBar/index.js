@@ -73,7 +73,7 @@ const SideBar = () => {
         replace: true
       });
     }
-    if (!hasRouteHistory) {
+    if (!hasRouteHistory || location.state?.accessTokenWasRequired) {
       return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 
