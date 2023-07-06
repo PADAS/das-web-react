@@ -291,7 +291,7 @@ describe('SideBar', () => {
   });
 
   test('return to report feed when user clicked the back button coming from a deep link which required login', () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/123123', key: '2324e2', state: { accessTokenWasRequired: true } }))); //
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/123123', key: '2324e2', state: { accessTokenWasRequired: true } })));
     assertBehaviorOfDetailViewBackButton(useLocationMock, '/reports');
   });
 
