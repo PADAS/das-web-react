@@ -95,7 +95,7 @@ const PlanSection = ({
   }, [dispatch, isAutoStart, onPatrolStartDateChange, startDate]);
 
   useEffect(() => {
-    if (isEmpty(patrolLeaders)) {
+    if (!patrolLeaders) {
       dispatch(fetchTrackedBySchema());
     }
   }, [dispatch, patrolLeaders]);
@@ -123,7 +123,7 @@ const PlanSection = ({
           Tracked By
           <ReportedBySelect
             onChange={onPatrolReportedByChange}
-            options={patrolLeaders}
+            options={patrolLeaders ?? []}
             placeholder="Select Device..."
             value={patrolForm.patrol_segments?.[0]?.leader}
           />
