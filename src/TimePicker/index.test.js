@@ -141,7 +141,7 @@ describe('TimePicker', () => {
     });
   });
 
-  test.only('disables the options that are below maxTime', async () => {
+  test('disables the options that are below maxTime', async () => {
     const minTime = '10:00';
     render(<TimePicker minTime={minTime} onChange={onChange} value="12:00" minutesInterval={30} />);
 

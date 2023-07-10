@@ -290,6 +290,11 @@ describe('SideBar', () => {
     assertBehaviorOfDetailViewBackButton(useLocationMock, '/patrols');
   });
 
+  test('return to report feed when user clicked the back button coming from a deep link which required login', () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/123123', key: '2324e2', state: { comesFromLogin: true } })));
+    assertBehaviorOfDetailViewBackButton(useLocationMock, '/reports');
+  });
+
   test('redirects to map if a tab is not recognized', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/inalid' })));
     useLocation.mockImplementation(useLocationMock);
