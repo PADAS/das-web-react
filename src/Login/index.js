@@ -41,7 +41,7 @@ const LoginPage = ({
     event.preventDefault();
     postAuth({ username, password })
       .then(() => {
-        const options = location.state?.from ? { state: { comesFromLogin: true } } : null;
+        const options = location.state?.from ? { state: { comesFromLogin: true } } : {};
         navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }, options);
       })
       .catch((error) => {
