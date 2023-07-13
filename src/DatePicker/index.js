@@ -1,4 +1,4 @@
-import React, { createRef, forwardRef, memo, useCallback, useMemo, useRef, useState } from 'react';
+import React, { createRef, forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import getMonth from 'date-fns/get_month';
 import getYear from 'date-fns/get_year';
@@ -15,6 +15,11 @@ const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
 const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) => {
   const [time, setTime] = useState(initialValue);
+
+  useEffect(() => {
+    setTime(initialValue);
+  }, [initialValue]);
+
   const onTimeChange = useCallback(({ target: { value } }) => {
     setTime(value);
     notifyTimeChange(value);
@@ -144,37 +149,52 @@ const renderCustomHeader = (maxDate, minDate) => {
 };
 
 
-const CustomInput = ({ className, disabled, isPopperOpen, onChange, onKeyDown, onPaste, ...rest }, ref) => {
+const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, onChange, dateFormat, ...rest }, ref) => {
   const inputRef = useRef();
   const pressedKeyRef = useRef();
   const wasPastedRef = useRef(false);
 
+
+  const sanitizeInputValue = useCallback((value) => {
+    const checkLetters = new RegExp('[A-Z]', 'ig');
+    const checkInvalidChars = new RegExp('[@~`!#$%^&*ˆ()_=+\';\"\$?>.<,]', 'ig');
+    return value ? value.replaceAll(checkInvalidChars, '').replaceAll(checkLetters, '').trim() : '';
+  }, []);
+
   const handleChange = useCallback((event) => {
-    let newValue = event.target.value.replaceAll('-', '/');
-
-    const wasNewValuePasted = wasPastedRef.current;
+    const value = sanitizeInputValue(event.target.value);
     const userPressedBackspace = pressedKeyRef.current === 'Backspace';
+    const formatIncludesHyphen = dateFormat.includes('-');
+    const dateSeparator = formatIncludesHyphen ? '-' : '/';
 
-    const newValueContainsValidYearText = newValue.length === 4 && !newValue.includes('/');
-    const newValueContainsValidYearAndMonthText = /^[0-9]{4}\/[0-9]{2}$/.test(newValue);
-    if (!userPressedBackspace && (newValueContainsValidYearText || newValueContainsValidYearAndMonthText)) {
-      newValue = `${newValue}/`;
+    const checkYear = new RegExp('^[0-9]{4}$');
+    const checkYearAndMonth = new RegExp(`^[0-9]{4}${dateSeparator}[0-9]{2}$`);
+    const checkDate = new RegExp(`^[0-9]{4}${dateSeparator}[0-9]{2}${dateSeparator}[0-9]{2}$`);
+    const wasNewValuePasted = wasPastedRef.current;
+
+    let newValue = formatIncludesHyphen ? value.replaceAll('/', dateSeparator) : value.replaceAll(dateSeparator, '/');
+    const newValueHasOnlyNumbers = /^[0-9]*$/.test(newValue);
+    if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 6) {
+      newValue =`${newValue.substring(0, 4)}${dateSeparator}${newValue.substring(4, 6)}${dateSeparator}${newValue.substring(6)}`;
     }
 
-    const newValueHasValidCharacters = /^[/0-9]*$/.test(newValue);
-    if (newValueHasValidCharacters) {
-      const newValueHasOnlyNumbers = /^[0-9]*$/.test(newValue);
-      if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 6) {
-        newValue =`${newValue.substring(0, 4)}/${newValue.substring(4, 6)}/${newValue.substring(6)}`;
-      }
-
-      event.target.value = newValue;
-      onChange(event);
+    const newValueContainsValidYearText = checkYear.test(newValue);
+    const containsValidYearAndMonth = checkYearAndMonth.test(newValue);
+    if (!userPressedBackspace && (newValueContainsValidYearText || containsValidYearAndMonth)) {
+      newValue = `${newValue}${dateSeparator}`;
     }
+
+    const containsValidDate = checkDate.test(newValue) && newValue.length === 10;
+    if (containsValidDate){
+      newValue = `${newValue} 00:00`;
+    }
+
+    event.target.value = newValue;
+    onChange(event);
 
     pressedKeyRef.current = undefined;
     wasPastedRef.current = false;
-  }, [onChange]);
+  }, [dateFormat, onChange, sanitizeInputValue]);
 
   const handleKeyDown = useCallback((event) => {
     pressedKeyRef.current = event.key;
@@ -202,10 +222,10 @@ const CustomInput = ({ className, disabled, isPopperOpen, onChange, onKeyDown, o
       disabled={disabled}
       data-testid="datePicker-input"
       onKeyDown={handleKeyDown}
-      onChange={handleChange}
       onPaste={handlePaste}
       ref={inputRef}
       type="text"
+      onChange={handleChange}
       {...rest}
     />
 
@@ -218,6 +238,7 @@ const CustomInputForwardRef = forwardRef(CustomInput);
 
 const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, showTimeInput, ...rest }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
     onCalendarOpen?.();
@@ -231,7 +252,7 @@ const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeho
   const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate), [rest?.maxDate, rest?.minDate]);
 
   return <DatePicker
-    customInput={<CustomInputForwardRef isPopperOpen={isOpen} />}
+    customInput={<CustomInputForwardRef isPopperOpen={isOpen} dateFormat={dateFormat} />}
     dateFormat={dateFormat}
     onCalendarClose={handleCalendarClose}
     onCalendarOpen={handleCalendarOpen}
