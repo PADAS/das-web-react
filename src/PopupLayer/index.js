@@ -124,7 +124,7 @@ const PopupLayer = ({ popup, map, ...rest }) => {
   };
 
   return <Popup coordinates={coordinates} {...finalPopupAttrs} key={id}>
-    <Component data={data} map={map} popoverPlacement={popoverPlacement} {...rest} />
+    <Component data={data} id={id} map={map} popoverPlacement={popoverPlacement} {...rest} />
   </Popup>;
 };
 
