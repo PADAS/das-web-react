@@ -2,11 +2,11 @@
 @import '../common/styles/vars/colors';
 
 .globalMenuDrawer {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
   background-color: $off-black;
   color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   width: 100vw;
 
   button {
@@ -81,6 +81,7 @@
 
 .footer {
   font-size: 0.6875rem;
+  margin-top: auto;
   padding: 0.5rem;
 }
 
