@@ -111,20 +111,11 @@
 }
 
 .general-add-button {
-  width: 2.5rem;
+  color: $bright-blue;
+  width: 2.5rem !important;
 
-  > button {
-    color: $bright-blue;
-
-    svg {
-      height: 2.5rem;
-      width: 2.5rem;
-    }
-  }
-
-  .arrow {
-    &::after, &::before {
-      transform: translateY(-0.325rem);
-    }
+  svg {
+    height: 2.5rem;
+    width: 2.5rem;
   }
 }

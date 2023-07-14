@@ -5,7 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import AddReport from '../../AddReport';
+import AddItemButton from '../../AddItemButton';
 import { addEventToIncident, createEvent, fetchEvent } from '../../ducks/events';
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
@@ -26,7 +26,7 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 
-jest.mock('../../AddReport', () => jest.fn());
+jest.mock('../../AddItemButton', () => jest.fn());
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -96,7 +96,7 @@ describe('ReportManager - ReportDetailView', () => {
       user: { first_name: 'First', last_name: 'Last' },
     }],
   };
-  let AddReportMock,
+  let AddItemButtonMock,
     addEventToIncidentMock,
     createEventMock,
     executeSaveActionsMock,
@@ -113,8 +113,8 @@ describe('ReportManager - ReportDetailView', () => {
     store;
 
   beforeEach(() => {
-    AddReportMock = jest.fn(() => <button data-testid="addReport-button" />);
-    AddReport.mockImplementation(AddReportMock);
+    AddItemButtonMock = jest.fn(() => <button data-testid="addItemButton-button" />);
+    AddItemButton.mockImplementation(AddItemButtonMock);
     addEventToIncidentMock = jest.fn(() => () => {});
     addEventToIncident.mockImplementation(addEventToIncidentMock);
     createEventMock = jest.fn(() => () => {});
@@ -375,30 +375,6 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
   });
 
-  test('triggers onAddReport', async () => {
-    const onAddReport = jest.fn();
-
-    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
-      useEffect(() => {
-        onAddReport();
-      }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-      return null;
-    };
-    AddReport.mockImplementation(AddReportMock);
-
-
-    state.data.eventStore = { initial: mockReport };
-
-    renderWithWrapper(
-      <ReportDetailView isNewReport={false} onAddReport={onAddReport} reportId="initial" />
-    );
-
-    await waitFor(() => {
-      expect(onAddReport).toHaveBeenCalledTimes(1);
-    });
-  });
-
   test('if the current report is a collection, adding a new one simply appends it', async () => {
     const addedReport = [{ data: { data: { id: 'added' } } }];
     const initialReport = [{ data: { data: { id: 'initial' } } }];
@@ -406,7 +382,7 @@ describe('ReportManager - ReportDetailView', () => {
     executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         formProps.onSaveSuccess(addedReport);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -414,7 +390,7 @@ describe('ReportManager - ReportDetailView', () => {
 
       return null;
     };
-    AddReport.mockImplementation(AddReportMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     fetchEventMock = jest.fn(() => () => initialReport[0]);
     fetchEvent.mockImplementation(fetchEventMock);
@@ -434,22 +410,29 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('if the current report is not a collection, adding a new one creates a collections and appends both', async () => {
-    const addedReport = [{ data: { data: { id: 'added' } } }];
-    const initialReport = [{ data: { data: { id: 'initial' } } }];
-    const incidentCollection = { data: { data: { id: 'incident' } } };
+    const addedReport = { id: 'added' };
+    const initialReport = { id: 'initial' };
+    const incidentCollection = {
+      data: {
+        data: {
+          id: 'incident',
+          contains: [{ related_event: addedReport }, { related_event: initialReport }]
+        }
+      }
+    };
 
-    executeSaveActionsMock = jest.fn(() => Promise.resolve(initialReport));
+    executeSaveActionsMock = jest.fn(() => Promise.resolve([{ data: { data: addedReport } }]));
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
-    AddReportMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
-        formProps.onSaveSuccess(addedReport);
+        formProps.onSaveSuccess([{ data: { data: initialReport } }]);
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
       return null;
     };
-    AddReport.mockImplementation(AddReportMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     createEventMock = jest.fn(() => () => incidentCollection);
     createEvent.mockImplementation(createEventMock);
@@ -473,7 +456,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports/incident');
+      expect(navigate).toHaveBeenCalledWith('/reports/incident', { state: { relatedEvent: initialReport.id }, replace: true });
     });
   });
 
@@ -784,7 +767,7 @@ describe('ReportManager - ReportDetailView', () => {
           />
     );
 
-    expect((await screen.queryByTestId('addReport-button'))).toBeNull();
+    expect((await screen.queryByTestId('addItemButton-button'))).toBeNull();
   });
 
   test('shows the add report button', async () => {
@@ -792,7 +775,7 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findByTestId('addReport-button'))).toBeDefined();
+    expect((await screen.findByTestId('addItemButton-button'))).toBeDefined();
   });
 
   test('sets the locally edited report', async () => {

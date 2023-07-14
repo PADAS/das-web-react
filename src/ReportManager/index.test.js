@@ -4,9 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
 
-import AddReport from '../AddReport';
+import AddItemButton from '../AddItemButton';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithPoint } from '../__test-helpers/fixtures/events';
@@ -25,7 +24,7 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../AddReport', () => jest.fn());
+jest.mock('../AddItemButton', () => jest.fn());
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
@@ -50,12 +49,12 @@ describe('ReportManager', () => {
     capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
   };
 
-  let AddReportMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddItemButtonMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
     capturedRequestURLs = [];
-    AddReportMock = jest.fn(() => null);
-    AddReport.mockImplementation(AddReportMock);
+    AddItemButtonMock = jest.fn(() => null);
+    AddItemButton.mockImplementation(AddItemButtonMock);
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
@@ -184,7 +183,7 @@ describe('ReportManager', () => {
   });
 
   test('shows the added report when clicking the add report button', async () => {
-    AddReportMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
+    AddItemButtonMock = ({ onAddReport }) => { /* eslint-disable-line react/display-name */
       useEffect(() => {
         onAddReport({}, {}, 'd0884b8c-4ecb-45da-841d-f2f8d6246abf');
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -192,7 +191,7 @@ describe('ReportManager', () => {
 
       return null;
     };
-    AddReport.mockImplementation(AddReportMock);
+    AddItemButton.mockImplementation(AddItemButtonMock);
 
     render(
       <Provider store={mockStore(store)}>

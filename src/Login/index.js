@@ -40,7 +40,10 @@ const LoginPage = ({
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
     postAuth({ username, password })
-      .then(() => navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
+      .then(() => {
+        const options = location.state?.from ? { state: { comesFromLogin: true } } : {};
+        navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }, options);
+      })
       .catch((error) => {
         const errorObject = error.toJSON();
 

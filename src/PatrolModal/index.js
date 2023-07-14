@@ -43,7 +43,7 @@ import {
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
-import AddReport from '../AddReport';
+import AddItemButton from '../AddItemButton';
 import ReportListItem from '../ReportListItem';
 
 import NoteModal from '../NoteModal';
@@ -84,10 +84,10 @@ const PatrolModal = (props) => {
     fetchTrackedBySchema,
     removeModal,
     updateUserPreferences,
-    autoStartPatrols,
     patrolLeaderSchema,
     setMapLocationSelectionPatrol,
-    autoEndPatrols,
+    autoStartPatrols: userPrefAutoStartPatrol,
+    autoEndPatrols: userPrefAutoEndPatrol,
     eventStore,
   } = props;
 
@@ -96,6 +96,7 @@ const PatrolModal = (props) => {
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
   const [statePatrol, setStatePatrol] = useState(patrol);
+  const isNewPatrol = !statePatrol?.id;
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
@@ -109,6 +110,9 @@ const PatrolModal = (props) => {
   const actualEndTime = useMemo(() => actualEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
   const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
+
+  const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStartPatrol : !!actualStartTime);
+  const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEndPatrol : !!actualEndTime);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
@@ -259,13 +263,19 @@ const PatrolModal = (props) => {
     if (isPast(endDate)) return 'Set Patrol End';
   }, []);
 
-  const setAutoStart = useCallback((val) => {
-    updateUserPreferences({ autoStartPatrols: val });
-  }, [updateUserPreferences]);
+  const handleAutoStartChange = useCallback((val) => {
+    if (isNewPatrol){
+      updateUserPreferences({ autoStartPatrols: val });
+    }
+    setIsAutoStart(val);
+  }, [isNewPatrol, updateUserPreferences]);
 
-  const setAutoEnd = useCallback((val) => {
-    updateUserPreferences({ autoEndPatrols: val });
-  }, [updateUserPreferences]);
+  const handleAutoEndChange = useCallback((val) => {
+    if (isNewPatrol){
+      updateUserPreferences({ autoEndPatrols: val });
+    }
+    setIsAutoEnd(val);
+  }, [isNewPatrol, updateUserPreferences]);
 
   const onStartTimeChange = useCallback((value, isAuto) => {
     patrolModalTracker.track('Set patrol start time');
@@ -315,8 +325,6 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onSelectTrackedSubject = useCallback((value) => {
-    const patrolIsNew = !statePatrol.id;
-
     patrolModalTracker.track(`${value ? 'Set' : 'Unset'} patrol tracked subject`);
 
     const update = {
@@ -327,7 +335,7 @@ const PatrolModal = (props) => {
       ],
     };
 
-    if (patrolIsNew) {
+    if (isNewPatrol) {
       const trackedSubjectLocation = value?.last_position?.geometry?.coordinates;
       const trackedSubjectLocationTime = value?.last_position?.properties?.coordinateProperties?.time;
 
@@ -675,11 +683,11 @@ const PatrolModal = (props) => {
             onChange={onStartTimeChange}
             maxDate={displayEndTime || null}
             showClockIcon={true}
-            isAuto={autoStartPatrols}
+            isAuto={isAutoStart}
             popperPlacement='bottom'
             placeholderText='Set Start Time'
             autoCheckLabel='Auto-start patrol'
-            onAutoCheckToggle={setAutoStart}
+            onAutoCheckToggle={handleAutoStartChange}
             required={true}
           />
           {startTimeLabel && <span className={startTimeLabelClass}>
@@ -720,11 +728,11 @@ const PatrolModal = (props) => {
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
             showClockIcon={true}
-            isAuto={autoEndPatrols}
+            isAuto={isAutoEnd}
             popperPlacement='top'
             placeholderText='Set End Time'
             startTime={displayStartTime}
-            onAutoCheckToggle={setAutoEnd}
+            onAutoCheckToggle={handleAutoEndChange}
             autoCheckLabel='Auto-end patrol'
             required={true}
           />
@@ -747,16 +755,16 @@ const PatrolModal = (props) => {
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport
+        {patrolSegmentId && <AddItemButton
           analyticsMetadata={{
             category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',
           }}
           formProps={{
-            hidePatrols: true,
             onSaveSuccess: onAddReport,
             isPatrolReport: true,
           }}
+          hideAddPatrolTab
         />}
       </AttachmentControls>
       <Footer

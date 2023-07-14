@@ -15,9 +15,8 @@ import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
 import useFetchReportsFeed from './useFetchReportsFeed';
-import useNavigate from '../hooks/useNavigate';
 
-import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
+import AddItemButton from '../AddItemButton';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
@@ -34,20 +33,17 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
 import styles from './styles.module.scss';
-
-const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
+import useNavigate from '../hooks/useNavigate';
 
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const sideBar = useSelector((state) => state.view.sideBar);
-
   const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useFetchReportsFeed();
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-
+  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
@@ -58,7 +54,7 @@ const SideBar = () => {
       `/${TAB_KEYS.REPORTS}/:id`,
       location.pathname
   ), [location.pathname]);
-
+  const hasRouteHistory = useMemo(() => location.key !== 'default', [location]);
   const sidebarOpen = !!currentTab;
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
@@ -67,6 +63,22 @@ const SideBar = () => {
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
+
+  const onClickBackFromDetailView = useCallback(() => {
+    if (reportIsBeingAdded){
+      return navigate(location.pathname, { replace: true });
+    }
+    if (location.state?.relatedEvent) {
+      return navigate(`/${TAB_KEYS.REPORTS}/${location.state.relatedEvent}`, {
+        replace: true
+      });
+    }
+    if (!hasRouteHistory || location.state?.comesFromLogin) {
+      return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
+    }
+
+    return navigate(-1, {});
+  }, [hasRouteHistory, location, navigate, reportIsBeingAdded]);
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
@@ -82,8 +94,6 @@ const SideBar = () => {
   }, [currentTab]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
-
-  const onClickBackFromDetailView = useCallback(() => navigate(`/${currentTab}`), [currentTab, navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
@@ -115,26 +125,20 @@ const SideBar = () => {
     }
   }, [sidebarOpen, currentTab, socket, isReportDetailsViewActive]);
 
-  useEffect(() => {
-    if (VALID_ADD_REPORT_TYPES.includes(currentTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, currentTab);
-    }
-  }, [currentTab]);
-
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
+      <Link className={styles.navItem} to={TAB_KEYS.REPORTS}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <span>Reports</span>
       </Link>
 
-      {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
+      {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
         <PatrolIcon />
         <span>Patrols</span>
         </Link>}
 
-      <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
+      <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
         <LayersIcon />
         <span>Map Layers</span>
       </Link>
@@ -153,14 +157,12 @@ const SideBar = () => {
                 >
                   <ArrowLeftIcon />
                 </button>
-                : <AddReport
+                : <AddItemButton
                   className={styles.addReport}
-                  variant="secondary"
-                  formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
-                  hideReports={currentTab !== TAB_KEYS.REPORTS}
-                  popoverPlacement="bottom"
+                  hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
+                  hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
                   showLabel={false}
-                  type={currentTab}
+                  variant="secondary"
                 />}
           </div>
 
@@ -191,7 +193,7 @@ const SideBar = () => {
                   shouldExcludeContained={reportsFeed.shouldExcludeContained}
                 />} />
 
-              <Route path=":id/*" element={<ReportManager />} />
+              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded}/>} />
             </Route>
 
             <Route path="patrols">
