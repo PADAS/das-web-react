@@ -155,11 +155,8 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
   const wasPastedRef = useRef(false);
 
 
-  const sanitizeInputValue = useCallback((value) => {
-    const checkLetters = new RegExp('[A-Z]', 'ig');
-    const checkInvalidChars = new RegExp('[@~`!#$%^&*ˆ()_=+\';\"\$?>.<,]', 'ig');
-    return value ? value.replaceAll(checkInvalidChars, '').replaceAll(checkLetters, '').trim() : '';
-  }, []);
+  const sanitizeInputValue = useCallback((value) =>
+    value ? value.replaceAll(new RegExp('[^0-9/+\\s:-]', 'g'), '').trim() : '', []);
 
   const handleChange = useCallback((event) => {
     const value = sanitizeInputValue(event.target.value);
@@ -185,7 +182,7 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
     }
 
     const containsValidDate = checkDate.test(newValue) && newValue.length === 10;
-    if (containsValidDate){
+    if (containsValidDate && !userPressedBackspace){
       newValue = `${newValue} 00:00`;
     }
 
@@ -226,6 +223,7 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
       ref={inputRef}
       type="text"
       onChange={handleChange}
+      maxLength={dateFormat.length}
       {...rest}
     />
 
