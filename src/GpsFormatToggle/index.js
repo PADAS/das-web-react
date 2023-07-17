@@ -34,7 +34,7 @@ const GpsFormatToggle = (props) => {
         )}
       </ul>
       {gpsString && <div className={styles.gpsStringWrapper}>
-        <span className={styles.value}>{gpsString}</span>
+        <span className={styles.value} data-testid="gpsFormatToggle-gpsString">{gpsString}</span>
         {showCopyControl && <TextCopyBtn text={gpsString} />}
       </div>
       }
