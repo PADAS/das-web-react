@@ -4,15 +4,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import cloneDeep from 'lodash/cloneDeep';
 
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
-import { MAP_LOCATION_SELECTION_MODES } from '../../ducks/map-ui';
-import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
-import { report } from '../../__test-helpers/fixtures/reports';
-import ReportOverview from './';
+import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
+import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import { report } from '../__test-helpers/fixtures/reports';
+import MapLocationSelectionOverview from '.';
 
-jest.mock('../../ducks/modals', () => ({
-  ...jest.requireActual('../../ducks/modals'),
+jest.mock('../ducks/modals', () => ({
+  ...jest.requireActual('../ducks/modals'),
   addModal: jest.fn(),
 }));
 
@@ -32,8 +32,8 @@ const mockGeometry = {
   },
 };
 
-describe('ReportOverview', () => {
-  const onClickDiscard = jest.fn(), onClickUndo = jest.fn(), onShowInformationModal = jest.fn();
+describe('MapLocationSelectionOverview', () => {
+  const onClickDiscard = jest.fn(), onClickUndo = jest.fn(), onShowInformation = jest.fn();
   let rerender, store;
 
   let mockReport;
@@ -60,12 +60,12 @@ describe('ReportOverview', () => {
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
-            <ReportOverview
+            <MapLocationSelectionOverview
               isDiscardButtonDisabled={false}
               isUndoButtonDisabled={false}
               onClickDiscard={onClickDiscard}
               onClickUndo={onClickUndo}
-              onShowInformationModal={onShowInformationModal}
+              onShowInformation={onShowInformation}
             />
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
@@ -78,16 +78,16 @@ describe('ReportOverview', () => {
   });
 
   test('opens the report information modal when clicking the information icon', async () => {
-    expect(onShowInformationModal).toHaveBeenCalledTimes(0);
+    expect(onShowInformation).toHaveBeenCalledTimes(0);
 
     const informationIcon = await screen.findByText('information.svg');
     userEvent.click(informationIcon);
 
-    expect(onShowInformationModal).toHaveBeenCalledTimes(1);
+    expect(onShowInformation).toHaveBeenCalledTimes(1);
   });
 
   test('closes and opens the card', async () => {
-    const collapse = await screen.findByTestId('reportOverview-collapse');
+    const collapse = await screen.findByTestId('mapLocationSelectionOverview-collapse');
 
     expect(collapse).toHaveClass('show');
 
@@ -117,12 +117,12 @@ describe('ReportOverview', () => {
       rerender(<Provider store={mockStore(store)}>
         <NavigationWrapper>
           <MapDrawingToolsContextProvider>
-            <ReportOverview
+            <MapLocationSelectionOverview
             isDiscardButtonDisabled={false}
             isUndoButtonDisabled={false}
             onClickDiscard={onClickDiscard}
             onClickUndo={onClickUndo}
-            onShowInformationModal={onShowInformationModal}
+            onShowInformation={onShowInformation}
           />
           </MapDrawingToolsContextProvider>
         </NavigationWrapper>
@@ -146,7 +146,7 @@ describe('ReportOverview', () => {
         <Provider store={mockStore(store)}>
           <NavigationWrapper>
             <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
-              <ReportOverview
+              <MapLocationSelectionOverview
                 isDiscardButtonDisabled={false}
                 isUndoButtonDisabled={false}
                 onClickDiscard={onClickDiscard}
@@ -175,7 +175,7 @@ describe('ReportOverview', () => {
         <Provider store={mockStore(store)}>
           <NavigationWrapper>
             <MapDrawingToolsContextProvider>
-              <ReportOverview
+              <MapLocationSelectionOverview
                 isDiscardButtonDisabled={false}
                 isUndoButtonDisabled
                 onClickDiscard={onClickDiscard}
@@ -212,7 +212,7 @@ describe('ReportOverview', () => {
         <Provider store={mockStore(store)}>
           <NavigationWrapper>
             <MapDrawingToolsContextProvider>
-              <ReportOverview
+              <MapLocationSelectionOverview
                 isDiscardButtonDisabled
                 isUndoButtonDisabled={false}
                 onClickDiscard={onClickDiscard}

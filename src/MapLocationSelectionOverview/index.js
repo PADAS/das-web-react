@@ -6,20 +6,19 @@ import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 
-import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons/arrow-down-simple.svg';
-import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
-import { ReactComponent as InformationIcon } from '../../common/images/icons/information.svg';
-import { ReactComponent as TrashCanIcon } from '../../common/images/icons/trash-can.svg';
-import { ReactComponent as UndoArrowIcon } from '../../common/images/icons/undo-arrow.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
+import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
+import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
+import { ReactComponent as UndoArrowIcon } from '../common/images/icons/undo-arrow.svg';
 
-import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
+import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
+import { useEventGeoMeasurementDisplayStrings } from '../hooks/geometry';
 
-import ReportListItem from '../../ReportListItem';
-import PatrolListItem from '../../PatrolListItem';
-
-import { MAP_LOCATION_SELECTION_MODES } from '../../ducks/map-ui';
-import { useEventGeoMeasurementDisplayStrings } from '../../hooks/geometry';
+import PatrolListItem from '../PatrolListItem';
+import ReportListItem from '../ReportListItem';
 
 import styles from './styles.module.scss';
 
@@ -28,43 +27,38 @@ const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 const TOOLTIP_SHOW_TIME = 500;
 const TOOLTIP_HIDE_TIME = 150;
 
-const ReportOverview = ({
+const MapLocationSelectionOverview = ({
   isDiscardButtonDisabled,
   isUndoButtonDisabled,
   onClickDiscard: onClickDiscardCallback,
   onClickUndo: onClickUndoCallback,
-  onShowInformationModal,
+  onShowInformation,
 }) => {
+  const { mapDrawingData } = useContext(MapDrawingToolsContext);
+
   const event = useSelector((state) => state.view.mapLocationSelection?.event);
+  const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
   const patrol = useSelector((state) => state.view.mapLocationSelection?.patrol);
 
-  const originalEvent = useSelector((state) =>
-    event
-    && state.data.eventStore[event.id]
+  const originalEvent = useSelector((state) => event && state.data.eventStore[event.id]);
+
+  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(
+    { geometry: mapDrawingData?.fillPolygon },
+    originalEvent
   );
-
-  const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
-
-  const isDrawingEventGeometry =
-    !!mapLocationSelection.isPickingLocation
-    && (
-      mapLocationSelection.mode
-      === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY
-    );
-
-  const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const [isOpen, setIsOpen] = useState(true);
 
-  const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings({ geometry: mapDrawingData?.fillPolygon }, originalEvent);
+  const isDrawingEventGeometry = !!mapLocationSelection.isPickingLocation
+    && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const onClickInformationIcon = useCallback((event) => {
     event.stopPropagation();
 
-    onShowInformationModal();
+    onShowInformation();
 
     eventReportTracker.track('Click info button in report area map');
-  }, [onShowInformationModal]);
+  }, [onShowInformation]);
 
   const onClickHeader = useCallback(() => {
     setIsOpen(!isOpen);
@@ -84,31 +78,24 @@ const ReportOverview = ({
     eventReportTracker.track('Clicks discard while drawing area');
   }, [onClickDiscardCallback]);
 
-  const title =
-  isDrawingEventGeometry
-    ? 'Create report area'
-    : `Choose ${patrol ? 'patrol' : 'report'} location`;
-
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
-      <h2>{title}</h2>
+      <h2>{isDrawingEventGeometry ? 'Create report area' : `Choose ${patrol ? 'patrol' : 'report'} location`}</h2>
 
       <div className={styles.actions}>
-        {onShowInformationModal && <InformationIcon onClick={onClickInformationIcon} />}
+        {onShowInformation && <InformationIcon onClick={onClickInformationIcon} />}
 
         {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
       </div>
     </div>
 
-    <Collapse data-testid="reportOverview-collapse" in={isOpen}>
+    <Collapse data-testid="mapLocationSelectionOverview-collapse" in={isOpen}>
       <div className={styles.body}>
         {!!event && <ReportListItem className={styles.reportItem} report={event} />}
-        {!!patrol && <PatrolListItem
-                patrol={patrol}
-                showControls={false}
-                 />}
 
-        {isDrawingEventGeometry &&
+        {!!patrol && <PatrolListItem patrol={patrol} showControls={false} />}
+
+        {isDrawingEventGeometry && <>
           <div className={styles.measurements}>
             <div>
               {`Area: ${areaDisplayString}`}
@@ -118,9 +105,7 @@ const ReportOverview = ({
               {`Perimeter: ${perimeterDisplayString}`}
             </div>
           </div>
-        }
 
-        {isDrawingEventGeometry && <>
           <div className={styles.separator} />
 
           <div className={styles.buttons}>
@@ -160,19 +145,26 @@ const ReportOverview = ({
               </Button>
             </OverlayTrigger>
           </div>
-        </>
-        }
+        </>}
       </div>
     </Collapse>
   </div>;
 };
 
-ReportOverview.propTypes = {
-  isDiscardButtonDisabled: PropTypes.bool.isRequired,
-  isUndoButtonDisabled: PropTypes.bool.isRequired,
-  onClickDiscard: PropTypes.func.isRequired,
-  onClickUndo: PropTypes.func.isRequired,
-  onShowInformationModal: PropTypes.func.isRequired,
+MapLocationSelectionOverview.defaultProps = {
+  isDiscardButtonDisabled: false,
+  isUndoButtonDisabled: false,
+  onClickDiscard: null,
+  onClickUndo: null,
+  onShowInformation: null,
 };
 
-export default memo(ReportOverview);
+MapLocationSelectionOverview.propTypes = {
+  isDiscardButtonDisabled: PropTypes.bool,
+  isUndoButtonDisabled: PropTypes.bool,
+  onClickDiscard: PropTypes.func,
+  onClickUndo: PropTypes.func,
+  onShowInformation: PropTypes.func,
+};
+
+export default memo(MapLocationSelectionOverview);

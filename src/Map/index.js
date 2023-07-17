@@ -78,7 +78,7 @@ import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import ReportGeometryDrawer from '../ReportGeometryDrawer';
-import ReportOverview from '../ReportGeometryDrawer/ReportOverview';
+import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
 import { useFeatureFlag, useMapEventBinding } from '../hooks';
@@ -634,7 +634,7 @@ const Map = ({
       </DelayedUnmount>
 
       {isDrawingEventGeometry && <ReportGeometryDrawer />}
-      {isSelectingEventLocation && <ReportOverview />}
+      {isSelectingEventLocation && <MapLocationSelectionOverview />}
 
       <div className='map-legends'>
         <span className='compass-wrapper' onClick={onRotationControlClick} >

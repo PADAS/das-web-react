@@ -14,7 +14,7 @@ import { validateEventPolygonPoints } from '../utils/geometry';
 import CancelationConfirmationModal from './CancelationConfirmationModal';
 import Footer from './Footer';
 import InformationModal from './InformationModal';
-import ReportOverview from './ReportOverview';
+import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 import MapDrawingTools from '../MapDrawingTools';
 
 const VERTICAL_POLYGON_PADDING = 100;
@@ -111,7 +111,7 @@ const ReportGeometryDrawer = () => {
 
   const onHideCancellationConfirmationModal = useCallback(() => setShowCancellationConfirmationModal(false), []);
 
-  const onShowInformationModal = useCallback(() => setShowInformationModal(true), []);
+  const onShowInformation = useCallback(() => setShowInformationModal(true), []);
 
   const onHideInformationModal = useCallback(() => setShowInformationModal(false), []);
 
@@ -155,12 +155,12 @@ const ReportGeometryDrawer = () => {
   }, [event.geometry, map]);
 
   return <>
-    <ReportOverview
+    <MapLocationSelectionOverview
       isDiscardButtonDisabled={!points.length}
       isUndoButtonDisabled={!canUndo}
       onClickDiscard={onClickDiscard}
       onClickUndo={onUndo}
-      onShowInformationModal={onShowInformationModal}
+      onShowInformation={onShowInformation}
     />
     <MapDrawingTools
       drawing={isDrawing}
