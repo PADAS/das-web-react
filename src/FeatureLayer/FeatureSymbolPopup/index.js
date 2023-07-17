@@ -2,11 +2,11 @@ import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
-import { hidePopup } from '../ducks/popup';
-import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { hidePopup } from '../../ducks/popup';
+import { MAP_INTERACTION_CATEGORY } from '../../utils/analytics';
 
-import AddItemButton from '../AddItemButton';
-import GpsFormatToggle from '../GpsFormatToggle';
+import AddItemButton from '../../AddItemButton';
+import GpsFormatToggle from '../../GpsFormatToggle';
 
 const FeatureSymbolPopup = ({ data, id }) => {
   const dispatch = useDispatch();
