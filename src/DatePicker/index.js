@@ -182,7 +182,7 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
     }
 
     const containsValidDate = checkDate.test(newValue) && newValue.length === 10;
-    if (containsValidDate && !userPressedBackspace){
+    if (containsValidDate && !userPressedBackspace && dateFormat.includes(':')){
       newValue = `${newValue} 00:00`;
     }
 
