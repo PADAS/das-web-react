@@ -224,7 +224,6 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
       type="text"
       onChange={handleChange}
       maxLength={dateFormat.length}
-      placeholder={dateFormat.toUpperCase()}
       {...rest}
     />
 
