@@ -10,6 +10,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 
 import styles from './styles.module.scss';
+import TextCopyBtn from '../TextCopyBtn';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
@@ -20,7 +21,6 @@ const PatrolMenu = (props) => {
   const patrolState = calcPatrolState(patrol);
 
   const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
-
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_UI_STATES.DONE;
   }, [patrolState]);
@@ -89,6 +89,15 @@ const PatrolMenu = (props) => {
     <Menu ref={menuRef}>
       {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
       {canEditPatrol && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
+      { !!patrol.id && <Item className={styles.copyBtn}>
+        <TextCopyBtn
+            label='Copy patrol link'
+            text={window.location.href}
+            icon={null}
+            successMessage='Link copied'
+            permitPropagation
+        />
+      </Item>}
     </Menu>
   </Dropdown>;
 };

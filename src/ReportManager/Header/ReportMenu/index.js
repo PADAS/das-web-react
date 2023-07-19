@@ -22,6 +22,8 @@ import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
 
 import styles from './styles.module.scss';
+import TextCopyBtn from '../../../TextCopyBtn';
+import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 
 const { Toggle, Menu, Item } = Dropdown;
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
@@ -124,6 +126,17 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
         <PatrolIcon className={styles.itemIcon} />
         Add to Patrol
       </Item>}
+
+      { !!report.id && <Item className={styles.itemBtn}>
+        <TextCopyBtn
+          label='Copy report link'
+          text={window.location.href}
+          icon={<ClipIcon/>}
+          successMessage='Link copied'
+          permitPropagation
+        />
+      </Item>}
+
     </Menu>
   </Dropdown>;
 };
