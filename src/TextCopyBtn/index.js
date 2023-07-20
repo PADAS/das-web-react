@@ -1,10 +1,14 @@
 import React, { memo, useCallback } from 'react';
-import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
-import { ReactComponent as CloseIcon } from '../common/images/icons/cross.svg';
-import styles from './styles.module.scss';
 import PropTypes from 'prop-types';
 import { showToast } from '../utils/toast';
 import { toast } from 'react-toastify';
+
+import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
+import { ReactComponent as CloseIcon } from '../common/images/icons/cross.svg';
+
+import styles from './styles.module.scss';
+
+const { TYPE: { INFO } } = toast;
 
 const TextCopyBtn = ({ label, text, icon, successMessage, permitPropagation, className }) => {
 
@@ -17,7 +21,7 @@ const TextCopyBtn = ({ label, text, icon, successMessage, permitPropagation, cla
       showToast({
         message: successMessage,
         toastConfig: {
-          type: toast.TYPE.INFO,
+          type: INFO,
           autoClose: 2000,
           hideProgressBar: true,
           className: styles.toast,

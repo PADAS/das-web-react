@@ -5,12 +5,11 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
-
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
+import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
-import TextCopyBtn from '../TextCopyBtn';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
