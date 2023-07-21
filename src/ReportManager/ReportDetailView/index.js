@@ -60,7 +60,9 @@ const ACTIVE_STATES = ['active', 'new'];
 const EVENT_DETAILS_KEY = 'event_details';
 
 const calculateFormattedReportDiffs = (reportForm, originalReport) => {
-  const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
+  const diff = extractObjectDifference(reportForm, originalReport);
+
+  const reportDifferences = Object.entries(diff);
   return reportDifferences.map((reportField) => {
     const [key, value] = reportField;
     const entries = Object.entries(value ?? {});
@@ -71,13 +73,17 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
   });
 };
 
-const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
-  const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
-  const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
-  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined && reportFieldValue !== '' );
-  const defValueWasReset = reportFieldValue === schemaDefaultValue && reportFieldValue !== originalReport.event_details[reportFieldKey];
-  return defValueHasChanged || hasReportValue || defValueWasReset ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
-}, {});
+const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => {
+  console.log({ reportField, reportSchemaProps, originalReport });
+  return Object.entries(reportField)
+    .reduce((acc, [reportFieldKey, reportFieldValue]) => {
+      const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
+      const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
+      const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined);
+      const defValueWasReset = reportFieldValue === schemaDefaultValue && reportFieldValue !== originalReport.event_details[reportFieldKey];
+      return defValueHasChanged || hasReportValue || defValueWasReset ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
+    }, {});
+};
 
 const ReportDetailView = ({
   className,
@@ -190,11 +196,11 @@ const ReportDetailView = ({
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
-      if (key === 'contains'){
+      if (key === 'contains') {
         return accumulator;
       }
 
-      if (key === EVENT_DETAILS_KEY){
+      if (key === EVENT_DETAILS_KEY) {
         const reportFieldsChanges = calculateSchemaFieldsChanges(reportField, schemaProps, originalReport);
         return Object.entries(reportFieldsChanges).length > 0
           ? { ...accumulator, [key]: reportFieldsChanges }
