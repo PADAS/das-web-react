@@ -73,7 +73,7 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
 const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
-  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined && reportFieldValue !== '' );
+  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined);
   const defValueWasReset = reportFieldValue === schemaDefaultValue && reportFieldValue !== originalReport.event_details[reportFieldKey];
   return defValueHasChanged || hasReportValue || defValueWasReset ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
 }, {});
