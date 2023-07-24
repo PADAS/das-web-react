@@ -182,6 +182,10 @@ const PatrolModal = (props) => {
 
   useEffect(() => {
     setMapLocationSelectionPatrol(statePatrol);
+
+    return () => {
+      setMapLocationSelectionPatrol(null);
+    };
   }, [setMapLocationSelectionPatrol, statePatrol]);
 
 
