@@ -116,6 +116,10 @@ const PlanSection = ({
 
   useEffect(() => {
     dispatch(setMapLocationSelectionPatrol(patrolForm));
+
+    return () => {
+      dispatch(setMapLocationSelectionPatrol(null));
+    };
   }, [dispatch, patrolForm]);
 
   return <>
