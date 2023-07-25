@@ -73,7 +73,6 @@ const DateRangeSelector = (props) => {
             className={styles.dateInput}
             maxDate={endDate || maxDate}
             onChange={onStartDateChange}
-            placeholderText=" "
             popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
             popperPlacement={placement}
             required
@@ -96,7 +95,6 @@ const DateRangeSelector = (props) => {
             minDate={startDate}
             onChange={handleEndDateChange}
             onClickDay={handleEndDateDayClick}
-            placeholderText=" "
             placement={placement}
             popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
             required={requireEnd}
