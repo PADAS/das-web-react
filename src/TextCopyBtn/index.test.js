@@ -4,6 +4,7 @@ import TextCopyBtn from './';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Slide, ToastContainer } from 'react-toastify';
 
 Object.defineProperty(global.navigator, 'clipboard', { value: {
   writeText: jest.fn().mockReturnValue(Promise.resolve()),
@@ -11,12 +12,19 @@ Object.defineProperty(global.navigator, 'clipboard', { value: {
 
 const testString = 'i am being copied';
 
+const renderTextCopyBtn = (text = testString) => render(
+  <>
+    <ToastContainer transition={Slide} />
+    <TextCopyBtn text={text} />
+  </>
+);
+
 test('rendering without crashing', () => {
-  render(<TextCopyBtn text={testString} />);
+  renderTextCopyBtn();
 });
 
 test('copying to the clipbboard', async () => {
-  render(<TextCopyBtn text={testString} />);
+  renderTextCopyBtn();
 
   const copyBtn = await screen.findByRole('button');
 
@@ -28,15 +36,12 @@ test('copying to the clipbboard', async () => {
 });
 
 test('showing a message on successful copy', async () => {
-  render(<TextCopyBtn text={testString} />);
+  renderTextCopyBtn();
 
   const copyBtn = await screen.findByRole('button');
-
   userEvent.click(copyBtn);
 
   const successMsg = await screen.findByRole('alert');
-
   expect(successMsg).toBeInTheDocument();
   expect(successMsg.textContent).toBe('Copied to clipboard');
-
 });

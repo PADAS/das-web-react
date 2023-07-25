@@ -23,3 +23,10 @@
     }
   }
 }
+
+.copyBtn {
+  button {
+    padding-left: 0;
+    color: var(--bs-dropdown-link-color);
+  }
+}

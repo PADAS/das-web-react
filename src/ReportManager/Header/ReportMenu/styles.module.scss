@@ -52,4 +52,9 @@
     width: 1.125rem;
     color: $secondary-medium-light-gray;
   }
+
+  button {
+    padding: 0 0.4rem 0 0;
+    color: var(--bs-dropdown-link-color);
+  }
 }

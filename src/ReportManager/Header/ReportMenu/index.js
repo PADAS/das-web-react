@@ -11,15 +11,14 @@ import { fetchPatrol } from '../../../ducks/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
 import { useFeatureFlag } from '../../../hooks';
-
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
-
 import { TrackerContext } from '../../../utils/analytics';
-
 import AddToIncidentModal from '../../../ReportForm/AddToIncidentModal';
 import AddToPatrolModal from '../../../ReportForm/AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
+import TextCopyBtn from '../../../TextCopyBtn';
+import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 
 import styles from './styles.module.scss';
 
@@ -124,6 +123,17 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
         <PatrolIcon className={styles.itemIcon} />
         Add to Patrol
       </Item>}
+
+      { !!report.id && <Item className={styles.itemBtn}>
+        <TextCopyBtn
+          label='Copy report link'
+          text={window.location.href}
+          icon={<ClipIcon/>}
+          successMessage='Link copied'
+          permitPropagation
+        />
+      </Item>}
+
     </Menu>
   </Dropdown>;
 };
