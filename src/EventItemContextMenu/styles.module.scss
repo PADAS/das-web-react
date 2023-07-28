@@ -1,6 +1,6 @@
 @import '../common/styles/vars/colors';
 
-.loading{
+.loading {
   width: 100%;
   height: 3.85rem;
   position: absolute;
@@ -8,15 +8,15 @@
   top: 0;
   left: 0;
   background: rgba(255,255,255, 0.75);
-}
 
-.spinner{
-  width: 2rem;
-  height: 2rem;
-  margin-top: 1rem;
-  background: linear-gradient(to right, $bright-blue 10%, rgba(255, 255, 255, 0) 42%);
+  & > div {
+    width: 2rem;
+    height: 2rem;
+    margin-top: 1rem;
+    background: linear-gradient(to right, $bright-blue 10%, rgba(255, 255, 255, 0) 42%);
 
-  &:before{
-    background: none;
+    &:before {
+      background: none;
+    }
   }
 }
