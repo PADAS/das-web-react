@@ -85,3 +85,36 @@
   font-size: 0.65rem;
   font-style: italic;
 }
+
+.noPriority {
+  &:hover {
+    background-color: $no-priority-bg-hover !important;
+    div[role='img'] {
+      background-color: $no-priority-base-hover !important;
+    }
+  }
+}
+.lowPriority {
+  &:hover {
+    background-color: $low-priority-bg-hover !important;
+    div[role='img'] {
+      background-color: $low-priority-base-hover !important;
+    }
+  }
+}
+.mediumPriority {
+  &:hover {
+    background-color: $medium-priority-bg-hover !important;
+    div[role='img'] {
+      background-color: $medium-priority-base-hover !important;
+    }
+  }
+}
+.highPriority {
+  &:hover {
+    background-color: $high-priority-bg-hover !important;
+    div[role='img'] {
+      background-color: $high-priority-base-hover !important;
+    }
+  }
+}

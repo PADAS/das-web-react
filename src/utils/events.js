@@ -368,3 +368,5 @@ export const setOriginalTextToEventNotes = (event) => {
     notes: notes.map((note) => ({ ...note, originalText: !note.originalText ? note.text : note.originalText }))
   };
 };
+
+export const isReportActive = (report) => ['active', 'new'].includes(report?.state);

@@ -10,6 +10,7 @@ import ReportListItem from '../ReportListItem';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
+import EventItemContextMenu from '../EventItemContextMenu';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
@@ -32,12 +33,14 @@ const EventFeed = (props) => {
         <Flipper flipKey={feedEvents}>
           {feedEvents.map((item) =>
             <Flipped flipId={item.id} key={item.id}>
-              <ReportListItem
-                className={styles.listItem}
-                displayTime={item[displayTimeProp]}
-                report={item}
-                onTitleClick={onTitleClick}
-                onIconClick={onIconClick} />
+              <EventItemContextMenu report={item}>
+                <ReportListItem
+                    className={styles.listItem}
+                    displayTime={item[displayTimeProp]}
+                    report={item}
+                    onTitleClick={onTitleClick}
+                    onIconClick={onIconClick} />
+              </EventItemContextMenu>
             </Flipped>
           )}
           {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}

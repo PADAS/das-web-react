@@ -81,20 +81,32 @@ $report-no-priority-theme: (
   background: lighten($no-priority, 40%),
 );
 
+$no-priority-base-hover: rgba($no-priority, 0.5);
+$no-priority-bg-hover: rgba($very-light-gray, 0.5);
+
 $report-low-priority-theme: (
   base: $low-priority,
-  background: lighten($low-priority, 60%)
+  background: lighten($low-priority, 60%),
 );
+
+$low-priority-base-hover: rgba(#3B6211, 0.5);
+$low-priority-bg-hover: rgba(#F5F7F3, 0.5);
 
 $report-medium-priority-theme: (
   base: $medium-priority,
-  background: lighten($medium-priority, 40%)
+  background: lighten($medium-priority, 40%),
 );
+
+$medium-priority-base-hover: rgba($medium-priority, 0.5);
+$medium-priority-bg-hover: rgba(#FEF7F4, 0.5);
 
 $report-high-priority-theme: (
   base: $high-priority,
-  background: lighten($high-priority, 55%)
+  background: lighten($high-priority, 55%),
 );
+
+$high-priority-base-hover: rgba($high-priority, 0.5);
+$high-priority-bg-hover: rgba(#FDF2F4, 0.5);
 
 /////
 

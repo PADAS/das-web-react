@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -18,6 +18,7 @@ import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
 
 import styles from './styles.module.scss';
+import colorVariables from '../common/styles/vars/colors.module.scss';
 
 const ReportListItem = ({
   className,
@@ -39,6 +40,14 @@ const ReportListItem = ({
     base: themeColor,
     background: themeBgColor,
   } = PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
+
+  const hoverEffects = useMemo(() => ({
+    300: styles.highPriority,
+    200: styles.mediumPriority,
+    100: styles.lowPriority,
+    0: styles.noPriority,
+  }), []);
+
   const dateTimeProp = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -61,7 +70,7 @@ const ReportListItem = ({
   }, [coordinates, dispatch, jumpToLocation, report]);
 
   return <FeedListItem
-    className={className}
+    className={`${hoverEffects[displayPriority]} ${className}`}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
       <LocationJumpButton
         clickAnalytics={[
