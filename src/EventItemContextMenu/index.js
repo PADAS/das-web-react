@@ -47,7 +47,7 @@ const EventItemContextMenu = ({ report, updateEvent, children }) => {
   return <ContextMenu disabled={isLoading} options={
     <Item onClick={updateReportState}>{title} #{report.serial_number}</Item>
   }>
-    { isLoading && <div className={styles.loading}>
+    { true && <div className={styles.loading}>
       <SpinLoader className={styles.spinner} />
     </div>}
     {children}
