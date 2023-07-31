@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, memo } from 'react';
+import React, { useCallback, useEffect, useState, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -9,6 +9,7 @@ const { Menu } = Dropdown;
 const ContextMenu = ({ options, disabled, children }) => {
   const [toggleContextMenu, setToggleContextMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({});
+  const menuRef = useRef();
 
   const handleContextMenu = useCallback((e) => {
     e.preventDefault();
@@ -21,16 +22,26 @@ const ContextMenu = ({ options, disabled, children }) => {
     disabled || setToggleContextMenu(!toggleContextMenu);
   }, [disabled, toggleContextMenu, setMenuPosition]);
 
-  const handleClick = useCallback(() => {
+  const closeMenu = useCallback(() => {
     setToggleContextMenu(false);
   }, []);
 
+  const handleCloseContextMenu = useCallback((e) => {
+    if (!menuRef?.current?.contains(e.target)){
+      closeMenu();
+    }
+  }, [closeMenu]);
+
   useEffect(() => {
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
+    window.addEventListener('click', closeMenu);
+    window.addEventListener('contextmenu', handleCloseContextMenu);
+    return () => {
+      window.removeEventListener('click', closeMenu);
+      window.removeEventListener('contextmenu', handleCloseContextMenu);
+    };
   }, []);
 
-  return <div className={styles.menuContainer} onContextMenu={handleContextMenu} data-testid='contextMenuToggle'>
+  return <div className={styles.menuContainer} onContextMenu={handleContextMenu} data-testid='contextMenuToggle' ref={menuRef}>
     <Menu show={toggleContextMenu} style={menuPosition}>
       {options}
     </Menu>
