@@ -18,7 +18,6 @@ import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
 
 import styles from './styles.module.scss';
-import colorVariables from '../common/styles/vars/colors.module.scss';
 
 const ReportListItem = ({
   className,

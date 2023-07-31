@@ -6,11 +6,10 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
-
+import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
-import EventItemContextMenu from '../EventItemContextMenu';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;

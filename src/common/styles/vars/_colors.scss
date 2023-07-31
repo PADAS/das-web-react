@@ -76,37 +76,37 @@ $info-toast-bg: rgba($off-black, 0.9);
 
 /////
 
-$report-no-priority-theme: (
-  base: $no-priority,
-  background: lighten($no-priority, 40%),
-);
-
 $no-priority-base-hover: rgba($no-priority, 0.5);
 $no-priority-bg-hover: rgba($very-light-gray, 0.5);
-
-$report-low-priority-theme: (
-  base: $low-priority,
-  background: lighten($low-priority, 60%),
+$report-no-priority-theme: (
+  base: $no-priority,
+  background: $very-light-gray,
 );
 
-$low-priority-base-hover: rgba(#3B6211, 0.5);
-$low-priority-bg-hover: rgba(#F5F7F3, 0.5);
+$low-priority-base: #3B6211;
+$low-priority-base-hover: rgba($low-priority-base, 0.5);
+$low-priority-bg: #F5F7F3;
+$low-priority-bg-hover: rgba($low-priority-bg, 0.5);
+$report-low-priority-theme: (
+  base: $low-priority-base,
+  background: $low-priority-bg,
+);
 
+$medium-priority-bg: #FDF3EE;
+$medium-priority-base-hover: rgba($medium-priority, 0.5);
+$medium-priority-bg-hover: rgba($medium-priority-bg, 0.5);
 $report-medium-priority-theme: (
   base: $medium-priority,
-  background: lighten($medium-priority, 40%),
+  background: $medium-priority-bg,
 );
 
-$medium-priority-base-hover: rgba($medium-priority, 0.5);
-$medium-priority-bg-hover: rgba(#FEF7F4, 0.5);
-
+$high-priority-bg: #FDF2F4;
+$high-priority-base-hover: rgba($high-priority, 0.5);
+$high-priority-bg-hover: rgba($high-priority-bg, 0.5);
 $report-high-priority-theme: (
   base: $high-priority,
-  background: lighten($high-priority, 55%),
+  background: $high-priority-bg,
 );
-
-$high-priority-base-hover: rgba($high-priority, 0.5);
-$high-priority-bg-hover: rgba(#FDF2F4, 0.5);
 
 /////
 

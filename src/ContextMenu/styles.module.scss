@@ -1,8 +1,12 @@
-.menuContainer{
+.menuContainer {
   position: relative;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
-.menu{
+.menu {
   position: absolute;
   z-index: 1;
   top: 0;
