@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 
 const { Menu } = Dropdown;
 
-const ContextMenu = ({ options, disabled, children }) => {
+const ContextMenu = ({ options, disabled, className, children }) => {
   const [toggleContextMenu, setToggleContextMenu] = useState(false);
   const menuRef = useRef();
 
@@ -34,7 +34,7 @@ const ContextMenu = ({ options, disabled, children }) => {
     };
   }, []);
 
-  return <div className={styles.menuContainer} onContextMenu={handleContextMenu} data-testid='contextMenuToggle' ref={menuRef}>
+  return <div className={`${styles.menuContainer} ${className}`} onContextMenu={handleContextMenu} data-testid='contextMenuToggle' ref={menuRef}>
     <Menu show={toggleContextMenu} className={styles.menu}>
       {options}
     </Menu>
@@ -43,13 +43,15 @@ const ContextMenu = ({ options, disabled, children }) => {
 };
 
 ContextMenu.defaultProps = {
-  disabled: false
+  disabled: false,
+  className: '',
 };
 
 ContextMenu.propTypes = {
   children: PropTypes.element.isRequired,
   options: PropTypes.element.isRequired,
   disabled: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default memo(ContextMenu);

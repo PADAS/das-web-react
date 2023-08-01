@@ -32,9 +32,8 @@ const EventFeed = (props) => {
         <Flipper flipKey={feedEvents}>
           {feedEvents.map((item) =>
             <Flipped flipId={item.id} key={item.id}>
-              <EventItemContextMenu report={item}>
+              <EventItemContextMenu report={item} className={styles.contextMenu}>
                 <ReportListItem
-                    className={styles.listItem}
                     displayTime={item[displayTimeProp]}
                     report={item}
                     onTitleClick={onTitleClick}

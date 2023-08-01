@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { showToast } from '../utils/toast';
 import { toast } from 'react-toastify';
 import { SpinLoader } from 'react-css-loaders';
+import PropTypes from 'prop-types';
 
 import ContextMenu from '../ContextMenu';
 import { isReportActive } from '../utils/events';
@@ -23,7 +24,7 @@ const showNotification = (message, type = INFO) => showToast({
   }
 });
 
-const EventItemContextMenu = ({ report, updateEvent, children }) => {
+const EventItemContextMenu = ({ report, updateEvent, className, children }) => {
   const isActive = useMemo(() => isReportActive(report), [report]);
   const title = useMemo(() => isActive ? 'Resolve': 'Reopen', [isActive]);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +45,7 @@ const EventItemContextMenu = ({ report, updateEvent, children }) => {
   },
   [isActive, report, updateEvent]);
 
-  return <ContextMenu disabled={isLoading} options={
+  return <ContextMenu className={className} disabled={isLoading} options={
     <Item onClick={updateReportState}>{title} #{report.serial_number}</Item>
   }>
     { isLoading && <div className={styles.loading}>
@@ -52,6 +53,17 @@ const EventItemContextMenu = ({ report, updateEvent, children }) => {
     </div>}
     {children}
   </ContextMenu>;
+};
+
+EventItemContextMenu.defaultProps = {
+  className: ''
+};
+
+EventItemContextMenu.propTypes = {
+  report: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired,
+  updateEvent: PropTypes.func,
+  className: PropTypes.string
 };
 
 export default memo(connect(undefined, {
