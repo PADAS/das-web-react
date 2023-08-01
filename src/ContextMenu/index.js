@@ -8,19 +8,12 @@ const { Menu } = Dropdown;
 
 const ContextMenu = ({ options, disabled, children }) => {
   const [toggleContextMenu, setToggleContextMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({});
   const menuRef = useRef();
 
   const handleContextMenu = useCallback((e) => {
     e.preventDefault();
-    const eventItem = e.target.getBoundingClientRect();
-
-    setMenuPosition({
-      top: e.clientY - eventItem.top,
-      left: e.clientX - eventItem.left,
-    });
     disabled || setToggleContextMenu(!toggleContextMenu);
-  }, [disabled, toggleContextMenu, setMenuPosition]);
+  }, [disabled, toggleContextMenu]);
 
   const closeMenu = useCallback(() => {
     setToggleContextMenu(false);
@@ -42,7 +35,7 @@ const ContextMenu = ({ options, disabled, children }) => {
   }, []);
 
   return <div className={styles.menuContainer} onContextMenu={handleContextMenu} data-testid='contextMenuToggle' ref={menuRef}>
-    <Menu show={toggleContextMenu} style={menuPosition}>
+    <Menu show={toggleContextMenu} className={styles.menu}>
       {options}
     </Menu>
     {children}
