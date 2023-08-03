@@ -141,7 +141,11 @@ const RequestConfigManager = ({
     if (token?.access_token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token.access_token}`;
     }
-  }, [token]);
+
+    return () => {
+      delete axios.defaults.headers.common['Authorization'];
+    };
+  }, [token?.access_token]);
   /* end auth header */
 
   return null;
