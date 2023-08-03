@@ -7,10 +7,12 @@ import { AddItemContext } from '../..';
 import AddReportTab from '.';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { mapReportTypesToCategories } from '../../../utils/event-types';
 
 describe('AddItemButton - AddItemModal - AddReportTab', () => {
   const navigate = jest.fn(), onHideModal = jest.fn();
   let renderAddReportTab, store;
+  const eventsByCategory = mapReportTypesToCategories(eventTypes);
   beforeEach(() => {
     store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
 
@@ -31,6 +33,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
               },
               onAddReport: null,
               reportData: {},
+              eventsByCategory,
             ...addItemContext
           }}>
             <AddReportTab navigate={navigate} onHideModal={onHideModal} {...props} />
@@ -47,14 +50,14 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
   test('filters report types by search text', async () => {
     renderAddReportTab();
 
-    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(106);
+    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(173);
 
     const searchBar = await screen.findByTestId('search-input');
     userEvent.type(searchBar, 'fire');
 
     const typeListItems = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
 
-    expect(typeListItems).toHaveLength(3);
+    expect(typeListItems).toHaveLength(4);
     expect(typeListItems[0]).toHaveTextContent('Fire');
   });
 
@@ -64,12 +67,12 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     const searchBar = await screen.findByTestId('search-input');
     userEvent.type(searchBar, 'fire');
 
-    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(3);
+    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(4);
 
     const clearSearchBarButton = await screen.findByTestId('reset-search-button');
     userEvent.click(clearSearchBarButton);
 
-    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(106);
+    expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(173);
   });
 
   test('triggers onAddReport if new UI is enabled and the callback was sent', async () => {

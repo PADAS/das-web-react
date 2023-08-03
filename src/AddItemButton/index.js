@@ -10,6 +10,8 @@ import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
 import styles from './styles.module.scss';
+import { useSelector } from 'react-redux';
+import { getUserCreatableEventTypesByCategory } from '../selectors';
 
 export const AddItemContext = createContext();
 
@@ -31,6 +33,8 @@ const AddItemButton = ({
   ...rest
 }) => {
   const [showModal, setShowModal] = useState(false);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
+  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
   const onClick = useCallback(() => {
     setShowModal(true);
@@ -52,25 +56,27 @@ const AddItemButton = ({
     onAddReport,
     patrolData,
     reportData,
+    patrolTypes,
+    eventsByCategory
   };
 
   return <AddItemContext.Provider value={addItemContextValue}>
     <DelayedUnmount isMounted={showModal}>
       <AddItemModal {...modalProps} onHide={onHideModal} show={showModal} />
     </DelayedUnmount>
-
-    <button
-        className={`${styles[`addItemButton-${variant}`]} ${className}`}
-        data-testid="addItemButton"
-        onClick={onClick}
-        title={title}
-        type="button"
-        {...rest}
-      >
-      {iconComponent}
-
-      {showLabel && <label>{title}</label>}
-    </button>
+    {
+      (eventsByCategory?.length && patrolTypes?.length) ?
+          (<button className={`${styles[`addItemButton-${variant}`]} ${className}`}
+                   data-testid="addItemButton"
+                   onClick={onClick}
+                   title={title}
+                   type="button"
+                   {...rest}>
+            {iconComponent}
+            {showLabel && <label>{title}</label>}
+          </button>)
+          : null
+    }
   </AddItemContext.Provider>;
 };
 

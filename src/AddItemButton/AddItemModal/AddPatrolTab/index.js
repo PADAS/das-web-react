@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
 
 import { AddItemContext } from '../..';
 import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes, openModalForPatrol } from '../../../utils/patrols';
@@ -19,11 +18,9 @@ const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const AddPatrolTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
-  const { analyticsMetadata, formProps, onAddPatrol, patrolData } = useContext(AddItemContext);
+  const { analyticsMetadata, formProps, onAddPatrol, patrolData, patrolTypes } = useContext(AddItemContext);
 
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
-
-  const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const [searchText, setSearchText] = useState('');
 
