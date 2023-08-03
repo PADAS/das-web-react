@@ -118,3 +118,9 @@
     }
   }
 }
+
+.noPriority, .lowPriority, .mediumPriority, .highPriority, .dateComponent {
+  &:hover {
+    cursor: pointer;
+  }
+}
