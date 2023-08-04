@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
 
-const ToastBody = ({ message = 'An error has occured', details = '', link = null }) => {
-  const [detailsShown, showDetails] = useState(false);
+const ToastBody = ({ message, details, link, showDetailsByDefault }) => {
+  const [detailsShown, showDetails] = useState(showDetailsByDefault);
 
   const toggleShowDetails = (event) => {
     event.preventDefault();
@@ -24,6 +24,20 @@ const ToastBody = ({ message = 'An error has occured', details = '', link = null
       {details}
     </div>}
   </>;
+};
+
+ToastBody.defaultProps = {
+  message: 'An error has occurred',
+  details: '',
+  link: null,
+  showDetailsByDefault: false,
+};
+
+ToastBody.propTypes = {
+  message: PropTypes.string,
+  details: PropTypes.string,
+  link: PropTypes.object,
+  showDetailsByDefault: PropTypes.bool,
 };
 
 export default ToastBody;

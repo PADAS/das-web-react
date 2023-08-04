@@ -20,3 +20,12 @@ div.scrollContainer {
 .loadingOverlay {
   background: none;
 }
+
+.contextMenu {
+  + .contextMenu {
+    li {
+      border-top: 1px solid $light-gray-border;
+    }
+  }
+}
+

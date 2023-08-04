@@ -6,7 +6,7 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
-
+import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
@@ -32,12 +32,13 @@ const EventFeed = (props) => {
         <Flipper flipKey={feedEvents}>
           {feedEvents.map((item) =>
             <Flipped flipId={item.id} key={item.id}>
-              <ReportListItem
-                className={styles.listItem}
-                displayTime={item[displayTimeProp]}
-                report={item}
-                onTitleClick={onTitleClick}
-                onIconClick={onIconClick} />
+              <EventItemContextMenu report={item} className={styles.contextMenu}>
+                <ReportListItem
+                    displayTime={item[displayTimeProp]}
+                    report={item}
+                    onTitleClick={onTitleClick}
+                    onIconClick={onIconClick} />
+              </EventItemContextMenu>
             </Flipped>
           )}
           {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -39,6 +39,14 @@ const ReportListItem = ({
     base: themeColor,
     background: themeBgColor,
   } = PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
+
+  const hoverEffects = useMemo(() => ({
+    300: styles.highPriority,
+    200: styles.mediumPriority,
+    100: styles.lowPriority,
+    0: styles.noPriority,
+  }), []);
+
   const dateTimeProp = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -46,7 +54,8 @@ const ReportListItem = ({
 
   // Only fire bounce on the second and subsequent click of a jump. First
   // remove the existing ids so that redux can 'clear' the existing state.
-  const onClickLocationJumpButton = useCallback(() => {
+  const onClickLocationJumpButton = useCallback((event) => {
+    event.stopPropagation();
     jumpToLocation(coordinates);
 
     if (locationClicked.current) {
@@ -61,7 +70,8 @@ const ReportListItem = ({
   }, [coordinates, dispatch, jumpToLocation, report]);
 
   return <FeedListItem
-    className={className}
+    onClick={() => onTitleClick?.(report)}
+    className={`${hoverEffects[displayPriority]} ${className}`}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
       <LocationJumpButton
         clickAnalytics={[
@@ -73,7 +83,7 @@ const ReportListItem = ({
         isMulti={hasMultipleLocations}
         onClick={onClickLocationJumpButton}
       /> : undefined}
-    DateComponent={dateTimeProp && <span>
+    DateComponent={dateTimeProp && <span className={styles.dateComponent}>
       <DateTime date={dateTimeProp} showElapsed={showElapsedTime} suffix='ago'/>
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>}

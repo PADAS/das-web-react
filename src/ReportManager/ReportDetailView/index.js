@@ -22,6 +22,7 @@ import {
   eventBelongsToCollection,
   eventBelongsToPatrol,
   generateErrorListForApiResponseDetails,
+  isReportActive,
   setOriginalTextToEventNotes
 } from '../../utils/events';
 import { createNewReportForEventType } from '../../utils/events';
@@ -55,7 +56,6 @@ import activitySectionStyles from '../../DetailViewComponents/ActivitySection/st
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
-const ACTIVE_STATES = ['active', 'new'];
 const EVENT_DETAILS_KEY = 'event_details';
 
 const calculateFormattedReportDiffs = (reportForm, originalReport) => {
@@ -129,7 +129,7 @@ const ReportDetailView = ({
   } = formProps || {};
 
   const originalReport = useMemo(() => isNewReport ? newReport : reportFromStore, [isNewReport, newReport, reportFromStore]);
-  const isActive = ACTIVE_STATES.includes(originalReport?.state);
+  const isActive = isReportActive(originalReport);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
