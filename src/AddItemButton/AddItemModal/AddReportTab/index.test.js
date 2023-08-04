@@ -87,6 +87,21 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect(onAddReport.mock.calls[0][2]).toBe('74941f0d-4b89-48be-a62a-a74c78db8383');
   });
 
+
+  test('removing the `location` property from the formData if the selected report `geometry_type` is incompatbile', async () => {
+
+    renderAddReportTab({}, {
+      reportData: {
+        location: {
+          latitude: 0.61332575463517,
+          longitude: 36.802334013780495
+        }
+      }
+    });
+
+    const typeButton = await screen.findByText('Geo-Typed Report Type'); // a known quantity with a Polygon geometry_type
+  });
+
   test('navigates to /reports/new if onAddReports is not defined when user clicks a report type', async () => {
     renderAddReportTab();
 
