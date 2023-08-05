@@ -89,17 +89,36 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
 
 
   test('removing the `location` property from the formData if the selected report `geometry_type` is incompatbile', async () => {
+    const reportData = {
+      other_field: true,
+      location: {
+        latitude: 0.61332575463517,
+        longitude: 36.802334013780495
+      },
+    };
 
     renderAddReportTab({}, {
-      reportData: {
-        location: {
-          latitude: 0.61332575463517,
-          longitude: 36.802334013780495
-        }
-      }
+      reportData,
     });
 
-    const typeButton = await screen.findByText('Geo-Typed Report Type'); // a known quantity with a Polygon geometry_type
+    const pointTypeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
+    userEvent.click(pointTypeButton);
+
+    expect(onHideModal).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+
+    const mockNavState = navigate.mock.calls[0][1];
+
+    expect(mockNavState.state.reportData).toEqual(reportData);
+
+    const polygonTypeButton = await screen.findByTestId('categoryList-button-3ff27054-da2a-41a5-8785-a10a90e57486'); // a known event type fixture with a Polygon geometry_type
+    userEvent.click(polygonTypeButton);
+
+    expect(onHideModal).toHaveBeenCalledTimes(2);
+    expect(navigate).toHaveBeenCalledTimes(2);
+
+    const nextNavState = navigate.mock.calls[1][1];
+    expect(nextNavState.state.reportData).toEqual({ other_field: true });
   });
 
   test('navigates to /reports/new if onAddReports is not defined when user clicks a report type', async () => {

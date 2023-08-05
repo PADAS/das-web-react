@@ -52,7 +52,7 @@ export const eventTypes = [
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0ee79753-a2d0-42ba-9894-b8e430b28113',
     'readonly': true,
-    'geometry_type': 'Point'
+    'geometry_type': 'Polygon'
   },
   {
     'id': '3ff27054-da2a-41a5-8785-a10a90e57486',
@@ -79,7 +79,7 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3ff27054-da2a-41a5-8785-a10a90e57486',
-    'geometry_type': 'Point'
+    'geometry_type': 'Polygon'
   },
   {
     'id': '60b4bcb2-655e-4526-abdc-3ed7fb83d360',
