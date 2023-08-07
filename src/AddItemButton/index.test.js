@@ -126,4 +126,18 @@ describe('AddItemButton', () => {
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
     expect(onAddPatrol.mock.calls[0][2]).toBe('c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
   });
+
+  test('it shows the AddItemButton even if there are no patrol info', async () => {
+    renderAddItemButton(undefined, { data: { ...store.data, patrolTypes: [] } });
+    const addItemButton = await screen.findByTestId('addItemButton');
+    expect(addItemButton).toBeInTheDocument();
+  });
+
+  test('it hides the AddItemButton when there are no information to show', async () => {
+    const something = { data: { ...store.data, eventTypes: [], patrolTypes: [] } };
+    renderAddItemButton(undefined, something);
+    const addItemButton = await screen.queryByTestId('addItemButton');
+    expect(addItemButton).not.toBeInTheDocument();
+  });
+
 });

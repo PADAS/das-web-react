@@ -38,7 +38,6 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
               },
               onAddPatrol: null,
               patrolData: {},
-              patrolTypes,
             ...addItemContext
           }}>
             <AddPatrolTab navigate={navigate} onHideModal={onHideModal} {...props} />

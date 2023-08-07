@@ -11,7 +11,6 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
-import { mapReportTypesToCategories } from '../../utils/event-types';
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
@@ -66,8 +65,6 @@ describe('AddItemButton - AddItemModal', () => {
                 onAddReport: null,
                 patrolData: {},
                 reportData: {},
-                eventsByCategory: mapReportTypesToCategories(eventTypes),
-                patrolTypes,
               ...addItemContext
             }}>
               <AddItemModal onHide={onHide} show {...props} />

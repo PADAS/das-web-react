@@ -56,8 +56,6 @@ const AddItemButton = ({
     onAddReport,
     patrolData,
     reportData,
-    patrolTypes,
-    eventsByCategory
   };
 
   return <AddItemContext.Provider value={addItemContextValue}>
@@ -65,7 +63,7 @@ const AddItemButton = ({
       <AddItemModal {...modalProps} onHide={onHideModal} show={showModal} />
     </DelayedUnmount>
     {
-      (eventsByCategory?.length && patrolTypes?.length) ?
+      (eventsByCategory?.length || patrolTypes?.length) ?
           (<button className={`${styles[`addItemButton-${variant}`]} ${className}`}
                    data-testid="addItemButton"
                    onClick={onClick}

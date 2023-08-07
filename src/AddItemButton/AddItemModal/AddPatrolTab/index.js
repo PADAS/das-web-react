@@ -8,6 +8,7 @@ import { MapContext } from '../../../App';
 import { trackEvent } from '../../../utils/analytics';
 import { useFeatureFlag } from '../../../hooks';
 import { uuid } from '../../../utils/string';
+import { useSelector } from 'react-redux';
 
 import SearchBar from '../../../SearchBar';
 import TypesList from '../TypesList';
@@ -18,8 +19,8 @@ const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const AddPatrolTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
-  const { analyticsMetadata, formProps, onAddPatrol, patrolData, patrolTypes } = useContext(AddItemContext);
-
+  const { analyticsMetadata, formProps, onAddPatrol, patrolData } = useContext(AddItemContext);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const [searchText, setSearchText] = useState('');
