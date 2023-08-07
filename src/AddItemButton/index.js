@@ -1,17 +1,16 @@
 import React, { createContext, memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { addReportFormProps } from '../proptypes';
 import { trackEvent } from '../utils/analytics';
-
+import { getUserCreatableEventTypesByCategory } from '../selectors';
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
 import styles from './styles.module.scss';
-import { useSelector } from 'react-redux';
-import { getUserCreatableEventTypesByCategory } from '../selectors';
 
 export const AddItemContext = createContext();
 

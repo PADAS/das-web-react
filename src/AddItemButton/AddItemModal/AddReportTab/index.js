@@ -1,15 +1,15 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { AddItemContext } from '../..';
 import { createNewReportForEventType, openModalForReport } from '../../../utils/events';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
+import { getUserCreatableEventTypesByCategory } from '../../../selectors';
 import { MapContext } from '../../../App';
 import { trackEvent } from '../../../utils/analytics';
 import { useFeatureFlag } from '../../../hooks';
 import { uuid } from '../../../utils/string';
-import { useSelector } from 'react-redux';
-import { getUserCreatableEventTypesByCategory } from '../../../selectors';
 
 import SearchBar from '../../../SearchBar';
 import Select from '../../../Select';
@@ -24,9 +24,10 @@ const SCROLL_OFFSET_CORRECTION = 96;
 const AddReportTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
   const { analyticsMetadata, formProps, onAddReport, reportData } = useContext(AddItemContext);
-  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+
+  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
   const reportTypesListRef = useRef(null);
 
