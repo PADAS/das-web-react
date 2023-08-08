@@ -1,11 +1,12 @@
 import React, { createContext, memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { addReportFormProps } from '../proptypes';
 import { trackEvent } from '../utils/analytics';
-
+import { getUserCreatableEventTypesByCategory } from '../selectors';
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
@@ -31,6 +32,8 @@ const AddItemButton = ({
   ...rest
 }) => {
   const [showModal, setShowModal] = useState(false);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
+  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
   const onClick = useCallback(() => {
     setShowModal(true);
@@ -58,19 +61,19 @@ const AddItemButton = ({
     <DelayedUnmount isMounted={showModal}>
       <AddItemModal {...modalProps} onHide={onHideModal} show={showModal} />
     </DelayedUnmount>
-
-    <button
-        className={`${styles[`addItemButton-${variant}`]} ${className}`}
-        data-testid="addItemButton"
-        onClick={onClick}
-        title={title}
-        type="button"
-        {...rest}
-      >
-      {iconComponent}
-
-      {showLabel && <label>{title}</label>}
-    </button>
+    {
+      (eventsByCategory?.length || patrolTypes?.length) ?
+          (<button className={`${styles[`addItemButton-${variant}`]} ${className}`}
+                   data-testid="addItemButton"
+                   onClick={onClick}
+                   title={title}
+                   type="button"
+                   {...rest}>
+            {iconComponent}
+            {showLabel && <label>{title}</label>}
+          </button>)
+          : null
+    }
   </AddItemContext.Provider>;
 };
 
