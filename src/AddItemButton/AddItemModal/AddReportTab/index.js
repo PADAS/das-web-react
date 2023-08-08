@@ -23,7 +23,7 @@ const SCROLL_OFFSET_CORRECTION = 96;
 
 const AddReportTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
-  const { analyticsMetadata, formProps, onAddReport, reportData } = useContext(AddItemContext);
+  const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
 
   const reportDataToEdit = { ...reportData };
 
