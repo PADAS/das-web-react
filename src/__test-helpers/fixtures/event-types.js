@@ -23,13 +23,14 @@ export const eventTypes = [
     'icon_id': 'jtar',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/d0884b8c-4ecb-45da-841d-f2f8d6246abf'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/d0884b8c-4ecb-45da-841d-f2f8d6246abf',
+    'geometry_type': 'Point'
   },
   {
     'id': '0ee79753-a2d0-42ba-9894-b8e430b28113',
     'icon': '',
     'value': 'j207bfinal',
-    'display': 'Jenae Test DO NOT CHANGE 2.07 Basic',
+    'display': 'Geo-Typed Report Type',
     'ordernum': -15,
     'is_collection': false,
     'category': {
@@ -50,7 +51,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0ee79753-a2d0-42ba-9894-b8e430b28113',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Polygon'
   },
   {
     'id': '3ff27054-da2a-41a5-8785-a10a90e57486',
@@ -76,7 +78,8 @@ export const eventTypes = [
     'icon_id': 'js21b',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3ff27054-da2a-41a5-8785-a10a90e57486'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3ff27054-da2a-41a5-8785-a10a90e57486',
+    'geometry_type': 'Polygon'
   },
   {
     'id': '60b4bcb2-655e-4526-abdc-3ed7fb83d360',
@@ -102,7 +105,8 @@ export const eventTypes = [
     'icon_id': 'jenae92f',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/60b4bcb2-655e-4526-abdc-3ed7fb83d360'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/60b4bcb2-655e-4526-abdc-3ed7fb83d360',
+    'geometry_type': 'Point'
   },
   {
     'id': '2d6bf099-f41c-4e1a-b8d7-e9ddad35ffd4',
@@ -128,7 +132,8 @@ export const eventTypes = [
     'icon_id': 'das5074',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2d6bf099-f41c-4e1a-b8d7-e9ddad35ffd4'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2d6bf099-f41c-4e1a-b8d7-e9ddad35ffd4',
+    'geometry_type': 'Point'
   },
   {
     'id': '76505548-f68e-41b3-baf0-3dbccfc99dc4',
@@ -154,7 +159,8 @@ export const eventTypes = [
     'icon_id': 'fire_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/76505548-f68e-41b3-baf0-3dbccfc99dc4'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/76505548-f68e-41b3-baf0-3dbccfc99dc4',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c4379fa2-5ed0-448d-a78a-bbb7903b47e4',
@@ -180,7 +186,8 @@ export const eventTypes = [
     'icon_id': 'radar_rep',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c4379fa2-5ed0-448d-a78a-bbb7903b47e4'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c4379fa2-5ed0-448d-a78a-bbb7903b47e4',
+    'geometry_type': 'Point'
   },
   {
     'id': 'ab57d471-96d9-44df-9201-f3c3f42b39b3',
@@ -206,7 +213,8 @@ export const eventTypes = [
     'icon_id': 'jes_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ab57d471-96d9-44df-9201-f3c3f42b39b3'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ab57d471-96d9-44df-9201-f3c3f42b39b3',
+    'geometry_type': 'Point'
   },
   {
     'id': '6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74',
@@ -232,7 +240,8 @@ export const eventTypes = [
     'icon_id': 'accident_rep',
     'is_active': true,
     'default_priority': 300,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74',
+    'geometry_type': 'Point'
   },
   {
     'id': '6e9f2ce7-b961-437a-96fe-cd8427242f1a',
@@ -258,7 +267,8 @@ export const eventTypes = [
     'icon_id': 'birds_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6e9f2ce7-b961-437a-96fe-cd8427242f1a'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6e9f2ce7-b961-437a-96fe-cd8427242f1a',
+    'geometry_type': 'Point'
   },
   {
     'id': '6f78a2d1-93a8-4195-9c58-006ea55ccd93',
@@ -284,7 +294,8 @@ export const eventTypes = [
     'icon_id': 'kws_grantmanagement_rep_ks',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6f78a2d1-93a8-4195-9c58-006ea55ccd93'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6f78a2d1-93a8-4195-9c58-006ea55ccd93',
+    'geometry_type': 'Point'
   },
   {
     'id': '76352957-4589-4915-8b55-f19a1d15a64e',
@@ -311,7 +322,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/76352957-4589-4915-8b55-f19a1d15a64e',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '38a48ca6-7559-4aab-955b-487454f30d73',
@@ -338,7 +350,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/38a48ca6-7559-4aab-955b-487454f30d73',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '74941f0d-4b89-48be-a62a-a74c78db8383',
@@ -364,7 +377,8 @@ export const eventTypes = [
     'icon_id': 'fire_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/74941f0d-4b89-48be-a62a-a74c78db8383'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/74941f0d-4b89-48be-a62a-a74c78db8383',
+    'geometry_type': 'Point'
   },
   {
     'id': '984531ca-3e69-4b6a-876c-e293b81dbc75',
@@ -390,7 +404,8 @@ export const eventTypes = [
     'icon_id': 'all_posts',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/984531ca-3e69-4b6a-876c-e293b81dbc75'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/984531ca-3e69-4b6a-876c-e293b81dbc75',
+    'geometry_type': 'Point'
   },
   {
     'id': '022fe4cd-c300-4c33-9eca-5583b758bd42',
@@ -417,7 +432,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/022fe4cd-c300-4c33-9eca-5583b758bd42',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '64ccc207-0e2f-424b-a096-b94073cb7689',
@@ -444,7 +460,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/64ccc207-0e2f-424b-a096-b94073cb7689',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '2adcbd7a-8dcc-4327-b1c6-050de4008bef',
@@ -471,7 +488,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2adcbd7a-8dcc-4327-b1c6-050de4008bef',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'bc644829-1a7e-4799-a88a-7eccd4647b7d',
@@ -498,7 +516,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/bc644829-1a7e-4799-a88a-7eccd4647b7d',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'be060c4f-c8c8-4ba3-9df9-01335ab60980',
@@ -524,7 +543,8 @@ export const eventTypes = [
     'icon_id': 'hwc_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/be060c4f-c8c8-4ba3-9df9-01335ab60980'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/be060c4f-c8c8-4ba3-9df9-01335ab60980',
+    'geometry_type': 'Point'
   },
   {
     'id': '009793a4-e233-42fc-b068-b3245e93935e',
@@ -550,7 +570,8 @@ export const eventTypes = [
     'icon_id': 'fence_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/009793a4-e233-42fc-b068-b3245e93935e'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/009793a4-e233-42fc-b068-b3245e93935e',
+    'geometry_type': 'Point'
   },
   {
     'id': 'd969ddf1-3f84-4b11-9e09-4c3a0aa88afc',
@@ -577,7 +598,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/d969ddf1-3f84-4b11-9e09-4c3a0aa88afc',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'e808b1c8-eef9-4608-bbe5-53ae50c7b077',
@@ -604,7 +626,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e808b1c8-eef9-4608-bbe5-53ae50c7b077',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'cef16991-c71b-44b6-b4e1-c3d80bb33af1',
@@ -631,7 +654,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cef16991-c71b-44b6-b4e1-c3d80bb33af1',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '096fdd6b-e3eb-4aa2-8d59-ffea5c69f6cf',
@@ -658,7 +682,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/096fdd6b-e3eb-4aa2-8d59-ffea5c69f6cf',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'b4ecee53-4b37-49b2-8ddc-b85a7d76e50c',
@@ -684,7 +709,8 @@ export const eventTypes = [
     'icon_id': 'injured_animal_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b4ecee53-4b37-49b2-8ddc-b85a7d76e50c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b4ecee53-4b37-49b2-8ddc-b85a7d76e50c',
+    'geometry_type': 'Point'
   },
   {
     'id': '57914f8f-fb76-4997-a94d-d1f0a99cba07',
@@ -710,7 +736,8 @@ export const eventTypes = [
     'icon_id': 'animal_control_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/57914f8f-fb76-4997-a94d-d1f0a99cba07'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/57914f8f-fb76-4997-a94d-d1f0a99cba07',
+    'geometry_type': 'Point'
   },
   {
     'id': 'ab97075f-f5c7-4322-84a2-e04e433d5da9',
@@ -736,7 +763,8 @@ export const eventTypes = [
     'icon_id': 'radio_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ab97075f-f5c7-4322-84a2-e04e433d5da9'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ab97075f-f5c7-4322-84a2-e04e433d5da9',
+    'geometry_type': 'Point'
   },
   {
     'id': 'cb2d66c0-7e17-4bc5-af17-d8cc3c454c2a',
@@ -762,7 +790,8 @@ export const eventTypes = [
     'icon_id': 'invasive_species_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cb2d66c0-7e17-4bc5-af17-d8cc3c454c2a'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cb2d66c0-7e17-4bc5-af17-d8cc3c454c2a',
+    'geometry_type': 'Point'
   },
   {
     'id': '2c6a0755-3f5b-453d-b3e8-f3fb2c614a47',
@@ -789,7 +818,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2c6a0755-3f5b-453d-b3e8-f3fb2c614a47',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'f32f1a13-ccfd-46eb-8dd7-6efa64346b66',
@@ -816,7 +846,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f32f1a13-ccfd-46eb-8dd7-6efa64346b66',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'e55bebea-fab7-4264-93f0-88a56a7f8fc4',
@@ -843,7 +874,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e55bebea-fab7-4264-93f0-88a56a7f8fc4',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '2adf7302-ecef-42af-9f7c-45992ce52dd0',
@@ -870,7 +902,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2adf7302-ecef-42af-9f7c-45992ce52dd0',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'b0d66402-34cb-4e9a-9715-2ac4eeebb574',
@@ -896,7 +929,8 @@ export const eventTypes = [
     'icon_id': 'abandoned_camp_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b0d66402-34cb-4e9a-9715-2ac4eeebb574'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b0d66402-34cb-4e9a-9715-2ac4eeebb574',
+    'geometry_type': 'Point'
   },
   {
     'id': '21b67871-a72b-43f5-8931-e3996dd88c21',
@@ -922,7 +956,8 @@ export const eventTypes = [
     'icon_id': 'test_this2',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/21b67871-a72b-43f5-8931-e3996dd88c21'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/21b67871-a72b-43f5-8931-e3996dd88c21',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c16fab4a-b2ac-4002-8446-dd62ff7f19e4',
@@ -949,7 +984,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c16fab4a-b2ac-4002-8446-dd62ff7f19e4',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '2938945d-9d66-45ed-b747-e5f4f54b498f',
@@ -976,7 +1012,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2938945d-9d66-45ed-b747-e5f4f54b498f',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '4ef3fee3-e545-482e-a0ad-49f28fce2021',
@@ -1002,7 +1039,8 @@ export const eventTypes = [
     'icon_id': 'test_this3',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4ef3fee3-e545-482e-a0ad-49f28fce2021'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4ef3fee3-e545-482e-a0ad-49f28fce2021',
+    'geometry_type': 'Point'
   },
   {
     'id': '46b1a847-fde9-4b7d-8e4d-28bac6e2b7fe',
@@ -1028,7 +1066,8 @@ export const eventTypes = [
     'icon_id': 'test_this4',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/46b1a847-fde9-4b7d-8e4d-28bac6e2b7fe'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/46b1a847-fde9-4b7d-8e4d-28bac6e2b7fe',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c629eee6-930b-4402-9498-b5de0153d2b1',
@@ -1055,7 +1094,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c629eee6-930b-4402-9498-b5de0153d2b1',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '5ef5f147-feaa-4cb8-9672-53135190e9b6',
@@ -1082,7 +1122,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5ef5f147-feaa-4cb8-9672-53135190e9b6',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'f8666d6f-512e-4732-b641-bbc5dcb868bf',
@@ -1109,7 +1150,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f8666d6f-512e-4732-b641-bbc5dcb868bf',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'bdfffdc5-0195-4c0a-9e42-bced05f4e0c4',
@@ -1135,7 +1177,8 @@ export const eventTypes = [
     'icon_id': 'confiscation_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/bdfffdc5-0195-4c0a-9e42-bced05f4e0c4'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/bdfffdc5-0195-4c0a-9e42-bced05f4e0c4',
+    'geometry_type': 'Point'
   },
   {
     'id': '125eabe7-85b3-4d82-a915-66fad942a33d',
@@ -1161,7 +1204,8 @@ export const eventTypes = [
     'icon_id': 'rhino_sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/125eabe7-85b3-4d82-a915-66fad942a33d'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/125eabe7-85b3-4d82-a915-66fad942a33d',
+    'geometry_type': 'Point'
   },
   {
     'id': '1f20b27c-95f2-42f3-bacc-94642399dc46',
@@ -1187,7 +1231,8 @@ export const eventTypes = [
     'icon_id': 'wildlife_sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1f20b27c-95f2-42f3-bacc-94642399dc46'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1f20b27c-95f2-42f3-bacc-94642399dc46',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b802a634-a9c9-4e04-9c68-82a8d350b56e',
@@ -1214,7 +1259,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b802a634-a9c9-4e04-9c68-82a8d350b56e',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '3bdde979-3471-4cde-9bb3-4c5c4beb41f8',
@@ -1241,7 +1287,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3bdde979-3471-4cde-9bb3-4c5c4beb41f8',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '6408afcf-c3b6-4f4b-a440-2d87d87f8424',
@@ -1267,7 +1314,8 @@ export const eventTypes = [
     'icon_id': 'incident_collection',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6408afcf-c3b6-4f4b-a440-2d87d87f8424'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6408afcf-c3b6-4f4b-a440-2d87d87f8424',
+    'geometry_type': 'Point'
   },
   {
     'id': '4be7dcc6-d3b3-4faa-a4cc-a81912a4ee18',
@@ -1294,7 +1342,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4be7dcc6-d3b3-4faa-a4cc-a81912a4ee18',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'cacf8f8a-c45c-4ac9-a816-0de988c0afdf',
@@ -1321,7 +1370,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cacf8f8a-c45c-4ac9-a816-0de988c0afdf',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'c0a66c05-efff-44de-9a40-e7abfe26f5ba',
@@ -1348,7 +1398,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c0a66c05-efff-44de-9a40-e7abfe26f5ba',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '8ef21ef4-aba1-4c65-a53a-38d37552d76a',
@@ -1375,7 +1426,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8ef21ef4-aba1-4c65-a53a-38d37552d76a',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '97a18051-6fd9-4ff1-ab98-1ff1e8c17a86',
@@ -1401,7 +1453,8 @@ export const eventTypes = [
     'icon_id': 'light_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/97a18051-6fd9-4ff1-ab98-1ff1e8c17a86'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/97a18051-6fd9-4ff1-ab98-1ff1e8c17a86',
+    'geometry_type': 'Point'
   },
   {
     'id': '55537836-0f99-4bfd-8c0b-be7f20a8c887',
@@ -1427,7 +1480,8 @@ export const eventTypes = [
     'icon_id': 'medevac_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/55537836-0f99-4bfd-8c0b-be7f20a8c887'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/55537836-0f99-4bfd-8c0b-be7f20a8c887',
+    'geometry_type': 'Point'
   },
   {
     'id': '31b5ad05-5a87-4a39-94cd-94e5d4e8f093',
@@ -1454,7 +1508,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/31b5ad05-5a87-4a39-94cd-94e5d4e8f093',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '997002af-5237-4010-ad46-cc1c956e7788',
@@ -1481,7 +1536,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/997002af-5237-4010-ad46-cc1c956e7788',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '6bf94758-c189-4fb8-96c5-6d6ad67dd8dd',
@@ -1507,7 +1563,8 @@ export const eventTypes = [
     'icon_id': 'mist_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6bf94758-c189-4fb8-96c5-6d6ad67dd8dd'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6bf94758-c189-4fb8-96c5-6d6ad67dd8dd',
+    'geometry_type': 'Point'
   },
   {
     'id': 'cfaae6f1-588f-423f-9247-7710e33f7c62',
@@ -1534,7 +1591,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cfaae6f1-588f-423f-9247-7710e33f7c62',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'bb58bf5e-c4a8-4bd7-a2a6-d5e27ee408a5',
@@ -1561,7 +1619,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/bb58bf5e-c4a8-4bd7-a2a6-d5e27ee408a5',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '7d3ac5a0-9dab-430f-8f66-b5b9f1dc2544',
@@ -1588,7 +1647,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/7d3ac5a0-9dab-430f-8f66-b5b9f1dc2544',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '8e4466d9-dd67-4d58-be80-e5fe2a380aab',
@@ -1615,7 +1675,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8e4466d9-dd67-4d58-be80-e5fe2a380aab',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '0a91ff26-238f-4e21-a5f6-96da52eaab80',
@@ -1641,7 +1702,8 @@ export const eventTypes = [
     'icon_id': 'contact_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0a91ff26-238f-4e21-a5f6-96da52eaab80'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0a91ff26-238f-4e21-a5f6-96da52eaab80',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b923ccf7-c0c4-4967-8a54-c17d27c00b80',
@@ -1667,7 +1729,8 @@ export const eventTypes = [
     'icon_id': 'poacher_camp_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b923ccf7-c0c4-4967-8a54-c17d27c00b80'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b923ccf7-c0c4-4967-8a54-c17d27c00b80',
+    'geometry_type': 'Point'
   },
   {
     'id': '51f0681f-b87d-4dc8-aea8-f153661685a9',
@@ -1694,7 +1757,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/51f0681f-b87d-4dc8-aea8-f153661685a9',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'e01b0868-1290-487a-860a-f59f6f798dc8',
@@ -1721,7 +1785,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e01b0868-1290-487a-860a-f59f6f798dc8',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'ec56d455-e8f3-43e4-9ae9-ebacd615c9b4',
@@ -1748,7 +1813,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ec56d455-e8f3-43e4-9ae9-ebacd615c9b4',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'e8738d5f-9fbb-4601-bce5-59d52ca6174f',
@@ -1774,7 +1840,8 @@ export const eventTypes = [
     'icon_id': 'ranger_shot_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e8738d5f-9fbb-4601-bce5-59d52ca6174f'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e8738d5f-9fbb-4601-bce5-59d52ca6174f',
+    'geometry_type': 'Point'
   },
   {
     'id': '0a00cbcc-eb95-4e66-a4a0-a0a7bc7c9155',
@@ -1801,7 +1868,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0a00cbcc-eb95-4e66-a4a0-a0a7bc7c9155',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '5e5ad160-f19e-4274-b051-9befeee0d0e0',
@@ -1828,7 +1896,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5e5ad160-f19e-4274-b051-9befeee0d0e0',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '3cc19bb0-176d-4d9a-8eeb-d36a5dad8640',
@@ -1855,7 +1924,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3cc19bb0-176d-4d9a-8eeb-d36a5dad8640',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'f804e01e-006d-41d0-aa7d-fe6e798e4852',
@@ -1881,7 +1951,8 @@ export const eventTypes = [
     'icon_id': 'shot_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f804e01e-006d-41d0-aa7d-fe6e798e4852'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f804e01e-006d-41d0-aa7d-fe6e798e4852',
+    'geometry_type': 'Point'
   },
   {
     'id': '06fe0a93-b34c-47f3-ad4b-b4818eb91d2a',
@@ -1907,7 +1978,8 @@ export const eventTypes = [
     'icon_id': 'sit_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/06fe0a93-b34c-47f3-ad4b-b4818eb91d2a'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/06fe0a93-b34c-47f3-ad4b-b4818eb91d2a',
+    'geometry_type': 'Point'
   },
   {
     'id': 'dd9e5ff8-c35b-449d-b791-d9a23acb0f99',
@@ -1934,7 +2006,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/dd9e5ff8-c35b-449d-b791-d9a23acb0f99',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'a832e300-77d2-4f50-a112-bb6bb35ffc8c',
@@ -1961,7 +2034,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/a832e300-77d2-4f50-a112-bb6bb35ffc8c',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'ed316fbc-b72a-45d2-8258-5e7ecdab1a92',
@@ -1988,7 +2062,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ed316fbc-b72a-45d2-8258-5e7ecdab1a92',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '8e2812d8-4ac9-4874-b1b2-1adc5ea192b5',
@@ -2014,7 +2089,8 @@ export const eventTypes = [
     'icon_id': 'snare_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8e2812d8-4ac9-4874-b1b2-1adc5ea192b5'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8e2812d8-4ac9-4874-b1b2-1adc5ea192b5',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c9c242bc-25f8-4298-ae0d-4a6c67792072',
@@ -2041,7 +2117,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c9c242bc-25f8-4298-ae0d-4a6c67792072',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '261e83df-f17b-42a9-8233-78d6ea465a25',
@@ -2068,7 +2145,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/261e83df-f17b-42a9-8233-78d6ea465a25',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
@@ -2094,7 +2172,8 @@ export const eventTypes = [
     'icon_id': 'spoor_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/58bde7d9-4a5c-43bf-a5c7-06803a3aaec8'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
+    'geometry_type': 'Point'
   },
   {
     'id': '4e16f536-3deb-4e04-8e49-db9be121ff93',
@@ -2121,7 +2200,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4e16f536-3deb-4e04-8e49-db9be121ff93',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'b6790a27-39b8-45c7-b1a6-8e8d20a80cd7',
@@ -2148,7 +2228,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b6790a27-39b8-45c7-b1a6-8e8d20a80cd7',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'a47a371e-cd86-4b57-beed-aa1242eb0516',
@@ -2175,7 +2256,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/a47a371e-cd86-4b57-beed-aa1242eb0516',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '5b7bc8f2-5e08-4d26-a55a-b35ded392fa0',
@@ -2201,7 +2283,8 @@ export const eventTypes = [
     'icon_id': 'activity_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5b7bc8f2-5e08-4d26-a55a-b35ded392fa0'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5b7bc8f2-5e08-4d26-a55a-b35ded392fa0',
+    'geometry_type': 'Point'
   },
   {
     'id': 'ea2fafee-1af8-43d7-b661-b7aad9befefa',
@@ -2228,7 +2311,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ea2fafee-1af8-43d7-b661-b7aad9befefa',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '17cf470e-d708-439c-983e-a7fe06c45ab1',
@@ -2254,7 +2338,8 @@ export const eventTypes = [
     'icon_id': 'traffic_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/17cf470e-d708-439c-983e-a7fe06c45ab1'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/17cf470e-d708-439c-983e-a7fe06c45ab1',
+    'geometry_type': 'Point'
   },
   {
     'id': '9ff2b388-0253-41bc-b9de-7eb3d8999e7a',
@@ -2281,7 +2366,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9ff2b388-0253-41bc-b9de-7eb3d8999e7a',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'c419acac-874d-422e-8b7b-54470afe56c5',
@@ -2307,7 +2393,8 @@ export const eventTypes = [
     'icon_id': 'immobility',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c419acac-874d-422e-8b7b-54470afe56c5'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c419acac-874d-422e-8b7b-54470afe56c5',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b72054d9-d213-4e55-a35b-ece7f65b74d9',
@@ -2334,7 +2421,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b72054d9-d213-4e55-a35b-ece7f65b74d9',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '729bece5-7ddd-4b95-9c28-8e4e53d316a1',
@@ -2361,7 +2449,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/729bece5-7ddd-4b95-9c28-8e4e53d316a1',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '8bf325e7-2880-447a-b2d8-156c66bc5708',
@@ -2387,7 +2476,8 @@ export const eventTypes = [
     'icon_id': 'immobility_all_clear',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8bf325e7-2880-447a-b2d8-156c66bc5708'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8bf325e7-2880-447a-b2d8-156c66bc5708',
+    'geometry_type': 'Point'
   },
   {
     'id': '4ca23976-1af4-4887-bd59-673b08a9d505',
@@ -2413,7 +2503,8 @@ export const eventTypes = [
     'icon_id': 'low_speed_wilcoxon',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4ca23976-1af4-4887-bd59-673b08a9d505'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4ca23976-1af4-4887-bd59-673b08a9d505',
+    'geometry_type': 'Point'
   },
   {
     'id': '54be0cc4-f42b-4602-bce5-4316e484b833',
@@ -2439,7 +2530,8 @@ export const eventTypes = [
     'icon_id': 'low_speed_wilcoxon_all_clear',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/54be0cc4-f42b-4602-bce5-4316e484b833'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/54be0cc4-f42b-4602-bce5-4316e484b833',
+    'geometry_type': 'Point'
   },
   {
     'id': 'cd86aa65-d0ba-41a3-a138-afcfbdc8e5f2',
@@ -2465,7 +2557,8 @@ export const eventTypes = [
     'icon_id': 'low_speed_percentile',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cd86aa65-d0ba-41a3-a138-afcfbdc8e5f2'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/cd86aa65-d0ba-41a3-a138-afcfbdc8e5f2',
+    'geometry_type': 'Point'
   },
   {
     'id': '30f041ff-b5e0-41c6-90f8-9732c4b59330',
@@ -2492,7 +2585,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/30f041ff-b5e0-41c6-90f8-9732c4b59330',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '57943092-b817-43cc-a67c-c7704e59f6ea',
@@ -2518,7 +2612,8 @@ export const eventTypes = [
     'icon_id': 'geofence_break',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/57943092-b817-43cc-a67c-c7704e59f6ea'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/57943092-b817-43cc-a67c-c7704e59f6ea',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c53717b8-29e4-44fb-bb29-d09004ba87e7',
@@ -2545,7 +2640,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c53717b8-29e4-44fb-bb29-d09004ba87e7',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '5bc380cb-6cef-4cdf-b7be-5c8ae1c083bb',
@@ -2571,7 +2667,8 @@ export const eventTypes = [
     'icon_id': 'firms_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5bc380cb-6cef-4cdf-b7be-5c8ae1c083bb'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5bc380cb-6cef-4cdf-b7be-5c8ae1c083bb',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c96620be-9d3d-416c-86e6-c0daa64a7063',
@@ -2597,7 +2694,8 @@ export const eventTypes = [
     'icon_id': 'proximity',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c96620be-9d3d-416c-86e6-c0daa64a7063'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c96620be-9d3d-416c-86e6-c0daa64a7063',
+    'geometry_type': 'Point'
   },
   {
     'id': 'e56038a3-3b56-4c10-ae16-6856267b224a',
@@ -2624,7 +2722,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e56038a3-3b56-4c10-ae16-6856267b224a',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '01037bcc-fa05-4cd6-9ce6-74dce9a92f26',
@@ -2651,7 +2750,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/01037bcc-fa05-4cd6-9ce6-74dce9a92f26',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'b19949cc-6135-4862-b0a4-63ffffc02515',
@@ -2678,7 +2778,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b19949cc-6135-4862-b0a4-63ffffc02515',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'afc7da28-3b20-41c1-a63d-d4329b5672af',
@@ -2705,7 +2806,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/afc7da28-3b20-41c1-a63d-d4329b5672af',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '900dbcea-b150-43f9-adca-5b3bdb4e8b4f',
@@ -2731,7 +2833,8 @@ export const eventTypes = [
     'icon_id': 'mep_collaring',
     'is_active': true,
     'default_priority': 100,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/900dbcea-b150-43f9-adca-5b3bdb4e8b4f'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/900dbcea-b150-43f9-adca-5b3bdb4e8b4f',
+    'geometry_type': 'Point'
   },
   {
     'id': '8e4cb26a-ff60-4688-943a-12f6d0e8cb79',
@@ -2757,7 +2860,8 @@ export const eventTypes = [
     'icon_id': 'kws_arrest_current',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8e4cb26a-ff60-4688-943a-12f6d0e8cb79'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8e4cb26a-ff60-4688-943a-12f6d0e8cb79',
+    'geometry_type': 'Point'
   },
   {
     'id': '772cbbc6-4233-4c0c-849c-1bbcb2837b3b',
@@ -2783,7 +2887,8 @@ export const eventTypes = [
     'icon_id': 'pendjari_test',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/772cbbc6-4233-4c0c-849c-1bbcb2837b3b'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/772cbbc6-4233-4c0c-849c-1bbcb2837b3b',
+    'geometry_type': 'Point'
   },
   {
     'id': '75d7a799-fa34-4edb-998d-bfd5d0278cc8',
@@ -2809,7 +2914,8 @@ export const eventTypes = [
     'icon_id': 'arrests_tests',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/75d7a799-fa34-4edb-998d-bfd5d0278cc8'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/75d7a799-fa34-4edb-998d-bfd5d0278cc8',
+    'geometry_type': 'Point'
   },
   {
     'id': '9875a017-c4d7-4481-8b8d-8e6b7eab1705',
@@ -2835,7 +2941,8 @@ export const eventTypes = [
     'icon_id': 'kws_arrest_ex',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9875a017-c4d7-4481-8b8d-8e6b7eab1705'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9875a017-c4d7-4481-8b8d-8e6b7eab1705',
+    'geometry_type': 'Point'
   },
   {
     'id': '3b37f401-e3b5-479c-a1d5-e0217ba4f959',
@@ -2862,7 +2969,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/3b37f401-e3b5-479c-a1d5-e0217ba4f959',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '7de8e219-af95-4ac8-a10e-50b9eb413a63',
@@ -2889,7 +2997,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/7de8e219-af95-4ac8-a10e-50b9eb413a63',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '9e97f265-b373-46aa-b79b-409f8f37af4f',
@@ -2915,7 +3024,8 @@ export const eventTypes = [
     'icon_id': 'human_wildlife_conflict_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9e97f265-b373-46aa-b79b-409f8f37af4f'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9e97f265-b373-46aa-b79b-409f8f37af4f',
+    'geometry_type': 'Point'
   },
   {
     'id': 'f2313526-beeb-44bb-808c-3aabac06d6bd',
@@ -2942,7 +3052,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f2313526-beeb-44bb-808c-3aabac06d6bd',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'c51975d2-576f-49fe-b9e5-b1dff0f9197a',
@@ -2968,7 +3079,8 @@ export const eventTypes = [
     'icon_id': 'description_text_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c51975d2-576f-49fe-b9e5-b1dff0f9197a'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c51975d2-576f-49fe-b9e5-b1dff0f9197a',
+    'geometry_type': 'Point'
   },
   {
     'id': '679dc4c2-cb8c-412f-9de9-cd2c60ab6461',
@@ -2994,7 +3106,8 @@ export const eventTypes = [
     'icon_id': 'deforestation_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/679dc4c2-cb8c-412f-9de9-cd2c60ab6461'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/679dc4c2-cb8c-412f-9de9-cd2c60ab6461',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b3438b92-9957-4023-9f69-f92fb6b65a47',
@@ -3020,7 +3133,8 @@ export const eventTypes = [
     'icon_id': 'sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b3438b92-9957-4023-9f69-f92fb6b65a47'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b3438b92-9957-4023-9f69-f92fb6b65a47',
+    'geometry_type': 'Point'
   },
   {
     'id': '8433abc4-d04d-4ee8-978b-39d5ff4654d7',
@@ -3046,7 +3160,8 @@ export const eventTypes = [
     'icon_id': 'wildlifemortalityrep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8433abc4-d04d-4ee8-978b-39d5ff4654d7'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8433abc4-d04d-4ee8-978b-39d5ff4654d7',
+    'geometry_type': 'Point'
   },
   {
     'id': '89a31334-46cc-42a7-87d2-2eaf4296c03d',
@@ -3072,7 +3187,8 @@ export const eventTypes = [
     'icon_id': 'macaque',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/89a31334-46cc-42a7-87d2-2eaf4296c03d'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/89a31334-46cc-42a7-87d2-2eaf4296c03d',
+    'geometry_type': 'Point'
   },
   {
     'id': '021e2a02-6678-4f27-8dd0-a1969bf5fca4',
@@ -3098,7 +3214,8 @@ export const eventTypes = [
     'icon_id': 'js21f',
     'is_active': true,
     'default_priority': 300,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/021e2a02-6678-4f27-8dd0-a1969bf5fca4'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/021e2a02-6678-4f27-8dd0-a1969bf5fca4',
+    'geometry_type': 'Point'
   },
   {
     'id': 'dd83d7b9-c2fb-4c16-8ae3-fb5fec280bb9',
@@ -3125,7 +3242,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/dd83d7b9-c2fb-4c16-8ae3-fb5fec280bb9',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '943674b3-9f49-48c8-8038-d3a0e6d6612f',
@@ -3152,7 +3270,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/943674b3-9f49-48c8-8038-d3a0e6d6612f',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'fc83ca6e-3c21-4681-90bb-9453a763adad',
@@ -3178,7 +3297,8 @@ export const eventTypes = [
     'icon_id': 'jtd5355',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/fc83ca6e-3c21-4681-90bb-9453a763adad'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/fc83ca6e-3c21-4681-90bb-9453a763adad',
+    'geometry_type': 'Point'
   },
   {
     'id': '550c9c57-ccef-4a8d-a09e-60504e0b4cd2',
@@ -3204,7 +3324,8 @@ export const eventTypes = [
     'icon_id': 'lion_sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/550c9c57-ccef-4a8d-a09e-60504e0b4cd2'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/550c9c57-ccef-4a8d-a09e-60504e0b4cd2',
+    'geometry_type': 'Point'
   },
   {
     'id': '21edbb89-5024-40c5-b419-35bdcae4ac8c',
@@ -3230,7 +3351,8 @@ export const eventTypes = [
     'icon_id': 'hwchumaninjury_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/21edbb89-5024-40c5-b419-35bdcae4ac8c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/21edbb89-5024-40c5-b419-35bdcae4ac8c',
+    'geometry_type': 'Point'
   },
   {
     'id': 'af0990ea-6dba-4c1d-b149-b2b799dc331c',
@@ -3256,7 +3378,8 @@ export const eventTypes = [
     'icon_id': 'hwc_propertydamage',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/af0990ea-6dba-4c1d-b149-b2b799dc331c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/af0990ea-6dba-4c1d-b149-b2b799dc331c',
+    'geometry_type': 'Point'
   },
   {
     'id': 'f02444d8-84d0-460b-b04f-5d5243ee77ef',
@@ -3282,7 +3405,8 @@ export const eventTypes = [
     'icon_id': 'subject_proximity',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f02444d8-84d0-460b-b04f-5d5243ee77ef'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f02444d8-84d0-460b-b04f-5d5243ee77ef',
+    'geometry_type': 'Point'
   },
   {
     'id': 'ff98a53d-b546-4db5-ad8b-b0fde82d92a8',
@@ -3308,7 +3432,8 @@ export const eventTypes = [
     'icon_id': 'recovery_kws_other',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ff98a53d-b546-4db5-ad8b-b0fde82d92a8'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ff98a53d-b546-4db5-ad8b-b0fde82d92a8',
+    'geometry_type': 'Point'
   },
   {
     'id': '404ddc74-6621-4252-9452-4340f67e4afe',
@@ -3334,7 +3459,8 @@ export const eventTypes = [
     'icon_id': 'fire',
     'is_active': true,
     'default_priority': 300,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/404ddc74-6621-4252-9452-4340f67e4afe'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/404ddc74-6621-4252-9452-4340f67e4afe',
+    'geometry_type': 'Point'
   },
   {
     'id': '2125674b-3217-461e-9443-ee16c1c5ce3b',
@@ -3360,7 +3486,8 @@ export const eventTypes = [
     'icon_id': 'disable_test',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2125674b-3217-461e-9443-ee16c1c5ce3b'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2125674b-3217-461e-9443-ee16c1c5ce3b',
+    'geometry_type': 'Point'
   },
   {
     'id': '948c6b61-0133-4e35-a6b4-09f358b19eb8',
@@ -3386,7 +3513,8 @@ export const eventTypes = [
     'icon_id': 'tw2',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/948c6b61-0133-4e35-a6b4-09f358b19eb8'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/948c6b61-0133-4e35-a6b4-09f358b19eb8',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c1d67ffe-3269-4267-88ba-e059096f06f0',
@@ -3412,7 +3540,8 @@ export const eventTypes = [
     'icon_id': 'chrisd_checkbox',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c1d67ffe-3269-4267-88ba-e059096f06f0'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c1d67ffe-3269-4267-88ba-e059096f06f0',
+    'geometry_type': 'Point'
   },
   {
     'id': '8a61512d-3ffd-40f8-b2e5-e0bc3682b58a',
@@ -3438,7 +3567,8 @@ export const eventTypes = [
     'icon_id': 'jt208f',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8a61512d-3ffd-40f8-b2e5-e0bc3682b58a'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8a61512d-3ffd-40f8-b2e5-e0bc3682b58a',
+    'geometry_type': 'Point'
   },
   {
     'id': '42983691-0bd5-4cc1-8af4-60d5137e5ff0',
@@ -3464,7 +3594,8 @@ export const eventTypes = [
     'icon_id': 'entry_alert_rep',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/42983691-0bd5-4cc1-8af4-60d5137e5ff0'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/42983691-0bd5-4cc1-8af4-60d5137e5ff0',
+    'geometry_type': 'Point'
   },
   {
     'id': '78bb63f8-6953-47f0-960d-5124c86a26f3',
@@ -3491,7 +3622,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/78bb63f8-6953-47f0-960d-5124c86a26f3',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '925460e4-e5d9-4b57-9061-77b3cbd6d61c',
@@ -3517,7 +3649,8 @@ export const eventTypes = [
     'icon_id': 'AK_47_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/925460e4-e5d9-4b57-9061-77b3cbd6d61c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/925460e4-e5d9-4b57-9061-77b3cbd6d61c',
+    'geometry_type': 'Point'
   },
   {
     'id': '6b52c657-3a09-419e-9395-d84efb68a39f',
@@ -3543,7 +3676,8 @@ export const eventTypes = [
     'icon_id': 'kws_livestockupdatetwo',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6b52c657-3a09-419e-9395-d84efb68a39f'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/6b52c657-3a09-419e-9395-d84efb68a39f',
+    'geometry_type': 'Point'
   },
   {
     'id': '63c0419b-b927-4ada-bd93-9a8194917130',
@@ -3569,7 +3703,8 @@ export const eventTypes = [
     'icon_id': 'wildlife_sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/63c0419b-b927-4ada-bd93-9a8194917130'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/63c0419b-b927-4ada-bd93-9a8194917130',
+    'geometry_type': 'Point'
   },
   {
     'id': '1a0ef64a-3601-4984-99f5-2cad9af356ab',
@@ -3595,7 +3730,8 @@ export const eventTypes = [
     'icon_id': 'jsone',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1a0ef64a-3601-4984-99f5-2cad9af356ab'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1a0ef64a-3601-4984-99f5-2cad9af356ab',
+    'geometry_type': 'Point'
   },
   {
     'id': '5ebf3209-d2e4-4b99-a735-0d7a59282ce5',
@@ -3621,7 +3757,8 @@ export const eventTypes = [
     'icon_id': 'kctype',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5ebf3209-d2e4-4b99-a735-0d7a59282ce5'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5ebf3209-d2e4-4b99-a735-0d7a59282ce5',
+    'geometry_type': 'Point'
   },
   {
     'id': 'a73f2639-bdd6-4709-948b-b33e60a7c688',
@@ -3647,7 +3784,8 @@ export const eventTypes = [
     'icon_id': 'hwchumanthreat_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/a73f2639-bdd6-4709-948b-b33e60a7c688'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/a73f2639-bdd6-4709-948b-b33e60a7c688',
+    'geometry_type': 'Point'
   },
   {
     'id': '5152fea3-8137-4228-a395-d8df4b869fa6',
@@ -3673,7 +3811,8 @@ export const eventTypes = [
     'icon_id': 'rar5262',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5152fea3-8137-4228-a395-d8df4b869fa6'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5152fea3-8137-4228-a395-d8df4b869fa6',
+    'geometry_type': 'Point'
   },
   {
     'id': '27a99c49-08fd-4b24-a59b-1462ed7aa96b',
@@ -3699,7 +3838,8 @@ export const eventTypes = [
     'icon_id': 'mytest0907',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/27a99c49-08fd-4b24-a59b-1462ed7aa96b'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/27a99c49-08fd-4b24-a59b-1462ed7aa96b',
+    'geometry_type': 'Point'
   },
   {
     'id': '738d0162-4688-4629-b614-283c03626d0c',
@@ -3725,7 +3865,8 @@ export const eventTypes = [
     'icon_id': 'feeding',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/738d0162-4688-4629-b614-283c03626d0c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/738d0162-4688-4629-b614-283c03626d0c',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c67e892d-a39e-42e7-add7-34d1ecf5eeef',
@@ -3751,7 +3892,8 @@ export const eventTypes = [
     'icon_id': 'abandoned_camp_rep',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c67e892d-a39e-42e7-add7-34d1ecf5eeef'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c67e892d-a39e-42e7-add7-34d1ecf5eeef',
+    'geometry_type': 'Point'
   },
   {
     'id': 'c9e9944f-c232-4596-be46-4a91bcbd6779',
@@ -3777,7 +3919,8 @@ export const eventTypes = [
     'icon_id': 'kws_humanmortality',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c9e9944f-c232-4596-be46-4a91bcbd6779'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/c9e9944f-c232-4596-be46-4a91bcbd6779',
+    'geometry_type': 'Point'
   },
   {
     'id': 'f4a8b46c-6991-484c-a3bd-bfcc9d5dce9e',
@@ -3803,7 +3946,8 @@ export const eventTypes = [
     'icon_id': 'j5262',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f4a8b46c-6991-484c-a3bd-bfcc9d5dce9e'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f4a8b46c-6991-484c-a3bd-bfcc9d5dce9e',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b51ac924-4842-45a8-ad81-4fab164d7ef2',
@@ -3829,7 +3973,8 @@ export const eventTypes = [
     'icon_id': 'mammal_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b51ac924-4842-45a8-ad81-4fab164d7ef2'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b51ac924-4842-45a8-ad81-4fab164d7ef2',
+    'geometry_type': 'Point'
   },
   {
     'id': '9a87af3b-b691-47d3-90b2-bccad23cd3af',
@@ -3855,7 +4000,8 @@ export const eventTypes = [
     'icon_id': 'wildlife_sighting_rep_SMART',
     'is_active': true,
     'default_priority': 100,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9a87af3b-b691-47d3-90b2-bccad23cd3af'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9a87af3b-b691-47d3-90b2-bccad23cd3af',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b28043e7-c0e5-4ab4-a8d5-38d8e01a832b',
@@ -3881,7 +4027,8 @@ export const eventTypes = [
     'icon_id': 'report_query',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b28043e7-c0e5-4ab4-a8d5-38d8e01a832b'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b28043e7-c0e5-4ab4-a8d5-38d8e01a832b',
+    'geometry_type': 'Point'
   },
   {
     'id': 'f0fee29f-685a-4bda-9d93-88a584086187',
@@ -3907,7 +4054,8 @@ export const eventTypes = [
     'icon_id': 'cameratrap_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f0fee29f-685a-4bda-9d93-88a584086187'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f0fee29f-685a-4bda-9d93-88a584086187',
+    'geometry_type': 'Point'
   },
   {
     'id': '0019407c-788c-4611-957c-95e84c241c86',
@@ -3934,7 +4082,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0019407c-788c-4611-957c-95e84c241c86',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '9a6505ce-6c3d-4e2e-839a-45d4fbada514',
@@ -3960,7 +4109,8 @@ export const eventTypes = [
     'icon_id': 'gile_wildlife_sighting_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9a6505ce-6c3d-4e2e-839a-45d4fbada514'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/9a6505ce-6c3d-4e2e-839a-45d4fbada514',
+    'geometry_type': 'Point'
   },
   {
     'id': '01576f2d-4356-4637-93a2-a90fd9152714',
@@ -3986,7 +4136,8 @@ export const eventTypes = [
     'icon_id': 'kws_cropdamage',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/01576f2d-4356-4637-93a2-a90fd9152714'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/01576f2d-4356-4637-93a2-a90fd9152714',
+    'geometry_type': 'Point'
   },
   {
     'id': '673ec820-87f4-4be3-aa83-5fb2108c7b20',
@@ -4012,7 +4163,8 @@ export const eventTypes = [
     'icon_id': 'arrest_rep2',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/673ec820-87f4-4be3-aa83-5fb2108c7b20'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/673ec820-87f4-4be3-aa83-5fb2108c7b20',
+    'geometry_type': 'Point'
   },
   {
     'id': '5002287a-8b47-4235-b54b-1e4044d09acb',
@@ -4038,7 +4190,8 @@ export const eventTypes = [
     'icon_id': 'jenaeonefield',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5002287a-8b47-4235-b54b-1e4044d09acb'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/5002287a-8b47-4235-b54b-1e4044d09acb',
+    'geometry_type': 'Point'
   },
   {
     'id': 'ddcec987-8410-47f4-ae5b-25e367be0387',
@@ -4064,7 +4217,8 @@ export const eventTypes = [
     'icon_id': 'kws_animalmortality',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ddcec987-8410-47f4-ae5b-25e367be0387'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/ddcec987-8410-47f4-ae5b-25e367be0387',
+    'geometry_type': 'Point'
   },
   {
     'id': '4bf3abe7-a6c9-49e8-a111-707bf0e01473',
@@ -4090,7 +4244,8 @@ export const eventTypes = [
     'icon_id': 'j207b',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4bf3abe7-a6c9-49e8-a111-707bf0e01473'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4bf3abe7-a6c9-49e8-a111-707bf0e01473',
+    'geometry_type': 'Point'
   },
   {
     'id': '1e5e7a8a-bc03-457d-9f53-092bc9310812',
@@ -4116,7 +4271,8 @@ export const eventTypes = [
     'icon_id': 'js95b',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1e5e7a8a-bc03-457d-9f53-092bc9310812'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/1e5e7a8a-bc03-457d-9f53-092bc9310812',
+    'geometry_type': 'Point'
   },
   {
     'id': '4f73200f-61fc-4b0b-96c0-691e96b720f7',
@@ -4142,7 +4298,8 @@ export const eventTypes = [
     'icon_id': 'lewa_test_blackrhino',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4f73200f-61fc-4b0b-96c0-691e96b720f7'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4f73200f-61fc-4b0b-96c0-691e96b720f7',
+    'geometry_type': 'Point'
   },
   {
     'id': '78c9ee4a-1ef2-4090-9448-cafa17663b6d',
@@ -4168,7 +4325,8 @@ export const eventTypes = [
     'icon_id': 'jfs23',
     'is_active': true,
     'default_priority': 100,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/78c9ee4a-1ef2-4090-9448-cafa17663b6d'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/78c9ee4a-1ef2-4090-9448-cafa17663b6d',
+    'geometry_type': 'Point'
   },
   {
     'id': '2e273eb7-e56d-4f7a-8699-3a4d531987d0',
@@ -4195,7 +4353,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/2e273eb7-e56d-4f7a-8699-3a4d531987d0',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '4d575988-4c39-4bab-99ba-30229faa1a80',
@@ -4222,7 +4381,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4d575988-4c39-4bab-99ba-30229faa1a80',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '0f486579-4e22-43e8-84cc-5cdc073af976',
@@ -4249,7 +4409,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/0f486579-4e22-43e8-84cc-5cdc073af976',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': '919b4677-b26f-4349-8b38-6ecc970ad4b6',
@@ -4275,7 +4436,8 @@ export const eventTypes = [
     'icon_id': 'k25',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/919b4677-b26f-4349-8b38-6ecc970ad4b6'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/919b4677-b26f-4349-8b38-6ecc970ad4b6',
+    'geometry_type': 'Point'
   },
   {
     'id': '753e1bf1-33b4-4e39-9929-2e6f6ede58c2',
@@ -4301,7 +4463,8 @@ export const eventTypes = [
     'icon_id': 'jbe',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/753e1bf1-33b4-4e39-9929-2e6f6ede58c2'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/753e1bf1-33b4-4e39-9929-2e6f6ede58c2',
+    'geometry_type': 'Point'
   },
   {
     'id': 'af8fed45-b8c1-4571-8df0-510498115c89',
@@ -4327,7 +4490,8 @@ export const eventTypes = [
     'icon_id': 'vehiclerequestfeedback',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/af8fed45-b8c1-4571-8df0-510498115c89'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/af8fed45-b8c1-4571-8df0-510498115c89',
+    'geometry_type': 'Point'
   },
   {
     'id': 'f7410ec2-2c6c-4bfa-b6fd-5adce65369ef',
@@ -4353,7 +4517,8 @@ export const eventTypes = [
     'icon_id': 'luistest1',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f7410ec2-2c6c-4bfa-b6fd-5adce65369ef'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/f7410ec2-2c6c-4bfa-b6fd-5adce65369ef',
+    'geometry_type': 'Point'
   },
   {
     'id': '4f270006-a471-497e-b4a9-8637c65c6d8c',
@@ -4379,7 +4544,8 @@ export const eventTypes = [
     'icon_id': 'vehiclemanagement',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4f270006-a471-497e-b4a9-8637c65c6d8c'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/4f270006-a471-497e-b4a9-8637c65c6d8c',
+    'geometry_type': 'Point'
   },
   {
     'id': 'e10b6eb5-811d-44c7-b506-62a89d0ad74f',
@@ -4406,7 +4572,8 @@ export const eventTypes = [
     'is_active': true,
     'default_priority': 0,
     'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e10b6eb5-811d-44c7-b506-62a89d0ad74f',
-    'readonly': true
+    'readonly': true,
+    'geometry_type': 'Point'
   },
   {
     'id': 'acc00183-9e07-4557-863b-b75fbbfb085d',
@@ -4432,7 +4599,8 @@ export const eventTypes = [
     'icon_id': 'cougar_bed_rep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/acc00183-9e07-4557-863b-b75fbbfb085d'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/acc00183-9e07-4557-863b-b75fbbfb085d',
+    'geometry_type': 'Point'
   },
   {
     'id': '8eef1402-1e42-4aac-aa29-8bbd4a6fd5e2',
@@ -4458,7 +4626,8 @@ export const eventTypes = [
     'icon_id': 'dws2',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8eef1402-1e42-4aac-aa29-8bbd4a6fd5e2'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/8eef1402-1e42-4aac-aa29-8bbd4a6fd5e2',
+    'geometry_type': 'Point'
   },
   {
     'id': '01575c5c-3816-4997-8da0-9053251b459d',
@@ -4484,7 +4653,8 @@ export const eventTypes = [
     'icon_id': 'personrep',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/01575c5c-3816-4997-8da0-9053251b459d'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/01575c5c-3816-4997-8da0-9053251b459d',
+    'geometry_type': 'Point'
   },
   {
     'id': 'fd29ae5d-76fa-45dc-afbd-3965b8413a62',
@@ -4510,7 +4680,8 @@ export const eventTypes = [
     'icon_id': 'vehiclerequest',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/fd29ae5d-76fa-45dc-afbd-3965b8413a62'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/fd29ae5d-76fa-45dc-afbd-3965b8413a62',
+    'geometry_type': 'Point'
   },
   {
     'id': 'b79fcc50-5efe-4426-a33d-bf0fb9b099bb',
@@ -4536,7 +4707,8 @@ export const eventTypes = [
     'icon_id': 'elephanthwc',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b79fcc50-5efe-4426-a33d-bf0fb9b099bb'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/b79fcc50-5efe-4426-a33d-bf0fb9b099bb',
+    'geometry_type': 'Point'
   },
   {
     'id': 'e22a4b10-846e-4a79-88ba-4abed8ff86ac',
@@ -4562,7 +4734,8 @@ export const eventTypes = [
     'icon_id': 'cameratrap_rep_panthera',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e22a4b10-846e-4a79-88ba-4abed8ff86ac'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/e22a4b10-846e-4a79-88ba-4abed8ff86ac',
+    'geometry_type': 'Point'
   },
   {
     'id': 'dbb5b399-2d7c-49be-b071-1dcc72d608fc',
@@ -4588,7 +4761,8 @@ export const eventTypes = [
     'icon_id': 'embedded_view',
     'is_active': true,
     'default_priority': 0,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/dbb5b399-2d7c-49be-b071-1dcc72d608fc'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/dbb5b399-2d7c-49be-b071-1dcc72d608fc',
+    'geometry_type': 'Point'
   },
   {
     'id': 'df3a1eb7-5d17-4092-a5c8-db3a1bd9814e',
@@ -4614,6 +4788,7 @@ export const eventTypes = [
     'icon_id': 'radar_rep',
     'is_active': true,
     'default_priority': 200,
-    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/df3a1eb7-5d17-4092-a5c8-db3a1bd9814e'
+    'url': 'https://develop.pamdas.org/api/v1.0/activity/events/eventtypes/df3a1eb7-5d17-4092-a5c8-db3a1bd9814e',
+    'geometry_type': 'Point'
   }
 ];

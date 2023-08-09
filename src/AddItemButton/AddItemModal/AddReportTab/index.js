@@ -23,7 +23,9 @@ const SCROLL_OFFSET_CORRECTION = 96;
 
 const AddReportTab = ({ navigate, onHideModal }) => {
   const map = useContext(MapContext);
-  const { analyticsMetadata, formProps, onAddReport, reportData } = useContext(AddItemContext);
+  const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
+
+  const reportDataToEdit = { ...reportData };
 
   const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
@@ -38,18 +40,23 @@ const AddReportTab = ({ navigate, onHideModal }) => {
   const onClickReportType = useCallback((reportType) => {
     onHideModal();
 
+    if (reportType.geometry_type !== 'Point') {
+      delete reportDataToEdit.location;
+    }
+
     if (enableNewReportUI) {
       if (!!onAddReport) {
-        onAddReport(formProps, reportData, reportType.id);
+
+        onAddReport(formProps, reportDataToEdit, reportType.id);
       } else {
         navigate(
           { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
-          { state: { reportData, temporalId: uuid() } },
+          { state: { reportData: reportDataToEdit, temporalId: uuid() } },
           { formProps }
         );
       }
     } else {
-      openModalForReport(createNewReportForEventType(reportType, reportData), map, formProps);
+      openModalForReport(createNewReportForEventType(reportType, reportDataToEdit), map, formProps);
     }
 
     trackEvent(
