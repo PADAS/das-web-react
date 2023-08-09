@@ -88,7 +88,7 @@ export const setUserLocationAccessGranted = (granted = false) => ({
 
 // reducers
 const INITIAL_USER_STATE = {};
-const userReducer = (state = INITIAL_USER_STATE, action = {}) => {
+const userReducer = globallyResettableReducer((state = INITIAL_USER_STATE, action = {}) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -99,7 +99,7 @@ const userReducer = (state = INITIAL_USER_STATE, action = {}) => {
     return state;
   }
   }
-};
+}, INITIAL_USER_STATE);
 
 export default userReducer;
 
