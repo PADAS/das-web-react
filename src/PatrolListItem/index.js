@@ -93,17 +93,20 @@ const PatrolListItem = ({
     return null;
   }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime]);
 
-  const onLocationClick = useCallback(() => {
+  const onLocationClick = useCallback((event) => {
+    event.stopPropagation();
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
   }, []);
 
-  const restorePatrolAndTrack = useCallback(() => {
+  const restorePatrolAndTrack = useCallback((event) => {
+    event.stopPropagation();
     patrolListItemTracker.track('Restore patrol from patrol list item');
 
     restorePatrol();
   }, [restorePatrol]);
 
-  const startPatrolAndTrack = useCallback(() => {
+  const startPatrolAndTrack = useCallback((event) => {
+    event.stopPropagation();
     patrolListItemTracker.track('Start patrol from patrol list item');
 
     startPatrol();
@@ -167,7 +170,7 @@ const PatrolListItem = ({
   }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
   const renderedControlsComponent = showControls
-    ? <div className={styles.controls} onClick={(event) => event.stopPropagation()}>
+    ? <div className={styles.controls}>
       <StateDependentControls />
       <PatrolMenu
         data-testid={`patrol-list-item-kebab-menu-${patrol.id}`}

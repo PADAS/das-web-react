@@ -27,7 +27,7 @@ const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
   const trackToggleButtonRef = useRef(null);
   const { leader } = patrolData;
 
-  const handleLocationClick = useCallback(() => {
+  const handleLocationClick = useCallback((event) => {
     const patrolTrackIsVisible = [...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
     const leaderTrackIsVisible = !!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id);
 
@@ -37,7 +37,7 @@ const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
     }
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
-    onLocationClick();
+    onLocationClick(event);
   }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
   return <div className={`${styles.patrolTrackControls} ${className}`}>

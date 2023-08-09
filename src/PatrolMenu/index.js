@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -11,7 +11,7 @@ import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
+const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolMenu = (props) => {
@@ -81,8 +81,16 @@ const PatrolMenu = (props) => {
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  return  <Dropdown align="end" className={styles.kebabMenu} {...rest}>
-    <Toggle as="button" className={styles.kebabToggle}>
+  const handleClickOutside = useCallback(() => menuRef?.current?.classList.remove('show'), []);
+  const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
+
+  useEffect(() => {
+    window.addEventListener('click', handleClickOutside, true);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  return  <Dropdown align='end' className={styles.kebabMenu} {...rest} onClick={onDropdownClick}>
+    <Toggle as='button' className={styles.kebabToggle} >
       <KebabMenuIcon />
     </Toggle>
     <Menu ref={menuRef}>
