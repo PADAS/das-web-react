@@ -62,7 +62,7 @@ describe('Login', () => {
     jest.restoreAllMocks();
   });
 
-  const assertLogin = async (usernameText = username, passwordText = password) => {
+  const login = async (usernameText = username, passwordText = password) => {
     const usernameInput = await screen.findByLabelText('Username');
     userEvent.type(usernameInput, usernameText);
     const passwordInput = await screen.findByLabelText('Password');
@@ -75,7 +75,7 @@ describe('Login', () => {
   test('navigates to map after a successful login', async () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    await assertLogin();
+    await login();
 
     await waitFor(async () => {
       expect(navigate).toHaveBeenCalledTimes(1);
@@ -84,7 +84,7 @@ describe('Login', () => {
   });
 
   test('shows error message after a failed login', async () => {
-    await assertLogin('notUser', 'notPassword');
+    await login('notUser', 'notPassword');
 
     await waitFor(async () => {
       await screen.findByText('An error has occurred. Please try again.');
