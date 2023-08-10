@@ -29,50 +29,36 @@ const LoginPage = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [hasError, setHasError] = useState(false);
-  const [error, setError] = useState({});
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const eulaEnabled = systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
-    postAuth({ username, password })
+    setIsLoading(true);
+
+    postAuth(formData)
       .then(() => {
         const options = location.state?.from ? { state: { comesFromLogin: true } } : {};
         navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }, options);
       })
       .catch((error) => {
-        const errorObject = error.toJSON();
-
         clearAuth();
-
-        const errorMessage = errorObject?.message?.includes('400')
+        setErrorMessage(error.toJSON()?.message?.includes('400')
           ? 'Invalid credentials given. Please try again.'
-          : 'An error has occured. Please try again.';
+          : 'An error has occurred. Please try again.');
+      })
+      .finally(() => setIsLoading(false));
+  }, [clearAuth, formData, location.search, location.state?.from, navigate, postAuth]);
 
-        setHasError(true);
-        setError(errorObject);
-        setErrorMessage(errorMessage);
-      });
-  }, [clearAuth, error, errorMessage, hasError, location.search, location.state?.from, navigate, password, postAuth, username]);
-
-  const onInputChange = useCallback((event) => {
-    event.preventDefault();
-
-    if (hasError) {
-      setError({});
-      setHasError(false);
+  const onInputChange = useCallback(({ target: { name, value } }) => {
+    if (errorMessage) {
+      setErrorMessage(null);
     }
-
-    if (event.target.id === 'username') {
-      setUsername(event.target.value);
-    } else {
-      setPassword(event.target.value);
-    }
-  }, [hasError]);
+    setFormData({ ...formData, [name]: value });
+  }, [errorMessage, formData]);
 
   useEffect(() => {
     clearAuth();
@@ -82,16 +68,14 @@ const LoginPage = ({
 
   return <div className={styles.container}>
     <EarthRangerLogo className={styles.logo} />
-
     <Form name='login' className={styles.form} onSubmit={onFormSubmit}>
       <Label htmlFor='username'>Username</Label>
-      <Control value={username} required={true} onChange={onInputChange} type='text' name='username' id='username' />
+      <Control value={formData.username} required={true} onChange={onInputChange} type='text' name='username' id='username' />
       <Label htmlFor='password'>Password</Label>
-      <Control value={password} required={true} onChange={onInputChange} type='password' name='password' id='password' />
-      <Button variant='primary' type='submit' name='submit'>Log in</Button>
-      {hasError && <Alert className={styles.error} variant='danger'>{errorMessage}</Alert>}
+      <Control value={formData.password} required={true} onChange={onInputChange} type='password' name='password' id='password' />
+      <Button variant='primary' type='submit' name='submit' disabled={isLoading}>Log in</Button>
+      {!!errorMessage && <Alert className={styles.error} variant='danger'>{errorMessage}</Alert>}
     </Form>
-
     {eulaEnabled === true && <p className={styles.eulalink}>
       <a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
     </p>}
