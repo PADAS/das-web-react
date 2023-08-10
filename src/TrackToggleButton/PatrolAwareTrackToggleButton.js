@@ -21,12 +21,12 @@ const PatrolAwareTrackToggleButton = ({ buttonRef, dispatch: _dispatch, patrolDa
   const subjectTrackPinned = useMemo(() => !!leader && subjectTrackState.pinned.includes(leader.id), [leader, subjectTrackState.pinned]);
   const subjectTrackVisible = useMemo(() => !!leader && !subjectTrackPinned && subjectTrackState.visible.includes(leader.id), [leader, subjectTrackPinned, subjectTrackState.visible]);
   const subjectTrackHidden = useMemo(() => !subjectTrackPinned && !subjectTrackVisible, [subjectTrackPinned, subjectTrackVisible]);
-  // trackVisible={patrolTrackVisible} trackPinned={patrolTrackPinned} onClick={onTrackButtonClick}
 
   const patrolToggleStates = useMemo(() => [patrolTrackPinned, patrolTrackVisible, patrolTrackHidden], [patrolTrackHidden, patrolTrackPinned, patrolTrackVisible]);
   const subjectToggleStates = useMemo(() => [subjectTrackPinned, subjectTrackVisible, subjectTrackHidden], [subjectTrackHidden, subjectTrackPinned, subjectTrackVisible]);
 
-  const onTrackButtonClick = useCallback(() => {
+  const onTrackButtonClick = useCallback((event) => {
+    event.stopPropagation();
     const nextPatrolTrackStateIfToggled = patrolTrackPinned
       ? 'hidden'
       : patrolTrackHidden
