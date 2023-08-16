@@ -26,27 +26,21 @@ export const generateSaveActionsForReportLikeObject = (formData, type = 'report'
 };
 
 export const executeSaveActions = async (saveActions) => {
-  const iterateActions = async (saveActions)  => {
-    let dataId;
-    let responses = [];
+  let id;
 
-    for (var i = 0; i < saveActions.length; i++) {
-      const { action } = saveActions[i];
-      const isPrimaryAction = i === 0;
+  const [first, ...rest] = saveActions;
 
-      const results = await action(dataId);
+  const { action: firstAction } = first;
 
-      if (isPrimaryAction) {
-        dataId = results.data.data.id;
-      }
+  const primaryResults = await firstAction();
 
-      responses.push(results);
-    }
+  id = primaryResults.data.data.id;
 
-    return responses;
-  };
+  const others = await Promise.all(
+    rest.map(({ action }) =>
+      action(id)
+    )
+  );
 
-  const results = await iterateActions(saveActions);
-
-  return results;
+  return [primaryResults, ...others];
 };
