@@ -149,7 +149,7 @@ export const generateErrorListForApiResponseDetails = (response) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    return [{ label: 'Unkown error' }];
+    return [{ label: 'Unknown error' }];
   }
 };
 
