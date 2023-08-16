@@ -81,13 +81,13 @@ const PatrolMenu = (props) => {
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const handleClickOutside = useCallback(() => menuRef?.current?.classList.remove('show'), []);
+  const handleClickOutside = useCallback(() => menuRef?.current?.classList.remove('show'), [menuRef]);
   const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
 
   useEffect(() => {
     window.addEventListener('click', handleClickOutside, true);
     return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [handleClickOutside]);
 
   return  <Dropdown align='end' className={styles.kebabMenu} {...rest} onClick={onDropdownClick}>
     <Toggle as='button' className={styles.kebabToggle} >

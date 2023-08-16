@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, createMigrate } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
@@ -13,7 +13,7 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
-import featureFlagOverrideReducer from '../ducks/feature-flag-overrides';
+import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
@@ -43,10 +43,16 @@ import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 
-const generateStorageConfig = (key, storageMethod = storage) => ({
-  key,
-  storage: storageMethod,
-});
+const generateStorageConfig = (key, storageMethod = storage, version = -1, migrations) => {
+  const config = { key, storage: storageMethod, version };
+
+  if (migrations) {
+    config.migrate = createMigrate(migrations);
+  }
+
+  return config;
+
+};
 
 const tokenPersistanceConfig = generateStorageConfig('token');
 const homeMapPersistanceConfig = generateStorageConfig('homeMap');
@@ -55,7 +61,7 @@ const heatmapConfigPersistanceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistanceConfig = generateStorageConfig('userProfile');
 const mapsPersistanceConfig = generateStorageConfig('maps');
 const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
-const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides');
+const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', storage, 0, flagOverrideMigrations);
 const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);

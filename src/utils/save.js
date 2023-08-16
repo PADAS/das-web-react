@@ -1,6 +1,6 @@
 
 
-import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
+import { REPORT_SAVE_ACTIONS } from './events';
 import { PATROL_SAVE_ACTIONS } from './patrols';
 
 export const generateSaveActionsForReportLikeObject = (formData, type = 'report', notesToAdd = [], filesToAdd = []) => {

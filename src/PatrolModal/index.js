@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useMatchMedia, usePermissions } from '../hooks';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -31,7 +31,6 @@ import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../utils/analytics';
 
 import {
   BREAKPOINTS,
-  FEATURE_FLAG_LABELS,
   PATROL_UI_STATES,
   REPORT_PRIORITIES,
   PERMISSION_KEYS,
@@ -60,10 +59,7 @@ import TimeRangeAlert from './TimeRangeAlert';
 import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
-import { openModalForReport } from '../utils/events';
 import useNavigate from '../hooks/useNavigate';
-
-const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -92,8 +88,6 @@ const PatrolModal = (props) => {
   } = props;
 
   const navigate = useNavigate();
-
-  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
   const [statePatrol, setStatePatrol] = useState(patrol);
   const isNewPatrol = !statePatrol?.id;
@@ -362,7 +356,7 @@ const PatrolModal = (props) => {
     }
 
     setStatePatrol(merge({}, statePatrol, update));
-  }, [statePatrol]);
+  }, [isNewPatrol, statePatrol]);
 
   const onPrioritySelect = useCallback((priority) => {
     const valueTitle = REPORT_PRIORITIES.find(item => item.value === priority).display;
@@ -641,12 +635,8 @@ const PatrolModal = (props) => {
       relationshipButtonDisabled: !item.is_collection,
       navigateRelationships: false,
     };
-    if (enableNewReportUI) {
-      navigate(`/${TAB_KEYS.REPORTS}/${item.id}`, undefined, { formProps });
-    } else {
-      openModalForReport(item, map, formProps);
-    }
-  }, [enableNewReportUI, eventStore, fetchEvent, map, onAddReport, navigate]);
+    navigate(`/${TAB_KEYS.REPORTS}/${item.id}`, undefined, { formProps });
+  }, [eventStore, fetchEvent, onAddReport, navigate]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
