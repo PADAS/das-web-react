@@ -13,11 +13,10 @@ import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import mockPatrolTypeData from '../__test-helpers/fixtures/patrol-types';
 
-import { within } from '@testing-library/dom';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import AddtoPatrolModal from './AddToPatrolModal';
+import AddtoPatrolModal from './';
 
 import SocketProvider from '../__test-helpers/MockSocketContext';
 
