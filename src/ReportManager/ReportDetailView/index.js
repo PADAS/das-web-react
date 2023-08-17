@@ -794,13 +794,6 @@ const ReportDetailView = ({
             </div>
 
             <div>
-
-              {/*<button onClick={() => {
-
-                const a = formValidator.validateFormData(, reportSchemas?.schema);
-                console.log(a);
-              }}>Validate</button>*/}
-
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 Cancel
               </Button>
