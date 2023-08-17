@@ -21,7 +21,7 @@ import {
   createNewIncidentCollection,
   eventBelongsToCollection,
   eventBelongsToPatrol,
-  generateErrorListForApiResponseDetails,
+  generateErrorListForApiResponseDetails, getFormValidator,
   isReportActive,
   setOriginalTextToEventNotes
 } from '../../utils/events';
@@ -145,6 +145,7 @@ const ReportDetailView = ({
     [dispatch]
   );
 
+  const formValidator = useMemo(() => getFormValidator(), []);
   const linkedPatrolIds = reportForm?.patrols;
   const linkedPatrols = useMemo(
     () => linkedPatrolIds?.map((id) => patrolStore[id]).filter((patrol) => !!patrol) || [],
@@ -582,20 +583,29 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
+  const formHasValidationErrors = useCallback(() => {
+    return !!formValidator.validateFormData(reportForm, reportSchemas?.schema)?.errors?.length;
+  }, [formValidator, reportForm, reportSchemas?.schema]);
+
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
-    if (shouldSave) {
-      if (isPatrolAddedReport) {
-        await onSaveReport();
-      } else {
-        onSaveReport();
-      }
-    } else {
+    if (shouldSave && !isPatrolAddedReport) {
+      onClickSaveButton();
+      return !formHasValidationErrors();
+    }
+
+    if (shouldSave && isPatrolAddedReport) {
+      await onSaveReport();
+    }
+
+    if (!shouldSave) {
       if (isAddedReport) {
         onCancelAddedReport?.();
       }
       trackDiscard();
     }
-  }, [isAddedReport, isPatrolAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+
+    return true;
+  }, [isPatrolAddedReport, onSaveReport, onClickSaveButton, formHasValidationErrors, isAddedReport, trackDiscard, onCancelAddedReport]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
@@ -730,6 +740,7 @@ const ReportDetailView = ({
                 originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}
+                formValidator={formValidator}
               />
             </QuickLinks.Section>
 
@@ -783,6 +794,13 @@ const ReportDetailView = ({
             </div>
 
             <div>
+
+              {/*<button onClick={() => {
+
+                const a = formValidator.validateFormData(, reportSchemas?.schema);
+                console.log(a);
+              }}>Validate</button>*/}
+
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 Cancel
               </Button>

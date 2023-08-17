@@ -30,9 +30,8 @@ const NavigationPromptModal = ({
   }, [blocker, onCancel]);
 
   const handlePositiveContinue = useCallback(async () => {
-    await onContinue?.(true);
-
-    blocker.proceed();
+    const canContinue = await onContinue?.(true);
+    canContinue ? blocker.proceed() : blocker.reset();
   }, [blocker, onContinue]);
 
   const handleNegativeContinue = useCallback(async () => {

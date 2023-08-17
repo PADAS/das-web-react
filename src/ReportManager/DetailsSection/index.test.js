@@ -7,6 +7,7 @@ import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { GPS_FORMATS } from '../../utils/location';
+import { getFormValidator } from '../../utils/events';
 import { MapContext } from '../../App';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -40,6 +41,8 @@ const store = {
     userPreferences: { gpsFormat: GPS_FORMATS.DEG },
   },
 };
+
+const formValidator = getFormValidator();
 
 describe('ReportManager - DetailsSection', () => {
   eventSchemas.globalSchema.properties.reported_by.enum_ext[0].value = {
@@ -86,6 +89,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -115,6 +119,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -148,6 +153,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -174,6 +180,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={{ ...report, reported_by: reportedBy }}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -219,6 +226,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContextProvider>
       </Provider>
@@ -246,6 +254,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -281,6 +290,7 @@ describe('ReportManager - DetailsSection', () => {
               onReportTimeChange={onReportTimeChange}
               originalReport={report}
               reportForm={report}
+              formValidator={formValidator}
             />
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
@@ -327,6 +337,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContextProvider>
       </Provider>
@@ -362,6 +373,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContext.Provider>
       </Provider>
@@ -389,6 +401,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -417,6 +430,7 @@ describe('ReportManager - DetailsSection', () => {
               onReportTimeChange={onReportTimeChange}
               originalReport={report}
               reportForm={report}
+              formValidator={formValidator}
             />
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
@@ -454,6 +468,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );
@@ -482,6 +497,7 @@ describe('ReportManager - DetailsSection', () => {
               onReportTimeChange={onReportTimeChange}
               originalReport={report}
               reportForm={report}
+              formValidator={formValidator}
             />
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
@@ -519,6 +535,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
             reportForm={report}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContext.Provider>
       </Provider>
@@ -552,6 +569,7 @@ describe('ReportManager - DetailsSection', () => {
             originalReport={report}
             reportForm={report}
             submitFormButtonRef={submitFormButtonRef}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContext.Provider>
       </Provider>
@@ -581,6 +599,7 @@ describe('ReportManager - DetailsSection', () => {
             onReportLocationChange={onReportLocationChange}
             originalReport={report}
             reportForm={report}
+            formValidator={formValidator}
           />
         </MapDrawingToolsContext.Provider>
       </Provider>
@@ -603,6 +622,7 @@ describe('ReportManager - DetailsSection', () => {
           onReportTimeChange={onReportTimeChange}
           originalReport={report}
           reportForm={report}
+          formValidator={formValidator}
         />
       </Provider>
     );

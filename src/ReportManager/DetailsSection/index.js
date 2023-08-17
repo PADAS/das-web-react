@@ -1,16 +1,14 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { customizeValidator } from '@rjsf/validator-ajv6';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import isToday from 'date-fns/is_today';
-import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { ResizeSpinLoader } from 'react-css-loaders';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { calcGeometryTypeForReport } from '../../utils/events';
+import { calcGeometryTypeForReport, getFormValidator } from '../../utils/events';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -40,8 +38,6 @@ import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 
-const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
-
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
@@ -61,6 +57,7 @@ const DetailsSection = ({
   onReportStateChange,
   onReportTimeChange,
   originalReport,
+  formValidator,
   reportForm,
   submitFormButtonRef,
 }) => {
@@ -233,6 +230,7 @@ DetailsSection.propTypes = {
   onReportTimeChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
+  formValidator: PropTypes.object.isRequired,
   submitFormButtonRef: PropTypes.object.isRequired,
 };
 
