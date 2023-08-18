@@ -96,7 +96,6 @@ const ReportListItem = ({
       <span className={styles.serialNumber}>{report.serial_number}</span>
       <button
         className={styles.title}
-        onClick={() => onTitleClick?.(report)}
         type='button'
       >
         {displayTitle}
