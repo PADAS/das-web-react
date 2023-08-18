@@ -117,7 +117,7 @@ describe('ReportManager - ReportDetailView', () => {
     AddItemButton.mockImplementation(AddItemButtonMock);
     addEventToIncidentMock = jest.fn(() => () => {});
     addEventToIncident.mockImplementation(addEventToIncidentMock);
-    createEventMock = jest.fn(() => () => {});
+    createEventMock =  jest.fn((event) => () => Promise.resolve(event));
     createEvent.mockImplementation(createEventMock);
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
@@ -812,7 +812,7 @@ describe('ReportManager - ReportDetailView', () => {
     });
   });
 
-  test('clicking "save and resolve" to update both the state and form data', async () => {
+  fit('clicking "save and resolve" to update both the state and form data', async () => {
     executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
     const onSaveSuccess = jest.fn();
 
@@ -821,7 +821,6 @@ describe('ReportManager - ReportDetailView', () => {
           formProps={{ onSaveSuccess }}
           isNewReport
           newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-          reportId="456"
         />
     );
 

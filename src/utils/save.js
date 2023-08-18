@@ -32,15 +32,21 @@ export const executeSaveActions = async (saveActions) => {
 
   const { action: firstAction } = first;
 
-  const primaryResults = await firstAction();
 
-  id = primaryResults.data.data.id;
+  try {
+    const primaryResults = await firstAction();
+    id = primaryResults?.data?.data?.id;
 
-  const others = await Promise.all(
-    rest.map(({ action }) =>
+    const others = rest.map(({ action }) =>
       action(id)
-    )
-  );
+    );
 
-  return [primaryResults, ...others];
+    return Promise.all(
+      primaryResults,
+      ...others,
+    );
+
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };

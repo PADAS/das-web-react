@@ -99,7 +99,7 @@
         "branches": 43.85,
         "functions": 46.21,
         "lines": 55.84,
-        "statements": 54.41
+        "statements": 55.5
       }
     },
     "coverageReporters": [
