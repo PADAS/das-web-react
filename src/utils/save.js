@@ -41,10 +41,10 @@ export const executeSaveActions = async (saveActions) => {
       action(id)
     );
 
-    return Promise.all(
+    return Promise.all([
       primaryResults,
       ...others,
-    );
+    ]);
 
   } catch (error) {
     return Promise.reject(error);
