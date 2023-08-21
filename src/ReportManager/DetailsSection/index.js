@@ -8,7 +8,7 @@ import { ResizeSpinLoader } from 'react-css-loaders';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { calcGeometryTypeForReport, getFormValidator } from '../../utils/events';
+import { calcGeometryTypeForReport } from '../../utils/events';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,

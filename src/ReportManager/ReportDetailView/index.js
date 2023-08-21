@@ -21,7 +21,8 @@ import {
   createNewIncidentCollection,
   eventBelongsToCollection,
   eventBelongsToPatrol,
-  generateErrorListForApiResponseDetails, getFormValidator,
+  generateErrorListForApiResponseDetails,
+  formValidator,
   isReportActive,
   setOriginalTextToEventNotes
 } from '../../utils/events';
@@ -145,7 +146,6 @@ const ReportDetailView = ({
     [dispatch]
   );
 
-  const formValidator = useMemo(() => getFormValidator(), []);
   const linkedPatrolIds = reportForm?.patrols;
   const linkedPatrols = useMemo(
     () => linkedPatrolIds?.map((id) => patrolStore[id]).filter((patrol) => !!patrol) || [],

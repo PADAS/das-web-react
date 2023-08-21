@@ -374,5 +374,5 @@ export const setOriginalTextToEventNotes = (event) => {
 
 export const isReportActive = (report) => ['active', 'new'].includes(report?.state);
 
-export const getFormValidator = () => customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
+export const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
