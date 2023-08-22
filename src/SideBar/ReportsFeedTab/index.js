@@ -10,13 +10,10 @@ import {
   EVENT_SORT_OPTIONS,
   EVENT_SORT_ORDER_OPTIONS,
 } from '../../utils/event-filter';
-import { FEATURE_FLAG_LABELS } from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { MapContext } from '../../App';
-import { openModalForReport } from '../../utils/events';
-import { useFeatureFlag } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
 import ColumnSort from '../../ColumnSort';
@@ -26,8 +23,6 @@ import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
 
 import styles from './../styles.module.scss';
-
-const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -46,7 +41,6 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
   const map = useContext(MapContext);
 
   const events = useSelector((state) => getFeedEvents(state));
@@ -71,14 +65,10 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
   );
 
   const onEventTitleClick = useCallback((event) => {
-    if (enableNewReportUI) {
-      navigate(event.id);
-    } else {
-      openModalForReport(event, map);
-    }
+    navigate(event.id);
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [enableNewReportUI, map, navigate]);
+  }, [navigate]);
 
   useEffect(() => {
     setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);

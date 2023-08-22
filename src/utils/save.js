@@ -1,6 +1,6 @@
 
 
-import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
+import { REPORT_SAVE_ACTIONS } from './events';
 import { PATROL_SAVE_ACTIONS } from './patrols';
 
 export const generateSaveActionsForReportLikeObject = (formData, type = 'report', notesToAdd = [], filesToAdd = []) => {
@@ -26,27 +26,27 @@ export const generateSaveActionsForReportLikeObject = (formData, type = 'report'
 };
 
 export const executeSaveActions = async (saveActions) => {
-  const iterateActions = async (saveActions)  => {
-    let dataId;
-    let responses = [];
+  let id;
 
-    for (var i = 0; i < saveActions.length; i++) {
-      const { action } = saveActions[i];
-      const isPrimaryAction = i === 0;
+  const [first, ...rest] = saveActions;
 
-      const results = await action(dataId);
+  const { action: firstAction } = first;
 
-      if (isPrimaryAction) {
-        dataId = results.data.data.id;
-      }
 
-      responses.push(results);
-    }
+  try {
+    const primaryResults = await firstAction();
+    id = primaryResults?.data?.data?.id;
 
-    return responses;
-  };
+    const others = rest.map(({ action }) =>
+      action(id)
+    );
 
-  const results = await iterateActions(saveActions);
+    return Promise.all([
+      primaryResults,
+      ...others,
+    ]);
 
-  return results;
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };

@@ -14,7 +14,6 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
-import { openModalForReport } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -37,7 +36,6 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import {
-  FEATURE_FLAG_LABELS,
   LAYER_IDS,
   MAX_ZOOM,
   TAB_KEYS,
@@ -81,11 +79,8 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
-import { useFeatureFlag, useMapEventBinding } from '../hooks';
+import { useMapEventBinding } from '../hooks';
 
-const {
-  ENABLE_REPORT_NEW_UI,
-} = FEATURE_FLAG_LABELS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -102,7 +97,6 @@ const Map = ({
   clearEventData,
   clearSubjectData,
   eventFilter,
-  eventStore,
   fetchBaseLayers,
   fetchMapEvents,
   fetchMapSubjects,
@@ -140,7 +134,6 @@ const Map = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
@@ -277,12 +270,7 @@ const Map = ({
       setTimeout(() => {
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
-        if (enableNewReportUI) {
-          navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
-        } else {
-          const fromStore = eventStore[event.id];
-          openModalForReport(fromStore, map);
-        }
+        navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
       }, 50);
     }
   );
