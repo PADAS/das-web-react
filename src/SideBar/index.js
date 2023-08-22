@@ -166,13 +166,7 @@ const SideBar = () => {
                 />}
           </div>
 
-          <h3>{tabTitle}
-            <Routes>
-              <Route path="reports">
-                <Route path=":id/*" element={<span className={styles.betaPreviewLabel}> (Beta Preview)</span>} />
-              </Route>
-            </Routes>
-          </h3>
+          <h3>{tabTitle}</h3>
 
           <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
             <CrossIcon />

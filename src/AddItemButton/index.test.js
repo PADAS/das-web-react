@@ -14,7 +14,6 @@ jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   DEVELOPMENT_FEATURE_FLAGS: {
     ENABLE_PATROL_NEW_UI: true,
-    ENABLE_REPORT_NEW_UI: true,
   },
 }));
 

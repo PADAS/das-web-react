@@ -1,14 +1,11 @@
-import React, { memo, useCallback, useContext, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { AddItemContext } from '../..';
-import { createNewReportForEventType, openModalForReport } from '../../../utils/events';
-import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
+import  { TAB_KEYS } from '../../../constants';
 import { getUserCreatableEventTypesByCategory } from '../../../selectors';
-import { MapContext } from '../../../App';
 import { trackEvent } from '../../../utils/analytics';
-import { useFeatureFlag } from '../../../hooks';
 import { uuid } from '../../../utils/string';
 
 import SearchBar from '../../../SearchBar';
@@ -17,17 +14,12 @@ import TypesList from '../TypesList';
 
 import styles from '../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI } = FEATURE_FLAG_LABELS;
-
 const SCROLL_OFFSET_CORRECTION = 96;
 
 const AddReportTab = ({ navigate, onHideModal }) => {
-  const map = useContext(MapContext);
   const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
 
-  const reportDataToEdit = { ...reportData };
-
-  const enableNewReportUI = useFeatureFlag(ENABLE_REPORT_NEW_UI);
+  const reportDataToEdit = useMemo(() => ({ ...reportData }), [reportData]);
 
   const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
@@ -44,19 +36,15 @@ const AddReportTab = ({ navigate, onHideModal }) => {
       delete reportDataToEdit.location;
     }
 
-    if (enableNewReportUI) {
-      if (!!onAddReport) {
+    if (!!onAddReport) {
 
-        onAddReport(formProps, reportDataToEdit, reportType.id);
-      } else {
-        navigate(
-          { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
-          { state: { reportData: reportDataToEdit, temporalId: uuid() } },
-          { formProps }
-        );
-      }
+      onAddReport(formProps, reportDataToEdit, reportType.id);
     } else {
-      openModalForReport(createNewReportForEventType(reportType, reportDataToEdit), map, formProps);
+      navigate(
+        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { state: { reportData: reportDataToEdit, temporalId: uuid() } },
+        { formProps }
+      );
     }
 
     trackEvent(
@@ -66,13 +54,11 @@ const AddReportTab = ({ navigate, onHideModal }) => {
   }, [
     analyticsMetadata.category,
     analyticsMetadata.location,
-    enableNewReportUI,
     formProps,
-    map,
     navigate,
     onAddReport,
     onHideModal,
-    reportData,
+    reportDataToEdit,
   ]);
 
   const onSearchTextChange = useCallback((event) => setSearchText(event.target.value), []);

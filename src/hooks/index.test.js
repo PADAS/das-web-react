@@ -295,7 +295,7 @@ describe('#useMemoCompare', () => {
 
 describe('#useFeatureFlag', () => {
   let wrapper, store;
-  const knownProperty = 'ENABLE_REPORT_NEW_UI';
+  const knownProperty = 'ENABLE_PATROL_NEW_UI';
 
   beforeEach(() => {
     store = mockStore({

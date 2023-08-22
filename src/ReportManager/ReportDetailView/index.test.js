@@ -11,7 +11,7 @@ import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
-import { executeSaveActions } from '../../utils/save';
+import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../../utils/save';
 import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
@@ -55,6 +55,7 @@ jest.mock('../../ducks/event-schemas', () => ({
 
 jest.mock('../../utils/save', () => ({
   ...jest.requireActual('../../utils/save'),
+  generateSaveActionsForReportLikeObject: jest.fn(),
   executeSaveActions: jest.fn(),
 }));
 
@@ -100,6 +101,7 @@ describe('ReportManager - ReportDetailView', () => {
     addEventToIncidentMock,
     createEventMock,
     executeSaveActionsMock,
+    generateSaveActionsForReportLikeObjectMock,
     fetchEventMock,
     fetchEventTypeSchemaMock,
     setLocallyEditedEventMock,
@@ -117,10 +119,12 @@ describe('ReportManager - ReportDetailView', () => {
     AddItemButton.mockImplementation(AddItemButtonMock);
     addEventToIncidentMock = jest.fn(() => () => {});
     addEventToIncident.mockImplementation(addEventToIncidentMock);
-    createEventMock = jest.fn(() => () => {});
+    createEventMock =  jest.fn(() => (event) => event);
     createEvent.mockImplementation(createEventMock);
     executeSaveActionsMock = jest.fn(() => Promise.resolve());
     executeSaveActions.mockImplementation(executeSaveActionsMock);
+    generateSaveActionsForReportLikeObjectMock = jest.requireActual('../../utils/save').generateSaveActionsForReportLikeObject;
+    generateSaveActionsForReportLikeObject.mockImplementation(generateSaveActionsForReportLikeObjectMock);
     fetchEventMock = jest.fn(() => () => {});
     fetchEvent.mockImplementation(fetchEventMock);
     fetchEventTypeSchemaMock = jest.fn(() => () => {});
@@ -813,15 +817,14 @@ describe('ReportManager - ReportDetailView', () => {
   });
 
   test('clicking "save and resolve" to update both the state and form data', async () => {
-    executeSaveActionsMock.mockImplementation(jest.requireActual('../../utils/save').executeSaveActions);
     const onSaveSuccess = jest.fn();
+
 
     renderWithWrapper(
       <ReportDetailView
           formProps={{ onSaveSuccess }}
           isNewReport
           newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-          reportId="456"
         />
     );
 
@@ -838,15 +841,18 @@ describe('ReportManager - ReportDetailView', () => {
 
     const saveAndResolveBtn = await screen.findByText('Save and resolve');
 
+    expect(generateSaveActionsForReportLikeObject).not.toHaveBeenCalled();
+
     saveAndResolveBtn.click();
 
     await waitFor(() => {
-      expect(createEventMock).toHaveBeenCalledTimes(1);
+      expect(onSaveSuccess).toHaveBeenCalledTimes(1);
+      expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
 
-      const eventCreated = createEventMock.mock.calls[0][0];
+      const changes = generateSaveActionsForReportLikeObject.mock.calls[0][0];
 
-      expect(eventCreated.state).toBe('resolved');
-      expect(eventCreated.title).toBe('2ccident');
+      expect(changes.state).toBe('resolved');
+      expect(changes.title).toBe('2ccident');
     });
   });
 

@@ -36,7 +36,7 @@ describe('the BetaToggles component', () => {
   });
 
   test('toggling overrides', async () => {
-    const betaFlagToToggle = 'ENABLE_REPORT_NEW_UI';
+    const betaFlagToToggle = 'ENABLE_PATROL_NEW_UI';
 
     const toggle = await screen.findByTestId(`beta-toggle-${betaFlagToToggle}`);
 

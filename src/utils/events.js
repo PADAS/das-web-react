@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { lazy } from 'react';
 
 import store from '../store';
 import { getEventReporters } from '../selectors';
@@ -7,16 +6,12 @@ import { getEventReporters } from '../selectors';
 import isObject from 'lodash/isObject';
 import isEqual from 'react-fast-compare';
 
-import { addModal } from '../ducks/modals';
-
 import { calcUrlForImage } from './img';
 import colorVariables from '../common/styles/vars/colors.module.scss';
 import { EVENT_FORM_STATES, EVENT_STATE_CHOICES } from '../constants';
-import { EVENT_API_URL } from '../ducks/events';
+import { EVENT_API_URL, createEvent, updateEvent, addNoteToEvent, uploadEventFile } from '../ducks/events';
 
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
-
-const ReportFormModal = lazy(() => import('../ReportFormModal'));
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[event?.updates?.length - 1];
@@ -117,19 +112,6 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   return label;
 };
 
-export const openModalForReport = (report, map, config = {}) => {
-
-  return store.dispatch(
-    addModal({
-      content: ReportFormModal,
-      report,
-      map,
-      ...config,
-      modalProps: {
-        className: 'event-form-modal',
-      },
-    }));
-};
 
 export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
 
@@ -167,7 +149,7 @@ export const generateErrorListForApiResponseDetails = (response) => {
         [{ label: key, message: value }, ...accumulator],
       []);
   } catch (e) {
-    return [{ label: 'Unkown error' }];
+    return [{ label: 'Unknown error' }];
   }
 };
 
@@ -370,3 +352,38 @@ export const setOriginalTextToEventNotes = (event) => {
 };
 
 export const isReportActive = (report) => ['active', 'new'].includes(report?.state);
+
+export const REPORT_SAVE_ACTIONS = {
+  create(data) {
+    return {
+      priority: 300,
+      action() {
+        return store.dispatch(createEvent(data));
+      },
+    };
+  },
+  update(data) {
+    return {
+      priority: 250,
+      action() {
+        return store.dispatch(updateEvent(data));
+      },
+    };
+  },
+  addNote(note) {
+    return {
+      priority: 200,
+      action(event_id) {
+        return store.dispatch(addNoteToEvent(event_id, note));
+      },
+    };
+  },
+  addFile(file) {
+    return {
+      priority: 200,
+      action(event_id) {
+        return store.dispatch(uploadEventFile(event_id, file));
+      },
+    };
+  },
+};
