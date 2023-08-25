@@ -22,6 +22,7 @@ import {
   eventBelongsToCollection,
   eventBelongsToPatrol,
   generateErrorListForApiResponseDetails,
+  formValidator,
   isReportActive,
   setOriginalTextToEventNotes
 } from '../../utils/events';
@@ -582,20 +583,29 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
+  const formHasValidationErrors = useCallback(() => {
+    return !!formValidator.validateFormData(reportForm, reportSchemas?.schema)?.errors?.length;
+  }, [formValidator, reportForm, reportSchemas?.schema]);
+
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
-    if (shouldSave) {
-      if (isPatrolAddedReport) {
-        await onSaveReport();
-      } else {
-        onSaveReport();
-      }
-    } else {
+    if (shouldSave && !isPatrolAddedReport) {
+      onClickSaveButton();
+      return !formHasValidationErrors();
+    }
+
+    if (shouldSave && isPatrolAddedReport) {
+      await onSaveReport();
+    }
+
+    if (!shouldSave) {
       if (isAddedReport) {
         onCancelAddedReport?.();
       }
       trackDiscard();
     }
-  }, [isAddedReport, isPatrolAddedReport, onCancelAddedReport, onSaveReport, trackDiscard]);
+
+    return true;
+  }, [isPatrolAddedReport, onSaveReport, onClickSaveButton, formHasValidationErrors, isAddedReport, trackDiscard, onCancelAddedReport]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
@@ -730,6 +740,7 @@ const ReportDetailView = ({
                 originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}
+                formValidator={formValidator}
               />
             </QuickLinks.Section>
 

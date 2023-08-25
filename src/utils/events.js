@@ -5,6 +5,9 @@ import { getEventReporters } from '../selectors';
 
 import isObject from 'lodash/isObject';
 import isEqual from 'react-fast-compare';
+import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
+import { customizeValidator } from '@rjsf/validator-ajv6';
+
 
 import { calcUrlForImage } from './img';
 import colorVariables from '../common/styles/vars/colors.module.scss';
@@ -352,6 +355,8 @@ export const setOriginalTextToEventNotes = (event) => {
 };
 
 export const isReportActive = (report) => ['active', 'new'].includes(report?.state);
+
+export const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
 export const REPORT_SAVE_ACTIONS = {
   create(data) {

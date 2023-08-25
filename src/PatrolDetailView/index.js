@@ -239,6 +239,7 @@ const PatrolDetailView = () => {
     } else {
       trackDiscard();
     }
+    return true;
   }, [onSavePatrol, trackDiscard]);
 
   const onChangeTitle = useCallback(
