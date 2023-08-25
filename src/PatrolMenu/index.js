@@ -2,7 +2,7 @@ import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-import { PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -99,7 +99,7 @@ const PatrolMenu = (props) => {
       { !!patrol.id && <Item className={styles.copyBtn}>
         <TextCopyBtn
             label='Copy patrol link'
-            text={window.location.href}
+            text={`${DAS_HOST}/patrols/${patrol.id}`}
             icon={null}
             successMessage='Link copied'
             permitPropagation
