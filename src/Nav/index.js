@@ -70,9 +70,17 @@ const Nav = ({
       mainToolbarTracker.track('Select to operate as a user profile');
       setUserProfile(profile, isMainUser ? false : true);
     }
-    setTimeout(() => {
-      window.location.reload(true);
-    }, [1000]);
+    const reload = () => {
+      setTimeout(() => {
+        const isProfilePersisted =  window.localStorage.getItem('persist:userProfile').includes('username');
+        if (isMainUser || isProfilePersisted) {
+          window.location.reload(true);
+        } else {
+          reload();
+        }
+      }, [250]);
+    };
+    reload();
   }, [clearUserProfile, setUserProfile, user.username]);
 
   const onProfileClick = useCallback((profile) => {
