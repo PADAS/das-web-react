@@ -72,7 +72,7 @@ const Nav = ({
     }
     const reload = () => {
       setTimeout(() => {
-        const isProfilePersisted =  window.localStorage.getItem('persist:userProfile').includes('username');
+        const isProfilePersisted = window.localStorage.getItem('persist:userProfile')?.includes('username');
         if (isMainUser || isProfilePersisted) {
           window.location.reload(true);
         } else {
