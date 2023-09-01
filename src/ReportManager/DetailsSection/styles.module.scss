@@ -37,6 +37,18 @@
       }
     }
   }
+
+  .printableRow {
+    display: none;
+
+    @media print {
+      display: block;
+    }
+  }
+
+  .geometryPreview {
+    width: 18.5rem;
+  }
 }
 
 .stateDropdown {

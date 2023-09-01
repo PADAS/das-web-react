@@ -16,12 +16,20 @@
   &:active {
       background: rgba(0,0,0,0.17);
   }
+
   > button {
     border: none;
     outline: none;
     background: none;
     width: 100%;
-    padding-bottom: 20%;
+
+    > div {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
     &::after {
       display: none;
     }
@@ -32,6 +40,10 @@
   padding: 0.312rem 0;
   min-width: 8.56rem;
   @include boxShadow;
+
+  @media print {
+    display: none !important;
+  }
 }
 
 .itemBtn {

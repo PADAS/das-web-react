@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -34,7 +34,7 @@ const ActivitySection = ({
   onChangeNote,
   onDoneNote,
   startTime,
-}) => {
+}, ref) => {
   const tracker = useContext(TrackerContext);
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
@@ -190,7 +190,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notes, notesToAdd, onExpandCard]);
 
-  return <div data-testid="detailView-activitySection">
+  return <div data-testid="detailView-activitySection" ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -259,4 +259,4 @@ ActivitySection.propTypes = {
   startTime: PropTypes.instanceOf(Date),
 };
 
-export default memo(ActivitySection);
+export default memo(forwardRef(ActivitySection));

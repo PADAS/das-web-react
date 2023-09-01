@@ -78,6 +78,12 @@ $cardExpansionTransitionTime: 300ms;
   }
 }
 
+.nonImageAttachment {
+  @media print {
+    display: none;
+  }
+}
+
 .collapse {
   border: 0.0625rem solid $light-gray-border;
   border-top: none;

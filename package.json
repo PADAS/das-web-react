@@ -43,6 +43,7 @@
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
     "react-select": "^5.7.0",
+    "react-to-print": "^2.14.13",
     "react-toastify": "^5.4.0",
     "react-window": "^1.8.8",
     "redux": "^4.0.0",

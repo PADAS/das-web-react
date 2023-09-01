@@ -50,7 +50,7 @@ describe('Menu report options', () => {
 
   test('The kebab menu is being rendered', async () => {
     renderWithWrapper(
-      <ReportMenu report={report} saveReport={saveReport} />
+      <ReportMenu report={report} reportTitle="Report Title" saveReport={saveReport} />
     );
 
     expect((await screen.findByTestId('reportMenu-kebab-button'))).toBeDefined();
@@ -58,7 +58,7 @@ describe('Menu report options', () => {
 
   test('Shows 2 options for reports that are not linked to a patrol or added to an incident', async () => {
     renderWithWrapper(
-      <ReportMenu report={report} saveReport={saveReport} />
+      <ReportMenu report={report} reportTitle="Report Title" saveReport={saveReport} />
     );
 
     const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
@@ -71,7 +71,7 @@ describe('Menu report options', () => {
   test('should not show the incident option if the report is a collection', async () => {
     const collectionReport = { ...report, ...{ is_collection: true } };
     renderWithWrapper(
-      <ReportMenu report={collectionReport} saveReport={saveReport} />
+      <ReportMenu report={collectionReport} reportTitle="Report Title" saveReport={saveReport} />
     );
 
     const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
@@ -84,7 +84,7 @@ describe('Menu report options', () => {
   test('should not show the incident option if the report belongs to a collection', async () => {
     const reportWithCollection = { ...report, ...{ is_contained_in: [{ type: 'contains', ordernum: null, url: 'https://fake.com', related_event: {} }] } };
     renderWithWrapper(
-      <ReportMenu report={reportWithCollection} saveReport={saveReport} />
+      <ReportMenu report={reportWithCollection} reportTitle="Report Title" saveReport={saveReport} />
     );
 
     const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
@@ -97,7 +97,7 @@ describe('Menu report options', () => {
   test('should not show the patrol option if the report belongs to a patrol', async () => {
     const reportWithCollection = { ...report, ...{ patrol_segments: [{}] } };
     renderWithWrapper(
-      <ReportMenu report={reportWithCollection} saveReport={saveReport} />
+      <ReportMenu report={reportWithCollection} reportTitle="Report Title" saveReport={saveReport} />
     );
 
     const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
@@ -105,14 +105,5 @@ describe('Menu report options', () => {
 
     expect((screen.queryByTestId('reportMenu-add-to-incident'))).toBeDefined();
     expect((screen.queryByTestId('reportMenu-add-to-patrol'))).toBeNull();
-  });
-
-  test('should not show the kebab button if a report belongs to a patrol and collection', async () => {
-    const reportWithCollection = { ...report, ...{ patrol_segments: [{}] }, ...{ is_collection: true } };
-    renderWithWrapper(
-      <ReportMenu report={reportWithCollection} saveReport={saveReport} />
-    );
-
-    expect((screen.queryByTestId('reportMenu-kebab-button'))).toBeNull();
   });
 });
