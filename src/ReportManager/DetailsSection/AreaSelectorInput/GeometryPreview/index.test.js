@@ -30,7 +30,7 @@ describe('GeometryPreview', () => {
           ]
         ]
       }
-    };;
+    };
 
     store = { data: { eventStore: { [report.id]: report } } };
   });
@@ -39,7 +39,7 @@ describe('GeometryPreview', () => {
     jest.restoreAllMocks();
   });
 
-  test('renders the preview geometry preview', async () => {
+  test('renders the geometry preview', async () => {
     render(
       <Provider store={mockStore(store)}>
         <GeometryPreview event={report} onAreaSelectStart={onAreaSelectStart} />
@@ -67,6 +67,16 @@ describe('GeometryPreview', () => {
     expect(onAreaSelectStart).toHaveBeenCalledTimes(1);
   });
 
+  test('does not show the "Place geometry on map" button if onAreaSelectStart is not defined', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} />
+      </Provider>
+    );
+
+    expect((await screen.queryByTitle('Place geometry on map'))).toBeNull();
+  });
+
   test('triggers onDeleteArea when pressing the delete button', async () => {
     render(
       <Provider store={mockStore(store)}>
@@ -80,6 +90,16 @@ describe('GeometryPreview', () => {
     userEvent.click(deleteAreaButton);
 
     expect(onDeleteArea).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not show the "Delete area button" button if onDeleteArea is not defined', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <GeometryPreview event={report} />
+      </Provider>
+    );
+
+    expect((await screen.queryByTitle('Delete area button'))).toBeNull();
   });
 
   test('calculates and shows the area and perimeter of the geometry', async () => {
