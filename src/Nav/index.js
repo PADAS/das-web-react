@@ -28,6 +28,17 @@ import './Nav.scss';
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const MessageMenu = lazy(() => import('./MessageMenu'));
 
+const reloadOnceProfileIsPersisted = (isMainUser) => {
+  setTimeout(() => {
+    const isProfilePersisted = !!window.localStorage.getItem('persist:userProfile')?.includes('username');
+    if (isMainUser ? !isProfilePersisted : isProfilePersisted) {
+      window.location.reload(true);
+    } else {
+      reloadOnceProfileIsPersisted();
+    }
+  }, [250]);
+};
+
 const Nav = ({
   addModal,
   clearAuth,
@@ -70,9 +81,8 @@ const Nav = ({
       mainToolbarTracker.track('Select to operate as a user profile');
       setUserProfile(profile, isMainUser ? false : true);
     }
-    setTimeout(() => {
-      window.location.reload(true);
-    }, [1000]);
+
+    reloadOnceProfileIsPersisted(isMainUser);
   }, [clearUserProfile, setUserProfile, user.username]);
 
   const onProfileClick = useCallback((profile) => {
