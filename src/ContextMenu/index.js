@@ -48,7 +48,7 @@ ContextMenu.defaultProps = {
 };
 
 ContextMenu.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
   options: PropTypes.element.isRequired,
   disabled: PropTypes.bool,
   className: PropTypes.string,

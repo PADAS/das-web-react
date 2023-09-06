@@ -479,7 +479,7 @@ const Map = ({
   useEffect(() => {
     if (!!map) {
       const { zoom, center } = homeMap;
-      jumpToLocation(lngLatFromParams.current || center, zoom);
+      jumpToLocation(lngLatFromParams.current || center, lngLatFromParams.current ? 16 : zoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeMap, map]);

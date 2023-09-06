@@ -1,4 +1,5 @@
 import axios from 'axios';
+import centerOfMass from '@turf/center-of-mass';
 
 import store from '../store';
 import { getEventReporters } from '../selectors';
@@ -391,4 +392,14 @@ export const REPORT_SAVE_ACTIONS = {
       },
     };
   },
+};
+
+export const getReportLink = (report) => {
+  let reportLink = `${window.location.origin}/reports/${report.id}`;
+  if (report?.geojson) {
+    const geoJSONCentroidCoordinates = centerOfMass(report.geojson).geometry.coordinates;
+    reportLink += `?lnglat=${geoJSONCentroidCoordinates[0]},${geoJSONCentroidCoordinates[1]}`;
+  }
+
+  return reportLink;
 };

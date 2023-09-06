@@ -8,7 +8,13 @@ import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
 import { fetchPatrol } from '../../../ducks/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
+import {
+  addPatrolSegmentToEvent,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
+  createNewIncidentCollection,
+  getReportLink,
+} from '../../../utils/events';
 import { openModalForPatrol } from '../../../utils/patrols';
 import { useFeatureFlag } from '../../../hooks';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
@@ -127,7 +133,7 @@ const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
       { !!report.id && <Item className={styles.itemBtn}>
         <TextCopyBtn
           label='Copy report link'
-          text={window.location.href}
+          text={getReportLink(report)}
           icon={<ClipIcon/>}
           successMessage='Link copied'
           permitPropagation

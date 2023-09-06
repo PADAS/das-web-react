@@ -6,9 +6,13 @@ import { toast } from 'react-toastify';
 import { SpinLoader } from 'react-css-loaders';
 import PropTypes from 'prop-types';
 
+import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
+
 import ContextMenu from '../ContextMenu';
-import { isReportActive } from '../utils/events';
+import { getReportLink, isReportActive } from '../utils/events';
 import { setEventState as setEventStateDuck, updateEvent as updateEventDuck } from '../ducks/events';
+
+import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
@@ -95,9 +99,20 @@ const EventItemContextMenu = ({ report, updateEvent, setEventState, className, c
   [isActive, report, setStateContainedReport, updateEvent]);
 
   return <ContextMenu className={className} disabled={isLoading} options={
-    <Item className={styles.option} onClick={updateReportState}>{title} #{report.serial_number}</Item>
+    <>
+      <Item className={styles.option} onClick={updateReportState}>{title} #{report.serial_number}</Item>
+      <Item className={styles.option}>
+        <TextCopyBtn
+          label='Copy report link'
+          text={getReportLink(report)}
+          icon={<LinkIcon />}
+          successMessage='Link copied'
+          permitPropagation
+        />
+      </Item>
+    </>
   }>
-    { isLoading && <div className={styles.loading}>
+    {isLoading && <div className={styles.loading}>
       <SpinLoader />
     </div>}
     {children}
@@ -110,7 +125,7 @@ EventItemContextMenu.defaultProps = {
 
 EventItemContextMenu.propTypes = {
   report: PropTypes.object.isRequired,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
   updateEvent: PropTypes.func,
   className: PropTypes.string
 };
