@@ -21,6 +21,16 @@
   }
 }
 
-.option:hover {
-  background: $blue-highlight;
+.option {
+  button {
+    padding: 0;
+
+    svg {
+      margin-right: 0.25rem;
+    }
+  }
+
+  &:hover {
+    background: $blue-highlight;
+  }
 }
