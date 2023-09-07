@@ -201,7 +201,7 @@ const ActivitySection = ({
       {sortableList.length > 0 && <div className={styles.actions}>
         <label>Time</label>
 
-        <SortButton />
+        <SortButton className={styles.sortButton} />
 
         <Button
           className={styles.expandCollapseButton}

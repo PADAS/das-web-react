@@ -45,10 +45,20 @@ $cardExpansionTransitionTime: 300ms;
   }
 }
 
+.sortButton {
+  @media print {
+    display: none;
+  }
+}
+
 .expandCollapseButton {
   background-color: $light-gray;
   border-color: $light-gray;
   color: $secondary-medium-gray;
+
+  @media print {
+    display: none;
+  }
 }
 
 .list {
@@ -58,6 +68,10 @@ $cardExpansionTransitionTime: 300ms;
   
   li {
     transition: margin $cardExpansionTransitionTime;
+
+    @media print {
+      margin: 0.5rem 0;
+    }
   }
 }
 
@@ -88,6 +102,10 @@ $cardExpansionTransitionTime: 300ms;
   border: 0.0625rem solid $light-gray-border;
   border-top: none;
   border-radius: 0.1875rem;
+  
+  @media print {
+    display: block !important;
+  }
 }
 
 .itemIcon {

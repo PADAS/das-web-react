@@ -99,7 +99,8 @@ const Header = ({
         isMulti={collectionHasMultipleValidLocations(report)}
       />
     </div>}
-    <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
+
+    <div className={styles.menu} style={isNewReport ? { marginLeft: 'auto' } : {} }>
       <ReportMenu
         onSaveReport={onSaveReport}
         printableContentRef={printableContentRef}
