@@ -568,7 +568,7 @@ const Map = ({
       const newLocation = { ...location };
 
       delete newLocation.search;
-      navigate(newLocation);
+      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
     }
   }, [location, navigate]);
 

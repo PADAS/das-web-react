@@ -73,7 +73,7 @@ const SideBar = () => {
         replace: true
       });
     }
-    if (!hasRouteHistory || location.state?.comesFromLogin) {
+    if (!hasRouteHistory || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
       return navigate(`/${getCurrentTabFromURL(location.pathname)}`, {});
     }
 
