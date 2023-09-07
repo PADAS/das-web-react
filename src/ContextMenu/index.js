@@ -41,12 +41,13 @@ const ContextMenu = ({ children, className, disabled, options }) => {
 
   return <div
       className={`${styles.menuArea} ${className}`}
-      data-testid="contextMenu"
+      data-testid="contextMenu-area"
       onContextMenu={handleContextMenu}
       ref={areaRef}
     >
     <div
       className={`${styles.menuPositionReference} ${!contextMenuPosition ? styles.hidden : ''}`}
+      data-testid="contextMenu-positionReference"
       style={{
         left: `${contextMenuPosition?.x}px`,
         top: `${contextMenuPosition?.y}px`,

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { point } from '@turf/helpers';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -70,7 +71,7 @@ afterAll(() => server.close());
 describe('ReportManager - ReportDetailView', () => {
   const mockReportWithNotes = {
     event_type: 'jtar',
-    geojson: {},
+    geojson: point([10, 5]),
     id: '456',
     notes: notes,
     priority: 0,
@@ -85,7 +86,7 @@ describe('ReportManager - ReportDetailView', () => {
   };
   const mockReport = {
     event_type: 'jtar',
-    geojson: {},
+    geojson: point([10, 5]),
     id: '123',
     priority: 0,
     state: 'active',

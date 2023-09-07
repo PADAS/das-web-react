@@ -18,17 +18,6 @@ import styles from './styles.module.scss';
 
 const { TYPE: { INFO, ERROR } } = toast;
 
-const showNotification = (message, details = '', type = INFO, showDetailsByDefault) => showToast({
-  message,
-  details,
-  showDetailsByDefault,
-  toastConfig: {
-    type,
-    autoClose: 4000,
-    hideProgressBar: true,
-  }
-});
-
 const EventItemContextMenu = ({ children, className, report }) => {
   const dispatch = useDispatch();
 
@@ -87,21 +76,25 @@ const EventItemContextMenu = ({ children, className, report }) => {
           return { ...accumulator, failedReports: [...accumulator.failedReports, report] };
         }, { failedReports: [], processedReports: [] });
 
-        showNotification(
-          `The collection #${report.serial_number} was ${ isActive ? 'resolved' : 'activated'} correctly`,
-          <NotificationDetails failedReports={failedReports} processedReports={processedReports} />,
-          INFO,
-          true
-        );
+        showToast({
+          message: `The collection #${report.serial_number} was ${ isActive ? 'resolved' : 'activated'} correctly`,
+          details: <NotificationDetails failedReports={failedReports} processedReports={processedReports} />,
+          showDetailsByDefault: true,
+          toastConfig: { type: INFO, autoClose: 4000, hideProgressBar: true },
+        });
       } else {
-        showNotification(`#${report.serial_number} ${isActive ? 'Resolved' : 'Active'}`);
+        showToast({
+          message: `#${report.serial_number} ${isActive ? 'Resolved' : 'Active'}`,
+          details: '',
+          toastConfig: { type: INFO, autoClose: 4000, hideProgressBar: true },
+        });
       }
     } catch (error) {
-      showNotification(
-        `#${report.serial_number} still ${isActive ? 'active' : 'resolved'}, something went wrong`,
-        null,
-        ERROR
-      );
+      showToast({
+        message: `#${report.serial_number} still ${isActive ? 'active' : 'resolved'}, something went wrong`,
+        details: '',
+        toastConfig: { type: ERROR, autoClose: 4000, hideProgressBar: true },
+      });
     } finally {
       setIsLoading(false);
     }
