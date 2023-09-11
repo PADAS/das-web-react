@@ -105,7 +105,6 @@ const Header = ({
         onSaveReport={onSaveReport}
         printableContentRef={printableContentRef}
         report={report}
-        reportTitle={title}
         setRedirectTo={setRedirectTo}
       />
     </div>

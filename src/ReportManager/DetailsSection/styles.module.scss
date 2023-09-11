@@ -58,6 +58,10 @@
 
     &::after {
       margin-left: 0.5rem;
+
+      @media print {
+        display: none;
+      }
     }
   }
 

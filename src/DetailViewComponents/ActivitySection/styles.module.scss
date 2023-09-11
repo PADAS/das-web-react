@@ -211,6 +211,20 @@ $cardExpansionTransitionTime: 300ms;
   height: 10rem;
   outline: none;
   border-top: 0.0625rem solid $light-gray;
+
+  @media print {
+    display: none;
+  }
+}
+
+.printableNoteText {
+  display: none;
+  padding: 1rem 1.25rem;
+  white-space: pre-wrap;
+
+  @media print {
+    display: block;
+  }
 }
 
 .editingNoteActions {

@@ -28,7 +28,7 @@ import styles from './styles.module.scss';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-const ReportMenu = ({ onSaveReport, printableContentRef, report, reportTitle, setRedirectTo }) => {
+const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, reportTitle, se
 
   const handlePrint = useReactToPrint({
     content: () => printableContentRef.current,
-    documentTitle: `${reportTitle.replace(' ', '-')}-report`,
+    documentTitle: report.id,
     pageStyle: `
       @page {
         size: auto !important;
@@ -160,7 +160,6 @@ ReportMenu.propTypes = {
     is_collection: PropTypes.bool,
     priority: PropTypes.number,
   }).isRequired,
-  reportTile: PropTypes.string.isRequired,
   setRedirectTo: PropTypes.func.isRequired,
 };
 
