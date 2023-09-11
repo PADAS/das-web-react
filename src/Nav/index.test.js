@@ -126,6 +126,7 @@ describe('the Nav component', () => {
       delete window.location;
       window.location = { reload: jest.fn() };
 
+      window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
       window.location.reload = reloadMock;
 
       renderWithWrapper(
@@ -148,12 +149,9 @@ describe('the Nav component', () => {
 
       expect(state.data.selectedUserProfile).toEqual(userWithoutPin);
 
-      jest.runAllTimers();
+      jest.advanceTimersByTime(500);
 
-      await waitFor(() => {
-        expect(reloadMock).toHaveBeenCalled();
-      });
-
+      expect(reloadMock).toHaveBeenCalled();
     });
 
     test('selecting a PIN-protected profile', async () => {
@@ -181,11 +179,31 @@ describe('the Nav component', () => {
 
       expect(state.data.selectedUserProfile).toEqual(anotherPinProfile);
 
-      jest.runAllTimers();
+      jest.advanceTimersByTime(500);
 
-      await waitFor(() => {
-        expect(reloadMock).toHaveBeenCalled();
+      expect(reloadMock).toHaveBeenCalled();
+    });
+
+    test('does not redirect until the profile is persisted', async () => {
+      window.localStorage.removeItem('persist:userProfile');
+      const nonPinProfileLink = await screen.getByRole('button', {
+        name: userWithoutPin.username,
       });
+      nonPinProfileLink.click();
+
+      const state = store.getState();
+
+      expect(state.data.selectedUserProfile).toEqual(userWithoutPin);
+
+      jest.advanceTimersByTime(500);
+
+      expect(reloadMock).not.toHaveBeenCalled();
+
+      window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
+
+      jest.advanceTimersByTime(500);
+
+      expect(reloadMock).toHaveBeenCalled();
     });
   });
 });

@@ -1,5 +1,11 @@
 @import '../common/styles/inputs';
 
+.indicatorsContainer {
+  @media print {
+    display: none !important;
+  }
+}
+
 .caret{
   @include dropdown-caret;
 }

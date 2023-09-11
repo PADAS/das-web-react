@@ -146,6 +146,8 @@ const NoteListItem = ({
           value={note.text}
         />
 
+        <div className={styles.printableNoteText}>{note.text}</div>
+
         {isEditing && <div className={styles.editingNoteActions}>
           <Button
             className={styles.cancelNoteButton}

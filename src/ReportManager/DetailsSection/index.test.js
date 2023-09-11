@@ -515,6 +515,90 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportTimeChange).toHaveBeenCalledTimes(1);
   });
 
+  test('does not show the printable row with the geometry preview if report does not have a geometry', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              isCollection={false}
+              loadingSchema={false}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
+              onReportTimeChange={onReportTimeChange}
+              originalReport={report}
+              reportForm={report}
+              formValidator={formValidator}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect((await screen.queryByAltText('Static map with geometry'))).toBeNull();
+  });
+
+  test('shows the printable row with the geometry preview if report has a geometry', async () => {
+    report.geometry = {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [6.657425, 9.301125],
+            [-40.668725, 5.047775],
+            [5.0602, -13.74975],
+            [6.657425, 9.301125],
+          ]
+        ]
+      },
+    };
+
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContextProvider>
+            <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              isCollection={false}
+              loadingSchema={false}
+              onFormChange={onFormChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
+              onReportTimeChange={onReportTimeChange}
+              originalReport={report}
+              reportForm={report}
+              formValidator={formValidator}
+            />
+          </MapDrawingToolsContextProvider>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect((await screen.findByAltText('Static map with geometry'))).toBeDefined();
+  });
+
   test('triggers the onFormChange callback when user does a change to a form field', async () => {
     render(
       <Provider store={mockStore(store)}>

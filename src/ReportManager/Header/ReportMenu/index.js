@@ -1,153 +1,172 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import React, { memo, useContext } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useReactToPrint } from 'react-to-print';
 
-import { MapContext } from '../../../App';
-import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
-import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
-import { addModal, removeModal } from '../../../ducks/modals';
-import { fetchPatrol } from '../../../ducks/patrols';
-import {
-  addPatrolSegmentToEvent,
-  eventBelongsToCollection,
-  eventBelongsToPatrol,
-  createNewIncidentCollection,
-  getReportLink,
-} from '../../../utils/events';
-import { openModalForPatrol } from '../../../utils/patrols';
-import { useFeatureFlag } from '../../../hooks';
+import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
+import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-icon.svg';
+
+import { addModal, removeModal } from '../../../ducks/modals';
+import {
+  addPatrolSegmentToEvent,
+  createNewIncidentCollection,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
+  getReportLink,
+} from '../../../utils/events';
+import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
+import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
+import { fetchPatrol } from '../../../ducks/patrols';
+import { MapContext } from '../../../App';
+import { openModalForPatrol } from '../../../utils/patrols';
 import { TrackerContext } from '../../../utils/analytics';
+import { useFeatureFlag } from '../../../hooks';
+
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
 import TextCopyBtn from '../../../TextCopyBtn';
-import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item } = Dropdown;
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-const ReportMenu = ({ onSaveReport, report, setRedirectTo }) => {
+const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
+
   const dispatch = useDispatch();
 
   const map = useContext(MapContext);
   const reportTracker = useContext(TrackerContext);
 
-  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
+  const handlePrint = useReactToPrint({
+    content: () => printableContentRef.current,
+    documentTitle: report.id,
+    pageStyle: `
+      @page {
+        size: auto !important;
+      }
 
-  const { is_collection } = report;
-  const reportBelongsToCollection = useMemo(() => eventBelongsToCollection(report), [report]);
-  const canAddToIncident = !is_collection && !reportBelongsToCollection;
-  const reportBelongsToPatrol = useMemo(() => eventBelongsToPatrol(report), [report]);
+      @media print {
+        html, body {
+          /* Tell browsers to print background colors */
+          -webkit-print-color-adjust: exact; /* Chrome/Safari/Edge/Opera */
+          color-adjust: exact; /* Firefox */
 
-  const onAddToNewIncident = useCallback(async () => {
-    const incident = createNewIncidentCollection({ priority: report.priority });
+          height: initial !important;
+          overflow: initial !important;
+          position: initial !important;
+        }
+      }
+    `,
+  });
 
-    const { data: { data: newIncident } } = await dispatch(createEvent(incident));
-    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
+  const canAddToIncident = !report.is_collection && !eventBelongsToCollection(report);
+  const belongsToPatrol = eventBelongsToPatrol(report);
 
-    await dispatch(addEventToIncident(thisReport.id, newIncident.id));
+  const onAddToIncident = async (existingIncident) => {
+    const parallelOperations = [onSaveReport(undefined, false)];
+    if (!existingIncident) {
+      const newIncident = createNewIncidentCollection({ priority: report.priority });
+      parallelOperations.push(dispatch(createEvent(newIncident)));
+    }
+    const [[{ data: { data: savedReport } }], createIncidentResponse] = await Promise.all(parallelOperations);
 
-    reportTracker.track('Added report to new incident');
+    const incident = existingIncident || createIncidentResponse.data.data;
 
-    dispatch(fetchEvent(thisReport.id));
-    dispatch(fetchEvent(newIncident.id)).then(({ data: { data } }) => {
+    await dispatch(addEventToIncident(savedReport.id, incident.id));
+
+    reportTracker.track(`Added report to ${existingIncident ? 'existing' : 'new'} incident`);
+
+    dispatch(fetchEvent(savedReport.id));
+    dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
       setRedirectTo(`/${TAB_KEYS.REPORTS}/${data.id}`);
     });
-  }, [report.priority, dispatch, onSaveReport, reportTracker, setRedirectTo]);
+  };
 
-  const onAddToExistingIncident = useCallback(async (incident) => {
-    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
-    await dispatch(addEventToIncident(thisReport.id, incident.id));
-
-    reportTracker.track('Added report to existing incident');
-
-    dispatch(fetchEvent(thisReport.id));
-    return dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
-      removeModal();
-      setRedirectTo(`/${TAB_KEYS.REPORTS}/${data.id}`);
-    });
-  }, [dispatch, onSaveReport, reportTracker, setRedirectTo]);
-
-  const onStartAddToIncident = useCallback(() => {
-    reportTracker.track('Click \'Add to Incident\'');
+  const onStartAddToIncident = () => {
     dispatch(addModal({
       content: AddToIncidentModal,
-      onAddToNewIncident,
-      onAddToExistingIncident,
+      onAddToNewIncident: onAddToIncident,
+      onAddToExistingIncident: onAddToIncident,
     }));
-  }, [dispatch, onAddToExistingIncident, onAddToNewIncident, reportTracker]);
 
-  const onAddToPatrol = useCallback(async (patrol) => {
-    const patrolId = patrol.id;
+    reportTracker.track('Click \'Add to Incident\'');
+  };
+
+  const onAddToPatrol = async (patrol) => {
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
-
     if (!patrolSegmentId) return;
-    const [{ data: { data: thisReport } }] = await onSaveReport(undefined, false);
-    await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
-    reportTracker.track(`Added ${is_collection ? 'Incident':'Event'} to Patrol`);
+    const [{ data: { data: savedReport } }] = await onSaveReport(undefined, false);
+    await addPatrolSegmentToEvent(patrolSegmentId, savedReport.id);
 
-    removeModal();
+    reportTracker.track(`Added ${report.is_collection ? 'Incident':'Event'} to Patrol`);
 
-    dispatch(fetchEvent(thisReport.id));
-    return dispatch(fetchPatrol(patrolId)).then(({ data: { data } }) => {
+    dispatch(fetchEvent(savedReport.id));
+    dispatch(fetchPatrol(patrol.id)).then(({ data: { data } }) => {
+      removeModal();
       if (enableNewPatrolUI) {
-        setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrolId}`);
+        setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
       } else {
         openModalForPatrol(data, map);
       }
     });
-  }, [dispatch, enableNewPatrolUI, is_collection, map, onSaveReport, reportTracker, setRedirectTo]);
+  };
 
-  const onStartAddToPatrol = useCallback(() => {
-    dispatch(addModal({
-      content: AddToPatrolModal,
-      onAddToPatrol,
-    }));
+  const onStartAddToPatrol = () => {
+    dispatch(addModal({ content: AddToPatrolModal, onAddToPatrol }));
+
     reportTracker.track('Click \'Add to Patrol\' button');
-  }, [dispatch, onAddToPatrol, reportTracker]);
+  };
 
-  if (!canAddToIncident && reportBelongsToPatrol) return null;
-
-  return  <Dropdown align="end" className={styles.kebabMenu}>
-    <Toggle as="button" className={styles.kebabToggle} data-testid="reportMenu-kebab-button">
+  return <Dropdown align="end" className={styles.kebabMenu}>
+    <Dropdown.Toggle as="button" data-testid="reportMenu-kebab-button">
       <KebabMenuIcon />
-    </Toggle>
+    </Dropdown.Toggle>
 
-    <Menu className={styles.menuDropdown}>
-      {canAddToIncident && <Item className={styles.itemBtn} data-testid="reportMenu-add-to-incident" variant='link' onClick={onStartAddToIncident}>
-        <IncidentIcon className={styles.itemIcon} />Add to Incident
-      </Item>}
+    <Dropdown.Menu className={styles.menuDropdown}>
+      {canAddToIncident && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToIncident}>
+        <IncidentIcon className={styles.itemIcon} />
+        Add to Incident
+      </Dropdown.Item>}
 
-      {!reportBelongsToPatrol && <Item className={styles.itemBtn} data-testid="reportMenu-add-to-patrol" variant='link' onClick={onStartAddToPatrol}>
+      {!belongsToPatrol && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToPatrol}>
         <PatrolIcon className={styles.itemIcon} />
         Add to Patrol
-      </Item>}
+      </Dropdown.Item>}
 
-      { !!report.id && <Item className={styles.itemBtn}>
+      {!!report.id && <Dropdown.Item as="div" className={styles.itemBtn}>
         <TextCopyBtn
-          label='Copy report link'
+          label="Copy report link"
           text={getReportLink(report)}
-          icon={<ClipIcon/>}
-          successMessage='Link copied'
+          icon={<ClipIcon className={styles.itemIcon} />}
+          successMessage="Link copied"
           permitPropagation
         />
-      </Item>}
+      </Dropdown.Item>}
 
-    </Menu>
+      <Dropdown.Item as="button" className={styles.itemBtn} onClick={handlePrint}>
+        <PrinterIcon className={styles.itemIcon} />
+        Print Report
+      </Dropdown.Item>
+    </Dropdown.Menu>
   </Dropdown>;
 };
 
-export default memo(ReportMenu);
-
 ReportMenu.propTypes = {
   onSaveReport: PropTypes.func.isRequired,
-  report: PropTypes.object.isRequired,
+  printableContentRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
+  report: PropTypes.shape({
+    id: PropTypes.string,
+    is_collection: PropTypes.bool,
+    priority: PropTypes.number,
+  }).isRequired,
   setRedirectTo: PropTypes.func.isRequired,
 };
+
+export default memo(ReportMenu);

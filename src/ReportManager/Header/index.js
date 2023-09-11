@@ -12,7 +12,14 @@ import ReportMenu from './ReportMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onChangeTitle, report, onSaveReport, isReadOnly, setRedirectTo }) => {
+const Header = ({
+  isReadOnly,
+  onChangeTitle,
+  onSaveReport,
+  printableContentRef,
+  report,
+  setRedirectTo,
+}) => {
   const { coordinates, displayPriority, displayTitle, eventTypeTitle } = useReport(report);
 
   const category = report?.is_collection
@@ -92,8 +99,14 @@ const Header = ({ onChangeTitle, report, onSaveReport, isReadOnly, setRedirectTo
         isMulti={collectionHasMultipleValidLocations(report)}
       />
     </div>}
-    <div style={isNewReport ? { marginLeft: 'auto' } : {} }>
-      <ReportMenu report={report} onSaveReport={onSaveReport} setRedirectTo={setRedirectTo} />
+
+    <div className={styles.menu} style={isNewReport ? { marginLeft: 'auto' } : {} }>
+      <ReportMenu
+        onSaveReport={onSaveReport}
+        printableContentRef={printableContentRef}
+        report={report}
+        setRedirectTo={setRedirectTo}
+      />
     </div>
   </div>;
 };
@@ -107,6 +120,7 @@ Header.propTypes = {
   onChangeTitle: PropTypes.func.isRequired,
   report: PropTypes.object.isRequired,
   onSaveReport: PropTypes.func.isRequired,
+  printableContentRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
   setRedirectTo: PropTypes.func.isRequired,
 };
 

@@ -29,12 +29,13 @@ const useSortedNodes = (list = [], sortOrder = DESCENDING_SORT_ORDER) => {
   return useMemo(() => list.sort(sortFn).map(({ node }) =>  node), [list, sortFn]);
 };
 
-const DefaultButtonComponent = ({ toggleSortFn, disabled, testId, sortOrder }) => <Button className={styles.timeSortButton}
+const DefaultButtonComponent = ({ toggleSortFn, disabled, testId, sortOrder, ...props }) => <Button className={styles.timeSortButton}
     data-testid={testId}
     disabled={disabled}
     onClick={toggleSortFn}
     type='button'
     variant={sortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
+    {...props}
   >
   {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
 </Button>;

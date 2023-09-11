@@ -18,7 +18,7 @@ const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 296;
 const STATIC_MAP_HEGHT = 130;
 
-const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
+const GeometryPreview = ({ className, event, onAreaSelectStart, onDeleteArea }) => {
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
 
   const eventPolygon = event.geometry.type === 'FeatureCollection'
@@ -54,7 +54,7 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
     return `Created on EarthRanger ${provenance}`;
   }, [eventPolygon?.properties?.provenance]);
 
-  return <div className={styles.locationAreaContent}>
+  return <div className={`${styles.locationAreaContent} ${className}`}>
     <div className={styles.geometryMeasurements}>
       <div>Area: <span className={styles.measureValue}>{areaDisplayString}</span></div>
 
@@ -66,7 +66,7 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
     {!!provenanceLabel && <label className={styles.imageSource}>{provenanceLabel}</label>}
 
     <div className={styles.geometryEditButtons}>
-      <Button
+      {onAreaSelectStart && <Button
         className={styles.editAreaButton}
         onClick={onAreaSelectStart}
         title="Place geometry on map"
@@ -74,9 +74,9 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
       >
         <PencilIcon />
         Edit Area
-      </Button>
+      </Button>}
 
-      <Button
+      {onDeleteArea && <Button
         className={styles.deleteAreaButton}
         onClick={onDeleteArea}
         title="Delete area button"
@@ -84,15 +84,22 @@ const GeometryPreview = ({ event, onAreaSelectStart, onDeleteArea }) => {
       >
         <TrashCanIcon />
         Delete Area
-      </Button>
+      </Button>}
     </div>
   </div>;
 };
 
+GeometryPreview.defaultProps = {
+  className: '',
+  onAreaSelectStart: null,
+  onDeleteArea: null,
+};
+
 GeometryPreview.propTypes = {
+  className: PropTypes.string,
   event: PropTypes.object.isRequired,
-  onAreaSelectStart: PropTypes.func.isRequired,
-  onDeleteArea: PropTypes.func.isRequired,
+  onAreaSelectStart: PropTypes.func,
+  onDeleteArea: PropTypes.func,
 };
 
 export default memo(GeometryPreview);

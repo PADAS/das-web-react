@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
-const HistorySection = ({ updates }) => {
+const HistorySection = ({ className, updates }) => {
   const tracker = useContext(TrackerContext);
 
   const updatesRendered = useMemo(() => updates.reduce((accumulator, update) => {
@@ -37,7 +37,7 @@ const HistorySection = ({ updates }) => {
 
   const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
 
-  return <div data-testid="detailView-historySection">
+  return <div className={className} data-testid="detailView-historySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <HistoryIcon />
@@ -56,13 +56,17 @@ const HistorySection = ({ updates }) => {
   </div>;
 };
 
+HistorySection.defaultProps = {
+  className: '',
+};
+
 HistorySection.propTypes = {
-  patrolForm: PropTypes.shape({
-    files: PropTypes.array,
-    notes: PropTypes.array,
-    patrol_segments: PropTypes.array,
-    updates: PropTypes.array,
-  }).isRequired,
+  className: PropTypes.string,
+  updates: PropTypes.arrayOf(PropTypes.shape({
+    message: PropTypes.string,
+    time: PropTypes.string,
+    user: PropTypes.object,
+  })).isRequired,
 };
 
 export default memo(HistorySection);

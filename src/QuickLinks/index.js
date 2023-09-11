@@ -45,14 +45,21 @@ QuickLinks.propTypes = {
 };
 
 
-const NavigationBar = ({ children }) => <div
-  className={styles.navigationBar}
+const NavigationBar = ({ children, className }) => <div
+  className={`${styles.navigationBar} ${className}`}
   data-testid="quickLinks-navigationBar"
   >
   {children}
 </div>;
 
-NavigationBar.propTypes = { children: PropTypes.node.isRequired };
+NavigationBar.defaultProps = {
+  clasName: '',
+};
+
+NavigationBar.propTypes = {
+  clasName: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
 
 QuickLinks.NavigationBar = NavigationBar;
 
