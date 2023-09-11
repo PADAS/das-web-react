@@ -142,11 +142,11 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
 
       {!!report.id && <Dropdown.Item as="div" className={styles.itemBtn}>
         <TextCopyBtn
-          label="Copy report link"
-          text={getReportLink(report)}
+          getText={() => getReportLink(report)}
           icon={<ClipIcon className={styles.itemIcon} />}
-          successMessage="Link copied"
+          label="Copy report link"
           permitPropagation
+          successMessage="Link copied"
         />
       </Dropdown.Item>}
 

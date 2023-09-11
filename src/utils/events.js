@@ -1,5 +1,7 @@
 import axios from 'axios';
+import center from '@turf/center';
 import centerOfMass from '@turf/center-of-mass';
+import { featureCollection } from '@turf/helpers';
 
 import store from '../store';
 import { getEventReporters } from '../selectors';
@@ -399,6 +401,12 @@ export const getReportLink = (report) => {
   if (report?.geojson) {
     const geoJSONCentroidCoordinates = centerOfMass(report.geojson).geometry.coordinates;
     reportLink += `?lnglat=${geoJSONCentroidCoordinates[0]},${geoJSONCentroidCoordinates[1]}`;
+  } else if (report.is_collection) {
+    const containedReportsFeatures = report.contains
+      .map((containedReport) => containedReport.related_event.geojson)
+      .filter((feature) => !!feature);
+    const collectionCenterCoordinates = center(featureCollection(containedReportsFeatures)).geometry.coordinates;
+    reportLink += `?lnglat=${collectionCenterCoordinates[0]},${collectionCenterCoordinates[1]}`;
   }
 
   return reportLink;

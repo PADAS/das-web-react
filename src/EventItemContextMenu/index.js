@@ -108,11 +108,11 @@ const EventItemContextMenu = ({ children, className, report }) => {
 
       <Dropdown.Item className={styles.option}>
         <TextCopyBtn
+          getText={() => getReportLink(report)}
           icon={<LinkIcon />}
           label="Copy report link"
           permitPropagation
           successMessage="Link copied"
-          text={getReportLink(report)}
         />
       </Dropdown.Item>
     </>
