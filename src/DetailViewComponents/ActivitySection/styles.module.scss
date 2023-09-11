@@ -43,9 +43,7 @@ $cardExpansionTransitionTime: 300ms;
     font-size: 0.875rem;
     margin-left: 0.5rem;
   }
-}
 
-.sortButton {
   @media print {
     display: none;
   }
@@ -55,10 +53,6 @@ $cardExpansionTransitionTime: 300ms;
   background-color: $light-gray;
   border-color: $light-gray;
   color: $secondary-medium-gray;
-
-  @media print {
-    display: none;
-  }
 }
 
 .list {

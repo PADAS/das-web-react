@@ -1,10 +1,8 @@
 @import '../common/styles/inputs';
 
-.select {
-  [class*=IndicatorsContainer] {
-    @media print {
-      display: none;
-    }
+.indicatorsContainer {
+  @media print {
+    display: none !important;
   }
 }
 

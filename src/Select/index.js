@@ -10,7 +10,12 @@ const DropdownIndicator = ({ isDisabled, ...restProps }) => <components.Dropdown
   <div className={ !isDisabled ? styles.caret : styles.disabled } />
 </components.DropdownIndicator>;
 
-const Select = ({ className, styles: customStyles, components, ...rest }, ref) => {
+const IndicatorsContainer = ({ className, ...rest }) => <components.IndicatorsContainer
+  className={`${styles.indicatorsContainer} ${className}`}
+  {...rest}
+/>;
+
+const Select = ({ styles: customStyles, components, ...rest }, ref) => {
   const selectStyles = useMemo(() => ({
     ...customStyles,
     option: (styles, state) => {
@@ -39,8 +44,7 @@ const Select = ({ className, styles: customStyles, components, ...rest }, ref) =
   }), [customStyles]);
 
   return <ReactSelect
-      className={`${styles.select} ${className}`}
-      components={{ DropdownIndicator, ...components }}
+      components={{ DropdownIndicator, IndicatorsContainer, ...components }}
       ref={ref}
       styles={selectStyles}
       {...rest}
