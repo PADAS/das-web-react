@@ -304,12 +304,8 @@ const Map = ({
 
   const setMap = useCallback((map) => {
     // don't set zoom if not hydrated
-    if (homeMap && homeMap.zoom) {
-      if (lngLatFromParams.current) {
-        map.setZoom(16);
-      } else {
-        map.setZoom(homeMap.zoom);
-      }
+    if (homeMap && homeMap.zoom && !lngLatFromParams.current) {
+      map.setZoom(homeMap.zoom);
     };
     window.map = map;
 
