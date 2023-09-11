@@ -50,5 +50,9 @@ $background_image_url: '../common/images/icons/';
     &.open {
       transform: rotate(180deg);
     }
+
+    @media print {
+      display: none;
+    }
   }
 }

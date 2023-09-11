@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import isToday from 'date-fns/is_today';
@@ -31,6 +31,7 @@ import {
 } from '../../SchemaFields';
 import AreaSelectorInput from './AreaSelectorInput';
 import DatePicker from '../../DatePicker';
+import GeometryPreview from './AreaSelectorInput/GeometryPreview';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
@@ -60,7 +61,7 @@ const DetailsSection = ({
   formValidator,
   reportForm,
   submitFormButtonRef,
-}) => {
+}, ref) => {
   const dispatch = useDispatch();
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
@@ -96,7 +97,7 @@ const DetailsSection = ({
     };
   }, [dispatch, reportForm]);
 
-  return <>
+  return <div ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <PencilWritingIcon />
@@ -175,6 +176,12 @@ const DetailsSection = ({
           </label>
         </div>
       </div>}
+
+      {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON && reportForm?.geometry
+        ? <div className={styles.printableRow}>
+          <GeometryPreview className={styles.geometryPreview} event={reportForm} />
+        </div>
+        : null}
     </div>
 
     {!!formSchema && <Form
@@ -206,7 +213,7 @@ const DetailsSection = ({
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
     />}
-  </>;
+  </div>;
 };
 
 DetailsSection.defaultProps = {
@@ -234,4 +241,4 @@ DetailsSection.propTypes = {
   submitFormButtonRef: PropTypes.object.isRequired,
 };
 
-export default memo(DetailsSection);
+export default memo(forwardRef(DetailsSection));

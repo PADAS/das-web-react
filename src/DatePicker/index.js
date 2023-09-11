@@ -234,7 +234,14 @@ const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, on
 const CustomInputForwardRef = forwardRef(CustomInput);
 
 
-const CustomDatePicker = ({ dateFormat, onCalendarClose, onCalendarOpen, placeholderText, showTimeInput, ...rest }, ref) => {
+const CustomDatePicker = ({
+  dateFormat,
+  onCalendarClose,
+  onCalendarOpen,
+  placeholderText,
+  showTimeInput,
+  ...rest
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCalendarOpen = useCallback(() => {

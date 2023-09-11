@@ -36,6 +36,12 @@
   display: flex;
   height: calc(100% - 3.5rem);
 
+  .navigationBar {
+    @media print {
+      display: none;
+    }
+  }
+
   @media (min-width: $md-layout-width-min) {
     height: calc(100% - 5rem);
   }
@@ -48,12 +54,32 @@
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
+  
+  @media print {
+    border-left: none;
+  }
 }
 
 .sectionSeparation {
   width: calc(100% + 2.5rem);
   border-top: 1px solid $very-light-gray-alt;
   margin: 3rem -1.125rem;
+}
+
+.historySectionSeparation {
+  width: calc(100% + 2.5rem);
+  border-top: 1px solid $very-light-gray-alt;
+  margin: 3rem -1.125rem;
+
+  @media print {
+    display: none;
+  }
+}
+
+.historySection {
+  @media print {
+    display: none;
+  }
 }
 
 .footer {
@@ -63,6 +89,10 @@
 
   @media (min-width: $md-layout-width-min) {
     justify-content: space-between;
+  }
+
+  @media print {
+    display: none;
   }
 }
 

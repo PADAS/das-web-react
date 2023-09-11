@@ -37,6 +37,18 @@
       }
     }
   }
+
+  .printableRow {
+    display: none;
+
+    @media print {
+      display: block;
+    }
+  }
+
+  .geometryPreview {
+    width: 18.5rem;
+  }
 }
 
 .stateDropdown {
@@ -46,6 +58,10 @@
 
     &::after {
       margin-left: 0.5rem;
+
+      @media print {
+        display: none;
+      }
     }
   }
 

@@ -30,6 +30,10 @@
   @media (min-width: $md-layout-width-min) {
     height: 5rem;
   }
+
+  @media print {
+    box-shadow: none;
+  }
 }
 
 .patrolIndicator {
@@ -89,6 +93,10 @@
   
   @media (min-width: $md-layout-width-min) {
     width: 4.5rem;
+  }
+
+  @media print {
+    display: none;
   }
 }
 
@@ -183,4 +191,14 @@
 
 .locationJumpButton {
   margin-right: 0.5rem;
+
+  @media print {
+    display: none;
+  }
+}
+
+.menu {
+  @media print {
+    display: none;
+  }
 }

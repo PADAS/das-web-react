@@ -146,7 +146,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     </li>;
   }
 
-  return <li className={styles.itemRow} ref={ref}>
+  return <li className={`${styles.itemRow} ${styles.nonImageAttachment}`} ref={ref}>
     <div className={styles.itemIcon}>
       <AttachmentIcon />
     </div>

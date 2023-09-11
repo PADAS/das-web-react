@@ -104,6 +104,7 @@ const ReportDetailView = ({
   const submitFormButtonRef = useRef(null);
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
+  const printableContentRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -692,6 +693,7 @@ const ReportDetailView = ({
   return <div
     className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
+    ref={printableContentRef}
     >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
@@ -702,6 +704,7 @@ const ReportDetailView = ({
       onChangeTitle={onChangeTitle}
       report={reportForm}
       onSaveReport={onSaveReport}
+      printableContentRef={printableContentRef}
       setRedirectTo={setRedirectTo}
     />
 
@@ -709,7 +712,7 @@ const ReportDetailView = ({
 
     <div className={styles.body}>
       <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-        <QuickLinks.NavigationBar>
+        <QuickLinks.NavigationBar className={styles.navigationBar}>
           <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
 
           <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
@@ -769,10 +772,10 @@ const ReportDetailView = ({
               <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
             </QuickLinks.Section>
 
-            {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+            {shouldRenderHistorySection && <div className={styles.historySectionSeparation} />}
 
             <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-              <HistorySection updates={reportForm?.updates || []} />
+              <HistorySection className={styles.historySection} updates={reportForm?.updates || []} />
             </QuickLinks.Section>
           </QuickLinks.SectionsWrapper>
 

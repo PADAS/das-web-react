@@ -43,6 +43,10 @@ $cardExpansionTransitionTime: 300ms;
     font-size: 0.875rem;
     margin-left: 0.5rem;
   }
+
+  @media print {
+    display: none;
+  }
 }
 
 .expandCollapseButton {
@@ -58,6 +62,10 @@ $cardExpansionTransitionTime: 300ms;
   
   li {
     transition: margin $cardExpansionTransitionTime;
+
+    @media print {
+      margin: 0.5rem 0;
+    }
   }
 }
 
@@ -78,10 +86,20 @@ $cardExpansionTransitionTime: 300ms;
   }
 }
 
+.nonImageAttachment {
+  @media print {
+    display: none;
+  }
+}
+
 .collapse {
   border: 0.0625rem solid $light-gray-border;
   border-top: none;
   border-radius: 0.1875rem;
+  
+  @media print {
+    display: block !important;
+  }
 }
 
 .itemIcon {
@@ -187,6 +205,20 @@ $cardExpansionTransitionTime: 300ms;
   height: 10rem;
   outline: none;
   border-top: 0.0625rem solid $light-gray;
+
+  @media print {
+    display: none;
+  }
+}
+
+.printableNoteText {
+  display: none;
+  padding: 1rem 1.25rem;
+  white-space: pre-wrap;
+
+  @media print {
+    display: block;
+  }
 }
 
 .editingNoteActions {
