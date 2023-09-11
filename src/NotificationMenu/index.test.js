@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import ReactGA from 'react-ga';
 
 import { NEWS_API_URL } from '../ducks/news';
 
@@ -14,8 +13,6 @@ import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-lib
 import userEvent from '@testing-library/user-event';
 
 import NotificationMenu from '../NotificationMenu';
-
-ReactGA.initialize('dummy', { testMode: true });
 
 const server = setupServer(
   rest.get(NEWS_API_URL, (req, res, ctx) => {
