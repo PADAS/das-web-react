@@ -127,4 +127,35 @@ describe('EventItemContextMenu', () => {
       expect(screen.getByText('#2')).toBeDefined();
     });
   });
+
+  test('copies the report link', async () => {
+    const writeText = jest.fn();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+    });
+
+    render(
+      <Provider store={mockStore(store)}>
+        <EventItemContextMenu report={report}>
+          Children
+        </EventItemContextMenu>
+        <ToastContainer/>
+      </Provider>
+    );
+
+    fireEvent.contextMenu(screen.getByText('Children'));
+
+    expect(writeText).toHaveBeenCalledTimes(0);
+
+    const copyButton = screen.getByTestId('textCopyBtn');
+    userEvent.click(copyButton);
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledTimes(1);
+      expect(writeText).toHaveBeenCalledWith(
+        'http://localhost/reports/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
+      );
+      expect(screen.getByText('Link copied')).toBeDefined();
+    });
+  });
 });

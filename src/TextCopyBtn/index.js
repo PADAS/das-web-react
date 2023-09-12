@@ -33,8 +33,8 @@ const TextCopyBtn = ({ getText, label, text, icon, successMessage, permitPropaga
     }
   }, [getText, permitPropagation, successMessage, text]);
 
-  return <span data-testid='textCopyBtn' className={`${styles.clipboardWrapper} ${className}`}>
-    <button type='button' onClick={onClickCopy}>
+  return <span className={`${styles.clipboardWrapper} ${className}`}>
+    <button data-testid='textCopyBtn' type='button' onClick={onClickCopy}>
       { icon }
       {label && <span>{label}</span> }
     </button>

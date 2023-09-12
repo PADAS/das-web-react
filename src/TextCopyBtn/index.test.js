@@ -12,10 +12,10 @@ Object.defineProperty(global.navigator, 'clipboard', { value: {
 
 const testString = 'i am being copied';
 
-const renderTextCopyBtn = (text = testString) => render(
+const renderTextCopyBtn = (props) => render(
   <>
     <ToastContainer transition={Slide} />
-    <TextCopyBtn text={text} />
+    <TextCopyBtn text={testString} {...props} />
   </>
 );
 
@@ -33,6 +33,22 @@ test('copying to the clipbboard', async () => {
   userEvent.click(copyBtn);
 
   expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(testString);
+});
+
+test('copying to the clipbboard with a getter', async () => {
+  const getText = jest.fn(() => 'text build on click!');
+  renderTextCopyBtn({ text: null, getText });
+
+  const copyBtn = await screen.findByRole('button');
+
+  expect(global.navigator.clipboard.writeText).not.toHaveBeenCalled();
+
+  expect(getText).toHaveBeenCalledTimes(0);
+
+  userEvent.click(copyBtn);
+
+  expect(getText).toHaveBeenCalledTimes(1);
+  expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith('text build on click!');
 });
 
 test('showing a message on successful copy', async () => {
