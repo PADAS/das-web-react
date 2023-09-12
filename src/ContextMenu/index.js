@@ -1,57 +1,77 @@
-import React, { useCallback, useEffect, useState, memo, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
+import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
 
-const { Menu } = Dropdown;
+const ContextMenu = ({ children, className, disabled, options }) => {
+  const areaRef = useRef();
 
-const ContextMenu = ({ options, disabled, className, children }) => {
-  const [toggleContextMenu, setToggleContextMenu] = useState(false);
-  const menuRef = useRef();
+  const [contextMenuPosition, setContextMenuPosition] = useState(null);
 
-  const handleContextMenu = useCallback((e) => {
-    e.preventDefault();
-    disabled || setToggleContextMenu(!toggleContextMenu);
-  }, [disabled, toggleContextMenu]);
+  const handleContextMenu = useCallback((event) => {
+    event.preventDefault();
 
-  const closeMenu = useCallback(() => {
-    setToggleContextMenu(false);
-  }, []);
+    if (!disabled) {
+      const bounds = event.currentTarget.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
 
-  const handleCloseContextMenu = useCallback((e) => {
-    if (!menuRef?.current?.contains(e.target)){
-      closeMenu();
+      setContextMenuPosition({ x, y, flipHorizontally: x > (bounds.width / 2) });
     }
-  }, [closeMenu]);
+  }, [disabled]);
 
   useEffect(() => {
-    window.addEventListener('click', closeMenu);
-    window.addEventListener('contextmenu', handleCloseContextMenu);
+    const onClick = () => setContextMenuPosition(null);
+
+    const onContextMenu = (event) => {
+      if (!areaRef?.current?.contains(event.target)){
+        setContextMenuPosition(null);
+      }
+    };
+
+    window.addEventListener('click', onClick);
+    window.addEventListener('contextmenu', onContextMenu);
+
     return () => {
-      window.removeEventListener('click', closeMenu);
-      window.removeEventListener('contextmenu', handleCloseContextMenu);
+      window.removeEventListener('click', onClick);
+      window.removeEventListener('contextmenu', onContextMenu);
     };
   }, []);
 
-  return <div className={`${styles.menuContainer} ${className}`} onContextMenu={handleContextMenu} data-testid='contextMenuToggle' ref={menuRef}>
-    <Menu show={toggleContextMenu} className={styles.menu}>
-      {options}
-    </Menu>
+  return <div
+      className={`${styles.menuArea} ${className}`}
+      data-testid="contextMenu-area"
+      onContextMenu={handleContextMenu}
+      ref={areaRef}
+    >
+    <div
+      className={`${styles.menuPositionReference} ${!contextMenuPosition ? styles.hidden : ''}`}
+      data-testid="contextMenu-positionReference"
+      style={{
+        left: `${contextMenuPosition?.x}px`,
+        top: `${contextMenuPosition?.y}px`,
+      }}
+    >
+      <Dropdown.Menu className={contextMenuPosition?.flipHorizontally ? styles.flipHorizontally : ''} show>
+        {options}
+      </Dropdown.Menu>
+    </div>
+
     {children}
   </div>;
 };
 
 ContextMenu.defaultProps = {
-  disabled: false,
   className: '',
+  disabled: false,
 };
 
 ContextMenu.propTypes = {
-  children: PropTypes.element.isRequired,
-  options: PropTypes.element.isRequired,
-  disabled: PropTypes.bool,
+  children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
+  options: PropTypes.element.isRequired,
 };
 
 export default memo(ContextMenu);

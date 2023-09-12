@@ -10,7 +10,13 @@ import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patro
 import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-icon.svg';
 
 import { addModal, removeModal } from '../../../ducks/modals';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection } from '../../../utils/events';
+import {
+  addPatrolSegmentToEvent,
+  createNewIncidentCollection,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
+  getReportLink,
+} from '../../../utils/events';
 import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { fetchPatrol } from '../../../ducks/patrols';
@@ -136,11 +142,11 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
 
       {!!report.id && <Dropdown.Item as="div" className={styles.itemBtn}>
         <TextCopyBtn
-          label="Copy report link"
-          text={window.location.href}
+          getText={() => getReportLink(report)}
           icon={<ClipIcon className={styles.itemIcon} />}
-          successMessage="Link copied"
+          label="Copy report link"
           permitPropagation
+          successMessage="Link copied"
         />
       </Dropdown.Item>}
 

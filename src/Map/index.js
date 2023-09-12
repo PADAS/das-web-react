@@ -304,12 +304,8 @@ const Map = ({
 
   const setMap = useCallback((map) => {
     // don't set zoom if not hydrated
-    if (homeMap && homeMap.zoom) {
-      if (lngLatFromParams.current) {
-        map.setZoom(16);
-      } else {
-        map.setZoom(homeMap.zoom);
-      }
+    if (homeMap && homeMap.zoom && !lngLatFromParams.current) {
+      map.setZoom(homeMap.zoom);
     };
     window.map = map;
 
@@ -479,7 +475,7 @@ const Map = ({
   useEffect(() => {
     if (!!map) {
       const { zoom, center } = homeMap;
-      jumpToLocation(lngLatFromParams.current || center, zoom);
+      jumpToLocation(lngLatFromParams.current || center, lngLatFromParams.current ? 16 : zoom);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeMap, map]);
@@ -568,7 +564,7 @@ const Map = ({
       const newLocation = { ...location };
 
       delete newLocation.search;
-      navigate(newLocation);
+      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
     }
   }, [location, navigate]);
 

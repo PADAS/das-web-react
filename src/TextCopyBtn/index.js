@@ -10,14 +10,14 @@ import styles from './styles.module.scss';
 
 const { TYPE: { INFO } } = toast;
 
-const TextCopyBtn = ({ label, text, icon, successMessage, permitPropagation, className }) => {
+const TextCopyBtn = ({ getText, label, text, icon, successMessage, permitPropagation, className }) => {
 
   const onClickCopy = useCallback(async (e) => {
     e.preventDefault();
     permitPropagation || e.stopPropagation();
 
     try {
-      await window.navigator.clipboard.writeText(text);
+      await window.navigator.clipboard.writeText(text || getText());
       showToast({
         message: successMessage,
         toastConfig: {
@@ -31,7 +31,7 @@ const TextCopyBtn = ({ label, text, icon, successMessage, permitPropagation, cla
     } catch (error) {
       console.warn('error copying value to clipboard', error);
     }
-  }, [permitPropagation, successMessage, text]);
+  }, [getText, permitPropagation, successMessage, text]);
 
   return <span data-testid='textCopyBtn' className={`${styles.clipboardWrapper} ${className}`}>
     <button type='button' onClick={onClickCopy}>
@@ -42,6 +42,8 @@ const TextCopyBtn = ({ label, text, icon, successMessage, permitPropagation, cla
 };
 
 TextCopyBtn.defaultProps = {
+  getText: null,
+  text: null,
   icon: <ClipboardIcon />,
   successMessage: 'Copied to clipboard',
   className: '',
@@ -50,7 +52,8 @@ TextCopyBtn.defaultProps = {
 };
 
 TextCopyBtn.propTypes = {
-  text: PropTypes.string.isRequired,
+  getText: PropTypes.func,
+  text: PropTypes.string,
   icon: PropTypes.element,
   successMessage: PropTypes.string,
   className: PropTypes.string,

@@ -1,6 +1,5 @@
-import { calcDisplayPriorityForReport, getCoordinatesForEvent } from './events';
-import { eventWithPoint } from '../__test-helpers/fixtures/events';
-import { eventWithPolygon } from '../__test-helpers/fixtures/events';
+import { calcDisplayPriorityForReport, getCoordinatesForEvent, getReportLink } from './events';
+import { eventWithPoint, eventWithPolygon } from '../__test-helpers/fixtures/events';
 
 import * as eventTypeUtils from './event-types';
 
@@ -91,5 +90,17 @@ describe('#getCoordinatesForEvent', () => {
       [ 56.81251637929487, -33.02717890265869 ],
       [ 58.31891231904782, -32.95903350246844 ]
     ]);
+  });
+});
+
+describe('#getReportLink', () => {
+  test('calculates a report link for a point geometry type', () => {
+    expect(getReportLink(eventWithPoint))
+      .toEqual('http://localhost/reports/3662f167-37f6-4c75-9d93-673f436aa1a6?lnglat=18.714,5.8676');
+  });
+
+  test('calculates a report link for a polygon geometry type', () => {
+    expect(getReportLink(eventWithPolygon))
+      .toEqual('http://localhost/reports/8b386bfe-227e-40a0-97de-425abfcb3289?lnglat=57.53006316795646,-33.27303370265189');
   });
 });
