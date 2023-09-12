@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { ToastContainer } from 'react-toastify';
 import { useReactToPrint } from 'react-to-print';
 import userEvent from '@testing-library/user-event';
 
@@ -60,6 +61,40 @@ describe('Menu report options', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  test('copies the report link when the user clicks the copy report link button', async () => {
+    const writeText = jest.fn();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+    });
+
+    renderWithWrapper(<>
+      <ReportMenu
+        onSaveReport={onSaveReport}
+        printableContentRef={{ current: <div>Printable report</div> }}
+        report={report}
+        reportTitle="Report Title"
+        setRedirectTo={setRedirectTo}
+      />
+      <ToastContainer />
+    </>);
+
+    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    userEvent.click(kebabButton);
+
+    expect(writeText).toHaveBeenCalledTimes(0);
+
+    const copyButton = screen.getByTestId('textCopyBtn');
+    userEvent.click(copyButton);
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledTimes(1);
+      expect(writeText).toHaveBeenCalledWith(
+        'http://localhost/reports/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
+      );
+      expect(screen.getByText('Link copied')).toBeDefined();
+    });
   });
 
   test('prints the report when the user clicks Print Report button', async () => {

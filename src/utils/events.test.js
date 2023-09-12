@@ -103,4 +103,19 @@ describe('#getReportLink', () => {
     expect(getReportLink(eventWithPolygon))
       .toEqual('http://localhost/reports/8b386bfe-227e-40a0-97de-425abfcb3289?lnglat=57.53006316795646,-33.27303370265189');
   });
+
+  test('calculates a report link for an incident', () => {
+    const testReport = {
+      contains: [{
+        related_event: eventWithPoint,
+      }, {
+        related_event: eventWithPolygon,
+      }],
+      id: '123',
+      is_collection: true,
+    };
+
+    expect(getReportLink(testReport))
+      .toEqual('http://localhost/reports/123?lnglat=38.668244465302564,-14.024200938300725');
+  });
 });
