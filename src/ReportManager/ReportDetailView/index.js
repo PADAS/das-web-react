@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addReportFormProps } from '../../proptypes';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
+import { ReactComponent as ERLogo } from '../../common/images/icons/er-logo.svg';
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
@@ -698,6 +699,8 @@ const ReportDetailView = ({
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
+
+    <ERLogo className={styles.printLogo} />
 
     <Header
       isReadOnly={isReadOnly}
