@@ -13,6 +13,14 @@
   @media (min-width: $md-layout-width-min) {
     width: 3.75rem;
   }
+
+  @media print {
+    width: 0.5rem !important;
+
+    svg {
+      display: none !important;
+    }
+  }
 }
 
 .listItem {

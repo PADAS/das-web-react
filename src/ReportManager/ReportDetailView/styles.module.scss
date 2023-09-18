@@ -32,6 +32,16 @@
   z-index: 6;
 }
 
+.printLogo {
+  display: none;
+  height: 1.25rem;
+  margin: 0.75rem;
+
+  @media print {
+    display: block;
+  }
+}
+
 .body {
   display: flex;
   height: calc(100% - 3.5rem);
