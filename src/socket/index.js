@@ -3,13 +3,12 @@ import isFunction from 'lodash/isFunction';
 
 import store from '../store';
 import { DAS_HOST } from '../constants';
-import { events } from './config';
+import { EVENT_DISPATCHES, events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
-import { socketEventData } from '../ducks/events';
 
 import { showFilterMismatchToastForHiddenReports } from './handlers';
 
@@ -21,18 +20,21 @@ const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new D
   );
 };
 
-const stateManagedSocketEventHandler = (socket, type, callback) => {
-  updateSocketStateTrackerForEventType({ type });
+const executeSocketEventActions = (actionTypes, eventData) => actionTypes.forEach(type => {
+  if (isFunction(type)) {
+    store.dispatch(type(eventData));
+  } else {
+    store.dispatch({ type, eventData });
+  }
+});
 
-  return socket.on(type, (payload) => {
-    const { mid } = payload;
-    if (!validateSocketIncrement(type, mid)) {
-      resetSocketStateTracking();
-    } else {
-      updateSocketStateTrackerForEventType({ type, mid });
-    }
-    return callback(payload);
-  });
+const checkSocketSanity = (type, { mid }) => {
+  updateSocketStateTrackerForEventType({ type });
+  if (!validateSocketIncrement(type, mid)) {
+    resetSocketStateTracking();
+  } else {
+    updateSocketStateTrackerForEventType({ type, mid });
+  }
 };
 
 const validateSocketIncrement = (type, mid) => {
@@ -93,27 +95,13 @@ export const bindSocketEvents = (socket, store) => {
     [pingInterval, pingTimeout] = pingSocket(socket);
 
     if (!eventsBound) {
-      Object.entries(events).forEach(([event_name, actionTypes]) => {
-        return stateManagedSocketEventHandler(socket, event_name, (payload) => {
-          actionTypes.forEach(type => {
-            if (isFunction(type)) {
-              store.dispatch(type(payload));
-            } else {
-              store.dispatch({ type, payload });
-            }
-          });
-        });
-      });
-      ['new_event', 'update_event'].forEach((event_name) => {
-        return stateManagedSocketEventHandler(socket, event_name, (payload) => {
-          [socketEventData, SOCKET_HEALTHY_STATUS].forEach(type => {
-            if (isFunction(type)) {
-              store.dispatch(type(payload));
-            } else {
-              store.dispatch({ type, payload });
-            }
-          });
-        });
+      socket.onAny((eventName, eventData) => {
+        const actionTypes = events[eventName] ?? EVENT_DISPATCHES[eventName];
+        if (!actionTypes){
+          return console.error('Unsupported socket event', eventName);
+        }
+        checkSocketSanity(eventName, eventData);
+        executeSocketEventActions(actionTypes, eventData);
       });
       socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
