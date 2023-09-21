@@ -20,13 +20,18 @@ const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new D
   );
 };
 
-const executeSocketEventActions = (actionTypes, eventData) => Array.isArray(actionTypes) && actionTypes.forEach(type => {
-  if (isFunction(type)) {
-    store.dispatch(type(eventData));
-  } else {
-    store.dispatch({ type, eventData });
+const executeSocketEventActions = (eventName, eventData) => {
+  const actionTypes = events[eventName] ?? EVENT_DISPATCHES[eventName];
+  if (Array.isArray(actionTypes)){
+    actionTypes.forEach(type => {
+      if (isFunction(type)) {
+        store.dispatch(type(eventData));
+      } else {
+        store.dispatch({ type, eventData });
+      }
+    });
   }
-});
+};
 
 const checkSocketSanity = (type, { mid }) => {
   if (mid){
@@ -97,8 +102,8 @@ export const bindSocketEvents = (socket, store) => {
     [pingInterval, pingTimeout] = pingSocket(socket);
 
     if (!eventsBound) {
-      socket.prependAny((eventName, eventData) => checkSocketSanity(eventName, eventData));
-      socket.onAny((eventName, eventData) => executeSocketEventActions(events[eventName] ?? EVENT_DISPATCHES[eventName], eventData));
+      socket.prependAny(checkSocketSanity);
+      socket.onAny(executeSocketEventActions);
       socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
     eventsBound = true;
