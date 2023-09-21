@@ -29,11 +29,13 @@ const executeSocketEventActions = (actionTypes, eventData) => Array.isArray(acti
 });
 
 const checkSocketSanity = (type, { mid }) => {
-  updateSocketStateTrackerForEventType({ type });
-  if (!validateSocketIncrement(type, mid)) {
-    resetSocketStateTracking();
-  } else {
-    updateSocketStateTrackerForEventType({ type, mid });
+  if (mid){
+    updateSocketStateTrackerForEventType({ type });
+    if (!validateSocketIncrement(type, mid)) {
+      resetSocketStateTracking();
+    } else {
+      updateSocketStateTrackerForEventType({ type, mid });
+    }
   }
 };
 
