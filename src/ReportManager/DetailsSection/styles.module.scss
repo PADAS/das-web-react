@@ -132,19 +132,15 @@
     display: none;
   }
 
-  [class*=row] {
-    padding: 0;
-
+  [class='fieldset row'] {
     & > [class*=col-]:nth-child(odd){
       padding-right: 0.5rem;
     }
+  }
 
+  [class*=row] {
     & > [class*=col-]:nth-child(even){
-      padding-left: 0.5rem;
-    }
-
-    > * {
-      padding: 0;
+      padding-right: 0.5rem;
     }
   }
 
