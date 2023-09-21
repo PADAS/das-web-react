@@ -20,7 +20,7 @@ const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new D
   );
 };
 
-const executeSocketEventActions = (actionTypes, eventData) => actionTypes.forEach(type => {
+const executeSocketEventActions = (actionTypes, eventData) => Array.isArray(actionTypes) && actionTypes.forEach(type => {
   if (isFunction(type)) {
     store.dispatch(type(eventData));
   } else {
@@ -95,14 +95,8 @@ export const bindSocketEvents = (socket, store) => {
     [pingInterval, pingTimeout] = pingSocket(socket);
 
     if (!eventsBound) {
-      socket.onAny((eventName, eventData) => {
-        const actionTypes = events[eventName] ?? EVENT_DISPATCHES[eventName];
-        if (!actionTypes){
-          return console.error('Unsupported socket event', eventName);
-        }
-        checkSocketSanity(eventName, eventData);
-        executeSocketEventActions(actionTypes, eventData);
-      });
+      socket.prependAny((eventName, eventData) => checkSocketSanity(eventName, eventData));
+      socket.onAny((eventName, eventData) => executeSocketEventActions(events[eventName] ?? EVENT_DISPATCHES[eventName], eventData));
       socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
     eventsBound = true;
