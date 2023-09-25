@@ -21,6 +21,7 @@ import ErrorBoundary from '../../ErrorBoundary';
 import ErrorMessage from '../../ErrorMessage';
 import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
+import { ScrollContext } from '../../ScrollContext';
 
 import styles from './../styles.module.scss';
 
@@ -42,6 +43,7 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
+  const { setToScrollElementId, scrollElementIntoView } = useContext(ScrollContext);
 
   const events = useSelector((state) => getFeedEvents(state));
 
@@ -66,13 +68,18 @@ const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSor
 
   const onEventTitleClick = useCallback((event) => {
     navigate(event.id);
+    setToScrollElementId(event.id);
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [navigate]);
+  }, [navigate, setToScrollElementId]);
 
   useEffect(() => {
     setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);
   }, [events.results, shouldExcludeContained]);
+
+  useEffect(() => {
+    scrollElementIntoView();
+  }, []);
 
   return <ErrorBoundary>
     <div className={styles.filterWrapper} data-testid='filter-wrapper'>

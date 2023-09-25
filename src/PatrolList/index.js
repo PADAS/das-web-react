@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useState, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
@@ -6,8 +6,8 @@ import { FEATURE_FLAG_LABELS } from '../constants';
 import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
-import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
-
+import { openModalForPatrol } from '../utils/patrols';
+import { ScrollContext } from '../ScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -39,6 +39,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
+  const { assignRefToScrollElement } = useContext(ScrollContext);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -53,7 +54,9 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
           patrol={item}
           map={map}
           key={item.id}
-          onItemClick={onItemClick}/>
+          onItemClick={onItemClick}
+          ref={assignRefToScrollElement(item.id)}
+        />
       )}
     </Flipper>}
     {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}

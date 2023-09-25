@@ -1,4 +1,4 @@
-import React, { useRef, memo, useMemo } from 'react';
+import React, { useRef, memo, useMemo, useContext } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -10,6 +10,7 @@ import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
+import { ScrollContext } from '../ScrollContext';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
@@ -17,6 +18,7 @@ const EventFeed = (props) => {
   const scrollRef = useRef(null);
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
+  const { assignRefToScrollElement } = useContext(ScrollContext);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -33,7 +35,7 @@ const EventFeed = (props) => {
           {feedEvents.map((item) =>
             <Flipped flipId={item.id} key={item.id}>
               <EventItemContextMenu report={item} className={styles.contextMenu}>
-                <ReportListItem
+                <ReportListItem ref={ assignRefToScrollElement(item.id) }
                     displayTime={item[displayTimeProp]}
                     report={item}
                     onTitleClick={onTitleClick}
