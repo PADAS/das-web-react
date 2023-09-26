@@ -9,6 +9,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from '../../hooks/useNavigate';
 
 import PatrolsFeedTab from './';
+import ScrollContextProvider from "../../ScrollContext";
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
@@ -29,6 +30,15 @@ store.data.patrols.results = [activePatrol.id];
 
 describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;
+  const renderPatrolsFeedTab = () => render(
+    <Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <ScrollContextProvider>
+          <PatrolsFeedTab />
+        </ScrollContextProvider>
+      </NavigationWrapper>
+    </Provider>
+  );
   beforeEach(() => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
@@ -36,29 +46,16 @@ describe('PatrolsFeedTab', () => {
   });
 
   test('rendering without crashing', () => {
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <PatrolsFeedTab />
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolsFeedTab();
   });
 
   test('it should show the list patrols if the patrolDetailView does NOT contain any data', async () => {
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <PatrolsFeedTab />
-      </NavigationWrapper>
-    </Provider>);
-
+    renderPatrolsFeedTab();
     expect((await screen.queryByTestId('patrolDetailViewContainer'))).toBeNull();
   });
 
   test('opens the patrol detail view if an item from the list is clicked', async () => {
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <PatrolsFeedTab />
-      </NavigationWrapper>
-    </Provider>);
+    renderPatrolsFeedTab();
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
