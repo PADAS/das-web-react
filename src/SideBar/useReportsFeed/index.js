@@ -12,7 +12,7 @@ import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
-const useFetchReportsFeed = () => {
+const useReportsFeed = () => {
   const dispatch = useDispatch();
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -80,6 +80,7 @@ const useFetchReportsFeed = () => {
   }, [events.error, loadingEventFeed]);
 
   return {
+    events,
     feedSort,
     loadFeedEvents,
     loadingEventFeed,
@@ -88,4 +89,4 @@ const useFetchReportsFeed = () => {
   };
 };
 
-export default useFetchReportsFeed;
+export default useReportsFeed;

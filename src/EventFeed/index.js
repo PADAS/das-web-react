@@ -20,7 +20,7 @@ const EventFeed = (props) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return (
+  return <>
     <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
       <InfiniteScroll
         element='ul'
@@ -47,7 +47,7 @@ const EventFeed = (props) => {
         </Flipper>
       </InfiniteScroll>
     </div>
-  );
+  </>;
 };
 
 export default memo(EventFeed);
