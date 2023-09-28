@@ -10,6 +10,7 @@ import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
+import isNil from 'lodash/isNil';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
@@ -108,14 +109,19 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
     ],
   };
 
+  const types = patrolTypes
+    .filter(type => !!type.is_active)
+    .map(type => ({
+      ...type,
+      category: { ...categoryObject },
+      ordernum: isNil(type.ordernum)
+        ? 10000000000
+        : type.ordernum
+    }));
+
   return {
     ...categoryObject,
-    types: patrolTypes
-      .filter(type => !!type.is_active)
-      .map(type => ({
-        ...type,
-        category: { ...categoryObject },
-      })),
+    types: orderBy(types, ['ordernum', 'display']),
   };
 };
 
