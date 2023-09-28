@@ -109,13 +109,22 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
     ],
   };
 
+  const maxDefinedOrdernum = Math.max(
+    patrolTypes.reduce((nums, { ordernum }) => {
+      if (isNil(ordernum)) return nums;
+
+      nums.push(ordernum);
+      return nums;
+    }, [])
+  );
+
   const types = patrolTypes
     .filter(type => !!type.is_active)
     .map(type => ({
       ...type,
       category: { ...categoryObject },
       ordernum: isNil(type.ordernum)
-        ? 10000000000
+        ? (maxDefinedOrdernum+1)
         : type.ordernum
     }));
 
