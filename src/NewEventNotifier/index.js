@@ -14,7 +14,7 @@ const NewEventNotifier = () => {
   const [play] = useSound(ding);
 
   const notifySoundOn = useSelector(state => !!state.view.featureFlagOverrides?.[ENABLE_NEW_REPORT_NOTIFICATION_SOUND]?.value);
-  const mostRecentSocketEventData = useSelector(state => state.data.recentEventDataReceived.data);
+  const mostRecentSocketEventData = useSelector(state => state.data?.recentEventDataReceived?.data);
   const feedEventResults = useSelector(state => state.data.feedEvents.results);
   const user = useSelector(state => state.data.user);
 
