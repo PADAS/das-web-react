@@ -6,10 +6,10 @@ import { eventWasRecentlyEditedByCurrentUser } from '../utils/events';
 import { ENABLE_NEW_REPORT_NOTIFICATION_SOUND } from '../ducks/feature-flag-overrides';
 import ding from '../common/sounds/ding.mp3';
 
-export const SHOULD_PLAY_DEBOUNCE_MS = 15000; /* don't play more than every 5 seconds, for sanity */
+export const SHOULD_PLAY_DEBOUNCE_MS = 15000; /* don't play more than every 15 seconds, for sanity */
 
 const NewEventNotifier = () => {
-  const shouldPlay = useRef(true);
+  const canPlaySound = useRef(true);
 
   const [play] = useSound(ding);
 
@@ -21,17 +21,17 @@ const NewEventNotifier = () => {
   useEffect(() => {
     if (
       notifySoundOn
-      && shouldPlay.current
+      && canPlaySound.current
       && mostRecentSocketEventData
       && !eventWasRecentlyEditedByCurrentUser(mostRecentSocketEventData, user)
       && feedEventResults
         .findIndex(id => id === mostRecentSocketEventData?.id) === 0
     ) {
-      shouldPlay.current = false;
+      canPlaySound.current = false;
       play();
 
       setTimeout(() => {
-        shouldPlay.current = true;
+        canPlaySound.current = true;
       }, SHOULD_PLAY_DEBOUNCE_MS);
     }
 
