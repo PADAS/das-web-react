@@ -19,8 +19,8 @@ import { EVENT_API_URL, createEvent, updateEvent, addNoteToEvent, uploadEventFil
 
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
 
-export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
-  const eventCreationDetails = event?.updates?.[event?.updates?.length - 1];
+export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
+  const eventCreationDetails = event?.updates?.[0];
   const eventCreationUserId = eventCreationDetails?.user?.id;
 
   if (eventCreationUserId !== currentUser.id) return false;

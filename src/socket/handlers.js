@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 
 import store from '../store';
 
-import { displayTitleForEvent, eventWasRecentlyCreatedByCurrentUser } from '../utils/events';
+import { displayTitleForEvent, eventWasRecentlyEditedByCurrentUser } from '../utils/events';
 import { showToast } from '../utils/toast';
 
 export const showFilterMismatchToastForHiddenReports = (msg) => {
@@ -10,7 +10,7 @@ export const showFilterMismatchToastForHiddenReports = (msg) => {
   const { data: { user } } = store.getState();
 
   if (
-    eventWasRecentlyCreatedByCurrentUser(event_data, user)
+    eventWasRecentlyEditedByCurrentUser(event_data, user)
     && !matches_current_filter
   ) {
 
