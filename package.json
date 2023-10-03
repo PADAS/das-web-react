@@ -53,6 +53,7 @@
     "socket.io-client": "^2.2.0",
     "streamsaver": "^1.2.0",
     "suncalc": "^1.9.0",
+    "use-sound": "^4.0.1",
     "uuid": "^3.4.0"
   },
   "scripts": {

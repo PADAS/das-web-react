@@ -1,7 +1,7 @@
 import React, { useContext, useState, useCallback, useEffect, memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import uniq from 'lodash/uniq';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -12,7 +12,6 @@ import {
 } from '../../utils/event-filter';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
-import { getFeedEvents } from '../../selectors';
 import { MapContext } from '../../App';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -38,14 +37,12 @@ const excludeContainedReports = (events) => {
   return events.filter(event => !containedEventIdsToRemove.includes(event.id));
 };
 
-const ReportsFeedTab = ({ feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
+const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
   const { setToScrollElementId, scrollElementIntoView } = useContext(ScrollContext);
-
-  const events = useSelector((state) => getFeedEvents(state));
 
   const [feedEvents, setFeedEvents] = useState(() => {
     if (events.results?.length) {

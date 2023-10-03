@@ -22,34 +22,33 @@ const EventFeed = (props) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return (
-    <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
-      <InfiniteScroll
+  return <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
+    <InfiniteScroll
         element='ul'
         hasMore={hasMore}
         loadMore={onScroll}
         useWindow={false}
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
       >
-        <Flipper flipKey={feedEvents}>
-          {feedEvents.map((item) =>
-            <Flipped flipId={item.id} key={item.id}>
-              <EventItemContextMenu report={item} className={styles.contextMenu}>
-                <ReportListItem ref={ assignRefToScrollElement(item.id) }
+      <Flipper flipKey={feedEvents}>
+        {feedEvents.map((item) =>
+          <Flipped flipId={item.id} key={item.id}>
+            <EventItemContextMenu report={item} className={styles.contextMenu}>
+              <ReportListItem
+                    ref={ assignRefToScrollElement(item.id) }
                     displayTime={item[displayTimeProp]}
                     report={item}
                     onTitleClick={onTitleClick}
                     onIconClick={onIconClick} />
-              </EventItemContextMenu>
-            </Flipped>
+            </EventItemContextMenu>
+          </Flipped>
           )}
-          {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}
-          {!!feedEvents.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
-          {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
-        </Flipper>
-      </InfiniteScroll>
-    </div>
-  );
+        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}
+        {!!feedEvents.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
+        {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
+      </Flipper>
+    </InfiniteScroll>
+  </div>;
 };
 
 export default memo(EventFeed);
