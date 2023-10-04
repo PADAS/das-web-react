@@ -74,7 +74,7 @@ describe('SubjectPopup', () => {
       }));
 
       /* eslint-disable-next-line react/display-name */
-      Wrapper = ({ children }) => <Provider store={mockStore({})}>{children}</Provider>;
+      Wrapper = ({ children }) => <Provider store={mockStore(state)}>{children}</Provider>;
 
       renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
 
