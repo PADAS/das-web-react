@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -19,8 +19,7 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import styles from './styles.module.scss';
 
-// eslint-disable-next-line react/display-name
-const ReportListItem = forwardRef(({
+const ReportListItem = ({
   className,
   displayTime,
   onIconClick,
@@ -28,7 +27,7 @@ const ReportListItem = forwardRef(({
   report,
   showElapsedTime,
   showJumpButton,
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
 
   const locationClicked = useRef(false);
@@ -70,42 +69,42 @@ const ReportListItem = forwardRef(({
     locationClicked.current = true;
   }, [coordinates, dispatch, jumpToLocation, report]);
 
-  return <FeedListItem ref={ref}
-                       onClick={() => onTitleClick?.(report)}
-                       className={`${hoverEffects[displayPriority]} ${className}`}
-                       ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
-                         <LocationJumpButton
-                               clickAnalytics={[
-                                 MAP_LAYERS_CATEGORY,
-                                 'Click Jump To Report Location button',
-                                 `Report Type:${report.event_type}`,
-                               ]}
-                               coordinates={coordinates}
-                               isMulti={hasMultipleLocations}
-                               onClick={onClickLocationJumpButton}
-                           /> : undefined}
-                       DateComponent={dateTimeProp && <span className={styles.dateComponent}>
-                         <DateTime date={dateTimeProp} showElapsed={showElapsedTime} suffix='ago'/>
-                         {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
-                       </span>}
-                       IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type='button'>
-                         <EventIcon report={report} />
-                         {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
-                       </button>}
-                       title={displayTitle}
-                       TitleComponent={<>
-                         <span className={styles.serialNumber}>{report.serial_number}</span>
-                         <button
-                             className={styles.title}
-                             type='button'
-                         >
-                           {displayTitle}
-                         </button>
-                       </>}
-                       themeBgColor={themeBgColor}
-                       themeColor={themeColor}
+  return <FeedListItem
+    onClick={() => onTitleClick?.(report)}
+    className={`${hoverEffects[displayPriority]} ${className}`}
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
+      <LocationJumpButton
+        clickAnalytics={[
+          MAP_LAYERS_CATEGORY,
+          'Click Jump To Report Location button',
+          `Report Type:${report.event_type}`,
+        ]}
+        coordinates={coordinates}
+        isMulti={hasMultipleLocations}
+        onClick={onClickLocationJumpButton}
+      /> : undefined}
+    DateComponent={dateTimeProp && <span className={styles.dateComponent}>
+      <DateTime date={dateTimeProp} showElapsed={showElapsedTime} suffix='ago'/>
+      {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
+    </span>}
+    IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type='button'>
+      <EventIcon report={report} />
+      {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
+    </button>}
+    title={displayTitle}
+    TitleComponent={<>
+      <span className={styles.serialNumber}>{report.serial_number}</span>
+      <button
+        className={styles.title}
+        type='button'
+      >
+        {displayTitle}
+      </button>
+    </>}
+    themeBgColor={themeBgColor}
+    themeColor={themeColor}
   />;
-});
+};
 
 ReportListItem.defaultProps = {
   className: '',

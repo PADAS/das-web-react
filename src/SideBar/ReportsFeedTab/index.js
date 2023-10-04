@@ -42,7 +42,7 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
-  const { setToScrollElementId, scrollElementIntoView } = useContext(ScrollContext);
+  const { setScrollTop, scrollToLastVisitedElement } = useContext(ScrollContext);
 
   const [feedEvents, setFeedEvents] = useState(() => {
     if (events.results?.length) {
@@ -65,17 +65,17 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
 
   const onEventTitleClick = useCallback((event) => {
     navigate(event.id);
-    setToScrollElementId(event.id);
+    setScrollTop();
 
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [navigate, setToScrollElementId]);
+  }, [navigate, setScrollTop]);
 
   useEffect(() => {
     setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);
   }, [events.results, shouldExcludeContained]);
 
   useEffect(() => {
-    scrollElementIntoView();
+    scrollToLastVisitedElement();
   }, []);
 
   return <ErrorBoundary>

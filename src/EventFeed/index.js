@@ -15,10 +15,9 @@ import { ScrollContext } from '../ScrollContext';
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
 
-  const scrollRef = useRef(null);
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
-  const { assignRefToScrollElement } = useContext(ScrollContext);
+  const { scrollRef } = useContext(ScrollContext);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -35,7 +34,6 @@ const EventFeed = (props) => {
           <Flipped flipId={item.id} key={item.id}>
             <EventItemContextMenu report={item} className={styles.contextMenu}>
               <ReportListItem
-                    ref={ assignRefToScrollElement(item.id) }
                     displayTime={item[displayTimeProp]}
                     report={item}
                     onTitleClick={onTitleClick}

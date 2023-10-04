@@ -13,15 +13,15 @@ const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
   const navigate= useNavigate();
   const patrols = useSelector(getPatrolList);
   const sortedPatrols = useMemo(() => sortPatrolList(patrols.results), [patrols.results]);
-  const { setToScrollElementId, scrollElementIntoView } = useContext(ScrollContext);
+  const { setScrollTop, scrollToLastVisitedElement } = useContext(ScrollContext);
 
   const onItemClick = useCallback((id) => {
-    setToScrollElementId(id);
+    setScrollTop();
     navigate(id);
-  }, [navigate, setToScrollElementId]);
+  }, [navigate, setScrollTop]);
 
   useEffect(() => {
-    scrollElementIntoView();
+    scrollToLastVisitedElement();
   }, []);
 
   return <>

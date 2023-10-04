@@ -39,7 +39,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
-  const { assignRefToScrollElement } = useContext(ScrollContext);
+  const { scrollRef } = useContext(ScrollContext);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -47,6 +47,7 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
     {!!patrols.length && <Flipper
         flipKey={patrols}
         element='ul'
+        ref={scrollRef}
         className={styles.patrolList}
       >
       {patrols.map((item) =>
@@ -55,7 +56,6 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
           map={map}
           key={item.id}
           onItemClick={onItemClick}
-          ref={assignRefToScrollElement(item.id)}
         />
       )}
     </Flipper>}
