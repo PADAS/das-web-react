@@ -1,27 +1,25 @@
-import React, { forwardRef, memo, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
 
 import styles from './styles.module.scss';
 
-// eslint-disable-next-line react/display-name
-const FeedListItem = forwardRef((props, ref) => {
+const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
 
   const iconSectionColor = themeColor;
   const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
 
   return <li
-      className={`${styles.listItem} ${className}`}
-      style={{ backgroundColor: bodyBackgroundColor }}
-      {...rest}
-      ref={ref}
+    className={`${styles.listItem} ${className}`}
+    style={{ backgroundColor: bodyBackgroundColor }}
+    {...rest}
     >
     {IconComponent && <div
-        role='img'
-        className={styles.iconContainer}
-        style={{ backgroundColor: iconSectionColor }}
+      role='img'
+      className={styles.iconContainer}
+      style={{ backgroundColor: iconSectionColor }}
     >
       {IconComponent}
     </div>}
@@ -35,7 +33,7 @@ const FeedListItem = forwardRef((props, ref) => {
       {ControlsComponent}
     </div>}
   </li>;
-});
+};
 
 export default memo(FeedListItem);
 
