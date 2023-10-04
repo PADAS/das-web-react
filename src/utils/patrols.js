@@ -110,7 +110,7 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
   };
 
   const maxDefinedOrdernum = Math.max(
-    patrolTypes.reduce((nums, { ordernum }) => {
+    ...patrolTypes.reduce((nums, { ordernum }) => {
       if (isNil(ordernum)) return nums;
 
       nums.push(ordernum);
