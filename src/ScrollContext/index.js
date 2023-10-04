@@ -19,6 +19,7 @@ const ScrollContextProvider = ({ children }) => {
       element.scrollTo({
         top: scroll
       });
+      setScroll(0);
     }
   }, [scroll, getElement]);
 
