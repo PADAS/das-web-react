@@ -7,21 +7,20 @@ import useNavigate from '../../hooks/useNavigate';
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
 import { sortPatrolList } from '../../utils/patrols';
-import { ScrollContext } from '../../ScrollContext';
+import { Feeds, ScrollContext } from '../../ScrollContext';
 
 const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
   const navigate= useNavigate();
   const patrols = useSelector(getPatrolList);
   const sortedPatrols = useMemo(() => sortPatrolList(patrols.results), [patrols.results]);
-  const { setScrollTop, scrollToLastVisitedElement } = useContext(ScrollContext);
+  const { scrollToLastPosition } = useContext(ScrollContext);
 
   const onItemClick = useCallback((id) => {
-    setScrollTop();
     navigate(id);
-  }, [navigate, setScrollTop]);
+  }, [navigate]);
 
   useEffect(() => {
-    scrollToLastVisitedElement();
+    scrollToLastPosition(Feeds.patrol);
   }, []);
 
   return <>

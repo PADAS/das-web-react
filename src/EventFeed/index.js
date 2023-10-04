@@ -1,4 +1,4 @@
-import React, { useRef, memo, useMemo, useContext } from 'react';
+import React, { memo, useMemo, useContext, useCallback } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -10,18 +10,19 @@ import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
-import { ScrollContext } from '../ScrollContext';
+import { Feeds, ScrollContext } from '../ScrollContext';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
 
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
-  const { scrollRef } = useContext(ScrollContext);
+  const { scrollRef, setScrollPosition } = useContext(ScrollContext);
+  const onScrollFeed = useCallback(() => setScrollPosition(Feeds.report), [setScrollPosition]);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
+  return <div ref={scrollRef} onScroll={onScrollFeed} className={`${className} ${styles.scrollContainer}`}>
     <InfiniteScroll
         element='ul'
         hasMore={hasMore}

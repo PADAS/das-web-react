@@ -20,7 +20,7 @@ import ErrorBoundary from '../../ErrorBoundary';
 import ErrorMessage from '../../ErrorMessage';
 import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
-import { ScrollContext } from '../../ScrollContext';
+import { Feeds, ScrollContext } from '../../ScrollContext';
 
 import styles from './../styles.module.scss';
 
@@ -42,7 +42,7 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
   const navigate = useNavigate();
 
   const map = useContext(MapContext);
-  const { setScrollTop, scrollToLastVisitedElement } = useContext(ScrollContext);
+  const { scrollToLastPosition } = useContext(ScrollContext);
 
   const [feedEvents, setFeedEvents] = useState(() => {
     if (events.results?.length) {
@@ -65,17 +65,15 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
 
   const onEventTitleClick = useCallback((event) => {
     navigate(event.id);
-    setScrollTop();
-
     feedTracker.track(`Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  }, [navigate, setScrollTop]);
+  }, [navigate]);
 
   useEffect(() => {
     setFeedEvents(shouldExcludeContained ? excludeContainedReports(events.results) : events.results);
   }, [events.results, shouldExcludeContained]);
 
   useEffect(() => {
-    scrollToLastVisitedElement();
+    scrollToLastPosition(Feeds.report);
   }, []);
 
   return <ErrorBoundary>

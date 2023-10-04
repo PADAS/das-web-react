@@ -2,28 +2,36 @@ import React, { createContext, useCallback, useMemo, useRef, useState } from 're
 
 export const ScrollContext = createContext();
 
+export const Feeds = {
+  patrol: 'patrols',
+  report: 'reports',
+};
+
+const getElement = (ref) => ref?.current?.el ?? ref?.current;
+
 const ScrollContextProvider = ({ children }) => {
   const scrollRef = useRef(null);
-  const [scroll, setScroll] = useState(0);
+  const [scrollPositionValues, setScrollPositionValues] = useState({});
 
-  const getElement = useCallback(() => scrollRef?.current?.el ?? scrollRef?.current, []);
+  const setScrollPosition = useCallback((tab) => {
+    const element = getElement(scrollRef);
+    const value = element.scrollTop;
+    setScrollPositionValues({
+      ...scrollPositionValues,
+      [tab]: value
+    });
+  }, [scrollPositionValues]);
 
-  const setScrollTop = useCallback(() => {
-    const element = getElement();
-    setScroll(element.scrollTop);
-  }, [getElement]);
-
-  const scrollToLastVisitedElement = useCallback(() => {
-    const element = getElement();
+  const scrollToLastPosition = useCallback((tab) => {
+    const element = getElement(scrollRef);
     if (element?.scrollTo){
       element.scrollTo({
-        top: scroll
+        top: scrollPositionValues[tab]
       });
-      setScroll(0);
     }
-  }, [scroll, getElement]);
+  }, [scrollPositionValues]);
 
-  const scrollContextValue = useMemo(() => ({ setScrollTop, scrollToLastVisitedElement, scrollRef }), [scrollToLastVisitedElement, setScrollTop]);
+  const scrollContextValue = useMemo(() => ({ setScrollPosition, scrollToLastPosition, scrollRef }), [scrollToLastPosition, setScrollPosition]);
 
   return <ScrollContext.Provider value={scrollContextValue}>
     {children}
