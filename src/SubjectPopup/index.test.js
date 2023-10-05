@@ -81,6 +81,7 @@ describe('SubjectPopup', () => {
       renderWithWrapper(<SubjectPopup data={subjectFeatureWithMultipleDeviceProps} />);
     });
 
+
     test('showing the subject name', () => {
       expect(screen.getByText('RD-001')).toBeInTheDocument();
     });
