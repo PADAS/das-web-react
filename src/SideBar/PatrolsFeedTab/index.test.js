@@ -9,7 +9,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from '../../hooks/useNavigate';
 
 import PatrolsFeedTab from './';
-import ScrollContextProvider from "../../ScrollContext";
+import { ScrollContextProvider } from "../../ScrollContext";
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),

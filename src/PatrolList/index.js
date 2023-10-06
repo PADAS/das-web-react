@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
@@ -7,7 +7,7 @@ import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
 import { openModalForPatrol } from '../utils/patrols';
-import { Feeds, ScrollContext } from '../ScrollContext';
+import { ScrollRestoration } from '../ScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -39,28 +39,17 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
-  const { scrollRef, setScrollPosition } = useContext(ScrollContext);
-
-  useEffect(() => {
-    const onScroll = () => setScrollPosition(Feeds.patrol);
-    let element = null;
-
-    setTimeout(() => {
-      element = scrollRef?.current?.el;
-      element?.addEventListener?.('scroll', onScroll);
-    }, 1000);
-
-    return () => element?.removeEventListener?.('scroll', onScroll);
-  }, []);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <>
-    {!!patrols.length && <Flipper
+    {!!patrols.length && <ScrollRestoration
         flipKey={patrols}
         element='ul'
-        ref={scrollRef}
         className={styles.patrolList}
+        Component={Flipper}
+        isScrollable={false}
+        namespace='patrols'
       >
       {patrols.map((item) =>
         <ListItem
@@ -70,7 +59,7 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
           onItemClick={onItemClick}
         />
       )}
-    </Flipper>}
+    </ScrollRestoration>}
     {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
   </>;
 };

@@ -33,7 +33,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 import { showToast } from './utils/toast';
-import ScrollContextProvider from './ScrollContext';
+import { ScrollContextProvider } from './ScrollContext';
 
 export const MapContext = createContext(null);
 
