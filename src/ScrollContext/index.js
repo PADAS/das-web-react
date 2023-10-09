@@ -34,28 +34,26 @@ export const ScrollContextProvider = ({ children }) => {
   </ScrollContext.Provider>;
 };
 
-export const ScrollRestoration = ({ Component, isScrollable, namespace, children, ...props }) => {
+export const ScrollRestoration = ({ Component, namespace, children, ...props }) => {
   const { scrollRef, setScrollPosition, scrollToLastPosition } = useContext(ScrollContext);
   const onScrollFeed = useCallback(() => setScrollPosition(namespace), [setScrollPosition, namespace]);
 
   useEffect(() => {
-    if (!isScrollable){
-      let element = null;
+    let element = null;
 
-      setTimeout(() => {
-        element = getElement(scrollRef);
-        element?.addEventListener?.('scroll', onScrollFeed);
-      }, 1000);
+    setTimeout(() => {
+      element = getElement(scrollRef);
+      element?.addEventListener?.('scroll', onScrollFeed);
+    }, 1000);
 
-      return () => element?.removeEventListener?.('scroll', onScrollFeed);
-    }
+    return () => element?.removeEventListener?.('scroll', onScrollFeed);
   }, []);
 
   useEffect(() => {
     scrollToLastPosition(namespace);
   }, []);
 
-  return <Component ref={scrollRef} onScroll={isScrollable && onScrollFeed} {...props}>
+  return <Component ref={scrollRef} {...props}>
     {children}
   </Component>;
 };
@@ -67,12 +65,10 @@ ScrollRestoration.defaultProps = {
       {children}
     </div>;
   }),
-  isScrollable: true,
 };
 
 ScrollRestoration.propTypes = {
   Component: PropTypes.element,
-  isScrollable: PropTypes.bool,
   namespace: PropTypes.string.isRequired,
-  children: PropTypes.element.isRequired
+  children: PropTypes.element.isRequired,
 };

@@ -48,7 +48,6 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
         element='ul'
         className={styles.patrolList}
         Component={Flipper}
-        isScrollable={false}
         namespace='patrols'
       >
       {patrols.map((item) =>
