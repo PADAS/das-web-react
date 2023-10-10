@@ -17,14 +17,19 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   right: 12,
 };
 
-const calcPadding = (currentTab, isArray, itemId, isMedioumLayoutOrLarger) => {
+const calcPadding = (currentTab, isArray, itemId, isMediumLayoutOrLarger) => {
   const padding = { ...DEFAULT_LOCATION_JUMP_PADDING };
+  const polygonPadding = 350;
 
-  if (isMedioumLayoutOrLarger) {
+  if (isMediumLayoutOrLarger) {
     if (itemId) {
-      padding.left = SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS;
+      padding.left = isArray
+        ? ( SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS - polygonPadding )
+        : SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS;
     } else if (currentTab) {
-      padding.left = isArray ? SIDEBAR_WIDTH_PIXELS : SIDEBAR_WIDTH_PIXELS - 150;
+      padding.left = isArray
+        ? ( SIDEBAR_WIDTH_PIXELS - polygonPadding )
+        : SIDEBAR_WIDTH_PIXELS + 80;
     }
   }
   return padding;
@@ -33,7 +38,7 @@ const calcPadding = (currentTab, isArray, itemId, isMedioumLayoutOrLarger) => {
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
   const map = useContext(MapContext);
-  const isMedioumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const { currentTab, itemId } = useMemo(() => ({
     currentTab: getCurrentTabFromURL(routerLocation.pathname),
@@ -43,7 +48,7 @@ const useJumpToLocation = () => {
   return (coords, zoom = 15) => {
     const isCoordsArray = Array.isArray(coords[0]);
 
-    const padding = calcPadding(currentTab, isCoordsArray, itemId, isMedioumLayoutOrLarger);
+    const padding = calcPadding(currentTab, isCoordsArray, itemId, isMediumLayoutOrLarger);
 
     if (isCoordsArray && coords.length > 1) {
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
