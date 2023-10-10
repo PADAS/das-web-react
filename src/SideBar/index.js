@@ -14,7 +14,7 @@ import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
-import useFetchReportsFeed from './useFetchReportsFeed';
+import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -29,6 +29,8 @@ import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
+import NewEventNotifier from '../NewEventNotifier';
+
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 
@@ -40,7 +42,7 @@ const SideBar = () => {
   const navigate = useNavigate();
   const sideBar = useSelector((state) => state.view.sideBar);
   const patrolsFeed = useFetchPatrolsFeed();
-  const reportsFeed = useFetchReportsFeed();
+  const reportsFeed = useReportsFeed();
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
   const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
@@ -130,6 +132,7 @@ const SideBar = () => {
       <Link className={styles.navItem} to={TAB_KEYS.REPORTS}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+        <NewEventNotifier />
         <span>Reports</span>
       </Link>
 
@@ -180,6 +183,7 @@ const SideBar = () => {
 
             <Route path="reports">
               <Route index element={<ReportsFeedTab
+                  events={reportsFeed.events}
                   feedSort={reportsFeed.feedSort}
                   loadFeedEvents={reportsFeed.loadFeedEvents}
                   loadingEventFeed={reportsFeed.loadingEventFeed}

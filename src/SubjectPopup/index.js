@@ -1,6 +1,6 @@
 import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import format from 'date-fns/format';
 import Button from 'react-bootstrap/Button';
 
@@ -19,8 +19,11 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = ({ data, timeSliderState }) => {
+const SubjectPopup = ({ data }) => {
   const  { geometry, properties } = data;
+
+  const timeSliderState = useSelector(state => state.view.timeSliderState);
+
   const  { active: isTimeSliderActive } = timeSliderState;
 
   const device_status_properties =
@@ -69,7 +72,7 @@ const SubjectPopup = ({ data, timeSliderState }) => {
         <AddItemButton
           analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'subject popover' }}
           className={styles.addReport}
-          reportData={{ location: locationObject, reportedById }}
+          reportData={{ location: locationObject, reportedById, related_subjects: [reportedById] }}
           showLabel={false}
           variant="secondary"
         />
@@ -109,8 +112,7 @@ const SubjectPopup = ({ data, timeSliderState }) => {
   </>;
 };
 
-const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
-export default connect(mapStateToProps, null)(memo(SubjectPopup));
+export default memo(SubjectPopup);
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,

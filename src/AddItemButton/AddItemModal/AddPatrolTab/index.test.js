@@ -51,6 +51,18 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     jest.restoreAllMocks();
   });
 
+  test('sorts patrol types by ordernum, with null ordernums last', async () => {
+    renderAddPatrolTab();
+
+    const renderedResults = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
+    expect(renderedResults).toHaveLength(4);
+
+    expect(renderedResults[0]).toHaveTextContent('Routine Patrol');
+    expect(renderedResults[1]).toHaveTextContent('Dog Patrol');
+    expect(renderedResults[2]).toHaveTextContent('Fence Patrol');
+    expect(renderedResults[3]).toHaveTextContent('Aerial');
+  });
+
   test('filters patrol types by search text', async () => {
     renderAddPatrolTab();
 

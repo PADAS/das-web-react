@@ -2,7 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
-import ReactGA from 'react-ga';
 import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -17,8 +16,6 @@ import Nav from './';
 import ModalRenderer from '../ModalRenderer';
 import useNavigate from '../hooks/useNavigate';
 jest.mock('../hooks/useNavigate', () => jest.fn());
-
-ReactGA.initialize('dummy', { testMode: true });
 
 const generateResponse = (data = []) => ({ data });
 

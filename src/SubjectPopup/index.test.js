@@ -1,78 +1,84 @@
 
 
 import React from 'react';
-import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { addModal } from '../ducks/modals';
-import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
-import { createMapMock } from '../__test-helpers/mocks';
-import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
+import { Provider, useSelector }  from 'react-redux';
 
 import { GPS_FORMATS } from '../utils/location';
+
+import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
+
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+
+import { mockStore } from '../__test-helpers/MockStore';
 
 import SubjectPopup from './';
 
-jest.mock('../ducks/modals', () => ({
-  ...jest.requireActual('../ducks/modals'),
-  addModal: jest.fn(),
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useSelector: jest.fn(),
 }));
 
-let store = mockStore({
-  data: {
-    eventFilter: {
-      filter: {
-        date_range: {
-          lower: null,
-          upper: null,
-        },
-      },
-    },
-    tracks: {},
-  },
-  view: {
-    featureFlagOverrides: {},
-    heatmapSubjectIDs: [],
-    timeSliderState: {
-      active: false,
-      virtualDate: null,
-    },
-    trackLength: {
-      origin: 'customLength',
-      length: 21,
-    },
-    subjectTrackState: {
-      visible: [],
-      pinned: [],
-    },
-    patrolTrackState: {
-      visible: [],
-      pinned: [],
-    },
-    userPreferences: {
-      gpsFormat: GPS_FORMATS.DEG,
-    },
-  },
-});
 
 describe('SubjectPopup', () => {
+  let renderWithWrapper, Wrapper, state;
+  beforeEach(() => {
+    state = {
+      data: {
+        eventFilter: {
+          filter: {
+            date_range: {
+              lower: null,
+              upper: null,
+            },
+          },
+        },
+        tracks: {},
+      },
+      view: {
+        featureFlagOverrides: {},
+        heatmapSubjectIDs: [],
+        timeSliderState: {
+          active: false,
+          virtualDate: null,
+        },
+        trackLength: {
+          origin: 'customLength',
+          length: 21,
+        },
+        subjectTrackState: {
+          visible: [],
+          pinned: [],
+        },
+        patrolTrackState: {
+          visible: [],
+          pinned: [],
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
+    };
+
+    useSelector.mockImplementation(selectorFn => selectorFn(state));
+
+  });
+
   describe('generic popup', () => {
-    let map;
     beforeEach(() => {
       jest.spyOn(document, 'querySelector').mockImplementation(() => ({
         clientHeight: 1000,
         clientWidth: 1000,
       }));
 
-      map = createMapMock();
-      render(<Provider store={store}>
-        <NavigationWrapper>
-          <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
-        </NavigationWrapper>
-      </Provider>);
+      /* eslint-disable-next-line react/display-name */
+      Wrapper = ({ children }) => <Provider store={mockStore(state)}>{children}</Provider>;
+
+      renderWithWrapper = (Component) => render(Component, { wrapper: Wrapper });
+
+      renderWithWrapper(<SubjectPopup data={subjectFeatureWithMultipleDeviceProps} />);
     });
 
     test('showing the subject name', () => {
@@ -97,13 +103,7 @@ describe('SubjectPopup', () => {
     });
 
     test('listing individual device properties', async () => {
-      render(
-        <Provider store={store}>
-          <NavigationWrapper>
-            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-          </NavigationWrapper>
-        </Provider>
-      );
+      renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
 
       const [statusProp] = subjectFeatureWithOneDeviceProp.properties.device_status_properties;
       const additionalProps = await screen.getByTestId('additional-props');
@@ -114,13 +114,7 @@ describe('SubjectPopup', () => {
     });
 
     test('render additional props with boolean values', async () => {
-      render(
-        <Provider store={store}>
-          <NavigationWrapper>
-            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-          </NavigationWrapper>
-        </Provider>
-      );
+      renderWithWrapper(<SubjectPopup data={subjectFeatureWithOneDeviceProp} />);
 
       const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
       expect(additionalPropsValues[1]).toHaveTextContent('false');
@@ -133,11 +127,7 @@ describe('SubjectPopup', () => {
     staticSubjectFeature.properties.default_status_value = defaultSubjectValue;
 
     beforeEach(() => {
-      render(<Provider store={store}>
-        <NavigationWrapper>
-          <SubjectPopup data={staticSubjectFeature} />
-        </NavigationWrapper>
-      </Provider>);
+      renderWithWrapper(<SubjectPopup data={staticSubjectFeature} />);
     });
 
     test('render default featured property for stationary subjects', async () => {

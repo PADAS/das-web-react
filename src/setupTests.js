@@ -1,4 +1,3 @@
-import ReactGA from 'react-ga';
 import ReactGA4 from 'react-ga4';
 import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
@@ -7,7 +6,6 @@ import mapboxgl from 'mapbox-gl';
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 import { createMapMock, createMockPopup } from './__test-helpers/mocks';
 
-ReactGA.initialize('dummy', { testMode: true });
 ReactGA4.initialize('dummy', { testMode: true });
 
 jest.mock('mapbox-gl', () => ({

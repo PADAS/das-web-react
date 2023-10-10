@@ -42,6 +42,7 @@ import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
+import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 
 const generateStorageConfig = (key, storageMethod = storage, version = -1, migrations) => {
   const config = { key, storage: storageMethod, version };
@@ -88,6 +89,7 @@ const rootReducer = combineReducers({
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,
+    recentEventDataReceived: recentEventDataReceivedReducer,
     observations: observationsReducer,
     patrols: patrolsReducer,
     patrolTypes: patrolTypesReducer,

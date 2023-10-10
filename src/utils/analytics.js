@@ -1,5 +1,4 @@
 import { createContext } from 'react';
-import ReactGA from 'react-ga';
 import ReactGA4 from 'react-ga4';
 import debounce from 'lodash/debounce';
 
@@ -8,7 +7,7 @@ import { CLIENT_BUILD_VERSION } from '../constants';
 export const TrackerContext = createContext(null);
 
 /**
- * ReactGA convenience functions.
+ * ReactGA4 convenience functions.
  * 
  * This file defines several convenience functions for Google Analytics calls
  * that rely on the ReactGA library.
@@ -47,7 +46,6 @@ export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
  * @param {string} [label]  Event label string (optional).
  */
 export function trackEvent(category, action, label=null) {
-  ReactGA.event({ category, action, label });
   ReactGA4.event({ category, action, label });
 };
 
@@ -75,21 +73,17 @@ export const trackEventFactory = (category, tracker = trackEvent) => {
  */
 
 export const setServerVersionAnalyticsDimension = (version) => {
-  ReactGA.set({ dimension1: version });
   ReactGA4.set({ dimension1: version });
 };
 
 export function setUserRole(role) {
-  ReactGA.set({ dimension2: role });
   ReactGA4.set({ dimension2: role });
 }
 
 export const setSitenameDimension = (site) => {
-  ReactGA.set({ dimension3: site });
   ReactGA4.set({ dimension3: site });
 };
 
 export const setClientReleaseIdentifier = () => {
-  ReactGA.set({ dimension4: CLIENT_BUILD_VERSION });
   ReactGA4.set({ dimension4: CLIENT_BUILD_VERSION });
 };

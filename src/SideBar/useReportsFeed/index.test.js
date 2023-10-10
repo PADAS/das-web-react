@@ -10,7 +10,7 @@ import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../../ducks/events';
 import { INITIAL_FILTER_STATE as INITIAL_EVENT_FILTER_STATE } from '../../ducks/event-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
-import useFetchReportsFeed from '.';
+import useReportsFeed from '.';
 
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
@@ -23,7 +23,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('useFetchReportsFeed', () => {
+describe('useReportsFeed', () => {
   let capturedRequestURLs, store;
 
   const logRequest = (req) => {
@@ -67,10 +67,11 @@ describe('useFetchReportsFeed', () => {
 
   test('returns the reportsFetchFeed properties and methods', async () => {
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    const { result } = renderHook(() => useFetchReportsFeed(), { wrapper });
+    const { result } = renderHook(() => useReportsFeed(), { wrapper });
 
     const reportsFetchFeed = result.current;
 
+    expect(reportsFetchFeed.events).toEqual({ results: [] });
     expect(reportsFetchFeed.feedSort).toBe(DEFAULT_EVENT_SORT);
     expect(typeof reportsFetchFeed.loadFeedEvents).toBe('function');
     expect(reportsFetchFeed.loadingEventFeed).toBe(true);
@@ -80,7 +81,7 @@ describe('useFetchReportsFeed', () => {
 
   test('loads the reports feed for georestricted users', async () => {
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    renderHook(() => useFetchReportsFeed(), { wrapper });
+    renderHook(() => useReportsFeed(), { wrapper });
 
     await waitFor(() => {
       expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toContain('location=65.7%2C50.3');
@@ -90,7 +91,7 @@ describe('useFetchReportsFeed', () => {
   test('loads the reports feed normally', async () => {
     store.data.user.permissions = [];
     const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    renderHook(() => useFetchReportsFeed(), { wrapper });
+    renderHook(() => useReportsFeed(), { wrapper });
 
     await waitFor(() => {
       expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toBeDefined();
