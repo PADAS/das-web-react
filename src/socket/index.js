@@ -27,7 +27,7 @@ const executeSocketEventActions = (eventName, eventData) => {
       if (isFunction(type)) {
         store.dispatch(type(eventData));
       } else {
-        store.dispatch({ type, eventData });
+        store.dispatch({ type, payload: eventData });
       }
     });
   }
