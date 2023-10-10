@@ -3,6 +3,8 @@ const SET_FLAG_OVERRIDE_VALUE = 'SET_FLAG_OVERRIDE_VALUE';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
+export const ENABLE_NEW_REPORT_NOTIFICATION_SOUND = 'ENABLE_NEW_REPORT_NOTIFICATION_SOUND';
+
 export const migrations = {
   0: (state) => {
     const { ENABLE_REPORT_NEW_UI: _removedKey, ...rest } = state;
@@ -20,6 +22,10 @@ export const INTIAL_REDUCER_STATE = {
     label: 'New Patrol Form UI',
     value: DEVELOPMENT_FEATURE_FLAGS[ENABLE_PATROL_NEW_UI],
   },
+  [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: {
+    label: 'Play Sound For New Reports',
+    value: false,
+  }
 };
 
 const reducer = (state = INTIAL_REDUCER_STATE, action = {}) => {

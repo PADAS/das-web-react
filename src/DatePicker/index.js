@@ -268,6 +268,7 @@ const CustomDatePicker = ({
     timeInputLabel={DEFAULT_TIME_INPUT_LABEL}
     showTimeInput={showTimeInput}
     customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
+    fixedHeight
     {...rest}
   />;
 };
