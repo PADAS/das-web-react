@@ -161,7 +161,7 @@ describe('useJumpToLocation', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-104.19557197413907, 20.75709101172957],
-        padding: { top: 12, right: 12, bottom: 12, left: 362 },
+        padding: { top: 12, right: 12, bottom: 12, left: 592 },
         speed: 200,
         zoom: 12,
       });
