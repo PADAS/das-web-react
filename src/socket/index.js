@@ -20,10 +20,10 @@ const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new D
   );
 };
 
-const executeSocketEventActions = (eventName, eventData) => {
-  const actionTypes = events[eventName] ?? EVENT_DISPATCHES[eventName];
-  if (Array.isArray(actionTypes)){
-    actionTypes.forEach(type => {
+const executeSocketEventDispatches = (eventName, eventData) => {
+  const dispatches = events[eventName] ?? EVENT_DISPATCHES[eventName];
+  if (Array.isArray(dispatches)){
+    dispatches.forEach(type => {
       if (isFunction(type)) {
         store.dispatch(type(eventData));
       } else {
@@ -103,7 +103,7 @@ export const bindSocketEvents = (socket, store) => {
 
     if (!eventsBound) {
       socket.prependAny(checkSocketSanity);
-      socket.onAny(executeSocketEventActions);
+      socket.onAny(executeSocketEventDispatches);
       socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
     eventsBound = true;
