@@ -7,7 +7,7 @@ import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
 import { openModalForPatrol } from '../utils/patrols';
-import { ScrollRestoration } from '../ScrollContext';
+import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';

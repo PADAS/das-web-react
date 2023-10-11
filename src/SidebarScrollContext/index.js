@@ -5,7 +5,7 @@ export const ScrollContext = createContext();
 
 const getElement = (ref) => ref?.current?.el ?? ref?.current;
 
-export const ScrollContextProvider = ({ children }) => {
+export const SidebarScrollContext = ({ children }) => {
   const scrollRef = useRef(null);
   const [scrollPositionValues, setScrollPositionValues] = useState({});
 

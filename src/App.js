@@ -33,7 +33,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 import { showToast } from './utils/toast';
-import { ScrollContextProvider } from './ScrollContext';
+import { SidebarScrollContext } from './SidebarScrollContext';
 
 export const MapContext = createContext(null);
 
@@ -144,9 +144,9 @@ const App = (props) => {
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-          {!!map && <ScrollContextProvider>
+          {!!map && <SidebarScrollContext>
             <SideBar map={map} />
-          </ScrollContextProvider>
+          </SidebarScrollContext>
           }
           <ModalRenderer />
         </div>

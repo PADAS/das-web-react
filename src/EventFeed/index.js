@@ -8,7 +8,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
-import { ScrollContext, ScrollRestoration } from '../ScrollContext';
+import { ScrollContext, ScrollRestoration } from '../SidebarScrollContext';
 
 import styles from './styles.module.scss';
 
