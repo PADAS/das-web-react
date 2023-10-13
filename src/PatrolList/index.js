@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useState, useEffect } from 'react';
+import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
@@ -6,8 +6,8 @@ import { FEATURE_FLAG_LABELS } from '../constants';
 import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
-import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
-
+import { openModalForPatrol } from '../utils/patrols';
+import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -43,19 +43,22 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <>
-    {!!patrols.length && <Flipper
+    {!!patrols.length && <ScrollRestoration
         flipKey={patrols}
         element='ul'
         className={styles.patrolList}
+        Component={Flipper}
+        namespace='patrols'
       >
       {patrols.map((item) =>
         <ListItem
           patrol={item}
           map={map}
           key={item.id}
-          onItemClick={onItemClick}/>
+          onItemClick={onItemClick}
+        />
       )}
-    </Flipper>}
+    </ScrollRestoration>}
     {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
   </>;
 };

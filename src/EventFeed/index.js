@@ -1,4 +1,4 @@
-import React, { useRef, memo, useMemo } from 'react';
+import React, { memo, useMemo, useContext } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -8,19 +8,20 @@ import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
+import { ScrollContext, ScrollRestoration } from '../SidebarScrollContext';
 
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
+  const { scrollRef } = useContext(ScrollContext);
 
-  const scrollRef = useRef(null);
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
+  return <ScrollRestoration namespace='reports' className={`${className} ${styles.scrollContainer}`}>
     <InfiniteScroll
         element='ul'
         hasMore={hasMore}
@@ -45,7 +46,7 @@ const EventFeed = (props) => {
         {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
       </Flipper>
     </InfiniteScroll>
-  </div>;
+  </ScrollRestoration>;
 };
 
 export default memo(EventFeed);
