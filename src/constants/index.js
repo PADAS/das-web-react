@@ -73,6 +73,7 @@ export const TAB_KEYS = {
   REPORTS: 'reports',
   LAYERS: 'layers',
   PATROLS: 'patrols',
+  SETTINGS: 'settings',
 };
 
 export const MAP_ICON_SIZE = 30;

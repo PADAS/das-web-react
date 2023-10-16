@@ -584,7 +584,6 @@ const Map = ({
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />
       <MapPrintControl />
-      <MapSettingsControl />
       <TimeSliderMapControl />
     </>}
     onMapLoaded={setMap}

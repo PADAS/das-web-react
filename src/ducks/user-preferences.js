@@ -16,8 +16,6 @@ const INITIAL_STATE = {
   autoStartPatrols: false,
   autoEndPatrols: false,
   hideModals: false,
-  seenSunsetWarning: false,
-  seenTrackAnnouncement: false,
 };
 
 const userPreferencesReducer = (state = INITIAL_STATE, action = {}) => {

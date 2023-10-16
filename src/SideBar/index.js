@@ -7,6 +7,7 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 
 import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
@@ -33,6 +34,7 @@ import NewEventNotifier from '../NewEventNotifier';
 
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
+import SettingsPane from './SettingsPane';
 
 import styles from './styles.module.scss';
 import useNavigate from '../hooks/useNavigate';
@@ -145,12 +147,17 @@ const SideBar = () => {
         <LayersIcon />
         <span>Map Layers</span>
       </Link>
+
+      <Link className={styles.navItem} to={TAB_KEYS.SETTINGS}>
+        <GearIcon />
+        <span>Settings</span>
+      </Link>
     </div>
 
     <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
         <div className={styles.header}>
-          <div className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
+          <div className={[TAB_KEYS.REPORTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
             {!!itemId
                 ? <button
                   className={styles.backButton}
@@ -217,6 +224,12 @@ const SideBar = () => {
                   <ClearAllControl map={map} />
                 </div>
               </ErrorBoundary>}
+            />
+
+            <Route path="settings"
+              element={
+                <SettingsPane />
+              }
             />
           </Routes>
         </div>

@@ -9,12 +9,14 @@
   z-index: 12;
   opacity: 1;
   transition: opacity .3s ease-in-out;
-  
+
   &[class*=hidden] {
     opacity: 0;
     pointer-events: none;
   }
-};
+}
+
+;
 
 .betaPreviewLabel {
   font-size: 1rem;
@@ -66,7 +68,10 @@
     padding: 0;
 
     svg {
+      fill: white;
       margin-bottom: 0.5rem;
+      height: auto;
+      width: 1.5rem;
     }
   }
 
@@ -92,7 +97,7 @@
 }
 
 .tabsContainer {
-  
+
   height: 100%;
   overflow: hidden;
   left: 0;
@@ -130,6 +135,7 @@
 
   &[class*=open] {
     transform: translateX(0);
+
     .filterWrapper {
       margin-bottom: -0.75rem;
       padding-top: 0.812rem;
@@ -161,7 +167,7 @@
     overflow-y: auto;
     padding-bottom: 4rem;
 
-    > .noItems {
+    >.noItems {
       visibility: hidden;
       font-size: 0.75rem;
       font-weight: bold;
@@ -169,7 +175,7 @@
       padding: 1rem;
     }
 
-    > .noItems:only-child {
+    >.noItems:only-child {
       visibility: visible;
     }
   }
@@ -235,7 +241,7 @@
   overflow-y: auto;
   padding-bottom: 4rem;
 
-  > .noItems {
+  >.noItems {
     visibility: hidden;
     font-size: 0.75rem;
     font-weight: bold;
@@ -243,7 +249,7 @@
     padding: 1rem;
   }
 
-  > .noItems:only-child {
+  >.noItems:only-child {
     visibility: visible;
   }
 }
@@ -262,7 +268,7 @@
     margin: 0 0 1rem;
     min-height: 2.25rem;
 
-    + div {
+    +div {
       font-size: 0.9rem;
       font-style: italic;
       margin: -1rem 0 1rem;
@@ -279,6 +285,7 @@
 
 .sidebarEventFeed {
   margin-top: 0.75rem;
+
   [class*=titleContainer] {
     max-width: 20.5rem;
   }
@@ -434,7 +441,7 @@
     li {
       padding: 1rem 0.65rem 1rem 0;
 
-      > [class*=checkmark] {
+      >[class*=checkmark] {
         top: 1rem;
       }
     }
@@ -447,7 +454,7 @@
 }
 
 .controls {
-  > div:not(:last-child) {
+  >div:not(:last-child) {
     height: 2.25rem;
     width: 2.25rem;
     margin-right: 0.5rem;

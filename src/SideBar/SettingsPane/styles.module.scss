@@ -1,0 +1,37 @@
+@import "../../common/styles/vars/colors";
+
+.tab {
+  padding: 1rem 1.5rem;
+
+  &.alertsTab {
+    padding: 0;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  h6 {
+    color: $medium-light-gray;
+    font-size: 0.875rem;
+  }
+
+  label {
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+      text-decoration: underline;
+    }
+
+    span {
+      margin-left: 0.4rem;
+    }
+
+    [type=checkbox] {
+      cursor: pointer;
+    }
+  }
+}
