@@ -45,7 +45,6 @@ export const generateOptionalStorageConfig = (namespace, INITIAL_STATE) => {
     inboundState => inboundState,
     (outboundState, key) => {
       if (!shouldRestore) return INITIAL_STATE[key];
-      console.log({ key, outboundState });
       return outboundState;
     }
   );

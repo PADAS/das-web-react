@@ -12,6 +12,7 @@ import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../duck
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistanceConfig as patrolFilterPersistanceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
+import mapPositionReducer, { persistanceConfig as mapPositionPersistanceConfig } from '../ducks/map-position';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
     featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),
     mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: persistReducer(analyzersPersistanceConfig, analyzersReducer),
+    mapPosition: persistReducer(mapPositionPersistanceConfig, mapPositionReducer),
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,

@@ -15,6 +15,7 @@ import UserLocationMapControl from '../../UserLocationMapControl';
 import { useOptionalPersistance } from '../../reducers/storage-config';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
+import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
 
 import BetaToggles from '../../GlobalMenuDrawer/BetaToggles';
 
@@ -38,6 +39,7 @@ const SettingsPane = () => {
 
   const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistance(EVENT_FILTER_STORAGE_KEY);
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistance(PATROL_FILTER_STORAGE_KEY);
+  const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistance(MAP_POSITION_STORAGE_KEY);
 
   const onTabSelect = useCallback((tab) => {
     setActiveTabKey(tab);
@@ -50,6 +52,10 @@ const SettingsPane = () => {
   const onPatrolFilterPersistToggle = useCallback(() => {
     setPatrolFilterIsRestorable(!patrolFilterRestorable);
   }, [patrolFilterRestorable, setPatrolFilterIsRestorable]);
+
+  const onMapPositionPersistToggle = useCallback(() => {
+    setMapPositionIsRestorable(!mapPositionRestorable);
+  }, [mapPositionRestorable, setMapPositionIsRestorable]);
 
 
   return <Tabs
@@ -66,6 +72,12 @@ const SettingsPane = () => {
         <h3>App Refresh</h3>
         <h6>Preserve my settings on refresh for</h6>
         <ul>
+          <li>
+            <label htmlFor={MAP_POSITION_STORAGE_KEY}>
+              <input type='checkbox' id={MAP_POSITION_STORAGE_KEY} onChange={onMapPositionPersistToggle} name={MAP_POSITION_STORAGE_KEY} checked={mapPositionRestorable} />
+              <span>Map Position &amp; Zoom Level</span>
+            </label>
+          </li>
           <li>
             <label htmlFor={EVENT_FILTER_STORAGE_KEY}>
               <input type='checkbox' id={EVENT_FILTER_STORAGE_KEY} onChange={onEventFilterPersistToggle} name={EVENT_FILTER_STORAGE_KEY} checked={eventFilterRestorable} />

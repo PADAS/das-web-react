@@ -1,13 +1,17 @@
 import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import axios from 'axios';
 
+import { LngLatBounds } from 'mapbox-gl';
+
 import Map from './Map';
 import Nav from './Nav';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
+
+import useNavigate from './hooks/useNavigate';
 
 import { fetchMaps } from './ducks/maps';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
@@ -55,20 +59,49 @@ const App = (props) => {
   } = props;
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   let sidebarOpen = !!currentTab;
 
   const [map, setMap] = useState(null);
 
+  const homeMap = useSelector(state => state.view.homeMap);
+  const mapPosition = useSelector(state => state.data.mapPosition);
+
   const [isDragging, setDragState] = useState(false);
 
   const socket = useContext(SocketContext);
 
+  const jumpToStartingLocation = useCallback((map) => {
+    const lnglat = new URLSearchParams(location.search).get('lnglat');
+
+    if (lnglat) {
+      const lngLatFromParams = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
+      const newLocation = { ...location };
+
+      delete newLocation.search;
+      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
+
+      map.jumpTo({ center: lngLatFromParams, zoom: 16 });
+
+    } else if (mapPosition?.bounds && mapPosition?.zoom) {
+      const { bounds, zoom } = mapPosition;
+      map.fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
+        .setZoom(zoom);
+
+    } else if (homeMap) {
+      const { center, zoom } = homeMap;
+      map.jumpTo({ center, zoom });
+    }
+
+  }, [homeMap, location, mapPosition, navigate]);
+
   const onMapHasLoaded = useCallback((map) => {
     setMap(map);
+    jumpToStartingLocation(map);
     fetchFeaturesets();
-  }, [fetchFeaturesets]);
+  }, [fetchFeaturesets, jumpToStartingLocation]);
 
   const disallowDragAndDrop = useCallback((e) => {
     setDragState(true);
