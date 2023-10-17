@@ -1,10 +1,12 @@
+
+import { useEffect, useState } from 'react';
 import { createMigrate, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 const RESTORABLE_PREFIX = 'er-web-restorable';
 
-export const setKeyIsRestorable = (key, restore = false) => {
-  localStorage.setItem(`${RESTORABLE_PREFIX}:${key}`, { restore });
+const setKeyIsRestorable = (key, restore = false) => {
+  localStorage.setItem(`${RESTORABLE_PREFIX}:${key}`, JSON.stringify({ restore }));
 };
 
 const getKeyIsRestorable = (key) =>
@@ -33,18 +35,34 @@ export const generateStorageConfig = (key, storageMethod = storage, version = -1
 
 };
 
-export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
-  const storageConfig = generateStorageConfig(key);
-  const shouldRestore = getKeyIsRestorable(key);
+export const generateOptionalStorageConfig = (namespace, INITIAL_STATE) => {
+  const storageConfig = generateStorageConfig(namespace);
+  const shouldRestore = getKeyIsRestorable(namespace);
+
+  console.log({ [namespace]: shouldRestore });
 
   const transform = createTransform(
-    (inboundState, key) => {
+    inboundState => inboundState,
+    (outboundState, key) => {
       if (!shouldRestore) return INITIAL_STATE[key];
-      return inboundState;
+      console.log({ key, outboundState });
+      return outboundState;
     }
   );
 
   storageConfig.transforms = [transform];
 
   return storageConfig;
+};
+
+export const useOptionalPersistance = (key) => {
+  const [restorable, setRestorable] = useState(getKeyIsRestorable(key));
+
+  useEffect(() => {
+    setKeyIsRestorable(key, restorable);
+  }, [key, restorable]);
+
+
+  return { restorable, setRestorable };
+
 };

@@ -12,6 +12,10 @@ import MapNamesControl from '../../MapNamesControl';
 import MapTrackTimepointsControl from '../../MapTrackTimepointsControl';
 import UserLocationMapControl from '../../UserLocationMapControl';
 
+import { useOptionalPersistance } from '../../reducers/storage-config';
+import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
+import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
+
 import BetaToggles from '../../GlobalMenuDrawer/BetaToggles';
 
 import styles from './styles.module.scss';
@@ -32,9 +36,20 @@ const SettingsPane = () => {
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
 
+  const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistance(EVENT_FILTER_STORAGE_KEY);
+  const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistance(PATROL_FILTER_STORAGE_KEY);
+
   const onTabSelect = useCallback((tab) => {
     setActiveTabKey(tab);
   }, []);
+
+  const onEventFilterPersistToggle = useCallback(() => {
+    setEventFilterIsRestorable(!eventFilterRestorable);
+  }, [eventFilterRestorable, setEventFilterIsRestorable]);
+
+  const onPatrolFilterPersistToggle = useCallback(() => {
+    setPatrolFilterIsRestorable(!patrolFilterRestorable);
+  }, [patrolFilterRestorable, setPatrolFilterIsRestorable]);
 
 
   return <Tabs
@@ -52,43 +67,19 @@ const SettingsPane = () => {
         <h6>Preserve my settings on refresh for</h6>
         <ul>
           <li>
-            <label>
-              <input type='checkbox' />
-              <span>Map Position & Zoom Level</span>
-            </label>
-          </li>
-          <li>
-            <label>
-              <input type='checkbox' />
-              <span>Map Layer Selections</span>
-            </label>
-          </li>
-          <li>
-            <label>
-              <input type='checkbox' />
+            <label htmlFor={EVENT_FILTER_STORAGE_KEY}>
+              <input type='checkbox' id={EVENT_FILTER_STORAGE_KEY} onChange={onEventFilterPersistToggle} name={EVENT_FILTER_STORAGE_KEY} checked={eventFilterRestorable} />
               <span>Report Filters</span>
             </label>
           </li>
           <li>
-            <label>
-              <input type='checkbox' />
+            <label htmlFor={PATROL_FILTER_STORAGE_KEY}>
+              <input type='checkbox' id={PATROL_FILTER_STORAGE_KEY} onChange={onPatrolFilterPersistToggle} name={PATROL_FILTER_STORAGE_KEY} checked={patrolFilterRestorable} />
               <span>Patrol Filters</span>
             </label>
           </li>
         </ul>
       </section>
-      {/* <section>
-        <h3>Sound</h3>
-        <h6>Play a sound for new activity for</h6>
-        <ul>
-          <li>
-            <label>
-              <input type='checkbox' />
-              <span>Reports</span>
-            </label>
-          </li>
-        </ul>
-      </section> */}
       <section>
         <h3>Experimental Features</h3>
         <BetaToggles />

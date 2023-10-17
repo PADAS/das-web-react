@@ -10,7 +10,7 @@ const defaultDateRange = {
   upper: null,
 };
 
-const EVENT_FILTER_STORAGE_KEY = 'eventFilter';
+export const EVENT_FILTER_STORAGE_KEY = 'eventFilter';
 
 export const INITIAL_FILTER_STATE = {
   include_notes: true,

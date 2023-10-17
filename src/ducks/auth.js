@@ -40,7 +40,7 @@ const postAuthSuccess = response => (dispatch) => {
   });
 };
 
-export const clearAuth = () => dispatch => {
+export const clearAuth = () => (dispatch) => {
   clearAllRestorables();
 
   return new Promise((resolve) => {
