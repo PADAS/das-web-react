@@ -54,7 +54,7 @@ export const generateOptionalStorageConfig = (namespace, INITIAL_STATE) => {
   return storageConfig;
 };
 
-export const useOptionalPersistance = (key) => {
+export const useOptionalPersistence = (key) => {
   const [restorable, setRestorable] = useState(getKeyIsRestorable(key));
 
   useEffect(() => {

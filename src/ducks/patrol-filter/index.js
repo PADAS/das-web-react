@@ -20,7 +20,7 @@ export const INITIAL_FILTER_STATE = {
 };
 
 export const PATROL_FILTER_STORAGE_KEY = 'patrolFilter';
-export const persistanceConfig = generateOptionalStorageConfig(PATROL_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
+export const persistenceConfig = generateOptionalStorageConfig(PATROL_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
 

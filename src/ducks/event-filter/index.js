@@ -27,7 +27,7 @@ export const INITIAL_FILTER_STATE = {
   },
 };
 
-export const persistanceConfig = generateOptionalStorageConfig(EVENT_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
+export const persistenceConfig = generateOptionalStorageConfig(EVENT_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
 

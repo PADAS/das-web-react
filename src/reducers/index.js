@@ -10,9 +10,9 @@ import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
-import patrolFilterReducer, { persistanceConfig as patrolFilterPersistanceConfig } from '../ducks/patrol-filter';
+import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
-import mapPositionReducer, { persistanceConfig as mapPositionPersistanceConfig } from '../ducks/map-position';
+import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
@@ -27,7 +27,7 @@ import {
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
-import eventFilterReducer, { persistanceConfig as eventFilterPersistanceConfig } from '../ducks/event-filter';
+import eventFilterReducer, { persistenceConfig as eventFilterPersistenceConfig } from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
@@ -47,18 +47,18 @@ import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 
-const tokenPersistanceConfig = generateStorageConfig('token');
-const homeMapPersistanceConfig = generateStorageConfig('homeMap');
-const userPrefPersistanceConfig = generateStorageConfig('userPreferences');
-const heatmapConfigPersistanceConfig = generateStorageConfig('heatmapConfig');
-const userProfilePersistanceConfig = generateStorageConfig('userProfile');
-const mapsPersistanceConfig = generateStorageConfig('maps');
-const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
+const tokenPersistenceConfig = generateStorageConfig('token');
+const homeMapPersistenceConfig = generateStorageConfig('homeMap');
+const userPrefPersistenceConfig = generateStorageConfig('userPreferences');
+const heatmapConfigPersistenceConfig = generateStorageConfig('heatmapConfig');
+const userProfilePersistenceConfig = generateStorageConfig('userProfile');
+const mapsPersistenceConfig = generateStorageConfig('maps');
+const baseLayerPersistenceConfig = generateStorageConfig('baseLayer');
 const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', storage, 0, flagOverrideMigrations);
-const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
-const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
+const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localForage);
+const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
-const trackLengthPersistanceConfig = generateStorageConfig('trackLength');
+const trackLengthPersistenceConfig = generateStorageConfig('trackLength');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
 
 const rootReducer = combineReducers({
@@ -71,15 +71,15 @@ const rootReducer = combineReducers({
     locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
     eula: eulaReducer,
-    eventFilter: persistReducer(eventFilterPersistanceConfig, eventFilterReducer),
-    patrolFilter: persistReducer(patrolFilterPersistanceConfig, patrolFilterReducer),
+    eventFilter: persistReducer(eventFilterPersistenceConfig, eventFilterReducer),
+    patrolFilter: persistReducer(patrolFilterPersistenceConfig, patrolFilterReducer),
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
-    featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),
+    featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
     mapLayerFilter: mapLayerFilterReducer,
-    analyzerFeatures: persistReducer(analyzersPersistanceConfig, analyzersReducer),
-    mapPosition: persistReducer(mapPositionPersistanceConfig, mapPositionReducer),
-    maps: persistReducer(mapsPersistanceConfig, mapsReducer),
+    analyzerFeatures: persistReducer(analyzersPersistenceConfig, analyzersReducer),
+    mapPosition: persistReducer(mapPositionPersistenceConfig, mapPositionReducer),
+    maps: persistReducer(mapsPersistenceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,
     recentEventDataReceived: recentEventDataReceivedReducer,
@@ -90,19 +90,19 @@ const rootReducer = combineReducers({
     subjectGroups: subjectGroupsReducer,
     subjectStore: subjectStoreReducer,
     systemStatus: systemStatusReducer,
-    token: persistReducer(tokenPersistanceConfig, tokenReducer),
+    token: persistReducer(tokenPersistenceConfig, tokenReducer),
     tracks: tracksReducer,
     user: userReducer,
     userProfiles: userProfilesReducer,
-    selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
+    selectedUserProfile: persistReducer(userProfilePersistenceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,
     patrolLeaderSchema: patrolTrackedBySchemaReducer,
   }),
   view: combineReducers({
-    currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
+    currentBaseLayer: persistReducer(baseLayerPersistenceConfig, currentBaseLayerReducer),
     featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
-    homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
-    heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
+    homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),
+    heatmapStyles: persistReducer(heatmapConfigPersistenceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
     hiddenSubjectIDs: hiddenSubjectIDsReducer,
     hiddenFeatureIDs: hiddenFeatureIDsReducer,
@@ -121,11 +121,11 @@ const rootReducer = combineReducers({
     drawer: drawerReducer,
     mapLocationSelection: mapLocationSelectionReducer,
     popup: popupReducer,
-    userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
+    userPreferences: persistReducer(userPrefPersistenceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
-    trackLength: persistReducer(trackLengthPersistanceConfig, trackDateRangeReducer),
+    trackLength: persistReducer(trackLengthPersistenceConfig, trackDateRangeReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,

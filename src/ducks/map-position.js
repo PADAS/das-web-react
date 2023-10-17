@@ -8,7 +8,7 @@ const INITIAL_STATE = {
   zoom: null,
 };
 
-export const persistanceConfig = generateOptionalStorageConfig(MAP_POSITION_STORAGE_KEY, INITIAL_STATE);
+export const persistenceConfig = generateOptionalStorageConfig(MAP_POSITION_STORAGE_KEY, INITIAL_STATE);
 
 export const setMapPosition = (payload) => ({
   type: SET_MAP_POSITION,

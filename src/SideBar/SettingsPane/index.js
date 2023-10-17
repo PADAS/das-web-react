@@ -12,7 +12,7 @@ import MapNamesControl from '../../MapNamesControl';
 import MapTrackTimepointsControl from '../../MapTrackTimepointsControl';
 import UserLocationMapControl from '../../UserLocationMapControl';
 
-import { useOptionalPersistance } from '../../reducers/storage-config';
+import { useOptionalPersistence } from '../../reducers/storage-config';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
@@ -37,9 +37,9 @@ const SettingsPane = () => {
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
 
-  const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistance(EVENT_FILTER_STORAGE_KEY);
-  const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistance(PATROL_FILTER_STORAGE_KEY);
-  const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistance(MAP_POSITION_STORAGE_KEY);
+  const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY);
+  const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY);
+  const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
 
   const onTabSelect = useCallback((tab) => {
     setActiveTabKey(tab);
