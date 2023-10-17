@@ -1,6 +1,7 @@
 import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { useReactToPrint } from 'react-to-print';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
@@ -8,9 +9,9 @@ import KebabMenuIcon from '../KebabMenuIcon';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import TextCopyBtn from '../TextCopyBtn';
+import { basePrintingStyles } from '../utils/styles';
 
 import styles from './styles.module.scss';
-import { useReactToPrint } from 'react-to-print';
 
 const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
@@ -88,23 +89,7 @@ const PatrolMenu = (props) => {
   const handlePrint = useReactToPrint({
     content: () => printingRef.current,
     documentTitle: patrol.id,
-    pageStyle: `
-      @page {
-        size: auto !important;
-      }
-
-      @media print {
-        html, body {
-          /* Tell browsers to print background colors */
-          -webkit-print-color-adjust: exact; /* Chrome/Safari/Edge/Opera */
-          color-adjust: exact; /* Firefox */
-
-          height: initial !important;
-          overflow: initial !important;
-          position: initial !important;
-        }
-      }
-    `,
+    pageStyle: basePrintingStyles,
   });
 
   useEffect(() => {
