@@ -52,6 +52,7 @@ import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
+import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -520,13 +521,15 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
-  const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
+  const shouldRenderActivitySection = !isNewPatrol && (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
   const shouldRenderHistorySection = !!patrolUpdates.length;
 
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView} ref={printingRef}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
+
+    <ERLogo className={styles.ERLogo} />
 
     <Header printingRef={printingRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
