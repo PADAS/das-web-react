@@ -22,6 +22,9 @@
       display: none;
     }
   }
+  @media print {
+    opacity: 0;
+  }
 }
 
 .copyBtn {

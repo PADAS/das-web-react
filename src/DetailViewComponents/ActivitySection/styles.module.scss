@@ -247,3 +247,11 @@ $cardExpansionTransitionTime: 300ms;
 :export {
   cardToggleTransitionTime: $cardExpansionTransitionTime
 }
+
+.pageBreak{
+  @media print {
+    display: block;
+    page-break-before: always;
+    margin-top: 1.5rem;
+  }
+}

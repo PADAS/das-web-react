@@ -66,6 +66,9 @@
       top: 1.5rem;
       width: 8rem;
     }
+    @media print {
+      display: none;
+    }
   }
 }
 

@@ -83,6 +83,7 @@ const PatrolDetailView = () => {
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
   const temporalIdRef = useRef(null);
+  const printingRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -522,17 +523,17 @@ const PatrolDetailView = () => {
   const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
   const shouldRenderHistorySection = !!patrolUpdates.length;
 
-  return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
+  return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView} ref={printingRef}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
-    <Header onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
+    <Header printingRef={printingRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
     <TrackerContext.Provider value={patrolTracker}>
       <div className={styles.body}>
         <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-          <QuickLinks.NavigationBar>
+          <QuickLinks.NavigationBar className={styles.quickLinksBar}>
             <QuickLinks.Anchor anchorTitle="Plan" iconComponent={<CalendarIcon />} />
 
             <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
@@ -554,7 +555,7 @@ const PatrolDetailView = () => {
                 />
               </QuickLinks.Section>
 
-              {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderActivitySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
               <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
                 <ActivitySection
@@ -570,17 +571,21 @@ const PatrolDetailView = () => {
                   onDoneNote={onDoneNote}
                   onDeleteNote={onDeleteNote}
                   startTime={patrolStartTime}
+                  className={!shouldRenderActivitySection ? styles.hideOnPrint : ''}
                 />
               </QuickLinks.Section>
 
-              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderHistorySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
               <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-                <HistorySection updates={patrolUpdates} />
+                <HistorySection
+                    updates={patrolUpdates}
+                    className={styles.hideOnPrint}
+                />
               </QuickLinks.Section>
             </QuickLinks.SectionsWrapper>
 
-            <div className={styles.footer}>
+            <div className={`${styles.footer} ${styles.hideOnPrint}`}>
               <div className={styles.footerActionButtonsContainer}>
                 <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 

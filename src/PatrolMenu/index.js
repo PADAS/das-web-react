@@ -10,12 +10,13 @@ import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
+import { useReactToPrint } from 'react-to-print';
 
 const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef, ...rest } = props;
+  const { patrol, onPatrolChange, menuRef, printingRef, ...rest } = props;
 
   const patrolState = calcPatrolState(patrol);
 
@@ -84,6 +85,28 @@ const PatrolMenu = (props) => {
   const handleClickOutside = useCallback(() => menuRef?.current?.classList.remove('show'), [menuRef]);
   const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
 
+  const handlePrint = useReactToPrint({
+    content: () => printingRef.current,
+    documentTitle: patrol.id,
+    pageStyle: `
+      @page {
+        size: auto !important;
+      }
+
+      @media print {
+        html, body {
+          /* Tell browsers to print background colors */
+          -webkit-print-color-adjust: exact; /* Chrome/Safari/Edge/Opera */
+          color-adjust: exact; /* Firefox */
+
+          height: initial !important;
+          overflow: initial !important;
+          position: initial !important;
+        }
+      }
+    `,
+  });
+
   useEffect(() => {
     window.addEventListener('click', handleClickOutside, true);
     return () => window.removeEventListener('click', handleClickOutside);
@@ -105,6 +128,7 @@ const PatrolMenu = (props) => {
             permitPropagation
         />
       </Item>}
+      <Item onClick={handlePrint}>Print patrol</Item>
     </Menu>
   </Dropdown>;
 };

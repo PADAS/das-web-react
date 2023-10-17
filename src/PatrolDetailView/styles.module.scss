@@ -23,6 +23,12 @@
   @media (min-width: $md-layout-width-min) {
     height: calc(100% - 5rem);
   }
+
+  .quickLinksBar{
+    @media print {
+      display: none;
+    }
+  }
 }
 
 .content {
@@ -32,6 +38,10 @@
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
+
+  @media print {
+    border: none;
+  }
 }
 
 .sectionSeparation {
@@ -98,5 +108,19 @@
 
   @media (min-width: $md-layout-width-min) {
     width: 5rem;
+  }
+}
+
+.hideOnPrint{
+  @media print {
+    display: none;
+  }
+}
+
+.pageBreak{
+  @media print {
+    display: block;
+    page-break-before: always;
+    margin-top: 1.5rem;
   }
 }

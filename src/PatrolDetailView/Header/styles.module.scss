@@ -13,6 +13,10 @@
   @media (min-width: $md-layout-width-min) {
     height: 5rem;
   }
+
+  @media print {
+    box-shadow: none;
+  }
 }
 
 .icon {
@@ -124,6 +128,10 @@
   @media (min-width: $md-layout-width-min) {
     display: flex;
   }
+
+  @media print {
+    display: none;
+  }
 }
 
 .actionButton {
@@ -137,6 +145,10 @@
   color: $secondary-medium-gray;
   font-weight: 700;
   margin: 0 0.5rem;
+
+  @media print {
+    display: none !important;
+  }
 }
 
 .startPatrolButton {

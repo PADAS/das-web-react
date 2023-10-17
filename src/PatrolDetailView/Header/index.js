@@ -17,7 +17,7 @@ import styles from './styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
-const Header = ({ onChangeTitle, patrol, setRedirectTo }) => {
+const Header = ({ onChangeTitle, patrol, setRedirectTo, printingRef }) => {
   const {
     patrolData,
 
@@ -153,7 +153,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo }) => {
       Restore
     </Button>}
 
-    {!isNewPatrol && !isPatrolCancelled && <PatrolMenu onPatrolChange={onPatrolChange} patrol={patrol} />}
+    {!isNewPatrol && !isPatrolCancelled && <PatrolMenu printingRef={printingRef} onPatrolChange={onPatrolChange} patrol={patrol} />}
   </div>;
 };
 
