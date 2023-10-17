@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux';
-import { persistReducer, createMigrate, createTransform } from 'redux-persist';
+import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
+
+import { generateStorageConfig } from '../reducers/storage-config';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
@@ -24,7 +26,7 @@ import {
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
-import eventFilterReducer, { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import eventFilterReducer, { persistanceConfig as eventFilterPersistanceConfig } from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
@@ -44,39 +46,6 @@ import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 
-
-const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
-  const storageConfig = generateStorageConfig(key);
-  const restore = JSON.parse(
-    localStorage.getItem(`restorable:${key}`)
-  )?.restore;
-
-  const transform = createTransform(
-    (inboundState, key) => {
-      if (!restore) return INITIAL_STATE[key];
-      return inboundState;
-    }
-  );
-
-  storageConfig.transforms = [transform];
-
-  return storageConfig;
-};
-
-
-
-const generateStorageConfig = (key, storageMethod = storage, version = -1, migrations) => {
-  const config = { key, storage: storageMethod, version };
-
-  if (migrations) {
-    config.migrate = createMigrate(migrations);
-  }
-
-  return config;
-
-};
-
-const eventFilterPersistanceConfig = generateOptionalStorageConfig('eventFilter', INITIAL_FILTER_STATE);
 const tokenPersistanceConfig = generateStorageConfig('token');
 const homeMapPersistanceConfig = generateStorageConfig('homeMap');
 const userPrefPersistanceConfig = generateStorageConfig('userPreferences');
