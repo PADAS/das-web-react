@@ -70,7 +70,7 @@ const SettingsPane = () => {
     title="General">
       <section>
         <h3>App Refresh</h3>
-        <h6>Preserve my settings on refresh for</h6>
+        <h6>Preserve my settings on page refresh for</h6>
         <ul>
           <li>
             <label htmlFor={MAP_POSITION_STORAGE_KEY}>

@@ -3,7 +3,6 @@ import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
 import globallyResettableReducer from '../../reducers/global-resettable';
-import { REHYDRATE } from 'redux-persist';
 
 const defaultDateRange = {
   lower: generateDaysAgoDate(REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS).toISOString(),
@@ -62,8 +61,6 @@ export const setDefaultDateRange = (lower, upper) => {
 // REDUCER
 const eventFilterReducer = (state, action) => {
   switch (action.type) {
-  case REHYDRATE:
-    return state;
 
   case UPDATE_EVENT_FILTER:
     return {

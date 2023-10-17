@@ -6,21 +6,21 @@ import storage from 'redux-persist/lib/storage';
 const RESTORABLE_PREFIX = 'er-web-restorable';
 
 const setKeyIsRestorable = (key, restore = false) => {
-  localStorage.setItem(`${RESTORABLE_PREFIX}:${key}`, JSON.stringify({ restore }));
+  window.localStorage.setItem(`${RESTORABLE_PREFIX}:${key}`, JSON.stringify({ restore }));
 };
 
 const getKeyIsRestorable = (key) =>
   JSON.parse(
-    localStorage.getItem(`${RESTORABLE_PREFIX}:${key}`)
+    window.localStorage.getItem(`${RESTORABLE_PREFIX}:${key}`)
   )?.restore;
 
 export const clearAllRestorables = () => {
-  Object.keys(localStorage)
+  Object.keys(window.localStorage)
     .filter(key =>
       key.startsWith(`${RESTORABLE_PREFIX}:`)
     )
     .forEach(key =>
-      localStorage.removeItem(key)
+      window.localStorage.removeItem(key)
     );
 };
 

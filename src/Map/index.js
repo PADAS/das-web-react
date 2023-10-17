@@ -33,7 +33,6 @@ import {
   updateTrackState
 } from '../ducks/map-ui';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import {
@@ -95,7 +94,6 @@ const Map = ({
   onMapLoad,
   socket,
 }) => {
-  const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -106,7 +104,6 @@ const Map = ({
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
   const hiddenAnalyzerIDs = useSelector(state => state.view.hiddenAnalyzerIDs);
   const hiddenFeatureIDs = useSelector(state => state.view.hiddenFeatureIDs);
-  const homeMap = useSelector(state => state.view.homeMap);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
@@ -124,7 +121,6 @@ const Map = ({
   const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
   const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
-  const mapPosition = useSelector(state => state.data.mapPosition);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
@@ -317,15 +313,6 @@ const Map = ({
 
   const setMap = useCallback((map) => {
     window.map = map;
-    /* const { bounds, zoom } = mapPosition;
-
-    if (!bounds && !zoom && homeMap) {
-      map.easeTo({ center: homeMap.center, zoom: homeMap.zoom, speed: 3000 });
-      map.setZoom(homeMap.zoom);
-    } else {
-      bounds && map.fitBounds([bounds._sw, bounds._ne], { padding: 50 });
-      zoom && map.setZoom(zoom);
-    } */
 
     onMapLoad(map);
   }, [onMapLoad]);
@@ -587,19 +574,6 @@ const Map = ({
       }
     }
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
-
-  useEffect(() => {
-    const lnglat = new URLSearchParams(location.search).get('lnglat');
-    if (lnglat && map) {
-      const lngLatFromParams = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
-      const newLocation = { ...location };
-
-      delete newLocation.search;
-      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
-
-      jumpToLocation(lngLatFromParams, 16);
-    }
-  }, [jumpToLocation, location, map, navigate]);
 
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);

@@ -240,10 +240,6 @@ const GlobalMenuDrawer = ({
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
       </div>
-
-      <div className={styles.section}>
-        <BetaToggles />
-      </div>
     </div>
 
     <div className={styles.footer}>
