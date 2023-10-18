@@ -96,6 +96,7 @@
   line-height: normal;
   margin-top: 1rem;
   width: 100%;
+
   li {
     font-weight: 500;
     padding: 0 0.333rem;
@@ -104,7 +105,10 @@
       border-right: 1px solid white;
     }
   }
+
   a {
-    color: white;
+    color: $light-blue;
+    filter: brightness(1.25);
+    font-size: 0.75rem;
   }
 }

@@ -76,6 +76,7 @@ const LoginPage = ({
       <Button variant='primary' type='submit' name='submit' disabled={isLoading}>Log in</Button>
       {!!errorMessage && <Alert className={styles.error} variant='danger'>{errorMessage}</Alert>}
     </Form>
+
     {eulaEnabled === true && <p className={styles.eulalink}>
       <a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
     </p>}
