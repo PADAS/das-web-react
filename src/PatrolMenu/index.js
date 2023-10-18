@@ -17,7 +17,7 @@ const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef, printingRef, ...rest } = props;
+  const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, ...rest } = props;
 
   const patrolState = calcPatrolState(patrol);
 
@@ -87,8 +87,8 @@ const PatrolMenu = (props) => {
   const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
 
   const handlePrint = useReactToPrint({
-    content: () => printingRef.current,
-    documentTitle: patrol.id,
+    content: () => printableContentRef.current,
+    documentTitle: `${patrol.serial_number} ${patrolTitle} `,
     pageStyle: basePrintingStyles,
   });
 
@@ -120,8 +120,13 @@ const PatrolMenu = (props) => {
 
 export default memo(PatrolMenu);
 
+PatrolMenu.defaultProps = {
+  patrolTitle: '',
+};
+
 PatrolMenu.propTypes = {
   patrol: PropTypes.object.isRequired,
   patrolState: PropTypes.object,
   onPatrolChange: PropTypes.func.isRequired,
+  patrolTitle: PropTypes.string,
 };

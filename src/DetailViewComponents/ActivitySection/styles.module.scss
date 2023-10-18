@@ -9,6 +9,10 @@ $cardExpansionTransitionTime: 300ms;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+
+  @media print {
+    margin-top: 2rem;
+  }
 }
 
 .title {
@@ -246,12 +250,4 @@ $cardExpansionTransitionTime: 300ms;
 
 :export {
   cardToggleTransitionTime: $cardExpansionTransitionTime
-}
-
-.pageBreak{
-  @media print {
-    display: block;
-    page-break-before: always;
-    margin-top: 1.5rem;
-  }
 }

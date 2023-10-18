@@ -44,6 +44,10 @@
   @media (min-width: $md-layout-width-min) {
     width: 4.5rem;
   }
+
+  @media print {
+    display: none;
+  }
 }
 
 .serialNumber {

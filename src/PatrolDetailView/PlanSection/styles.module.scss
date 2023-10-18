@@ -101,3 +101,28 @@
     margin-left: 0.5rem;
   }
 }
+
+.locationButton {
+  button {
+    @media print {
+      display: none;
+    }
+  }
+}
+.objective{
+  @media print {
+    display: none;
+  }
+}
+
+.printableObjective {
+  display: none;
+  padding: 0.8rem;
+  white-space: pre-wrap;
+  border: 1px solid lightgray;
+  margin-top: 0.5rem;
+
+  @media print {
+    display: block;
+  }
+}

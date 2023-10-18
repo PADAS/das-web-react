@@ -34,7 +34,6 @@ const ActivitySection = ({
   onChangeNote,
   onDoneNote,
   startTime,
-  className,
 }, ref) => {
   const tracker = useContext(TrackerContext);
 
@@ -191,7 +190,7 @@ const ActivitySection = ({
     notesToAdd.filter((noteToAdd) => !noteToAdd.text).forEach((noteToAdd) => onExpandCard(noteToAdd));
   }, [notes, notesToAdd, onExpandCard]);
 
-  return <div data-testid="detailView-activitySection" ref={ref} className={`${styles.pageBreak} ${className}`}>
+  return <div data-testid="detailView-activitySection" ref={ref}>
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <BulletListIcon />
@@ -225,7 +224,6 @@ const ActivitySection = ({
 ActivitySection.defaultProps = {
   endTime: null,
   startTime: null,
-  className: '',
 };
 
 ActivitySection.propTypes = {
@@ -258,7 +256,6 @@ ActivitySection.propTypes = {
   onChangeNote: PropTypes.func.isRequired,
   onCancelNote: PropTypes.func.isRequired,
   onDoneNote: PropTypes.func.isRequired,
-  className: PropTypes.string,
   startTime: PropTypes.instanceOf(Date),
 };
 

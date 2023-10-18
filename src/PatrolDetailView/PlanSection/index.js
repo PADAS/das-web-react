@@ -148,6 +148,7 @@ const PlanSection = ({
         <label className={`${styles.fieldLabel} ${styles.objectiveLabel}`}>
           Objective
           <Form.Control
+            className={styles.objective}
             as="textarea"
             data-testid="patrolDetailView-objectiveTextArea"
             onChange={onPatrolObjectiveChange}
@@ -155,6 +156,9 @@ const PlanSection = ({
             rows={3}
             value={patrolForm?.objective ?? ''}
           />
+          <div className={styles.printableObjective}>
+            {patrolForm?.objective ?? ''}
+          </div>
         </label>
       </div>
 
@@ -187,6 +191,7 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {isMediumLayoutOrLarger ? 'Start Location' : 'Location'}
           <LocationSelectorInput
+            className={styles.locationButton}
             copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={startLocation}
@@ -241,6 +246,7 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {isMediumLayoutOrLarger ? 'End Location' : 'Location'}
           <LocationSelectorInput
+            className={styles.locationButton}
             copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={endLocation}
