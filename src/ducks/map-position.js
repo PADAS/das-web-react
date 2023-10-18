@@ -1,4 +1,5 @@
 import { generateOptionalStorageConfig } from '../reducers/storage-config';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 const SET_MAP_POSITION = 'SET_MAP_POSITION';
 export const MAP_POSITION_STORAGE_KEY = 'mapPosition';
@@ -21,4 +22,4 @@ const mapPositionReducer = (state = INITIAL_STATE, { type, payload }) => {
   return state;
 };
 
-export default mapPositionReducer;
+export default globallyResettableReducer(mapPositionReducer, INITIAL_STATE);

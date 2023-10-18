@@ -1,28 +1,18 @@
 
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { createMigrate, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import useLocalStorage from '../hooks/useLocalStorage';
+
 const RESTORABLE_PREFIX = 'er-web-restorable';
 
-const setKeyIsRestorable = (key, restore = false) => {
-  window.localStorage.setItem(`${RESTORABLE_PREFIX}:${key}`, JSON.stringify({ restore }));
-};
+const namespaceForKey = key => `${RESTORABLE_PREFIX}:${key}`;
 
 const getKeyIsRestorable = (key) =>
   JSON.parse(
-    window.localStorage.getItem(`${RESTORABLE_PREFIX}:${key}`)
+    window.localStorage.getItem(namespaceForKey(key))
   )?.restore;
-
-export const clearAllRestorables = () => {
-  Object.keys(window.localStorage)
-    .filter(key =>
-      key.startsWith(`${RESTORABLE_PREFIX}:`)
-    )
-    .forEach(key =>
-      window.localStorage.removeItem(key)
-    );
-};
 
 export const generateStorageConfig = (key, storageMethod = storage, version = -1, migrations) => {
   const config = { key, storage: storageMethod, version };
@@ -35,15 +25,14 @@ export const generateStorageConfig = (key, storageMethod = storage, version = -1
 
 };
 
-export const generateOptionalStorageConfig = (namespace, INITIAL_STATE) => {
-  const storageConfig = generateStorageConfig(namespace);
-  const shouldRestore = getKeyIsRestorable(namespace);
-
-  console.log({ [namespace]: shouldRestore });
+export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
+  const storageConfig = generateStorageConfig(key);
+  const shouldRestore = getKeyIsRestorable(key);
 
   const transform = createTransform(
     inboundState => inboundState,
     (outboundState, key) => {
+
       if (!shouldRestore) return INITIAL_STATE[key];
       return outboundState;
     }
@@ -55,12 +44,14 @@ export const generateOptionalStorageConfig = (namespace, INITIAL_STATE) => {
 };
 
 export const useOptionalPersistence = (key) => {
-  const [restorable, setRestorable] = useState(getKeyIsRestorable(key));
+  const namespace = namespaceForKey(key);
 
-  useEffect(() => {
-    setKeyIsRestorable(key, restorable);
-  }, [key, restorable]);
+  const [value, setValue] = useLocalStorage(namespace, { restore: false });
+  const restorable = value?.restore;
 
+  const setRestorable = useCallback((restore = false) => {
+    setValue({ restore });
+  }, [setValue]);
 
   return { restorable, setRestorable };
 

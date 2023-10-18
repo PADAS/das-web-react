@@ -1,6 +1,5 @@
 import axios, { CancelToken } from 'axios';
 
-import { clearAllRestorables } from '../reducers/storage-config';
 import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { resetGlobalState } from '../reducers/global-resettable';
@@ -41,7 +40,6 @@ const postAuthSuccess = response => (dispatch) => {
 };
 
 export const clearAuth = () => (dispatch) => {
-  clearAllRestorables();
 
   return new Promise((resolve) => {
     if (window.map) {

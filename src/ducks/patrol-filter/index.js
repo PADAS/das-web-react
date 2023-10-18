@@ -3,6 +3,8 @@ import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_
 import { REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS } from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 
+import globallyResettableReducer from '../../reducers/global-resettable';
+
 const defaultDateRange = {
   lower: generateDaysAgoDate(REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS).toISOString(),
   upper: endOfToday().toISOString(),
@@ -77,4 +79,4 @@ const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
   }
 };
 
-export default patrolFilterReducer;
+export default globallyResettableReducer(patrolFilterReducer, INITIAL_FILTER_STATE);
