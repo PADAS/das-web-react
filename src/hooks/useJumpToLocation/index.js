@@ -31,6 +31,7 @@ const calcPadding = (currentTab, isArray, itemId, isMediumLayoutOrLarger) => {
         ? ( SIDEBAR_WIDTH_PIXELS - polygonPadding )
         : SIDEBAR_WIDTH_PIXELS + 80;
     }
+    padding.right = 90;
   }
   return padding;
 };
