@@ -17,7 +17,7 @@ const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, ...rest } = props;
+  const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, isPatrolCancelled, showPatrolPrintOption, ...rest } = props;
 
   const patrolState = calcPatrolState(patrol);
 
@@ -102,9 +102,9 @@ const PatrolMenu = (props) => {
       <KebabMenuIcon />
     </Toggle>
     <Menu ref={menuRef}>
-      {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
-      {canEditPatrol && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
-      { !!patrol.id && <Item className={styles.copyBtn}>
+      { (canEditPatrol && !isPatrolCancelled) && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
+      { (canEditPatrol && !isPatrolCancelled) && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
+      { (!!patrol.id && !isPatrolCancelled) && <Item className={styles.copyBtn}>
         <TextCopyBtn
             label='Copy patrol link'
             text={`${DAS_HOST}/patrols/${patrol.id}`}
@@ -113,7 +113,7 @@ const PatrolMenu = (props) => {
             permitPropagation
         />
       </Item>}
-      <Item onClick={handlePrint}>Print patrol</Item>
+      { showPatrolPrintOption && <Item onClick={handlePrint}>Print patrol</Item> }
     </Menu>
   </Dropdown>;
 };
@@ -122,6 +122,8 @@ export default memo(PatrolMenu);
 
 PatrolMenu.defaultProps = {
   patrolTitle: '',
+  isPatrolCancelled: false,
+  showPatrolPrintOption: true,
 };
 
 PatrolMenu.propTypes = {
@@ -129,4 +131,6 @@ PatrolMenu.propTypes = {
   patrolState: PropTypes.object,
   onPatrolChange: PropTypes.func.isRequired,
   patrolTitle: PropTypes.string,
+  isPatrolCancelled: PropTypes.bool,
+  showPatrolPrintOption: PropTypes.bool,
 };
