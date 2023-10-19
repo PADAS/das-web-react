@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {memo, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -52,6 +52,7 @@ import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
+import {ScrollContext} from "../SidebarScrollContext";
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -68,6 +69,7 @@ const PatrolDetailView = () => {
   const patrolId = getCurrentIdFromURL(location.pathname);
   const newPatrolTemporalId = location.state?.temporalId;
   const newPatrolTypeId = searchParams.get('patrolType');
+  const { setScrollPosition } = useContext(ScrollContext);
 
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const patrolPermissions = useSelector((state) => {
@@ -171,9 +173,9 @@ const PatrolDetailView = () => {
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
-
+    setScrollPosition('patrols', 0);
     patrolDetailViewTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
-  }, [isNewPatrol]);
+  }, [isNewPatrol, setScrollPosition]);
 
   const onSaveError = useCallback((error) => {
     patrolDetailViewTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);

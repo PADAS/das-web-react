@@ -9,9 +9,9 @@ export const SidebarScrollContext = ({ children }) => {
   const scrollRef = useRef(null);
   const [scrollPositionValues, setScrollPositionValues] = useState({});
 
-  const setScrollPosition = useCallback((tab) => {
+  const setScrollPosition = useCallback((tab, position = null) => {
     const element = getElement(scrollRef);
-    const value = element.scrollTop;
+    const value = position ?? element.scrollTop;
     setScrollPositionValues({
       ...scrollPositionValues,
       [tab]: value

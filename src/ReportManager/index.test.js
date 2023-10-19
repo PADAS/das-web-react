@@ -17,6 +17,7 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import ReportManager from './';
 import useNavigate from '../hooks/useNavigate';
+import { SidebarScrollContext } from '../SidebarScrollContext';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -90,17 +91,23 @@ describe('ReportManager', () => {
     server.events.removeListener('request:match', logRequest);
   });
 
+  const renderReportManager = (store) => {
+    return render(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <SidebarScrollContext>
+          <ReportManager />
+        </SidebarScrollContext>
+      </NavigationWrapper>
+    </Provider>);
+  };
+
   test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
 
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <ReportManager />
-      </NavigationWrapper>
-    </Provider>);
+    renderReportManager(store);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
@@ -112,13 +119,7 @@ describe('ReportManager', () => {
     useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportManager />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderReportManager(store);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
@@ -133,13 +134,7 @@ describe('ReportManager', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
     useLocation.mockImplementation(useLocationMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportManager />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderReportManager(store);
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).toBeDefined();
@@ -151,13 +146,7 @@ describe('ReportManager', () => {
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportManager />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderReportManager(store);
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).not.toBeDefined();
@@ -169,13 +158,7 @@ describe('ReportManager', () => {
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportManager />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderReportManager(store);
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).not.toBeDefined();
@@ -193,13 +176,7 @@ describe('ReportManager', () => {
     };
     AddItemButton.mockImplementation(AddItemButtonMock);
 
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportManager />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderReportManager(store);
 
     const addedReportManager = (await screen.findAllByTestId('reportManagerContainer'))[1];
 
