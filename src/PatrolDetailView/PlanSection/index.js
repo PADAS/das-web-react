@@ -156,7 +156,7 @@ const PlanSection = ({
             rows={3}
             value={patrolForm?.objective ?? ''}
           />
-          <div className={styles.printableObjective}>
+          <div className={styles.printableObjectiveText}>
             {patrolForm?.objective ?? ''}
           </div>
         </label>

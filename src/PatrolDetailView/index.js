@@ -521,8 +521,7 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
-  const hasActivitySectionContent = (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
-  const shouldRenderActivitySection = !isNewPatrol || hasActivitySectionContent;
+  const shouldRenderActivitySection = !isNewPatrol && (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
   const shouldRenderHistorySection = !!patrolUpdates.length;
 
   return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView} ref={printableContentRef}>
@@ -575,7 +574,6 @@ const PatrolDetailView = () => {
                   onDoneNote={onDoneNote}
                   onDeleteNote={onDeleteNote}
                   startTime={patrolStartTime}
-                  className={!hasActivitySectionContent ? styles.hideOnPrint : ''}
                 />
               </QuickLinks.Section>
 
