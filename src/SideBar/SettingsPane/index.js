@@ -140,6 +140,7 @@ const SettingsPane = () => {
       eventKey={TAB_KEYS.ALERTS}
       title="Alerts">
       <iframe
+        data-testid="settings-alertsIframe"
         className={styles.alerts}
         style={{ width: '100%', height: '100vh' }}
         src={ALERTS_URL}

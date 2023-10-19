@@ -1,9 +1,18 @@
 import isString from 'lodash/isString';
 
+const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
+
 export const createMapMock = (override = {}) => {
   let boundEvents = [];
 
   const mockMap = {
+    ...mapControls.reduce((accumulator, control) => {
+      accumulator[control] = {
+        enable: jest.fn(),
+        disable: jest.fn(),
+      };
+      return accumulator;
+    }, {}),
     addSource: jest.fn(),
     getBounds: jest.fn().mockReturnValue({
       _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },

@@ -27,7 +27,6 @@ import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
-import BetaToggles from './BetaToggles';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
