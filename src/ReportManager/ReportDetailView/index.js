@@ -54,7 +54,7 @@ import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
 import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
-import {ScrollContext} from "../../SidebarScrollContext";
+import { ScrollContext } from '../../SidebarScrollContext';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;

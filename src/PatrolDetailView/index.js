@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -52,7 +52,7 @@ import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
-import {ScrollContext} from "../SidebarScrollContext";
+import { ScrollContext } from '../SidebarScrollContext';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
