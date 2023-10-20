@@ -100,9 +100,10 @@ const usePatrol = (patrolFromProps) => {
 
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrolFromProps, value);
-    delete merged.updates;
+    const payload = { ...merged };
+    delete payload.updates;
 
-    dispatch(updatePatrol(merged));
+    dispatch(updatePatrol(payload));
   }, [dispatch, patrolFromProps]);
 
   const restorePatrol = useCallback(() => {
