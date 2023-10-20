@@ -41,10 +41,6 @@ const SettingsPane = () => {
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
 
-  const onTabSelect = useCallback((tab) => {
-    setActiveTabKey(tab);
-  }, []);
-
   const onEventFilterPersistToggle = useCallback(() => {
     setEventFilterIsRestorable(!eventFilterRestorable);
   }, [eventFilterRestorable, setEventFilterIsRestorable]);
@@ -61,7 +57,7 @@ const SettingsPane = () => {
   return <Tabs
   defaultActiveKey={activeTabKey}
   fill
-  onSelect={onTabSelect}
+  onSelect={setActiveTabKey}
     >
     <Tab
     data-testid="settings-generalTab"
