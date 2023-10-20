@@ -23,6 +23,12 @@
   @media (min-width: $md-layout-width-min) {
     height: calc(100% - 5rem);
   }
+
+  .navigationBar{
+    @media print {
+      display: none;
+    }
+  }
 }
 
 .content {
@@ -32,6 +38,10 @@
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
+
+  @media print {
+    border: none;
+  }
 }
 
 .sectionSeparation {
@@ -98,5 +108,28 @@
 
   @media (min-width: $md-layout-width-min) {
     width: 5rem;
+  }
+}
+
+.hideOnPrint{
+  @media print {
+    display: none;
+  }
+}
+
+.printLogo{
+  display: none;
+  height: 1.25rem;
+  margin: 0.75rem;
+
+  @media print {
+    display: block;
+  }
+}
+
+.sectionWrapper {
+  @media print {
+    padding: 0;
+    margin-top: 2rem;
   }
 }

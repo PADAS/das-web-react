@@ -177,6 +177,7 @@ const PatrolListItem = ({
         menuRef={menuRef}
         onPatrolChange={onPatrolChange}
         patrol={patrol}
+        showPatrolPrintOption={false}
       />
     </div>
     : null;
