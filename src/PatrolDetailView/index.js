@@ -52,7 +52,7 @@ import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
-import { ScrollContext } from '../SidebarScrollContext';
+import { SidebarScrollContext } from '../SidebarScrollContext';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
@@ -70,7 +70,7 @@ const PatrolDetailView = () => {
   const patrolId = getCurrentIdFromURL(location.pathname);
   const newPatrolTemporalId = location.state?.temporalId;
   const newPatrolTypeId = searchParams.get('patrolType');
-  const { setScrollPosition } = useContext(ScrollContext);
+  const { setScrollPosition } = useContext(SidebarScrollContext);
 
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const patrolPermissions = useSelector((state) => {
@@ -175,7 +175,7 @@ const PatrolDetailView = () => {
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
-    setScrollPosition('patrols', 0);
+    setScrollPosition(TAB_KEYS.PATROLS, 0);
     patrolDetailViewTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
   }, [isNewPatrol, setScrollPosition]);
 

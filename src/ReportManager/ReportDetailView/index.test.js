@@ -26,7 +26,7 @@ import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/loca
 import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
-import { SidebarScrollContext } from '../../SidebarScrollContext';
+import { SidebarScrollProvider } from '../../SidebarScrollContext';
 
 jest.mock('../../AddItemButton', () => jest.fn());
 
@@ -145,9 +145,9 @@ describe('ReportManager - ReportDetailView', () => {
       <NavigationWrapper>
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <SidebarScrollContext>
+            <SidebarScrollProvider>
               {children}
-            </SidebarScrollContext>
+            </SidebarScrollProvider>
           </TrackerContext.Provider>
         </MapContext.Provider>
       </NavigationWrapper>

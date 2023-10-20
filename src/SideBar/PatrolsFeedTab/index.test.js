@@ -9,7 +9,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from '../../hooks/useNavigate';
 
 import PatrolsFeedTab from './';
-import { SidebarScrollContext } from '../../SidebarScrollContext';
+import { SidebarScrollProvider } from '../../SidebarScrollContext';
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
@@ -33,9 +33,9 @@ describe('PatrolsFeedTab', () => {
   const renderPatrolsFeedTab = () => render(
     <Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <SidebarScrollContext>
+        <SidebarScrollProvider>
           <PatrolsFeedTab />
-        </SidebarScrollContext>
+        </SidebarScrollProvider>
       </NavigationWrapper>
     </Provider>
   );

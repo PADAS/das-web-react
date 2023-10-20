@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { FEATURE_FLAG_LABELS } from '../constants';
+import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../constants';
 import { useFeatureFlag } from '../hooks';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
@@ -48,7 +48,7 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
         element='ul'
         className={styles.patrolList}
         Component={Flipper}
-        namespace='patrols'
+        namespace={TAB_KEYS.PATROLS}
       >
       {patrols.map((item) =>
         <ListItem

@@ -21,7 +21,7 @@ import { TAB_KEYS } from '../constants';
 import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
 import { notes } from '../__test-helpers/fixtures/reports';
-import { SidebarScrollContext } from '../SidebarScrollContext';
+import { SidebarScrollProvider } from '../SidebarScrollContext';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -154,9 +154,9 @@ describe('PatrolDetailView', () => {
       <NavigationWrapper>
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <SidebarScrollContext>
+            <SidebarScrollProvider>
               {children}
-            </SidebarScrollContext>
+            </SidebarScrollProvider>
           </TrackerContext.Provider>
         </MapContext.Provider>
       </NavigationWrapper>

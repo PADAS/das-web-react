@@ -17,7 +17,7 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import ReportManager from './';
 import useNavigate from '../hooks/useNavigate';
-import { SidebarScrollContext } from '../SidebarScrollContext';
+import { SidebarScrollProvider } from '../SidebarScrollContext';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -94,9 +94,9 @@ describe('ReportManager', () => {
   const renderReportManager = (store) => {
     return render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
-        <SidebarScrollContext>
+        <SidebarScrollProvider>
           <ReportManager />
-        </SidebarScrollContext>
+        </SidebarScrollProvider>
       </NavigationWrapper>
     </Provider>);
   };

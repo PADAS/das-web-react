@@ -8,20 +8,21 @@ import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
-import { ScrollContext, ScrollRestoration } from '../SidebarScrollContext';
+import { SidebarScrollContext, ScrollRestoration } from '../SidebarScrollContext';
 
 import styles from './styles.module.scss';
+import { TAB_KEYS } from '../constants';
 
 const EventFeed = (props) => {
   const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
-  const { scrollRef } = useContext(ScrollContext);
+  const { scrollRef } = useContext(SidebarScrollContext);
 
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  return <ScrollRestoration namespace='reports' className={`${className} ${styles.scrollContainer}`}>
+  return <ScrollRestoration namespace={TAB_KEYS.REPORTS} className={`${className} ${styles.scrollContainer}`}>
     <InfiniteScroll
         element='ul'
         hasMore={hasMore}
