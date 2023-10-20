@@ -97,7 +97,7 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Cancelled');
-    expect((await screen.findByRole('button'))).toHaveTextContent('Restore');
+    expect((await screen.findByText('Restore'))).toBeInTheDocument();
   });
 
   test('triggers setTitle callback when the contenteditable loses focus', async () => {
@@ -145,7 +145,7 @@ describe('Header', () => {
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
     expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
-    const restorePatrolButton = await screen.findByRole('button');
+    const restorePatrolButton = await screen.findByText('Restore');
     userEvent.click(restorePatrolButton);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
