@@ -29,6 +29,7 @@ import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
 import KebabMenuIcon from '../../../KebabMenuIcon';
 import TextCopyBtn from '../../../TextCopyBtn';
+import { basePrintingStyles } from '../../../utils/styles';
 
 import styles from './styles.module.scss';
 
@@ -45,23 +46,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
   const handlePrint = useReactToPrint({
     content: () => printableContentRef.current,
     documentTitle: report.id,
-    pageStyle: `
-      @page {
-        size: auto !important;
-      }
-
-      @media print {
-        html, body {
-          /* Tell browsers to print background colors */
-          -webkit-print-color-adjust: exact; /* Chrome/Safari/Edge/Opera */
-          color-adjust: exact; /* Firefox */
-
-          height: initial !important;
-          overflow: initial !important;
-          position: initial !important;
-        }
-      }
-    `,
+    pageStyle: basePrintingStyles,
   });
 
   const canAddToIncident = !report.is_collection && !eventBelongsToCollection(report);
