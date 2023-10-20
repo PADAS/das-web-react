@@ -54,6 +54,8 @@ const SideBar = () => {
   const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
 
+  const isSettingsViewActive = !!matchPath(`/${TAB_KEYS.SETTINGS}`, location.pathname);
+
   const isReportDetailsViewActive = useMemo(() => !!matchPath(
       `/${TAB_KEYS.REPORTS}/:id`,
       location.pathname
@@ -183,7 +185,7 @@ const SideBar = () => {
           </button>
         </div>
 
-        <div className={styles.tabBody}>
+        <div className={`${styles.tabBody} ${isSettingsViewActive ? styles.alertsTabBody : ''}`}>
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
