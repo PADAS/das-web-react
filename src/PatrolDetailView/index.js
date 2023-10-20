@@ -145,7 +145,7 @@ const PatrolDetailView = () => {
 
     const [segmentsFirstLeg] = patrolForm.patrol_segments;
 
-    const topLevelUpdates = patrolForm.updates;
+    const topLevelUpdates = patrolForm.updates ?? [];
     const { updates: segmentUpdates } = segmentsFirstLeg;
     const noteUpdates = extractAttachmentUpdates(patrolForm.notes);
     const fileUpdates = extractAttachmentUpdates(patrolForm.files);
