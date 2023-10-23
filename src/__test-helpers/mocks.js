@@ -50,7 +50,7 @@ export const createMapMock = (override = {}) => {
     }),
     setLayerZoomRange: jest.fn(),
     getLayer: jest.fn(),
-    getZoom: jest.fn(),
+    getZoom: jest.fn(() => 12.333),
     addImage: jest.fn(),
     loadImage: jest.fn(),
     removeImage: jest.fn(),

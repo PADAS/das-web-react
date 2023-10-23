@@ -31,11 +31,10 @@ export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
 
   const transform = createTransform(
     inboundState => inboundState,
-    (outboundState, key) => {
-
-      if (!shouldRestore) return INITIAL_STATE[key];
-      return outboundState;
-    }
+    (outboundState, key) =>
+      shouldRestore
+        ? outboundState
+        : INITIAL_STATE[key],
   );
 
   storageConfig.transforms = [transform];
