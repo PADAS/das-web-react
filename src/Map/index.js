@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
@@ -10,8 +10,9 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
+import { setMapPosition } from '../ducks/map-position';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
-import { showPopup, hidePopup } from '../ducks/popup';
+import { showPopup as showPopupActionCreator, hidePopup as hidePopupActionCreator } from '../ducks/popup';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest } from '../utils/event-filter';
@@ -24,7 +25,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getCurrentTabFromURL } from '../utils/navigation';
-import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
+import { analyzerFeatures as analyzerFeaturesSelector, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import {
   MAP_LOCATION_SELECTION_MODES,
   setReportHeatmapVisibility,
@@ -32,7 +33,6 @@ import {
   updateTrackState
 } from '../ducks/map-ui';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import {
@@ -71,7 +71,6 @@ import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
-import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
@@ -90,55 +89,50 @@ const CLUSTER_APPROX_HEIGHT = 25;
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const Map = ({
-  analyzersFeatureCollection,
-  analyzerFeatures,
-  bounceEventIDs,
   children,
-  clearEventData,
-  clearSubjectData,
-  eventFilter,
-  fetchBaseLayers,
-  fetchMapEvents,
-  fetchMapSubjects,
-  heatmapSubjectIDs,
-  hiddenAnalyzerIDs,
-  hiddenFeatureIDs,
-  hidePopup,
-  homeMap,
   map,
-  mapFeaturesFeatureCollection,
-  mapImages,
-  mapIsLocked,
-  maps,
-  mapSubjectFeatureCollection,
   onMapLoad,
-  patrolFilter,
-  patrolTrackState,
-  popup,
-  setReportHeatmapVisibility,
-  setTrackLength,
-  showPopup,
-  showReportHeatmap,
-  showTrackTimepoints,
   socket,
-  subjectTrackState,
-  timeSliderState,
-  trackLength,
-  trackLengthOrigin,
-  updateHeatmapSubjects,
-  updatePatrolTrackState,
-  updateTrackState,
-  mapLocationSelection,
 }) => {
-  const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
+  const analyzerFeatures = useSelector(analyzerFeaturesSelector);
+  const maps = useSelector(state => state.data.maps);
+  const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
+  const hiddenAnalyzerIDs = useSelector(state => state.view.hiddenAnalyzerIDs);
+  const hiddenFeatureIDs = useSelector(state => state.view.hiddenFeatureIDs);
+  const mapIsLocked = useSelector(state => state.view.mapIsLocked);
+  const patrolTrackState = useSelector(state => state.view.patrolTrackState);
+  const popup = useSelector(state => state.view.popup);
+  const eventFilter = useSelector(state => state.data.eventFilter);
+  const patrolFilter = useSelector(state => state.data.patrolFilter);
+  const subjectTrackState = useSelector(state => state.view.subjectTrackState);
+  const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
+  const timeSliderState = useSelector(state => state.view.timeSliderState);
+  const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
+  const trackLength = useSelector(state => state.view.trackLength.length);
+  const trackLengthOrigin = useSelector(state => state.view.trackLength.origin);
+  const mapImages = useSelector(state => state.view.mapImages);
+  const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
+  const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+  const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
+  const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
+  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
 
+  const showPopup = useCallback((...args) => dispatch(
+    showPopupActionCreator(...args)
+  ), [dispatch]);
+
+  const hidePopup = useCallback((popupId) => dispatch(
+    hidePopupActionCreator(popupId)
+  ), [dispatch]);
+
   const trackRequestCancelToken = useRef(CancelToken.source());
-  const lngLatFromParams = useRef();
 
   const timeSliderActive = timeSliderState.active;
 
@@ -175,10 +169,10 @@ const Map = ({
   }, []);
 
   const mapEventsFetch = useCallback(() => {
-    return fetchMapEvents(map)
+    return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [fetchMapEvents, map]);
+  , [dispatch, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -204,16 +198,16 @@ const Map = ({
       args.push({ updated_since, updated_until });
     }
 
-    return fetchMapSubjects(...args)
+    return dispatch(fetchMapSubjects(...args))
       .then((latestMapSubjects) => timeSliderActive
         ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
         : Promise.resolve(latestMapSubjects))
       .catch(() => {});
   },
   [
+    dispatch,
     eventFilter.filter.date_range,
     fetchMapSubjectTracksForTimeslider,
-    fetchMapSubjects,
     map,
     timeSliderActive,
   ]);
@@ -234,6 +228,16 @@ const Map = ({
     return debouncedFetchEventsAndSubjects();
   }, [debouncedFetchEventsAndSubjects, cancelMapDataRequests]);
 
+
+  const saveMapPosition = useCallback(() => {
+    if (map) {
+      const bounds = map.getBounds();
+      const zoom = parseFloat(map.getZoom().toFixed(2));
+      dispatch(
+        setMapPosition({ bounds, zoom })
+      );
+    }
+  }, [dispatch, map]);
 
   const onMapZoom = debounce(() => {
     if (popup?.type === 'multi-layer-select') {
@@ -257,7 +261,9 @@ const Map = ({
       await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
       if (tracks_available) {
-        updateTrackState({ visible: [...subjectTrackState.visible, id] });
+        dispatch(
+          updateTrackState({ visible: [...subjectTrackState.visible, id] })
+        );
       }
 
       mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
@@ -297,20 +303,19 @@ const Map = ({
     const matchingPatrolIds = clickedLayerIDs
       .reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], [])
       .map(({ id }) => id);
-
-    updateTrackState({ visible: visible.filter(id => clickedLayerIDs.includes(id)) });
-    updatePatrolTrackState({ visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)) });
-  }, [patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
+    dispatch(
+      updateTrackState({ visible: visible.filter(id => clickedLayerIDs.includes(id)) })
+    );
+    dispatch(
+      updatePatrolTrackState({ visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)) })
+    );
+  }, [patrolTrackState, subjectTrackState, dispatch]);
 
   const setMap = useCallback((map) => {
-    // don't set zoom if not hydrated
-    if (homeMap && homeMap.zoom && !lngLatFromParams.current) {
-      map.setZoom(homeMap.zoom);
-    };
     window.map = map;
 
     onMapLoad(map);
-  }, [homeMap, onMapLoad]);
+  }, [onMapLoad]);
 
   const onShowClusterSelectPopup = useCallback((layers, coordinates) => {
     showPopup('cluster-select', {
@@ -353,20 +358,28 @@ const Map = ({
   });
 
   const onTrackLegendClose = useCallback(() =>  {
-    updateTrackState({ visible: [], pinned: [] });
-  }, [updateTrackState]);
+    dispatch(
+      updateTrackState({ visible: [], pinned: [] })
+    );
+  }, [dispatch]);
 
   const onSubjectHeatmapClose = useCallback(() => {
-    updateHeatmapSubjects([]);
-  }, [updateHeatmapSubjects]);
+    dispatch(
+      updateHeatmapSubjects([])
+    );
+  }, [dispatch]);
 
   const onCloseReportHeatmap = useCallback(()  => {
-    setReportHeatmapVisibility(false);
-  }, [setReportHeatmapVisibility]);
+    dispatch (
+      setReportHeatmapVisibility(false)
+    );
+  }, [dispatch]);
 
   const onPatrolTrackLegendClose = useCallback(() => {
-    updatePatrolTrackState({ visible: [], pinned: [] });
-  }, [updatePatrolTrackState]);
+    dispatch(
+      updatePatrolTrackState({ visible: [], pinned: [] })
+    );
+  }, [dispatch]);
 
   const onRotationControlClick = useCallback(() => {
     map.easeTo({ bearing: 0, pitch: 0 });
@@ -457,11 +470,22 @@ const Map = ({
     hideUnpinnedTrackLayers(map, event);
   }), [currentAnalyzerIds, map, withLocationPickerState, handleMultiFeaturesAtSameLocationClick, hidePopup, hideUnpinnedTrackLayers, popup]);
 
-  useEffect(() => { return () => { clearEventData(); clearSubjectData();}; }, [clearEventData, clearSubjectData]); // map data cleanup
+  useEffect(() => {
+    return () => {
+      dispatch(
+        clearEventData()
+      );
+      dispatch(
+        clearSubjectData()
+      );
+    };
+  }, [dispatch]);
 
   const setTrackLengthToEventFilterLowerValue = useCallback(() => {
-    setTrackLength(differenceInCalendarDays(new Date(), eventFilter.filter.date_range.lower));
-  }, [eventFilter.filter.date_range.lower, setTrackLength]);
+    dispatch(
+      setTrackLength(differenceInCalendarDays(new Date(), eventFilter.filter.date_range.lower))
+    );
+  }, [dispatch, eventFilter.filter.date_range.lower]);
 
   const onTrackLengthChange = useCallback(() => {
     resetTrackRequestCancelToken();
@@ -469,16 +493,10 @@ const Map = ({
   }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
 
   useEffect(() => {
-    fetchBaseLayers();
-  }, [fetchBaseLayers]);
-
-  useEffect(() => {
-    if (!!map) {
-      const { zoom, center } = homeMap;
-      jumpToLocation(lngLatFromParams.current || center, lngLatFromParams.current ? 16 : zoom);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [homeMap, map]);
+    dispatch(
+      fetchBaseLayers()
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     if (map) {
@@ -557,26 +575,15 @@ const Map = ({
     }
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
 
-  useEffect(() => {
-    const lnglat = new URLSearchParams(location.search).get('lnglat');
-    if (lnglat) {
-      lngLatFromParams.current = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
-      const newLocation = { ...location };
-
-      delete newLocation.search;
-      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
-    }
-  }, [location, navigate]);
-
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
+  useMapEventBinding('moveend', saveMapPosition);
   useMapEventBinding('zoom', onMapZoom);
   useMapEventBinding('click', onMapClick);
 
   if (!maps.length) return null;
 
   return <EarthRangerMap
-    center={lngLatFromParams.current || homeMap.center}
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
     controls={<>
       <AddItemButton className="general-add-button" showLabel={false} variant="secondary" />
@@ -584,7 +591,6 @@ const Map = ({
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />
       <MapPrintControl />
-      <MapSettingsControl />
       <TimeSliderMapControl />
     </>}
     onMapLoaded={setMap}
@@ -672,72 +678,5 @@ const Map = ({
   </EarthRangerMap>;
 };
 
-const mapStatetoProps = (state) => {
-  const { data, view } = state;
-  const { maps, tracks, eventFilter, eventStore, user, eventTypes, patrolFilter } = data;
-  const {
-    hiddenAnalyzerIDs,
-    hiddenFeatureIDs,
-    homeMap,
-    mapIsLocked,
-    patrolTrackState,
-    mapLocationSelection,
-    popup,
-    subjectTrackState,
-    heatmapSubjectIDs,
-    timeSliderState,
-    bounceEventIDs,
-    showTrackTimepoints,
-    trackLength: { length: trackLength, origin: trackLengthOrigin },
-    userLocation,
-    showReportsOnMap,
-  } = view;
 
-  return ({
-    analyzerFeatures: analyzerFeatures(state),
-    maps,
-    userLocation,
-    eventTypes,
-    heatmapSubjectIDs,
-    tracks,
-    hiddenAnalyzerIDs,
-    hiddenFeatureIDs,
-    homeMap,
-    mapIsLocked,
-    patrolTrackState,
-    popup,
-    user,
-    eventFilter,
-    eventStore,
-    patrolFilter,
-    subjectTrackState,
-    showTrackTimepoints,
-    showReportsOnMap,
-    timeSliderState,
-    bounceEventIDs,
-    trackLength,
-    trackLengthOrigin,
-    mapImages: state.view.mapImages,
-    mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
-    analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
-    showReportHeatmap: state.view.showReportHeatmap,
-    mapLocationSelection,
-  });
-};
-
-export default connect(mapStatetoProps, {
-  clearEventData,
-  clearSubjectData,
-  fetchBaseLayers,
-  fetchMapSubjects,
-  fetchMapEvents,
-  hidePopup,
-  setReportHeatmapVisibility,
-  setTrackLength,
-  showPopup,
-  updateTrackState,
-  updatePatrolTrackState,
-  updateHeatmapSubjects,
-}
-)(withMap(Map));
+export default withMap(Map);

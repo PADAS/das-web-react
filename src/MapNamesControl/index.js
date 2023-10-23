@@ -55,7 +55,7 @@ const MapNamesControl = ({ showMapNames, toggleMapNamesState }) => {
       }}
       onChange={switchAllOptions}
       />
-      <span className={styles.checkboxlabel}>Show Names</span>
+      <span className={styles.checkboxlabel}>All</span>
     </label>
     <ul className={styles.subListItems}>
       {Object.keys(layersValues).map(layerKey => {

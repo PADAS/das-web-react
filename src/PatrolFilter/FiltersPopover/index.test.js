@@ -17,6 +17,14 @@ jest.mock('../../ducks/patrol-filter', () => ({
   updatePatrolFilter: jest.fn(),
 }));
 
+jest.mock('redux-persist', () => {
+  return {
+    ...jest.requireActual('redux-persist'),
+    persistReducer: jest
+      .fn((_config, reducers) => reducers)
+  };
+});
+
 describe('PatrolFilter', () => {
   let fetchTrackedBySchemaMock, store, updatePatrolFilterMock;
   beforeEach(() => {

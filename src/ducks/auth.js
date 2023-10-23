@@ -1,4 +1,5 @@
 import axios, { CancelToken } from 'axios';
+
 import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { resetGlobalState } from '../reducers/global-resettable';
@@ -38,7 +39,8 @@ const postAuthSuccess = response => (dispatch) => {
   });
 };
 
-export const clearAuth = () => dispatch => {
+export const clearAuth = () => (dispatch) => {
+
   return new Promise((resolve) => {
     if (window.map) {
       window.map.setStyle(null);

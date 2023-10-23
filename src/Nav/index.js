@@ -46,7 +46,6 @@ const Nav = ({
   fetchCurrentUser,
   fetchCurrentUserProfiles,
   homeMap,
-  map,
   maps,
   setHomeMap,
   showDrawer,
@@ -64,6 +63,8 @@ const Nav = ({
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
+    const { zoom, center } = chosenMap;
+    jumpToLocation(center, zoom);
     mainToolbarTracker.track('Change Home Area', `Home Area:${chosenMap.title}`);
   };
 
@@ -101,10 +102,6 @@ const Nav = ({
     });
 
   }, [addModal, handleProfileChange]);
-
-  useEffect(() => {
-    map && maps.length && !homeMap.id && onHomeMapSelect(maps.find(m => m.default) || maps[0]);
-  }, [map, maps]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchCurrentUser()

@@ -56,15 +56,6 @@ const useJumpToLocation = () => {
       map.fitBounds(boundaries, { linear: true, speed: 200, padding });
     } else {
       map.easeTo({ center: isCoordsArray ? coords[0] : coords, zoom, padding, speed: 200 });
-      map.once('moveend', () => {
-        setTimeout(() => {
-          const hasFeatures = !!map.queryRenderedFeatures().length;
-          if (!hasFeatures) {
-            map.flyTo({ zoom: 1, speed: 10 });
-            map.flyTo({ zoom, speed: 10 });
-          }
-        });
-      });
     }
   };
 };

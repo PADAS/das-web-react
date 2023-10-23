@@ -1,4 +1,5 @@
 import { EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
+import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
 import globallyResettableReducer from '../../reducers/global-resettable';
@@ -7,6 +8,8 @@ const defaultDateRange = {
   lower: generateDaysAgoDate(REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS).toISOString(),
   upper: null,
 };
+
+export const EVENT_FILTER_STORAGE_KEY = 'eventFilter';
 
 export const INITIAL_FILTER_STATE = {
   include_notes: true,
@@ -22,6 +25,8 @@ export const INITIAL_FILTER_STATE = {
     reported_by: [],
   },
 };
+
+export const persistenceConfig = generateOptionalStorageConfig(EVENT_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
 
@@ -56,6 +61,7 @@ export const setDefaultDateRange = (lower, upper) => {
 // REDUCER
 const eventFilterReducer = (state, action) => {
   switch (action.type) {
+
   case UPDATE_EVENT_FILTER:
     return {
       ...state,

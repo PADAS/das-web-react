@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -26,13 +26,19 @@ export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) => {
+const PatrolFilter = ({ className }) => {
   const containerRef = useRef(null);
+
+  const dispatch = useDispatch();
+  const patrols = useSelector(getPatrolList);
+  const patrolFilter = useSelector(state => state.data.patrolFilter);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
   const updatePatrolFilterDebounced = useRef(debounce((update) => {
-    updatePatrolFilter(update);
+    dispatch(
+      updatePatrolFilter(update)
+    );
   }, PATROL_TEXT_FILTER_DEBOUNCE_TIME));
 
   const onSearchChange = useCallback(({ target: { value } }) => {
@@ -53,7 +59,9 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
       if (!!filterText.length) {
         updatePatrolFilterDebounced.current({ filter: { text: filterText } });
       } else {
-        updatePatrolFilter({ filter: { text: '' } });
+        dispatch(
+          updatePatrolFilter({ filter: { text: '' } })
+        );
       }
     }
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -149,12 +157,6 @@ PatrolFilter.propTypes = {
       text: PropTypes.string,
     }),
   }).isRequired,
-  updatePatrolFilter: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  patrolFilter: state.data.patrolFilter,
-  patrols: getPatrolList(state),
-});
-
-export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
+export default PatrolFilter;
