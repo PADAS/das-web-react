@@ -54,6 +54,7 @@ import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
 import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import { SidebarScrollContext } from '../../SidebarScrollContext';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -101,6 +102,7 @@ const ReportDetailView = ({
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
+  const { setScrollPosition } = useContext(SidebarScrollContext);
 
   const submitFormButtonRef = useRef(null);
   const newAttachmentRef = useRef(null);
@@ -237,6 +239,7 @@ const ReportDetailView = ({
       onSaveAddedReportCallback?.();
     } else if (redirectToFromFormProps || redirectTo) {
       setRedirectTo(redirectToFromFormProps || redirectTo);
+      setScrollPosition(TAB_KEYS.REPORTS, 0);
     }
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
