@@ -11,6 +11,10 @@
   display: flex;
   width: 100vw;
 
+  .agreementText {
+    margin-left: 0.5rem;
+  }
+
   [class*=modal-dialog] {
     margin-top: 1.75rem
   }
