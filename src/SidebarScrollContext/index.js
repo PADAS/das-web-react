@@ -1,17 +1,17 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
-export const ScrollContext = createContext();
+export const SidebarScrollContext = createContext();
 
 const getElement = (ref) => ref?.current?.el ?? ref?.current;
 
-export const SidebarScrollContext = ({ children }) => {
+export const SidebarScrollProvider = ({ children }) => {
   const scrollRef = useRef(null);
   const [scrollPositionValues, setScrollPositionValues] = useState({});
 
-  const setScrollPosition = useCallback((tab) => {
+  const setScrollPosition = useCallback((tab, position = null) => {
     const element = getElement(scrollRef);
-    const value = element.scrollTop;
+    const value = position ?? element.scrollTop;
     setScrollPositionValues({
       ...scrollPositionValues,
       [tab]: value
@@ -20,6 +20,7 @@ export const SidebarScrollContext = ({ children }) => {
 
   const scrollToLastPosition = useCallback((tab) => {
     const element = getElement(scrollRef);
+
     if (element?.scrollTo){
       element.scrollTo({
         top: scrollPositionValues[tab]
@@ -27,15 +28,15 @@ export const SidebarScrollContext = ({ children }) => {
     }
   }, [scrollPositionValues]);
 
-  const scrollContextValue = useMemo(() => ({ setScrollPosition, scrollToLastPosition, scrollRef }), [scrollToLastPosition, setScrollPosition]);
+  const scrollContextValue = useMemo(() => ({ setScrollPosition, scrollToLastPosition, scrollRef, scrollPositionValues }), [scrollToLastPosition, setScrollPosition, scrollPositionValues]);
 
-  return <ScrollContext.Provider value={scrollContextValue}>
+  return <SidebarScrollContext.Provider value={scrollContextValue}>
     {children}
-  </ScrollContext.Provider>;
+  </SidebarScrollContext.Provider>;
 };
 
 export const ScrollRestoration = ({ Component, namespace, children, ...props }) => {
-  const { scrollRef, setScrollPosition, scrollToLastPosition } = useContext(ScrollContext);
+  const { scrollRef, setScrollPosition, scrollToLastPosition } = useContext(SidebarScrollContext);
   const onScrollFeed = useCallback(() => setScrollPosition(namespace), [setScrollPosition, namespace]);
 
   useEffect(() => {
