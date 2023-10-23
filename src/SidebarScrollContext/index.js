@@ -20,6 +20,7 @@ export const SidebarScrollProvider = ({ children }) => {
 
   const scrollToLastPosition = useCallback((tab) => {
     const element = getElement(scrollRef);
+
     if (element?.scrollTo){
       element.scrollTo({
         top: scrollPositionValues[tab]
@@ -27,7 +28,7 @@ export const SidebarScrollProvider = ({ children }) => {
     }
   }, [scrollPositionValues]);
 
-  const scrollContextValue = useMemo(() => ({ setScrollPosition, scrollToLastPosition, scrollRef }), [scrollToLastPosition, setScrollPosition]);
+  const scrollContextValue = useMemo(() => ({ setScrollPosition, scrollToLastPosition, scrollRef, scrollPositionValues }), [scrollToLastPosition, setScrollPosition, scrollPositionValues]);
 
   return <SidebarScrollContext.Provider value={scrollContextValue}>
     {children}
