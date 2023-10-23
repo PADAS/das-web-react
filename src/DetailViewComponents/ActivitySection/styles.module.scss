@@ -9,6 +9,10 @@ $cardExpansionTransitionTime: 300ms;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+
+  @media print {
+    margin-top: 2rem;
+  }
 }
 
 .title {

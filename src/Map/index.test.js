@@ -168,6 +168,36 @@ describe('Map', () => {
     });
   });
 
+
+  test('saving the map position on moveend', async () => {
+    const mockStoreInstance = mockStore(store);
+
+    render(<Provider store={mockStoreInstance}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
+
+    // Move the map
+    map.__test__.fireHandlers('moveend');
+
+    const actions = mockStoreInstance.getActions();
+    expect(actions).toEqual([
+      {
+        type: 'SET_MAP_POSITION',
+        payload: {
+          bounds: map.getBounds(),
+          zoom: parseFloat(map.getZoom().toFixed(2)),
+        }
+      }
+    ]);
+
+  });
+
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     render(<Provider store={mockStore(store)}>

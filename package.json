@@ -50,7 +50,7 @@
     "redux-promise": "^0.6.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "socket.io-client": "^2.2.0",
+    "socket.io-client": "^4.7.2",
     "streamsaver": "^1.2.0",
     "suncalc": "^1.9.0",
     "use-sound": "^4.0.1",
@@ -98,9 +98,9 @@
     "coverageThreshold": {
       "global": {
         "branches": 45.52,
-        "functions": 47.98,
-        "lines": 58.02,
-        "statements": 56.71
+        "functions": 49.78,
+        "lines": 59.28,
+        "statements": 58.03
       }
     },
     "coverageReporters": [

@@ -78,6 +78,7 @@ export const calcEventFilterForRequest = (options = {}, sortConfig = DEFAULT_EVE
   const { params, format = 'string' } = options;
 
   const toClean = merge({}, eventFilter, params);
+  delete toClean._persist;
 
   const cleaned = {
     ...cleanedUpFilterObject(toClean),

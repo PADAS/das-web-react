@@ -88,11 +88,11 @@ Anchor.propTypes = { anchorTitle: PropTypes.string.isRequired, iconComponent: Pr
 QuickLinks.Anchor = Anchor;
 
 
-const SectionsWrapper = ({ children }) => {
+const SectionsWrapper = ({ className, children }) => {
   const { sectionsWrapperRef } = useContext(QuickLinksContext);
 
   return <div
-    className={styles.sectionsWrapper}
+    className={`${styles.sectionsWrapper} ${className}`}
     data-testid="quickLinks-anchor-sectionsWrapper"
     ref={sectionsWrapperRef}
     >
@@ -100,7 +100,14 @@ const SectionsWrapper = ({ children }) => {
   </div>;
 };
 
-SectionsWrapper.propTypes = { children: PropTypes.node.isRequired };
+SectionsWrapper.defaultProps = {
+  clasName: ''
+};
+
+SectionsWrapper.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired
+};
 
 QuickLinks.SectionsWrapper = SectionsWrapper;
 

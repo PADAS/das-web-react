@@ -27,12 +27,12 @@ import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
-import BetaToggles from './BetaToggles';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 
 import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
 
@@ -201,6 +201,7 @@ const GlobalMenuDrawer = ({
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
     ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
     { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: 'Map Layers' },
+    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: 'Settings' },
   ], [showPatrols]);
 
   return <div className={styles.globalMenuDrawer} data-testid="globalMenuDrawer">
@@ -237,10 +238,6 @@ const GlobalMenuDrawer = ({
         <h6>EXPORTS</h6>
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
-      </div>
-
-      <div className={styles.section}>
-        <BetaToggles />
       </div>
     </div>
 

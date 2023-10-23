@@ -42,7 +42,7 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
         }}
         onChange={toggleAll}
       />
-      <span className={styles.checkboxlabel}>Cluster Map Data</span>
+      <span className={styles.checkboxlabel}>All</span>
     </label>
     <ul className={styles.subListItems}>
       {configEntries.map(([key, value]) =>

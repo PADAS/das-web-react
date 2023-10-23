@@ -35,6 +35,14 @@
       height: 2.25rem;
       width: 2.25rem;
     }
+
+    @media print {
+      display: none;
+    }
+  }
+
+  @media print {
+    margin-top: 1.5rem;
   }
 }
 

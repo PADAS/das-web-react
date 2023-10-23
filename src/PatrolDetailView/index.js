@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -52,6 +52,8 @@ import styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
+import { SidebarScrollContext } from '../SidebarScrollContext';
+import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -68,6 +70,7 @@ const PatrolDetailView = () => {
   const patrolId = getCurrentIdFromURL(location.pathname);
   const newPatrolTemporalId = location.state?.temporalId;
   const newPatrolTypeId = searchParams.get('patrolType');
+  const { setScrollPosition } = useContext(SidebarScrollContext);
 
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const patrolPermissions = useSelector((state) => {
@@ -83,6 +86,7 @@ const PatrolDetailView = () => {
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
   const temporalIdRef = useRef(null);
+  const printableContentRef = useRef(null);
 
   const [attachmentsToAdd, setAttachmentsToAdd] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -171,9 +175,9 @@ const PatrolDetailView = () => {
 
   const onSaveSuccess = useCallback((redirectTo) => () => {
     setRedirectTo(redirectTo);
-
+    setScrollPosition(TAB_KEYS.PATROLS, 0);
     patrolDetailViewTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
-  }, [isNewPatrol]);
+  }, [isNewPatrol, setScrollPosition]);
 
   const onSaveError = useCallback((error) => {
     patrolDetailViewTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);
@@ -519,20 +523,23 @@ const PatrolDetailView = () => {
     }
   }, [navigate, redirectTo]);
 
-  const shouldRenderActivitySection = !isNewPatrol || (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
+  const hasActivitySectionContent = (attachmentsToAdd.length + patrolNotes.length + notesToAdd.length + patrolNotes.length) > 0;
+  const shouldRenderActivitySection = !isNewPatrol || hasActivitySectionContent;
   const shouldRenderHistorySection = !!patrolUpdates.length;
 
-  return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView}>
+  return shouldRenderPatrolDetailView && !!patrolForm ? <div className={styles.patrolDetailView} ref={printableContentRef}>
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
-    <Header onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
+    <ERLogo className={styles.printLogo} />
+
+    <Header printableContentRef={printableContentRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
     <TrackerContext.Provider value={patrolTracker}>
       <div className={styles.body}>
         <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
-          <QuickLinks.NavigationBar>
+          <QuickLinks.NavigationBar className={styles.navigationBar}>
             <QuickLinks.Anchor anchorTitle="Plan" iconComponent={<CalendarIcon />} />
 
             <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
@@ -541,7 +548,7 @@ const PatrolDetailView = () => {
           </QuickLinks.NavigationBar>
 
           <div className={styles.content}>
-            <QuickLinks.SectionsWrapper>
+            <QuickLinks.SectionsWrapper className={styles.sectionWrapper}>
               <QuickLinks.Section anchorTitle="Plan">
                 <PlanSection
                   onPatrolEndDateChange={onPatrolEndDateChange}
@@ -554,7 +561,7 @@ const PatrolDetailView = () => {
                 />
               </QuickLinks.Section>
 
-              {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderActivitySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
               <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
                 <ActivitySection
@@ -570,17 +577,21 @@ const PatrolDetailView = () => {
                   onDoneNote={onDoneNote}
                   onDeleteNote={onDeleteNote}
                   startTime={patrolStartTime}
+                  className={!hasActivitySectionContent ? styles.hideOnPrint : ''}
                 />
               </QuickLinks.Section>
 
-              {shouldRenderHistorySection && <div className={styles.sectionSeparation} />}
+              {shouldRenderHistorySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
               <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
-                <HistorySection updates={patrolUpdates} />
+                <HistorySection
+                    updates={patrolUpdates}
+                    className={styles.hideOnPrint}
+                />
               </QuickLinks.Section>
             </QuickLinks.SectionsWrapper>
 
-            <div className={styles.footer}>
+            <div className={`${styles.footer} ${styles.hideOnPrint}`}>
               <div className={styles.footerActionButtonsContainer}>
                 <AddNoteButton className={styles.footerActionButton} onAddNote={onAddNote} />
 

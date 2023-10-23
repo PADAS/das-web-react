@@ -14,6 +14,7 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   const { filter: { patrols_overlap_daterange } } = patrolFilter;
   const { params, format = 'string' } = options;
   const  filterParams = merge({}, patrolFilter, params);
+  delete filterParams._persist;
   // only apply current filter settings if it is modified, otherwise allow overlap
   filterParams.filter.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? patrols_overlap_daterange : true;
 
