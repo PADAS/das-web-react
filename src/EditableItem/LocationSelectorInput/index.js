@@ -13,9 +13,9 @@ import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import { MapContext } from '../../App';
 import { setModalVisibilityState } from '../../ducks/modals';
 
+import GeoLocator from '../../GeoLocator';
 import GpsInput from '../../GpsInput';
 import MapLocationPicker from '../../MapLocationPicker';
-import GeoLocator from '../../GeoLocator';
 import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
@@ -161,23 +161,20 @@ const LocationSelectorInput = ({
     >
       <Popover placement='bottom' className={popoverClassString}>
         {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
-          <>
-            <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={onGpsInputKeydown} />
-            <div className={styles.locationButtons}>
-              <MapLocationPicker
-                  map={map}
-                  onLocationSelectStart={onLocationSelectStart}
-                  onLocationSelectCancel={onLocationSelectCancel}
-                  onLocationSelect={onLocationSelect}
-                />
-              {!!showUserLocation && <GeoLocator
-                  className={styles.geoLocator}
-                  onStart={onGeoLocationStart}
-                  onSuccess={onGeoLocationSuccess}
-                />}
-            </div>
-          </>
-
+          <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={onGpsInputKeydown} />
+          <div className={styles.locationButtons}>
+            <MapLocationPicker
+                map={map}
+                onLocationSelectStart={onLocationSelectStart}
+                onLocationSelectCancel={onLocationSelectCancel}
+                onLocationSelect={onLocationSelect}
+              />
+            {!!showUserLocation && <GeoLocator
+                className={styles.geoLocator}
+                onStart={onGeoLocationStart}
+                onSuccess={onGeoLocationSuccess}
+              />}
+          </div>
         </div>}
       </Popover>
     </Overlay>
