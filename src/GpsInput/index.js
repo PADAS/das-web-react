@@ -20,9 +20,9 @@ import styles from './styles.module.scss';
 const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...rest }) => {
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-  const hasLocation = !!lngLat && lngLat.length === 2;
+  const hasInitialLocation = !!lngLat && lngLat.length === 2;
 
-  const [inputValue, setInputValue] = useState(hasLocation
+  const [inputValue, setInputValue] = useState(hasInitialLocation
     ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
     : '');
   const [isValid, setIsValid] = useState(true);
@@ -34,25 +34,15 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
     }
   }, [gpsFormat, lastKnownValidValue]);
 
-  const onInputChange = useCallback((event) => setInputValue(event.target.value), []);
+  const onInputChange = useCallback((event) => {
+    const inputValue = event.target.value;
 
-  const onValueValidated = useCallback((value) => {
-    setIsValid(true);
-    setLastKnownValidValue(value);
-    onValidChange(value);
-  }, [onValidChange]);
+    setInputValue(inputValue);
 
-  useEffect(() => {
-    if (lastKnownValidValue || hasLocation) {
-      const location = lastKnownValidValue || lngLat;
-      setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gpsFormat]);
-
-  useEffect(() => {
     if (!inputValue) {
-      onValueValidated(inputValue);
+      setIsValid(true);
+      setLastKnownValidValue(inputValue);
+      onValidChange(inputValue);
     } else {
       try {
         const locationObject = calcActualGpsPositionForRawText(inputValue, gpsFormat);
@@ -60,17 +50,28 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
         if (!isLocationValid) {
           setIsValid(false);
         } else {
-          onValueValidated([
+          const valueNormalized = [
             (parseFloat(locationObject.longitude) * 10) / 10,
             (parseFloat(locationObject.latitude) * 10) / 10,
-          ]);
+          ];
+
+          setIsValid(true);
+          setLastKnownValidValue(valueNormalized);
+          onValidChange(valueNormalized);
         }
       } catch (error) {
         setIsValid(false);
       }
     }
+  }, [gpsFormat, onValidChange]);
+
+  useEffect(() => {
+    if (lastKnownValidValue || hasInitialLocation) {
+      const location = lastKnownValidValue || lngLat;
+      setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue, onValueValidated]);
+  }, [gpsFormat]);
 
   return <>
     <GpsFormatToggle showGpsString={false} />
@@ -96,7 +97,7 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
       </Button>}
     </div>
 
-    <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`}>
+    <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
       {isValid ? `Example: ${GPS_FORMAT_EXAMPLES[gpsFormat]}` : 'Invalid location'}
     </small>
   </>;
@@ -106,7 +107,6 @@ GpsInput.defaultProps = {
   buttonContent: null,
   lngLat: null,
   onButtonClick: null,
-  onValidChange: null,
   tooltip: '',
 };
 
@@ -114,7 +114,7 @@ GpsInput.propTypes = {
   buttonContent: PropTypes.node,
   lngLat: PropTypes.array,
   onButtonClick: PropTypes.func,
-  onValidChange: PropTypes.func,
+  onValidChange: PropTypes.func.isRequired,
   tooltip: PropTypes.string,
 };
 

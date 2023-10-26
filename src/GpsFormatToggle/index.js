@@ -21,11 +21,7 @@ const GpsFormatChoice = ({ currentFormat, format }) => {
     gpsFormatTracker.track('Change GPS Format', `GPS Format:${format}`);
   }, [dispatch, format]);
 
-  return <li
-      className={format === currentFormat ? styles.active : ''}
-      key={format}
-      onClick={onClick}
-    >
+  return <li className={format === currentFormat ? styles.active : ''} onClick={onClick}>
     {format}
   </li>;
 };
@@ -54,7 +50,6 @@ const GpsFormatToggle = ({ lat, lng, showGpsString, showCopyControl, ...rest }) 
 };
 
 GpsFormatToggle.defaultProps = {
-  className: '',
   lat: null,
   lng: null,
   showCopyControl: null,
@@ -62,7 +57,6 @@ GpsFormatToggle.defaultProps = {
 };
 
 GpsFormatToggle.propTypes = {
-  className: PropTypes.string,
   lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   showCopyControl: PropTypes.bool,
