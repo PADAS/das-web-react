@@ -32,9 +32,6 @@ const CursorGpsDisplay = () => {
   const onSearchCoordinates = useCallback(() => {
     jumpToLocation(gpsInputValue);
 
-    console.log('searching')
-    console.log(gpsInputValue)
-
     setTimeout(() => dispatch(showPopup('dropped-marker', {
       coordinates: gpsInputValue,
       location: { lat: gpsInputValue[1], lng: gpsInputValue[0] },
@@ -45,15 +42,10 @@ const CursorGpsDisplay = () => {
   const onGPSInputButtonClick = useCallback((event) => {
     event.stopPropagation();
 
-    console.log('button click');
     onSearchCoordinates();
   }, [onSearchCoordinates]);
 
-  const onGPSInputChange = useCallback((location) => {
-    console.log('change input');
-    console.log(location);
-    setGpsInputValue(location);
-  }, []);
+  const onGPSInputChange = useCallback((location) => setGpsInputValue(location), []);
 
   const onGPSInputKeyDown = useCallback((event) => {
     if (event.key === 'Enter') {
