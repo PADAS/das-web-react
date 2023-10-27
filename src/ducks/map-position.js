@@ -5,7 +5,9 @@ const SET_MAP_POSITION = 'SET_MAP_POSITION';
 export const MAP_POSITION_STORAGE_KEY = 'mapPosition';
 
 const INITIAL_STATE = {
+  bearing: 0,
   bounds: null,
+  pitch: 0,
   zoom: null,
 };
 

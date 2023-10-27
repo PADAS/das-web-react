@@ -14,6 +14,8 @@ export const createMapMock = (override = {}) => {
       return accumulator;
     }, {}),
     addSource: jest.fn(),
+    getBearing: jest.fn(() => 0),
+    getPitch: jest.fn(() => 0),
     getBounds: jest.fn().mockReturnValue({
       _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },
       _sw: { lat: -3.480332977332381, lng: 36.96196978906826 },

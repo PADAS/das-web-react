@@ -231,10 +231,13 @@ const Map = ({
 
   const saveMapPosition = useCallback(() => {
     if (map) {
+      const bearing = map.getBearing();
       const bounds = map.getBounds();
+      const pitch = map.getPitch();
+
       const zoom = parseFloat(map.getZoom().toFixed(2));
       dispatch(
-        setMapPosition({ bounds, zoom })
+        setMapPosition({ bearing, bounds, pitch, zoom })
       );
     }
   }, [dispatch, map]);

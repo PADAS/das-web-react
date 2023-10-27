@@ -86,14 +86,22 @@ const App = (props) => {
       map.jumpTo({ center: lngLatFromParams, zoom: 16 });
 
     } else if (mapPosition?.bounds && mapPosition?.zoom) {
-      const { bounds, zoom } = mapPosition;
+      const { bearing, bounds, pitch, zoom } = mapPosition;
       map.fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
         .setZoom(zoom);
+      if (pitch) {
+        map.setPitch(mapPosition.pitch);
+      }
+
+      if (bearing) {
+        map.setBearing(mapPosition.bearing);
+      }
 
     } else if (homeMap) {
       const { center, zoom } = homeMap;
       map.jumpTo({ center, zoom });
     }
+
 
   }, [homeMap, location, mapPosition, navigate]);
 
