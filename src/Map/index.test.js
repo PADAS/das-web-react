@@ -116,6 +116,7 @@ describe('Map', () => {
         featureSets: { data: [] },
         feedEvents: {},
         mapEvents: { events: [] },
+        mapLayerFilter: {},
         maps: [{
           center: [-103.5, 20.6],
           id: '87cb0294-4fe1-4a9e-8c04-dada5d1391be',

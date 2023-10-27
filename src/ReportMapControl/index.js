@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { displayReportsOnMapState, setReportHeatmapVisibility } from '../ducks/map-ui';
+import { displayReportsOnMapState } from '../ducks/map-layer-filter';
+import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import { trackEventFactory, MAP_LAYERS_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 
 import CheckMark from '../Checkmark';
@@ -35,6 +36,6 @@ const ReportMapControl = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { showReportsOnMap, showReportHeatmap } }) => ({ showReportsOnMap, showReportHeatmap });
+const mapStateToProps = ({ view: { showReportHeatmap }, data: { mapLayerFilter: { showReportsOnMap } } }) => ({ showReportsOnMap, showReportHeatmap });
 
 export default connect(mapStateToProps, { displayReportsOnMapState, setReportHeatmapVisibility })(ReportMapControl);

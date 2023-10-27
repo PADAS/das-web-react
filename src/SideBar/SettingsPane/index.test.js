@@ -81,7 +81,7 @@ describe('SettingsPane', () => {
   });
 
   describe('the "General" settings tab', () => {
-    describe('peristence controls', () => {
+    describe('persistence controls', () => {
       beforeEach(() => {
         /* clear the mocks as useLocalStorage calls these once when initializing */
         global.localStorage.__proto__.getItem.mockClear();

@@ -5,7 +5,7 @@ import Checkmark from '../Checkmark';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
-import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
+import { hideAnalyzers, showAnalyzers } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import CheckableList from '../CheckableList';
@@ -26,7 +26,7 @@ const AnalyzerLayerList = memo((props) => {
   const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
 
   const analyzers = useMemo(() => {
-    const { filter: { text = '' } } = mapLayerFilter;
+    const { text: { text = '' } } = mapLayerFilter;
 
     if (!text) return analyzerList[0].features;
 
@@ -51,7 +51,7 @@ const AnalyzerLayerList = memo((props) => {
   const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
   const collapsibleShouldBeOpen = useMemo(() => {
-    const { filter: { text = '' } } = mapLayerFilter;
+    const { text: { text = '' } } = mapLayerFilter;
 
     if (!text) return false;
 
@@ -128,7 +128,7 @@ const AnalyzerLayerList = memo((props) => {
 
 const mapStateToProps = (state) => ({
   analyzerFeatures: analyzerFeatures(state),
-  hiddenAnalyzerIDs: state.view.hiddenAnalyzerIDs,
+  hiddenAnalyzerIDs: state.data.mapLayerFilter.hiddenAnalyzerIDs,
   analyzerList: getAnalyzerListState(state),
   mapLayerFilter: state.data.mapLayerFilter,
 });

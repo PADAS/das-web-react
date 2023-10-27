@@ -102,8 +102,8 @@ const Map = ({
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
-  const hiddenAnalyzerIDs = useSelector(state => state.view.hiddenAnalyzerIDs);
-  const hiddenFeatureIDs = useSelector(state => state.view.hiddenFeatureIDs);
+  const hiddenAnalyzerIDs = useSelector(state => state.data.mapLayerFilter.hiddenAnalyzerIDs);
+  const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);

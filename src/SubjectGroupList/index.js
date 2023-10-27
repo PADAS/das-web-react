@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { hideSubjects, showSubjects } from '../ducks/map-ui';
+import { hideSubjects, showSubjects } from '../ducks/map-layer-filter';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { getSubjectGroups } from '../selectors/subjects';
@@ -14,9 +14,11 @@ import listStyles from '../SideBar/styles.module.scss';
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const SubjectGroupList = (props) => {
-  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
+  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, map } = props;
 
-  const searchText = useMemo(() => mapLayerFilter.filter.text || '', [mapLayerFilter.filter.text]);
+  const { hiddenSubjectIDs } = mapLayerFilter;
+
+  const searchText = useMemo(() => mapLayerFilter.text.text || '', [mapLayerFilter.text.text]);
 
   const subjectFilterEnabled = searchText.length > 0;
 
@@ -80,8 +82,8 @@ const SubjectGroupList = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { data: { mapLayerFilter }, view: { hiddenSubjectIDs } } = state;
-  return { subjectGroups: getSubjectGroups(state), mapLayerFilter, hiddenSubjectIDs };
+  const { data: { mapLayerFilter } } = state;
+  return { subjectGroups: getSubjectGroups(state), mapLayerFilter };
 };
 
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
