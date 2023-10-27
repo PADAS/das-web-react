@@ -16,11 +16,27 @@
   margin-top: 0.5rem;
   padding: 0 0.5rem;
   position: relative;
+  transition: none;
   white-space: unset;
   width: unset;
 
-  &[aria-expanded="true"]:after {
-    transform: rotate(180deg); 
+  &[aria-expanded="true"] {
+    color: $bright-blue !important;
+
+    .searchIcon {
+      circle {
+        stroke: $bright-blue;
+      }
+  
+      path {
+        fill: $bright-blue;
+      }
+    }
+
+    &:after {
+      color: $bright-blue;
+      transform: rotate(180deg); 
+    }
   }
 
   .searchIcon {
@@ -42,6 +58,10 @@
         fill: $secondary-medium-gray;
       }
     }
+  }
+
+  &:hover {
+    background: white !important;
   }
 }
 

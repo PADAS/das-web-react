@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import throttle from 'lodash/throttle';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,8 +22,11 @@ const CursorGpsDisplay = () => {
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
+  const dropdownRef = useRef(null);
+
   const [cursorCoordinates, setCursorCoordinates] = useState(null);
   const [gpsInputValue, setGpsInputValue] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const isValidLocation = validateLocation(cursorCoordinates);
 
@@ -53,6 +56,8 @@ const CursorGpsDisplay = () => {
     }
   }, [onSearchCoordinates]);
 
+  const onToggle = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+
   useEffect(() => {
     if (map) {
       const onMouseMove = (event) => setCursorCoordinates(event.lngLat);
@@ -64,9 +69,27 @@ const CursorGpsDisplay = () => {
     }
   }, [map]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !dropdownRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
   if (!isValidLocation) return null;
 
-  return <Dropdown align="end" data-testid="cursorGpsDisplay-dropdown">
+  return <Dropdown
+      align="end"
+      data-testid="cursorGpsDisplay-dropdown"
+      onToggle={onToggle}
+      ref={dropdownRef}
+      show={isOpen}
+    >
     <Dropdown.Toggle className={styles.container}>
       <div className={styles.searchIcon}>
         <SearchIcon />

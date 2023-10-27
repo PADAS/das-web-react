@@ -176,4 +176,19 @@ describe('CursorGpsDisplay', () => {
     expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
     expect(showPopup).toHaveBeenCalledTimes(0);
   });
+
+  test('closes the dropdown when clicking outside', async () => {
+    renderCursorGpsDisplay();
+
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
+
+    userEvent.click(document.body);
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+  });
 });
