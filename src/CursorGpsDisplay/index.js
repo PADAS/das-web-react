@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
-import { calcGpsDisplayString, validateLngLat } from '../utils/location';
+import { calcGpsDisplayString, validateLocation } from '../utils/location';
 import { showPopup } from '../ducks/popup';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
@@ -25,18 +25,18 @@ const CursorGpsDisplay = () => {
   const [cursorCoordinates, setCursorCoordinates] = useState(null);
   const [gpsInputValue, setGpsInputValue] = useState(null);
 
-  const isValidLocation = cursorCoordinates?.lng
-    && cursorCoordinates?.lat
-    && validateLngLat(cursorCoordinates.lng, cursorCoordinates.lat);
+  const isValidLocation = validateLocation(cursorCoordinates);
 
   const onSearchCoordinates = useCallback(() => {
-    jumpToLocation(gpsInputValue);
+    if (gpsInputValue) {
+      jumpToLocation(gpsInputValue);
 
-    setTimeout(() => dispatch(showPopup('dropped-marker', {
-      coordinates: gpsInputValue,
-      location: { lat: gpsInputValue[1], lng: gpsInputValue[0] },
-      popupAttrsOverride: { offset: [0, 0] },
-    })), 50);
+      setTimeout(() => dispatch(showPopup('dropped-marker', {
+        coordinates: gpsInputValue,
+        location: { lat: gpsInputValue[1], lng: gpsInputValue[0] },
+        popupAttrsOverride: { offset: [0, 0] },
+      })), 50);
+    }
   }, [dispatch, gpsInputValue, jumpToLocation]);
 
   const onGPSInputButtonClick = useCallback((event) => {

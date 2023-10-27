@@ -19,6 +19,10 @@
   white-space: unset;
   width: unset;
 
+  &[aria-expanded="true"]:after {
+    transform: rotate(180deg); 
+  }
+
   .searchIcon {
     height: 1rem;
     margin-right: 0.25rem;

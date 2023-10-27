@@ -1,9 +1,9 @@
 import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { withMap } from '../EarthRangerMap';
-import { validateLngLat } from '../utils/location';
 import { addMapImage } from '../utils/map';
+import { validateLocation } from '../utils/location';
+import { withMap } from '../EarthRangerMap';
 
 import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
@@ -18,7 +18,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
 
-  const isValidLocation = location.lng && location.lat && validateLngLat(location.lng, location.lat);
+  const isValidLocation = validateLocation(location);
   const shouldShowMarkerLayer = moving || isValidLocation;
 
   const cleanupMarkerStateFromMap = () => {

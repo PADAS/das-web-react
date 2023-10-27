@@ -148,4 +148,32 @@ describe('CursorGpsDisplay', () => {
       popupAttrsOverride: { offset: [0, 0] },
     });
   });
+
+  test('does not try to jump or show popup if search bar is empty', () => {
+    renderCursorGpsDisplay();
+
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const input = screen.getByRole('textbox');
+    userEvent.type(input, '{enter}');
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const searchButton = screen.getAllByRole('button')[1];
+    userEvent.click(searchButton);
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+  });
 });
