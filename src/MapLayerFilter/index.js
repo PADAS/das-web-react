@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 
 const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
-  const { text: { text } } = mapLayerFilter;
+  const { text } = mapLayerFilter;
   const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
   const onClearSearch = (e) => {

@@ -4,7 +4,6 @@ import { generateOptionalStorageConfig } from '../reducers/storage-config';
 import globallyResettableReducer from '../reducers/global-resettable';
 
 export const MAP_LAYER_FILTER_STORAGE_KEY = 'mapLayerFilter';
-export const mapLayerFilterPersistenceConfig = generateOptionalStorageConfig(MAP_LAYER_FILTER_STORAGE_KEY, []);
 
 // ACTIONS
 const UPDATE_MAP_LAYER_FILTER = 'UPDATE_MAP_LAYER_FILTER';
@@ -69,6 +68,8 @@ export const INITIAL_FILTER_STATE = {
   hiddenFeatureIDs: [],
   showReportsOnMap: true,
 };
+
+export const mapLayerFilterPersistenceConfig = generateOptionalStorageConfig(MAP_LAYER_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
 
 const mapLayerFilterReducer = (state, action) => {
   const { type, payload } = action;

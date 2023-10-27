@@ -82,7 +82,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
-        mapLayerFilter: { text: { text: '' }, hiddenAnalyzerIDs: [] },
+        mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {
             date_range: { lower: null, upper: null },

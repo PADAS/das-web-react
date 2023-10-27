@@ -26,7 +26,7 @@ const AnalyzerLayerList = memo((props) => {
   const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
 
   const analyzers = useMemo(() => {
-    const { text: { text = '' } } = mapLayerFilter;
+    const { text } = mapLayerFilter;
 
     if (!text) return analyzerList[0].features;
 
@@ -51,7 +51,7 @@ const AnalyzerLayerList = memo((props) => {
   const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
   const collapsibleShouldBeOpen = useMemo(() => {
-    const { text: { text = '' } } = mapLayerFilter;
+    const { text } = mapLayerFilter;
 
     if (!text) return false;
 

@@ -34,7 +34,7 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
   const [featureFilterEnabled, setFeatureFilterEnabledState] = useState(false);
 
   useEffect(() => {
-    const filterText = mapLayerFilter.text.text || '';
+    const filterText = mapLayerFilter.text || '';
     setSearchTextState(filterText);
     setFeatureFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);

@@ -18,7 +18,7 @@ const SubjectGroupList = (props) => {
 
   const { hiddenSubjectIDs } = mapLayerFilter;
 
-  const searchText = useMemo(() => mapLayerFilter.text.text || '', [mapLayerFilter.text.text]);
+  const searchText = useMemo(() => mapLayerFilter.text || '', [mapLayerFilter.text]);
 
   const subjectFilterEnabled = searchText.length > 0;
 
