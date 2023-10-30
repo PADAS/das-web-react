@@ -2,13 +2,12 @@ name: Build das-web-react
 on:
   push:
     branches:
-      - mt-infra
-      # - main
-      # - 'release-**'
+      - main
+      - 'release-**'
 
 jobs:
   build:
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
+    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v1-stable
     with:
       environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
