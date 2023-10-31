@@ -2,7 +2,7 @@ name: Build das-web-react
 on:
   push:
     branches:
-      - main
+      - develop
       - 'release-**'
 
 jobs:
