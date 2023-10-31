@@ -580,7 +580,7 @@ const Map = ({
 
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
-  useMapEventBinding('moveend', saveMapPosition);
+  useMapEventBinding('moveend', debounce(saveMapPosition));
   useMapEventBinding('zoom', onMapZoom);
   useMapEventBinding('click', onMapClick);
 

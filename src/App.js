@@ -87,15 +87,11 @@ const App = (props) => {
 
     } else if (mapPosition?.bounds && mapPosition?.zoom) {
       const { bearing, bounds, pitch, zoom } = mapPosition;
-      map.fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
-        .setZoom(zoom);
-      if (pitch) {
-        map.setPitch(mapPosition.pitch);
-      }
 
-      if (bearing) {
-        map.setBearing(mapPosition.bearing);
-      }
+      map.setBearing(bearing)
+        .fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
+        .setPitch(pitch)
+        .setZoom(zoom);
 
     } else if (homeMap) {
       const { center, zoom } = homeMap;
