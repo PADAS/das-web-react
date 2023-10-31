@@ -15,8 +15,7 @@ const WithSocketContext = (props) => {
     const instantiate = () => {
       const socket = createSocket();
       const socketWithEvents = bindSocketEvents(socket, store);
-      const instanceFailureMessages = ['error', 'disconnect', 'connect_error'];
-      const managerFailureMessages = ['error', 'reconnect_error', 'reconnect_failed'];
+      const failureMessages = ['error', 'disconnect', 'connect_error', 'reconnect_error', 'reconnect_failed'];
 
       const teardown = () => {
         socketWithEvents.close();
@@ -29,8 +28,7 @@ const WithSocketContext = (props) => {
         socketReconnectTimeout = setTimeout(instantiate, 5000);
       };
 
-      instanceFailureMessages.forEach((msg) => socketWithEvents.on(msg, restart));
-      managerFailureMessages.forEach((msg) => socketWithEvents.io.on(msg, restart));
+      failureMessages.forEach((msg) => socketWithEvents.on(msg, restart));
 
       setWebsocket(socketWithEvents);
 
