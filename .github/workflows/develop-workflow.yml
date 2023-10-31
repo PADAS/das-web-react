@@ -6,7 +6,7 @@ on:
       - "ERA-*"
       - "era-*"
       - "develop*"
-      - "eruc-*"
+      - "eruc*"
 
 env:
   BUILD_BRANCH: ${{ github.ref_name }}
