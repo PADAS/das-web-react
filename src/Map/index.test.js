@@ -187,17 +187,20 @@ describe('Map', () => {
     map.__test__.fireHandlers('moveend');
 
     const actions = mockStoreInstance.getActions();
-    expect(actions).toEqual([
-      {
-        type: 'SET_MAP_POSITION',
-        payload: {
-          bearing: 0,
-          bounds: map.getBounds(),
-          pitch: 0,
-          zoom: parseFloat(map.getZoom().toFixed(2)),
+    await waitFor(() => {
+
+      expect(actions).toEqual([
+        {
+          type: 'SET_MAP_POSITION',
+          payload: {
+            bearing: 0,
+            bounds: map.getBounds(),
+            pitch: 0,
+            zoom: parseFloat(map.getZoom().toFixed(2)),
+          }
         }
-      }
-    ]);
+      ]);
+    });
 
   });
 
