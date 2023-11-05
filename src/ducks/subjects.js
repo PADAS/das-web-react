@@ -199,10 +199,10 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
       && payload.device_status_properties
     ) {
       cloned.device_status_properties =  Object.values(
-        merge(
-          keyBy(subjectFromState.device_status_properties, 'label'),
-          keyBy(cloned.device_status_properties, 'label')
-        )
+        {
+          ...keyBy(subjectFromState.device_status_properties, 'label'),
+          ...keyBy(cloned.device_status_properties, 'label'),
+        }
       );
     }
 
