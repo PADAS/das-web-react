@@ -232,12 +232,12 @@ const Map = ({
   const saveMapPosition = useCallback(() => {
     if (map) {
       const bearing = map.getBearing();
-      const bounds = map.getBounds();
+      const center = map.getCenter();
       const pitch = map.getPitch();
 
       const zoom = parseFloat(map.getZoom().toFixed(2));
       dispatch(
-        setMapPosition({ bearing, bounds, pitch, zoom })
+        setMapPosition({ bearing, center, pitch, zoom })
       );
     }
   }, [dispatch, map]);

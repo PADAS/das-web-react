@@ -194,7 +194,7 @@ describe('Map', () => {
           type: 'SET_MAP_POSITION',
           payload: {
             bearing: 0,
-            bounds: map.getBounds(),
+            center: map.getCenter(),
             pitch: 0,
             zoom: parseFloat(map.getZoom().toFixed(2)),
           }

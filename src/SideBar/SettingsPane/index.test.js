@@ -24,7 +24,7 @@ describe('SettingsPane', () => {
       view: {
         mapPosition: {
           zoom: 10,
-          bounds: { _sw: [10, 10], _ne: [20, 20] },
+          center: { lat: 0, lng: 0 },
         },
         systemConfig: {
           alerts_enabled: true,

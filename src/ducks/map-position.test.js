@@ -4,7 +4,7 @@ describe('mapPositionReducer', () => {
   it('should return the initial state', () => {
     expect(mapPositionReducer(undefined, {})).toEqual({
       bearing: 0,
-      bounds: null,
+      center: null,
       pitch: 0,
       zoom: null,
     });
@@ -13,10 +13,7 @@ describe('mapPositionReducer', () => {
   it('should handle SET_MAP_POSITION', () => {
     const payload = {
       bearing: 2,
-      bounds: {
-        _sw: { lng: -122.5190, lat: 37.7045 },
-        _ne: { lng: -122.3556, lat: 37.8324 },
-      },
+      center: { lng: -122.5190, lat: 37.7045 },
       pitch: 66,
       zoom: 12,
     };

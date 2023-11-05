@@ -1,8 +1,6 @@
 import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import axios from 'axios';
 
-import { LngLatBounds } from 'mapbox-gl';
-
 import Map from './Map';
 import Nav from './Nav';
 import { connect, useSelector } from 'react-redux';
@@ -85,20 +83,10 @@ const App = (props) => {
 
       map.jumpTo({ center: lngLatFromParams, zoom: 16 });
 
-    } else if (mapPosition?.bounds && mapPosition?.zoom) {
-      const { bearing, bounds, pitch, zoom } = mapPosition;
-
-      map.setBearing(bearing)
-        .fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
-        .setPitch(pitch)
-        .setZoom(zoom);
-
-    } else if (homeMap) {
+    } else if (homeMap && !mapPosition?.center && !mapPosition?.zoom) {
       const { center, zoom } = homeMap;
       map.jumpTo({ center, zoom });
     }
-
-
   }, [homeMap, location, mapPosition, navigate]);
 
   const onMapHasLoaded = useCallback((map) => {
