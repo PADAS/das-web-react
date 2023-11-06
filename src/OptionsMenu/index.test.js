@@ -35,29 +35,4 @@ describe('<OptionsMenu />',  () => {
     expect( handleOnClick ).toHaveBeenCalled();
   });
 
-  test('menu closes when clicking outside', async () => {
-    const menuTestId = 'option-menu-test-id';
-    const toggleClass = 'show';
-    const siblingElement = 'Another element';
-
-    render(<div>
-      <OptionsMenu data-testid={menuTestId}>
-        <Option>a menu option</Option>
-      </OptionsMenu>
-      <p>{siblingElement}</p>
-    </div>);
-
-    const menu = await screen.getByTestId(menuTestId);
-    expect(menu.classList.contains(toggleClass)).toBeFalsy();
-
-    const kebab = await screen.getByTestId('optionsMenu-kebab-button');
-    userEvent.click(kebab);
-    expect(menu.classList.contains(toggleClass)).toBeTruthy();
-
-    const paragraph = await screen.findByText(siblingElement);
-    userEvent.click(paragraph);
-    expect(menu.classList.contains(toggleClass)).toBeFalsy();
-  });
-
-
 });

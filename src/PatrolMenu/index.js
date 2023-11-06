@@ -9,9 +9,10 @@ import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import TextCopyBtn from '../TextCopyBtn';
 import { basePrintingStyles } from '../utils/styles';
 import OptionsMenu, { Option } from '../OptionsMenu';
+import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
+import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
 
 import styles from './styles.module.scss';
-import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -95,7 +96,7 @@ const PatrolMenu = (props) => {
       <TextCopyBtn
           label='Copy patrol link'
           text={`${DAS_HOST}/patrols/${patrol.id}`}
-          icon={null}
+          icon={<ClipIcon />}
           successMessage='Link copied'
           permitPropagation
       />
