@@ -1,34 +1,33 @@
-import React, { useContext, useEffect } from 'react';  /* eslint-disable-line no-unused-vars */
-import { connect } from 'react-redux';
+import { useContext, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { showPopup } from '../ducks/popup';
 
 import { MapContext } from '../App';
 
-
-const RightClickMarkerDropper = (props) => {
-  const { showPopup } = props;
+const RightClickMarkerDropper = () => {
+  const dispatch = useDispatch();
 
   const map = useContext(MapContext);
 
   useEffect(() => {
     if (map) {
-      const onRightClickMap = (e) => {
-        const coordinates = [e.lngLat.lng, e.lngLat.lat];
+      const onContextMenu = (event) => {
+        const coordinates = [event.lngLat.lng, event.lngLat.lat];
 
-        showPopup('dropped-marker', { location: e.lngLat, coordinates, popupAttrsOverride: {
-          offset: [0, 0],
-        } });
+        dispatch(showPopup('dropped-marker', {
+          location: event.lngLat,
+          coordinates,
+          popupAttrsOverride: { offset: [0, 0] },
+        }));
       };
 
-      map.on('contextmenu', onRightClickMap);
-      return () => {
-        map.off('contextmenu', onRightClickMap);
-      };
+      map.on('contextmenu', onContextMenu);
+      return () => map.off('contextmenu', onContextMenu);
     }
-  }, [map, showPopup]);
+  }, [dispatch, map]);
 
   return null;
 };
 
-export default connect(null, { showPopup })(RightClickMarkerDropper);
+export default RightClickMarkerDropper;

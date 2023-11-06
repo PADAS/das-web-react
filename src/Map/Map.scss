@@ -71,7 +71,8 @@
   align-items: flex-end;
   position: absolute;
   top: 0.5rem;
-  right: 0.666rem;
+  right: 0;
+  margin-right: 3.5rem;
   z-index: 11;
 }
 
@@ -92,12 +93,10 @@
 }
 
 .compass-wrapper {
-  align-items: center;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  max-width: 11rem;
-  width: 30vw;
+  max-width: 12rem;
   margin-bottom: 0.5rem;
 }
 
