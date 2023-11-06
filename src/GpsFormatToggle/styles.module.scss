@@ -1,34 +1,32 @@
 @import '../common/styles/vars/colors';
 
-.container {
-  font-size: .8rem;
-  line-height: normal;
-}
-
 .choices {
   align-items: center;
   display: flex;
   justify-content: space-evenly;
   list-style-type: none;
-  margin: .25rem 0;
-  padding: 0;
+  margin: 0.25rem 0;
+
   li {
-    color: $link-color;
+    align-items: center;
+    background-color: $very-light-gray;
+    color: $dark-gray;
     cursor: pointer;
-    opacity: 0.85;
+    display: flex;
+    height: 2rem;
+    justify-content: center;
+    width: 100%;
+
+    &.active {
+      background-color: white;
+      color: $bright-blue;
+      font-weight: bold;
+    }
+
     &:hover {
-      opacity: 1;
+      font-weight: bold;
     }
   }
-}
-.active {
-  font-weight: bold;
-  text-decoration: underline;
-}
-
-.value {
-  display: block;
-  text-align: center;
 }
 
 .gpsStringWrapper {
@@ -36,6 +34,7 @@
   display: flex;
   justify-content: center;
   position: relative;
+
   svg {
     height: 1rem;
     margin-left: 0.5rem;
@@ -43,9 +42,7 @@
   }
 }
 
-div.copySuccessMsg {
-  margin: 0;
-  position: absolute;
-  right: -8rem;
-  top: 0;
+.value {
+  display: block;
+  text-align: center;
 }

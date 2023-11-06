@@ -8,11 +8,10 @@
 
   .gpsPopover {
     left: auto;
-    max-width: unset;
-    min-width: 18rem;
     padding: 0.5rem;
     right: 0;
     top: 90%;
+    width: 18rem;
 
     [class*=arrow] { 
       left: auto;
