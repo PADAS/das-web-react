@@ -169,6 +169,8 @@ const PatrolListItem = ({
     return () => window.clearInterval(intervalRef.current);
   }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
+  const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
+
   const renderedControlsComponent = showControls
     ? <div className={styles.controls}>
       <StateDependentControls />
@@ -178,9 +180,17 @@ const PatrolListItem = ({
         onPatrolChange={onPatrolChange}
         patrol={patrol}
         showPatrolPrintOption={false}
+        onClick={onDropdownClick}
       />
     </div>
     : null;
+
+  const preventPatrolMenuOverlapping = useCallback(() => menuRef?.current?.classList.remove('show'), [menuRef]);
+
+  useEffect(() => {
+    window.addEventListener('click', preventPatrolMenuOverlapping, true);
+    return () => window.removeEventListener('click', preventPatrolMenuOverlapping);
+  }, [preventPatrolMenuOverlapping]);
 
   const renderedDateComponent = <div
       className={styles.statusInfo}

@@ -1,5 +1,4 @@
 import React, { memo, useContext } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
@@ -27,11 +26,9 @@ import { useFeatureFlag } from '../../../hooks';
 
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
-import KebabMenuIcon from '../../../KebabMenuIcon';
 import TextCopyBtn from '../../../TextCopyBtn';
 import { basePrintingStyles } from '../../../utils/styles';
-
-import styles from './styles.module.scss';
+import OptionsMenu, { Option } from '../../../OptionsMenu';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
@@ -109,38 +106,32 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     reportTracker.track('Click \'Add to Patrol\' button');
   };
 
-  return <Dropdown align="end" className={styles.kebabMenu}>
-    <Dropdown.Toggle as="button" data-testid="reportMenu-kebab-button">
-      <KebabMenuIcon />
-    </Dropdown.Toggle>
+  return <OptionsMenu align="end">
+    {canAddToIncident && <Option as="button" onClick={onStartAddToIncident}>
+      <IncidentIcon />
+      Add to Incident
+      </Option>}
 
-    <Dropdown.Menu className={styles.menuDropdown}>
-      {canAddToIncident && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToIncident}>
-        <IncidentIcon className={styles.itemIcon} />
-        Add to Incident
-      </Dropdown.Item>}
+    {!belongsToPatrol && <Option as="button" onClick={onStartAddToPatrol}>
+      <PatrolIcon />
+      Add to Patrol
+      </Option>}
 
-      {!belongsToPatrol && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToPatrol}>
-        <PatrolIcon className={styles.itemIcon} />
-        Add to Patrol
-      </Dropdown.Item>}
-
-      {!!report.id && <Dropdown.Item as="div" className={styles.itemBtn}>
-        <TextCopyBtn
+    {!!report.id && <Option as="div">
+      <TextCopyBtn
           getText={() => getReportLink(report)}
-          icon={<ClipIcon className={styles.itemIcon} />}
+          icon={<ClipIcon />}
           label="Copy report link"
           permitPropagation
           successMessage="Link copied"
         />
-      </Dropdown.Item>}
+      </Option>}
 
-      <Dropdown.Item as="button" className={styles.itemBtn} onClick={handlePrint}>
-        <PrinterIcon className={styles.itemIcon} />
-        Print Report
-      </Dropdown.Item>
-    </Dropdown.Menu>
-  </Dropdown>;
+    <Option as="button" onClick={handlePrint}>
+      <PrinterIcon />
+      Print Report
+    </Option>
+  </OptionsMenu>;
 };
 
 ReportMenu.propTypes = {

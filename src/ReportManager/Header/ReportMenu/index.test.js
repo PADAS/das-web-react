@@ -80,7 +80,7 @@ describe('Menu report options', () => {
       <ToastContainer />
     </>);
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     expect(writeText).toHaveBeenCalledTimes(0);
@@ -108,7 +108,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(0);
@@ -131,7 +131,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
@@ -150,7 +150,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
@@ -168,7 +168,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     const addToIncidentButton = await screen.findByText('Add to Incident');
@@ -192,7 +192,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeDefined();
@@ -210,7 +210,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.findByTestId('optionsMenu-kebab-button');
     userEvent.click(kebabButton);
 
     const addToPatrolButton = await screen.findByText('Add to Patrol');

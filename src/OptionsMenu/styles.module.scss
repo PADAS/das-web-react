@@ -1,20 +1,19 @@
-@import '../../../common/styles/buttons';
-@import '../../../common/styles/vars/colors';
-@import '../../../common/styles/inputs';
+@import '../common/styles/inputs';
+@import '../common/styles/vars/colors';
 
 .kebabMenu {
   display: flex;
   --hamburger-menu-color: #1a2026;
-  background: rgba(136, 139, 141, 0.15);
+  background: none;
   border: none;
   border-radius: 0.25rem;
   height: 2.25rem;
-  width: 2.25rem;
+  width: 1rem;
   padding: 0;
-  margin-right: 0.5rem;
+  margin: 0 0.5rem;
 
   &:active {
-      background: rgba(0,0,0,0.17);
+    background: rgba(0,0,0,0.17);
   }
 
   > button {
@@ -22,6 +21,7 @@
     outline: none;
     background: none;
     width: 100%;
+    padding: 0 !important;
 
     > div {
       align-items: center;
@@ -34,6 +34,11 @@
       display: none;
     }
   }
+
+  @media print {
+    opacity: 0;
+  }
+
 }
 
 .menuDropdown {
@@ -47,8 +52,6 @@
 }
 
 .itemBtn {
-  font-size: 0.875rem;
-  padding: 0.437rem 0.312rem !important;
 
   &:hover{
     @include dropdown-options-hover;
@@ -58,8 +61,8 @@
     margin-left: 0.1rem;
     margin-right: 0.5rem;
   }
-  
-  .itemIcon {
+
+  svg {
     height: 1.125rem;
     width: 1.125rem;
     color: $secondary-medium-light-gray;
