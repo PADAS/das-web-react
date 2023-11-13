@@ -1,59 +1,32 @@
-import React, { Fragment, memo, useCallback, useState, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import isEqual from 'react-fast-compare';
-import Alert from 'react-bootstrap/Alert';
+import Tooltip from 'react-bootstrap/Tooltip';
+import { useSelector } from 'react-redux';
 
-import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS, GPS_FORMAT_EXAMPLES } from '../utils/location';
+import {
+  calcActualGpsPositionForRawText,
+  calcGpsDisplayString,
+  GPS_FORMAT_EXAMPLES,
+  GPS_FORMAT_LABELS,
+  validateLngLat,
+} from '../utils/location';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
 import styles from './styles.module.scss';
 
-const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
+const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...rest }) => {
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest }) => {
-  const lngLat = originalLngLat ? [...originalLngLat] : null;
-  const hasLocation = !!lngLat && lngLat.length === 2;
-  const placeholder = GPS_FORMAT_LABELS[gpsFormat] || 'Location';
+  const hasInitialLocation = !!lngLat && lngLat.length === 2;
 
+  const [inputValue, setInputValue] = useState(hasInitialLocation
+    ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
+    : '');
+  const [isValid, setIsValid] = useState(true);
   const [lastKnownValidValue, setLastKnownValidValue] = useState(null);
-  const [inputValue, setInputValue] = useState('');
-  const [valid, setValidationState] = useState(true);
-  const [initialized, setInitState] = useState(false);
-
-  const handleValidationError = () => {
-    setValidationState(false);
-  };
-
-  const onInputChange = useCallback(({ target: { value } }) => {
-    setInputValue(value);
-  }, []);
-
-
-  const setUpStateWithLocationProp = () => {
-    setInputValue(hasLocation
-      ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
-      : '');
-  };
-
-  const onFormatPropUpdate = () => {
-    if (hasLocation) {
-      const location = lastKnownValidValue || lngLat;
-
-      setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
-    }
-  };
-
-  const onValueUpdate = () => {
-    if (!inputValue || !lastKnownValidValue) {
-      validateNewInputValue();
-    } else try {
-      validateNewInputValue();
-    } catch (e) {
-      handleValidationError(e);
-    }
-  };
 
   const onInputBlur = useCallback(() => {
     if (lastKnownValidValue) {
@@ -61,68 +34,88 @@ const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange
     }
   }, [gpsFormat, lastKnownValidValue]);
 
-  const validateNewInputValue = () => {
+  const onInputChange = useCallback((event) => {
+    const inputValue = event.target.value;
+
+    setInputValue(inputValue);
+
     if (!inputValue) {
-      setValidationState(true);
+      setIsValid(true);
       setLastKnownValidValue(inputValue);
-    } else try {
-      const locationObject = calcActualGpsPositionForRawText(inputValue, gpsFormat);
-      const value = [(parseFloat(locationObject.longitude) * 10) / 10, (parseFloat(locationObject.latitude) * 10) / 10];
-
-      if (!gpsPositionObjectContainsValidValues(locationObject)) {
-        handleValidationError(new Error('invalid location object'));
-      } else {
-        setValidationState(true);
-        setLastKnownValidValue(value);
-      }
-    } catch (e) {
-      handleValidationError(e);
-    }
-  };
-
-  const handleValidChange = () => {
-    if (!initialized) {
-      setTimeout(() => setInitState(true), 200);
+      onValidChange(inputValue);
     } else {
-      onValidChange(lastKnownValidValue);
-    }
-  };
+      try {
+        const locationObject = calcActualGpsPositionForRawText(inputValue, gpsFormat);
+        const isLocationValid = validateLngLat(locationObject.longitude, locationObject.latitude);
+        if (!isLocationValid) {
+          setIsValid(false);
+        } else {
+          const valueNormalized = [
+            (parseFloat(locationObject.longitude) * 10) / 10,
+            (parseFloat(locationObject.latitude) * 10) / 10,
+          ];
 
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(setUpStateWithLocationProp, []);
-  useEffect(onFormatPropUpdate, [gpsFormat]);
-  useEffect(onValueUpdate, [inputValue]);
-  useEffect(handleValidChange, [lastKnownValidValue]);
-  /* eslint-enable react-hooks/exhaustive-deps */
-
-  return <div className={styles.wrapper}>
-    {showFormatToggle &&
-      <Fragment>
-        <GpsFormatToggle showGpsString={false} lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
-        <small>Example: {GPS_FORMAT_EXAMPLES[gpsFormat]}</small>
-      </Fragment>
+          setIsValid(true);
+          setLastKnownValidValue(valueNormalized);
+          onValidChange(valueNormalized);
+        }
+      } catch (error) {
+        setIsValid(false);
+      }
     }
-    <input className={valid ? '' : styles.errorInput} {...inputProps} placeholder={placeholder}
-      type='text' value={inputValue} onBlur={onInputBlur} onChange={onInputChange} {...rest} />
-    {!valid && <Alert className={styles.errorMessage} variant='danger'>Invalid location</Alert>}
-  </div>;
+  }, [gpsFormat, onValidChange]);
+
+  useEffect(() => {
+    if (lastKnownValidValue || hasInitialLocation) {
+      const location = lastKnownValidValue || lngLat;
+      setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gpsFormat]);
+
+  return <>
+    <GpsFormatToggle showGpsString={false} />
+
+    <div className={`${styles.actionsWrapper} ${onButtonClick ? styles.withButton : ''}`}>
+      <OverlayTrigger
+        placement="bottom-end"
+        overlay={(props) => tooltip ? <Tooltip {...props}>{tooltip}</Tooltip> : <div />}
+      >
+        <input
+          className={!isValid ? styles.error : ''}
+          onBlur={onInputBlur}
+          onChange={onInputChange}
+          placeholder={GPS_FORMAT_LABELS[gpsFormat] || 'Location'}
+          type="text"
+          value={inputValue}
+          {...rest}
+        />
+      </OverlayTrigger>
+
+      {onButtonClick && <Button onClick={onButtonClick} variant="light">
+        {buttonContent}
+      </Button>}
+    </div>
+
+    <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
+      {isValid ? `Example: ${GPS_FORMAT_EXAMPLES[gpsFormat]}` : 'Invalid location'}
+    </small>
+  </>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ gpsFormat });
-
-export default connect(mapStateToProps, null)(memo(GpsInput, (prev, next) =>
-  isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat)));
-
 GpsInput.defaultProps = {
-  onValidChange() {
-  },
-  inputProps: {},
-  showFormatToggle: true,
+  buttonContent: null,
+  lngLat: null,
+  onButtonClick: null,
+  tooltip: '',
 };
 
 GpsInput.propTypes = {
+  buttonContent: PropTypes.node,
   lngLat: PropTypes.array,
-  showFormatToggle: PropTypes.bool,
-  inputProps: PropTypes.object,
-  onValidChange: PropTypes.func,
+  onButtonClick: PropTypes.func,
+  onValidChange: PropTypes.func.isRequired,
+  tooltip: PropTypes.string,
 };
+
+export default memo(GpsInput);

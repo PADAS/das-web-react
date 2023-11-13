@@ -114,6 +114,8 @@
   }
 
   a {
-    color: white;
+    color: $light-blue;
+    filter: brightness(1.25);
+    font-size: 0.75rem;
   }
 }

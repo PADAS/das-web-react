@@ -143,3 +143,7 @@ export const calcPositiveBearing = (point1, point2) => {
 
 
 export const calcLocationParamStringForUserLocationCoords = (coords) => `${coords.longitude},${coords.latitude}`;
+
+export const validateLocation = (location) => typeof location?.lng === 'number'
+  && typeof location?.lat === 'number'
+  && validateLngLat(location.lng, location.lat);

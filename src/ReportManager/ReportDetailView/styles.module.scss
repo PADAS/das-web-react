@@ -60,10 +60,14 @@
 .content {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: calc(100% - 3rem);
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 100%;
+  }
   
   @media print {
     border-left: none;
@@ -116,7 +120,7 @@
   border: none;
   border-radius: 0.1875rem;
   color: $secondary-medium-gray;
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
   font-size: 1rem;
   font-weight: bold;
   height: 2.5rem;
@@ -137,19 +141,38 @@
       display: unset;
     }
   }
+
+  @media (min-width: $md-layout-width-min) {
+    margin-right: 0.5rem;
+  }
 }
 
 .cancelButton {
   background-color: transparent;
   border-color: transparent;
   color: $secondary-medium-gray;
+  font-size: 0.75rem;
   font-weight: bold;
-  width: 5rem;
-  margin-right: 0.5rem;
+  height: 100%;
+  margin-right: 0.25rem;
+  padding: 0;
+  width: 4rem;
+
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    width: 5rem;
+  }
 }
 
 .saveButton {
-  width: 4.5rem;
+  height: 100%;
+  width: 4rem;
+
+  button {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+  }
 
   &:disabled {
     cursor: not-allowed;
@@ -157,5 +180,10 @@
 
   @media (min-width: $md-layout-width-min) {
     width: 5rem;
+
+    button {
+      font-size: 1rem;
+      padding: unset;
+    }
   }
 }
