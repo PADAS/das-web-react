@@ -49,7 +49,6 @@ describe('The EventGeometry layer', () => {
 
     mockStoreData = {
       view: {
-        showReportsOnMap: true,
         timeSliderState: {
           active: false,
         },
@@ -71,6 +70,9 @@ describe('The EventGeometry layer', () => {
               upper: null,
             },
           },
+        },
+        mapLayerFilter: {
+          showReportsOnMap: true,
         },
         eventTypes: [],
         mapEvents: {

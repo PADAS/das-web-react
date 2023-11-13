@@ -16,6 +16,7 @@ import { useOptionalPersistence } from '../../reducers/storage-config';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
+import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 
 import BetaToggles from '../../GlobalMenuDrawer/BetaToggles';
 
@@ -40,6 +41,7 @@ const SettingsPane = () => {
   const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY);
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
+  const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY);
 
   const onEventFilterPersistToggle = useCallback(() => {
     setEventFilterIsRestorable(!eventFilterRestorable);
@@ -52,6 +54,10 @@ const SettingsPane = () => {
   const onMapPositionPersistToggle = useCallback(() => {
     setMapPositionIsRestorable(!mapPositionRestorable);
   }, [mapPositionRestorable, setMapPositionIsRestorable]);
+
+  const onMapLayersPersistToggle = useCallback(() => {
+    setMapLayerFiltersAreRestorable(!mapLayersRestorable);
+  }, [mapLayersRestorable, setMapLayerFiltersAreRestorable]);
 
 
   return <Tabs
@@ -84,6 +90,12 @@ const SettingsPane = () => {
             <label htmlFor={PATROL_FILTER_STORAGE_KEY}>
               <input type='checkbox' id={PATROL_FILTER_STORAGE_KEY} onChange={onPatrolFilterPersistToggle} name={PATROL_FILTER_STORAGE_KEY} checked={patrolFilterRestorable} />
               <span>Patrol Filters</span>
+            </label>
+          </li>
+          <li>
+            <label htmlFor={MAP_LAYER_FILTER_STORAGE_KEY}>
+              <input type='checkbox' id={MAP_LAYER_FILTER_STORAGE_KEY} onChange={onMapLayersPersistToggle} name={MAP_LAYER_FILTER_STORAGE_KEY} checked={mapLayersRestorable} />
+              <span>Map Layers</span>
             </label>
           </li>
         </ul>

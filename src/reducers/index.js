@@ -18,17 +18,17 @@ import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '..
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
 import {
-  heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
-  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  heatmapStyleConfigReducer, displayMapNamesReducer,
+  heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
   mapDataZoomSimplificationReducer, mapLocationSelectionReducer, printTitleReducer,
-  displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
+  displayUserLocationReducer, bounceEventReducer,
   displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer, { persistenceConfig as eventFilterPersistenceConfig } from '../ducks/event-filter';
-import mapLayerFilterReducer from '../ducks/map-layer-filter';
+import mapLayerFilterReducer, { mapLayerFilterPersistenceConfig } from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import drawerReducer from '../ducks/drawer';
@@ -76,7 +76,10 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
-    mapLayerFilter: mapLayerFilterReducer,
+    mapLayerFilter: persistReducer(
+      mapLayerFilterPersistenceConfig,
+      mapLayerFilterReducer,
+    ),
     analyzerFeatures: persistReducer(analyzersPersistenceConfig, analyzersReducer),
     mapPosition: persistReducer(mapPositionPersistenceConfig, mapPositionReducer),
     maps: persistReducer(mapsPersistenceConfig, mapsReducer),
@@ -104,9 +107,6 @@ const rootReducer = combineReducers({
     homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistenceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
-    hiddenSubjectIDs: hiddenSubjectIDsReducer,
-    hiddenFeatureIDs: hiddenFeatureIDsReducer,
-    hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     patrolTrackState: patrolTracksReducer,
     mapImages: mapImagesReducer,
@@ -114,7 +114,6 @@ const rootReducer = combineReducers({
     showMapNames: displayMapNamesReducer,
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
-    showReportsOnMap: displayReportsOnMapReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
     mapClusterConfig: persistReducer(mapClusterStorageConfig, mapClusterConfigReducer),
     modals: modalsReducer,
