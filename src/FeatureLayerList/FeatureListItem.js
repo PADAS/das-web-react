@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import center from '@turf/center';
 import { feature } from '@turf/helpers';
 
-import { showFeatures } from '../ducks/map-ui';
+import { showFeatures } from '../ducks/map-layer-filter';
 import { showPopup } from '../ducks/popup';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';

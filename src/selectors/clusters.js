@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 
 import { getTimeSliderState } from './';
 
-export const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
+export const getShowReportsOnMap = ({ data: { mapLayerFilter: { showReportsOnMap } } }) => showReportsOnMap;
 const getClusterConfig = ({ view: { mapClusterConfig } }) => mapClusterConfig;
 
 export const getShouldEventsBeClustered = createSelector(

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { showFeatures } from '../ducks/map-ui';
+import { showFeatures } from '../ducks/map-layer-filter';
 import { showPopup } from '../ducks/popup';
 import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
