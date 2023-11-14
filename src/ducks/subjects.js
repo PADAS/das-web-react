@@ -7,7 +7,7 @@ import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, updateDeviceStatusProperties, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -198,11 +198,9 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
     if (subjectFromState.device_status_properties
       && payload.device_status_properties
     ) {
-      cloned.device_status_properties =  Object.values(
-        {
-          ...keyBy(subjectFromState.device_status_properties, 'label'),
-          ...keyBy(cloned.device_status_properties, 'label'),
-        }
+      cloned.device_status_properties = updateDeviceStatusProperties(
+        subjectFromState.device_status_properties,
+        cloned.device_status_properties,
       );
     }
 
