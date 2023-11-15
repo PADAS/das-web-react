@@ -63,11 +63,10 @@ const LocationJumpButton = ({
     : <MarkerIcon />, [isMulti]);
 
   return isValidLocation &&
-      (
-      <button title="Jump to this location" type="button" className={buttonClass} onClick={onJumpButtonClick} {...rest}>
-        {iconOverride ? iconOverride : defaultIcon}
-      </button>
-      );
+  <button title="Jump to this location" type="button" className={buttonClass} onClick={onJumpButtonClick} {...rest}>
+    {iconOverride ? iconOverride : defaultIcon}
+  </button>
+  ;
 };
 
 export default memo(LocationJumpButton);
