@@ -163,7 +163,7 @@ describe('the patrol list item', () => {
   test('hides menu on outside click to prevent menu overlapping', async () => {
     const toggleClass = 'show';
     const patrolListItem = screen.getByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
-    const kebabMenu = await screen.getByTestId('optionsMenu-kebab-button');
+    const [, , kebabMenu] = screen.getAllByRole('button');
 
     expect(patrolListItem.classList.contains(toggleClass)).toBeFalsy();
     await userEvent.click(kebabMenu);

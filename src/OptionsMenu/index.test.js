@@ -14,7 +14,7 @@ describe('<OptionsMenu />',  () => {
     );
 
     expect( await screen.queryByText(optionText) ).not.toBeInTheDocument();
-    const kebab = await screen.getByTestId('optionsMenu-kebab-button');
+    const kebab = await screen.getByRole('button');
     userEvent.click(kebab);
     expect( await screen.findByText(optionText) ).toBeInTheDocument();
   });
@@ -28,7 +28,7 @@ describe('<OptionsMenu />',  () => {
       </OptionsMenu>
     );
 
-    const kebab = await screen.getByTestId('optionsMenu-kebab-button');
+    const kebab = await screen.getByRole('button');
     userEvent.click(kebab);
     const option = await screen.findByText(optionText);
     userEvent.click(option);

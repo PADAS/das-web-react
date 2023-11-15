@@ -11,6 +11,7 @@ import { basePrintingStyles } from '../utils/styles';
 import OptionsMenu, { Option } from '../OptionsMenu';
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
+import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
 
 import styles from './styles.module.scss';
 
@@ -90,7 +91,10 @@ const PatrolMenu = (props) => {
   });
 
   return  <OptionsMenu align='end' {...rest} ref={menuRef}>
-    { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Option>}
+    { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>
+      <PlayIcon />
+      {patrolStartStopTitle}
+    </Option>}
     { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>{patrolCancelRestoreTitle}</Option>}
     { (!!patrol.id && !isPatrolCancelled) && <Option className={styles.copyBtn}>
       <TextCopyBtn

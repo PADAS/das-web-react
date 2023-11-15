@@ -5,24 +5,22 @@ import KebabMenuIcon from '../KebabMenuIcon';
 
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item } = Dropdown;
 
 export const Option = ({ className = '', children, ...rest }) => {
-  return <Item className={`${styles.itemBtn} ${className}`} {...rest}>
+  return <Dropdown.Item className={`${styles.itemBtn} ${className}`} {...rest}>
     {children}
-  </Item>;
+  </Dropdown.Item>;
 };
 
-// eslint-disable-next-line react/display-name
-const OptionsMenu = forwardRef(({ children, ...rest }, ref) => {
+const OptionsMenu = ({ children, ...rest }, ref) => {
   return <Dropdown className={styles.kebabMenu} {...rest}>
-    <Toggle as='button' data-testid="optionsMenu-kebab-button" >
+    <Dropdown.Toggle as='button'>
       <KebabMenuIcon />
-    </Toggle>
-    <Menu ref={ref} className={styles.menuDropdown}>
+    </Dropdown.Toggle>
+    <Dropdown.Menu ref={ref} className={styles.menuDropdown}>
       {children}
-    </Menu>
+    </Dropdown.Menu>
   </ Dropdown>;
-});
+};
 
-export default OptionsMenu;
+export default forwardRef(OptionsMenu);

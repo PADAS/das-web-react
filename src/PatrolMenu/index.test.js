@@ -40,7 +40,7 @@ describe('<PatrolMenu />', () => {
 
   test('renders minimum menu options for a patrol', () => {
     renderPatrolMenu();
-    userEvent.click(screen.getByTestId('optionsMenu-kebab-button'));
+    userEvent.click(screen.getByRole('button'));
 
     testMinimumOptionsMenu();
   });
@@ -57,7 +57,7 @@ describe('<PatrolMenu />', () => {
       }
     });
 
-    userEvent.click(screen.getByTestId('optionsMenu-kebab-button'));
+    userEvent.click(screen.getByRole('button'));
 
     testMinimumOptionsMenu();
     expect( screen.getByText('Cancel Patrol') ).toBeInTheDocument();
