@@ -82,7 +82,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
-        mapLayerFilter: { filter: { text: '' } },
+        mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {
             date_range: { lower: null, upper: null },
@@ -105,7 +105,6 @@ describe('SideBar', () => {
       },
       view: {
         featureFlagOverrides: {},
-        hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
         systemConfig: {

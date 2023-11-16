@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
-import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
 import { getUniqueIDsFromFeatures } from '../utils/features';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
@@ -69,6 +69,6 @@ const Content = (props) => {
   </Collapsible>;
 };
 
-const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
+const mapStateToProps = ({ data: { mapLayerFilter: { hiddenFeatureIDs } } }) => ({ hiddenFeatureIDs });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(Content));

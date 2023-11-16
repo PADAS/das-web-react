@@ -6,24 +6,15 @@ import globallyResettableReducer from '../reducers/global-resettable';
 // actions
 const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
 
-const HIDE_SUBJECTS = 'HIDE_SUBJECTS';
-const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
-
-const HIDE_FEATURES = 'HIDE_FEATURES';
-const SHOW_FEATURES = 'SHOW_FEATURES';
-
 const OPEN_MAP_FEATURE_TYPES = 'OPEN_MAP_FEATURE_TYPES';
 const CLOSE_MAP_FEATURE_TYPES = 'CLOSE_MAP_FEATURE_TYPES';
 
-const HIDE_ANALYZERS = 'HIDE_ANALYZERS';
-const SHOW_ANALYZERS = 'SHOW_ANALYZERS';
 const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
-const DISPLAY_REPORTS_ON_MAP = 'DISPLAY_REPORTS_ON_MAP';
 
 const UPDATE_SUBJECT_HEATMAP_STATE = 'UPDATE_SUBJECT_HEATMAP_STATE';
 export const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
@@ -52,36 +43,6 @@ export const setReportHeatmapVisibility = (show) => ({
 export const updateHeatmapConfig = (config) => ({
   type: UPDATE_HEATMAP_CONFIG,
   payload: config,
-});
-
-export const hideSubjects = (...subjectIDs) => ({
-  type: HIDE_SUBJECTS,
-  payload: subjectIDs,
-});
-
-export const showSubjects = (...subjectIDs) => ({
-  type: SHOW_SUBJECTS,
-  payload: subjectIDs,
-});
-
-export const hideFeatures = (...featureIDs) => ({
-  type: HIDE_FEATURES,
-  payload: featureIDs,
-});
-
-export const showFeatures = (...featureIDs) => ({
-  type: SHOW_FEATURES,
-  payload: featureIDs,
-});
-
-export const hideAnalyzers = (...analyzerFeatureIDs) => ({
-  type: HIDE_ANALYZERS,
-  payload: analyzerFeatureIDs,
-});
-
-export const showAnalyzers = (...analyzerFeatureIDs) => ({
-  type: SHOW_ANALYZERS,
-  payload: analyzerFeatureIDs,
 });
 
 export const openMapFeatureType = (...mapFeatureTypes) => ({
@@ -124,11 +85,6 @@ export const toggleMapNamesState = (enabledLayers) => (dispatch) => {
     payload: enabledLayers,
   });
 };
-
-export const displayReportsOnMapState = (enabled) => ({
-  type: DISPLAY_REPORTS_ON_MAP,
-  payload: enabled,
-});
 
 export const toggleDisplayUserLocation = () => ({
   type: TOGGLE_DISPLAY_USER_LOCATION,
@@ -239,27 +195,6 @@ export const heatmapSubjectIDsReducer = globallyResettableReducer((state, action
   return state;
 }, []);
 
-export const hiddenSubjectIDsReducer = globallyResettableReducer((state, action) => {
-  const { type, payload } = action;
-  if (type === HIDE_SUBJECTS) return uniq([...payload, ...state]);
-  if (type === SHOW_SUBJECTS) return state.filter(item => !payload.includes(item));
-  return state;
-}, []);
-
-export const hiddenFeatureIDsReducer = globallyResettableReducer((state, action) => {
-  const { type, payload } = action;
-  if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
-  if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
-  return state;
-}, []);
-
-export const hiddenAnalyzerIDsReducer = globallyResettableReducer((state, action) => {
-  const { type, payload } = action;
-  if (type === HIDE_ANALYZERS) return uniq([...payload, ...state]);
-  if (type === SHOW_ANALYZERS) return state.filter(item => !payload.includes(item));
-  return state;
-}, []);
-
 export const openMapFeatureTypesReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === OPEN_MAP_FEATURE_TYPES) return uniq([...payload, ...state]);
@@ -285,12 +220,6 @@ export const displayMapNamesReducer = (state = DEFAULT_SHOW_NAMES_IN_MAP_CONFIG,
   if (type === DISPLAY_SUBJECT_NAMES) {
     return payload;
   }
-  return state;
-};
-
-export const displayReportsOnMapReducer = (state = true, action) => {
-  const { type, payload } = action;
-  if (type === DISPLAY_REPORTS_ON_MAP) return payload;
   return state;
 };
 

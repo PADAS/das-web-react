@@ -1,80 +1,194 @@
 import React from 'react';
+import merge from 'lodash/merge';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-
-import { GPS_FORMATS } from '../utils/location';
-
-import { createMapMock } from '../__test-helpers/mocks';
-import { mockStore } from '../__test-helpers/MockStore';
-
-import { within } from '@testing-library/dom';
-import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CursorGpsDisplay from '../CursorGpsDisplay';
+import { createMapMock } from '../__test-helpers/mocks';
+import { GPS_FORMATS } from '../utils/location';
 import { MapContext } from '../App';
+import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import { showPopup } from '../ducks/popup';
+import useJumpToLocation from '../hooks/useJumpToLocation';
 
+import CursorGpsDisplay from '../CursorGpsDisplay';
 
-let store = mockStore({ view: { userPreferences: { gpsFormat: Object.values(GPS_FORMATS)[0] } } });
-let map;
+jest.mock('../ducks/popup', () => ({
+  ...jest.requireActual('../ducks/popup'),
+  showPopup: jest.fn(),
+}));
 
-beforeEach(() => {
-  jest.useFakeTimers();
-  map = createMapMock();
-});
+jest.mock('../hooks/useJumpToLocation', () => jest.fn());
 
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
+describe('CursorGpsDisplay', () => {
+  let map, jumpToLocationMock, showPopupMock, store;
 
-test('rendering without crashing', () => {
-  render(<Provider store={store}>
-    <CursorGpsDisplay />
-  </Provider>);
-});
+  const renderCursorGpsDisplay = (props = {}, overrideStore = {}, overrideMap = map) => render(
+    <Provider store={mockStore(merge(store, overrideStore))}>
+      <NavigationWrapper>
+        <MapContext.Provider value={overrideMap}>
+          <CursorGpsDisplay {...props} />
+        </MapContext.Provider>
+      </NavigationWrapper>
+    </Provider>
+  );
 
-test('binding events to the map', () => {
-  render(<Provider store={store}>
-    <MapContext.Provider value={map}>
-      <CursorGpsDisplay />
-    </MapContext.Provider>
-  </Provider>);
+  beforeEach(() => {
+    showPopupMock = jest.fn(() => () => {});
+    showPopup.mockImplementation(showPopupMock);
+    jumpToLocationMock = jest.fn();
+    useJumpToLocation.mockImplementation(() => jumpToLocationMock);
 
-  expect(map.on).toHaveBeenCalledTimes(1);
+    store = {
+      data: {},
+      view: {
+        userPreferences: {
+          gpsFormat: Object.values(GPS_FORMATS)[0],
+        },
+      },
+    };
 
-  expect(map.on.mock.calls[0][0]).toBe('mousemove');
-});
+    jest.useFakeTimers();
+    map = createMapMock();
+  });
 
-test('showing coordinates on mouse move', async () => {
-  render(<Provider store={store}>
-    <MapContext.Provider value={map}>
-      <CursorGpsDisplay />
-    </MapContext.Provider>
-  </Provider>);
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
 
-  act(() => {
+  test('does not bind events if map is not ready', () => {
+    renderCursorGpsDisplay(undefined, undefined, null);
+
+    expect(map.on).toHaveBeenCalledTimes(0);
+    expect(map.off).toHaveBeenCalledTimes(0);
+  });
+
+  test('binds and unbinds mousemove events to the map', () => {
+    expect(map.on).toHaveBeenCalledTimes(0);
+
+    const { unmount } = renderCursorGpsDisplay();
+
+    expect(map.on).toHaveBeenCalledTimes(1);
+    expect(map.on.mock.calls[0][0]).toBe('mousemove');
+    expect(map.off).toHaveBeenCalledTimes(0);
+
+    unmount();
+
+    expect(map.off).toHaveBeenCalledTimes(1);
+    expect(map.off.mock.calls[0][0]).toBe('mousemove');
+  });
+
+  test('does not render until there are valid cursor coordinates', async () => {
+    renderCursorGpsDisplay();
+
+    expect(screen.queryByTestId('cursorGpsDisplay-dropdown')).toBeNull();
+  });
+
+  test('renders the dropdown component and the coordinates once there are valid cursor coordinates', async () => {
+    renderCursorGpsDisplay();
+
     map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
-  });
-  await screen.findByText('11.666666°, 10.012657°');
-});
 
-test('showing the GPS format toggler on click', async () => {
-  render(<Provider store={store}>
-    <MapContext.Provider value={map}>
-      <CursorGpsDisplay />
-    </MapContext.Provider>
-  </Provider>);
-
-  act(() => {
-    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012, lat: 11.666 } });
+    expect(screen.getByTestId('cursorGpsDisplay-dropdown')).toBeDefined();
+    expect(screen.getByText('11.666666°, 10.012657°')).toBeDefined();
   });
 
-  const toggleBtn = await screen.findByRole('button');
-  userEvent.click(toggleBtn);
+  test('jumps to searched coordinates location and shows a marker popup when clicking the search button', () => {
+    renderCursorGpsDisplay();
 
-  const gpsFormatList = await screen.findByRole('list');
-  const gpsFormatListItems = await within(gpsFormatList).findAllByRole('listitem');
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
 
-  expect(gpsFormatListItems.length).toBe(Object.values(GPS_FORMATS).length);
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+    const input = screen.getByRole('textbox');
+    userEvent.type(input, '10.3524°, 10.0022');
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const searchButton = screen.getAllByRole('button')[1];
+    userEvent.click(searchButton);
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
+    expect(jumpToLocationMock).toHaveBeenCalledWith([10.0022, 10.3524]);
+    expect(showPopup).toHaveBeenCalledTimes(1);
+    expect(showPopup).toHaveBeenCalledWith('dropped-marker', {
+      coordinates: [10.0022, 10.3524],
+      location: { lat: 10.3524, lng: 10.0022 },
+      popupAttrsOverride: { offset: [0, 0] },
+    });
+  });
+
+  test('jumps to searched coordinates location and shows a marker popup when pressing enter', () => {
+    renderCursorGpsDisplay();
+
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const input = screen.getByRole('textbox');
+    userEvent.type(input, '10.3524°, 10.0022{enter}');
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
+    expect(jumpToLocationMock).toHaveBeenCalledWith([10.0022, 10.3524]);
+    expect(showPopup).toHaveBeenCalledTimes(1);
+    expect(showPopup).toHaveBeenCalledWith('dropped-marker', {
+      coordinates: [10.0022, 10.3524],
+      location: { lat: 10.3524, lng: 10.0022 },
+      popupAttrsOverride: { offset: [0, 0] },
+    });
+  });
+
+  test('does not try to jump or show popup if search bar is empty', () => {
+    renderCursorGpsDisplay();
+
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const input = screen.getByRole('textbox');
+    userEvent.type(input, '{enter}');
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+
+    const searchButton = screen.getAllByRole('button')[1];
+    userEvent.click(searchButton);
+
+    jest.advanceTimersByTime(50);
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(0);
+    expect(showPopup).toHaveBeenCalledTimes(0);
+  });
+
+  test('closes the dropdown when clicking outside', async () => {
+    renderCursorGpsDisplay();
+
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+
+    const toggleButton = screen.getByRole('button');
+    userEvent.click(toggleButton);
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
+
+    userEvent.click(document.body);
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+  });
 });
-

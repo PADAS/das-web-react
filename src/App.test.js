@@ -117,6 +117,7 @@ describe('The main app view', () => {
             },
           },
         },
+        mapLayerFilter: {},
         maps: [],
         user: {
           name: 'joshua',

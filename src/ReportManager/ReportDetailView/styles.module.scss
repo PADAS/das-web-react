@@ -61,11 +61,15 @@
 .content {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: calc(100% - 3rem);
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
-  
+
+  @media (min-width: $md-layout-width-min) {
+    width: 100%;
+  }
+
   @media print {
     border-left: none;
   }

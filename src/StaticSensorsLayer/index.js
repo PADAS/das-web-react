@@ -1,5 +1,5 @@
 import React, { useContext, memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { featureCollection } from '@turf/helpers';
 
@@ -38,12 +38,17 @@ const IMAGE_DATA = {
 
 const layerIds = [CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER];
 
-const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified }, showPopup }) => {
+const StaticSensorsLayer = () => {
   const map = useContext(MapContext);
-  const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [layerFilter, setLayerFilter] = useState(DEFAULT_STATIONARY_SUBJECTS_LAYER_FILTER);
 
+  const dispatch = useDispatch();
+  const showMapNames = useSelector(state => state.view.showMapNames);
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const isDataInMapSimplified = useSelector(state => state.view.simplifyMapDataOnZoom?.enabled);
+
+  const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
+
   const currentSourceId = shouldSubjectsBeClustered ? CLUSTERS_SOURCE_ID : SUBJECT_SYMBOLS;
 
   const currentLayerId = shouldSubjectsBeClustered ? layerIds[0] : layerIds[1];
@@ -86,12 +91,13 @@ const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: is
 
   const createPopup = useCallback((feature) => {
     const { geometry, properties } = feature;
+    dispatch(
+      showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
+        offset: [0, 0],
+      } })
+    );
 
-    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates, popupAttrsOverride: {
-      offset: [0, 0],
-    } });
-
-  }, [showPopup]);
+  }, [dispatch]);
 
   const onLayerClick = useCallback((event) => {
     setTimeout(() => {
@@ -165,9 +171,4 @@ const StaticSensorsLayer = ({ showMapNames, simplifyMapDataOnZoom: { enabled: is
   return null;
 };
 
-const mapStatetoProps = (state) => ({
-  showMapNames: state.view.showMapNames,
-  simplifyMapDataOnZoom: state.view.simplifyMapDataOnZoom,
-});
-
-export default connect(mapStatetoProps, { showPopup })(memo(StaticSensorsLayer));
+export default memo(StaticSensorsLayer);

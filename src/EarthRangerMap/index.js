@@ -1,6 +1,6 @@
 import mapboxgl from 'mapbox-gl';
 import React, { Fragment, forwardRef, memo, useCallback, useRef, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import MapTerrain from '../MapTerrain';
 import SkyLayer from '../SkyLayer';
@@ -24,8 +24,24 @@ export function withMap(Component) {
   return forwardRef((props, ref) => <MapContext.Consumer>{map => <Component map={map} {...props} ref={ref} />}</MapContext.Consumer>); // eslint-disable-line react/display-name
 };
 
+const getStartingMapPositionValues = (savedMapPosition = {}) => {
+  if (savedMapPosition?.center && savedMapPosition?.zoom) {
+    const { bearing, center, pitch, zoom } = savedMapPosition;
+
+    return {
+      bearing,
+      center,
+      pitch,
+      zoom,
+    };
+  }
+
+  return {};
+};
+
 const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, dispatch: _dispatch, ...rest } = props;
+  const mapPosition = useSelector(state => state.data.mapPosition);
 
   const [mapLoaded, setMapLoaded] = useState(false);
   const baseStyleRef = useRef(REACT_APP_BASE_MAP_STYLES);
@@ -55,16 +71,19 @@ const EarthRangerMap = (props) => {
 
   useEffect(() => {
     if (!map.current) {
+      const initialMapPositionOptions = getStartingMapPositionValues(mapPosition);
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: REACT_APP_BASE_MAP_STYLES,
         minZoom: MIN_ZOOM,
         maxZoom: MAX_ZOOM,
         logoPosition: 'bottom-left',
+        ...initialMapPositionOptions,
       });
       map.current.on('load', onLoad);
     }
-  }, [onLoad]);
+  }, [mapPosition, onLoad]);
 
   useEffect(() => {
     if (map.current && currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {

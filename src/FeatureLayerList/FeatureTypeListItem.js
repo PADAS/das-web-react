@@ -3,7 +3,8 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
-import { hideFeatures, showFeatures, openMapFeatureType, closeMapFeatureType } from '../ducks/map-ui';
+import { openMapFeatureType, closeMapFeatureType } from '../ducks/map-ui';
+import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
@@ -74,7 +75,7 @@ const FeatureTypeListItem = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { view: { hiddenFeatureIDs, openMapFeatureTypeNames } } = state;
+  const { data: { mapLayerFilter: { hiddenFeatureIDs } }, view: { openMapFeatureTypeNames } } = state;
 
   return ({
     hiddenFeatureIDs,
