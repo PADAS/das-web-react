@@ -9,7 +9,7 @@ RUN yarn --ignore-scripts && \
     npm rebuild node-sass
 
 COPY . .
-RUN yarn build
+RUN ls && yarn build
 
 
 FROM nginx:1.25-alpine
