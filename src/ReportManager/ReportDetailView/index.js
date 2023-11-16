@@ -14,7 +14,7 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 import { ReactComponent as CrossIcon } from '../../common/images/icons/cross.svg';
-import { ReactComponent as SaveIcon } from '../../common/images/icons/send.svg';
+import { ReactComponent as CheckIcon } from '../../common/images/icons/check.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
@@ -698,8 +698,8 @@ const ReportDetailView = ({
 
   const SaveButtonTitle = useCallback(() => {
     return <div className={styles.saveButtonTitle}>
+      <CheckIcon />
       <label>Save</label>
-      <SaveIcon />
     </div>;
   }, []);
 
@@ -811,10 +811,10 @@ const ReportDetailView = ({
               />}
             </div>
 
-            <div>
+            <div className={styles.actionButtons}>
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                <label>Cancel</label>
                 <CrossIcon />
+                <label>Cancel</label>
               </Button>
 
               <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title={<SaveButtonTitle/>} onClick={onClickSaveButton}>

@@ -117,58 +117,67 @@
   @include footerActionButton;
 }
 
+.actionButtons{
+  display: flex;
+  align-items: center;
+}
+
 .cancelButton {
-  @include footerActionButton;
+
+  background-color: transparent;
+  border-color: transparent;
+  color: $secondary-medium-gray;
+  font-weight: bold;
+  margin-right: 0.5rem;
+
+  svg {
+    width: 0.7rem;
+    height: 0.7rem;
+    display: block !important;
+  }
+
+  label {
+    display: none;
+  }
 
   @media (min-width: $md-layout-width-min) {
-    background-color: transparent;
-    border-color: transparent;
-    color: $secondary-medium-gray;
-    font-weight: bold;
-    width: 5rem;
-    margin-right: 0.5rem;
+    display: flex;
+    align-items: center;
 
-    svg{
-      display: none;
+    label {
+      display: unset;
+      margin-left: 0.4rem;
     }
   }
 
-  svg {
-    width: 0.8rem;
-    height: 0.8rem;
-    color: #da4949;
-  }
 
 }
 
 .saveButtonTitle{
+  display: flex;
+  align-items: center;
+
   label{
     display: none;
   }
   svg{
     width: 15px;
     height: 15px;
+    color: white;
   }
 
   @media (min-width: $md-layout-width-min) {
     label{
       display: unset;
-    }
-    svg{
-      display: none;
+      margin-left: 0.4rem;
     }
   }
 }
 
 .saveButton {
-  width: 4.5rem;
   margin-right: 0.5rem;
 
   &:disabled {
     cursor: not-allowed;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    width: 5rem;
   }
 }
