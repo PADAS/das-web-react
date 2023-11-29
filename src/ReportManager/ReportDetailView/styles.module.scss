@@ -134,13 +134,22 @@
   font-weight: bold;
   margin-right: 0.5rem;
 
+  &:hover path {
+    stroke: white;
+  }
+
   svg {
     width: 0.7rem;
     height: 0.7rem;
     display: block !important;
+
+    path{
+      stroke: $secondary-medium-gray;
+      stroke-width: 2px;
+    }
   }
 
-  label {
+  div {
     display: none;
   }
 
@@ -148,7 +157,7 @@
     display: flex;
     align-items: center;
 
-    label {
+    div {
       display: unset;
       margin-left: 0.4rem;
     }
@@ -161,17 +170,17 @@
   display: flex;
   align-items: center;
 
-  label{
+  div{
     display: none;
   }
   svg{
-    width: 15px;
-    height: 15px;
+    width: 1rem;
+    height: 1rem;
     color: white;
   }
 
   @media (min-width: $md-layout-width-min) {
-    label{
+    div{
       display: unset;
       margin-left: 0.4rem;
     }

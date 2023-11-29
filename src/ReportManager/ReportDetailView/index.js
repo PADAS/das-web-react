@@ -699,7 +699,7 @@ const ReportDetailView = ({
   const SaveButtonTitle = useCallback(() => {
     return <div className={styles.saveButtonTitle}>
       <CheckIcon />
-      <label>Save</label>
+      <div>Save</div>
     </div>;
   }, []);
 
@@ -814,7 +814,7 @@ const ReportDetailView = ({
             <div className={styles.actionButtons}>
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 <CrossIcon />
-                <label>Cancel</label>
+                <div>Cancel</div>
               </Button>
 
               <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title={<SaveButtonTitle/>} onClick={onClickSaveButton}>
