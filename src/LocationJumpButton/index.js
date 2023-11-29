@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../constants';
@@ -56,10 +56,10 @@ const LocationJumpButton = ({
   }, [clickAnalytics, closeSidebarForSmallViewports, coordinates, jumpToLocation, onClick, zoom]);
 
   const defaultIcon = useMemo(() => isMulti
-    ? <Fragment>
+    ? <>
       <MarkerIcon />
       <MarkerIcon />
-    </Fragment>
+    </>
     : <MarkerIcon />, [isMulti]);
 
   return isValidLocation &&
