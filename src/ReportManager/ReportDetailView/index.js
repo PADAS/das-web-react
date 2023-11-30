@@ -13,8 +13,6 @@ import { ReactComponent as ERLogo } from '../../common/images/icons/er-logo.svg'
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
-import { ReactComponent as CrossIcon } from '../../common/images/icons/cross.svg';
-import { ReactComponent as CheckIcon } from '../../common/images/icons/check.svg';
 
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
@@ -696,13 +694,6 @@ const ReportDetailView = ({
 
   const isReadOnly = reportSchemas?.schema?.readonly;
 
-  const SaveButtonTitle = useCallback(() => {
-    return <div className={styles.saveButtonTitle}>
-      <CheckIcon />
-      <div>Save</div>
-    </div>;
-  }, []);
-
   return <div
     className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
@@ -813,11 +804,10 @@ const ReportDetailView = ({
 
             <div className={styles.actionButtons}>
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                <CrossIcon />
-                <div>Cancel</div>
+                Cancel
               </Button>
 
-              <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title={<SaveButtonTitle/>} onClick={onClickSaveButton}>
+              <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title='Save' onClick={onClickSaveButton}>
                 <Dropdown.Item data-testid='report-details-resolve-btn-toggle'>
                   <Button  type='button' variant='primary' onClick={onClickSaveAndToggleStateButton}>
                     {isActive ? 'Save and resolve' : 'Save and reopen'}

@@ -130,64 +130,11 @@
 }
 
 .cancelButton {
-
   background-color: transparent;
   border-color: transparent;
   color: $secondary-medium-gray;
   font-weight: bold;
   margin-right: 0.5rem;
-
-  &:hover path {
-    stroke: white;
-  }
-
-  svg {
-    width: 0.7rem;
-    height: 0.7rem;
-    display: block !important;
-
-    path{
-      stroke: $secondary-medium-gray;
-      stroke-width: 2px;
-    }
-  }
-
-  div {
-    display: none;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    display: flex;
-    align-items: center;
-
-    div {
-      display: unset;
-      margin-left: 0.4rem;
-    }
-  }
-
-
-}
-
-.saveButtonTitle{
-  display: flex;
-  align-items: center;
-
-  div{
-    display: none;
-  }
-  svg{
-    width: 1rem;
-    height: 1rem;
-    color: white;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    div{
-      display: unset;
-      margin-left: 0.4rem;
-    }
-  }
 }
 
 .saveButton {
