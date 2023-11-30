@@ -1,5 +1,6 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
+@import '../../common/styles/buttons';
 
 .reportDetailView {
   display: flex;
@@ -47,8 +48,12 @@
   height: calc(100% - 3.5rem);
 
   .navigationBar {
+    display: none;
     @media print {
       display: none;
+    }
+    @media (min-width: $md-layout-width-min) {
+      display: unset;
     }
   }
 
@@ -60,7 +65,6 @@
 .content {
   display: flex;
   flex-direction: column;
-  width: calc(100% - 3rem);
   height: 100%;
   background-color: white;
   border-left: 1px solid $very-light-gray-alt;
@@ -68,7 +72,7 @@
   @media (min-width: $md-layout-width-min) {
     width: 100%;
   }
-  
+
   @media print {
     border-left: none;
   }
@@ -100,6 +104,8 @@
   display: flex;
   padding: 0.875rem 1rem;
   border-top: 1px solid $very-light-gray-alt;
+  justify-content: space-between;
+
 
   @media (min-width: $md-layout-width-min) {
     justify-content: space-between;
@@ -115,75 +121,26 @@
 }
 
 .footerActionButton {
+  @include footerActionButton;
+}
+
+.actionButtons{
+  display: flex;
   align-items: center;
-  background-color: lighten($light-gray-background, 3.5%);
-  border: none;
-  border-radius: 0.1875rem;
-  color: $secondary-medium-gray;
-  margin-right: 0.25rem;
-  font-size: 1rem;
-  font-weight: bold;
-  height: 2.5rem;
-  min-width: 2.5rem;
-
-  svg {
-    height: 1rem;
-    
-    @media (min-width: $md-layout-width-min) {
-      margin-right: 0.375rem;
-    }
-  }
-
-  label {
-    display: none;
-
-    @media (min-width: $md-layout-width-min) {
-      display: unset;
-    }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    margin-right: 0.5rem;
-  }
 }
 
 .cancelButton {
   background-color: transparent;
   border-color: transparent;
   color: $secondary-medium-gray;
-  font-size: 0.75rem;
   font-weight: bold;
-  height: 100%;
-  margin-right: 0.25rem;
-  padding: 0;
-  width: 4rem;
-
-  @media (min-width: $md-layout-width-min) {
-    font-size: 1rem;
-    margin-right: 0.5rem;
-    width: 5rem;
-  }
+  margin-right: 0.5rem;
 }
 
 .saveButton {
-  height: 100%;
-  width: 4rem;
-
-  button {
-    font-size: 0.75rem;
-    padding: 0.25rem;
-  }
+  margin-right: 0.5rem;
 
   &:disabled {
     cursor: not-allowed;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    width: 5rem;
-
-    button {
-      font-size: 1rem;
-      padding: unset;
-    }
   }
 }

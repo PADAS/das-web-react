@@ -802,7 +802,7 @@ const ReportDetailView = ({
               />}
             </div>
 
-            <div>
+            <div className={styles.actionButtons}>
               <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
                 Cancel
               </Button>
