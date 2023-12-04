@@ -1,12 +1,13 @@
 import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
+import keyBy from 'lodash/keyBy';
 
 import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, updateDeviceStatusProperties, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -184,14 +185,26 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
   }
 
   if (type === SOCKET_SUBJECT_STATUS) {
+    const { properties: { id } } = payload;
+
+    const subjectFromState = state[id];
+
+    if (!subjectFromState) return state;
+
     console.log('realtime: subject update', payload);
 
     const cloned = { ...payload };
+
+    if (subjectFromState.device_status_properties
+      && payload.device_status_properties
+    ) {
+      cloned.device_status_properties = updateDeviceStatusProperties(
+        subjectFromState.device_status_properties,
+        cloned.device_status_properties,
+      );
+    }
+
     cloned.properties.image = calcUrlForImage(cloned.properties.image);
-
-    const { properties: { id } } = cloned;
-
-    if (!state[id]) return state;
 
     const updatedSubject = updateSubjectLastPositionFromSocketStatusUpdate(state[id], cloned);
 
