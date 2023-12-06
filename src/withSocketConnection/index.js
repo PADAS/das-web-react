@@ -1,6 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { bindSocketEvents, createSocket, unbindSocketEvents } from '../socket';
 import store from '../store';
+import { LEGACY_RT_ENABLED } from '../constants';
+import { errorHandlersBounding as errorHandlersLatest } from '../socket/implementations/latest';
+import { errorHandlersBounding as errorHandlersLegacy } from '../socket/implementations/legacy';
 
 const SocketContext = createContext(null);
 
@@ -15,8 +18,6 @@ const WithSocketContext = (props) => {
     const instantiate = () => {
       const socket = createSocket();
       const socketWithEvents = bindSocketEvents(socket, store);
-      const instanceFailureMessages = ['error', 'disconnect', 'connect_error'];
-      const managerFailureMessages = ['error', 'reconnect_error', 'reconnect_failed'];
 
       const teardown = () => {
         socketWithEvents.close();
@@ -29,8 +30,9 @@ const WithSocketContext = (props) => {
         socketReconnectTimeout = setTimeout(instantiate, 5000);
       };
 
-      instanceFailureMessages.forEach((msg) => socketWithEvents.on(msg, restart));
-      managerFailureMessages.forEach((msg) => socketWithEvents.io.on(msg, restart));
+      LEGACY_RT_ENABLED
+        ? errorHandlersLegacy(socketWithEvents, restart)
+        : errorHandlersLatest(socketWithEvents, restart);
 
       setWebsocket(socketWithEvents);
 

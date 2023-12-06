@@ -1,55 +1,17 @@
-import io from 'socket.io-client';
-import isFunction from 'lodash/isFunction';
-
-import store from '../store';
-import { DAS_HOST } from '../constants';
-import { EVENT_DISPATCHES, events } from './config';
+import { DAS_HOST, LEGACY_RT_ENABLED } from '../constants';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
-import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
-import { showFilterMismatchToastForHiddenReports } from './handlers';
+import { resetSocketStateTracking } from './helpers';
+import { eventsBounding as latestEventBounding, createSocketInstance as  createLatestSocketInstance } from './implementations/latest';
+import { eventsBounding as legacyEventBounding, createSocketInstance as  createLegacySocketInstance } from './implementations/legacy';
+import { events } from './config';
+
+//const io = await import(LEGACY_RT_ENABLED ? 'legacy-socket.io-client' : 'socket.io-client');
 
 const SOCKET_URL = `${DAS_HOST}/das`;
-
-const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new Date().toISOString() }) => {
-  store.dispatch(
-    newSocketActivity({ type, mid, timestamp })
-  );
-};
-
-const executeSocketEventDispatches = (eventName, eventData) => {
-  const dispatches = events[eventName] ?? EVENT_DISPATCHES[eventName];
-  if (Array.isArray(dispatches)){
-    dispatches.forEach(type => {
-      if (isFunction(type)) {
-        store.dispatch(type(eventData));
-      } else {
-        store.dispatch({ type, payload: eventData });
-      }
-    });
-  }
-};
-
-const checkSocketSanity = (type, { mid }) => {
-  if (mid){
-    updateSocketStateTrackerForEventType({ type });
-    if (!validateSocketIncrement(type, mid)) {
-      resetSocketStateTracking();
-    } else {
-      updateSocketStateTrackerForEventType({ type, mid });
-    }
-  }
-};
-
-const validateSocketIncrement = (type, mid) => {
-  if (type === 'echo_resp') return true;
-  const updates = store.getState().data.socketUpdates[type];
-  if (!updates) return true;
-  return updates.mid + 1 === mid;
-};
 
 const pingSocket = (socket) => {
   let pinged = false;
@@ -102,9 +64,7 @@ export const bindSocketEvents = (socket, store) => {
     [pingInterval, pingTimeout] = pingSocket(socket);
 
     if (!eventsBound) {
-      socket.prependAny(checkSocketSanity);
-      socket.onAny(executeSocketEventDispatches);
-      socket.on('new_event', showFilterMismatchToastForHiddenReports);
+      LEGACY_RT_ENABLED ? legacyEventBounding(socket, events) : latestEventBounding(socket);
     }
     eventsBound = true;
 
@@ -115,19 +75,12 @@ export const bindSocketEvents = (socket, store) => {
   return socket;
 };
 
-const resetSocketStateTracking = (socket) => {
-  store.dispatch(resetSocketActivityState());
-  return socket;
-};
-
 export const unbindSocketEvents = (socket) => {
   socket.removeAllListeners();
 };
 
 export const createSocket = (url = SOCKET_URL) => {
-  const socket = io(url, {
-    reconnection: false,
-  });
+  const socket = LEGACY_RT_ENABLED ? createLegacySocketInstance(url) : createLatestSocketInstance(url);
 
   socket._on = socket.on.bind(socket);
 

@@ -331,3 +331,6 @@ export const FEATURE_FLAG_LABELS = {
 export const DEVELOPMENT_FEATURE_FLAGS = {
   [FEATURE_FLAG_LABELS.ENABLE_PATROL_NEW_UI]: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
 };
+
+export const LEGACY_RT_ENABLED = process.env.REACT_APP_LEGACY_RT_ENABLED === 'true';
+
