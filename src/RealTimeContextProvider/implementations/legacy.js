@@ -1,15 +1,14 @@
+import isFunction from 'lodash-es/isFunction';
+
 import {
-  defaultSocketInstanceConfig,
   resetSocketStateTracking,
   updateSocketStateTrackerForEventType,
   validateSocketIncrement
 } from '../helpers';
 import { showFilterMismatchToastForHiddenReports } from '../handlers';
-import isFunction from 'lodash-es/isFunction';
 import store from '../../store';
 import { socketEventData } from '../../ducks/events';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
-import io from 'legacy-socket.io-client';
 
 
 const stateManagedSocketEventHandler = (socket, type, callback) => {
@@ -24,8 +23,6 @@ const stateManagedSocketEventHandler = (socket, type, callback) => {
     return callback(payload);
   });
 };
-
-export const createSocketInstance = (url) => io(url, defaultSocketInstanceConfig);
 
 export const errorHandlersBounding = (socketWithEvents, restartConnFn) => {
   const failureMessages = ['error', 'disconnect', 'connect_error', 'reconnect_error', 'reconnect_failed'];

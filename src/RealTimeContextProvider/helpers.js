@@ -7,18 +7,11 @@ export const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp 
   );
 };
 
-export const resetSocketStateTracking = (socket) => {
-  store.dispatch(resetSocketActivityState());
-  return socket;
-};
+export const resetSocketStateTracking = () => store.dispatch(resetSocketActivityState());
 
 export const validateSocketIncrement = (type, mid) => {
   if (type === 'echo_resp') return true;
   const updates = store.getState().data.socketUpdates[type];
   if (!updates) return true;
   return updates.mid + 1 === mid;
-};
-
-export const defaultSocketInstanceConfig = {
-  reconnection: false,
 };

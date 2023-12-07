@@ -1,14 +1,13 @@
+import isFunction from 'lodash/isFunction';
+
 import { EVENT_DISPATCHES, events } from '../config';
 import store from '../../store';
-import isFunction from 'lodash/isFunction';
 import {
-  defaultSocketInstanceConfig,
   resetSocketStateTracking,
   updateSocketStateTrackerForEventType,
   validateSocketIncrement
 } from '../helpers';
 import { showFilterMismatchToastForHiddenReports } from '../handlers';
-import io from 'socket.io-client';
 
 const executeSocketEventDispatches = (eventName, eventData) => {
   const dispatches = events[eventName] ?? EVENT_DISPATCHES[eventName];
@@ -33,8 +32,6 @@ const checkSocketSanity = (type, { mid }) => {
     }
   }
 };
-
-export const createSocketInstance = (url) => io(url, defaultSocketInstanceConfig);
 
 export const errorHandlersBounding = (socketWithEvents, restartConnFn) => {
   const instanceFailureMessages = ['error', 'disconnect', 'connect_error'];

@@ -2,13 +2,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
-import * as socketExports from '../socket';
+/*import * as socketExports from '../socket';*/
 
 const WithSocketConnectionImports = jest.requireActual('../withSocketConnection');
 
-jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
+/*jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
 jest.spyOn(socketExports, 'bindSocketEvents').mockReturnValue(mockedSocket);
-jest.spyOn(socketExports, 'unbindSocketEvents').mockReturnValue(mockedSocket);
+jest.spyOn(socketExports, 'unbindSocketEvents').mockReturnValue(mockedSocket);*/
 
 
 const { default: WithSocketConnection } = WithSocketConnectionImports;

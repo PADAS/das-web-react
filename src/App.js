@@ -36,6 +36,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 import './App.scss';
 import { showToast } from './utils/toast';
 import { SidebarScrollProvider } from './SidebarScrollContext';
+import RealTimeContextProvider from './RealTimeContextProvider';
 
 export const MapContext = createContext(null);
 
@@ -212,8 +213,10 @@ const mapStateToProps = ({
 export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 
-const AppWithSocketContext = () => <WithSocketContext>
-  <ConnectedApp />
-</WithSocketContext>;
+const AppWithSocketContext = () => <RealTimeContextProvider>
+  <WithSocketContext>
+    <ConnectedApp />
+  </WithSocketContext>
+</RealTimeContextProvider>;
 
 export default AppWithSocketContext;
