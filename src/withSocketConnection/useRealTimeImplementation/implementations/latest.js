@@ -1,7 +1,7 @@
 import isFunction from 'lodash/isFunction';
 
 import { EVENT_DISPATCHES, events } from '../config';
-import store from '../../store';
+import store from '../../../store';
 import {
   resetSocketStateTracking,
   updateSocketStateTrackerForEventType,

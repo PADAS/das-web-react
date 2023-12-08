@@ -1,32 +1,31 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, FEATURE_FLAG_LABELS } from '../constants';
+import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, FEATURE_FLAG_LABELS } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
-import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
-import { clearAuth } from '../ducks/auth';
+import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
+import { clearAuth } from '../../ducks/auth';
 import { events } from './config';
-import { calcEventFilterForRequest } from '../utils/event-filter';
-import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
+import { calcEventFilterForRequest } from '../../utils/event-filter';
+import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
 import {
-  eventsBounding as latestEventBounding,
-  errorHandlersBounding as errorHandlersBoundingLatest
+  errorHandlersBounding as errorHandlersBoundingLatest,
+  eventsBounding as latestEventBounding
 } from './implementations/latest';
 import {
-  eventsBounding as legacyEventBounding,
-  errorHandlersBounding as errorHandlersBoundingLegacy
+  errorHandlersBounding as errorHandlersBoundingLegacy,
+  eventsBounding as legacyEventBounding
 } from './implementations/legacy';
-
-export const RealTimeContext = createContext();
 
 const LEGACY_RT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED];
 const SOCKET_URL = `${DAS_HOST}/das`;
 
+// This object should be removed/updated when single-tenant are no longer supported
 const RTImplementation = {
   eventsBounding: LEGACY_RT_ENABLED ? legacyEventBounding : latestEventBounding,
   errorHandlersBounding: LEGACY_RT_ENABLED ? errorHandlersBoundingLegacy: errorHandlersBoundingLatest,
 };
 
-const RealTimeContextProvider = ({ children }) => {
+const useRealTimeImplementation = () => {
   const [socketIOPackage, setSocketIOPackage] = useState(null);
   const { eventsBounding, errorHandlersBounding } = RTImplementation;
 
@@ -130,17 +129,13 @@ const RealTimeContextProvider = ({ children }) => {
     importSocketIOPackage();
   }, []);
 
-  const context = useMemo(() => ({
+  return {
     socketIO: socketIOPackage,
     bindSocketEvents,
     createSocket,
     unbindSocketEvents,
     errorHandlersBounding
-  }), [bindSocketEvents, createSocket, errorHandlersBounding, socketIOPackage, unbindSocketEvents]);
-
-  return <RealTimeContext.Provider value={context}>
-    {children}
-  </RealTimeContext.Provider>;
+  };
 };
 
-export default RealTimeContextProvider;
+export default useRealTimeImplementation;

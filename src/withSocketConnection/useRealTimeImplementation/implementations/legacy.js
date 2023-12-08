@@ -6,9 +6,9 @@ import {
   validateSocketIncrement
 } from '../helpers';
 import { showFilterMismatchToastForHiddenReports } from '../handlers';
-import store from '../../store';
-import { socketEventData } from '../../ducks/events';
-import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
+import store from '../../../store';
+import { socketEventData } from '../../../ducks/events';
+import { SOCKET_HEALTHY_STATUS } from '../../../ducks/system-status';
 
 
 const stateManagedSocketEventHandler = (socket, type, callback) => {

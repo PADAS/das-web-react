@@ -1,5 +1,5 @@
-import store from '../store';
-import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
+import store from '../../store';
+import { newSocketActivity, resetSocketActivityState } from '../../ducks/realtime';
 
 export const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new Date().toISOString() }) => {
   store.dispatch(

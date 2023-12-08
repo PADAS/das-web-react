@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 
 import store from '../store';
-import { RealTimeContext } from '../RealTimeContextProvider';
+import useRealTimeImplementation from './useRealTimeImplementation';
 
 const SocketContext = createContext(null);
 
@@ -14,7 +14,7 @@ const WithSocketContext = (props) => {
     unbindSocketEvents,
     errorHandlersBounding,
     socketIO
-  } = useContext(RealTimeContext);
+  } = useRealTimeImplementation();
 
   useEffect(() => {
     if (socketIO){
