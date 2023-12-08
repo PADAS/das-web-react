@@ -21,8 +21,6 @@ import { NEWS_API_URL } from './ducks/news';
 import { BASE_LAYER_API_URL } from './ducks/layers';
 
 import { mockStore } from './__test-helpers/MockStore';
-import * as socketExports from './socket';
-import { mockedSocket } from './__test-helpers/MockSocketContext';
 
 import * as toastUtils from './utils/toast';
 
@@ -138,8 +136,6 @@ describe('The main app view', () => {
         },
       } } );
 
-
-    jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
     jest.spyOn(toastUtils, 'showToast');
 
     render(
