@@ -1,46 +1,51 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { bindSocketEvents, createSocket, unbindSocketEvents } from '../socket';
+
 import store from '../store';
+import useRealTimeImplementation from './useRealTimeImplementation';
 
 const SocketContext = createContext(null);
 
 const WithSocketContext = (props) => {
   const { children } = props;
-
   const [websocket, setWebsocket] = useState(null);
+  const {
+    bindSocketEvents,
+    createSocket,
+    unbindSocketEvents,
+    errorHandlersBounding,
+    socketIO
+  } = useRealTimeImplementation();
 
   useEffect(() => {
-    let socketReconnectTimeout;
+    if (socketIO){
+      let socketReconnectTimeout;
 
-    const instantiate = () => {
-      const socket = createSocket();
-      const socketWithEvents = bindSocketEvents(socket, store);
-      const instanceFailureMessages = ['error', 'disconnect', 'connect_error'];
-      const managerFailureMessages = ['error', 'reconnect_error', 'reconnect_failed'];
+      const instantiate = () => {
+        const socket = createSocket();
+        const socketWithEvents = bindSocketEvents(socket, store);
 
-      const teardown = () => {
-        socketWithEvents.close();
-        unbindSocketEvents(socketWithEvents);
-        window.clearTimeout(socketReconnectTimeout);
+        const teardown = () => {
+          socketWithEvents.close();
+          unbindSocketEvents(socketWithEvents);
+          window.clearTimeout(socketReconnectTimeout);
+        };
+
+        const restart = () => {
+          teardown();
+          socketReconnectTimeout = setTimeout(instantiate, 5000);
+        };
+
+        errorHandlersBounding(socketWithEvents, restart);
+        setWebsocket(socketWithEvents);
+
+        return [socketWithEvents, teardown];
       };
 
-      const restart = () => {
-        teardown();
-        socketReconnectTimeout = setTimeout(instantiate, 5000);
-      };
+      const [, teardown] = instantiate();
 
-      instanceFailureMessages.forEach((msg) => socketWithEvents.on(msg, restart));
-      managerFailureMessages.forEach((msg) => socketWithEvents.io.on(msg, restart));
-
-      setWebsocket(socketWithEvents);
-
-      return [socketWithEvents, teardown];
-    };
-
-    const [, teardown] = instantiate();
-
-    return teardown;
-  }, []);
+      return teardown;
+    }
+  }, [socketIO]);
 
   return !!websocket && <SocketContext.Provider value={websocket}>
     {children}

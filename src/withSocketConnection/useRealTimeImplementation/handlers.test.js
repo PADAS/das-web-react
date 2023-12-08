@@ -1,12 +1,12 @@
 import * as socketHandlers from './handlers';
-import * as toastUtils from '../utils/toast';
-import store from '../store';
+import * as toastUtils from '../../utils/toast';
+import store from '../../store';
 
 const { showFilterMismatchToastForHiddenReports } = socketHandlers;
 
 const MOCK_USER_ID = '12312-adsfsadf-e413-666';
 
-jest.mock('../store');
+jest.mock('../../store');
 
 beforeEach(() => {
   jest.spyOn(toastUtils, 'showToast');
