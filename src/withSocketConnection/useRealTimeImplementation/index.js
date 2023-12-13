@@ -90,12 +90,15 @@ const useRealTimeImplementation = () => {
 
   const unbindSocketEvents = useCallback((socket) => socket.removeAllListeners(), []);
 
+  const getConnFn = useCallback(() => LEGACY_RT_ENABLED ? socketIOPackage.default.connect : socketIOPackage.io, [socketIOPackage]);
+
   const createSocket = useCallback((url = SOCKET_URL) => {
     if (!socketIOPackage){
       return;
     }
 
-    const socket = socketIOPackage.io(url, {
+    const socketIO = getConnFn();
+    const socket = socketIO(url, {
       reconnection: false,
     });
 
@@ -121,8 +124,10 @@ const useRealTimeImplementation = () => {
       let socketIO = null;
       if (LEGACY_RT_ENABLED){
         socketIO = await import('legacy-socket.io-client');
+        console.log('legacy-socket.io-client loaded!');
       } else {
         socketIO = await import('socket.io-client');
+        console.log('latest-socket.io-client loaded!');
       }
       setSocketIOPackage(socketIO);
     };
