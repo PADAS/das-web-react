@@ -324,6 +324,11 @@ export const VALID_EVENT_GEOMETRY_TYPES = {
   POINT: 'Point',
 };
 
+export const SUPPORTED_LANGUAGES = {
+  'en-US': 'English (United States)',
+  es: 'Español',
+};
+
 export const FEATURE_FLAG_LABELS = {
   ENABLE_PATROL_NEW_UI: 'ENABLE_PATROL_NEW_UI',
   I18N: 'I18N',

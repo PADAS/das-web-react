@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import Form from 'react-bootstrap/Form';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
+import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, SUPPORTED_LANGUAGES } from '../../constants';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
@@ -63,8 +65,8 @@ const SettingsPane = () => {
     setMapLayerFiltersAreRestorable(!mapLayersRestorable);
   }, [mapLayersRestorable, setMapLayerFiltersAreRestorable]);
 
-  const onChangeLanguage = useCallback((event) => {
-    i18n.changeLanguage(event.target.value);
+  const onSelectLanguage = useCallback((language) => {
+    i18n.changeLanguage(language);
   }, [i18n]);
 
   return <Tabs
@@ -127,27 +129,20 @@ const SettingsPane = () => {
       {isI18nActive ? <section>
         <h3>Language</h3>
 
-        <Form.Group>
-          <Form.Check
-            aria-label="English"
-            checked={i18n.language === 'en'}
-            id="language-en-radio"
-            label="English"
-            onChange={onChangeLanguage}
-            type="radio"
-            value="en"
-          />
-
-          <Form.Check
-            aria-label="Español"
-            checked={i18n.language === 'es'}
-            id="language-es-radio"
-            label="Español"
-            onChange={onChangeLanguage}
-            type="radio"
-            value="es"
-          />
-        </Form.Group>
+        <DropdownButton
+          as={ButtonGroup}
+          id="settings-language-dropdown"
+          onSelect={onSelectLanguage}
+          title={SUPPORTED_LANGUAGES[i18n.language]}
+        >
+          {Object.entries(SUPPORTED_LANGUAGES).map(([languageValue, languageDisplay]) => <Dropdown.Item
+            as="button"
+            eventKey={languageValue}
+            key={languageValue}
+          >
+            {languageDisplay}
+          </Dropdown.Item>)}
+        </DropdownButton>
       </section> : null}
     </Tab>
 
