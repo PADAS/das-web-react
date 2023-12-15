@@ -60,17 +60,31 @@ const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
 const QUICK_LINKS_SCROLL_TOP_OFFSET = 20;
 const EVENT_DETAILS_KEY = 'event_details';
+const EVENT_UPDATEABLE_FIELDS = [
+  'event_details',
+  'geometry',
+  'location',
+  'notes',
+  'priority',
+  'reported_by',
+  'state',
+  'time',
+  'title',
+];
 
 const calculateFormattedReportDiffs = (reportForm, originalReport) => {
-  const reportDifferences = Object.entries( extractObjectDifference(reportForm, originalReport) );
-  return reportDifferences.map((reportField) => {
-    const [key, value] = reportField;
+  const reportDifferences = extractObjectDifference(reportForm, originalReport);
+
+  return Object.entries(reportDifferences).reduce((accumulator, [key, value]) => {
     const entries = Object.entries(value ?? {});
+
     if (!entries.length && key === EVENT_DETAILS_KEY){
-      return [key, { tmpValue: value }];
+      accumulator.push([key, { tmpValue: value }]);
+    } else if (EVENT_UPDATEABLE_FIELDS.includes(key)) {
+      accumulator.push([key, value]);
     }
-    return reportField;
-  });
+    return accumulator;
+  }, []);
 };
 
 const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
@@ -194,10 +208,6 @@ const ReportDetailView = ({
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
-      if (key === 'contains'){
-        return accumulator;
-      }
-
       if (key === EVENT_DETAILS_KEY){
         const reportFieldsChanges = calculateSchemaFieldsChanges(reportField, schemaProps, originalReport);
         return Object.entries(reportFieldsChanges).length > 0
