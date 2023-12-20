@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
@@ -15,6 +16,7 @@ import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
+import useNavigate from '../hooks/useNavigate';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -25,31 +27,36 @@ import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
 import Link from '../Link';
 import MapLayerFilter from '../MapLayerFilter';
+import NewEventNotifier from '../NewEventNotifier';
 import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
-
-import NewEventNotifier from '../NewEventNotifier';
 
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
 import styles from './styles.module.scss';
-import useNavigate from '../hooks/useNavigate';
 
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const sideBar = useSelector((state) => state.view.sideBar);
+  const { t } = useTranslation('side-bar');
+
+  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
+
   const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useReportsFeed();
-  const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
-  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
+
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
+
+  const sideBar = useSelector((state) => state.view.sideBar);
+
+  const [showEventsBadge, setShowEventsBadge] = useState(false);
+  const [reportIsBeingAdded, setReportIsBeingAdded] = useState(false);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
@@ -62,8 +69,6 @@ const SideBar = () => {
   ), [location.pathname]);
   const hasRouteHistory = useMemo(() => location.key !== 'default', [location]);
   const sidebarOpen = !!currentTab;
-
-  const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -92,6 +97,8 @@ const SideBar = () => {
       return 'Reports';
     case TAB_KEYS.PATROLS:
       return 'Patrols';
+    case TAB_KEYS.SETTINGS:
+      return 'Settings';
     case TAB_KEYS.LAYERS:
       return 'Map Layers';
     default:
@@ -137,22 +144,22 @@ const SideBar = () => {
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <NewEventNotifier />
-        <span>Reports</span>
+        <span>{t('reportsLink')}</span>
       </Link>
 
       {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
         <PatrolIcon />
-        <span>Patrols</span>
+        <span>{t('patrolsLink')}</span>
         </Link>}
 
       <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
         <LayersIcon />
-        <span>Map Layers</span>
+        <span>{t('mapLayersLink')}</span>
       </Link>
 
       <Link className={styles.navItem} to={TAB_KEYS.SETTINGS}>
         <GearIcon />
-        <span>Settings</span>
+        <span>{t('settingsLink')}</span>
       </Link>
     </div>
 
