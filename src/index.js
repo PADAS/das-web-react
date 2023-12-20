@@ -34,6 +34,8 @@ import NavigationContextProvider from './NavigationContextProvider';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 
+import  './i18n';
+
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
