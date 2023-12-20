@@ -47,7 +47,7 @@ const SettingsPane = () => {
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
   const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY);
 
-  const isI18nActive = DEVELOPMENT_FEATURE_FLAGS.I18N;
+  const isI18nActive = DEVELOPMENT_FEATURE_FLAGS.I18N_ENABLED;
 
   const onEventFilterPersistToggle = useCallback(() => {
     setEventFilterIsRestorable(!eventFilterRestorable);
