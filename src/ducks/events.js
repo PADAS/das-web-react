@@ -416,7 +416,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
   if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
   const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-  const params = { bbox, page_size: 25, ...parameters };
+  const params = { bbox, page_size: 25, ...parameters, include_updates: false };
 
   if (shouldAppendLocationToRequest(state)) {
     params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
