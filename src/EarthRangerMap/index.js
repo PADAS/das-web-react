@@ -56,7 +56,7 @@ const EarthRangerMap = (props) => {
         maxWidth: 80,
       });
 
-      map.addControl(new mapboxgl.NavigationControl({ showZoom: false }), 'top-right');
+      map.addControl(new mapboxgl.NavigationControl({ showZoom: false, visualizePitch: true }), 'top-right');
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
       map.addControl(scale, 'bottom-right');
 
