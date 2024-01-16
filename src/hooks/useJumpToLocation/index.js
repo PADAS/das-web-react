@@ -36,6 +36,11 @@ const calcPadding = (currentTab, isArray, itemId, isMediumLayoutOrLarger) => {
   return padding;
 };
 
+const boundsExtendingForPolygons = (coords, bounds) => {
+  coords.forEach((coord) => bounds.extend(coord));
+  return bounds;
+};
+
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
   const map = useContext(MapContext);
@@ -52,7 +57,9 @@ const useJumpToLocation = () => {
     const padding = calcPadding(currentTab, isCoordsArray, itemId, isMediumLayoutOrLarger);
 
     if (isCoordsArray && coords.length > 1) {
-      const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+      const boundaries = coords.reduce((bounds, coords) => {
+        return Array.isArray(coords[0]) ? boundsExtendingForPolygons(coords, bounds) : bounds.extend(coords);
+      }, new LngLatBounds());
       map.fitBounds(boundaries, { linear: true, speed: 200, padding });
     } else {
       map.easeTo({ center: isCoordsArray ? coords[0] : coords, zoom, padding, speed: 200 });

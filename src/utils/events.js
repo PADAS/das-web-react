@@ -73,10 +73,15 @@ export const getIdForEvent = evt => evt.id;
 
 export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
 
-export const getCoordinatesForCollection = collection => collection.contains &&
-  collection.contains
-    .map(contained => getCoordinatesForEvent(contained.related_event))
-    .filter(item => !!item);
+export const getCoordinatesForCollection = (collection) => {
+  const { contains: collectionEvents } = collection;
+  if (Array.isArray(collectionEvents)){
+    const collectionEvtCoors = collectionEvents.map(({ related_event }) => getCoordinatesForEvent(related_event)).filter(item => !!item);
+    return collectionEvtCoors.length === 1 ? collectionEvtCoors[0] : collectionEvtCoors;
+  }
+
+  return null;
+};
 
 export const getEventIdsForCollection = collection => collection.contains &&
   collection.contains
