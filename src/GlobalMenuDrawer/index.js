@@ -256,10 +256,6 @@ const GlobalMenuDrawer = ({
         </li>
 
         <li>
-          <a data-testid='terms-and-conditions-link' rel="noreferrer" href="https://allenai.org/terms" target="_blank">Terms & Conditions</a>
-        </li>
-
-        <li>
           <a data-testid='website-privacy-policy' rel="noreferrer" href="https://www.earthranger.com/privacy-policy" target="_blank">Website Privacy Policy</a>
         </li>
 

@@ -435,11 +435,10 @@ describe('GlobalMenuDrawer', () => {
     );
 
     const eulaLink = await screen.getByTestId('eula-link');
-    const termsAndConditionsLink = await screen.getByTestId('terms-and-conditions-link');
     const sitePrivacyPolicyLink = await screen.getByTestId('website-privacy-policy');
     const dataPrivacyPolicyLink = await screen.getByTestId('data-privacy-policy');
 
-    [eulaLink, termsAndConditionsLink, sitePrivacyPolicyLink, dataPrivacyPolicyLink].forEach((item) => {
+    [eulaLink, sitePrivacyPolicyLink, dataPrivacyPolicyLink].forEach((item) => {
       expect(item).toHaveAttribute('rel', 'noreferrer');
       expect(item).toHaveAttribute('target', '_blank');
       expect(item).toHaveAttribute('href');
