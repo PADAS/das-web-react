@@ -29,10 +29,11 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const eulaEnabled = systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
+  const isEULAEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.EULA];
 
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
+
     setIsLoading(true);
 
     dispatch(postAuth(formData))
@@ -43,18 +44,18 @@ const LoginPage = () => {
       .catch((error) => {
         dispatch(clearAuth());
         setErrorMessage(error.toJSON()?.message?.includes('400')
-          ? 'Invalid credentials given. Please try again.'
-          : 'An error has occurred. Please try again.');
+          ? t('errorAlert.invalidCredentialsMessage')
+          : t('errorAlert.unknownErrorMessage'));
       })
       .finally(() => setIsLoading(false));
-  }, [dispatch, formData, location.search, location.state?.from, navigate]);
+  }, [dispatch, formData, location.search, location.state?.from, navigate, t]);
 
   const onInputChange = useCallback((event) => {
     if (errorMessage) {
       setErrorMessage(null);
     }
-    setFormData({ ...formData, [event.target.name]: event.target.value });
-  }, [errorMessage, formData]);
+    setFormData((formData) => ({ ...formData, [event.target.name]: event.target.value }));
+  }, [errorMessage]);
 
   useEffect(() => {
     dispatch(clearAuth());
@@ -87,10 +88,11 @@ const LoginPage = () => {
       />
 
       <Button disabled={isLoading} name="submit" type="submit" variant="primary">{t('loginButton')}</Button>
+
       {!!errorMessage && <Alert className={styles.error} variant="danger">{errorMessage}</Alert>}
     </Form>
 
-    {eulaEnabled === true && <p className={styles.eulalink}>
+    {isEULAEnabled && <p className={styles.eulalink}>
       <a href={eulaURL} target="_blank" rel="noopener noreferrer">{t('eulaLink')}</a>
     </p>}
   </div>;
