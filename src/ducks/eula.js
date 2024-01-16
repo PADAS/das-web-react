@@ -11,8 +11,8 @@ const ACCEPT_EULA_SUCCESS = 'ACCEPT_EULA_SUCCESS';
 
 // action creators
 
-export const fetchEula = (config = {}) => (dispatch) => {
-  return axios.get(EULA_API_URL, config)
+export const fetchEula = () => (dispatch) => {
+  return axios.get(EULA_API_URL)
     .then(({ data: { data } }) => {
       dispatch(fetchEulaSuccess(data));
     })

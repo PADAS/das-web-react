@@ -1,0 +1,16 @@
+{
+  "modalBody": {
+    "acceptanceCheckboxLabel": "Acepto los términos y condiciones del EULA de EarthRanger.",
+    "eulaLink": {
+      "0": "Por favor ",
+      "1": "haga clic aquí y lea nuestro EULA",
+      "2": " antes de usar EarthRanger."
+    }
+  },
+  "modalFooter": {
+    "acceptButton": "Aceptar",
+    "cancelButton": "Cancelar",
+    "errorAlertMessage": "Hubo un problema aceptando el EULA. Por favor intente de nuevo."
+  },
+  "modalTitle": "Debe aceptar el Acuerdo de Licencia de Usuario Final (EULA) para continuar"
+}
