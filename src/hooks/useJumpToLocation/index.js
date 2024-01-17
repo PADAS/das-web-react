@@ -41,6 +41,11 @@ const extendBoundsForMultiDimensionalCoords = (coords, mapBounds) => {
   return mapBounds;
 };
 
+const buildLocationJumpBounds = (bounds, coords) => {
+  const isMultiDimensionalCoords = Array.isArray(coords[0]);
+  return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
+};
+
 const useJumpToLocation = () => {
   const routerLocation = useRouterLocation();
   const map = useContext(MapContext);
@@ -57,11 +62,7 @@ const useJumpToLocation = () => {
     const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);
 
     if (isArrayCoords && coords.length > 1) {
-      const mapBoundaries = coords.reduce((bounds, coords) => {
-        const isMultiDimensionalCoords = Array.isArray(coords[0]);
-        return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
-      }, new LngLatBounds());
-
+      const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
     } else {
       map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200 });
