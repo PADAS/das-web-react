@@ -36,9 +36,9 @@ const calcPadding = (currentTab, isArray, itemId, isMediumLayoutOrLarger) => {
   return padding;
 };
 
-const boundsExtendingForPolygons = (coords, bounds) => {
-  coords.forEach((coord) => bounds.extend(coord));
-  return bounds;
+const extendBoundsForMultiDimensionalCoords = (coords, mapBounds) => {
+  coords.forEach(coord => mapBounds.extend(coord));
+  return mapBounds;
 };
 
 const useJumpToLocation = () => {
@@ -52,17 +52,19 @@ const useJumpToLocation = () => {
   }), [routerLocation.pathname]);
 
   return (coords, zoom = 15) => {
-    const isCoordsArray = Array.isArray(coords[0]);
+    const isArrayCoords = Array.isArray(coords[0]);
 
-    const padding = calcPadding(currentTab, isCoordsArray, itemId, isMediumLayoutOrLarger);
+    const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);
 
-    if (isCoordsArray && coords.length > 1) {
-      const boundaries = coords.reduce((bounds, coords) => {
-        return Array.isArray(coords[0]) ? boundsExtendingForPolygons(coords, bounds) : bounds.extend(coords);
+    if (isArrayCoords && coords.length > 1) {
+      const mapBoundaries = coords.reduce((bounds, coords) => {
+        const isMultiDimensionalCoords = Array.isArray(coords[0]);
+        return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
       }, new LngLatBounds());
-      map.fitBounds(boundaries, { linear: true, speed: 200, padding });
+
+      map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
     } else {
-      map.easeTo({ center: isCoordsArray ? coords[0] : coords, zoom, padding, speed: 200 });
+      map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200 });
     }
   };
 };

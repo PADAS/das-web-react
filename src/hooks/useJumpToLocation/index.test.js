@@ -78,32 +78,41 @@ describe('useJumpToLocation', () => {
     });
   });
 
-  test('fit the maps bounds according to the coordinates of an multi-level array', async () => {
-    const bounds = {
-      initial: [-104.19557197413907, 20.75709101172957],
-      final: [-45.19557197413907, 65.75709101172957]
+  test('fits multi-dimensional coordinates into map boundaries ', async () => {
+    const mapBoundaries = {
+      start: [-104.19557197413907, 20.75709101172957],
+      end: [-45.19557197413907, 65.75709101172957]
     };
-    const coordinates = [bounds.initial, [ bounds.final, [-55.19557197413907, 33.75709101172957], [-66.19557197413907, 26.75709101172957]]];
+    const { start: startingMapBoundary, endingMapBoundary } = mapBoundaries;
+    const coordinates = [startingMapBoundary, [ endingMapBoundary, [-55.19557197413907, 33.75709101172957], [-66.19557197413907, 26.75709101172957]]];
 
     renderTestComponent(coordinates);
 
     await waitFor(() => {
-      const boundsParam = {
+      const mapBoundariesParam = {
         '_ne': {
-          lat: bounds.final[1],
-          lng: bounds.final[0],
+          lat: endingMapBoundary[1],
+          lng: endingMapBoundary[0],
         },
         '_sw': {
-          lat: bounds.initial[1],
-          lng: bounds.initial[0],
+          lat: startingMapBoundary[1],
+          lng: startingMapBoundary[0],
         }
       };
+      const mapConfigsParam = {
+        linear: true,
+        padding: {
+          bottom: 12,
+          left: 12,
+          right: 90,
+          top: 12
+        },
+        speed: 200
+      };
       expect(map.fitBounds).toHaveBeenCalledTimes(1);
-      expect(map.fitBounds).toHaveBeenCalledWith(boundsParam, { 'linear': true, 'padding': { 'bottom': 12, 'left': 12, 'right': 90, 'top': 12 }, 'speed': 200 });
+      expect(map.fitBounds).toHaveBeenCalledWith(mapBoundariesParam, mapConfigsParam);
     });
   });
-
-
 
   test('sets the zooms and eases to the coordinates when they are not an array', async () => {
     const coordinates = [-104.19557197413907, 20.75709101172957];
