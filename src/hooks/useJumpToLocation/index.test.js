@@ -83,7 +83,7 @@ describe('useJumpToLocation', () => {
       start: [-104.19557197413907, 20.75709101172957],
       end: [-45.19557197413907, 65.75709101172957]
     };
-    const { start: startingMapBoundary, endingMapBoundary } = mapBoundaries;
+    const { start: startingMapBoundary, end: endingMapBoundary } = mapBoundaries;
     const coordinates = [startingMapBoundary, [ endingMapBoundary, [-55.19557197413907, 33.75709101172957], [-66.19557197413907, 26.75709101172957]]];
 
     renderTestComponent(coordinates);
