@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { acceptEula, fetchEula } from '../../ducks/eula';
 import { clearAuth } from '../../ducks/auth';
@@ -19,6 +20,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('eula');
 
   const eula = useSelector((state) => state.data.eula);
   const user = useSelector((state) => state.data.user);
@@ -43,13 +45,10 @@ const EulaPage = ({ temporaryAccessToken }) => {
       .replace('/"', '/')
     : null;
 
-  // inspect the redirect cookie set and see if it is an admin endpoint
   const adminReferrer = /admin/.test(rerouteCookieValue);
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => temporaryAccessToken ? {
-    headers: {
-      'Authorization': `Bearer ${temporaryAccessToken}`,
-    },
+    headers: { 'Authorization': `Bearer ${temporaryAccessToken}` },
   } : null, [temporaryAccessToken]);
 
   const onAcceptToggle = useCallback(() => {
@@ -59,36 +58,33 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
   const onCancel = useCallback(() => {
     dispatch(clearAuth());
+
     setCanceled(true);
   }, [dispatch]);
 
   const onSubmit = useCallback((event) => {
     event.preventDefault();
+
     setFormError(false);
 
     if (!formAccepted) return;
 
-    const payload = { accept: true, eula: eula.id, user: user.id };
-
-    dispatch(acceptEula(payload, generateTempAuthHeaderIfNecessary()))
-      .then(() => dispatch(fetchCurrentUser(generateTempAuthHeaderIfNecessary()))
-        .catch(() => {
-          this.props.history.push({
-            pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-            search: this.props.location.search,
-          });
-        }))
+    dispatch(acceptEula({ accept: true, eula: eula.id, user: user.id }, generateTempAuthHeaderIfNecessary()))
+      .then(() => dispatch(fetchCurrentUser())
+        .catch(() => this.props.history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: this.props.location.search,
+        })))
       .then(() => setSubmitted(true))
       .catch((error) => {
-        const errorObject = JSON.parse(JSON.stringify(error));
-        console.warn('error fetching EULA', errorObject);
+        console.warn('error fetching EULA', JSON.parse(JSON.stringify(error)));
 
         setFormError(true);
       });
   }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
 
   useEffect(() => {
-    dispatch(fetchCurrentUser(generateTempAuthHeaderIfNecessary()))
+    dispatch(fetchCurrentUser())
       .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
     dispatch(fetchEula(generateTempAuthHeaderIfNecessary()));
   }, [dispatch, generateTempAuthHeaderIfNecessary, location.search, navigate]);
@@ -119,7 +115,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
         navigate(-1);
       }
     }
-  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => () => {
     deleteCookie('routeAfterEulaAccepted');
@@ -129,25 +125,32 @@ const EulaPage = ({ temporaryAccessToken }) => {
   return !!pageLoaded && <div className={styles.wrapper}>
     <Modal.Dialog>
       <Modal.Header>
-        <Modal.Title>You must accept the End User License Agreement (EULA) to continue</Modal.Title>
+        <Modal.Title>{t('modalTitle')}</Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={onSubmit}>
         <Modal.Body className={styles.modalBody}>
-          <p>Please <a href={eula.eula_url} download={`${eula.version}.pdf`} target='_blank' rel='noopener noreferrer'>click here and read our EULA</a> before using EarthRanger.</p>
+          <p>
+            {t('modalBody.eulaLink.0')}
+            <a download={`${eula.version}.pdf`} href={eula.eula_url} rel="noopener noreferrer" target="_blank">
+              {t('modalBody.eulaLink.1')}
+            </a>
+            {t('modalBody.eulaLink.2')}
+          </p>
 
-          <label htmlFor='eula-acceptance-check'>
-            <input id='eula-acceptance-check' checked={formAccepted} type='checkbox' onChange={onAcceptToggle} />
+          <label htmlFor="eula-acceptance-check">
+            <input checked={formAccepted} id="eula-acceptance-check" onChange={onAcceptToggle} type="checkbox" />
 
-            <strong className={styles.agreementText}>I agree to the terms and conditions of the EarthRanger EULA.</strong>
+            <strong className={styles.agreementText}>{t('modalBody.acceptanceCheckboxLabel')}</strong>
           </label>
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant='secondary' onClick={onCancel}>Cancel</Button>
+          <Button onClick={onCancel} variant="secondary">{t('modalFooter.cancelButton')}</Button>
 
-          <Button disabled={!formAccepted} variant='primary' type='submit'>Accept</Button>
-          {formError && <Alert className={styles.error} variant='danger'>There was an issue accepting the EULA. Please try again.</Alert>}
+          <Button disabled={!formAccepted} type="submit" variant="primary">{t('modalFooter.acceptButton')}</Button>
+
+          {formError && <Alert className={styles.error} variant="danger">{t('modalFooter.errorAlertMessage')}</Alert>}
         </Modal.Footer>
       </Form>
     </Modal.Dialog>
