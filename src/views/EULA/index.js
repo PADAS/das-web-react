@@ -16,7 +16,7 @@ import useNavigate from '../../hooks/useNavigate';
 
 import styles from './styles.module.scss';
 
-const EulaPage = () => {
+const EulaPage = ({ temporaryAccessToken }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,6 +47,10 @@ const EulaPage = () => {
 
   const adminReferrer = /admin/.test(rerouteCookieValue);
 
+  const generateTempAuthHeaderIfNecessary = useCallback(() => temporaryAccessToken ? {
+    headers: { 'Authorization': `Bearer ${temporaryAccessToken}` },
+  } : null, [temporaryAccessToken]);
+
   const onAcceptToggle = useCallback(() => {
     setFormError(false);
     setFormAccepted(!formAccepted);
@@ -65,7 +69,7 @@ const EulaPage = () => {
 
     if (!formAccepted) return;
 
-    dispatch(acceptEula({ accept: true, eula: eula.id, user: user.id }))
+    dispatch(acceptEula({ accept: true, eula: eula.id, user: user.id }, generateTempAuthHeaderIfNecessary()))
       .then(() => dispatch(fetchCurrentUser())
         .catch(() => this.props.history.push({
           pathname: `${REACT_APP_ROUTE_PREFIX}login`,
@@ -77,13 +81,13 @@ const EulaPage = () => {
 
         setFormError(true);
       });
-  }, [dispatch, eula.id, formAccepted, user.id]);
+  }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())
       .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
-    dispatch(fetchEula());
-  }, [dispatch, location.search, navigate]);
+    dispatch(fetchEula(generateTempAuthHeaderIfNecessary()));
+  }, [dispatch, generateTempAuthHeaderIfNecessary, location.search, navigate]);
 
   useEffect(() => {
     if (rerouteCookieValue) {
