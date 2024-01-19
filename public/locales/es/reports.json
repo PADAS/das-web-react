@@ -11,16 +11,7 @@
     "modalTitle": "Agregar a Incidente"
   },
   "columnSort": {
-    "popoverTitle": "Ordenar por:",
-    "orderOptions": {
-      "down": "Más nuevo a más antiguo",
-      "up": "Más antiguo a más nuevo"
-    },
-    "sortOptions": {
-      "created_at": "Fecha de Creación",
-      "event_time": "Fecha del Reporte",
-      "updated_at": "Fecha de Actualización"
-    }
+    "popoverTitle": "Ordenar por:"
   },
   "errorMessages": {
     "accordionHeaderButton": {

@@ -11,16 +11,7 @@
     "modalTitle": "Add to Incident"
   },
   "columnSort": {
-    "popoverTitle": "Sort by:",
-    "orderOptions": {
-      "down": "Newest to Oldest",
-      "up": "Oldest to Newest"
-    },
-    "sortOptions": {
-      "created_at": "Created Date",
-      "event_time": "Report Date",
-      "updated_at": "Date Updated"
-    }
+    "popoverTitle": "Sort by:"
   },
   "errorMessages": {
     "accordionHeaderButton": {
