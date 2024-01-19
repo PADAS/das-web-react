@@ -3,6 +3,8 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up.svg';
@@ -13,7 +15,9 @@ import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
 
-const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange }) => {
+const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'columnSort' });
+
   const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
 
   const [direction, selectedOption] = value;
@@ -41,12 +45,10 @@ const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange
     setSortDirection(direction === SORT_DIRECTION.up);
   }, [direction]);
 
-  const sortDirectionIcon = isSortUp ? <ArrowUp /> : <ArrowDown />;
-
-  const SortPopover = <Popover className={styles.sortPopover} id='sort-popover'>
+  const SortPopover = <Popover className={styles.sortPopover} id="sort-popover">
     <Popover.Header>
       <div className={styles.popoverTitle}>
-        Sort by:
+        {t('popoverTitle')}
       </div>
     </Popover.Header>
 
@@ -59,6 +61,7 @@ const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange
           onClick={() => onClickSortOption(option)}
         >
           {option.value === selectedOption.value && <CheckIcon className={styles.checkIcon}/>}
+
           {option.label}
         </ListGroup.Item>)}
       </ListGroup>
@@ -71,6 +74,7 @@ const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange
           onClick={() => changeSortDirection(option.value)}
         >
           {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
+
           {option.label}
         </ListGroup.Item>)}
       </ListGroup>
@@ -79,35 +83,52 @@ const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange
 
   return <span className={`${styles.columnWrapper} ${className}`}>
     <OverlayTrigger
-      shouldUpdatePosition={true}
-      rootClose
-      trigger='click'
-      placement='bottom'
-      overlay={SortPopover}
       flip={true}
-      rootCloseEvent='click'
+      overlay={SortPopover}
+      placement="bottom"
+      rootClose
+      rootCloseEvent="click"
+      shouldUpdatePosition={true}
+      trigger="click"
     >
       <Button
         className={styles.popoverTrigger}
         data-testid="sort-popover-trigger"
-        size='sm'
+        size="sm"
         variant={isSortModified ? 'primary' : 'light'}
       >
         <SortLines />
+
         <span>{selectedOption.label}</span>
       </Button>
     </OverlayTrigger>
 
     <Button
       className={styles.sortDirection}
-      data-testid='sort-direction-toggle'
+      data-testid="sort-direction-toggle"
       onClick={toggleSortDirection}
-      size='sm'
+      size="sm"
       variant={isSortUp ? 'primary' : 'light'}
     >
-      {sortDirectionIcon}
+      {isSortUp ? <ArrowUp /> : <ArrowDown />}
     </Button>
   </span>;
+};
+
+ColumnSort.defaultProps= {
+  className: '',
+};
+
+ColumnSort.propTypes= {
+  className: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  orderOptions: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.string,
+  })).isRequired,
+  sortOptions: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.string,
+  })).isRequired,
+  value: PropTypes.array.isRequired,
 };
 
 export default ColumnSort;

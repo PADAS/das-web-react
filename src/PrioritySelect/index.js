@@ -1,83 +1,82 @@
-import React, { useCallback, memo } from 'react';
+import React, { memo } from 'react';
 import { components } from 'react-select';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import {
   REPORT_PRIORITIES,
-  REPORT_PRIORITY_HIGH, REPORT_PRIORITY_LOW, REPORT_PRIORITY_MEDIUM
+  REPORT_PRIORITY_HIGH,
+  REPORT_PRIORITY_LOW,
+  REPORT_PRIORITY_MEDIUM,
 } from '../constants';
 
-import styles from './styles.module.scss';
 import Select from '../Select';
 
-const PrioritySelect = ({ priority: priorityProp, onChange, placeholder, className, isDisabled }) => {
-  const priority = REPORT_PRIORITIES.find(({ value }) => value === priorityProp);
-  const selectStyles = {
-    valueContainer: (provided) => ({
-      ...provided,
-      maxHeight: '12rem',
-      overflowY: 'auto',
-    }),
-  };
-  const getOptionLabel = useCallback(({ display }) => display, []);
+import styles from './styles.module.scss';
 
-  const getOptionValue = useCallback(({ value }) => value, []);
+const PRIORITY_STYLES = {
+  [REPORT_PRIORITY_HIGH.value]: styles.highPriority,
+  [REPORT_PRIORITY_MEDIUM.value]: styles.mediumPriority,
+  [REPORT_PRIORITY_LOW.value]: styles.lowPriority,
+};
 
-  const calcClassNameForPriority = useCallback((priority) => {
-    const priorityStyles = {
-      [REPORT_PRIORITY_HIGH.value]: styles.highPriority,
-      [REPORT_PRIORITY_MEDIUM.value]: styles.mediumPriority,
-      [REPORT_PRIORITY_LOW.value]: styles.lowPriority,
-    };
-    return priorityStyles[priority] ?? '';
-  }, []);
+const PriorityItem = ({ data }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'prioritySelect' });
 
-  const PriorityItem = ({ data }) => (
-    <div className={styles.priorityItem}>
-      <div className={ `${styles.circle} ${calcClassNameForPriority(getOptionValue(data))}`}></div>
-      <span>{getOptionLabel(data)}</span>
-    </div>
-  );
+  return <div className={styles.priorityItem}>
+    <div className={`${styles.circle} ${PRIORITY_STYLES[data.value] ?? ''}`} />
 
-  const SingleValue = ({ data, ...props }) => (
-    <components.SingleValue {...props} className={styles.control}>
-      <PriorityItem data={data} />
-    </components.SingleValue>
-  );
+    <span>{t(`labels.${data.key}`)}</span>
+  </div>;
+};
 
-  const Option = ({ data, ...props }) => (
-    <components.Option {...props} >
-      <div data-testid={`priority-select-${data.display}`}>
-        <PriorityItem data={data} />
-      </div>
-    </components.Option>
-  );
+const SingleValue = ({ data, ...props }) => <components.SingleValue {...props} className={styles.control}>
+  <PriorityItem data={data} />
+</components.SingleValue>;
+
+const Option = ({ data, ...props }) => <components.Option {...props} >
+  <div data-testid={`priority-select-${data.key}`}>
+    <PriorityItem data={data} />
+  </div>
+</components.Option>;
+
+const PrioritySelect = ({ className, isDisabled, onChange, placeholder, priority }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'prioritySelect' });
+
+  const priorityValue = REPORT_PRIORITIES.find((reportPriority) => reportPriority.value === priority);
 
   return <Select
-      value={priority}
-      isDisabled={isDisabled}
-      className={`${styles.select} ${className}`}
-      components={{ Option, SingleValue }}
-      onChange={onChange}
-      options={REPORT_PRIORITIES}
-      styles={selectStyles}
-      getOptionValue={getOptionValue}
-      getOptionLabel={getOptionLabel}
-      placeholder={placeholder}
-    />;
+    className={`${styles.select} ${className}`}
+    components={{ Option, SingleValue }}
+    getOptionLabel={(option) => t(`labels.${option.key}`)}
+    getOptionValue={(option) => option.value}
+    isDisabled={isDisabled}
+    onChange={onChange}
+    options={REPORT_PRIORITIES}
+    placeholder={placeholder || t('placeholder')}
+    styles={{
+      valueContainer: (provided) => ({
+        ...provided,
+        maxHeight: '12rem',
+        overflowY: 'auto',
+      }),
+    }}
+    value={priorityValue}
+  />;
 };
 
 PrioritySelect.defaultProps = {
-  priority: null,
   className: '',
-  placeholder: 'Select',
+  isDisabled: false,
+  placeholder: '',
+  priority: null,
 };
 
-
 PrioritySelect.propTypes = {
+  className: PropTypes.string,
+  isDisabled: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
-  className: PropTypes.string,
   priority: PropTypes.number,
 };
 

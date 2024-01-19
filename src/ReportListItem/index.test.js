@@ -4,11 +4,10 @@ import { mockStore } from '../__test-helpers/MockStore';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithoutPatrol, eventWithPatrol } from '../__test-helpers/fixtures/events';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import { render, screen } from '../test-utils';
 
 import ReportListItem from './';
 
-import { render, screen } from '@testing-library/react';
 
 let store = mockStore({ data: { eventTypes, patrolTypes: [] } });
 
@@ -17,9 +16,7 @@ describe('list item icons', () => {
 
     render(
       <Provider store={store}>
-        <NavigationWrapper>
-          <ReportListItem report={eventWithPatrol} />
-        </NavigationWrapper>
+        <ReportListItem report={eventWithPatrol} />
       </Provider>);
 
     const icon = await screen.findByRole('img');
@@ -30,9 +27,7 @@ describe('list item icons', () => {
 
     render(
       <Provider store={store}>
-        <NavigationWrapper>
-          <ReportListItem report={eventWithoutPatrol} />
-        </NavigationWrapper>
+        <ReportListItem report={eventWithoutPatrol} />
       </Provider>);
 
     const icon = await screen.findByRole('img');

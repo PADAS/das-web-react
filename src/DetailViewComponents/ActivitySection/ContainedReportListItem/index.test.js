@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -9,7 +8,7 @@ import { EVENT_API_URL } from '../../../ducks/events';
 import { EVENT_TYPE_SCHEMA_API_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
+import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 
 import ContainedReportListItem from '.';
@@ -44,14 +43,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     render(
       <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[report]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -67,14 +64,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     render(
       <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[report]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -90,14 +85,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     render(
       <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[report]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -114,14 +107,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     render(
       <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[report]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -135,14 +126,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('while report has not loaded yet, link to navigate into it does not show up', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -153,14 +142,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventStore[report.id] = report;
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -170,14 +157,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('user can open the report collapsible', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -194,14 +179,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('user can close the note collapsible', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[report]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -218,14 +201,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('while report has not loaded yet, the collapsible form does not show up', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -239,14 +220,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     };
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -257,14 +236,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventStore[report.id] = report;
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 
@@ -283,14 +260,12 @@ describe('ActivitySection - ContainedReportListItem', () => {
     };
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
+        <ContainedReportListItem
+          cardsExpanded={[]}
+          report={report}
+          onCollapse={onCollapse}
+          onExpand={onExpand}
+        />
       </Provider>
     );
 

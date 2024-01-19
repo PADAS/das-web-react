@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import SplitButton from 'react-bootstrap/SplitButton';
 import debounce from 'lodash/debounce';
+import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
+import SplitButton from 'react-bootstrap/SplitButton';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { addReportFormProps } from '../../proptypes';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 import { ReactComponent as ERLogo } from '../../common/images/icons/er-logo.svg';
@@ -14,15 +14,15 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
+import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
+import { addReportFormProps } from '../../proptypes';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
-import { TrackerContext } from '../../utils/analytics';
 import {
   createNewIncidentCollection,
   eventBelongsToCollection,
   eventBelongsToPatrol,
-  generateErrorListForApiResponseDetails,
   formValidator,
   isReportActive,
   setOriginalTextToEventNotes
@@ -34,9 +34,10 @@ import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
+import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
+import { TrackerContext } from '../../utils/analytics';
 import useNavigate from '../../hooks/useNavigate';
-import { useLocation } from 'react-router-dom';
 import { uuid } from '../../utils/string';
 
 import ActivitySection from '../../DetailViewComponents/ActivitySection';
@@ -53,8 +54,6 @@ import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
-import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
-import { SidebarScrollContext } from '../../SidebarScrollContext';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -95,6 +94,18 @@ const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalRe
   return defValueHasChanged || hasReportValue || defValueWasReset ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
 }, {});
 
+const generateErrorListForApiResponseDetails = (response, t) => {
+  try {
+    const { response: { data: { status: { detail: details } } } } = response;
+    return Object.entries(JSON.parse(details.replace(/'/g, '"')))
+      .reduce((accumulator, [key, value]) =>
+        [{ label: key, message: value }, ...accumulator],
+      []);
+  } catch (e) {
+    return [{ label: t('reportDetailView.unknownErrorLabel') }];
+  }
+};
+
 const ReportDetailView = ({
   className,
   formProps,
@@ -107,21 +118,24 @@ const ReportDetailView = ({
   reportId,
 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
-  const patrolStore = useSelector((state) => state.data.patrolStore);
+  const reportTracker = useContext(TrackerContext);
+  const { setScrollPosition } = useContext(SidebarScrollContext);
+
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
+  const patrolStore = useSelector((state) => state.data.patrolStore);
   const reportType = useSelector(
     (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
   );
-  const { setScrollPosition } = useContext(SidebarScrollContext);
 
-  const submitFormButtonRef = useRef(null);
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
   const printableContentRef = useRef(null);
+  const submitFormButtonRef = useRef(null);
 
   const newReport = useMemo(
     () => reportType ? createNewReportForEventType(reportType, reportData) : null,
@@ -137,17 +151,15 @@ const ReportDetailView = ({
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportFromStore);
   const [saveError, setSaveError] = useState(null);
 
-  const reportTracker = useContext(TrackerContext);
-
   const {
     onCancelAddedReport,
     onSaveError: onSaveErrorCallback,
     onSaveSuccess: onSaveSuccessCallback,
-    relationshipButtonDisabled,
     redirectTo: redirectToFromFormProps,
+    relationshipButtonDisabled,
   } = formProps || {};
 
-  const originalReport = useMemo(() => isNewReport ? newReport : reportFromStore, [isNewReport, newReport, reportFromStore]);
+  const originalReport = isNewReport ? newReport : reportFromStore;
   const isActive = isReportActive(originalReport);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
@@ -185,6 +197,7 @@ const ReportDetailView = ({
 
     return linkedReportIds;
   }, [reportForm.is_contained_in, reportForm.is_linked_to]);
+
   const linkedReports = useMemo(
     () => linkedReportIds?.map((id) => eventStore[id]).filter((report) => !!report) || [],
     [eventStore, linkedReportIds]
@@ -205,6 +218,7 @@ const ReportDetailView = ({
     if (!originalReport || !reportForm) {
       return {};
     }
+
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
@@ -259,13 +273,20 @@ const ReportDetailView = ({
     }
 
     return results;
-  }, [dispatch, isAddedReport, onSaveAddedReportCallback, onSaveSuccessCallback, redirectToFromFormProps]);
+  }, [
+    dispatch,
+    isAddedReport,
+    onSaveAddedReportCallback,
+    onSaveSuccessCallback,
+    redirectToFromFormProps,
+    setScrollPosition,
+  ]);
 
   const onSaveError = useCallback((e) => {
-    setSaveError(generateErrorListForApiResponseDetails(e));
+    setSaveError(generateErrorListForApiResponseDetails(e, t));
     onSaveErrorCallback?.(e);
     setTimeout(onClearErrors, CLEAR_ERRORS_TIMEOUT);
-  }, [onClearErrors, onSaveErrorCallback]);
+  }, [onClearErrors, onSaveErrorCallback, t]);
 
   const onSaveReport = useCallback((redirectToAfterSave, shouldFetchAfterSave = !isAddedReport) => {
     if (isSaving) {
@@ -419,6 +440,7 @@ const ReportDetailView = ({
     }), {});
 
     setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
+
     reportTracker.track('Change Report Form Data');
   }, [reportForm, reportTracker]);
 
@@ -500,7 +522,7 @@ const ReportDetailView = ({
   const onAddNote = useCallback(() => {
     const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.originalText);
     if (userHasNewNoteEmpty) {
-      window.alert('Can not add a new note: there\'s an empty note not saved yet');
+      window.alert(t('reportDetailView.cantAddNoteAlert'));
     } else {
       const newNote = {
         creationDate: new Date().toISOString(),
@@ -509,15 +531,14 @@ const ReportDetailView = ({
         tmpId: uuid(),
       };
       setNotesToAdd([...notesToAdd, newNote]);
+
       reportTracker.track('Added Note');
 
       setTimeout(() => {
-        newNoteRef?.current?.scrollIntoView?.({
-          behavior: 'smooth',
-        });
+        newNoteRef?.current?.scrollIntoView?.({ behavior: 'smooth' });
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
-  }, [notesToAdd, reportTracker]);
+  }, [notesToAdd, reportTracker, t]);
 
   const onAddAttachments = useCallback((files) => {
     const filesArray = convertFileListToArray(files);
@@ -528,9 +549,7 @@ const ReportDetailView = ({
 
     if (uploadableFiles.length){
       setTimeout(() => {
-        newAttachmentRef?.current?.scrollIntoView?.({
-          behavior: 'smooth',
-        });
+        newAttachmentRef?.current?.scrollIntoView?.({ behavior: 'smooth' });
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
       setAttachmentsToAdd([
@@ -548,6 +567,7 @@ const ReportDetailView = ({
       onSaveReport(undefined, false).then(async ([{ data: { data: thisReportSaved } }]) => {
         if (reportForm.is_collection) {
           reportTracker.track('Added report to incident');
+
           await dispatch(addEventToIncident(secondReportSaved.id, thisReportSaved.id));
 
           dispatch(fetchEvent(secondReportSaved.id));
@@ -584,7 +604,6 @@ const ReportDetailView = ({
     reportTracker.track('Click "save" button');
 
     submitFormButtonRef?.current?.click();
-
   }, [reportTracker]);
 
   const onClickSaveAndToggleStateButton = useCallback(() => {
@@ -598,14 +617,10 @@ const ReportDetailView = ({
     reportTracker.track(`Discard changes to ${isNewReport ? 'new' : 'existing'} report`);
   }, [isNewReport, reportTracker]);
 
-  const formHasValidationErrors = useCallback(() => {
-    return !!formValidator.validateFormData(reportForm, reportSchemas?.schema)?.errors?.length;
-  }, [formValidator, reportForm, reportSchemas?.schema]);
-
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave && !isPatrolAddedReport) {
       onClickSaveButton();
-      return !formHasValidationErrors();
+      return !formValidator.validateFormData(reportForm, reportSchemas?.schema)?.errors?.length;
     }
 
     if (shouldSave && isPatrolAddedReport) {
@@ -620,7 +635,16 @@ const ReportDetailView = ({
     }
 
     return true;
-  }, [isPatrolAddedReport, onSaveReport, onClickSaveButton, formHasValidationErrors, isAddedReport, trackDiscard, onCancelAddedReport]);
+  }, [
+    isPatrolAddedReport,
+    onClickSaveButton,
+    reportForm,
+    reportSchemas?.schema,
+    onSaveReport,
+    isAddedReport,
+    trackDiscard,
+    onCancelAddedReport,
+  ]);
 
   const onClickCancelButton = useCallback(() => {
     reportTracker.track('Click "cancel" button');
@@ -705,11 +729,11 @@ const ReportDetailView = ({
   const isReadOnly = reportSchemas?.schema?.readonly;
 
   return <div
-    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
-    data-testid="reportManagerContainer"
-    ref={printableContentRef}
+      className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
+      data-testid="reportManagerContainer"
+      ref={printableContentRef}
     >
-    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message="Saving..." />}
+    {isSaving && <LoadingOverlay className={styles.loadingOverlay} message={t('reportDetailView.loadingMessage')} />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
@@ -718,29 +742,45 @@ const ReportDetailView = ({
     <Header
       isReadOnly={isReadOnly}
       onChangeTitle={onChangeTitle}
-      report={reportForm}
       onSaveReport={onSaveReport}
       printableContentRef={printableContentRef}
+      report={reportForm}
       setRedirectTo={setRedirectTo}
     />
 
-    {saveError && <ErrorMessages errorData={saveError} onClose={onClearErrors} title="Error saving report." />}
+    {saveError && <ErrorMessages
+      errorData={saveError}
+      onClose={onClearErrors}
+      title={t('reportDetailView.saveErrorMessage')}
+    />}
 
     <div className={styles.body}>
       <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
         <QuickLinks.NavigationBar className={styles.navigationBar}>
-          <QuickLinks.Anchor anchorTitle="Details" iconComponent={<PencilWritingIcon />} />
+          <QuickLinks.Anchor
+            anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}
+            iconComponent={<PencilWritingIcon />}
+          />
 
-          <QuickLinks.Anchor anchorTitle="Activity" iconComponent={<BulletListIcon />} />
+          <QuickLinks.Anchor
+            anchorTitle={t('reportDetailView.quickLinks.activityAnchor')}
+            iconComponent={<BulletListIcon />}
+          />
 
-          <QuickLinks.Anchor anchorTitle="Links" iconComponent={<LinkIcon />} />
+          <QuickLinks.Anchor
+            anchorTitle={t('reportDetailView.quickLinks.linksAnchor')}
+            iconComponent={<LinkIcon />}
+          />
 
-          <QuickLinks.Anchor anchorTitle="History" iconComponent={<HistoryIcon />} />
+          <QuickLinks.Anchor
+            anchorTitle={t('reportDetailView.quickLinks.historyAnchor')}
+            iconComponent={<HistoryIcon />}
+          />
         </QuickLinks.NavigationBar>
 
         <div className={styles.content}>
           <QuickLinks.SectionsWrapper>
-            <QuickLinks.Section anchorTitle="Details">
+            <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
                 formSchema={reportSchemas?.schema}
                 formUISchema={reportSchemas?.uiSchema}
@@ -765,7 +805,10 @@ const ReportDetailView = ({
 
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="Activity" hidden={!shouldRenderActivitySection}>
+            <QuickLinks.Section
+              anchorTitle={t('reportDetailView.quickLinks.activityAnchor')}
+              hidden={!shouldRenderActivitySection}
+            >
               <ActivitySection
                 attachments={reportAttachments}
                 attachmentsToAdd={attachmentsToAdd}
@@ -784,13 +827,19 @@ const ReportDetailView = ({
 
             {shouldRenderLinksSection && <div className={styles.sectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="Links" hidden={!shouldRenderLinksSection}>
+            <QuickLinks.Section
+              anchorTitle="Links"
+              hidden={t('reportDetailView.quickLinks.linksAnchor')}
+            >
               <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
             </QuickLinks.Section>
 
             {shouldRenderHistorySection && <div className={styles.historySectionSeparation} />}
 
-            <QuickLinks.Section anchorTitle="History" hidden={!shouldRenderHistorySection}>
+            <QuickLinks.Section
+              anchorTitle={t('reportDetailView.quickLinks.historyAnchor')}
+              hidden={!shouldRenderHistorySection}
+            >
               <HistorySection className={styles.historySection} updates={reportForm?.updates || []} />
             </QuickLinks.Section>
           </QuickLinks.SectionsWrapper>
@@ -813,14 +862,27 @@ const ReportDetailView = ({
             </div>
 
             <div className={styles.actionButtons}>
-              <Button data-testid='report-details-cancel-btn' className={styles.cancelButton} onClick={onClickCancelButton} type="button" variant="secondary">
-                Cancel
+              <Button
+                data-testid="report-details-cancel-btn"
+                className={styles.cancelButton}
+                onClick={onClickCancelButton}
+                type="button"
+                variant="secondary"
+              >
+                {t('reportDetailView.cancelButton')}
               </Button>
 
-              <SplitButton className={styles.saveButton} drop='down' variant='primary' type='button' title='Save' onClick={onClickSaveButton}>
-                <Dropdown.Item data-testid='report-details-resolve-btn-toggle'>
-                  <Button  type='button' variant='primary' onClick={onClickSaveAndToggleStateButton}>
-                    {isActive ? 'Save and resolve' : 'Save and reopen'}
+              <SplitButton
+                className={styles.saveButton}
+                drop="down"
+                variant="primary"
+                type="button"
+                title={t('reportDetailView.saveSplitButton.title')}
+                onClick={onClickSaveButton}
+              >
+                <Dropdown.Item data-testid="report-details-resolve-btn-toggle">
+                  <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
+                    {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
                   </Button>
                 </Dropdown.Item>
               </SplitButton>
