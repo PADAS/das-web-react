@@ -5,6 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import { I18nextProvider } from 'react-i18next';
 
 import AddItemButton from '../AddItemButton';
 import { createMapMock } from '../__test-helpers/mocks';
@@ -22,6 +23,7 @@ import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
 import { notes } from '../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
+import i18nForTests from '../i18nForTests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -155,7 +157,9 @@ describe('PatrolDetailView', () => {
         <MapContext.Provider value={map}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             <SidebarScrollProvider>
-              {children}
+              <I18nextProvider i18n={i18nForTests}>
+                {children}
+              </I18nextProvider>
             </SidebarScrollProvider>
           </TrackerContext.Provider>
         </MapContext.Provider>

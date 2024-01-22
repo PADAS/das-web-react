@@ -1,0 +1,12 @@
+{
+  "minutesLabel": "minuto",
+  "abbreviations": {
+    "y": "a",
+    "mo": "mes",
+    "w": "sem",
+    "d": "d",
+    "h": "h",
+    "m": "m",
+    "s": "s"
+  }
+}

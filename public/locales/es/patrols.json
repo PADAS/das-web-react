@@ -1,0 +1,82 @@
+{
+  "addToPatrolModal": {
+    "title": "Agregar a patrullaje",
+    "noMorePatrols": "No hay más patrullajes para mostrar.",
+    "cancel": "Cancelar"
+  },
+  "detailView": {
+    "addEmptyNoteAlert": "Imposible agregar una nota nueva: existe una nota sin guardar",
+    "loadingMessage": "Guardando...",
+    "quickLinksTitles": {
+      "plan": "Plan",
+      "activity": "Actividad",
+      "history": "Historial"
+    },
+    "formButtons": {
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "header": {
+      "patrolSchedule": "Agendado {{scheduledStartTime}}",
+      "patrolStartButton": "Iniciar",
+      "patrolRestoreButton": "Restaurar",
+      "uiStateTitles": {
+        "scheduled": "Agendado",
+        "readyToStart": "Listo para iniciar",
+        "active": "Activo",
+        "done": "Finalizado",
+        "startOverdue": "Inicio atrasado",
+        "cancelled": "Cancelado",
+        "invalid": "No válido"
+      }
+    },
+    "planSection": {
+      "title": "Plan",
+      "trackedByLabel": "Rastreador",
+      "trackedByPlaceholder": "Selecciona un dispositivo...",
+      "objectiveLabel": "Objetivo",
+      "objectivePlaceholder": "Describe el propósito del patrullaje...",
+      "startDateLabel": "Fecha de inicio",
+      "startTimeLabel": "Hora de inicio",
+      "startLocationLargeLabel": "Ubicación inicial",
+      "startLocationSmallLabel": "Ubicación",
+      "locationSelectorPlaceholder": "Selecciona una ubicación",
+      "autoStartCheckboxLargeLabel": "Iniciar el patrullaje automaticamente en EarthRanger en esta fecha",
+      "autoStartCheckboxSmallLabel": "Iniciar el patrullaje automaticamente en EarthRanger",
+      "autoEndCheckboxLargeLabel": "Finalizar el patrullaje automaticamente en EarthRanger en esta fecha",
+      "autoEndCheckboxSmallLabel": "Finalizar el patrullaje automaticamente en EarthRanger",
+      "endDateLabel": "Fecha de finalización",
+      "endTimeLabel": "Hora de finalización",
+      "endLocationLargeLabel": "Ubicación final",
+      "endLocationSmallLabel": "Ubicación"
+    }
+  },
+  "patrolMenu": {
+    "startPatrol": "Iniciar Patrullaje",
+    "endPatrol": "Finalizar Patrullaje",
+    "cancelPatrol": "Cancelar Patrullaje",
+    "restorePatrol": "Restaurar Patrullaje",
+    "copyButton": "Copiar link del patrullaje",
+    "copyButtonMessage": "Link copiado",
+    "printPatrolButton": "Imprimir patrullaje"
+  },
+  "invalidDatesModal": {
+    "title": "Fechas de patrullaje no válidas",
+    "body": "No es posible guardar este patrullaje. La fecha de finalización de un patrullaje debe ser posterior a la fecha de inicio. Por favor, corrija la fecha de finalización.",
+    "button": "Entendido"
+  },
+  "patrolList": {
+    "emptyPatrolList": "No hay más patrullajes para mostrar."
+  },
+  "patrolListItem": {
+    "scheduledTitle": "Agendado:",
+    "restoreButton": "Restaurar",
+    "startButton": "Iniciar"
+  },
+  "trackToggleButton": {
+    "tracksPinned": "Rutas fijadas",
+    "tracksOn": "Rutas visibles",
+    "tracksOff": "Rutas ocultas"
+  },
+  "jumpToLocationBtnLabel": "Ir a esta ubicación"
+}

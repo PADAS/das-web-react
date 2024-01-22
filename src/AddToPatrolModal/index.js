@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InfiniteScroll from 'react-infinite-scroller';
 import uniq from 'lodash/uniq';
+import { useTranslation } from 'react-i18next';
 
 
 import { removeModal } from '../ducks/modals';
@@ -86,6 +87,7 @@ const AddToPatrolModal = (props) => {
   const scrollRef = useRef(null);
   const [loaded, setLoadedState] = useState(false);
   const [patrols, dispatch] = useReducer(activePatrolsFeedRecuer, INITIAL_PATROLS_STATE);
+  const { t } = useTranslation('patrols', { keyPrefix: 'addToPatrolModal' });
 
   const listPatrols = useMemo(() => patrols.results
     .map(p => patrolStore[p])
@@ -151,7 +153,6 @@ const AddToPatrolModal = (props) => {
     addToPatrolTracker.track('Click Add to Existing Patrol');
   };
 
-
   const onScroll = useCallback(() => {
     if (!patrols.next) return null;
     return fetchFeedPatrolsNextPage(patrols.next);
@@ -161,7 +162,7 @@ const AddToPatrolModal = (props) => {
 
   return <>
     <Header>
-      <Title>Add to Patrol</Title>
+      <Title>{t('title')}</Title>
     </Header>
     <Body style={{ minHeight: '10rem' }}>
       {!loaded && <LoadingOverlay data-testid='patrol-feed-loading-overlay' />}
@@ -185,13 +186,15 @@ const AddToPatrolModal = (props) => {
                 onClick={onClickPatrol} />;
             })}
             {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
-            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}
+            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
+              {t('noMorePatrols')}
+            </li>}
           </InfiniteScroll>
         </div>
       </div>}
     </Body>
     <Footer>
-      <Button type='button' data-testid='close-modal-button' variant='secondary' onClick={hideModal}>Cancel</Button>
+      <Button type='button' data-testid='close-modal-button' variant='secondary' onClick={hideModal}>{t('cancel')}</Button>
     </Footer>
   </>;
 };

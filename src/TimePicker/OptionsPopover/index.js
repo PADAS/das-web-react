@@ -12,15 +12,28 @@ import {
 } from '../../utils/datetime';
 
 import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
 const SECONDS = 60;
 const HOURS = 24;
 const MILLISECONDS = 60000;
 
-const TIME_CONFIG = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT;
-TIME_CONFIG.units = ['h', 'm'];
 
-const getHumanizedTimeDuration = durationHumanizer(TIME_CONFIG);
+const buildTimeDurationHumanizer = (translate) => {
+  const abbreviations = {
+    y: () => translate('y'),
+    mo: () => translate('mo'),
+    w: () => translate('w'),
+    d: () => translate('d'),
+    h: () => translate('h'),
+    m: () => translate('m'),
+    s: () => translate('s'),
+  };
+  const TIME_CONFIG = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT(abbreviations);
+  TIME_CONFIG.units = ['h', 'm'];
+
+  return durationHumanizer(TIME_CONFIG);
+};
 
 const getMinutesDiff = (startDate, endDate) => Math.round(
   Math.abs(endDate.getTime() - startDate.getTime()) / MILLISECONDS
@@ -46,6 +59,7 @@ const OptionsPopover = ({
   }, []);
 
   const initialTimeString = useMemo(() => getHoursAndMinutesString(initialDate), [initialDate]);
+  const { t } = useTranslation('dates', { keyPrefix: 'abbreviations' });
 
   const [defaultHour, defaultMinutes] = useMemo(
     () => (value ?? initialTimeString).split(':'),
@@ -60,6 +74,8 @@ const OptionsPopover = ({
 
     return date;
   }, [defaultHour, defaultMinutes]);
+
+  const getHumanizedTimeDuration = useMemo(() => buildTimeDurationHumanizer(t), [t]);
 
   const options = useMemo(() => {
     const options = [];

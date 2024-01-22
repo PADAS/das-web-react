@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { I18nextProvider } from 'react-i18next';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
@@ -11,6 +12,7 @@ import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
+import i18nForTests from '../../i18nForTests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -67,16 +69,18 @@ describe('PatrolDetailView - PlanSection', () => {
       <Provider store={mockedStore}>
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
-            <PlanSection
-              onPatrolEndDateChange={onPatrolEndDateChange}
-              onPatrolEndLocationChange={onPatrolEndLocationChange}
-              onPatrolObjectiveChange={onPatrolObjectiveChange}
-              onPatrolReportedByChange={onPatrolReportedByChange}
-              onPatrolStartDateChange={onPatrolStartDateChange}
-              onPatrolStartLocationChange={onPatrolStartLocationChange}
-              patrolForm={newPatrol}
-              {...overwriteProps}
-            />
+            <I18nextProvider i18n={i18nForTests}>
+              <PlanSection
+                  onPatrolEndDateChange={onPatrolEndDateChange}
+                  onPatrolEndLocationChange={onPatrolEndLocationChange}
+                  onPatrolObjectiveChange={onPatrolObjectiveChange}
+                  onPatrolReportedByChange={onPatrolReportedByChange}
+                  onPatrolStartDateChange={onPatrolStartDateChange}
+                  onPatrolStartLocationChange={onPatrolStartLocationChange}
+                  patrolForm={newPatrol}
+                  {...overwriteProps}
+              />
+            </I18nextProvider>
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       </Provider>

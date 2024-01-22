@@ -1,0 +1,12 @@
+{
+  "minutesLabel": "minute",
+  "abbreviations": {
+    "y": "y",
+    "mo": "mo",
+    "w": "w",
+    "d": "d",
+    "h": "h",
+    "m": "m",
+    "s": "s"
+  }
+}

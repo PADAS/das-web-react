@@ -3,6 +3,8 @@ import { initReactI18next } from 'react-i18next';
 
 import loginEnUS from '../public/locales/en-US/login.json';
 import sideBarEnUS from '../public/locales/en-US/side-bar.json';
+import patrolsEnUS from '../public/locales/en-US/patrols.json';
+import datesEnUS from '../public/locales/en-US/dates.json';
 
 i18n
   .use(initReactI18next)
@@ -18,6 +20,8 @@ i18n
       'en-US': {
         'login': loginEnUS,
         'side-bar': sideBarEnUS,
+        'patrols': patrolsEnUS,
+        'dates': datesEnUS,
       },
     },
   });

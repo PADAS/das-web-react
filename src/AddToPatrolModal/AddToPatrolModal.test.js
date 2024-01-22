@@ -4,6 +4,7 @@ import merge from 'lodash/merge';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { I18nextProvider } from 'react-i18next';
 
 import * as patrolDuckExports from '../ducks/patrols';
 import * as modalDuckExports from '../ducks/modals';
@@ -19,6 +20,7 @@ import userEvent from '@testing-library/user-event';
 import AddtoPatrolModal from './';
 
 import SocketProvider from '../__test-helpers/MockSocketContext';
+import i18nForTests from '../i18nForTests';
 
 const { INITIAL_PATROLS_STATE, PATROLS_API_URL } = patrolDuckExports;
 
@@ -46,23 +48,25 @@ const onAddToPatrol = jest.fn();
 
 const store = mockStore({ ...defaultStoreValue });
 
-test('rendering without crashing', () => {
-  render(<Provider store={store}>
+const renderAddToPatrolModal = (storeOverride  = store, testModalId) => render(
+  <Provider store={storeOverride}>
     <SocketProvider>
-      <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />
+      <I18nextProvider i18n={i18nForTests}>
+        <AddtoPatrolModal onAddToPatrol={onAddToPatrol} id={testModalId} />
+      </I18nextProvider>
     </SocketProvider>
-  </Provider>);
+  </Provider>
+);
+
+test('rendering without crashing', () => {
+  renderAddToPatrolModal();
 });
 
 describe('the "add to patrol" modal within a report form', () => {
   test('fetching patrols and updating the patrol store on render', async () => {
     const storeUpdateSpy = jest.spyOn(patrolDuckExports, 'updatePatrolStore');
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     await waitFor(() => {
       expect(storeUpdateSpy).toHaveBeenCalledWith(mockPatrolApiResponse);
@@ -83,21 +87,13 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     await screen.findByTestId('patrol-feed-container');
   });
 
   test('showing a loading overlay initially', async () => {
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     await screen.findByTestId('patrol-feed-loading-overlay');
   });
@@ -115,11 +111,7 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     await screen.findByTestId('patrol-feed-container');
 
@@ -136,11 +128,7 @@ describe('the "add to patrol" modal within a report form', () => {
       })
     );
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     const container = await screen.findByTestId('patrol-feed-container');
 
@@ -160,11 +148,7 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     expect(onAddToPatrol).not.toHaveBeenCalled();
 
@@ -180,11 +164,7 @@ describe('the "add to patrol" modal within a report form', () => {
 
     const removeModalSpy = jest.spyOn(modalDuckExports, 'removeModal');
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal id={TEST_MODAL_ID} onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(undefined, TEST_MODAL_ID);
 
     const cancelBtn = await screen.findByTestId('close-modal-button');
     userEvent.click(cancelBtn);

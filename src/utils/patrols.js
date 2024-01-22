@@ -4,8 +4,9 @@ import isWithinRange from 'date-fns/is_within_range';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
-import { SHORT_TIME_FORMAT } from '../utils/datetime';
+
+import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, DATE_LOCALES } from '../constants';
+import { SHORT_TIME_FORMAT } from './datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import cloneDeep from 'lodash/cloneDeep';
@@ -14,7 +15,6 @@ import isNil from 'lodash/isNil';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
-
 import TimeAgo from '../TimeAgo';
 
 import store from '../store';
@@ -29,6 +29,7 @@ import isAfter from 'date-fns/is_after';
 import colorVariables from '../common/styles/vars/colors.module.scss';
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
+const defaultDatesLang = 'en-US';
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -317,7 +318,7 @@ export const extractAttachmentUpdates = (collection) => {
   return extractedUpdates;
 };
 
-export const displayDurationForPatrol = (patrol) => {
+export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
   const patrolState = calcPatrolState(patrol);
 
   if (patrolState === PATROL_UI_STATES.READY_TO_START
@@ -328,6 +329,7 @@ export const displayDurationForPatrol = (patrol) => {
 
   const now = new Date();
   const nowTime = now.getTime();
+  const locale = DATE_LOCALES[lang];
 
   const displayStartTime = actualStartTimeForPatrol(patrol);
   const displayEndTime = actualEndTimeForPatrol(patrol);
@@ -344,7 +346,7 @@ export const displayDurationForPatrol = (patrol) => {
     return <TimeAgo date={displayStartTime} />;
   }
 
-  return distanceInWords(displayStartTime, displayEndTime);
+  return distanceInWords(displayStartTime, displayEndTime, { locale });
 };
 
 export const PATROL_SAVE_ACTIONS = {
@@ -470,42 +472,47 @@ export const isSegmentOverdueToEnd = (patrolSegment) => {
   return false;
 };
 
-export const patrolStateDetailsOverdueStartTime = (patrol) => {
+export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLang) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
-  return distanceInWords(startTime, currentTime, { includeSeconds: true });
+  const locale = DATE_LOCALES[lang];
+  return distanceInWords(startTime, currentTime, { includeSeconds: true, locale });
 };
 
-export const formatPatrolStateTitleDate = (date) => {
+export const formatPatrolStateTitleDate = (date, lang = defaultDatesLang) => {
   const otherYearFormat = 'D MMM \'YY HH:mm';
   const defaultFormat = 'D MMM HH:mm';
+  const locale = DATE_LOCALES[lang];
 
   if (!date) return '';
 
   if (isToday(date)) {
-    return format(date, SHORT_TIME_FORMAT);
+    return format(date, SHORT_TIME_FORMAT, { locale });
   }
 
   if (!isThisYear(date)) {
-    return format(date, otherYearFormat);
+    return format(date, otherYearFormat, { locale });
   }
 
-  return format(date, defaultFormat);
+  return format(date, defaultFormat, { locale });
 };
+
 export const displayPatrolEndOverdueTime = (patrol) => {
   const endTime = displayEndTimeForPatrol(patrol);
   const currentTime = new Date();
   return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
-export const patrolStateDetailsStartTime = patrol =>
+export const patrolStateDetailsStartTime = (patrol, lang) =>
   formatPatrolStateTitleDate(
-    displayStartTimeForPatrol(patrol)
+    displayStartTimeForPatrol(patrol),
+    lang
   );
 
-export const patrolStateDetailsEndTime = patrol =>
+export const patrolStateDetailsEndTime = (patrol, lang) =>
   formatPatrolStateTitleDate(
-    displayEndTimeForPatrol(patrol)
+    displayEndTimeForPatrol(patrol),
+    lang
   );
 
 export const calcPatrolState = (patrol) => {

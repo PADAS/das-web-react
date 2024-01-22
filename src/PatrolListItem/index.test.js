@@ -5,6 +5,7 @@ import { lineString } from '@turf/helpers';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
+import { I18nextProvider } from 'react-i18next';
 
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
@@ -27,6 +28,7 @@ import PatrolListItem from './';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
+import i18nForTests from '../i18nForTests';
 
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
@@ -86,15 +88,17 @@ const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, p
   <Provider store={storeObject}>
     <NavigationWrapper>
       <MapContext.Provider value={map}>
-        <PatrolListItem
-          onClick={onClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={patrol}
-          map={map}
-          showStateTitle={showStateTitle}
-          showTitleDetails={showTitleDetails}
-          {...otherProps}
-        />
+        <I18nextProvider i18n={i18nForTests}>
+          <PatrolListItem
+              onClick={onClick}
+              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+              patrol={patrol}
+              map={map}
+              showStateTitle={showStateTitle}
+              showTitleDetails={showTitleDetails}
+              {...otherProps}
+          />
+        </I18nextProvider>
       </MapContext.Provider>
     </NavigationWrapper>
   </Provider>

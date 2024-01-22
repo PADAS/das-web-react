@@ -7,7 +7,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, SUPPORTED_LANGUAGES } from '../../constants';
+import {DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, SUPPORTED_LANGUAGES} from '../../constants';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';

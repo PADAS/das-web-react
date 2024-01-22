@@ -1,0 +1,82 @@
+{
+  "addToPatrolModal": {
+    "title": "Add to Patrol",
+    "noMorePatrols": "No more patrols to display.",
+    "cancel": "Cancel"
+  },
+  "detailView": {
+    "addEmptyNoteAlert": "Can not add a new note: there's an empty note not saved yet",
+    "loadingMessage": "Saving...",
+    "quickLinksTitles": {
+      "plan": "Plan",
+      "activity": "Activity",
+      "history": "History"
+    },
+    "formButtons": {
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "header": {
+      "patrolSchedule": "Scheduled {{scheduledStartTime}}",
+      "patrolStartButton": "Start",
+      "patrolRestoreButton": "Restore",
+      "uiStateTitles": {
+        "scheduled": "Scheduled",
+        "readyToStart": "Ready to Start",
+        "active": "Active",
+        "done": "Done",
+        "startOverdue": "Start Overdue",
+        "cancelled": "Cancelled",
+        "invalid": "Invalid"
+      }
+    },
+    "planSection": {
+      "title": "Plan",
+      "trackedByLabel": "Tracked by",
+      "trackedByPlaceholder": "Select Device...",
+      "objectiveLabel": "Objective",
+      "objectivePlaceholder": "Describe the purpose of the patrol...",
+      "startDateLabel": "Start Date",
+      "startTimeLabel": "Start Time",
+      "startLocationLargeLabel": "Start Location",
+      "startLocationSmallLabel": "Location",
+      "locationSelectorPlaceholder": "Set Location",
+      "autoStartCheckboxLargeLabel": "Automatically start the patrol in EarthRanger at this time",
+      "autoStartCheckboxSmallLabel": "Automatically start the patrol in EarthRanger",
+      "autoEndCheckboxLargeLabel": "Automatically end the patrol in EarthRanger at this time",
+      "autoEndCheckboxSmallLabel": "Automatically end the patrol in EarthRanger",
+      "endDateLabel": "End Date",
+      "endTimeLabel": "End Time",
+      "endLocationLargeLabel": "End Location",
+      "endLocationSmallLabel": "Location"
+    }
+  },
+  "patrolMenu": {
+    "startPatrol": "Start Patrol",
+    "endPatrol": "End Patrol",
+    "cancelPatrol": "Cancel Patrol",
+    "restorePatrol": "Restore Patrol",
+    "copyButton": "Copy patrol link",
+    "copyButtonMessage": "Link copied",
+    "printPatrolButton": "Print patrol"
+  },
+  "invalidDatesModal": {
+    "title": "Invalid Patrol Times",
+    "body": "This patrol can not be saved. The end time of a patrol must be later than the start time. Please correct the start or end patrol time.",
+    "button": "OK"
+  },
+  "patrolList": {
+    "emptyPatrolList": "No patrols to display."
+  },
+  "patrolListItem": {
+    "scheduledTitle": "Scheduled:",
+    "restoreButton": "Restore",
+    "startButton": "Start"
+  },
+  "trackToggleButton": {
+    "tracksPinned": "Tracks pinned",
+    "tracksOn": "Tracks on",
+    "tracksOff": "Tracks off"
+  },
+  "jumpToLocationBtnLabel": "Jump to this location"
+}

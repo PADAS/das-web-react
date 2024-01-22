@@ -1,6 +1,7 @@
 import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+import { useTranslation } from 'react-i18next';
 
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../constants';
 import { useFeatureFlag } from '../hooks';
@@ -39,7 +40,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
-
+  const { t } = useTranslation('patrols', { keyPrefix: 'patrolList' });
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <>
@@ -59,7 +60,9 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
         />
       )}
     </ScrollRestoration>}
-    {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
+    {!patrols.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>
+      {t('emptyPatrolList')}
+    </div>}
   </>;
 };
 

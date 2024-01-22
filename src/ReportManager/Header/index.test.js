@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { I18nextProvider } from 'react-i18next';
 
 import { TrackerContext } from '../../utils/analytics';
 
@@ -12,6 +13,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
+import i18nForTests from '../../i18nForTests';
 
 describe('ReportManager - Header', () => {
   let store = mockStore({
@@ -33,7 +35,9 @@ describe('ReportManager - Header', () => {
       <Provider store={store}>
         <NavigationWrapper>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
-            {children}
+            <I18nextProvider i18n={i18nForTests}>
+              {children}
+            </I18nextProvider>
           </TrackerContext.Provider>
         </NavigationWrapper>
       </Provider>;
