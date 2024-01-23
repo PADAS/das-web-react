@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { point } from '@turf/helpers';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
@@ -27,6 +26,7 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
+import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
 jest.mock('../../AddItemButton', () => jest.fn());
 

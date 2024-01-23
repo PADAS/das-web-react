@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { subjectIsStatic } from '../utils/subjects';
@@ -8,9 +7,8 @@ import mockSubjectData from '../__test-helpers/fixtures/subjects';
 
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
-
 import { addModal } from '../ducks/modals';
+import { render, screen } from '../test-utils';
 
 import SubjectControls from './';
 
@@ -44,9 +42,7 @@ describe('SubjectControls', () => {
   test('rendering without crashing', () => {
     render(
       <Provider store={store}>
-        <NavigationWrapper>
-          <SubjectControls subject={subject} />
-        </NavigationWrapper>
+        <SubjectControls subject={subject} />
       </Provider>);
   });
 
@@ -56,9 +52,7 @@ describe('SubjectControls', () => {
     test('showing the historical data button', async () => {
       render(
         <Provider store={store}>
-          <NavigationWrapper>
-            <SubjectControls subject={subject} showHistoryButton={true} />
-          </NavigationWrapper>
+          <SubjectControls subject={subject} showHistoryButton={true} />
         </Provider>
       );
 
@@ -70,9 +64,7 @@ describe('SubjectControls', () => {
 
       render(
         <Provider store={store}>
-          <NavigationWrapper>
-            <SubjectControls subject={subject} showHistoryButton={true} />
-          </NavigationWrapper>
+          <SubjectControls subject={subject} showHistoryButton={true} />
         </Provider>
       );
 

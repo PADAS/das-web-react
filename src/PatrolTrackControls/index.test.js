@@ -2,18 +2,17 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import bbox from '@turf/bbox';
 import { lineString } from '@turf/helpers';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { createMapMock } from '../__test-helpers/mocks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
 
 import { UPDATE_PATROL_TRACK_STATE } from '../ducks/patrols';
 import { activePatrol, cancelledPatrol, patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
+import { render, screen } from '../test-utils';
 
 import PatrolTrackControls from './';
 
@@ -24,11 +23,9 @@ const onLocationClick = jest.fn();
 
 test('rendering without crashing', () => {
   render(<Provider store={store}>
-    <NavigationWrapper>
-      <MapContext.Provider value={map}>
-        <PatrolTrackControls patrol={activePatrol} onLocationClick={onLocationClick}/>
-      </MapContext.Provider>
-    </NavigationWrapper>
+    <MapContext.Provider value={map}>
+      <PatrolTrackControls patrol={activePatrol} onLocationClick={onLocationClick}/>
+    </MapContext.Provider>
   </Provider>);
 });
 
@@ -51,11 +48,9 @@ describe('patrols with leader, location and track data', () => {
     });
 
     render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
+      </MapContext.Provider>
     </Provider>);
   });
 
@@ -112,11 +107,9 @@ describe('patrols WITHOUT location and track data', () => {
     });
 
     render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
+      </MapContext.Provider>
     </Provider>);
   });
 
@@ -147,11 +140,9 @@ describe('patrols WITHOUT leader', () => {
     });
 
     render(<Provider store={store}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <PatrolTrackControls patrol={testPatrol} onLocationClick={onLocationClick}/>
+      </MapContext.Provider>
     </Provider>);
   });
 

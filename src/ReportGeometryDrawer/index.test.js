@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -8,9 +7,9 @@ import { setIsPickingLocation } from '../ducks/map-ui';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportGeometryDrawer from './';
+import { cleanup, render, screen, waitFor } from '../test-utils';
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
@@ -50,13 +49,11 @@ describe('ReportGeometryDrawer', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+            <ReportGeometryDrawer />
+          </MapDrawingToolsContext.Provider>
+        </MapContext.Provider>
       </Provider>
     );
   });
@@ -185,13 +182,11 @@ describe('ReportGeometryDrawer', () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+            <ReportGeometryDrawer />
+          </MapDrawingToolsContext.Provider>
+        </MapContext.Provider>
       </Provider>
     );
 
@@ -237,13 +232,11 @@ describe('ReportGeometryDrawer', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
-              <ReportGeometryDrawer />
-            </MapDrawingToolsContext.Provider>
-          </MapContext.Provider>
-        </NavigationWrapper>
+        <MapContext.Provider value={map}>
+          <MapDrawingToolsContext.Provider value={{ setMapDrawingData }}>
+            <ReportGeometryDrawer />
+          </MapDrawingToolsContext.Provider>
+        </MapContext.Provider>
       </Provider>
     );
 

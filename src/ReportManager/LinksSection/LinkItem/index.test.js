@@ -1,14 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { activePatrol } from '../../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
 import { report } from '../../../__test-helpers/fixtures/reports';
 import { TRACKS_API_URL } from '../../../ducks/tracks';
+import { render, screen } from '../../../test-utils';
 
 import LinkItem from '.';
 
@@ -33,9 +32,7 @@ afterAll(() => server.close());
 describe('ReportManager - LinksSection - LinkItem', () => {
   test('renders a patrol list item if type is patrol', async () => {
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <LinkItem item={activePatrol} type="patrol" />
-      </NavigationWrapper>
+      <LinkItem item={activePatrol} type="patrol" />
     </Provider>);
 
     expect((await screen.findByTestId('patrol-list-item-title-05113dd3-3f41-49ef-aa7d-fbc6b7379533')))
@@ -44,9 +41,7 @@ describe('ReportManager - LinksSection - LinkItem', () => {
 
   test('renders a report list item if type is report', async () => {
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <LinkItem item={report} type="report" />
-      </NavigationWrapper>
+      <LinkItem item={report} type="report" />
     </Provider>);
 
     expect((await screen.findByTestId('feed-list-item-title-container'))).toHaveTextContent('165634light_rep');

@@ -1,15 +1,14 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import cloneDeep from 'lodash/cloneDeep';
 
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { report } from '../__test-helpers/fixtures/reports';
 import MapLocationSelectionOverview from '.';
+import { render, screen, waitFor } from '../test-utils';
 
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
@@ -58,17 +57,15 @@ describe('MapLocationSelectionOverview', () => {
 
     ({ rerender } = render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapLocationSelectionOverview
+        <MapDrawingToolsContextProvider>
+          <MapLocationSelectionOverview
               isDiscardButtonDisabled={false}
               isUndoButtonDisabled={false}
               onClickDiscard={onClickDiscard}
               onClickUndo={onClickUndo}
               onShowInformation={onShowInformation}
             />
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
+        </MapDrawingToolsContextProvider>
       </Provider>
     ));
   });
@@ -115,17 +112,15 @@ describe('MapLocationSelectionOverview', () => {
       store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
       rerender(<Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapLocationSelectionOverview
+        <MapDrawingToolsContextProvider>
+          <MapLocationSelectionOverview
             isDiscardButtonDisabled={false}
             isUndoButtonDisabled={false}
             onClickDiscard={onClickDiscard}
             onClickUndo={onClickUndo}
             onShowInformation={onShowInformation}
           />
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
+        </MapDrawingToolsContextProvider>
       </Provider>);
     });
 
@@ -144,16 +139,14 @@ describe('MapLocationSelectionOverview', () => {
       };
       rerender(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
-              <MapLocationSelectionOverview
+          <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
+            <MapLocationSelectionOverview
                 isDiscardButtonDisabled={false}
                 isUndoButtonDisabled={false}
                 onClickDiscard={onClickDiscard}
                 onClickUndo={onClickUndo}
               />
-            </MapDrawingToolsContext.Provider>
-          </NavigationWrapper>
+          </MapDrawingToolsContext.Provider>
         </Provider>
       );
 
@@ -173,16 +166,14 @@ describe('MapLocationSelectionOverview', () => {
     test('disables undo button', async () => {
       rerender(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <MapDrawingToolsContextProvider>
-              <MapLocationSelectionOverview
+          <MapDrawingToolsContextProvider>
+            <MapLocationSelectionOverview
                 isDiscardButtonDisabled={false}
                 isUndoButtonDisabled
                 onClickDiscard={onClickDiscard}
                 onClickUndo={onClickUndo}
               />
-            </MapDrawingToolsContextProvider>
-          </NavigationWrapper>
+          </MapDrawingToolsContextProvider>
         </Provider>
       );
 
@@ -210,16 +201,14 @@ describe('MapLocationSelectionOverview', () => {
     test('disables discard button', async () => {
       rerender(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <MapDrawingToolsContextProvider>
-              <MapLocationSelectionOverview
+          <MapDrawingToolsContextProvider>
+            <MapLocationSelectionOverview
                 isDiscardButtonDisabled
                 isUndoButtonDisabled={false}
                 onClickDiscard={onClickDiscard}
                 onClickUndo={onClickUndo}
               />
-            </MapDrawingToolsContextProvider>
-          </NavigationWrapper>
+          </MapDrawingToolsContextProvider>
         </Provider>
       );
 
