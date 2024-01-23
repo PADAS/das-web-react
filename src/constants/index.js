@@ -139,10 +139,10 @@ export const SOURCE_IDS = {
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
-  [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
-  [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
-  [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
-  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
+  [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: true },
+  [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: false },
+  [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
+  [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
 };
 
 export const LAYER_PICKER_IDS = [

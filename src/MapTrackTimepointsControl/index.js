@@ -1,26 +1,35 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { toggleTrackTimepointState } from '../ducks/map-ui';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-const MapTrackTimepointsControl = (props) => {
-  const { showTrackTimepoints, toggleTrackTimepointState } = props;
-  const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+import { MAP_INTERACTION_CATEGORY, toggleTrackTimepointState } from '../ducks/map-ui';
+import { trackEventFactory } from '../utils/analytics';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const MapTrackTimepointsControl = () => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('settings', { keyPrefix: 'mapTrackTimepointsControl' });
+
+  const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
   const handleChange = () => {
-    toggleTrackTimepointState();
+    dispatch(toggleTrackTimepointState());
 
     mapInteractionTracker.track(`${showTrackTimepoints? 'Uncheck' : 'Check'} 'Show Track Timepoints' checkbox`);
   };
 
   return <label>
-    <input type='checkbox' id='track-timepoints' name='track-timepoints' checked={showTrackTimepoints} onChange={handleChange} />
-    <span style={{ paddingLeft: '0.4rem' }} >Show Track Timepoints</span>
+    <input
+      checked={showTrackTimepoints}
+      id="track-timepoints"
+      name="track-timepoints"
+      onChange={handleChange}
+      type="checkbox"
+    />
+
+    <span style={{ paddingLeft: '0.4rem' }}>{t('label')}</span>
   </label>;
 };
 
-const mapStateToProps = ({ view: { showTrackTimepoints } }) => ({
-  showTrackTimepoints,
-});
-
-export default connect(mapStateToProps, { toggleTrackTimepointState })(MapTrackTimepointsControl);
+export default MapTrackTimepointsControl;
