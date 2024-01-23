@@ -1,12 +1,13 @@
 import React from 'react';
+import { MapContext } from '../../App';
+import { createMapMock } from '../../__test-helpers/mocks';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-
 import SettingsPane from './';
+
 import { render, screen } from '../../test-utils';
-import { MapContext } from '../../App';
+
 import { mockStore } from '../../__test-helpers/MockStore';
-import { createMapMock } from '../../__test-helpers/mocks';
 
 describe('SettingsPane', () => {
   let initialState, renderWithWrapper, Wrapper, store, map;

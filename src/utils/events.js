@@ -73,10 +73,15 @@ export const getIdForEvent = evt => evt.id;
 
 export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
 
-export const getCoordinatesForCollection = collection => collection.contains &&
-  collection.contains
-    .map(contained => getCoordinatesForEvent(contained.related_event))
-    .filter(item => !!item);
+export const getCoordinatesForCollection = ({ contains: collectionEvents }) => {
+  if (collectionEvents){
+    const collectionCoords = collectionEvents.map(({ related_event }) => getCoordinatesForEvent(related_event)).filter(item => !!item);
+    const collectionHasSingleCoordsItem = collectionCoords.length === 1;
+    // if the collection has only 1 item with valid coords return that value in order to use it in JTLB logic, if not, return all the event coords available in the collection
+    return collectionHasSingleCoordsItem ? collectionCoords[0] : collectionCoords;
+  }
+  return null;
+};
 
 export const getEventIdsForCollection = collection => collection.contains &&
   collection.contains
