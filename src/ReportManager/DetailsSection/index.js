@@ -64,7 +64,7 @@ const DetailsSection = ({
   submitFormButtonRef,
 }, ref) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
@@ -100,20 +100,20 @@ const DetailsSection = ({
       <div className={styles.title}>
         <PencilWritingIcon />
 
-        <h2>{t('detailsSection.detailsHeader')}</h2>
+        <h2>{t('detailsHeader')}</h2>
       </div>
 
       <div>
         <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
           <Dropdown.Toggle variant="success">
-            {t(`detailsSection.stateDropdown.${reportState}`)}
+            {t(`stateDropdown.${reportState}`)}
           </Dropdown.Toggle>
 
           <Dropdown.Menu className={styles.stateDropdownMenu}>
             {Object.values(EVENT_FORM_STATES)
               .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
               .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
-                {t(`detailsSection.stateDropdown.${eventState}`)}
+                {t(`stateDropdown.${eventState}`)}
               </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown>
@@ -123,7 +123,7 @@ const DetailsSection = ({
     <div className={styles.container}>
       <div className={styles.row}>
         {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
-          {t('detailsSection.reportedByLabel')}
+          {t('reportedByLabel')}
 
           <ReportedBySelect
             isDisabled={formSchema?.readonly}
@@ -133,7 +133,7 @@ const DetailsSection = ({
         </label>}
 
         <label className={styles.fieldLabel} data-testid="reportManager-prioritySelector">
-          {t('detailsSection.priorityLabel')}
+          {t('priorityLabel')}
 
           <PrioritySelect
             isDisabled={formSchema?.readonly}
@@ -145,7 +145,7 @@ const DetailsSection = ({
 
       {!isCollection && <div className={styles.row}>
         <label className={styles.fieldLabel} data-testid="reportManager-reportLocationSelect">
-          {t('detailsSection.locationLabel')}
+          {t('locationLabel')}
 
           {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
             ? <AreaSelectorInput
@@ -163,7 +163,7 @@ const DetailsSection = ({
 
         <div className={styles.reportDateTimeContainer}>
           <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`} data-testid="reportManager-datePicker">
-            {t('detailsSection.dateLabel')}
+            {t('dateLabel')}
 
             <DatePicker
               className={styles.datePicker}
@@ -175,7 +175,7 @@ const DetailsSection = ({
           </label>
 
           <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`} data-testid="reportManager-timePicker">
-            {t('detailsSection.timeLabel')}
+            {t('timeLabel')}
 
             <TimePicker
               disabled={formSchema?.readonly}
