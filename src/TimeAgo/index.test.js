@@ -1,6 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
 
 import subMinutes from 'date-fns/sub_minutes';
 import subSeconds from 'date-fns/sub_seconds';
@@ -10,7 +8,7 @@ import subYears from 'date-fns/sub_years';
 
 import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
-import i18nForTests from '../i18nForTests';
+import { render, screen } from '../test-utils';
 
 beforeEach(() => {
   const mockSystemTime = new Date('2021-02-01');
@@ -29,9 +27,7 @@ afterEach(async () => {
 describe('the TimeAgo component', () => {
 
   const renderTimeAgo = (props) => render(
-    <I18nextProvider i18n={i18nForTests}>
-      <TimeAgo {...props} />
-    </I18nextProvider>
+    <TimeAgo {...props} />
   );
 
   it('displays descriptive times for durations under one minute', async () => {

@@ -4,7 +4,6 @@ import merge from 'lodash/merge';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { I18nextProvider } from 'react-i18next';
 
 import * as patrolDuckExports from '../ducks/patrols';
 import * as modalDuckExports from '../ducks/modals';
@@ -13,14 +12,13 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import mockPatrolTypeData from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddtoPatrolModal from './';
 
 import SocketProvider from '../__test-helpers/MockSocketContext';
-import i18nForTests from '../i18nForTests';
 
 const { INITIAL_PATROLS_STATE, PATROLS_API_URL } = patrolDuckExports;
 
@@ -51,9 +49,7 @@ const store = mockStore({ ...defaultStoreValue });
 const renderAddToPatrolModal = (storeOverride  = store, testModalId) => render(
   <Provider store={storeOverride}>
     <SocketProvider>
-      <I18nextProvider i18n={i18nForTests}>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol} id={testModalId} />
-      </I18nextProvider>
+      <AddtoPatrolModal onAddToPatrol={onAddToPatrol} id={testModalId} />
     </SocketProvider>
   </Provider>
 );

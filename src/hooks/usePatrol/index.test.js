@@ -1,7 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 import {
@@ -16,7 +14,7 @@ import {
 import { PATROL_API_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 import usePatrol from './';
-import i18nForTests from '../../i18nForTests';
+import { render, screen } from '../../test-utils';
 
 jest.mock('../../ducks/patrols', () => ({
   ...jest.requireActual('../../ducks/patrols'),
@@ -35,9 +33,7 @@ describe('usePatrol', () => {
 
   const renderTestComponent = (patrol, TestComponent = Component) => render(
     <Provider store={store}>
-      <I18nextProvider i18n={i18nForTests}>
-        <TestComponent patrol={patrol} />
-      </I18nextProvider>
+      <TestComponent patrol={patrol} />
     </Provider>
   );
 

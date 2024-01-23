@@ -63,7 +63,7 @@ export const PATROL_UI_STATES = {
   DONE: { key: 'done', title: 'Done', status: 'done' },
   START_OVERDUE: { key: 'startOverdue', title: 'Start Overdue', status: 'start-overdue' },
   CANCELLED: { key: 'cancelled', title: 'Cancelled', status: 'cancelled' },
-  INVALID: { key: 'invalid', title: 'Invalid', status: 'cancelled' },
+  INVALID: { key: 'invalid', title: 'Invalid Configuration', status: 'cancelled' },
 };
 
 export const PATROL_API_STATES = {

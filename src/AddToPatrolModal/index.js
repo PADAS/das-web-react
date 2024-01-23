@@ -185,7 +185,9 @@ const AddToPatrolModal = (props) => {
                 showControls={false}
                 onClick={onClickPatrol} />;
             })}
-            {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
+            {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+              {t('loading')}
+            </li>}
             {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
               {t('noMorePatrols')}
             </li>}

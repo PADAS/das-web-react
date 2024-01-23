@@ -20,7 +20,7 @@ const InvalidDatesModal = ({ onHide, show }) => {
 
     <Modal.Footer>
       <Button onClick={onClickOk} tabIndex={2} type="button" variant="primary">
-        {t('button')}
+        {t('okButton')}
       </Button>
     </Modal.Footer>
   </Modal>;

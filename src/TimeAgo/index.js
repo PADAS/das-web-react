@@ -19,12 +19,12 @@ const TimeAgo = (props) => {
   const durationStringGenerator = useMemo(() => {
     if (olderThanAnHour){
       const abbreviations = {
-        y: () => t('abbreviations.y'),
-        mo: () => t('abbreviations.mo'),
-        w: () => t('abbreviations.w'),
-        d: () => t('abbreviations.d'),
-        h: () => t('abbreviations.h'),
-        m: () => t('abbreviations.m'),
+        y: () => t('timeUnitAbbreviations.year'),
+        mo: () => t('timeUnitAbbreviations.month'),
+        w: () => t('timeUnitAbbreviations.week'),
+        d: () => t('timeUnitAbbreviations.day'),
+        h: () => t('timeUnitAbbreviations.hour'),
+        m: () => t('timeUnitAbbreviationsf.minute'),
       };
       return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED(abbreviations));
     }

@@ -1,18 +1,16 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { I18nextProvider } from 'react-i18next';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
 import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
+import { render, screen, within } from '../../test-utils';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
-import i18nForTests from '../../i18nForTests';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -69,8 +67,7 @@ describe('PatrolDetailView - PlanSection', () => {
       <Provider store={mockedStore}>
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
-            <I18nextProvider i18n={i18nForTests}>
-              <PlanSection
+            <PlanSection
                   onPatrolEndDateChange={onPatrolEndDateChange}
                   onPatrolEndLocationChange={onPatrolEndLocationChange}
                   onPatrolObjectiveChange={onPatrolObjectiveChange}
@@ -80,7 +77,6 @@ describe('PatrolDetailView - PlanSection', () => {
                   patrolForm={newPatrol}
                   {...overwriteProps}
               />
-            </I18nextProvider>
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       </Provider>

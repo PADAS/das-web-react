@@ -1,17 +1,13 @@
 import React from 'react';
-import { render, screen, userEvent, waitFor } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
 
 import TrackToggleButton from './';
-import i18nForTests from '../i18nForTests';
+import { render, screen, userEvent, waitFor } from '../test-utils';
 
 const onTrackButtonClick = jest.fn();
 
 
 const renderTrackToggleButton = (trackVisible = true, trackPinned = true, showLabel = true) => render(
-  <I18nextProvider i18n={i18nForTests}>
-    <TrackToggleButton onClick={onTrackButtonClick} trackVisible={trackVisible} trackPinned={trackPinned} showLabel={showLabel} />
-  </I18nextProvider>
+  <TrackToggleButton onClick={onTrackButtonClick} trackVisible={trackVisible} trackPinned={trackPinned} showLabel={showLabel} />
 );
 
 test('rendering without crashing', () => {
