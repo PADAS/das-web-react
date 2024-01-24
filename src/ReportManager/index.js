@@ -2,6 +2,13 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { useLocation, useSearchParams } from 'react-router-dom';
+
+import {
+  EVENT_REPORT_CATEGORY,
+  INCIDENT_REPORT_CATEGORY,
+  TrackerContext,
+  trackEventFactory,
+} from '../utils/analytics';
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
@@ -9,12 +16,10 @@ import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
-import { TrackerContext, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
-
 import DelayedUnmount from '../DelayedUnmount';
 import ReportDetailView from './ReportDetailView';
-import styles from './styles.module.scss';
 
+import styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
@@ -114,9 +119,9 @@ const ReportManager = ({ onReportBeingAdded }) => {
 
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView && <ReportDetailView
-      key={reportId} // This resets component state when the id changes
       formProps={navigationData?.formProps}
       isNewReport={isNewReport}
+      key={reportId} // This resets component state when the id changes
       newReportTypeId={newReportTypeId}
       onAddReport={onAddReport}
       reportData={reportData}

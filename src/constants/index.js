@@ -101,7 +101,6 @@ export const LAYER_IDS = {
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',
-  EVENT_CLUSTERS_CIRCLES: 'event_clusters',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject-symbol-layer',
@@ -237,23 +236,28 @@ export const EVENT_FORM_STATES = {
   RESOLVED: 'resolved',
 };
 
+// TODO i18n: Remove the display values once all translations are done
 export const REPORT_PRIORITY_HIGH = {
   display: 'Red',
+  key: 'red',
   value: 300,
 };
 
 export const REPORT_PRIORITY_MEDIUM = {
   display: 'Amber',
+  key: 'amber',
   value: 200,
 };
 
 export const REPORT_PRIORITY_LOW = {
   display: 'Green',
+  key: 'green',
   value: 100,
 };
 
 export const REPORT_PRIORITY_NONE = {
   display: 'None',
+  key: 'none',
   value: 0,
 };
 

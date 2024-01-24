@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
@@ -8,6 +7,7 @@ import { setupServer } from 'msw/node';
 
 import EventItemContextMenu from './index';
 import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen, fireEvent, waitFor } from '../test-utils';
 import { report } from '../__test-helpers/fixtures/reports';
 import { EVENT_API_URL } from '../ducks/events';
 
@@ -43,7 +43,7 @@ describe('EventItemContextMenu', () => {
     userEvent.click(screen.getByText(`Resolve #${report.serial_number}`));
 
     await waitFor(() => {
-      expect(screen.getByText(`#${report.serial_number} Resolved`)).toBeDefined();
+      expect(screen.getByText(`#${report.serial_number} resolved`)).toBeDefined();
     });
   });
 
@@ -92,7 +92,7 @@ describe('EventItemContextMenu', () => {
     await waitFor(() => {
       expect(screen.getByText(`The collection #${report.serial_number} was resolved correctly`)).toBeDefined();
       expect(screen.getByText('These related events were resolved as well:')).toBeDefined();
-      expect(screen.queryByText('WARNING: These reports are still activated')).toBeNull();
+      expect(screen.queryByText('WARNING: These reports are still active')).toBeNull();
       expect(screen.getByText('#1')).toBeDefined();
       expect(screen.getByText('#2')).toBeDefined();
     });
@@ -122,7 +122,7 @@ describe('EventItemContextMenu', () => {
     await waitFor(() => {
       expect(screen.getByText(`The collection #${report.serial_number} was resolved correctly`)).toBeDefined();
       expect(screen.queryByText('These related events were resolved as well:')).toBeNull();
-      expect(screen.getByText('WARNING: These reports are still activated')).toBeDefined();
+      expect(screen.getByText('WARNING: These reports are still active')).toBeDefined();
       expect(screen.getByText('#1')).toBeDefined();
       expect(screen.getByText('#2')).toBeDefined();
     });

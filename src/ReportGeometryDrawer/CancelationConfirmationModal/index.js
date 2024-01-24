@@ -1,8 +1,9 @@
-import React, { memo, useCallback, useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../../ducks/map-ui';
@@ -11,36 +12,35 @@ import styles from './styles.module.scss';
 
 const CancelationConfirmationModal = ({ onHide, show }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportGeometryDrawer' });
 
   const { setMapDrawingData } = useContext(MapDrawingToolsContext);
 
-  const onClickContinueEditing = useCallback(() => onHide(), [onHide]);
-
-  const onClickDiscard = useCallback(() => {
+  const onClickDiscard = () => {
     setMapDrawingData(null);
     dispatch(setIsPickingLocation(false));
     onHide();
-  }, [dispatch, onHide, setMapDrawingData]);
+  };
 
   return <Modal onHide={onHide} show={show}>
     <Modal.Header closeButton>
-      <Modal.Title>Discard Changes</Modal.Title>
+      <Modal.Title>{t('cancelationConfirmationModal.modalTitle')}</Modal.Title>
     </Modal.Header>
 
     <Modal.Body>
       <p className={styles.message}>
-        Canceling without saving will discard changes to the report area. Are you sure you want to discard changes?
+        {t('cancelationConfirmationModal.modalBody')}
       </p>
 
       <div className={styles.buttons}>
         <Button
           className={styles.continueEditingButton}
           data-testid="reportGeometryDrawer-cancelatinConfirmationModal-discardButton"
-          onClick={onClickContinueEditing}
+          onClick={() => onHide()}
           type="button"
           variant="secondary"
         >
-          Continue Editing
+          {t('cancelationConfirmationModal.continueEditingButton')}
         </Button>
 
         <Button
@@ -49,7 +49,7 @@ const CancelationConfirmationModal = ({ onHide, show }) => {
           type="button"
           variant="secondary"
         >
-          Discard
+          {t('cancelationConfirmationModal.discardButton')}
         </Button>
       </div>
     </Modal.Body>

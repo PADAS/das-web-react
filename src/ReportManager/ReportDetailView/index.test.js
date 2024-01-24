@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { I18nextProvider } from 'react-i18next';
+import { MemoryRouter } from 'react-router-dom';
 import { point } from '@turf/helpers';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
@@ -16,9 +17,10 @@ import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../.
 import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
+import i18n from '../../i18nForTests';
 import { MapContext } from '../../App';
+import NavigationContextProvider from '../../NavigationContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
@@ -27,6 +29,7 @@ import { TAB_KEYS } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
+import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
 jest.mock('../../AddItemButton', () => jest.fn());
 
@@ -142,15 +145,19 @@ describe('ReportManager - ReportDetailView', () => {
     map = createMapMock();
 
     Wrapper = ({ children }) => <Provider store={store}> {/* eslint-disable-line react/display-name */}
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <SidebarScrollProvider>
-              {children}
-            </SidebarScrollProvider>
-          </TrackerContext.Provider>
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <I18nextProvider i18n={i18n}>
+        <MemoryRouter>
+          <NavigationContextProvider>
+            <MapContext.Provider value={map}>
+              <TrackerContext.Provider value={{ track: jest.fn() }}>
+                <SidebarScrollProvider>
+                  {children}
+                </SidebarScrollProvider>
+              </TrackerContext.Provider>
+            </MapContext.Provider>
+          </NavigationContextProvider>
+        </MemoryRouter>
+      </I18nextProvider>
     </Provider>;
 
     state = {
