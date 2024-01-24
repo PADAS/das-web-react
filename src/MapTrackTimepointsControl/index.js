@@ -2,8 +2,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { MAP_INTERACTION_CATEGORY, toggleTrackTimepointState } from '../ducks/map-ui';
-import { trackEventFactory } from '../utils/analytics';
+import { toggleTrackTimepointState } from '../ducks/map-ui';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
