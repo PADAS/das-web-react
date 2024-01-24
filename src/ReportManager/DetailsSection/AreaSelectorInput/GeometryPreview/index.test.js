@@ -1,10 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import GeometryPreview from './';
 import { mockStore } from '../../../../__test-helpers/MockStore';
+import { render, screen } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
 
 jest.mock('../../../../constants', () => ({
@@ -86,20 +86,20 @@ describe('GeometryPreview', () => {
 
     expect(onDeleteArea).toHaveBeenCalledTimes(0);
 
-    const deleteAreaButton = await screen.findByTitle('Delete area button');
+    const deleteAreaButton = await screen.findByTitle('Delete Area');
     userEvent.click(deleteAreaButton);
 
     expect(onDeleteArea).toHaveBeenCalledTimes(1);
   });
 
-  test('does not show the "Delete area button" button if onDeleteArea is not defined', async () => {
+  test('does not show the "Delete Area" button if onDeleteArea is not defined', async () => {
     render(
       <Provider store={mockStore(store)}>
         <GeometryPreview event={report} />
       </Provider>
     );
 
-    expect((await screen.queryByTitle('Delete area button'))).toBeNull();
+    expect((await screen.queryByTitle('Delete Area'))).toBeNull();
   });
 
   test('calculates and shows the area and perimeter of the geometry', async () => {

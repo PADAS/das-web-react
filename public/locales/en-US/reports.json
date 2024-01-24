@@ -1,0 +1,162 @@
+{
+  "addToIncidentModal": {
+    "modalBody": {
+      "addToNewIncidentButton": "Add to new incident",
+      "loadingItem": "Loading...",
+      "noMoreEventsItem": "No more incidents to display."
+    },
+    "modalFooter": {
+      "cancelButton": "Cancel"
+    },
+    "modalTitle": "Add to Incident"
+  },
+  "columnSort": {
+    "popoverTitle": "Sort by:"
+  },
+  "errorMessages": {
+    "accordionHeaderButton": {
+      "closed": "See details",
+      "open": "Hide details"
+    }
+  },
+  "eventFeed": {
+    "loadingMoreReportsItem": "Loading more reports...",
+    "noMoreReportsItem": "No more reports to display.",
+    "noReportsItem": "No reports to display."
+  },
+  "eventItemContextMenu": {
+    "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
+    "notificationDetails": {
+      "failedReports": "WARNING: These reports are still {{state}}",
+      "processedReports": {
+        "activated": "activated",
+        "resolved": "resolved",
+        "title": "These related events were {{newState}} as well:"
+      }
+    },
+    "state": {
+      "active": "active",
+      "resolved": "resolved"
+    },
+    "textCopyButtonItem": {
+      "label": "Copy report link",
+      "successMessage": "Link copied"
+    },
+    "updatedCollectionInfoToast": {
+      "activated": "activated",
+      "message": "The collection #{{collectionSerialNumber}} was {{newState}} correctly",
+      "resolved": "resolved"
+    },
+    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+    "updateReportStateItem": {
+      "reopen": "Reopen",
+      "resolve": "Resolve"
+    }
+  },
+  "prioritySelect": {
+    "labels": {
+      "amber": "Amber",
+      "green": "Green",
+      "none": "None",
+      "red": "Red"
+    },
+    "placeholder": "Select"
+  },
+  "reportGeometryDrawer": {
+    "cancelationConfirmationModal": {
+      "continueEditingButton": "Continue Editing",
+      "discardButton": "Discard",
+      "modalBody": "Canceling without saving will discard changes to the report area. Are you sure you want to discard changes?",
+      "modalTitle": "Discard Changes"
+    },
+    "footer": {
+      "cancelButton": "Cancel",
+      "saveButton": "Save",
+      "saveButtonTooltip": {
+        "drawing": "Only closed shapes can be saved",
+        "invalidGeometry": "Segments of the shape cannot intersect"
+      }
+    },
+    "informationModal": {
+      "addingPointsHeader": "Adding points",
+      "addingPointsContent": "Click anywhere on the map to add the points of a report area.",
+      "addingPointsToExistingAreaHeader": "Adding points to an existing area",
+      "addingPointsToExistingAreaContent": "Hover over a segment of the report area then click and drag the new point to the desired location.",
+      "closingAreaHeader": "Closing the area",
+      "closingAreaContent": "Click the first point or press ‘enter’ on your keyboard to close the shape.",
+      "deletingPointsHeader": "Deleting points",
+      "deletingPointsContent": "Click the point you want to delete and press ‘delete’ or ‘backspace’ key on your keyboard.",
+      "modalTitle": "Creating A Report Area",
+      "reportAreaHeader": "Report Area",
+      "reportAreaContent": "A single closed shape with 3 or more points and no intersecting lines. Area and distance measurements are approximate, they do not factor in changes in terrain and elevation."
+    }
+  },
+  "reportListItem": {
+    "dateTimeSuffix": "ago",
+    "resolvedState": "resolved"
+  },
+  "reportManager": {
+    "detailsSection": {
+      "areaSelectorInput": {
+        "area": "Area: ",
+        "deleteAreaButton": "Delete Area",
+        "deleteAreaButtonTitle": "Delete Area",
+        "displayString": "{{areaDisplayString}} area, {{perimeterDisplayString}} perimeter",
+        "editAreaButton": "Edit Area",
+        "editAreaButtonTitle": "Place geometry on map",
+        "inputPlaceholder": "Set report area",
+        "staticMapImageAlt": "Static map with geometry",
+        "perimeter": "Perimeter: ",
+        "provenanceLabel": "Created on EarthRanger {{provenance}}"
+      },
+      "dateLabel": "Report Date",
+      "detailsHeader": "Details",
+      "locationLabel": "Report location",
+      "priorityLabel": "Priority",
+      "reportedByLabel": "Reported By",
+      "stateDropdown": {
+        "active": "active",
+        "resolved": "resolved"
+      },
+      "timeLabel": "Report Time"
+    },
+    "header": {
+      "priority": {
+        "amber": "Amber",
+        "green": "Green",
+        "none": "None",
+        "red": "Red"
+      },
+      "reportMenu": {
+        "addToIncidentItem": "Add to Incident",
+        "addToPatrolItem": "Add to Patrol",
+        "printReportItem": "Print Report",
+        "textCopyButtonLabel": "Copy report link",
+        "textCopyButtonSuccessMessage": "Link copied"
+      }
+    },
+    "linksSection": {
+      "linksHeader": "Links"
+    },
+    "reportDetailView": {
+      "cancelButton": "Cancel",
+      "cantAddNoteAlert": "Can not add a new note: there's an empty note not saved yet",
+      "loadingMessage": "Saving...",
+      "quickLinks": {
+        "activityAnchor": "Activity",
+        "detailsAnchor": "Details",
+        "historyAnchor": "History",
+        "linksAnchor": "Links"
+      },
+      "saveErrorMessage": "Error saving report.",
+      "saveSplitButton": {
+        "saveAndReopenItem": "Save and reopen",
+        "saveAndResolveItem": "Save and resolve",
+        "title": "Save"
+      },
+      "unknownErrorLabel": "Unknown error"
+    }
+  },
+  "unknownEventTitle": "Unknown event title",
+  "unknownEventType": "Unknown event type"
+}

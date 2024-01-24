@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+
 import ReportFormSummary from './index';
 import { report as mockedReport } from '../__test-helpers/fixtures/reports';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventTypeTitleForEvent } from '../utils/events';
+import { render, screen } from '../test-utils';
 
 
 describe('ReportFormSummary', () => {

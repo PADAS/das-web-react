@@ -1,30 +1,55 @@
 import React, { memo, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { SpinLoader } from 'react-css-loaders';
 import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
 
 import { getReportLink, isReportActive } from '../utils/events';
-import { showToast } from '../utils/toast';
 import { setEventState, updateEvent } from '../ducks/events';
+import { showToast } from '../utils/toast';
 
 import ContextMenu from '../ContextMenu';
 import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const { TYPE: { INFO, ERROR } } = toast;
+const NotificationDetails = ({ failedReports, isActive, processedReports }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
+
+  const processedReportsElements = processedReports.length ? <div>
+    <p>
+      {t('notificationDetails.processedReports.title', {
+        newState: t(`notificationDetails.processedReports.${isActive ? 'resolved' : 'activated'}`),
+      })}
+    </p>
+
+    <ul>{processedReports.map((report) => <li key={report.serial_number}>#{report.serial_number}</li>)}</ul>
+  </div> : null;
+
+  if (failedReports.length){
+    return <div>
+      {processedReportsElements}
+
+      <p>{t('notificationDetails.failedReports', { state: t(`state.${isActive ? 'active' : 'resolved'}`) })}</p>
+
+      <ul>{failedReports.map((report) => <li key={report.serial_number}>#{report.serial_number}</li>)}</ul>
+    </div>;
+  }
+
+  return processedReportsElements;
+};
 
 const EventItemContextMenu = ({ children, className, report }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
 
   const [isLoading, setIsLoading] = useState(false);
 
   const isActive = isReportActive(report);
-  const title = isActive ? 'Resolve': 'Reopen';
 
   const setStateContainedReport = useCallback(async (report, state) => {
     const reportStatus = [];
@@ -39,25 +64,6 @@ const EventItemContextMenu = ({ children, className, report }) => {
 
     return reportStatus;
   }, [dispatch]);
-
-  const NotificationDetails = useCallback(({ processedReports, failedReports }) => {
-    const processedReportsElements = processedReports.length ?
-      <div>
-        <p>These related events were {isActive ? 'resolved' : 'activated'} as well:</p>
-        <ul>{processedReports.map(({ serial_number }) => <li key={serial_number}>#{serial_number}</li>)}</ul>
-      </div>
-      : null;
-
-    if (failedReports.length){
-      return <div>
-        {processedReports.length && processedReportsElements}
-        <p>WARNING: These reports are still {isActive ? 'activated' : 'resolved' }</p>
-        <ul>{failedReports.map(({ serial_number }) => <li key={serial_number}>#{serial_number}</li>)}</ul>
-      </div>;
-    }
-
-    return processedReportsElements;
-  }, [isActive]);
 
   const updateReportState = useCallback(async () => {
     try {
@@ -77,42 +83,55 @@ const EventItemContextMenu = ({ children, className, report }) => {
         }, { failedReports: [], processedReports: [] });
 
         showToast({
-          message: `The collection #${report.serial_number} was ${ isActive ? 'resolved' : 'activated'} correctly`,
-          details: <NotificationDetails failedReports={failedReports} processedReports={processedReports} />,
+          details: <NotificationDetails
+            failedReports={failedReports}
+            isActive={isActive}
+            processedReports={processedReports}
+          />,
+          message: t('updatedCollectionInfoToast.message', {
+            collectionSerialNumber: report.serial_number,
+            newState: t(`updatedCollectionInfoToast.${isActive ? 'resolved' : 'activated'}`),
+          }),
           showDetailsByDefault: true,
-          toastConfig: { type: INFO, autoClose: 4000, hideProgressBar: true },
+          toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.INFO },
         });
       } else {
         showToast({
-          message: `#${report.serial_number} ${isActive ? 'Resolved' : 'Active'}`,
           details: '',
-          toastConfig: { type: INFO, autoClose: 4000, hideProgressBar: true },
+          message: t('updatedReportInfoToastMessage', {
+            newState: t(`state.${isActive ? 'resolved' : 'active'}`),
+            reportSerialNumber: report.serial_number,
+          }),
+          toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.INFO },
         });
       }
     } catch (error) {
       showToast({
-        message: `#${report.serial_number} still ${isActive ? 'active' : 'resolved'}, something went wrong`,
         details: '',
-        toastConfig: { type: ERROR, autoClose: 4000, hideProgressBar: true },
+        message: t('errorToastMessage', {
+          serialNumber: report.serial_number,
+          state: t(`state.${isActive ? 'active' : 'resolved'}`),
+        }),
+        toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.ERROR },
       });
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, isActive, report, setStateContainedReport]);
+  }, [dispatch, isActive, report, setStateContainedReport, t]);
 
   return <ContextMenu className={className} disabled={isLoading} options={
     <>
       <Dropdown.Item className={styles.option} onClick={updateReportState}>
-        {title} #{report.serial_number}
+        {t(`updateReportStateItem.${isActive ? 'resolve': 'reopen'}`)} #{report.serial_number}
       </Dropdown.Item>
 
       <Dropdown.Item className={styles.option}>
         <TextCopyBtn
           getText={() => getReportLink(report)}
           icon={<LinkIcon />}
-          label="Copy report link"
+          label={t('textCopyButtonItem.label')}
           permitPropagation
-          successMessage="Link copied"
+          successMessage={t('textCopyButtonItem.successMessage')}
         />
       </Dropdown.Item>
     </>
@@ -130,8 +149,8 @@ EventItemContextMenu.defaultProps = {
 };
 
 EventItemContextMenu.propTypes = {
-  className: PropTypes.string,
   children: PropTypes.node.isRequired,
+  className: PropTypes.string,
   report: PropTypes.object.isRequired,
 };
 

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -13,8 +12,8 @@ import { EVENT_API_URL } from '../ducks/events';
 import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 import ReportManager from './';
 import useNavigate from '../hooks/useNavigate';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
@@ -93,11 +92,9 @@ describe('ReportManager', () => {
 
   const renderReportManager = (store) => {
     return render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <SidebarScrollProvider>
-          <ReportManager />
-        </SidebarScrollProvider>
-      </NavigationWrapper>
+      <SidebarScrollProvider>
+        <ReportManager />
+      </SidebarScrollProvider>
     </Provider>);
   };
 

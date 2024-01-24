@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Footer from './';
+import { render, screen } from '../../test-utils';
 
 describe('Footer', () => {
   const onCancel = jest.fn(), onSave = jest.fn();
