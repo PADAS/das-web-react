@@ -1,0 +1,30 @@
+{
+  "activitySection": {
+    "collapseAllButton": "Collapse All",
+    "dateItemStartTitle": "Started",
+    "dateItemEndedTitle": "Ended",
+    "expandAllButton": "Expand All",
+    "sectionTitle": "Activity",
+    "timeLabel": "Time"
+  },
+  "addAttachmentButton": "Attachment",
+  "addReportButton": "Report",
+  "addNoteButton": "Note",
+  "attachmentListItem": {
+    "attachmentDownloadButtonTooltip": "Download",
+    "attachmentDeleteButtonTooltip": "Delete",
+    "fullViewButtonTooltip": "Full View"
+  },
+  "goToReportButtonTooltip": "Go to report",
+  "historySection": {
+    "sectionTitle": "History",
+    "timeLabel": "Time"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Cancel",
+    "deleteNoteButtonTooltip": "Delete",
+    "doneEditingNoteButton": "Done",
+    "editNoteButtonTooltip": "Edit",
+    "noteTitle": "New note"
+  }
+}

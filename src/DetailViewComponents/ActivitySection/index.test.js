@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -10,9 +9,9 @@ import { EVENT_API_URL } from '../../ducks/events';
 import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrols from '../../__test-helpers/fixtures/patrols';
 import { TrackerContext } from '../../utils/analytics';
+import { render, screen, waitFor, within } from '../../test-utils';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),
@@ -83,11 +82,9 @@ describe('DetailViewComponents - ActivitySection', () => {
 
   const renderActivitySection = (props = defaultProps) => render(
     <Provider store={mockStore(initialStore)}>
-      <NavigationWrapper>
-        <TrackerContext.Provider value={{ track: jest.fn() }}>
-          <ActivitySection {...props} />
-        </TrackerContext.Provider>
-      </NavigationWrapper>
+      <TrackerContext.Provider value={{ track: jest.fn() }}>
+        <ActivitySection {...props} />
+      </TrackerContext.Provider>
     </Provider>
   );
 

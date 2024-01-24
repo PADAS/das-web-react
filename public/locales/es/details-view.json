@@ -1,0 +1,30 @@
+{
+  "activitySection": {
+    "collapseAllButton": "Colapsar todo",
+    "dateItemStartTitle": "Comienzo",
+    "dateItemEndedTitle": "Fin",
+    "expandAllButton": "Expandir todo",
+    "sectionTitle": "Actividad",
+    "timeLabel": "Tiempo"
+  },
+  "addAttachmentButton": "Adjuntar",
+  "addReportButton": "Reporte",
+  "addNoteButton": "Nota",
+  "attachmentListItem": {
+    "attachmentDownloadButtonTooltip": "Descargar",
+    "attachmentDeleteButtonTooltip": "Borrar",
+    "fullViewButtonTooltip": "Vista completa"
+  },
+  "goToReportButtonTooltip": "Ir a reporte",
+  "historySection": {
+    "sectionTitle": "Historial",
+    "timeLabel": "Tiempo"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Cancelar",
+    "deleteNoteButtonTooltip": "Borrar",
+    "doneEditingNoteButton": "Listo",
+    "editNoteButtonTooltip": "Editar",
+    "noteTitle": "Nueva nota"
+  }
+}

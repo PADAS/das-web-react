@@ -2,6 +2,7 @@ import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, u
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
@@ -32,10 +33,11 @@ const NoteListItem = ({
   const isNew = useMemo(() => !note.id, [note.id]);
   const isOpen = useMemo(() => !!cardsExpanded.find((cardExpanded) => areCardsEquals(cardExpanded, note)), [cardsExpanded, note]);
   const [isEditing, setIsEditing] = useState(isNew);
+  const { t } = useTranslation('details-view', { keyPrefix: 'noteListItem' });
 
   const title = useMemo(() => {
     if (isNew) {
-      return `New note${note.text ? `: ${note.text}` : ''}`;
+      return `${t('noteTitle')}${note.text ? `: ${note.text}` : ''}`;
     }
     return note.text;
   }, [isNew, note.text]);
@@ -107,14 +109,14 @@ const NoteListItem = ({
         />}
 
         {isNew && <div>
-          <ItemActionButton onClick={onClickTrashCanIcon} tooltip="Delete">
+          <ItemActionButton onClick={onClickTrashCanIcon} tooltip={t('deleteNoteButtonTooltip')}>
             <TrashCanIcon data-testid={`activitySection-deleteIcon-${note.id || note.text}`} />
           </ItemActionButton>
         </div>}
       </div>
 
       <div className={styles.itemActionButtonContainer}>
-        <ItemActionButton onClick={onClickPencilIcon} tooltip="Edit">
+        <ItemActionButton onClick={onClickPencilIcon} tooltip={t('editNoteButtonTooltip')}>
           <PencilIcon
             className={isEditing ? styles.disabled : ''}
             data-testid={`activitySection-editIcon-${note.id || note.text}`}
@@ -155,7 +157,7 @@ const NoteListItem = ({
             type="button"
             variant="secondary"
             data-testid={`activitySection-noteCancel-${note.id || note.text}`}>
-            Cancel
+            {t('cancelEditingNoteButton')}
           </Button>
 
           <Button
@@ -163,7 +165,7 @@ const NoteListItem = ({
               onClick={onClickDoneButton}
               type="button"
               data-testid={`activitySection-noteDone-${note.id || note.text}`}>
-            Done
+            {t('doneEditingNoteButton')}
           </Button>
         </div>}
       </div>

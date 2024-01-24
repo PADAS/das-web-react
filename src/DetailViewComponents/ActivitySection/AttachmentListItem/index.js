@@ -2,6 +2,7 @@ import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, u
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../../../utils/analytics';
 
@@ -27,7 +28,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   const dispatch = useDispatch();
 
   const tracker = useContext(TrackerContext);
-
+  const { t } = useTranslation('details-view', { keyPrefix: 'attachmentListItem' });
   const isNew = useMemo(() => !attachment.id, [attachment.id]);
   const isOpen = useMemo(() => cardsExpanded?.includes(attachment), [attachment, cardsExpanded]);
 
@@ -115,7 +116,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
         </div>
 
         <div className={styles.itemActionButtonContainer}>
-          <ItemActionButton onClick={onShowImageFullScreen} tooltip="Full View">
+          <ItemActionButton onClick={onShowImageFullScreen} tooltip={t('fullViewButtonTooltip')}>
             <ExpandArrowIcon />
           </ItemActionButton>
         </div>
@@ -163,7 +164,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     </div>
 
     <div className={styles.itemActionButtonContainer}>
-      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={!isNew ? 'Download' : 'Delete'}>
+      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={t(!isNew ? 'attachmentDownloadButtonTooltip' : 'attachmentDeleteButtonTooltip')}>
         {!isNew
           ? <DownloadArrowIcon data-testid={`activitySection-downloadArrow-${attachment.id}`} />
           : <TrashCanIcon
