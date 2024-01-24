@@ -1,17 +1,15 @@
-import React, { useContext }  from 'react';
-import { MapContext } from '../App';
-import { useSelector } from 'react-redux';
+import { useContext }  from 'react';
 import { featureCollection } from '@turf/helpers';
-
-import { SOURCE_IDS, LAYER_IDS } from '../constants';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
-import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
+import { MapContext } from '../App';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
-
-import { PRIORITY_COLOR_MAP } from '../utils/events';
-
 import { getShowReportsOnMap } from '../selectors/clusters';
+import { LAYER_IDS, SOURCE_IDS } from '../constants';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
+import { PRIORITY_COLOR_MAP } from '../utils/events';
+import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { EVENT_GEOMETRY_LAYER, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -41,17 +39,17 @@ const paint = {
 };
 
 const EventGeometryLayer = ({ onClick }) => {
-  const showReportsOnMap = useSelector(getShowReportsOnMap);
-  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionByTypeWithVirtualDate)?.Polygon ?? featureCollection([]);
-  const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
-
   const map = useContext(MapContext);
+
+  const showReportsOnMap = useSelector(getShowReportsOnMap);
+  const eventFeatureCollection = useSelector(
+    getMapEventFeatureCollectionByTypeWithVirtualDate
+  )?.Polygon ?? featureCollection([]);
+  const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
-  const currentGeometryBeingEdited = isDrawingEventGeometry ?
-    (mapLocationSelection?.event?.id ?? '')
-    : '';
+  const currentGeometryBeingEdited = isDrawingEventGeometry ? (mapLocationSelection?.event?.id ?? '') : '';
 
   const layerConfig = {
     before: EVENT_SYMBOLS,
@@ -65,20 +63,17 @@ const EventGeometryLayer = ({ onClick }) => {
 
   useMapSource(EVENT_GEOMETRY, eventFeatureCollection);
 
-  useMapLayer(
-    EVENT_GEOMETRY_LAYER,
-    'fill',
-    EVENT_GEOMETRY,
-    paint,
-    layout,
-    layerConfig,
-  );
+  useMapLayer(EVENT_GEOMETRY_LAYER, 'fill', EVENT_GEOMETRY, paint, layout, layerConfig);
 
   useMapEventBinding('click', onClick, EVENT_GEOMETRY_LAYER);
   useMapEventBinding('mouseenter', onMouseEnter, EVENT_GEOMETRY_LAYER);
   useMapEventBinding('mouseleave', onMouseLeave, EVENT_GEOMETRY_LAYER);
 
   return null;
+};
+
+EventGeometryLayer.propTypes = {
+  onClick: PropTypes.func.isRequired,
 };
 
 export default EventGeometryLayer;

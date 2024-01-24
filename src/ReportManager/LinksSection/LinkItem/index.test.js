@@ -5,9 +5,9 @@ import { setupServer } from 'msw/node';
 
 import { activePatrol } from '../../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { render, screen } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 import { TRACKS_API_URL } from '../../../ducks/tracks';
-import { render, screen } from '../../../test-utils';
 
 import LinkItem from '.';
 

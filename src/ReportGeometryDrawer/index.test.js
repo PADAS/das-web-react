@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { cleanup, render, screen, waitFor } from '../test-utils';
 import { createMapMock } from '../__test-helpers/mocks';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { MapContext } from '../App';
@@ -9,7 +10,6 @@ import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { mockStore } from '../__test-helpers/MockStore';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportGeometryDrawer from './';
-import { cleanup, render, screen, waitFor } from '../test-utils';
 
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),

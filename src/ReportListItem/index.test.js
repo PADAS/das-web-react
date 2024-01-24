@@ -1,12 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
 import { mockStore } from '../__test-helpers/MockStore';
+
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithoutPatrol, eventWithPatrol } from '../__test-helpers/fixtures/events';
+import { render, screen } from '../test-utils';
 
 import ReportListItem from './';
-import { render, screen } from '../test-utils';
+
 
 let store = mockStore({ data: { eventTypes, patrolTypes: [] } });
 

@@ -13,10 +13,10 @@ import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 import ReportManager from './';
 import useNavigate from '../hooks/useNavigate';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
-import { render, screen, waitFor } from '../test-utils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

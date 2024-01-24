@@ -6,9 +6,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen, waitFor } from '../test-utils';
 import { report } from '../__test-helpers/fixtures/reports';
 import MapLocationSelectionOverview from '.';
-import { render, screen, waitFor } from '../test-utils';
 
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
@@ -59,12 +59,12 @@ describe('MapLocationSelectionOverview', () => {
       <Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <MapLocationSelectionOverview
-              isDiscardButtonDisabled={false}
-              isUndoButtonDisabled={false}
-              onClickDiscard={onClickDiscard}
-              onClickUndo={onClickUndo}
-              onShowInformation={onShowInformation}
-            />
+            isDiscardButtonDisabled={false}
+            isUndoButtonDisabled={false}
+            onClickDiscard={onClickDiscard}
+            onClickUndo={onClickUndo}
+            onShowInformation={onShowInformation}
+          />
         </MapDrawingToolsContextProvider>
       </Provider>
     ));
@@ -114,12 +114,12 @@ describe('MapLocationSelectionOverview', () => {
       rerender(<Provider store={mockStore(store)}>
         <MapDrawingToolsContextProvider>
           <MapLocationSelectionOverview
-            isDiscardButtonDisabled={false}
-            isUndoButtonDisabled={false}
-            onClickDiscard={onClickDiscard}
-            onClickUndo={onClickUndo}
-            onShowInformation={onShowInformation}
-          />
+          isDiscardButtonDisabled={false}
+          isUndoButtonDisabled={false}
+          onClickDiscard={onClickDiscard}
+          onClickUndo={onClickUndo}
+          onShowInformation={onShowInformation}
+        />
         </MapDrawingToolsContextProvider>
       </Provider>);
     });
@@ -141,11 +141,11 @@ describe('MapLocationSelectionOverview', () => {
         <Provider store={mockStore(store)}>
           <MapDrawingToolsContext.Provider value={{ mapDrawingData }}>
             <MapLocationSelectionOverview
-                isDiscardButtonDisabled={false}
-                isUndoButtonDisabled={false}
-                onClickDiscard={onClickDiscard}
-                onClickUndo={onClickUndo}
-              />
+              isDiscardButtonDisabled={false}
+              isUndoButtonDisabled={false}
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
           </MapDrawingToolsContext.Provider>
         </Provider>
       );
@@ -168,11 +168,11 @@ describe('MapLocationSelectionOverview', () => {
         <Provider store={mockStore(store)}>
           <MapDrawingToolsContextProvider>
             <MapLocationSelectionOverview
-                isDiscardButtonDisabled={false}
-                isUndoButtonDisabled
-                onClickDiscard={onClickDiscard}
-                onClickUndo={onClickUndo}
-              />
+              isDiscardButtonDisabled={false}
+              isUndoButtonDisabled
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
           </MapDrawingToolsContextProvider>
         </Provider>
       );
@@ -203,11 +203,11 @@ describe('MapLocationSelectionOverview', () => {
         <Provider store={mockStore(store)}>
           <MapDrawingToolsContextProvider>
             <MapLocationSelectionOverview
-                isDiscardButtonDisabled
-                isUndoButtonDisabled={false}
-                onClickDiscard={onClickDiscard}
-                onClickUndo={onClickUndo}
-              />
+              isDiscardButtonDisabled
+              isUndoButtonDisabled={false}
+              onClickDiscard={onClickDiscard}
+              onClickUndo={onClickUndo}
+            />
           </MapDrawingToolsContextProvider>
         </Provider>
       );

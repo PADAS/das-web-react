@@ -1,45 +1,41 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/helpers';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { addMapImage } from '../utils/map';
-
-import LabeledSymbolLayer from '../LabeledSymbolLayer';
-import EventGeometryLayer from '../EventGeometryLayer';
-
-import { withMap } from '../EarthRangerMap';
-import withMapViewConfig from '../WithMapViewConfig';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import { addBounceToEventMapFeatures } from '../utils/events';
+import { addMapImage } from '../utils/map';
 import {
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
-  SOURCE_IDS,
-  MAX_ZOOM,
   MAP_ICON_SCALE,
+  MAX_ZOOM,
+  SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
-import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
+import { MapContext } from '../App';
+import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { useMapSource } from '../hooks';
+import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
-const {
-  EVENT_SYMBOLS,
-  EVENT_GEOMETRY_LAYER,
-  SUBJECT_SYMBOLS,
-} = LAYER_IDS;
+import EventGeometryLayer from '../EventGeometryLayer';
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
+import withMapViewConfig from '../WithMapViewConfig';
+
+const { EVENT_SYMBOLS, EVENT_GEOMETRY_LAYER, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const { CLUSTERS_SOURCE_ID, UNCLUSTERED_EVENTS_SOURCE } = SOURCE_IDS;
 
 const ANIMATION_LENGTH_SECONDS = .25;
 const FRAMES_PER_SECOND = 6;
 const ANIMATION_INTERVAL = Math.PI / (FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
-const ICON_SCALE_RATE = .15;
+
 const FONT_SCALE_RATE = 1.75;
+const ICON_SCALE_RATE = .15;
 
 const EVENTS_LAYER_TEXT_PAINT = {
   'icon-color': [
@@ -64,7 +60,7 @@ export const CLUSTER_CONFIG = {
   clusterRadius: 40,
 };
 
-const symbolLayerFilter = [
+const SYMBOL_LAYER_FILTER = [
   'all',
   ['has', 'event_type'],
   ['==', ['has', 'point_count'], false],
@@ -73,16 +69,17 @@ const symbolLayerFilter = [
 
 const EventsLayer = ({
   bounceEventIDs,
-  map,
   mapImages,
   mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
   onEventClick,
 }) => {
+  const map = useContext(MapContext);
+
   const eventPointFeatureCollection = useSelector(getMapEventSymbolPointsWithVirtualDate);
-  const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
+  const showReportsOnMap = useSelector(getShowReportsOnMap);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);
@@ -115,7 +112,6 @@ const EventsLayer = ({
             clicking.current = false;
           });
         }
-
       }
     ), [eventLayerIds, map, onEventClick]);
 
@@ -134,7 +130,6 @@ const EventsLayer = ({
       }
     }
   }, [animationState.frame, bounceIDs.length]);
-
 
   const SCALE_ICON_IF_BOUNCED = useCallback((iconSize, iconScale) => [
     'match',
@@ -249,23 +244,20 @@ const EventsLayer = ({
     addClusterIconToMap();
   }, [map]);
 
-  const geoJson = useMemo(() => ({
+  const geoJson = {
     ...mapEventFeatures,
     features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
-  }), [mapEventFeatures, shouldEventsBeClustered, showReportsOnMap]);
-
+  };
   useMapSource(UNCLUSTERED_EVENTS_SOURCE, geoJson);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
   const isClustersSourceReady = !!map.getSource(CLUSTERS_SOURCE_ID);
   const isEventsLayerReady = !!map.getLayer(EVENT_SYMBOLS);
-
   return <>
-
     {isSubjectSymbolsLayerReady && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
-        filter={symbolLayerFilter}
+        filter={SYMBOL_LAYER_FILTER}
         id={`${EVENT_SYMBOLS}-unclustered`}
         layout={eventIconLayout}
         minZoom={minZoom}
@@ -280,7 +272,7 @@ const EventsLayer = ({
       {isClustersSourceReady && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
-          filter={symbolLayerFilter}
+          filter={SYMBOL_LAYER_FILTER}
           id={EVENT_SYMBOLS}
           layout={eventIconLayout}
           minZoom={minZoom}
@@ -304,18 +296,15 @@ const EventsLayer = ({
 EventsLayer.defaultProps = {
   bounceEventIDs: [],
   mapImages: {},
-  onClusterClick: () => {},
-  onEventClick: () => {},
 };
 
 EventsLayer.propTypes = {
   bounceEventIDs: PropTypes.string,
-  map: PropTypes.object.isRequired,
   mapImages: PropTypes.object,
-  mapUserLayoutConfigByLayerId: PropTypes.func,
-  minZoom: PropTypes.number,
-  onClusterClick: PropTypes.func,
+  mapUserLayoutConfig: PropTypes.object.isRequired,
+  mapUserLayoutConfigByLayerId: PropTypes.func.isRequired,
+  minZoom: PropTypes.number.isRequired,
   onEventClick: PropTypes.func.isRequired,
 };
 
-export default memo(withMapViewConfig(withMap(EventsLayer)));
+export default memo(withMapViewConfig(EventsLayer));
