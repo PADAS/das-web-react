@@ -1,0 +1,12 @@
+{
+  "minutesLabel": "minuto",
+  "timeUnitAbbreviations": {
+    "day": "d",
+    "hour": "h",
+    "minute": "m",
+    "month": "mes",
+    "second": "s",
+    "week": "sem",
+    "year": "a"
+  }
+}

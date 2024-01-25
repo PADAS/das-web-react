@@ -6,6 +6,8 @@ import mapPopupsEnUS from '../public/locales/en-US/map-popups.json';
 import reportsEnUS from '../public/locales/en-US/reports.json';
 import settingsEnUS from '../public/locales/en-US/settings.json';
 import sideBarEnUS from '../public/locales/en-US/side-bar.json';
+import patrolsEnUS from '../public/locales/en-US/patrols.json';
+import datesEnUS from '../public/locales/en-US/dates.json';
 
 i18n
   .use(initReactI18next)
@@ -24,6 +26,8 @@ i18n
         'reports': reportsEnUS,
         'settings': settingsEnUS,
         'side-bar': sideBarEnUS,
+        'patrols': patrolsEnUS,
+        'dates': datesEnUS,
       },
     },
   });

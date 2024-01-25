@@ -49,11 +49,13 @@
 
   .navigationBar {
     display: none;
-    @media print {
-      display: none;
-    }
+
     @media (min-width: $md-layout-width-min) {
       display: unset;
+    }
+
+    @media print {
+      display: none;
     }
   }
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -7,8 +6,8 @@ import { createMapMock } from '../__test-helpers/mocks';
 import LocationJumpButton from './';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import useNavigate from '../hooks/useNavigate';
+import { render, screen } from '../test-utils';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -34,11 +33,9 @@ describe('AddReport', () => {
 
   const renderLocationJumpButton = (props = initialProps) => render(
     <Provider store={initialStore}>
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <LocationJumpButton {...props} />
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MapContext.Provider value={map}>
+        <LocationJumpButton {...props} />
+      </MapContext.Provider>
     </Provider>
   );
 
