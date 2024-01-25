@@ -1,11 +1,10 @@
 import React from 'react';
-
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import {  EVENT_SORT_ORDER_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
+import { EVENT_SORT_ORDER_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
 import ColumnSort from './';
+import { render, screen } from '../test-utils';
 
 const SORT_OPTIONS = [
   {

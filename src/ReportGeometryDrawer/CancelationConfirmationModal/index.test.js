@@ -1,11 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import CancelationConfirmationModal from './';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen } from '../../test-utils';
 import { setIsPickingLocation } from '../../ducks/map-ui';
 
 jest.mock('../../ducks/map-ui', () => ({
