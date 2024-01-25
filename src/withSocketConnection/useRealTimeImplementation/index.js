@@ -124,7 +124,9 @@ const useRealTimeImplementation = () => {
       } else {
         socketIO = await import('socket.io-client');
       }
-      setSocketIOPackage(socketIO);
+      setSocketIOPackage({
+        io: (...args) => socketIO.default(...args)
+      });
     };
     importSocketIOPackage();
   }, []);
