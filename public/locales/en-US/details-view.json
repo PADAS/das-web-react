@@ -10,15 +10,57 @@
   "addAttachmentButton": "Attachment",
   "addReportButton": "Report",
   "addNoteButton": "Note",
+  "attachmentControls": {
+    "addNoteTitle": "Add Note",
+    "addAttachmentTitle": "Add Attachment"
+  },
   "attachmentListItem": {
     "attachmentDownloadButtonTooltip": "Download",
     "attachmentDeleteButtonTooltip": "Delete",
     "fullViewButtonTooltip": "Full View"
   },
+  "footer": {
+    "cancelButton": "Cancel",
+    "saveButton": "Save",
+    "stateResolveButton": "Save and resolve",
+    "stateReopenButton": "Save and reopen"
+  },
+  "geoLocator": {
+    "buttonLabel": "Use my location",
+    "loadingMessage": "Trying to read your location...",
+    "readingLocationError": "Could not read your current location: {{locationErrorMessage}}"
+  },
   "goToReportButtonTooltip": "Go to report",
+  "header": {
+    "historyLinkCreated": "Created",
+    "historyLinkUpdated": "Updated",
+    "resolvedLabel": "resolved",
+    "sectionTitle": "History"
+  },
   "historySection": {
     "sectionTitle": "History",
     "timeLabel": "Time"
+  },
+  "imageModal": {
+    "errorTitle": "Error loading image.",
+    "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
+  },
+  "locationSelector": {
+    "inputLabel": "Location:",
+    "inputPlaceHolder": "Click here to set location"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Cancel",
+    "popupLabel": "Click to select a location",
+    "selectLocationButtonTitle": "Place marker on map",
+    "selectLocationButtonLabel": "Choose on map"
+  },
+  "navigationPromptModal": {
+    "cancelNavigationButtonText": "Go Back",
+    "continueNavigationNegativeButtonText": "Discard",
+    "continueNavigationPositiveButtonText": "Save",
+    "description": "There are unsaved changes. Would you like to go back, discard the changes, or save and continue?",
+    "title": "Unsaved Changes"
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancel",
@@ -26,5 +68,9 @@
     "doneEditingNoteButton": "Done",
     "editNoteButtonTooltip": "Edit",
     "noteTitle": "New note"
+  },
+  "reportFormSummary": {
+    "reportTypeLabel": "Report Type",
+    "reportedByLabel": "Reported By"
   }
 }

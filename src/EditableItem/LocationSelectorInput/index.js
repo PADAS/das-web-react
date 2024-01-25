@@ -4,6 +4,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
 
@@ -19,8 +20,6 @@ import MapLocationPicker from '../../MapLocationPicker';
 import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
-
-const PLACEHOLDER = 'Click here to set location';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -43,7 +42,7 @@ const LocationSelectorInput = ({
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
-
+  const { t } = useTranslation('details-view', { keyPrefix: 'locationSelector' });
   const map = useContext(MapContext);
 
   const locationInputAnchorRef = useRef(null);
@@ -51,11 +50,13 @@ const LocationSelectorInput = ({
   const popoverContentRef = useRef(null);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const locationInputPlaceholder = placeholder ?? t('inputPlaceHolder');
 
-  const displayString = calculateInputDisplayString(location, gpsFormat, placeholder);
+  const displayString = calculateInputDisplayString(location, gpsFormat, locationInputPlaceholder);
 
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
-  const shouldShowCopyButton = copyable && (displayString !== placeholder);
+  const shouldShowCopyButton = copyable && (displayString !== locationInputPlaceholder);
+  const locationLabel = label ?? t('inputLabel');
 
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -136,7 +137,7 @@ const LocationSelectorInput = ({
     onKeyDown={onLabelKeyDown}
     ref={locationInputLabelRef}
     >
-    {!!label && <span data-testid="locationSelectorInput-label">{label}</span>}
+    {!!locationLabel && <span data-testid="locationSelectorInput-label">{locationLabel}</span>}
 
     <div
       className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`}
@@ -186,9 +187,9 @@ export default debounceRender(memo(LocationSelectorInput));
 LocationSelectorInput.defaultProps = {
   className: '',
   copyable: true,
-  label: 'Location:',
+  label: null,
   location: null,
-  placeholder: PLACEHOLDER,
+  placeholder: null,
   popoverClassName: '',
 };
 
