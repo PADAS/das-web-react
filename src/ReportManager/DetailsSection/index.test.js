@@ -11,9 +11,9 @@ import { MapContext } from '../../App';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
-import { render, screen, waitFor, within } from '../../test-utils';
 
 import DetailsSection from './';
 

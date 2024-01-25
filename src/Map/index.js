@@ -37,7 +37,6 @@ import useNavigate from '../hooks/useNavigate';
 
 import {
   LAYER_IDS,
-  MAX_ZOOM,
   TAB_KEYS,
 } from '../constants';
 
@@ -86,7 +85,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
-const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const Map = ({
   children,
@@ -328,23 +327,6 @@ const Map = ({
       onSelectSubject: onSelectSubject,
     });
   }, [onSelectEvent, onSelectSubject, showPopup]);
-
-  const onClusterClick = withLocationPickerState(({ point }) => {
-    const features = map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-    const clusterId = features[0].properties.cluster_id;
-    const clusterSource = map.getSource('events-data-clustered');
-
-    clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) return;
-
-      const mapZoom = map.getZoom();
-      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
-
-      if (mapZoom < MAX_ZOOM && mapZoom < zoom) {
-        map.easeTo({ center: features[0].geometry.coordinates, zoom: newMapZoom });
-      }
-    });
-  });
 
   const onCurrentUserLocationClick = withLocationPickerState((location) => {
     showPopup('current-user-location', {
@@ -606,7 +588,6 @@ const Map = ({
       <EventsLayer
           mapImages={mapImages}
           onEventClick={onSelectEvent}
-          onClusterClick={onClusterClick}
           bounceEventIDs={bounceEventIDs}
         />
 

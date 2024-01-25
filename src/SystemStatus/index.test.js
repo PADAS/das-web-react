@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from '../__test-helpers/MockStore';
 import { STATUSES } from '../constants';
 import SystemStatus from './';
+import { render, screen } from '../test-utils';
 
 describe('SystemStatus', () => {
   let store;

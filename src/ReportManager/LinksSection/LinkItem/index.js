@@ -1,32 +1,31 @@
 import React, { memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { TrackerContext } from '../../../utils/analytics';
-
-import { openModalForPatrol } from '../../../utils/patrols';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { MapContext } from '../../../App';
+import { openModalForPatrol } from '../../../utils/patrols';
+import { TrackerContext } from '../../../utils/analytics';
 import { useFeatureFlag } from '../../../hooks';
 
+import Link from '../../../Link';
 import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
 
 import styles from './styles.module.scss';
-import Link from '../../../Link';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
 const LINK_TYPES = { PATROL: 'patrol', REPORT: 'report' };
 
 const LinkItem = ({ item, to, type }) => {
-  const map = useContext(MapContext);
+  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
+
   const analytics = useContext(TrackerContext);
+  const map = useContext(MapContext);
 
   const onClick = useCallback(() => {
     analytics?.track(`Navigate to ${type} from links section`);
   }, [analytics, type]);
-
-  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   if (type === LINK_TYPES.PATROL) {
     if (enableNewPatrolUI) {

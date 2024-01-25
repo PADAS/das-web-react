@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
-import { connect  } from 'react-redux';
 import { calcGpsDisplayString } from '../utils/location';
-
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { validateLngLat } from '../utils/location';
 
@@ -9,20 +10,33 @@ import Popup from '../Popup';
 
 import styles from './styles.module.scss';
 
-const MouseMarkerPopup = (props) => {
-  const { gpsFormat, location, ...rest } = props;
-  const popupCoords = location && validateLngLat(location.lng, location.lat) ? [location.lng, location.lat] : null;
-  const popupOffset = [-8, 0];
-  const popupAnchorPosition = 'right';
+const MouseMarkerPopup = ({ location, ...rest }) => {
+  const { t } = useTranslation('map-popups', { keyPrefix: 'mouseMarkerPopup' });
 
-  return popupCoords && <Popup className={styles.popup} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition} {...rest}>
-    <p>Click map to place marker.</p>
-    <p>
-      {popupCoords && calcGpsDisplayString(popupCoords[1], popupCoords[0], gpsFormat)}
-    </p>
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
+  return location && validateLngLat(location.lng, location.lat) && <Popup
+      anchor="right"
+      className={styles.popup}
+      coordinates={[location.lng, location.lat]}
+      offset={[-8, 0]}
+      {...rest}
+    >
+    <p>{t('title')}</p>
+
+    <p>{calcGpsDisplayString(location.lat, location.lng, gpsFormat)}</p>
   </Popup>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ gpsFormat });
+MouseMarkerPopup.defaultProps = {
+  location: null,
+};
 
-export default connect(mapStateToProps, null)(memo(MouseMarkerPopup));
+MouseMarkerPopup.propTypes = {
+  location: PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number,
+  }),
+};
+
+export default memo(MouseMarkerPopup);

@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useReactToPrint } from 'react-to-print';
+import { useTranslation } from 'react-i18next';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
@@ -18,6 +19,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolMenu = (props) => {
   const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, isPatrolCancelled, showPatrolPrintOption, ...rest } = props;
+  const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
 
   const patrolState = calcPatrolState(patrol);
 
@@ -54,13 +56,13 @@ const PatrolMenu = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
 
   const patrolStartStopTitle = useMemo(() => {
-    if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
-    return 'Start Patrol';
+    if (canEnd || patrolIsCancelled || patrolIsDone) return t('endPatrol');
+    return t('startPatrol');
   }, [canEnd, patrolIsCancelled, patrolIsDone]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore Patrol';
-    return 'Cancel Patrol';
+    if (canRestorePatrol) return t('restorePatrol');
+    return t('cancelPatrol');
   }, [canRestorePatrol]);
 
   const togglePatrolCancelationState = useCallback(() => {
@@ -106,14 +108,16 @@ const PatrolMenu = (props) => {
       { (canEditPatrol && !isPatrolCancelled) && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
       { (!!patrol.id && !isPatrolCancelled) && <Item className={styles.copyBtn}>
         <TextCopyBtn
-            label='Copy patrol link'
+            label={t('copyButton')}
             text={`${DAS_HOST}/patrols/${patrol.id}`}
             icon={null}
-            successMessage='Link copied'
+            successMessage={t('copyButtonMessage')}
             permitPropagation
         />
       </Item>}
-      { showPatrolPrintOption && <Item onClick={handlePrint}>Print patrol</Item> }
+      { showPatrolPrintOption && <Item onClick={handlePrint}>
+        {t('printPatrolButton')}
+      </Item> }
     </Menu>
   </Dropdown>;
 };

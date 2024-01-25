@@ -32,11 +32,11 @@ const calculateInputDisplayString = (location, gpsFormat, placeholder) => {
 const LocationSelectorInput = ({
   className,
   copyable = true,
-  label,
   location,
   onLocationChange,
   placeholder,
   popoverClassName,
+  ...restProps
 }) => {
   const dispatch = useDispatch();
 
@@ -44,6 +44,7 @@ const LocationSelectorInput = ({
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const { t } = useTranslation('details-view', { keyPrefix: 'locationSelector' });
   const map = useContext(MapContext);
+  const { label = t('inputLabel') } = restProps ;
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
@@ -56,7 +57,6 @@ const LocationSelectorInput = ({
 
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   const shouldShowCopyButton = copyable && (displayString !== locationInputPlaceholder);
-  const locationLabel = label ?? t('inputLabel');
 
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -137,7 +137,7 @@ const LocationSelectorInput = ({
     onKeyDown={onLabelKeyDown}
     ref={locationInputLabelRef}
     >
-    {!!locationLabel && <span data-testid="locationSelectorInput-label">{locationLabel}</span>}
+    {!!label && <span data-testid="locationSelectorInput-label">{label}</span>}
 
     <div
       className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`}
@@ -187,7 +187,6 @@ export default debounceRender(memo(LocationSelectorInput));
 LocationSelectorInput.defaultProps = {
   className: '',
   copyable: true,
-  label: null,
   location: null,
   placeholder: null,
   popoverClassName: '',

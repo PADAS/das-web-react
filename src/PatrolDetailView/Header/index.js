@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
@@ -42,6 +43,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   } = usePatrol(patrol);
 
   const titleInput = useRef();
+  const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
 
   const isNewPatrol = !patrol.id;
 
@@ -52,7 +54,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span data-testid="patrol-drawer-header-details">Scheduled {scheduledStartTime}</span>;
+      return <span data-testid="patrol-drawer-header-details">{t('patrolSchedule', { scheduledStartTime })}</span>;
     }
     return null;
   }, [
@@ -127,7 +129,9 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     </div>
 
     {!isNewPatrol && <div className={styles.description} data-testid="patrol-drawer-header-description">
-      <span style={{ color: (theme?.fontColor ?? theme?.base) }}>{patrolState.title}</span>
+      <span style={{ color: (theme?.fontColor ?? theme?.base) }}>
+        {t(`uiStateTitles.${patrolState.key}`)}
+      </span>
       <br />
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
@@ -141,7 +145,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       variant="secondary"
     >
       <PlayIcon />
-      Start
+      {t('patrolStartButton')}
     </Button>}
 
     {isPatrolCancelled && <Button
@@ -150,7 +154,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       type="button"
       variant="secondary"
     >
-      Restore
+      {t('patrolRestoreButton')}
     </Button>}
 
     {!isNewPatrol && <PatrolMenu isPatrolCancelled={isPatrolCancelled} printableContentRef={printableContentRef} onPatrolChange={onPatrolChange} patrol={patrol} patrolTitle={title} />}

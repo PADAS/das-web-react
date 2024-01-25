@@ -1,13 +1,14 @@
 import React from 'react';
-import PrioritySelect from './';
-import { REPORT_PRIORITIES, REPORT_PRIORITY_HIGH } from '../constants';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { render, screen } from '../test-utils';
+import { REPORT_PRIORITIES, REPORT_PRIORITY_HIGH } from '../constants';
+
+import PrioritySelect from './';
 
 describe('PrioritySelect', () => {
   const selectedPriority = REPORT_PRIORITY_HIGH;
-  const testId = `priority-select-${selectedPriority.display}`;
+  const testId = `priority-select-${selectedPriority.key}`;
   const initialProps = {
     onChange: () => {},
     isDisabled: false,
@@ -21,8 +22,8 @@ describe('PrioritySelect', () => {
     renderPrioritySelect();
     const list = screen.getByText(selectedPriority.display);
     userEvent.click(list);
-    REPORT_PRIORITIES.forEach(({ display }) => {
-      const currentTestId = `priority-select-${display}`;
+    REPORT_PRIORITIES.forEach(({ key }) => {
+      const currentTestId = `priority-select-${key}`;
       expect( screen.getByTestId(currentTestId) ).toBeInTheDocument();
     });
   });

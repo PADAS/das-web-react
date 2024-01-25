@@ -1,20 +1,28 @@
 import React, { useContext, useEffect } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import NavigationPromptModal from './';
 import { NavigationContext } from '../NavigationContextProvider';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import { render, screen, waitFor } from '../test-utils';
 
 const TITLE_TEXT = 'Unsaved Changes';
 
 describe('NavigationPromptModal', () => {
   const onCancel = jest.fn(), onContinue = jest.fn();
+  const initialProps = {
+    onCancel,
+    onContinue,
+  };
+
+  const renderNavigationPromptModal = (props = initialProps, Children = null) => render(
+    <>
+      {Children && <Children />}
+      <NavigationPromptModal {...props} />
+    </>
+  );
 
   test('does not show the prompt modal "when" is false', async () => {
-    render(<NavigationWrapper>
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when={false} />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: false });
 
     await expect(async () => await screen.findByText(TITLE_TEXT))
       .rejects
@@ -22,9 +30,7 @@ describe('NavigationPromptModal', () => {
   });
 
   test('does not show the prompt modal if there is not a pending navigation attempt', async () => {
-    render(<NavigationWrapper>
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: true });
 
     await expect(async () => await screen.findByText(TITLE_TEXT))
       .rejects
@@ -44,19 +50,13 @@ describe('NavigationPromptModal', () => {
       return null;
     };
 
-    render(<NavigationWrapper>
-      <ChildComponent />
-
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
     await screen.findByText(TITLE_TEXT);
   });
 
   test('forces to show the modal even if when is false', async () => {
-    render(<NavigationWrapper>
-      <NavigationPromptModal show when={false} />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: false, show: true });
 
     await screen.findByText(TITLE_TEXT);
   });
@@ -73,12 +73,7 @@ describe('NavigationPromptModal', () => {
 
       return null;
     };
-
-    render(<NavigationWrapper>
-      <ChildComponent />
-
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
     await screen.findByText(TITLE_TEXT);
 
@@ -106,11 +101,7 @@ describe('NavigationPromptModal', () => {
       return null;
     };
 
-    render(<NavigationWrapper>
-      <ChildComponent />
-
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
     await screen.findByText(TITLE_TEXT);
 
@@ -141,11 +132,7 @@ describe('NavigationPromptModal', () => {
       return null;
     };
 
-    render(<NavigationWrapper>
-      <ChildComponent />
-
-      <NavigationPromptModal onCancel={onCancel} onContinue={onContinue} when />
-    </NavigationWrapper>);
+    renderNavigationPromptModal({ ...initialProps, when: true }, ChildComponent);
 
     await screen.findByText(TITLE_TEXT);
 

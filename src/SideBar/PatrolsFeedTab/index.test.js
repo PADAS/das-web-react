@@ -1,12 +1,11 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from '../../hooks/useNavigate';
+import { render, screen } from '../../test-utils';
 
 import PatrolsFeedTab from './';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
@@ -32,11 +31,9 @@ describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;
   const renderPatrolsFeedTab = () => render(
     <Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <SidebarScrollProvider>
-          <PatrolsFeedTab />
-        </SidebarScrollProvider>
-      </NavigationWrapper>
+      <SidebarScrollProvider>
+        <PatrolsFeedTab />
+      </SidebarScrollProvider>
     </Provider>
   );
   beforeEach(() => {

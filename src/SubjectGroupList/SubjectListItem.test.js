@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { MapContext } from '../App';
@@ -7,6 +6,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
 import { staticSubjectFeature, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
+import { render, screen } from '../test-utils';
 
 import SubjectListItem from './SubjectListItem';
 

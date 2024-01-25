@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -22,6 +21,7 @@ import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
 import { notes } from '../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
+import { render, screen, waitFor, within } from '../test-utils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

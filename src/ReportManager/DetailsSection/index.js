@@ -3,12 +3,14 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import isToday from 'date-fns/is_today';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
 import { ResizeSpinLoader } from 'react-css-loaders';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -16,7 +18,6 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
-import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import {
   AddButton,
@@ -45,6 +46,7 @@ const LOADER_SIZE = 4;
 const DetailsSection = ({
   formSchema,
   formUISchema,
+  formValidator,
   isCollection,
   loadingSchema,
   onFormChange,
@@ -58,14 +60,15 @@ const DetailsSection = ({
   onReportStateChange,
   onReportTimeChange,
   originalReport,
-  formValidator,
   reportForm,
   submitFormButtonRef,
 }, ref) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
+  const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
 
@@ -74,11 +77,6 @@ const DetailsSection = ({
     && eventTypes
     && calcGeometryTypeForReport(reportForm, eventTypes)
   , [eventTypes, reportForm]);
-
-  const reportLocation = useMemo(
-    () => !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null,
-    [reportForm.location]
-  );
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
@@ -102,20 +100,20 @@ const DetailsSection = ({
       <div className={styles.title}>
         <PencilWritingIcon />
 
-        <h2>Details</h2>
+        <h2>{t('detailsHeader')}</h2>
       </div>
 
       <div>
         <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
           <Dropdown.Toggle variant="success">
-            {reportState}
+            {t(`stateDropdown.${reportState}`)}
           </Dropdown.Toggle>
 
           <Dropdown.Menu className={styles.stateDropdownMenu}>
             {Object.values(EVENT_FORM_STATES)
               .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
               .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
-                {eventState}
+                {t(`stateDropdown.${eventState}`)}
               </Dropdown.Item>)}
           </Dropdown.Menu>
         </Dropdown>
@@ -125,36 +123,48 @@ const DetailsSection = ({
     <div className={styles.container}>
       <div className={styles.row}>
         {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
-          Reported By
-          <ReportedBySelect isDisabled={formSchema?.readonly} onChange={onReportedByChange} value={reportForm?.reported_by} />
+          {t('reportedByLabel')}
+
+          <ReportedBySelect
+            isDisabled={formSchema?.readonly}
+            onChange={onReportedByChange}
+            value={reportForm?.reported_by}
+          />
         </label>}
 
-        <label data-testid="reportManager-prioritySelector" className={styles.fieldLabel}>
-          Priority
-          <PrioritySelect isDisabled={formSchema?.readonly} onChange={onPriorityChange} priority={reportForm?.priority} />
+        <label className={styles.fieldLabel} data-testid="reportManager-prioritySelector">
+          {t('priorityLabel')}
+
+          <PrioritySelect
+            isDisabled={formSchema?.readonly}
+            onChange={onPriorityChange}
+            priority={reportForm?.priority}
+          />
         </label>
       </div>
 
       {!isCollection && <div className={styles.row}>
-        <label data-testid="reportManager-reportLocationSelect" className={styles.fieldLabel}>
-          Report location
+        <label className={styles.fieldLabel} data-testid="reportManager-reportLocationSelect">
+          {t('locationLabel')}
+
           {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-              ? <AreaSelectorInput
-                  event={reportForm}
-                  originalEvent={originalReport}
-                  onGeometryChange={onReportGeometryChange}
-              />
-              : <LocationSelectorInput
-                  label={null}
-                  location={reportLocation}
-                  onLocationChange={onReportLocationChange}
-              />
+            ? <AreaSelectorInput
+              event={reportForm}
+              originalEvent={originalReport}
+              onGeometryChange={onReportGeometryChange}
+            />
+            : <LocationSelectorInput
+              label={null}
+              location={reportLocation}
+              onLocationChange={onReportLocationChange}
+            />
           }
         </label>
 
         <div className={styles.reportDateTimeContainer}>
-          <label data-testid="reportManager-datePicker" className={`${styles.fieldLabel} ${styles.datePickerLabel}`}>
-            Report Date
+          <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`} data-testid="reportManager-datePicker">
+            {t('dateLabel')}
+
             <DatePicker
               className={styles.datePicker}
               disabled={formSchema?.readonly}
@@ -164,8 +174,9 @@ const DetailsSection = ({
             />
           </label>
 
-          <label data-testid="reportManager-timePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
-            Report Time
+          <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`} data-testid="reportManager-timePicker">
+            {t('timeLabel')}
+
             <TimePicker
               disabled={formSchema?.readonly}
               maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
@@ -185,26 +196,26 @@ const DetailsSection = ({
     </div>
 
     {!!formSchema && <Form
-        className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
-        disabled={formSchema?.readonly}
-        fields={{ externalLink: ExternalLinkField }}
-        formData={reportForm.event_details}
-        onChange={onFormChange}
-        onError={onFormError}
-        onSubmit={onFormSubmit}
-        schema={formSchema}
-        showErrorList={false}
-        templates={{
-          ArrayFieldItemTemplate,
-          ArrayFieldTemplate,
-          BaseInputTemplate,
-          ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
-          ObjectFieldTemplate,
-        }}
-        transformErrors={transformErrors}
-        uiSchema={formUISchema}
-        validator={formValidator}
-      >
+      className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
+      disabled={formSchema?.readonly}
+      fields={{ externalLink: ExternalLinkField }}
+      formData={reportForm.event_details}
+      onChange={onFormChange}
+      onError={onFormError}
+      onSubmit={onFormSubmit}
+      schema={formSchema}
+      showErrorList={false}
+      templates={{
+        ArrayFieldItemTemplate,
+        ArrayFieldTemplate,
+        BaseInputTemplate,
+        ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
+        ObjectFieldTemplate,
+      }}
+      transformErrors={transformErrors}
+      uiSchema={formUISchema}
+      validator={formValidator}
+    >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
@@ -216,14 +227,17 @@ const DetailsSection = ({
   </div>;
 };
 
-DetailsSection.defaultProps = {
+const DetailsSectionForwardRef = forwardRef(DetailsSection);
+
+DetailsSectionForwardRef.defaultProps = {
   formSchema: null,
   formUISchema: null,
 };
 
-DetailsSection.propTypes = {
+DetailsSectionForwardRef.propTypes = {
   formSchema: PropTypes.object,
   formUISchema: PropTypes.object,
+  formValidator: PropTypes.object.isRequired,
   isCollection: PropTypes.bool.isRequired,
   loadingSchema: PropTypes.bool.isRequired,
   onFormChange: PropTypes.func.isRequired,
@@ -237,8 +251,7 @@ DetailsSection.propTypes = {
   onReportTimeChange: PropTypes.func.isRequired,
   originalReport: PropTypes.object.isRequired,
   reportForm: PropTypes.object.isRequired,
-  formValidator: PropTypes.object.isRequired,
   submitFormButtonRef: PropTypes.object.isRequired,
 };
 
-export default memo(forwardRef(DetailsSection));
+export default memo(DetailsSectionForwardRef);

@@ -1,0 +1,19 @@
+{
+  "analyzerConfigPopup": {
+    "analyzerTypeHeader": {
+      "environmental": "Ambiental",
+      "generic": "Genérico",
+      "geofence": "Geocerca",
+      "immobility": "Inmobilidad",
+      "proximity": "Proximidad",
+      "subject_proximity": "Proximidad de sujeto",
+      "low_speed": "Baja velocidad"
+    }
+  },
+  "layerSelectorPopup": {
+    "searchBarPlaceholder": "Buscar"
+  },
+  "mouseMarkerPopup": {
+    "title": "Hacer click en el mapa para colocar el marcador."
+  }
+}

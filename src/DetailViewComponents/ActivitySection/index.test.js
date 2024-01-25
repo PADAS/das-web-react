@@ -10,8 +10,8 @@ import { EVENT_TYPE_SCHEMA_API_URL } from '../../ducks/event-schemas';
 import { files, notes, report } from '../../__test-helpers/fixtures/reports';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';
-import { TrackerContext } from '../../utils/analytics';
 import { render, screen, waitFor, within } from '../../test-utils';
+import { TrackerContext } from '../../utils/analytics';
 
 jest.mock('../../utils/file', () => ({
   ...jest.requireActual('../../utils/file'),

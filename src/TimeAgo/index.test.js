@@ -1,15 +1,14 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
 
 import subMinutes from 'date-fns/sub_minutes';
 import subSeconds from 'date-fns/sub_seconds';
 import subHours from 'date-fns/sub_hours';
-import subDays from 'date-fns/sub_days';
 import subMonths from 'date-fns/sub_months';
 import subYears from 'date-fns/sub_years';
 
 import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
+import { render, screen } from '../test-utils';
 
 beforeEach(() => {
   const mockSystemTime = new Date('2021-02-01');
@@ -26,10 +25,14 @@ afterEach(async () => {
 
 
 describe('the TimeAgo component', () => {
+
+  const renderTimeAgo = (props) => render(
+    <TimeAgo {...props} />
+  );
+
   it('displays descriptive times for durations under one minute', async () => {
     const testDate = subMinutes(new Date(), 30);
-
-    render(<TimeAgo date={testDate} />);
+    renderTimeAgo({ date: testDate });
 
     const component = await screen.findByTestId('time-ago');
 
@@ -39,7 +42,7 @@ describe('the TimeAgo component', () => {
   it('displays descriptive times for durations under one hour', async () => {
     const testDate = subSeconds(new Date(), 30);
 
-    render(<TimeAgo date={testDate} />);
+    renderTimeAgo({ date: testDate });
 
     const component = await screen.findByTestId('time-ago');
 
@@ -55,7 +58,7 @@ describe('the TimeAgo component', () => {
         , 1)
       , 1);
 
-    render(<TimeAgo date={date} />);
+    renderTimeAgo({ date });
 
     const component = await screen.findByTestId('time-ago');
 
@@ -66,7 +69,7 @@ describe('the TimeAgo component', () => {
     const testDate = subSeconds(new Date(), 30);
     const testPrefix = 'about';
 
-    render(<TimeAgo date={testDate} prefix={testPrefix} />);
+    renderTimeAgo({ date: testDate, prefix: testPrefix });
 
     const component = await screen.findByTestId('time-ago');
 
@@ -77,7 +80,8 @@ describe('the TimeAgo component', () => {
     const testDate = subSeconds(new Date(), 30);
     const testSuffix = 'ago';
 
-    render(<TimeAgo date={testDate} suffix={testSuffix} />);
+    renderTimeAgo({ date: testDate, suffix: testSuffix });
+
 
     const component = await screen.findByTestId('time-ago');
 

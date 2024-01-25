@@ -1,7 +1,5 @@
 import React from 'react';
-import { I18nextProvider } from 'react-i18next';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation } from 'react-router-dom';
@@ -12,14 +10,13 @@ import { events, eventWithPoint } from '../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../ducks/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols } from '../ducks/patrols';
-import i18n from '../i18nForTests';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
@@ -127,17 +124,13 @@ describe('SideBar', () => {
   };
 
   const renderSideBar = (mockedStore = mockStore(store)) => render(
-    <I18nextProvider i18n={i18n}>
-      <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <MapContext.Provider value={map}>
-              <SideBar />
-            </MapContext.Provider>
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    </I18nextProvider>
+    <Provider store={mockedStore}>
+      <MockSocketProvider>
+        <MapContext.Provider value={map}>
+          <SideBar />
+        </MapContext.Provider>
+      </MockSocketProvider>
+    </Provider>
   );
 
   test('shows the patrols tab if user has permissions', async () => {

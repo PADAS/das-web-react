@@ -1,4 +1,5 @@
 import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
+import throttle from 'lodash/throttle';
 import PropTypes from 'prop-types';
 
 import { addMapImage } from '../utils/map';
@@ -31,9 +32,9 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
     stopMovingReportMarker();
   };
 
-  const onMouseMove = (e) => {
+  const onMouseMove = throttle((e) => {
     setMarkerLocation(e.lngLat);
-  };
+  }, 50);
 
   const cleanupFunc = useRef(cleanupMarkerStateFromMap);
   const mouseMoveFunc = useRef(onMouseMove);

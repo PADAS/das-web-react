@@ -44,7 +44,7 @@ const NavigationPromptModal = ({
     blocker.proceed();
   }, [blocker, onContinue]);
 
-  return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
+  return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...restProps} onHide={handleCancel}>
     <Modal.Header closeButton>
       <Modal.Title>{title}</Modal.Title>
     </Modal.Header>

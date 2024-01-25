@@ -1,42 +1,57 @@
-import React, { memo, forwardRef } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { memo, forwardRef, useMemo } from 'react';
 import isObject from 'lodash/isObject';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-import DasIcon from '../DasIcon';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { displayEventTypes } from '../selectors/event-types';
 
+import DasIcon from '../DasIcon';
+
 import styles from './styles.module.scss';
 
-const EventIcon = forwardRef(({ report, eventTypes, ...rest }, ref) => { /* eslint-disable-line react/display-name */
-  const { is_collection } = report;
-  const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
+const EventIcon = ({ report, ...rest }, ref) => {
+  const eventTypes = useSelector(displayEventTypes);
 
-  if (!is_collection) {
-    let iconId = null;
-    const matchingEventType = eventTypes.find(({ value }) => value ===
-     ( isPatrol ? report?.patrol_segments?.[0]?.patrol_type : report.event_type));
-    if (matchingEventType) iconId = matchingEventType.icon_id;
-    return <DasIcon type='events' iconId={iconId} {...rest} />;
+  const topRatedReportAndType = useMemo(
+    () => report.is_collection ? calcTopRatedReportAndTypeForCollection(report, eventTypes) : null,
+    [eventTypes, report]
+  );
+
+  const iconId = useMemo(() => {
+    if (!report.is_collection) {
+      const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
+      const type = isPatrol ? report?.patrol_segments?.[0]?.patrol_type : report.event_type;
+      const matchingEventType = eventTypes.find((eventType) => eventType.value === type);
+
+      if (matchingEventType) {
+        return matchingEventType.icon_id;
+      }
+    }
+    return null;
+  }, [eventTypes, report.event_type, report.is_collection, report.patrol_segments]);
+
+  if (!report.is_collection) {
+    return <DasIcon iconId={iconId} type="events" {...rest} />;
   }
 
-  const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+  return <span className={styles.wrapper} ref={ref}>
+    <DasIcon iconId="incident_collection" type="events" {...rest} />
 
-  return <span ref={ref} className={styles.wrapper}>
-    <DasIcon type='events' iconId='incident_collection'  {...rest}  />
-    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events' {...rest}
-      style={{
-        fill: 'white',
-      }}
-      className={styles.content} iconId={topRatedReportAndType.event_type.icon_id} />}
+    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon
+      type="events"
+      {...rest}
+      className={styles.content}
+      iconId={topRatedReportAndType.event_type.icon_id}
+      style={{ fill: 'white' }}
+    />}
   </span>;
-});
+};
 
-const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
+const EventIconForwardRef = forwardRef(EventIcon);
 
-export default connect(mapStateToProps, null)(memo(EventIcon));
-
-EventIcon.propTypes = {
+EventIconForwardRef.propTypes = {
   report: PropTypes.object.isRequired,
 };
+
+export default memo(EventIconForwardRef);

@@ -1,0 +1,19 @@
+{
+  "analyzerConfigPopup": {
+    "analyzerTypeHeader": {
+      "environmental": "Environmental",
+      "generic": "Generic",
+      "geofence": "Geofence",
+      "immobility": "Immobility",
+      "proximity": "Proximity",
+      "subject_proximity": "Subject proximity",
+      "low_speed": "Low speed"
+    }
+  },
+  "layerSelectorPopup": {
+    "searchBarPlaceholder": "Search"
+  },
+  "mouseMarkerPopup": {
+    "title": "Click map to place marker."
+  }
+}

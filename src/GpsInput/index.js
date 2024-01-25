@@ -4,12 +4,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import {
   calcActualGpsPositionForRawText,
   calcGpsDisplayString,
   GPS_FORMAT_EXAMPLES,
-  GPS_FORMAT_LABELS,
   validateLngLat,
 } from '../utils/location';
 
@@ -19,8 +19,17 @@ import styles from './styles.module.scss';
 
 const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...rest }) => {
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const { t } = useTranslation('details-view', { keyPrefix: 'gpsInput' });
 
   const hasInitialLocation = !!lngLat && lngLat.length === 2;
+
+  const gpsFormatLabels = {
+    DDM: t('gpsFormatDDMLabel'),
+    DEG: t('gpsFormatDEGLabel'),
+    DMS: t('gpsFormatDMSLabel'),
+    UTM: t('gpsFormatUTMLabel'),
+    MGRS: t('gpsFormatMGRSLabel')
+  };
 
   const [inputValue, setInputValue] = useState(hasInitialLocation
     ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
@@ -85,7 +94,7 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
           className={!isValid ? styles.error : ''}
           onBlur={onInputBlur}
           onChange={onInputChange}
-          placeholder={GPS_FORMAT_LABELS[gpsFormat] || 'Location'}
+          placeholder={gpsFormatLabels[gpsFormat] || t('defaultLabel')}
           type="text"
           value={inputValue}
           {...rest}
@@ -98,7 +107,10 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
     </div>
 
     <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
-      {isValid ? `Example: ${GPS_FORMAT_EXAMPLES[gpsFormat]}` : 'Invalid location'}
+      {isValid
+          ? t('exampleLabel', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
+          : t('invalidLocation')
+      }
     </small>
   </>;
 };

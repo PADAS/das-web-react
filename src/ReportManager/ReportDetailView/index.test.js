@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { point } from '@turf/helpers';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
@@ -16,8 +17,8 @@ import { TrackerContext } from '../../utils/analytics';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
+import NavigationContextProvider from '../../NavigationContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { PATROLS_API_URL } from '../../ducks/patrols';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import ReportDetailView from './';
@@ -142,15 +143,17 @@ describe('ReportManager - ReportDetailView', () => {
     map = createMapMock();
 
     Wrapper = ({ children }) => <Provider store={store}> {/* eslint-disable-line react/display-name */}
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <SidebarScrollProvider>
-              {children}
-            </SidebarScrollProvider>
-          </TrackerContext.Provider>
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MemoryRouter>
+        <NavigationContextProvider>
+          <MapContext.Provider value={map}>
+            <TrackerContext.Provider value={{ track: jest.fn() }}>
+              <SidebarScrollProvider>
+                {children}
+              </SidebarScrollProvider>
+            </TrackerContext.Provider>
+          </MapContext.Provider>
+        </NavigationContextProvider>
+      </MemoryRouter>
     </Provider>;
 
     state = {
