@@ -3,6 +3,8 @@ import { initReactI18next } from 'react-i18next';
 
 import loginEnUS from '../public/locales/en-US/login.json';
 import mapPopupsEnUS from '../public/locales/en-US/map-popups.json';
+import reportsEnUS from '../public/locales/en-US/reports.json';
+import settingsEnUS from '../public/locales/en-US/settings.json';
 import sideBarEnUS from '../public/locales/en-US/side-bar.json';
 
 i18n
@@ -19,6 +21,8 @@ i18n
       'en-US': {
         'login': loginEnUS,
         'map-popups': mapPopupsEnUS,
+        'reports': reportsEnUS,
+        'settings': settingsEnUS,
         'side-bar': sideBarEnUS,
       },
     },

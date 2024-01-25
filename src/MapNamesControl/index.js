@@ -1,26 +1,33 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { connect } from 'react-redux';
-import startCase from 'lodash/startCase';
-import some from 'lodash/some';
+import React, { useCallback, useEffect, useState } from 'react';
 import set from 'lodash/set';
+import some from 'lodash/some';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { toggleMapNamesState } from '../ducks/map-ui';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapNamesControl = ({ showMapNames, toggleMapNamesState }) => {
-  const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-  const [layersValues, setLayersValues] = useState({ ...showMapNames });
+const MapNamesControl = () => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('settings', { keyPrefix: 'mapNamesControl' });
+
+  const showMapNames = useSelector((state) => state.view.showMapNames);
+
   const [allChecked, setAllChecked] = useState(true);
-  const [isIndeterminate, setIndeterminate] = useState(false);
+  const [isIndeterminate, setIsIndeterminate] = useState(false);
+  const [layersValues, setLayersValues] = useState({ ...showMapNames });
 
   useEffect(() => {
     const hasFalsyValues = some(Object.values(showMapNames), { enabled: false });
     const hasTrulyValues = some(Object.values(showMapNames), { enabled: true });
 
     setAllChecked(!hasFalsyValues);
-    setIndeterminate(hasFalsyValues && hasTrulyValues);
-  }, [showMapNames, toggleMapNamesState]);
+    setIsIndeterminate(hasFalsyValues && hasTrulyValues);
+  }, [showMapNames]);
 
   const switchAllOptions = useCallback(() => {
     const newNamesState = { ...layersValues };
@@ -29,50 +36,55 @@ const MapNamesControl = ({ showMapNames, toggleMapNamesState }) => {
       newNamesState[key].enabled = newValue;
     }
 
-    toggleMapNamesState(newNamesState);
+    dispatch(toggleMapNamesState(newNamesState));
     setLayersValues({ ...newNamesState });
     setAllChecked(newValue);
+
     mapInteractionTracker.track(`${newValue ? 'Check' : 'Uncheck' } 'Show Names' checkbox`);
-  }, [allChecked, layersValues, mapInteractionTracker, toggleMapNamesState]);
+  }, [allChecked, dispatch, layersValues]);
 
   const handleChange = useCallback((layerID, value) => {
     const newNamesState = set({ ...layersValues }, `${layerID}.enabled`, value);
-    toggleMapNamesState(newNamesState);
+
+    dispatch(toggleMapNamesState(newNamesState));
     setLayersValues({ ...newNamesState });
-    mapInteractionTracker.track(`${value ? 'Check' : 'Uncheck'} 'Show ${startCase(layersValues[layerID].label)} Names' checkbox`);
-  }, [layersValues, mapInteractionTracker, toggleMapNamesState]);
+
+    mapInteractionTracker
+      .track(`${value ? 'Check' : 'Uncheck'} 'Show ${t(`layerLabels.${layersValues[layerID].key}`)} Names' checkbox`);
+  }, [dispatch, layersValues, t]);
 
   return <>
     <label>
       <input
-      type='checkbox'
-      id='showAllNames'
-      checked={allChecked}
-      ref={input => {
-        if (input) {
-          input.indeterminate = isIndeterminate;
-        }
-      }}
-      onChange={switchAllOptions}
+        checked={allChecked}
+        id="showAllNames"
+        onChange={switchAllOptions}
+        ref={(input) => {
+          if (input) {
+            input.indeterminate = isIndeterminate;
+          }
+        }}
+        type="checkbox"
       />
-      <span className={styles.checkboxlabel}>All</span>
+
+      <span className={styles.checkboxlabel}>{t('allCheckboxLabel')}</span>
     </label>
+
     <ul className={styles.subListItems}>
-      {Object.keys(layersValues).map(layerKey => {
-        return (
-          <li key={layerKey}>
-            <label>
-              <input type='checkbox' id={layerKey} checked={layersValues[layerKey].enabled} onChange={(e) => handleChange(layerKey, e.target.checked)}/>
-              <span className={styles.checkboxlabel}>{layersValues[layerKey].label}</span>
-            </label>
-          </li>
-      );})}
+      {Object.keys(layersValues).map((layerKey) => <li key={layerKey}>
+        <label>
+          <input
+            type="checkbox"
+            id={layerKey}
+            checked={layersValues[layerKey].enabled}
+            onChange={(e) => handleChange(layerKey, e.target.checked)}
+          />
+
+          <span className={styles.checkboxlabel}>{t(`layerLabels.${layersValues[layerKey].key}`)}</span>
+        </label>
+      </li>)}
     </ul>
   </>;
 };
 
-const mapStateToProps = ( { view: { showMapNames } } ) => {
-  return { showMapNames };
-};
-
-export default connect(mapStateToProps, { toggleMapNamesState })(MapNamesControl);
+export default MapNamesControl;

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
@@ -12,6 +11,7 @@ import { MapContext } from '../../App';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 

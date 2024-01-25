@@ -1,69 +1,84 @@
-import React, { memo, useMemo, useContext } from 'react';
+import React, { memo, useContext, useMemo } from 'react';
 import { findDOMNode } from 'react-dom';
-import PropTypes from 'prop-types';
+import { Flipped, Flipper } from 'react-flip-toolkit';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Flipper, Flipped } from 'react-flip-toolkit';
+import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
-import LoadingOverlay from '../LoadingOverlay';
-import ReportListItem from '../ReportListItem';
-import EventItemContextMenu from '../EventItemContextMenu';
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
-import { SidebarScrollContext, ScrollRestoration } from '../SidebarScrollContext';
-
-import styles from './styles.module.scss';
 import { TAB_KEYS } from '../constants';
 
-const EventFeed = (props) => {
-  const { className = '', events = [], sortConfig, hasMore, loading, onScroll, onTitleClick, onIconClick } = props;
+import EventItemContextMenu from '../EventItemContextMenu';
+import LoadingOverlay from '../LoadingOverlay';
+import ReportListItem from '../ReportListItem';
+import { ScrollRestoration, SidebarScrollContext } from '../SidebarScrollContext';
+
+import styles from './styles.module.scss';
+
+const EventFeed = ({ className, events, hasMore, loading, onScroll, onTitleClick, sortConfig }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'eventFeed' });
+
   const { scrollRef } = useContext(SidebarScrollContext);
 
-  const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
   const displayTimeProp = calcTimePropForSortConfig(sortConfig);
 
-  if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
+  const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
 
-  return <ScrollRestoration namespace={TAB_KEYS.REPORTS} className={`${className} ${styles.scrollContainer}`}>
+  if (loading) {
+    return <LoadingOverlay className={styles.loadingOverlay} />;
+  }
+
+  return <ScrollRestoration className={`${className} ${styles.scrollContainer}`} namespace={TAB_KEYS.REPORTS}>
     <InfiniteScroll
-        element='ul'
-        hasMore={hasMore}
-        loadMore={onScroll}
-        useWindow={false}
-        getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
-      >
+      element="ul"
+      getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
+      hasMore={hasMore}
+      loadMore={onScroll}
+      useWindow={false}
+    >
       <Flipper flipKey={feedEvents}>
-        {feedEvents.map((item) =>
-          <Flipped flipId={item.id} key={item.id}>
-            <EventItemContextMenu report={item} className={styles.contextMenu}>
-              <ReportListItem
-                    displayTime={item[displayTimeProp]}
-                    report={item}
-                    onTitleClick={onTitleClick}
-                    onIconClick={onIconClick} />
-            </EventItemContextMenu>
-          </Flipped>
-          )}
-        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}
-        {!!feedEvents.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
-        {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
+        {feedEvents.map((item) => <Flipped flipId={item.id} key={item.id}>
+          <EventItemContextMenu className={styles.contextMenu} report={item}>
+            <ReportListItem
+              displayTime={item[displayTimeProp]}
+              onTitleClick={onTitleClick}
+              report={item}
+            />
+          </EventItemContextMenu>
+        </Flipped>)}
+
+        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+          {t('loadingMoreReportsItem')}
+        </li>}
+
+        {!!feedEvents.length && !hasMore && <li
+          className={`${styles.listItem} ${styles.loadMessage}`}
+          key="no-more-events-to-load"
+        >
+          {t('noMoreReportsItem')}
+        </li>}
+
+        {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key="no-events-to-display">
+          {t('noReportsItem')}
+        </li>}
       </Flipper>
     </InfiniteScroll>
   </ScrollRestoration>;
 };
 
-export default memo(EventFeed);
-
 EventFeed.defaultProps = {
-  onTitleClick() {
-  },
+  className: '',
+  events: [],
 };
 
 EventFeed.propTypes = {
-  events: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
+  className: PropTypes.string,
+  events: PropTypes.array,
   hasMore: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
   onScroll: PropTypes.func.isRequired,
-  onTitleClick: PropTypes.func,
-  onIconClick: PropTypes.func,
-  map: PropTypes.object.isRequired,
+  onTitleClick: PropTypes.func.isRequired,
   sortConfig: PropTypes.array.isRequired,
 };
+
+export default memo(EventFeed);

@@ -40,11 +40,10 @@ export const eventTypeTitleForEvent = (event, eventTypes = []) => {
     (isPatrol ? event.patrol_segments[0].patrol_type : event.event_type)
   );
 
-
   if (matchingType) return matchingType.display;
   if (event.event_type) return event.event_type;
 
-  return `Unknown ${isPatrol ? 'patrol' : 'event'} type`;
+  return null;
 };
 
 export const getReporterById = (id) => {
@@ -151,18 +150,6 @@ export const createNewIncidentCollection = attributes =>
   createNewReportForEventType(
     { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, contains: [], ...attributes }
   );
-
-export const generateErrorListForApiResponseDetails = (response) => {
-  try {
-    const { response: { data: { status: { detail: details } } } } = response;
-    return Object.entries(JSON.parse(details.replace(/'/g, '"')))
-      .reduce((accumulator, [key, value]) =>
-        [{ label: key, message: value }, ...accumulator],
-      []);
-  } catch (e) {
-    return [{ label: 'Unknown error' }];
-  }
-};
 
 export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
   ...mapEventFeatureCollection,
@@ -328,25 +315,30 @@ export const calcGeometryTypeForReport = (report, eventTypes) => {
   return matchingType?.geometry_type;
 };
 
+// TODO i18n: Remove the name once all translations use the key
 export const PRIORITY_COLOR_MAP = {
   300: {
     base: colorVariables.red,
     background: colorVariables.redBg,
+    key: 'red',
     name: 'Red',
   },
   200: {
     base: colorVariables.amber,
     background: colorVariables.amberBg,
+    key: 'amber',
     name: 'Amber',
   },
   100: {
     base: colorVariables.green,
     background: colorVariables.greenBg,
+    key: 'green',
     name: 'Green',
   },
   0: {
     base: colorVariables.gray,
     background: colorVariables.grayBg,
+    key: 'none',
     name: 'None',
   },
 };

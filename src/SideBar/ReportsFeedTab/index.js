@@ -79,6 +79,7 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
         onResetAll={resetFeedSort}
         sortConfig={feedSort}
       >
+        {/* TODO i18n: Translate orderOptions, sortOptions and value label fields */}
         <ColumnSort
           className={styles.dateSort}
           onChange={setFeedSort}

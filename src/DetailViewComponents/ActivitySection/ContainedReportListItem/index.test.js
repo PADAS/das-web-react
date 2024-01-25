@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
@@ -9,7 +8,7 @@ import { EVENT_API_URL } from '../../../ducks/events';
 import { EVENT_TYPE_SCHEMA_API_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
+import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 
 import ContainedReportListItem from '.';
@@ -32,6 +31,19 @@ afterAll(() => server.close());
 describe('ActivitySection - ContainedReportListItem', () => {
   const onCollapse = jest.fn(), onExpand = jest.fn();
   let store;
+
+  const renderCursorGpsDisplay = (props = {}, mockedStore) => render(
+    <Provider store={mockedStore}>
+      <ContainedReportListItem
+        cardsExpanded={[report]}
+        report={report}
+        onCollapse={onCollapse}
+        onExpand={onExpand}
+        {...props}
+      />
+    </Provider>
+  );
+
   beforeEach(() => {
     store = { data: { eventSchemas: {}, eventStore: {}, eventTypes: [], patrolTypes: [] }, view: {} };
   });
@@ -42,18 +54,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
 
   test('fetches the report if it is not in the store', async () => {
     const mockedStore = mockStore(store);
-    render(
-      <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -65,18 +66,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('does not fetch the report if it is already in the store', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    render(
-      <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -88,18 +78,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('fetches the schema if it is not in the store', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    render(
-      <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -112,18 +91,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventStore[report.id] = report;
     store.data.eventSchemas[report.event_type] = { [report.id]: {} };
     const mockedStore = mockStore(store);
-    render(
-      <Provider store={mockedStore}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -133,53 +101,23 @@ describe('ActivitySection - ContainedReportListItem', () => {
   });
 
   test('while report has not loaded yet, link to navigate into it does not show up', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.queryByText('arrow-into.svg'))).toBeNull();
   });
 
   test('once the report is loaded, link to navigate into it shows up', async () => {
     store.data.eventStore[report.id] = report;
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.findByText('arrow-into.svg'))).toBeDefined();
   });
 
   test('user can open the report collapsible', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay({ cardsExpanded: [] }, mockedStore);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
@@ -192,18 +130,8 @@ describe('ActivitySection - ContainedReportListItem', () => {
   });
 
   test('user can close the note collapsible', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[report]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
@@ -216,18 +144,8 @@ describe('ActivitySection - ContainedReportListItem', () => {
   });
 
   test('while report has not loaded yet, the collapsible form does not show up', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.queryByText('Report Type'))).toBeNull();
   });
@@ -237,36 +155,16 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventSchemas[report.event_type] = {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.findByText('Report Type'))).toBeDefined();
   });
 
   test('while the schema has not loaded yet, the schema form does not show up', async () => {
     store.data.eventStore[report.id] = report;
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.queryByText('Species'))).toBeNull();
   });
@@ -281,18 +179,8 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventSchemas[report.event_type] = {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ContainedReportListItem
-            cardsExpanded={[]}
-            report={report}
-            onCollapse={onCollapse}
-            onExpand={onExpand}
-          />
-        </NavigationWrapper>
-      </Provider>
-    );
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
 
     expect((await screen.findByText('Species'))).toBeDefined();
   });

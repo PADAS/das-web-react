@@ -101,7 +101,6 @@ export const LAYER_IDS = {
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',
-  EVENT_CLUSTERS_CIRCLES: 'event_clusters',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject-symbol-layer',
@@ -139,10 +138,10 @@ export const SOURCE_IDS = {
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
-  [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
-  [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
-  [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
-  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
+  [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: true },
+  [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: false },
+  [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
+  [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
 };
 
 export const LAYER_PICKER_IDS = [
@@ -237,23 +236,28 @@ export const EVENT_FORM_STATES = {
   RESOLVED: 'resolved',
 };
 
+// TODO i18n: Remove the display values once all translations are done
 export const REPORT_PRIORITY_HIGH = {
   display: 'Red',
+  key: 'red',
   value: 300,
 };
 
 export const REPORT_PRIORITY_MEDIUM = {
   display: 'Amber',
+  key: 'amber',
   value: 200,
 };
 
 export const REPORT_PRIORITY_LOW = {
   display: 'Green',
+  key: 'green',
   value: 100,
 };
 
 export const REPORT_PRIORITY_NONE = {
   display: 'None',
+  key: 'none',
   value: 0,
 };
 
