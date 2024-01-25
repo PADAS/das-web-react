@@ -1,26 +1,42 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
+
+import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 
 import { TAB_KEYS } from '../../constants';
 
 import LinkItem from './LinkItem';
 
-import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import styles from './styles.module.scss';
 
-const LinksSection = ({ linkedPatrols, linkedReports }) => <div data-testid="reportManager-linksSection">
-  <div className={styles.sectionHeader}>
-    <div className={styles.title}>
-      <LinkIcon />
+const LinksSection = ({ linkedPatrols, linkedReports }) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
-      <h2>Links</h2>
+  return <div data-testid="reportManager-linksSection">
+    <div className={styles.sectionHeader}>
+      <div className={styles.title}>
+        <LinkIcon />
+
+        <h2>{t('linksSection.linksHeader')}</h2>
+      </div>
     </div>
-  </div>
 
-  {linkedReports.map((linkedReport) => <LinkItem item={linkedReport} key={linkedReport.id} type="report" to={`/${TAB_KEYS.REPORTS}/${linkedReport.id}`} />)}
+    {linkedReports.map((linkedReport) => <LinkItem
+      item={linkedReport}
+      key={linkedReport.id}
+      type="report"
+      to={`/${TAB_KEYS.REPORTS}/${linkedReport.id}`}
+    />)}
 
-  {linkedPatrols.map((linkedPatrol) => <LinkItem item={linkedPatrol} key={linkedPatrol.id} type="patrol" to={`/${TAB_KEYS.PATROLS}/${linkedPatrol.id}`} />)}
-</div>;
+    {linkedPatrols.map((linkedPatrol) => <LinkItem
+      item={linkedPatrol}
+      key={linkedPatrol.id}
+      type="patrol"
+      to={`/${TAB_KEYS.PATROLS}/${linkedPatrol.id}`}
+    />)}
+  </div>;
+};
 
 LinksSection.defaultProps = {
   linkedPatrols: [],

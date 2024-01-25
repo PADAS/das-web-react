@@ -1,6 +1,7 @@
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import {
   collectionHasMultipleValidLocations,
@@ -19,6 +20,13 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import styles from './styles.module.scss';
 
+const HOVER_EFFECTS = {
+  300: styles.highPriority,
+  200: styles.mediumPriority,
+  100: styles.lowPriority,
+  0: styles.noPriority,
+};
+
 const ReportListItem = ({
   className,
   displayTime,
@@ -29,6 +37,7 @@ const ReportListItem = ({
   showJumpButton,
 }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportListItem' });
 
   const locationClicked = useRef(false);
 
@@ -40,14 +49,7 @@ const ReportListItem = ({
     background: themeBgColor,
   } = PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
 
-  const hoverEffects = useMemo(() => ({
-    300: styles.highPriority,
-    200: styles.mediumPriority,
-    100: styles.lowPriority,
-    0: styles.noPriority,
-  }), []);
-
-  const dateTimeProp = displayTime || report.updated_at || report.time;
+  const dateTime = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
   const hasPatrols = !!report?.patrols?.length;
@@ -70,39 +72,36 @@ const ReportListItem = ({
   }, [coordinates, dispatch, jumpToLocation, report]);
 
   return <FeedListItem
-    onClick={() => onTitleClick?.(report)}
-    className={`${hoverEffects[displayPriority]} ${className}`}
-    ControlsComponent={coordinates && !!coordinates.length && showJumpButton ?
-      <LocationJumpButton
-        clickAnalytics={[
-          MAP_LAYERS_CATEGORY,
-          'Click Jump To Report Location button',
-          `Report Type:${report.event_type}`,
-        ]}
-        coordinates={coordinates}
-        isMulti={hasMultipleLocations}
-        onClick={onClickLocationJumpButton}
-      /> : undefined}
-    DateComponent={dateTimeProp && <span className={styles.dateComponent}>
-      <DateTime date={dateTimeProp} showElapsed={showElapsedTime} suffix='ago'/>
-      {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
+    className={`${HOVER_EFFECTS[displayPriority]} ${className}`}
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton ? <LocationJumpButton
+      clickAnalytics={[
+        MAP_LAYERS_CATEGORY,
+        'Click Jump To Report Location button',
+        `Report Type:${report.event_type}`,
+      ]}
+      coordinates={coordinates}
+      isMulti={hasMultipleLocations}
+      onClick={onClickLocationJumpButton}
+    /> : undefined}
+    DateComponent={dateTime && <span className={styles.dateComponent}>
+      <DateTime date={dateTime} showElapsed={showElapsedTime} suffix={t('dateTimeSuffix')}/>
+
+      {report.state === 'resolved' && <small className={styles.resolved}>{t('resolvedState')}</small>}
     </span>}
-    IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type='button'>
+    IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type="button">
       <EventIcon report={report} />
+
       {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </button>}
+    onClick={() => onTitleClick?.(report)}
+    themeBgColor={themeBgColor}
+    themeColor={themeColor}
     title={displayTitle}
     TitleComponent={<>
       <span className={styles.serialNumber}>{report.serial_number}</span>
-      <button
-        className={styles.title}
-        type='button'
-      >
-        {displayTitle}
-      </button>
+
+      <button className={styles.title} type="button">{displayTitle}</button>
     </>}
-    themeBgColor={themeBgColor}
-    themeColor={themeColor}
   />;
 };
 
@@ -113,7 +112,6 @@ ReportListItem.defaultProps = {
   onTitleClick: null,
   showElapsedTime: true,
   showJumpButton: true,
-  title: null,
 };
 
 ReportListItem.propTypes = {

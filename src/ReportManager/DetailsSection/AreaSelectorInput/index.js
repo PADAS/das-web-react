@@ -1,11 +1,10 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-
 import debounceRender from 'react-debounce-render';
-
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PolygonIcon } from '../../../common/images/icons/polygon.svg';
 
@@ -24,17 +23,16 @@ import styles from './styles.module.scss';
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const GEOMETRY_PROVENANCE_WEB = 'web';
-const INPUT_PLACEHOLDER = 'Set report area';
 
-const AreaSelectorInput = ({
-  onGeometryChange,
-  event,
-  originalEvent,
-}) => {
+const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
+
+  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
 
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
-  const { mapDrawingData, setMapDrawingData } = useContext(MapDrawingToolsContext);
+  const isDrawingEventGeometry = useSelector((state) => isPickingLocation
+    && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
@@ -45,13 +43,10 @@ const AreaSelectorInput = ({
   const [perimeterDisplayString, areaDisplayString] = useEventGeoMeasurementDisplayStrings(event, originalEvent);
 
   const displayString = event?.geometry
-    ? `${areaDisplayString} area, ${perimeterDisplayString} perimeter`
-    : INPUT_PLACEHOLDER;
+    ? t('detailsSection.areaSelectorInput.displayString', { areaDisplayString, perimeterDisplayString })
+    : t('detailsSection.areaSelectorInput.inputPlaceholder');
 
-  const shouldShowCopyButton = displayString !== INPUT_PLACEHOLDER;
-
-  const isDrawingEventGeometry = useSelector((state) => isPickingLocation
-    && state.view.mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY);
+  const shouldShowCopyButton = !!event?.geometry;
 
   const onAreaSelectStart = useCallback(() => {
     dispatch(setIsPickingLocation(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY));
@@ -158,23 +153,25 @@ const AreaSelectorInput = ({
       ref={locationInputAnchorRef}
     >
       <PolygonIcon className={styles.icon} />
+
       <span className={styles.displayString}>{displayString}</span>
+
       {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
     </div>
 
     <Overlay
       container={locationInputLabelRef.current}
-      onHide={onHidePopover}
       flip={true}
-      placement='auto'
+      onHide={onHidePopover}
+      placement="auto"
       rootClose
       shouldUpdatePosition={true}
       show={isPopoverOpen}
       target={locationInputAnchorRef.current}
     >
-      <Popover placement='bottom' className={styles.newGpsPopover}>
+      <Popover className={styles.newGpsPopover} placement="bottom">
         {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
-          <GeometryPreview onAreaSelectStart={onAreaSelectStart} event={event} onDeleteArea={onDeleteArea} />
+          <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
         </div>}
       </Popover>
     </Overlay>
@@ -189,7 +186,7 @@ AreaSelectorInput.defaultProps = {
 };
 
 AreaSelectorInput.propTypes = {
+  event: PropTypes.object.isRequired,
   onGeometryChange: PropTypes.func.isRequired,
   originalEvent: PropTypes.object.isRequired,
-  event: PropTypes.object.isRequired,
 };

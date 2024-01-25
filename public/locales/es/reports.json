@@ -1,0 +1,162 @@
+{
+  "addToIncidentModal": {
+    "modalBody": {
+      "addToNewIncidentButton": "Agregar a nuevo incidente",
+      "loadingItem": "Cargando...",
+      "noMoreEventsItem": "No hay más incidentes que mostrar."
+    },
+    "modalFooter": {
+      "cancelButton": "Cancelar"
+    },
+    "modalTitle": "Agregar a Incidente"
+  },
+  "columnSort": {
+    "popoverTitle": "Ordenar por:"
+  },
+  "errorMessages": {
+    "accordionHeaderButton": {
+      "closed": "Ver detalles",
+      "open": "Ocultar detalles"
+    }
+  },
+  "eventFeed": {
+    "loadingMoreReportsItem": "Cargando más reportes...",
+    "noMoreReportsItem": "No hay más reportes que mostrar.",
+    "noReportsItem": "No hay reportes que mostrar."
+  },
+  "eventItemContextMenu": {
+    "errorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
+    "notificationDetails": {
+      "failedReports": "ADVERTENCIA: Estos reportes aún están {{state}}",
+      "processedReports": {
+        "activated": "activos",
+        "resolved": "resueltos",
+        "title": "Estos reportes relacionados ahora están {{newState}} también:"
+      }
+    },
+    "state": {
+      "active": "activo",
+      "resolved": "resuelto"
+    },
+    "textCopyButtonItem": {
+      "label": "Copiar enlace del reporte",
+      "successMessage": "Enlace copiado"
+    },
+    "updatedCollectionInfoToast": {
+      "activated": "activada",
+      "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
+      "resolved": "resuelta"
+    },
+    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+    "updateReportStateItem": {
+      "reopen": "Reabierto",
+      "resolve": "Resuelto"
+    }
+  },
+  "prioritySelect": {
+    "labels": {
+      "amber": "Ambar",
+      "green": "Verde",
+      "none": "Ninguna",
+      "red": "Roja"
+    },
+    "placeholder": "Seleccionar"
+  },
+  "reportGeometryDrawer": {
+    "cancelationConfirmationModal": {
+      "continueEditingButton": "Continuar editando",
+      "discardButton": "Descartar",
+      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del reporte. Está seguro de querer descartar estos cambios?",
+      "modalTitle": "Descartar cambios"
+    },
+    "footer": {
+      "cancelButton": "Cancelar",
+      "saveButton": "Guardar",
+      "saveButtonTooltip": {
+        "drawing": "Solo se pueden guardar figuras cerradas",
+        "invalidGeometry": "Los segmentos de la figura no se deben intersectar"
+      }
+    },
+    "informationModal": {
+      "addingPointsHeader": "Agregar puntos",
+      "addingPointsContent": "Haz clic en cualquier parte del mapa para agregar puntos del área del reporte.",
+      "addingPointsToExistingAreaHeader": "Agregar puntos a un área existente",
+      "addingPointsToExistingAreaContent": "Coloca el cursor sobre un segmento del área del reporte, luego haz clic y arrastra el nuevo punto a la ubicación deseada.",
+      "closingAreaHeader": "Cerrar el área",
+      "closingAreaContent": "Haz clic sobre el primer punto o presiona 'enter' para cerrar el área.",
+      "deletingPointsHeader": "Borrar puntos",
+      "deletingPointsContent": "Haz clic sobre el punto que deseas borrar y presiona 'delete' o 'backspace' (retroceso) para borrarlo.",
+      "modalTitle": "Crear Área del Reporte",
+      "reportAreaHeader": "Área del Reporte",
+      "reportAreaContent": "Una figura cerrada con 3 o más puntos sin intersecciones. Las medidas de área y distancia son aproximaciones, no consideran cambios en terreno y elevación."
+    }
+  },
+  "reportListItem": {
+    "dateTimeSuffix": "atrás",
+    "resolvedState": "resuelto"
+  },
+  "reportManager": {
+    "detailsSection": {
+      "areaSelectorInput": {
+        "area": "Área: ",
+        "deleteAreaButton": "Borrar Área",
+        "deleteAreaButtonTitle": "Borrar Área",
+        "displayString": "{{areaDisplayString}} de área, {{perimeterDisplayString}} de perímetro",
+        "editAreaButton": "Editar área",
+        "editAreaButtonTitle": "Dibujar geometría",
+        "inputPlaceholder": "Colocar área del reporte",
+        "staticMapImageAlt": "Mapa estático con geometría",
+        "perimeter": "Perímetro: ",
+        "provenanceLabel": "Creado en EarthRanger {{provenance}}"
+      },
+      "dateLabel": "Fecha del Reporte",
+      "detailsHeader": "Detalles",
+      "locationLabel": "Ubicación del reporte",
+      "priorityLabel": "Prioridad",
+      "reportedByLabel": "Reportado por",
+      "stateDropdown": {
+        "active": "activo",
+        "resolved": "resuelto"
+      },
+      "timeLabel": "Hora del reporte"
+    },
+    "header": {
+      "priority": {
+        "amber": "Ambar",
+        "green": "Verde",
+        "none": "Ninguna",
+        "red": "Roja"
+      },
+      "reportMenu": {
+        "addToIncidentItem": "Agregar a Incidente",
+        "addToPatrolItem": "Agregar a Patrulla",
+        "printReportItem": "Imprimir Reporte",
+        "textCopyButtonLabel": "Copiar enlace del reporte",
+        "textCopyButtonSuccessMessage": "Enlace copiado"
+      }
+    },
+    "linksSection": {
+      "linksHeader": "Enlaces"
+    },
+    "reportDetailView": {
+      "cancelButton": "Cancelar",
+      "cantAddNoteAlert": "No se puede agregar una nueva nota: hay una nota vacía sin guardar",
+      "loadingMessage": "Cargando...",
+      "quickLinks": {
+        "activityAnchor": "Actividad",
+        "detailsAnchor": "Detalles",
+        "historyAnchor": "Histórico",
+        "linksAnchor": "Enlaces"
+      },
+      "saveErrorMessage": "Hubo un error guardando el reporte.",
+      "saveSplitButton": {
+        "saveAndReopenItem": "Guardar y reabrir",
+        "saveAndResolveItem": "Guardar y resolver",
+        "title": "Guardar"
+      },
+      "unknownErrorLabel": "Error desconocido"
+    }
+  },
+  "unknownEventTitle": "Título del reporte desconocido",
+  "unknownEventType": "Tipo de reporte desconocido"
+}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -9,7 +8,7 @@ import AreaSelectorInput from './';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { eventsWithGeometries } from '../../../__test-helpers/fixtures/events';
-import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
+import { render, screen, waitFor } from '../../../test-utils';
 import { setIsPickingLocation } from '../../../ducks/map-ui';
 import { hideSideBar, showSideBar } from '../../../ducks/side-bar';
 import { setModalVisibilityState } from '../../../ducks/modals';
@@ -97,20 +96,18 @@ describe('The AreaSelector input', () => {
 
       render(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <FormDataContext.Provider value={{}}>
-              <MapDrawingToolsContextProvider>
-                <MapContext.Provider value={map}>
-                  <AreaSelectorInput
-                    event={withNoGeo}
-                    originalEvent={withNoGeo}
-                    map={map}
-                    onGeometryChange={onGeometryChange}
-              />
-                </MapContext.Provider>
-              </MapDrawingToolsContextProvider>
-            </FormDataContext.Provider>
-          </NavigationWrapper>
+          <FormDataContext.Provider value={{}}>
+            <MapDrawingToolsContextProvider>
+              <MapContext.Provider value={map}>
+                <AreaSelectorInput
+                  event={withNoGeo}
+                  originalEvent={withNoGeo}
+                  map={map}
+                  onGeometryChange={onGeometryChange}
+            />
+              </MapContext.Provider>
+            </MapDrawingToolsContextProvider>
+          </FormDataContext.Provider>
         </Provider>
       );
 
@@ -127,21 +124,19 @@ describe('The AreaSelector input', () => {
     test('renders the placeholder default value for area', async () => {
       render(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <FormDataContext.Provider value={{}}>
-              <MapDrawingToolsContextProvider>
-                <MapContext.Provider value={map}>
-                  <AreaSelectorInput
-                    event={withNoGeo}
-                    originalEvent={withNoGeo}
-                    map={map}
-                    onGeometryChange={onGeometryChange}
+          <FormDataContext.Provider value={{}}>
+            <MapDrawingToolsContextProvider>
+              <MapContext.Provider value={map}>
+                <AreaSelectorInput
+                  event={withNoGeo}
+                  originalEvent={withNoGeo}
+                  map={map}
+                  onGeometryChange={onGeometryChange}
 
-              />
-                </MapContext.Provider>
-              </MapDrawingToolsContextProvider>
-            </FormDataContext.Provider>
-          </NavigationWrapper>
+            />
+              </MapContext.Provider>
+            </MapDrawingToolsContextProvider>
+          </FormDataContext.Provider>
         </Provider>
       );
 
@@ -157,20 +152,18 @@ describe('The AreaSelector input', () => {
 
       render(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <FormDataContext.Provider value={report}>
-              <MapDrawingToolsContextProvider>
-                <MapContext.Provider value={map}>
-                  <AreaSelectorInput
-                    event={report}
-                    originalEvent={report}
-                    map={map}
-                    onGeometryChange={onGeometryChange}
-            />
-                </MapContext.Provider>
-              </MapDrawingToolsContextProvider>
-            </FormDataContext.Provider>
-          </NavigationWrapper>
+          <FormDataContext.Provider value={report}>
+            <MapDrawingToolsContextProvider>
+              <MapContext.Provider value={map}>
+                <AreaSelectorInput
+                  event={report}
+                  originalEvent={report}
+                  map={map}
+                  onGeometryChange={onGeometryChange}
+          />
+              </MapContext.Provider>
+            </MapDrawingToolsContextProvider>
+          </FormDataContext.Provider>
         </Provider>
       );
 
@@ -179,7 +172,7 @@ describe('The AreaSelector input', () => {
 
       expect(onGeometryChange).toHaveBeenCalledTimes(0);
 
-      const deleteAreaButton = await screen.getByTitle('Delete area button');
+      const deleteAreaButton = await screen.getByTitle('Delete Area');
       userEvent.click(deleteAreaButton);
 
       await waitFor(async () => {
@@ -195,18 +188,16 @@ describe('The AreaSelector input', () => {
 
       render(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <FormDataContext.Provider value={report}>
-              <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
-                <MapContext.Provider value={map}>
-                  <AreaSelectorInput
-                    map={map}
-                    onGeometryChange={onGeometryChange}
-                  />
-                </MapContext.Provider>
-              </MapDrawingToolsContext.Provider>
-            </FormDataContext.Provider>
-          </NavigationWrapper>
+          <FormDataContext.Provider value={report}>
+            <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
+              <MapContext.Provider value={map}>
+                <AreaSelectorInput
+                  map={map}
+                  onGeometryChange={onGeometryChange}
+                />
+              </MapContext.Provider>
+            </MapDrawingToolsContext.Provider>
+          </FormDataContext.Provider>
         </Provider>
       );
 
@@ -225,22 +216,20 @@ describe('The AreaSelector input', () => {
 
       render(
         <Provider store={mockStore(store)}>
-          <NavigationWrapper>
-            <FormDataContext.Provider value={report}>
-              <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
-                <MapContext.Provider value={map}>
-                  <AreaSelectorInput
-                    event={{
-                      ...report,
-                      geometry: fillPolygon,
-                    }}
-                    map={map}
-                    onGeometryChange={onGeometryChange}
-                  />
-                </MapContext.Provider>
-              </MapDrawingToolsContext.Provider>
-            </FormDataContext.Provider>
-          </NavigationWrapper>
+          <FormDataContext.Provider value={report}>
+            <MapDrawingToolsContext.Provider value={{ mapDrawingData: { fillPolygon }, setMapDrawingData }}>
+              <MapContext.Provider value={map}>
+                <AreaSelectorInput
+                  event={{
+                    ...report,
+                    geometry: fillPolygon,
+                  }}
+                  map={map}
+                  onGeometryChange={onGeometryChange}
+                />
+              </MapContext.Provider>
+            </MapDrawingToolsContext.Provider>
+          </FormDataContext.Provider>
         </Provider>
       );
 
