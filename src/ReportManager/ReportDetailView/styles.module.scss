@@ -140,6 +140,10 @@
 .saveButton {
   margin-right: 0.5rem;
 
+  .saveSplitButtonItem:hover {
+    background-color: unset;
+  }
+
   &:disabled {
     cursor: not-allowed;
   }
