@@ -458,7 +458,7 @@ const PatrolDetailView = () => {
         });
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
     }
-  }, [notesToAdd]);
+  }, [notesToAdd, t]);
 
   const onClickCancelButton = useCallback(() => navigate(`/${TAB_KEYS.PATROLS}`), [navigate]);
 

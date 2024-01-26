@@ -1,5 +1,6 @@
 @import '../../common/styles/vars/colors';
 @import '../../common/styles/layout';
+@import '../../common/styles/inputs';
 
 .sectionHeader {
   align-items: center;
@@ -48,12 +49,10 @@
 }
 
 .fieldLabel {
-  color: $secondary-medium-gray;
-  font-size: 0.875rem;
-  font-weight: normal;
   margin-top: 1.5rem;
-  position: relative;
   width: 100%;
+  position: relative;
+  @include label-styles;
 
   > div:first-child, 
   > label {
@@ -102,13 +101,6 @@
   }
 }
 
-.locationButton {
-  button {
-    @media print {
-      display: none;
-    }
-  }
-}
 .objective{
   @media print {
     display: none;

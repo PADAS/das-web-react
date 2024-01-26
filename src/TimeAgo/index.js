@@ -24,7 +24,7 @@ const TimeAgo = (props) => {
         w: () => t('timeUnitAbbreviations.week'),
         d: () => t('timeUnitAbbreviations.day'),
         h: () => t('timeUnitAbbreviations.hour'),
-        m: () => t('timeUnitAbbreviationsf.minute'),
+        m: () => t('timeUnitAbbreviations.minute'),
       };
       return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED(abbreviations));
     }
