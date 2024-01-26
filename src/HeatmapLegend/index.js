@@ -1,5 +1,7 @@
 import React, { memo, isValidElement } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
+
 import styles from './styles.module.scss';
 
 import MapLegend from '../MapLegend';
@@ -11,6 +13,7 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
+  const { t } = useTranslation('map-legends');
 
   const onLegendClose = (e) => {
     mapInteractionTracker.track('Close Heatmap');
@@ -26,7 +29,7 @@ const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
         <HeatmapToggleButton heatmapVisible={true} showLabel={false} className={styles.heatIcon} />
         <div className={styles.innerTitleWrapper}>
           {titleElement}
-          <span>{pointCount} points over {dayCount} day{dayCount > 1 ? 's' : ''}</span>
+          <span>{t('pointCount', { count: pointCount })} {t('dayTimespan', { count: dayCount })}</span>
         </div>
       </div>
     }
