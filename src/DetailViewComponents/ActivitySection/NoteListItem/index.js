@@ -37,10 +37,12 @@ const NoteListItem = ({
 
   const title = useMemo(() => {
     if (isNew) {
-      return `${t('noteTitle')}${note.text ? `: ${note.text}` : ''}`;
+      return t('noteTitle', {
+        noteText: note.text || ''
+      });
     }
     return note.text;
-  }, [isNew, note.text]);
+  }, [isNew, note.text, t]);
 
 
   const onClickTrashCanIcon = useCallback((event) => {

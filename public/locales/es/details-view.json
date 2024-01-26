@@ -15,8 +15,9 @@
     "addAttachmentTitle": "Adjuntar archivo"
   },
   "attachmentListItem": {
-    "attachmentDownloadButtonTooltip": "Descargar",
-    "attachmentDeleteButtonTooltip": "Borrar",
+    "imagePreviewAlt": "{{fileName}} vista previa",
+    "downloadButtonTooltip": "Descargar",
+    "deleteButtonTooltip": "Borrar",
     "fullViewButtonTooltip": "Vista completa"
   },
   "footer": {
@@ -77,7 +78,7 @@
     "deleteNoteButtonTooltip": "Borrar",
     "doneEditingNoteButton": "Listo",
     "editNoteButtonTooltip": "Editar",
-    "noteTitle": "Nueva nota"
+    "noteTitle": "Nueva nota: {{noteText}}"
   },
   "reportFormSummary": {
     "reportTypeLabel": "Tipo de reporte",

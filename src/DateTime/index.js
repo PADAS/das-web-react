@@ -28,7 +28,7 @@ DateTime.defaultProps = {
 
 DateTime.propTypes = {
   className: PropTypes.string,
-  date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+  date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
   showElapsed: PropTypes.bool,
 };
 

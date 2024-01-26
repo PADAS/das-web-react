@@ -137,7 +137,9 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
       >
         <div>
           <img
-            alt={`${attachment.filename} preview`}
+            alt={t('imagePreviewAlt', {
+              fileName: attachment.filename
+            })}
             className={styles.attachmentImagePreview}
             onClick={onShowImageFullScreen}
             src={currentImageSource}
@@ -164,7 +166,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
     </div>
 
     <div className={styles.itemActionButtonContainer}>
-      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={t(!isNew ? 'attachmentDownloadButtonTooltip' : 'attachmentDeleteButtonTooltip')}>
+      <ItemActionButton onClick={!isNew ? onClickDownloadIcon : onDelete} tooltip={t(!isNew ? 'downloadButtonTooltip' : 'deleteButtonTooltip')}>
         {!isNew
           ? <DownloadArrowIcon data-testid={`activitySection-downloadArrow-${attachment.id}`} />
           : <TrashCanIcon

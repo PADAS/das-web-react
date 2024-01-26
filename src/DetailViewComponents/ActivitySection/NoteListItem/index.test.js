@@ -46,7 +46,7 @@ describe('ActivitySection - Note', () => {
     const note = { text: '' };
     renderNoteListItem({ ...initialProps, note });
 
-    expect((await screen.findByTestId('activitySection-noteTitle-')).textContent).toBe('New note');
+    expect((await screen.findByTestId('activitySection-noteTitle-')).textContent).toBe('New note: ');
   });
 
   test('adds the text New note: before the note text if the note is not part of the patrol yet', async () => {
