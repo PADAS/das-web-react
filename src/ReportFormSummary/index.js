@@ -3,6 +3,7 @@ import { customizeValidator } from '@rjsf/validator-ajv6';
 import Form from '@rjsf/bootstrap-4';
 import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import useReport from '../hooks/useReport';
 
@@ -23,6 +24,7 @@ import styles from './styles.module.scss';
 const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
+  const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });
   const { eventTypeTitle } = useReport(report);
   const filteredSchema = useMemo(() => {
     const { properties = {} } = schema ?? {};
@@ -39,7 +41,7 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
     <div className={styles.nonSchemaFields}>
       <div className={styles.nonSchemaField}>
         <label>
-          Report Type
+          {t('reportTypeLabel')}
         </label>
 
         {eventTypeTitle}
@@ -49,7 +51,7 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
         report.reported_by?.name &&
         <div className={styles.nonSchemaField}>
           <label>
-            Reported By
+            {t('reportedByLabel')}
           </label>
           {report.reported_by?.name}
         </div>

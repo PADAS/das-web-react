@@ -2,6 +2,7 @@ import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
 
@@ -11,17 +12,20 @@ import useNavigationBlocker from '../hooks/useNavigationBlocker';
 import styles from './styles.module.scss';
 
 const NavigationPromptModal = ({
-  cancelNavigationButtonText,
-  continueNavigationNegativeButtonText,
-  continueNavigationPositiveButtonText,
-  description,
   onCancel,
   onContinue,
-  title,
   when,
-  ...rest
+  ...restProps
 }) => {
   const blocker = useNavigationBlocker(when);
+  const { t } = useTranslation('details-view', { keyPrefix: 'navigationPromptModal' });
+  const {
+    cancelNavigationButtonText = t('cancelNavigationButtonText'),
+    continueNavigationNegativeButtonText = t('continueNavigationNegativeButtonText'),
+    continueNavigationPositiveButtonText = t('continueNavigationPositiveButtonText'),
+    description = t('description'),
+    title = t('title')
+  } = restProps;
 
   const handleCancel = useCallback(async () => {
     await onCancel?.();
@@ -40,7 +44,7 @@ const NavigationPromptModal = ({
     blocker.proceed();
   }, [blocker, onContinue]);
 
-  return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...rest} onHide={handleCancel}>
+  return <Modal show={blocker.state === BLOCKER_STATES.BLOCKED} {...restProps} onHide={handleCancel}>
     <Modal.Header closeButton>
       <Modal.Title>{title}</Modal.Title>
     </Modal.Header>
@@ -74,13 +78,8 @@ const NavigationPromptModal = ({
 };
 
 NavigationPromptModal.defaultProps = {
-  cancelNavigationButtonText: 'Go Back',
-  continueNavigationNegativeButtonText: 'Discard',
-  continueNavigationPositiveButtonText: 'Save',
-  description: 'There are unsaved changes. Would you like to go back, discard the changes, or save and continue?',
   onCancel: null,
   onContinue: null,
-  title: 'Unsaved Changes',
 };
 
 NavigationPromptModal.propTypes = {

@@ -4,6 +4,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LocationIcon } from '../../common/images/icons/marker-feed.svg';
 
@@ -20,8 +21,6 @@ import TextCopyBtn from '../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const PLACEHOLDER = 'Click here to set location';
-
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const calculateInputDisplayString = (location, gpsFormat, placeholder) => {
@@ -33,29 +32,31 @@ const calculateInputDisplayString = (location, gpsFormat, placeholder) => {
 const LocationSelectorInput = ({
   className,
   copyable = true,
-  label,
   location,
   onLocationChange,
   placeholder,
   popoverClassName,
+  ...restProps
 }) => {
   const dispatch = useDispatch();
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
-
+  const { t } = useTranslation('details-view', { keyPrefix: 'locationSelector' });
   const map = useContext(MapContext);
+  const { label = t('inputLabel') } = restProps ;
 
   const locationInputAnchorRef = useRef(null);
   const locationInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const locationInputPlaceholder = placeholder ?? t('inputPlaceHolder');
 
-  const displayString = calculateInputDisplayString(location, gpsFormat, placeholder);
+  const displayString = calculateInputDisplayString(location, gpsFormat, locationInputPlaceholder);
 
   const popoverClassString = popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
-  const shouldShowCopyButton = copyable && (displayString !== placeholder);
+  const shouldShowCopyButton = copyable && (displayString !== locationInputPlaceholder);
 
   // Point locations
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -186,9 +187,8 @@ export default debounceRender(memo(LocationSelectorInput));
 LocationSelectorInput.defaultProps = {
   className: '',
   copyable: true,
-  label: 'Location:',
   location: null,
-  placeholder: PLACEHOLDER,
+  placeholder: null,
   popoverClassName: '',
 };
 

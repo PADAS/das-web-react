@@ -1,11 +1,11 @@
 import React, { memo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 
 import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
-// import { trackEvent } from '../utils/analytics';
 
 import { analyticsMetadataProps } from '../proptypes';
 
@@ -23,12 +23,16 @@ const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title=
   <span>{title}</span>
 </button>);
 
-const AttachmentControls = (props) => {
-  const { addModal, analyticsMetadata, children, allowMultipleFiles, onAddFiles,
-    onSaveNote, } = props;
-
+const AttachmentControls = ({
+  addModal,
+  analyticsMetadata,
+  children,
+  allowMultipleFiles,
+  onAddFiles,
+  onSaveNote
+}) => {
+  const { t } = useTranslation('details-view', { keyPrefix: 'attachmentControls' });
   const hasAnalytics = !!analyticsMetadata;
-
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
   const attachmentControlsRef = useRef(null);
@@ -90,11 +94,10 @@ const AttachmentControls = (props) => {
         onChange={onFileAddFromDialog}>
       </input>
 
-      <AttachmentButton title='Add Note' icon={NoteIcon} onClick={startAddNote} />
+      <AttachmentButton title={t('addNoteTitle')} icon={NoteIcon} onClick={startAddNote} />
 
-      <AttachmentButton title='Add Attachment' icon={AttachmentIcon}
-        onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}
-      />
+      <AttachmentButton title={t('addAttachmentTitle')} icon={AttachmentIcon}
+        onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave} />
 
       {children}
     </div>

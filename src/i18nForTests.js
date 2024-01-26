@@ -8,6 +8,8 @@ import settingsEnUS from '../public/locales/en-US/settings.json';
 import sideBarEnUS from '../public/locales/en-US/side-bar.json';
 import patrolsEnUS from '../public/locales/en-US/patrols.json';
 import datesEnUS from '../public/locales/en-US/dates.json';
+import detailsView from '../public/locales/en-US/details-view.json';
+
 
 i18n
   .use(initReactI18next)
@@ -28,6 +30,7 @@ i18n
         'side-bar': sideBarEnUS,
         'patrols': patrolsEnUS,
         'dates': datesEnUS,
+        'details-view': detailsView,
       },
     },
   });

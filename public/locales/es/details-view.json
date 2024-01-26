@@ -1,0 +1,87 @@
+{
+  "activitySection": {
+    "collapseAllButton": "Colapsar todo",
+    "dateItemStartTitle": "Comienzo",
+    "dateItemEndedTitle": "Fin",
+    "expandAllButton": "Expandir todo",
+    "sectionTitle": "Actividad",
+    "timeLabel": "Tiempo"
+  },
+  "addAttachmentButton": "Adjuntar",
+  "addReportButton": "Reporte",
+  "addNoteButton": "Nota",
+  "attachmentControls": {
+    "addNoteTitle": "Agregar Nota",
+    "addAttachmentTitle": "Adjuntar archivo"
+  },
+  "attachmentListItem": {
+    "imagePreviewAlt": "{{fileName}} vista previa",
+    "downloadButtonTooltip": "Descargar",
+    "deleteButtonTooltip": "Borrar",
+    "fullViewButtonTooltip": "Vista completa"
+  },
+  "footer": {
+    "cancelButton": "Cancelar",
+    "saveButton": "Guardar",
+    "stateResolveButton": "Guardar y resolver",
+    "stateReopenButton": "Guardar y reabrir"
+  },
+  "geoLocator": {
+    "buttonLabel": "Usar mi ubicación",
+    "loadingMessage": "Obteniendo tu ubicación...",
+    "readingLocationError": "No fue posible obtener tu ubicación: {{locationErrorMessage}}"
+  },
+  "gpsInput": {
+    "defaultLabel": "Ubicación",
+    "gpsFormatDDMLabel": "Grados, Decimales, Minutos",
+    "gpsFormatDEGLabel": "Latitud, Longitud",
+    "gpsFormatDMSLabel": "Grados, Minutos, Segundos",
+    "gpsFormatUTMLabel": "Sistema de coordenadas UTM",
+    "gpsFormatMGRSLabel": "Sistema de Referencia de Cuadrícula Militar",
+    "exampleLabel": "Ejemplo: {{gpsFormat}}",
+    "invalidLocation": "Ubicación no válida"
+  },
+  "goToReportButtonTooltip": "Ir a reporte",
+  "header": {
+    "historyLinkCreated": "Creado",
+    "historyLinkUpdated": "Actualizado",
+    "resolvedLabel": "Resuelto",
+    "sectionTitle": "Historial"
+  },
+  "historySection": {
+    "sectionTitle": "Historial",
+    "timeLabel": "Tiempo"
+  },
+  "imageModal": {
+    "errorTitle": "Error al cargar la imagen.",
+    "errorMessage": "Si subiste esta imagen recientemente, espera una minuto y vuelve a intentarlo, por favor."
+  },
+  "locationSelector": {
+    "inputLabel": "Ubicación:",
+    "inputPlaceHolder": "Click para seleccionar la ubicación"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Cancelar",
+    "popupLabel": "Click para seleccionar una ubicación",
+    "selectLocationButtonTitle": "Posiciona el marcador en el mapa",
+    "selectLocationButtonLabel": "Seleccionar en el mapa"
+  },
+  "navigationPromptModal": {
+    "cancelNavigationButtonText": "Regresar",
+    "continueNavigationNegativeButtonText": "Descartar",
+    "continueNavigationPositiveButtonText": "Guardar",
+    "description": "Hay cambios sin guardar. ¿Deseas regresar, descartar cambios o guardar y continuar?",
+    "title": "Cambios sin guardar"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Cancelar",
+    "deleteNoteButtonTooltip": "Borrar",
+    "doneEditingNoteButton": "Listo",
+    "editNoteButtonTooltip": "Editar",
+    "noteTitle": "Nueva nota: {{noteText}}"
+  },
+  "reportFormSummary": {
+    "reportTypeLabel": "Tipo de reporte",
+    "reportedByLabel": "Reportado por"
+  }
+}

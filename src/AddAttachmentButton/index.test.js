@@ -1,7 +1,7 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { fireEvent, render, screen } from '../test-utils';
 import AddAttachmentButton from './';
 
 describe('ReportManager - AddAttachmentButton', () => {
