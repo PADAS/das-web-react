@@ -56,7 +56,7 @@
       "title": "Reportes de Sujeto"
     },
     "tableauButton": "Tableau",
-    "usersGuide": "Guía de Usuario"
+    "usersGuideButton": "Guía de Usuario"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exportar archivo KML Maestro",
