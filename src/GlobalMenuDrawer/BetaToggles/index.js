@@ -25,12 +25,15 @@ const BetaToggles = () => {
     {toggleableFeatures.map(([key, { label, value }]) =>
       <li key={key}>
         <label>
-          <input type="checkbox" checked={value}
-      data-testid={`beta-toggle-${key}`}
-      key={key}
-      label={label}
-      onChange={onFlagOverrideToggle}
-      value={key} />
+          <input
+            checked={value}
+            data-testid={`beta-toggle-${key}`}
+            label={label}
+            onChange={onFlagOverrideToggle}
+            type="checkbox"
+            value={key}
+          />
+
           <span>{label}</span>
         </label>
       </li>

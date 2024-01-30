@@ -1,0 +1,65 @@
+{
+  "alertsModal": {
+    "iframeBottomMessage": "Each EarthRanger user can receive up to 20 alerts per day.",
+    "iframeTitle": "Configure your EarthRanger alerts"
+  },
+  "dailyReportModal": {
+    "dataExportModalTitle": "Daily Report",
+    "todaysReportButton": "Today's Report",
+    "yesterdaysReportButton": "Yesterday's Report"
+  },
+  "dataExportModal": {
+    "cancelButton": "Cancel",
+    "exportButton": "Export"
+  },
+  "globalMenuDrawer": {
+    "alertsButton": "Alerts",
+    "alertsModal": {
+      "title": "Alerts"
+    },
+    "communityButton": "Community",
+    "contactSupport": {
+      "body": "How can we help you?",
+      "subject": "Support request from user"
+    },
+    "contactSupportButton": "Contact Support",
+    "dailyReportModal": {
+      "title": "Daily Report"
+    },
+    "exportsHeader": "EXPORTS",
+    "fieldReportsModal": {
+      "content": "Exported reports will only include those matching the filter criteria currently set in the Reports tab.",
+      "title": "Field Reports"
+    },
+    "footer": {
+      "clientVersion": "Web client version: {{version}}",
+      "copyright": "©{{year}} EarthRanger",
+      "dataPrivacyPolicyLink": "Data Privacy Policy",
+      "eulaLink": "EULA",
+      "serverVersion": "Server version: {{version}}",
+      "websitePrivacyPolicyLink": "Website Privacy Policy"
+    },
+    "helpCenterButton": "Help Center",
+    "masterKMLModal": {
+      "title": "Master KML"
+    },
+    "navigationButton": {
+      "mapLayers": "Map Layers",
+      "patrols": "Patrols",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "subjectInformationModal": {
+      "title": "Subject Information"
+    },
+    "subjectReportsModal": {
+      "title": "Subject Reports"
+    },
+    "tableauButton": "Tableau",
+    "usersGuideButton": "User's Guide"
+  },
+  "kmlExportModal": {
+    "dataExportModalTitle": "Export Master KML File",
+    "includeInactiveSubjectsLabel": "Include inactive subjects"
+  }
+}

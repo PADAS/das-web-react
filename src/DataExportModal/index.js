@@ -1,89 +1,90 @@
-import React, { Fragment, useState, useEffect, memo } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import Modal from 'react-bootstrap/Modal';
+import React, { memo, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import { CancelToken } from 'axios';
-import { trackEventFactory, REPORT_EXPORT_CATEGORY } from '../utils/analytics';
+import Modal from 'react-bootstrap/Modal';
+import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { API_URL } from '../constants';
-import { removeModal } from '../ducks/modals';
 import { downloadFileFromUrl } from '../utils/download';
+import { removeModal } from '../ducks/modals';
+import { REPORT_EXPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+
 import LoadingOverlay from '../LoadingOverlay';
 
-
-const { Header, Title, Body, Footer } = Modal;
 const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
-const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url, children }) => {
+const DataExportModal = ({ children, id, params, paramString, title, url }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('menu-drawer', { keyPrefix: 'dataExportModal' });
+
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
 
   const DOWNLOAD_URL = `${API_URL}${url}${paramString.length ? `?${paramString}` : ''}`;
 
-  useEffect(() => {
-    return () => {
-      downloadCancelToken && downloadCancelToken.cancel();
-      setDownloadState(false);
-    };
-  }, [downloadCancelToken]);
-
   const triggerDownload = () => {
     setDownloadState(true);
     downloadFileFromUrl(DOWNLOAD_URL, { params }, downloadCancelToken)
-      .catch((e) => {
-        console.warn('error downloading file', e);
+      .catch((error) => {
+        console.warn('error downloading file', error);
+
         setCancelToken(CancelToken.source());
         setDownloadState(false);
       })
-      .then(() => {
-        removeModal(id);
-      });
+      .then(() => dispatch(removeModal(id)));
   };
 
   const onFormSubmit = () => {
     triggerDownload();
+
     reportExportTracker.track('Click \'Export\' button');
   };
 
   const onFormCancel = () => {
-    removeModal(id);
+    dispatch(removeModal(id));
+
     reportExportTracker.track('Click \'Cancel\' button');
   };
 
-  return <Fragment>
+  useEffect(() => () => {
+    downloadCancelToken && downloadCancelToken.cancel();
+    setDownloadState(false);
+  }, [downloadCancelToken]);
+
+  return <>
     {downloading && <LoadingOverlay />}
-    <Header closeButton>
-      <Title>{title}</Title>
-    </Header>
+
+    <Modal.Header closeButton>
+      <Modal.Title>{title}</Modal.Title>
+    </Modal.Header>
+
     <div>
-      {!!children &&
-        <Body>
-          {children}
-        </Body>
-      }
-      <Footer>
-        <Button variant="secondary" onClick={onFormCancel}>Cancel</Button>
-        <Button type="submit" variant="primary" onClick={onFormSubmit}>Export</Button>
-      </Footer>
+      {!!children && <Modal.Body>{children}</Modal.Body>}
+
+      <Modal.Footer>
+        <Button onClick={onFormCancel} variant="secondary" >{t('cancelButton')}</Button>
+
+        <Button onClick={onFormSubmit} type="submit" variant="primary">{t('exportButton')}</Button>
+      </Modal.Footer>
     </div>
-  </Fragment>;
+  </>;
 };
 
 DataExportModal.defaultProps = {
+  children: null,
   params: {},
   paramString: '',
 };
 
 DataExportModal.propTypes = {
+  children: PropTypes.node,
   id: PropTypes.string.isRequired,
-  removeModal: PropTypes.func.isRequired,
-  url: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
   params: PropTypes.object,
   paramString: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
 };
 
-
-export default connect(null, { removeModal })(memo(DataExportModal));
+export default memo(DataExportModal);
