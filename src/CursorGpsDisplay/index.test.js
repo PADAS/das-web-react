@@ -1,6 +1,5 @@
 import React from 'react';
 import merge from 'lodash/merge';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -8,7 +7,7 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { GPS_FORMATS } from '../utils/location';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
+import { render, screen } from '../test-utils';
 import { showPopup } from '../ducks/popup';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
@@ -26,11 +25,9 @@ describe('CursorGpsDisplay', () => {
 
   const renderCursorGpsDisplay = (props = {}, overrideStore = {}, overrideMap = map) => render(
     <Provider store={mockStore(merge(store, overrideStore))}>
-      <NavigationWrapper>
-        <MapContext.Provider value={overrideMap}>
-          <CursorGpsDisplay {...props} />
-        </MapContext.Provider>
-      </NavigationWrapper>
+      <MapContext.Provider value={overrideMap}>
+        <CursorGpsDisplay {...props} />
+      </MapContext.Provider>
     </Provider>
   );
 

@@ -1,7 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
@@ -22,6 +19,7 @@ import MapDataZoomSimplificationControl from '../../MapDataZoomSimplificationCon
 import MapLockControl from '../../MapLockControl';
 import MapNamesControl from '../../MapNamesControl';
 import MapTrackTimepointsControl from '../../MapTrackTimepointsControl';
+import Select from '../../Select';
 import UserLocationMapControl from '../../UserLocationMapControl';
 
 import styles from './styles.module.scss';
@@ -49,6 +47,10 @@ const SettingsPane = () => {
 
   const isI18nActive = DEVELOPMENT_FEATURE_FLAGS.I18N_ENABLED;
 
+  const languageOptions = Object.entries(SUPPORTED_LANGUAGES)
+    .reduce((accumulator, [value, label]) => [...accumulator, { label, value }], []);
+  const languageValue = languageOptions.find((option) => option.value === i18n.language);
+
   const onEventFilterPersistToggle = useCallback(() => {
     setEventFilterIsRestorable(!eventFilterRestorable);
   }, [eventFilterRestorable, setEventFilterIsRestorable]);
@@ -65,8 +67,8 @@ const SettingsPane = () => {
     setMapLayerFiltersAreRestorable(!mapLayersRestorable);
   }, [mapLayersRestorable, setMapLayerFiltersAreRestorable]);
 
-  const onSelectLanguage = useCallback((language) => {
-    i18n.changeLanguage(language);
+  const onChangeLanguage = useCallback((language) => {
+    i18n.changeLanguage(language.value);
   }, [i18n]);
 
   return <Tabs
@@ -120,30 +122,22 @@ const SettingsPane = () => {
         </ul>
       </section>
 
+      {isI18nActive ? <section>
+        <h3>Language</h3>
+
+        <Select
+          className={styles.languageSelect}
+          onChange={onChangeLanguage}
+          options={languageOptions}
+          value={languageValue}
+        />
+      </section> : null}
+
       <section>
         <h3>Experimental Features</h3>
 
         <BetaToggles />
       </section>
-
-      {isI18nActive ? <section>
-        <h3>Language</h3>
-
-        <DropdownButton
-          as={ButtonGroup}
-          id="settings-language-dropdown"
-          onSelect={onSelectLanguage}
-          title={SUPPORTED_LANGUAGES[i18n.language]}
-        >
-          {Object.entries(SUPPORTED_LANGUAGES).map(([languageValue, languageDisplay]) => <Dropdown.Item
-            as="button"
-            eventKey={languageValue}
-            key={languageValue}
-          >
-            {languageDisplay}
-          </Dropdown.Item>)}
-        </DropdownButton>
-      </section> : null}
     </Tab>
 
     <Tab
