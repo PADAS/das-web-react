@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
@@ -9,9 +8,9 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
+import { render, screen, waitFor } from '../test-utils';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -77,9 +76,7 @@ describe('GlobalMenuDrawer', () => {
   test('hides the drawer when clicking the cross icon', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -94,9 +91,7 @@ describe('GlobalMenuDrawer', () => {
   test('does not render the navigation buttons in desktop screens', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -109,9 +104,7 @@ describe('GlobalMenuDrawer', () => {
     useMatchMedia.mockImplementation(() => false);
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -124,9 +117,7 @@ describe('GlobalMenuDrawer', () => {
     useMatchMedia.mockImplementation(() => false);
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -145,9 +136,7 @@ describe('GlobalMenuDrawer', () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -158,9 +147,7 @@ describe('GlobalMenuDrawer', () => {
     useMatchMedia.mockImplementation(() => false);
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -177,9 +164,7 @@ describe('GlobalMenuDrawer', () => {
     useMatchMedia.mockImplementation(() => false);
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -196,9 +181,7 @@ describe('GlobalMenuDrawer', () => {
     store.view.systemConfig.tableau_enabled = false;
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -209,9 +192,7 @@ describe('GlobalMenuDrawer', () => {
     global.open = jest.fn();
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -233,9 +214,7 @@ describe('GlobalMenuDrawer', () => {
     store.view.systemConfig.alerts_enabled = false;
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -245,9 +224,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the alerts modal when clicking the Alerts button ', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -267,9 +244,7 @@ describe('GlobalMenuDrawer', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -284,9 +259,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens a page to the help center site when clicking the Help Center button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -302,9 +275,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens a page to the community site when clicking the Community button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -320,9 +291,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens a page to the users guide site when clicking the User\'s Guide button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -338,9 +307,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the daily report modal when clicking the Daily Report button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -356,9 +323,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the field reports modal when clicking the Field Reports button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -374,9 +339,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the kml export modal when clicking the Master KML button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -392,9 +355,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the subject information modal when clicking the Subject Information button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -410,9 +371,7 @@ describe('GlobalMenuDrawer', () => {
   test('opens the subject reports modal when clicking the Subject Reports button', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
@@ -428,9 +387,7 @@ describe('GlobalMenuDrawer', () => {
   test('lists links to various privacy and data policies', async () => {
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <GlobalMenuDrawer />
-        </NavigationWrapper>
+        <GlobalMenuDrawer />
       </Provider>
     );
 
