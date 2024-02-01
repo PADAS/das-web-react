@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, memo } from 'react';
 import length from '@turf/length';
 import { lineString } from '@turf/helpers';
+import { useTranslation } from 'react-i18next';
+
 import { calculatePopoverPlacement } from '../utils/map';
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddItemButton from '../AddItemButton';
@@ -19,6 +21,7 @@ const PointPopup = (props) => {
   const point = points[pointIndex];
   const popupOffset = [0, -4];
   const popupAnchorPosition = 'bottom';
+  const { t } = useTranslation('map-controls', { keyPrefix: 'pointPopup' });
 
   const distanceFromStart = useMemo(() => {
     if (isFirstPoint) return null;
@@ -61,8 +64,8 @@ const PointPopup = (props) => {
       <GpsFormatToggle lng={point[0]} lat={point[1]} />
       {points.length > 1 && !isFirstPoint && <>
         <p>
-          <strong>Bearing:</strong> {bearingFromPrev}&deg; <br />
-          <strong>Distance from start:</strong> {distanceFromStart}
+          <strong>{t('bearingLabel')}</strong> {bearingFromPrev}&deg; <br />
+          <strong>{t('distanceLabel')}</strong> {distanceFromStart}
         </p>
       </>}
       <AddItemButton
@@ -78,7 +81,7 @@ const PointPopup = (props) => {
     {
       drawing && <p onClick={onClickFinish} className={styles.finishButton}>
         <RulerIcon />
-        click here to finish
+        {t('finishButton')}
       </p>}
   </Popup>;
 };

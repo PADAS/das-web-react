@@ -1,0 +1,30 @@
+{
+  "baseLayer": {
+    "popoverButton": "Configurar capa base del mapa",
+    "popoverTitle": "Capas base",
+    "logoAlt": "{{logoName}} logo"
+  },
+  "mapDrawingTools": {
+    "addPointLabel": "Click para agregar un punto.\n Presiona 'enter' para completar.",
+    "bearingLabel": "Rumbo: {{bearing}}°",
+    "distanceLabel": "Distancia: {{distance}}",
+    "instructionsLabel": "Haz click y arrastra para agregar un punto",
+    "popupLabel": "Click para agregar un punto."
+  },
+  "mapPrintControl": {
+    "documentTitle": "Titulo del documento:",
+    "printButtonTitle": "Imprimir mapa",
+    "printButton": "Imprimir",
+    "printInstructions": "Ajustar la configuración de la escala al imprimir para mejorar los resultados"
+  },
+  "mapRuler": {
+    "cancelButton": "Cancelar",
+    "closeButton": "Cerrar",
+    "title": "Regla del mapa"
+  },
+  "pointPopup": {
+    "bearingLabel": "Rumbo:",
+    "distanceLabel": "Distancia del inicio:",
+    "finishButton": "Click para finalizar"
+  }
+}
