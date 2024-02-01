@@ -1,113 +1,139 @@
-import React, { Fragment, memo, useContext, useRef, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Popover from 'react-bootstrap/Popover';
-import pluralize from 'pluralize';
-
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
-
-import Badge from '../Badge';
-import DateTime from '../DateTime';
-
-import { SocketContext } from '../withSocketConnection';
-
-import { fetchNews, readNews } from '../ducks/news';
-
-import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
-import BadgeIcon from '../Badge';
 
+import { fetchNews, readNews } from '../ducks/news';
+import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { SocketContext } from '../withSocketConnection';
 import { STATUSES } from '../constants';
+
+import Badge from '../Badge';
+import BadgeIcon from '../Badge';
+import DateTime from '../DateTime';
 
 import styles from './styles.module.scss';
 
-const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7; // days
-const NEWS_ITEM_CHARACTER_LIMIT = 200;
-
-const { Divider, Toggle, Menu, Item } = Dropdown;
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-const formatUnreadNewsItemsAsNotifications = (news = []) =>
-  news
-    .map(item => ({
-      id: item.id,
-      message: item.description,
-      confirmText: 'Read more',
-      date: item?.additional?.created_at,
-      title: item.title,
-      onConfirm() {
-        const newWindow = window.open(item.link, '_blank', 'noopener,noreferrer');
-        if (newWindow) newWindow.opener = null;
-      },
-      read: item.read,
-    }));
+const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7;
+const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
-const onShowMoreInfo = (e) => {
-  e.stopPropagation();
-};
+const formatUnreadNewsItemsAsNotifications = (news = []) => news.map(item => ({
+  confirmText: 'Read more',
+  date: item?.additional?.created_at,
+  id: item.id,
+  message: item.description,
+  onConfirm: () => {
+    const newWindow = window.open(item.link, '_blank', 'noopener,noreferrer');
+    if (newWindow) {
+      newWindow.opener = null;
+    }
+  },
+  read: item.read,
+  title: item.title,
+}));
 
-
-const NotificationItem = (item, index) => {
-  const { message, infolink, onConfirm, confirmText, onDismiss } = item;
-  const handleConfirm = e => onConfirm(e, item);
-  const handleDismiss = e => onDismiss(e, item);
+const NotificationItem = ({ item }) => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'notificationMenu.notificationItem' });
 
   const isNewsItem = item.hasOwnProperty('read');
   const isUnread = isNewsItem && !item.read;
 
-  let displayMessage = message.replace(/(<([^>]+)>)/ig, '').substring(0, NEWS_ITEM_CHARACTER_LIMIT);
+  let displayMessage = item.message.replace(/(<([^>]+)>)/ig, '').substring(0, NEWS_ITEM_CHARACTER_LIMIT);
   if (displayMessage.length === NEWS_ITEM_CHARACTER_LIMIT) {
     displayMessage += '...';
   }
 
-  return <Item key={index} className={`${styles.item} ${isUnread ? styles.unread : ''}`} role='listitem'>
+  return <Dropdown.Item className={`${styles.item} ${isUnread ? styles.unread : ''}`} role="listitem">
     {item.title && <div className={styles.headerGroup}>
       {isUnread && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
+
       <div>
-        <h4 className={styles.title}>
-          {item.title}
-        </h4>
+        <h4 className={styles.title}>{item.title}</h4>
+
         {item.date && <DateTime className={styles.dateTime} date={item.date} showElapsed={false} />}
       </div>
     </div>}
 
     <h6>{displayMessage}</h6>
-    {!!infolink && <div><a href={infolink} target='_blank' rel='noopener noreferrer' onClick={onShowMoreInfo}>More information</a></div>}
-    <div className={styles.buttons}>
-      {onDismiss && <Button size='sm' className={styles.button} variant='secondary' onClick={handleDismiss}>Dismiss</Button>}
-      {onConfirm && <Button size='sm' className={styles.button} variant='info' onClick={handleConfirm}>{confirmText || 'Confirm'}</Button>}
-    </div>
 
-  </Item>;
+    {!!item.infolink && <div>
+      <a
+        href={item.infolink}
+        onClick={(event) => event.stopPropagation()}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        {t('moreInformationLink')}
+      </a>
+    </div>}
+
+    <div className={styles.buttons}>
+      {item.onDismiss && <Button
+        className={styles.button}
+        onClick={(event) => item.onDismiss(event, item)}
+        size="sm"
+        variant="secondary"
+      >
+        {t('dismissButton')}
+      </Button>}
+
+      {item.onConfirm && <Button
+        className={styles.button}
+        onClick={(event) => item.onConfirm(event, item)}
+        size="sm"
+        variant="info"
+      >
+        {item.confirmText || t('confirmButton')}
+      </Button>}
+    </div>
+  </Dropdown.Item>;
 };
 
-const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest }) => {
-  const [news, setNews] = useState(null);
-  const [newsFetchError, setNewsFetchError] = useState(null);
-  const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const menuRef = useRef(null);
-  const toggleBtnRef = useRef(null);
+const NotificationMenu = (props) => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'notificationMenu' });
+
   const socket = useContext(SocketContext);
 
+  const userNotifications = useSelector((state) => state.view.userNotifications || []);
+
+  const menuRef = useRef(null);
+  const toggleBtnRef = useRef(null);
+
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [news, setNews] = useState(null);
+  const [newsFetchError, setNewsFetchError] = useState(null);
+
+  const notifications = [...userNotifications, ...(news || [])];
+
+  const unreads = notifications.filter(n => !n.read);
+  const unreadCount = unreads.length;
+
+  const outdatedUnreadNotifications = unreads.filter((item) => !!item.date
+    && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_DAYS_THRESHOLD);
+
+  const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
+  const outdatedNotificationString = showOutdatedNotificationPopover
+    && t('outdatedNotifications', { count: unreadCount });
 
   const fetchNewsForMenu = () => {
     setNewsFetchError(null);
     fetchNews()
-      .then(({ data: { data } }) => {
-        setNews(formatUnreadNewsItemsAsNotifications(data.results));
-      })
-      .catch((error) => {
-        setNewsFetchError(error);
-      });
+      .then(({ data: { data } }) => setNews(formatUnreadNewsItemsAsNotifications(data.results)))
+      .catch((error) => setNewsFetchError(error));
   };
 
-  const onClickRetryFetchNews = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const onClickRetryFetchNews = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     return fetchNewsForMenu();
   };
 
@@ -121,12 +147,10 @@ const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest
       if (!!unreadNews.length) {
         readNews(unreadNews)
           .then(() => {
-            const newNews = news.map(n => n.read ? n : { ...n, read: true });
+            const newNews = news.map((n) => n.read ? n : { ...n, read: true });
             setNews(newNews);
           })
-          .catch((error) => {
-            console.warn('error marking news as `read`', error);
-          });
+          .catch((error) => console.warn('error marking news as `read`', error));
       }
     } else {
       if (menuRef.current) {
@@ -137,77 +161,71 @@ const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest
     }
   };
 
-  const notifications = [...userNotifications, ...(news || [])];
-
-  const unreads = notifications.filter(n => !n.read);
-  const unreadCount = unreads.length;
-
-  const outdatedUnreadNotifications = unreads
-    .filter(item =>
-      !!item.date
-      && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_DAYS_THRESHOLD
-    );
-
-  const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
-  const outdatedNotificationString = showOutdatedNotificationPopover && `You have ${unreadCount} unread ${pluralize('notification', unreadCount)}.`;
-
   useEffect(() => {
     fetchNewsForMenu();
   }, []);
 
   useEffect(() => {
     if (socket) {
-      const consumeMessage = ({ data: msg }) => {
-        return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
-      };
+      const consumeMessage = ({ data: msg }) => setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
 
       const [, fnRef] = socket.on('new_announcement', consumeMessage);
 
-      return () => {
-        socket.off('new_announcement', fnRef);
-      };
+      return () => socket.off('new_announcement', fnRef);
     }
   }, [news, socket]);
 
-  return <Dropdown onToggle={onToggle} align="end" className={styles.dropdown} {...rest}>
-    <Toggle ref={toggleBtnRef} as='div' data-testid='notification-toggle'>
+  return <Dropdown align="end" className={styles.dropdown} onToggle={onToggle} {...props}>
+    <Dropdown.Toggle as="div" data-testid="notification-toggle" ref={toggleBtnRef}>
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
-      {!!unreadCount && <BadgeIcon data-testid='unread-count' className={styles.badge} count={unreadCount} />}
-    </Toggle>
-    {showOutdatedNotificationPopover && <Popover className={styles.unreadNotificationsPopover} placement='bottom' target={toggleBtnRef.current} role='alert' id='overlay-example' >
+
+      {!!unreadCount && <BadgeIcon className={styles.badge} count={unreadCount} data-testid="unread-count" />}
+    </Dropdown.Toggle>
+
+    {showOutdatedNotificationPopover && <Popover
+      className={styles.unreadNotificationsPopover}
+      id="overlay-example"
+      placement="bottom"
+      role="alert"
+      target={toggleBtnRef.current}
+    >
       {outdatedNotificationString}
     </Popover>}
-    <Menu className={styles.menu} ref={menuRef}>
-      {!notifications.length && <h6 className={styles.noItems}>No new notifications at this time.</h6>}
-      {!!notifications.length && notifications.map(NotificationItem)}
-      {!!news?.length && !newsFetchError && <Fragment>
-        <Divider />
-        <Item href='https://community.earthranger.com/tag/er-notify' rel='noreferrer' target='_blank'><Button variant='link' style={{ marginLeft: 'auto' }}>See all news &gt;</Button></Item>
-      </Fragment>
-      }
-      {newsFetchError && <Fragment>
-        <Divider />
-        <h6 data-testid='error-message' className={styles.newsFetchErrorMessage}>Error fetching recent announcements.
-          <Button data-testid='news-fetch-retry-btn' size='sm' className={styles.button} variant='info' onClick={onClickRetryFetchNews}>
+
+    <Dropdown.Menu className={styles.menu} ref={menuRef}>
+      {!!notifications.length
+        ? notifications.map((item, index) => <NotificationItem item={item} key={index} />)
+        : <h6 className={styles.noItems}>{t('noNewNotificationsHeader')}</h6>}
+
+      {!!news?.length && !newsFetchError && <>
+        <Dropdown.Divider />
+
+        <Dropdown.Item href="https://community.earthranger.com/tag/er-notify" rel="noreferrer" target="_blank">
+          <Button style={{ marginLeft: 'auto' }} variant="link">{t('seeAllNewsButton')}</Button>
+        </Dropdown.Item>
+      </>}
+
+      {newsFetchError && <>
+        <Dropdown.Divider />
+
+        <h6 className={styles.newsFetchErrorMessage} data-testid="error-message">
+          {t('errorFetchingHeader')}
+
+          <Button
+            className={styles.button}
+            data-testid="news-fetch-retry-btn"
+            onClick={onClickRetryFetchNews}
+            size="sm"
+            variant="info"
+          >
             <RefreshIcon />
-            <span>Try again</span>
+
+            <span>{t('tryAgainButton')}</span>
           </Button>
-        </h6></Fragment>}
-    </Menu>
+        </h6>
+      </>}
+    </Dropdown.Menu>
   </Dropdown>;
-
 };
 
-const mapStateToProps = ({ view: { userNotifications } }) => ({ userNotifications });
-export default connect(mapStateToProps, null)(memo(NotificationMenu));
-
-NotificationMenu.propTypes = {
-  notifications: PropTypes.arrayOf(
-    PropTypes.shape({
-      message: PropTypes.string.isRequired,
-      onDismiss: PropTypes.func.isRequired,
-      onConfirm: PropTypes.func,
-      confirmText: PropTypes.string,
-    })
-  ),
-};
+export default memo(NotificationMenu);
