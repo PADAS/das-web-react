@@ -204,7 +204,6 @@ const ReportedBySelect = (props) => {
 
   return <Select
     className={className}
-    data-testid='reported-by-select'
     components={{ Control, MenuList, MultiValueLabel, Option, SingleValue }}
     value={selected}
     isClearable={true}

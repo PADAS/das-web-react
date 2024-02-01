@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { hideDrawer } from '../ducks/drawer';
 
@@ -12,13 +11,18 @@ const ESC_KEY_CODE = 27;
 
 export const globalMenuDrawerId = 'global-menu';
 
-const Drawer = ({ drawer, hideDrawer }) => {
+const Drawer = () => {
+  const dispatch = useDispatch();
+
+  const drawer = useSelector((state) => state.view.drawer);
+
   useEffect(() => {
     const onKeydown = (event) => {
       if (event.keyCode === ESC_KEY_CODE) {
-        hideDrawer();
+        dispatch(hideDrawer());
       }
     };
+
     document.addEventListener('keydown', onKeydown);
 
     return () => {
@@ -26,21 +30,15 @@ const Drawer = ({ drawer, hideDrawer }) => {
     };
   });
 
-  const drawerRendered = useMemo(() => {
-    switch (drawer.drawerId) {
-    case globalMenuDrawerId:
-      return <GlobalMenuDrawer />;
-    default:
-      return null;
-    }
-  }, [drawer]);
+  const drawerRendered = drawer.drawerId === globalMenuDrawerId ? <GlobalMenuDrawer /> : null;
 
   return <>
     <div
       className={`${styles.overlay} ${!!drawer.isOpen ? 'open' : ''}`}
       data-testid="overlay"
-      onClick={() => hideDrawer()}
+      onClick={() => dispatch(hideDrawer())}
     />
+
     <div
       className={`${styles.drawer} ${!!drawer.isOpen ? 'open' : ''} direction-${drawer.direction}`}
       data-testid="drawerContainer"
@@ -50,16 +48,4 @@ const Drawer = ({ drawer, hideDrawer }) => {
   </>;
 };
 
-Drawer.propTypes = {
-  drawer: PropTypes.shape({
-    data: PropTypes.any,
-    direction: PropTypes.string,
-    drawerId: PropTypes.string,
-    isOpen: PropTypes.bool,
-  }).isRequired,
-  hideDrawer: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = ({ view: { drawer } }) => ({ drawer });
-
-export default connect(mapStateToProps, { hideDrawer })(Drawer);
+export default Drawer;

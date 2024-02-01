@@ -1,0 +1,65 @@
+{
+  "alertsModal": {
+    "iframeBottomMessage": "Cada usuario de EarthRanger puede recibir hasta 20 alertas al día.",
+    "iframeTitle": "Configure sus alertas de EarthRanger"
+  },
+  "dailyReportModal": {
+    "dataExportModalTitle": "Reportes diarios",
+    "todaysReportButton": "Reportes de hoy",
+    "yesterdaysReportButton": "Reportes de ayer"
+  },
+  "dataExportModal": {
+    "cancelButton": "Cancelar",
+    "exportButton": "Exportar"
+  },
+  "globalMenuDrawer": {
+    "alertsButton": "Alertas",
+    "alertsModal": {
+      "title": "Alertas"
+    },
+    "communityButton": "Comunidad",
+    "contactSupport": {
+      "body": "¿Cómo le podemos ayudar?",
+      "subject": "Petición de soporte del usuario"
+    },
+    "contactSupportButton": "Contactar soporte",
+    "dailyReportModal": {
+      "title": "Reportes del día"
+    },
+    "exportsHeader": "EXPORTAR",
+    "fieldReportsModal": {
+      "content": "Reportes exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
+      "title": "Reportes de campo"
+    },
+    "footer": {
+      "clientVersion": "Versión del cliente web: {{version}}",
+      "copyright": "©{{year}} EarthRanger",
+      "dataPrivacyPolicyLink": "Política de Privacidad de datos",
+      "eulaLink": "EULA",
+      "serverVersion": "Versión del servidor: {{version}}",
+      "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
+    },
+    "helpCenter": "Centro de ayuda",
+    "masterKMLModal": {
+      "title": "KML Maestro"
+    },
+    "navigationButton": {
+      "mapLayers": "Capas de mapa",
+      "patrols": "Patrullas",
+      "reports": "Reportes",
+      "settings": "Configuraciones"
+    },
+    "subjectInformationModal": {
+      "title": "Información de Sujeto"
+    },
+    "subjectReportsModal": {
+      "title": "Reportes de Sujeto"
+    },
+    "tableauButton": "Tableau",
+    "usersGuideButton": "Guía de Usuario"
+  },
+  "kmlExportModal": {
+    "dataExportModalTitle": "Exportar archivo KML Maestro",
+    "includeInactiveSubjectsLabel": "Incluir sujetos inactivos"
+  }
+}

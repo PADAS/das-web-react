@@ -880,7 +880,7 @@ const ReportDetailView = ({
                 title={t('reportDetailView.saveSplitButton.title')}
                 onClick={onClickSaveButton}
               >
-                <Dropdown.Item data-testid="report-details-resolve-btn-toggle">
+                <Dropdown.Item className={styles.saveSplitButtonItem} data-testid="report-details-resolve-btn-toggle">
                   <Button onClick={onClickSaveAndToggleStateButton} type="button" variant="primary">
                     {t(`reportDetailView.saveSplitButton.${isActive ? 'saveAndResolveItem' : 'saveAndReopenItem'}`)}
                   </Button>

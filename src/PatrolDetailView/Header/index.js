@@ -157,7 +157,13 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       {t('patrolRestoreButton')}
     </Button>}
 
-    {!isNewPatrol && <PatrolMenu isPatrolCancelled={isPatrolCancelled} printableContentRef={printableContentRef} onPatrolChange={onPatrolChange} patrol={patrol} patrolTitle={title} />}
+    {!isNewPatrol && <PatrolMenu
+      isPatrolCancelled={isPatrolCancelled}
+      onPatrolChange={onPatrolChange}
+      patrol={patrol}
+      patrolTitle={title}
+      printableContentRef={printableContentRef}
+    />}
   </div>;
 };
 

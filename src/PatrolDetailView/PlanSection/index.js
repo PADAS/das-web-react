@@ -192,8 +192,6 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
           <LocationSelectorInput
-            className={styles.locationButton}
-            copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={startLocation}
             onLocationChange={onPatrolStartLocationChange}
@@ -247,8 +245,6 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
           <LocationSelectorInput
-            className={styles.locationButton}
-            copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={endLocation}
             onLocationChange={onPatrolEndLocationChange}
