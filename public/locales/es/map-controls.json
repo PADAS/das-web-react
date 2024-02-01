@@ -1,4 +1,8 @@
 {
+  "cursorGPSDisplay": {
+    "gpsDisplay": "Presiona enter para buscar",
+    "titleIconSearch": "Buscar"
+  },
   "baseLayer": {
     "popoverButton": "Configurar capa base del mapa",
     "popoverTitle": "Capas base",

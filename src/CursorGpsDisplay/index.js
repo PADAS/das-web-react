@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import Dropdown from 'react-bootstrap/Dropdown';
 import throttle from 'lodash/throttle';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
@@ -17,7 +18,7 @@ import styles from './styles.module.scss';
 const CursorGpsDisplay = () => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
-
+  const { t } = useTranslation('map-controls', { keyPrefix: 'cursorGPSDisplay' });
   const map = useContext(MapContext);
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
@@ -92,7 +93,7 @@ const CursorGpsDisplay = () => {
     >
     <Dropdown.Toggle className={styles.container}>
       <div className={styles.searchIcon}>
-        <SearchIcon />
+        <SearchIcon title={t('titleIconSearch')} />
       </div>
 
       {calcGpsDisplayString(cursorCoordinates.lat, cursorCoordinates.lng, gpsFormat)}
@@ -100,11 +101,11 @@ const CursorGpsDisplay = () => {
 
     <Dropdown.Menu className={styles.menu}>
       <GpsInput
-        buttonContent={<SearchIcon className={styles.searchButton} />}
+        buttonContent={<SearchIcon title={t('titleIconSearch')} className={styles.searchButton} />}
         onButtonClick={onGPSInputButtonClick}
         onKeyDown={onGPSInputKeyDown}
         onValidChange={onGPSInputChange}
-        tooltip="Press enter to search"
+        tooltip={t('gpsDisplay')}
       />
     </Dropdown.Menu>
   </Dropdown>;

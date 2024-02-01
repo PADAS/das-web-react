@@ -1,4 +1,8 @@
 {
+  "cursorGPSDisplay": {
+    "gpsDisplay": "Press enter to search",
+    "titleIconSearch": "Search"
+  },
   "baseLayer": {
     "popoverButton": "Set Map Base Layer",
     "popoverTitle": "Base Layers",
