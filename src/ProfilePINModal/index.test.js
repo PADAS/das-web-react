@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-
+import { fireEvent, render, screen, waitFor } from '../test-utils';
 import ProfilePINModal from './';
-
 
 describe('ProfilePINModal', () => {
   let onSuccess, profile;
