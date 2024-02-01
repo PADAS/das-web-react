@@ -14,6 +14,7 @@ import PatrolMenu from '../PatrolMenu';
 import PatrolTrackControls from '../PatrolTrackControls';
 
 import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -62,7 +63,7 @@ const PatrolListItem = ({
   const debouncedTrackFetch = useRef(null);
   const intervalRef = useRef(null);
   const menuRef = useRef(null);
-
+  const { t } = useTranslation('patrols');
   const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
 
   const { base: themeColor, background: themeBgColor } = theme;
@@ -86,7 +87,7 @@ const PatrolListItem = ({
 
     if (isPatrolScheduled || isPatrolCancelled) {
       return <span className={styles.titleDetails}>
-        Scheduled: <span>{scheduledStartTime}</span>
+        {t('patrolListItem.scheduledTitle')}<span>{scheduledStartTime}</span>
       </span>;
     }
 
@@ -125,7 +126,7 @@ const PatrolListItem = ({
           variant="light"
           className={styles.stateDependantControl}
         >
-        Restore
+        {t('patrolListItem.restoreButton')}
       </Button>;
     }
 
@@ -137,7 +138,7 @@ const PatrolListItem = ({
           variant="light"
           className={styles.stateDependantControl}
         >
-        Start
+        {t('patrolListItem.startButton')}
       </Button>;
     }
 
@@ -186,7 +187,10 @@ const PatrolListItem = ({
       className={styles.statusInfo}
       data-testid={`patrol-list-item-date-status-${patrol.id}`}
     >
-    {showStateTitle && <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>}
+    {showStateTitle && <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>
+      {t(`detailView.header.uiStateTitles.${patrolState.key}`)}
+    </strong>
+    }
     <span>{dateComponentDateString}</span>
   </div>;
 

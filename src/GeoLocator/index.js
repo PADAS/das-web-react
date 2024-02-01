@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
+import { useTranslation } from 'react-i18next';
 
 import { setCurrentUserLocation } from '../ducks/location';
 
@@ -11,8 +12,17 @@ import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-lo
 
 import styles from './styles.module.scss';
 
-const GeoLocator = (props) => {
-  const { className, label, onError, onStart, onSuccess, setCurrentUserLocation, userLocation } = props;
+const GeoLocator = ({
+  className,
+  onError,
+  onStart,
+  onSuccess,
+  setCurrentUserLocation,
+  userLocation,
+  ...restProps
+}) => {
+  const { t } = useTranslation('details-view', { keyPrefix: 'geoLocator' });
+  const { label = t('buttonLabel') } = restProps;
   const [fetchingLocation, setFetchingLocationState] = useState(false);
   const [locationFetchError, setLocationFetchErrorState] = useState(false);
   const clearAlertTimeout = useRef(null);
@@ -29,7 +39,7 @@ const GeoLocator = (props) => {
   const startFetchLocation = () => {
     setLocationFetchErrorState(false);
     setFetchingLocationState(true);
-    onStart();
+    onStart?.();
     if (userLocation) return onLocationFetchSuccess(userLocation);
     else try {
       window.navigator.geolocation.getCurrentPosition(onLocationFetchSuccess, onLocationFetchError, GEOLOCATOR_OPTIONS);
@@ -49,7 +59,7 @@ const GeoLocator = (props) => {
     setLocationFetchErrorState(error);
     onLocationFetchFinish();
     clearAlertTimeout.current = window.setTimeout(() => setLocationFetchErrorState(false), 3500);
-    onError(error);
+    onError?.(error);
   };
 
   const onLocationFetchFinish = () => {
@@ -61,23 +71,22 @@ const GeoLocator = (props) => {
       <GpsLocationIcon />
       <span>{label}</span>
     </button>
-    {fetchingLocation && <LoadingOverlay className={styles.loadingOverlay} message='Trying to read your location...' />}
+    {fetchingLocation && <LoadingOverlay className={styles.loadingOverlay} message={t('loadingMessage')} />}
     {locationFetchError && <Alert variant='danger'>
-      Could not read your current location: {locationFetchError.message}
+      {t('readingLocationError', {
+        locationErrorMessage: locationFetchError.message
+      })}
     </Alert>}
   </div>;
 };
 
-const mapStatetoProps = ({ view: { userLocation } }) => ({ userLocation });
-export default connect(mapStatetoProps, { setCurrentUserLocation })(memo(GeoLocator));
+const mapStateToProps = ({ view: { userLocation } }) => ({ userLocation });
+export default connect(mapStateToProps, { setCurrentUserLocation })(memo(GeoLocator));
 
 GeoLocator.defaultProps = {
   className: '',
-  label: 'Use my location',
-  onStart() {
-  },
-  onError() {
-  },
+  onStart: null,
+  onError: null,
   onSuccess() {
   },
 };
@@ -88,4 +97,5 @@ GeoLocator.propTypes = {
   onSuccess: PropTypes.func.isRequired,
   onError: PropTypes.func.isRequired,
   onStart: PropTypes.func,
+  label: PropTypes.string,
 };

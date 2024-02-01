@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import subDays from 'date-fns/sub_days';
-import startOfDay from 'date-fns/start_of_day';
 import setHours from 'date-fns/set_hours';
+import startOfDay from 'date-fns/start_of_day';
+import subDays from 'date-fns/sub_days';
+import { useTranslation } from 'react-i18next';
 
-import { trackEventFactory, REPORT_EXPORT_CATEGORY } from '../utils/analytics';
-import { removeModal } from '../ducks/modals';
+import { REPORT_EXPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
+
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
@@ -16,58 +15,52 @@ import styles from './styles.module.scss';
 const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
 const DailyReportModal = (props) => {
+  const { t } = useTranslation('menu-drawer', { keyPrefix: 'dailyReportModal' });
+
   const today = setHours(startOfDay(new Date()), 18);
   const yesterday = subDays(today, 1);
 
   const [customEndDate, setEndDate] = useState(setHours(today, 18));
   const [customStartDate, setStartDate] = useState(subDays(today, 1));
 
-  const setParamsFor = (type) => {
-    if (type === 'today') {
-      setStartDate(yesterday);
-      setEndDate(today);
-    }
-    if (type === 'yesterday') {
-      setStartDate(subDays(yesterday, 1));
-      setEndDate(yesterday);
-    }
-  };
-
   const setParamsForYesterday = () => {
-    setParamsFor('yesterday');
+    setStartDate(subDays(yesterday, 1));
+    setEndDate(yesterday);
+
     reportExportTracker.track('Click \'Yesterday\'s Report\' button', null);
   };
 
   const setParamsForToday = () => {
-    setParamsFor('today');
+    setStartDate(yesterday);
+    setEndDate(today);
+
     reportExportTracker.track('Click \'Today\'s Report\' button', null);
   };
 
-  const handleInputChange = (type, value) => {
-    if (type === 'start') {
-      setStartDate(value);
-    };
-    if (type === 'end') {
-      setEndDate(value);
-    }
-  };
+  const handleStartDateChange = (value) => {
+    setStartDate(value);
 
-  const handleStartDateChange = value => {
     reportExportTracker.track('Set Report Start Date');
-    handleInputChange('start', value);
   };
-  const handleEndDateChange = value => {
+
+  const handleEndDateChange = (value) => {
+    setEndDate(value);
+
     reportExportTracker.track('Set Report End Date');
-    handleInputChange('end', value);
   };
 
-  const exportParams = { before: customEndDate, since: customStartDate };
-
-  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={exportParams}>
+  return <DataExportModal
+      {...props}
+      params={{ before: customEndDate, since: customStartDate }}
+      title={t('dataExportModalTitle')}
+      url="reports/sitrep.docx"
+    >
     <div className={styles.controls}>
-      <Button type="button" onClick={setParamsForYesterday}>Yesterday&apos;s Report</Button>
-      <Button type="button" onClick={setParamsForToday}>Today&apos;s Report</Button>
+      <Button onClick={setParamsForYesterday} type="button">{t('yesterdaysReportButton')}</Button>
+
+      <Button onClick={setParamsForToday} type="button">{t('todaysReportButton')}</Button>
     </div>
+
     <DateRangeSelector
       className={styles.controls}
       endDate={customEndDate}
@@ -84,9 +77,4 @@ const DailyReportModal = (props) => {
   </DataExportModal >;
 };
 
-DailyReportModal.propTypes = {
-  id: PropTypes.string.isRequired,
-  removeModal: PropTypes.func.isRequired,
-};
-
-export default connect(null, { removeModal })(DailyReportModal);
+export default DailyReportModal;

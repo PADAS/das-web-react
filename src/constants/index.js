@@ -1,4 +1,6 @@
 import { toast } from 'react-toastify';
+import es from 'date-fns/locale/es';
+import enUS from 'date-fns/locale/en';
 
 import * as packageJson from '../../package.json';
 import layoutVariables from '../common/styles/layout.module.scss';
@@ -53,14 +55,15 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
+/** ToDo: remove title once all translations related with this const are done */
 export const PATROL_UI_STATES = {
-  SCHEDULED: { title: 'Scheduled', status: 'scheduled' },
-  READY_TO_START: { title: 'Ready to Start', status: 'ready' },
-  ACTIVE: { title: 'Active', status: 'open' },
-  DONE: { title: 'Done', status: 'done' },
-  START_OVERDUE: { title: 'Start Overdue', status: 'start-overdue' },
-  CANCELLED: { title: 'Cancelled', status: 'cancelled' },
-  INVALID: { title: 'Invalid Configuration', status: 'cancelled' },
+  SCHEDULED: { key: 'scheduled', title: 'Scheduled', status: 'scheduled' },
+  READY_TO_START: { key: 'readyToStart', title: 'Ready to start', status: 'ready' },
+  ACTIVE: { key: 'active', title: 'Active', status: 'open' },
+  DONE: { key: 'done', title: 'Done', status: 'done' },
+  START_OVERDUE: { key: 'startOverdue', title: 'Start Overdue', status: 'start-overdue' },
+  CANCELLED: { key: 'cancelled', title: 'Cancelled', status: 'cancelled' },
+  INVALID: { key: 'invalid', title: 'Invalid Configuration', status: 'cancelled' },
 };
 
 export const PATROL_API_STATES = {
@@ -138,10 +141,10 @@ export const SOURCE_IDS = {
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
-  [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
-  [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
-  [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
-  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
+  [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: true },
+  [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: false },
+  [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
+  [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
 };
 
 export const LAYER_PICKER_IDS = [
@@ -343,5 +346,10 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
   [FEATURE_FLAG_LABELS.ENABLE_PATROL_NEW_UI]: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
   [FEATURE_FLAG_LABELS.I18N_ENABLED]: process.env.REACT_APP_I18N_ENABLED === 'true',
   [FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED]: process.env.REACT_APP_LEGACY_RT_ENABLED === 'true',
+};
+
+export const DATE_LOCALES = {
+  'es': es,
+  'en-US': enUS
 };
 

@@ -1,5 +1,6 @@
 import axios, { isCancel } from 'axios';
 import toString from 'lodash/toString';
+import isArrayLike from 'lodash/isArrayLike';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
@@ -65,7 +66,8 @@ export const cleanedUpFilterObject = (filter) =>
       }
 
       if (!!value
-      || (!isNil(value) && !isEmpty(value))) {
+        || (isArrayLike(value) && !isEmpty(value))
+        || !isNil(value)) {
         return {
           ...accumulator,
           [key]: value,

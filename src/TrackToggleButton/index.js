@@ -1,12 +1,15 @@
 import React, { forwardRef, memo, useMemo } from 'react';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
 import SubjectControlButton from '../SubjectControls/button';
 
+import styles from './styles.module.scss';
+
 const TrackToggleButton = (props, ref) => {
   const { className = '', trackVisible, trackPinned, showTransparentIcon, ...rest } = props;
+  const { t } = useTranslation('patrols', { keyPrefix: 'trackToggleButton' });
   const containerClasses = useMemo(() => {
     let string = styles.container;
 
@@ -26,7 +29,7 @@ const TrackToggleButton = (props, ref) => {
     return string;
   }, [className, showTransparentIcon, trackPinned, trackVisible]);
 
-  const labelText = (trackPinned && 'Tracks pinned') || (trackVisible && 'Tracks on') || 'Tracks off';
+  const labelText = t((trackPinned && 'tracksPinned') || (trackVisible && 'tracksOn') || 'tracksOff');
 
   return <SubjectControlButton ref={ref} buttonClassName={buttonClasses} containerClassName={containerClasses} labelText={labelText} {...rest} />;
 };

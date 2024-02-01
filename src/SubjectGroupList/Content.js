@@ -53,7 +53,7 @@ const ContentComponent = (props) => {
     subjectIsVisible,
     subjectFilterEnabled,
     subjectMatchesFilter,
-    listLevel: listLevel+1,
+    listLevel: listLevel + 1,
   };
 
   useEffect(() => {
@@ -99,11 +99,9 @@ const ContentComponent = (props) => {
     map,
   };
 
-  // const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
-
-
   const triggerProps = {
-    listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle,
+    listLevel, name, showHeatmapControl, groupIsFullyHeatmapped,
+    loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle,
   };
 
   return <Collapsible

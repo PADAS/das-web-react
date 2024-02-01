@@ -86,58 +86,43 @@ const DEFAULT_HUMANIZED_DURATION_PROPS = {
 };
 
 export const HUMANIZED_DURATION_CONFIGS = {
-  FULL_FORMAT: {
+  FULL_FORMAT: (language = 'en') => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
-    language: 'en',
+    language,
     units: ['y', 'mo', 'd', 'h', 'm', 's'],
-  },
-  MINUTES_ONLY: {
+  }),
+  MINUTES_ONLY: (minutesLabel) => ({ // 'minute'
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
     language: 'minutes_only',
     languages: {
       minutes_only: {
-        m: (n) => pluralize('minute', n),
+        m: (n) => pluralize(minutesLabel, n),
       },
     },
     units: ['m'],
     spacer: ' ',
-  },
-  ABBREVIATED_FORMAT: {
+  }),
+  ABBREVIATED_FORMAT: (abbreviations) => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
     language: 'abbreviated',
     languages: {
-      abbreviated: {
-        y: () => 'y',
-        mo: () => 'mo',
-        w: () => 'w',
-        d: () => 'd',
-        h: () => 'h',
-        m: () => 'm',
-        s: () => 's',
-      },
+      abbreviated: abbreviations,
     },
     units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
     spacer: '',
-  },
-  LONG_TERM_ABRREVIATED: {
+  }),
+  LONG_TERM_ABRREVIATED: (abbreviations) => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
     language: 'long_term',
     languages: {
-      long_term: {
-        y: () => 'y',
-        mo: () => 'mo',
-        w: () => 'w',
-        d: () => 'd',
-        h: () => 'h',
-        m: () => 'm',
-      },
+      long_term: abbreviations,
     },
     units: ['y', 'mo', 'w', 'd', 'h', 'm'],
     spacer: '',
-  }
+  })
 };
 
-export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT) => humanizeDuration.humanizer(config);
+export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT()) => humanizeDuration.humanizer(config);
 
 export const getUserLocaleTime = (date = new Date()) => {
   const userLanguage = navigator.languages?.[0]

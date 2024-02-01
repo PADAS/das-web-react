@@ -1,29 +1,46 @@
+@import '../common/styles/inputs';
+
 .kebabMenu {
   display: flex;
   --hamburger-menu-color: #1a2026;
-  align-items: center;
-  border-radius: 1rem;
-  height: 1.75rem;
-  justify-content: center;
-  right: 0.125rem;
-  transition: background 0.15s linear;
-  top: 0.125rem;
-  width: 1.75rem;
+  background: rgba(136, 139, 141, 0.15);
+  border: none;
+  border-radius: 0.25rem;
+  height: 2.25rem;
+  width: 2.25rem;
+  padding: 0;
+  margin-right: 0.5rem;
+
   &:active {
-      background: rgba(0,0,0,0.17);
+    background: rgba(0,0,0,0.17);
   }
+
   > button {
     border: none;
     outline: none;
     background: none;
     width: 100%;
-    padding: 44%;
+
+    > div {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
     &::after {
       display: none;
     }
   }
+}
+
+.menuDropdown {
+  padding: 0.312rem 0;
+  min-width: 8.56rem;
+  @include boxShadow;
+
   @media print {
-    opacity: 0;
+    display: none !important;
   }
 }
 

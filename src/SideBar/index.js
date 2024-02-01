@@ -64,8 +64,8 @@ const SideBar = () => {
   const isSettingsViewActive = !!matchPath(`/${TAB_KEYS.SETTINGS}`, location.pathname);
 
   const isReportDetailsViewActive = useMemo(() => !!matchPath(
-      `/${TAB_KEYS.REPORTS}/:id`,
-      location.pathname
+    `/${TAB_KEYS.REPORTS}/:id`,
+    location.pathname
   ), [location.pathname]);
   const hasRouteHistory = useMemo(() => location.key !== 'default', [location]);
   const sidebarOpen = !!currentTab;
@@ -76,7 +76,7 @@ const SideBar = () => {
   );
 
   const onClickBackFromDetailView = useCallback(() => {
-    if (reportIsBeingAdded){
+    if (reportIsBeingAdded) {
       return navigate(location.pathname, { replace: true });
     }
     if (location.state?.relatedEvent) {
@@ -93,18 +93,18 @@ const SideBar = () => {
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
-    case TAB_KEYS.REPORTS:
-      return 'Reports';
-    case TAB_KEYS.PATROLS:
-      return 'Patrols';
-    case TAB_KEYS.SETTINGS:
-      return 'Settings';
-    case TAB_KEYS.LAYERS:
-      return 'Map Layers';
-    default:
-      return '';
+      case TAB_KEYS.REPORTS:
+        return t('reportsLink');
+      case TAB_KEYS.PATROLS:
+        return t('patrolsLink');
+      case TAB_KEYS.SETTINGS:
+        return t('settingsLink');
+      case TAB_KEYS.LAYERS:
+        return t('mapLayersLink');
+      default:
+        return '';
     }
-  }, [currentTab]);
+  }, [currentTab, t]);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
@@ -123,7 +123,7 @@ const SideBar = () => {
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (isReportDetailsViewActive || currentTab !== TAB_KEYS.REPORTS || !sidebarOpen) ) {
+        if (matches_current_filter && (isReportDetailsViewActive || currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -150,7 +150,7 @@ const SideBar = () => {
       {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
         <PatrolIcon />
         <span>{t('patrolsLink')}</span>
-        </Link>}
+      </Link>}
 
       <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
         <LayersIcon />
@@ -168,21 +168,21 @@ const SideBar = () => {
         <div className={styles.header}>
           <div className={[TAB_KEYS.REPORTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
             {!!itemId
-                ? <button
-                  className={styles.backButton}
-                  type='button'
-                  onClick={onClickBackFromDetailView}
-                  data-testid="sideBar-backDetailViewButton"
-                >
-                  <ArrowLeftIcon />
-                </button>
-                : <AddItemButton
-                  className={styles.addReport}
-                  hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
-                  hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
-                  showLabel={false}
-                  variant="secondary"
-                />}
+              ? <button
+                className={styles.backButton}
+                type='button'
+                onClick={onClickBackFromDetailView}
+                data-testid="sideBar-backDetailViewButton"
+              >
+                <ArrowLeftIcon />
+              </button>
+              : <AddItemButton
+                className={styles.addReport}
+                hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
+                hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
+                showLabel={false}
+                variant="secondary"
+              />}
           </div>
 
           <h3>{tabTitle}</h3>
@@ -199,15 +199,15 @@ const SideBar = () => {
 
             <Route path="reports">
               <Route index element={<ReportsFeedTab
-                  events={reportsFeed.events}
-                  feedSort={reportsFeed.feedSort}
-                  loadFeedEvents={reportsFeed.loadFeedEvents}
-                  loadingEventFeed={reportsFeed.loadingEventFeed}
-                  setFeedSort={reportsFeed.setFeedSort}
-                  shouldExcludeContained={reportsFeed.shouldExcludeContained}
-                />} />
+                events={reportsFeed.events}
+                feedSort={reportsFeed.feedSort}
+                loadFeedEvents={reportsFeed.loadFeedEvents}
+                loadingEventFeed={reportsFeed.loadingEventFeed}
+                setFeedSort={reportsFeed.setFeedSort}
+                shouldExcludeContained={reportsFeed.shouldExcludeContained}
+              />} />
 
-              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded}/>} />
+              <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
             </Route>
 
             <Route path="patrols">
@@ -222,7 +222,7 @@ const SideBar = () => {
                 <MapLayerFilter />
 
                 <div className={styles.mapLayers}>
-                  <ReportMapControl/>
+                  <ReportMapControl />
                   <SubjectGroupList map={map} />
                   <FeatureLayerList map={map} />
                   <AnalyzerLayerList map={map} />

@@ -10,8 +10,8 @@ import Header from './';
 import { mockStore } from '../../__test-helpers/MockStore';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
-import { render, screen, waitFor } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
+import { render, screen, waitFor } from '../../test-utils';
 
 describe('ReportManager - Header', () => {
   let store = mockStore({

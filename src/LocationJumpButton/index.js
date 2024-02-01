@@ -9,6 +9,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 
 import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
@@ -27,6 +28,7 @@ const LocationJumpButton = ({
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
+  const { t } = useTranslation('patrols');
 
   const isValidLocation = useMemo(() => bypassLocationValidation || (!!coordinates &&
       (Array.isArray(coordinates[0]) ?
@@ -63,7 +65,7 @@ const LocationJumpButton = ({
     : <MarkerIcon />, [isMulti]);
 
   return isValidLocation &&
-  <button title="Jump to this location" type="button" className={buttonClass} onClick={onJumpButtonClick} {...rest}>
+  <button title={t('jumpToLocationBtnLabel')} type="button" className={buttonClass} onClick={onJumpButtonClick} {...rest}>
     {iconOverride ? iconOverride : defaultIcon}
   </button>
   ;

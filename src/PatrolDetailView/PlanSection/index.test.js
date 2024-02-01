@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
@@ -8,6 +7,7 @@ import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
 import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
 import { newPatrol, overduePatrol,  patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
+import { render, screen, within } from '../../test-utils';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
@@ -68,15 +68,15 @@ describe('PatrolDetailView - PlanSection', () => {
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>
             <PlanSection
-              onPatrolEndDateChange={onPatrolEndDateChange}
-              onPatrolEndLocationChange={onPatrolEndLocationChange}
-              onPatrolObjectiveChange={onPatrolObjectiveChange}
-              onPatrolReportedByChange={onPatrolReportedByChange}
-              onPatrolStartDateChange={onPatrolStartDateChange}
-              onPatrolStartLocationChange={onPatrolStartLocationChange}
-              patrolForm={newPatrol}
-              {...overwriteProps}
-            />
+                  onPatrolEndDateChange={onPatrolEndDateChange}
+                  onPatrolEndLocationChange={onPatrolEndLocationChange}
+                  onPatrolObjectiveChange={onPatrolObjectiveChange}
+                  onPatrolReportedByChange={onPatrolReportedByChange}
+                  onPatrolStartDateChange={onPatrolStartDateChange}
+                  onPatrolStartLocationChange={onPatrolStartLocationChange}
+                  patrolForm={newPatrol}
+                  {...overwriteProps}
+              />
           </MapDrawingToolsContextProvider>
         </MapContext.Provider>
       </Provider>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { TrackerContext } from '../../../utils/analytics';
@@ -8,6 +7,7 @@ import { TrackerContext } from '../../../utils/analytics';
 import { downloadFileFromUrl } from '../../../utils/download';
 import { fetchImageAsBase64FromUrl } from '../../../utils/file';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { render, screen, waitFor } from '../../../test-utils';
 
 import AttachmentListItem from '.';
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
@@ -11,18 +11,16 @@ import GpsFormatToggle from '../GpsFormatToggle';
 const DroppedMarkerPopup = ({ data: { location }, id }) => {
   const dispatch = useDispatch();
 
-  const containerRef = useRef(null);
-
   const onComplete = useCallback(() => dispatch(hidePopup(id)), [dispatch, id]);
 
   return <>
-    <GpsFormatToggle lng={location.lng} lat={location.lat} />
+    <GpsFormatToggle lat={location.lat} lng={location.lng} />
 
-    <hr ref={containerRef} />
+    <hr />
 
     <AddItemButton
       analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'dropped marker on map' }}
-      formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
+      formProps={{ onSaveError: onComplete, onSaveSuccess: onComplete }}
       reportData={{
         location: {
           latitude: location.lat,

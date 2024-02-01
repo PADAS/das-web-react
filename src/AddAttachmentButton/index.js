@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../utils/analytics';
 
@@ -23,6 +24,7 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
 
 const AddAttachmentButton = ({ className, onAddAttachments }) => {
   const fileInputRef = useRef();
+  const { t } = useTranslation('details-view');
 
   const analytics = useContext(TrackerContext);
 
@@ -90,7 +92,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
       variant="secondary"
       >
       <AttachmentIcon />
-      <label>Attachment</label>
+      <label>{t('addAttachmentButton')}</label>
     </Button>
   </>;
 };

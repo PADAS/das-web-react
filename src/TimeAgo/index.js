@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect, useState, memo } from 'react';
 import { generateCurrentTimeZoneTitle, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import { useTranslation } from 'react-i18next';
 
 const title = generateCurrentTimeZoneTitle();
 
@@ -11,16 +12,30 @@ const TimeAgo = (props) => {
   const { date, prefix = null, suffix = null, ...rest } = props;
 
   const [timeDistance, setTimeDistance] = useState(new Date() - new Date(date));
-
+  const { t, i18n: { language } } = useTranslation('dates');
   const olderThanAMinute = timeDistance > ONE_MINUTE;
   const olderThanAnHour = timeDistance > ONE_HOUR;
 
   const durationStringGenerator = useMemo(() => {
-    if (olderThanAnHour) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED);
-    if (olderThanAMinute) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY);
+    if (olderThanAnHour){
+      const abbreviations = {
+        y: () => t('timeUnitAbbreviations.year'),
+        mo: () => t('timeUnitAbbreviations.month'),
+        w: () => t('timeUnitAbbreviations.week'),
+        d: () => t('timeUnitAbbreviations.day'),
+        h: () => t('timeUnitAbbreviations.hour'),
+        m: () => t('timeUnitAbbreviations.minute'),
+      };
+      return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED(abbreviations));
+    }
 
-    return durationHumanizer();
-  }, [olderThanAMinute, olderThanAnHour]);
+    if (olderThanAMinute) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY(t('minutesLabel')));
+
+    const notSupportedLangKeys = {
+      'en-US': 'en'
+    };
+    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.FULL_FORMAT( notSupportedLangKeys[language] ?? language ));
+  }, [olderThanAMinute, olderThanAnHour, t, language]);
 
   const durationString = durationStringGenerator(timeDistance);
 

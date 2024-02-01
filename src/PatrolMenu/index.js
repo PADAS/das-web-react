@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useReactToPrint } from 'react-to-print';
+import { useTranslation } from 'react-i18next';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
@@ -13,11 +14,19 @@ import { basePrintingStyles } from '../utils/styles';
 
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item } = Dropdown;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, isPatrolCancelled, showPatrolPrintOption, ...rest } = props;
+const PatrolMenu = ({
+  patrol,
+  onPatrolChange,
+  menuRef,
+  printableContentRef,
+  patrolTitle,
+  isPatrolCancelled,
+  showPatrolPrintOption,
+  ...rest
+}) => {
+  const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
 
   const patrolState = calcPatrolState(patrol);
 
@@ -54,14 +63,14 @@ const PatrolMenu = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
 
   const patrolStartStopTitle = useMemo(() => {
-    if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
-    return 'Start Patrol';
-  }, [canEnd, patrolIsCancelled, patrolIsDone]);
+    if (canEnd || patrolIsCancelled || patrolIsDone) return t('endPatrol');
+    return t('startPatrol');
+  }, [canEnd, patrolIsCancelled, patrolIsDone, t]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore Patrol';
-    return 'Cancel Patrol';
-  }, [canRestorePatrol]);
+    if (canRestorePatrol) return t('restorePatrol');
+    return t('cancelPatrol');
+  }, [canRestorePatrol, t]);
 
   const togglePatrolCancelationState = useCallback(() => {
     patrolListItemTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol list item kebab menu`);
@@ -83,7 +92,6 @@ const PatrolMenu = (props) => {
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const handleClickOutside = useCallback(() => menuRef?.current?.classList.remove('show'), [menuRef]);
   const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
 
   const handlePrint = useReactToPrint({
@@ -93,32 +101,48 @@ const PatrolMenu = (props) => {
   });
 
   useEffect(() => {
+    const handleClickOutside = () => menuRef?.current?.classList.remove('show');
     window.addEventListener('click', handleClickOutside, true);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, [handleClickOutside]);
 
-  return  <Dropdown align='end' className={styles.kebabMenu} {...rest} onClick={onDropdownClick}>
-    <Toggle as='button' className={styles.kebabToggle} >
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, [menuRef]);
+
+  return <Dropdown align="end" className={styles.kebabMenu} {...rest} onClick={onDropdownClick}>
+    <Dropdown.Toggle as="button" className={styles.kebabToggle} >
       <KebabMenuIcon />
-    </Toggle>
-    <Menu ref={menuRef}>
-      { (canEditPatrol && !isPatrolCancelled) && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
-      { (canEditPatrol && !isPatrolCancelled) && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
-      { (!!patrol.id && !isPatrolCancelled) && <Item className={styles.copyBtn}>
+    </Dropdown.Toggle>
+
+    <Dropdown.Menu className={styles.menuDropdown} ref={menuRef}>
+      {canEditPatrol && !isPatrolCancelled && <Dropdown.Item
+        disabled={!patrolStartEndCanBeToggled || patrolIsCancelled}
+        onClick={togglePatrolStartStopState}
+      >
+        {patrolStartStopTitle}
+      </Dropdown.Item>}
+
+      {canEditPatrol && !isPatrolCancelled && <Dropdown.Item
+        disabled={!patrolCancelRestoreCanBeToggled}
+        onClick={togglePatrolCancelationState}
+      >
+        {patrolCancelRestoreTitle}
+      </Dropdown.Item>}
+
+      {!!patrol.id && !isPatrolCancelled && <Dropdown.Item className={styles.copyBtn}>
         <TextCopyBtn
-            label='Copy patrol link'
-            text={`${DAS_HOST}/patrols/${patrol.id}`}
-            icon={null}
-            successMessage='Link copied'
-            permitPropagation
+          icon={null}
+          label={t('copyButton')}
+          permitPropagation
+          successMessage={t('copyButtonMessage')}
+          text={`${DAS_HOST}/patrols/${patrol.id}`}
         />
-      </Item>}
-      { showPatrolPrintOption && <Item onClick={handlePrint}>Print patrol</Item> }
-    </Menu>
+      </Dropdown.Item>}
+
+      {showPatrolPrintOption && <Dropdown.Item onClick={handlePrint}>
+        {t('printPatrolButton')}
+      </Dropdown.Item>}
+    </Dropdown.Menu>
   </Dropdown>;
 };
-
-export default memo(PatrolMenu);
 
 PatrolMenu.defaultProps = {
   patrolTitle: '',
@@ -134,3 +158,5 @@ PatrolMenu.propTypes = {
   isPatrolCancelled: PropTypes.bool,
   showPatrolPrintOption: PropTypes.bool,
 };
+
+export default memo(PatrolMenu);

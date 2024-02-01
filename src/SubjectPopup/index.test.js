@@ -1,7 +1,4 @@
-
-
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Provider, useSelector }  from 'react-redux';
@@ -11,7 +8,7 @@ import { GPS_FORMATS } from '../utils/location';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
 
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
-
+import { render, screen } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import SubjectPopup from './';

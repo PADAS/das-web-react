@@ -26,6 +26,7 @@ import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 import { getPatrolLeadersWithLocation } from '../../selectors/patrols';
+import { useTranslation } from 'react-i18next';
 
 const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
 
@@ -51,6 +52,7 @@ const PlanSection = ({
   const endDate = displayEndTimeForPatrol(patrolForm);
   const startDate = displayStartTimeForPatrol(patrolForm);
   const endDayIsSameAsStart = endDate && startDate?.toDateString() === endDate?.toDateString();
+  const { t } = useTranslation('patrols', { keyPrefix: 'detailView.planSection' });
 
   const startLocation = useMemo(() => {
     const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
@@ -126,19 +128,18 @@ const PlanSection = ({
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <CalendarIcon />
-
-        <h2>Plan</h2>
+        <h2>{t('title')}</h2>
       </div>
     </div>
 
     <div className={styles.container}>
       <div className={styles.row}>
         <label data-testid="patrolDetailView-reportedBySelect" className={styles.fieldLabel}>
-          Tracked By
+          {t('trackedByLabel')}
           <ReportedBySelect
             onChange={onPatrolReportedByChange}
             options={patrolLeaders ?? []}
-            placeholder="Select Device..."
+            placeholder={t('trackedByPlaceholder')}
             value={patrolForm.patrol_segments?.[0]?.leader}
           />
         </label>
@@ -146,13 +147,13 @@ const PlanSection = ({
 
       <div className={styles.row}>
         <label className={`${styles.fieldLabel} ${styles.objectiveLabel}`}>
-          Objective
+          {t('objectiveLabel')}
           <Form.Control
             className={styles.objective}
             as="textarea"
             data-testid="patrolDetailView-objectiveTextArea"
             onChange={onPatrolObjectiveChange}
-            placeholder="Describe the purpose of the patrol..."
+            placeholder={t('objectivePlaceholder')}
             rows={3}
             value={patrolForm?.objective ?? ''}
           />
@@ -168,7 +169,7 @@ const PlanSection = ({
             data-testid="patrolDetailView-startDatePicker"
             className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
           >
-            Start Date
+            {t('startDateLabel')}
             <DatePicker
               className={styles.datepicker}
               onChange={handleStartDateChange}
@@ -179,7 +180,7 @@ const PlanSection = ({
           </label>
 
           <label data-testid="patrolDetailView-startTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
-            Start Time
+            {t('startTimeLabel')}
             <TimePicker
               minutesInterval={15}
               onChange={handleStartTimeChange}
@@ -189,14 +190,12 @@ const PlanSection = ({
         </div>
 
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
-          {isMediumLayoutOrLarger ? 'Start Location' : 'Location'}
+          {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
           <LocationSelectorInput
-            className={styles.locationButton}
-            copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={startLocation}
             onLocationChange={onPatrolStartLocationChange}
-            placeholder="Set Location"
+            placeholder={t('locationSelectorPlaceholder')}
           />
         </label>
       </div>
@@ -209,7 +208,7 @@ const PlanSection = ({
           type="checkbox"
           data-testid="patrol-is-auto-start"
         />
-        <span>Automatically start the patrol in EarthRanger at this time</span>
+        <span>{t(isMediumLayoutOrLarger ? 'autoStartCheckboxLargeLabel': 'autoStartCheckboxSmallLabel' )}</span>
       </label>
 
       <div className={styles.row}>
@@ -218,7 +217,7 @@ const PlanSection = ({
             data-testid="patrolDetailView-endDatePicker"
             className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
           >
-            End Date
+            {t('endDateLabel')}
             <DatePicker
               className={styles.datepicker}
               endDate={endDate}
@@ -231,7 +230,7 @@ const PlanSection = ({
           </label>
 
           <label data-testid="patrolDetailView-endTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
-            End Time
+            {t('endTimeLabel')}
             <TimePicker
               disabled={!endDate}
               minTime={endDayIsSameAsStart ? getHoursAndMinutesString(startDate) : null}
@@ -244,14 +243,12 @@ const PlanSection = ({
         </div>
 
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
-          {isMediumLayoutOrLarger ? 'End Location' : 'Location'}
+          {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
           <LocationSelectorInput
-            className={styles.locationButton}
-            copyable={!!isMediumLayoutOrLarger}
             label={null}
             location={endLocation}
             onLocationChange={onPatrolEndLocationChange}
-            placeholder="Set Location"
+            placeholder={t('locationSelectorPlaceholder')}
           />
         </label>
       </div>
@@ -264,7 +261,7 @@ const PlanSection = ({
           type="checkbox"
           data-testid="patrol-is-auto-end"
         />
-        <span>Automatically end the patrol in EarthRanger at this time</span>
+        <span>{t(isMediumLayoutOrLarger ? 'autoEndCheckboxLargeLabel': 'autoEndCheckboxSmallLabel')}</span>
       </label>
     </div>
   </>;

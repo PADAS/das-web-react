@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as DownloadArrowIcon } from '../common/images/icons/download-arrow.svg';
 
@@ -20,6 +21,7 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
   const imageRef = useRef();
   const downloadIconRef = useRef();
   const titleRef = useRef();
+  const { t } = useTranslation('details-view', { keyPrefix: 'imageModal' });
 
   const [error, setErrorState] = useState(false);
   const [loaded, setLoadState] = useState(false);
@@ -83,8 +85,8 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
       />}
 
       {error && <>
-        <h5>Error loading image.</h5>
-        <h6>If you uploaded this file recently, please wait a minute and try again.</h6>
+        <h5>{t('errorTitle')}</h5>
+        <h6>{t('errorMessage')}</h6>
       </>}
     </Body>
   </>;

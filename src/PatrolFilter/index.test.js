@@ -67,7 +67,7 @@ describe('PatrolFilter', () => {
       expect(searchBar.value).toBe('Search');
       expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
       expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { text: 'Search' } });
-    }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME + 50 });
+    });
   });
 
   test('clears the search bar text when the user clicks the clear button', async () => {

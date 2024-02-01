@@ -6,6 +6,8 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 import distanceInWords from 'date-fns/distance_in_words';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import { useTranslation } from 'react-i18next';
+
 
 import uniq from 'lodash/uniq';
 
@@ -36,9 +38,11 @@ const getIconForTrack = (track, subjectStore) => {
 
 const TitleElement = memo((props) => { // eslint-disable-line
   const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, subjectStore, trackData, trackPointCount, trackDuration } = props;
+  const { t } = useTranslation('map-legends');
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
     const { properties: { title, id } } = track.features[0];
+    const pointCount = track.features[0].geometry ? track.features[0].geometry.coordinates.length : 0;
 
     const image = getIconForTrack(track, subjectStore);
 
@@ -46,7 +50,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{track.features[0].geometry ? track.features[0].geometry.coordinates.length : '0'} points</small>
+        <small>{t('pointCount', { count: pointCount })}</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
@@ -59,20 +63,20 @@ const TitleElement = memo((props) => { // eslint-disable-line
         {displayTitle}
         {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
         {subjectCount > 1 &&
-        <OverlayTrigger trigger="click" rootClose
-      onExited={() => mapInteractionTracker.track('Close Tracks Legend Subject List')}
-      onEntered={() => mapInteractionTracker.track('Show Tracks Legend Subject List')}
-      placement="right" overlay={
-        <Popover className={styles.popover} id="track-details">
-          <ul>
-            {trackData.map(convertTrackToSubjectDetailListItem)}
-          </ul>
-        </Popover>
-      }>
-          <button type="button" className={styles.infoButton}>
-            <InfoIcon className={styles.infoIcon} />
-          </button>
-        </OverlayTrigger>}
+          <OverlayTrigger trigger="click" rootClose
+            onExited={() => mapInteractionTracker.track('Close Tracks Legend Subject List')}
+            onEntered={() => mapInteractionTracker.track('Show Tracks Legend Subject List')}
+            placement="right" overlay={
+              <Popover className={styles.popover} id="track-details">
+                <ul>
+                  {trackData.map(convertTrackToSubjectDetailListItem)}
+                </ul>
+              </Popover>
+            }>
+            <button type="button" className={styles.infoButton}>
+              <InfoIcon className={styles.infoIcon} />
+            </button>
+          </OverlayTrigger>}
       </h6>
       <span>{trackPointCount} points over {trackDuration}</span>
     </div>
@@ -104,7 +108,7 @@ const TrackLegend = (props) => {
   }, [trackTimeEnvelope]);
 
   const iconSrc = useMemo(() => {
-    if (!subjectCount || !hasTrackData ||  subjectCount !== 1) return null;
+    if (!subjectCount || !hasTrackData || subjectCount !== 1) return null;
     return getIconForTrack(trackData[0].track, subjectStore);
   }, [hasTrackData, subjectCount, subjectStore, trackData]);
 
