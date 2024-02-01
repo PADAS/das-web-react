@@ -80,7 +80,7 @@ const BaseLayerControl = (props) => {
 
   return <div className={styles.wrapper} ref={wrapperRef}>
     <button title={t('popoverButton')} type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
-      <BaseMapIcon />
+      <BaseMapIcon title={t('popoverButton')} />
     </button>
     <Overlay placement='left' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title={t('popoverTitle')}>
