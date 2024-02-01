@@ -6,6 +6,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from '../AddItemButton';
+import { API_URL } from '../constants';
 import { createMapMock } from '../__test-helpers/mocks';
 import { executeSaveActions } from '../utils/save';
 import { EVENT_API_URL } from '../ducks/events';
@@ -41,6 +42,58 @@ jest.mock('../utils/save', () => ({
 const server = setupServer(
   rest.get(
     `${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: scheduledPatrol }))
+  ),
+  rest.get(
+    `${API_URL}subject/:id/tracks/`, (req, res, ctx) => res(ctx.json({ data: {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [
+                -100.2459453,
+                25.6849756
+              ],
+              [
+                -100.2682902948611,
+                25.685682147469063
+              ],
+              [
+                -100.2688026303226,
+                25.69030166157174
+              ],
+              [
+                -100.1622343,
+                25.7839992
+              ],
+            ]
+          },
+          properties: {
+            title: 'Alan Calvillo',
+            subject_type: 'person',
+            subject_subtype: 'ranger',
+            id: 'd148be7a-09ae-441d-a3d5-2f7ad2d0197a',
+            stroke: '',
+            'stroke-opacity': 1,
+            'stroke-width': 2,
+            image: 'https://stage.pamdas.org/static/ranger-black.svg',
+            last_voice_call_start_at: null,
+            location_requested_at: null,
+            radio_state_at: '1970-01-01T00:00:00+00:00',
+            radio_state: 'na',
+            coordinateProperties: {
+              times: [
+                '2024-01-05T16:15:37+00:00',
+                '2024-01-03T22:25:56+00:00',
+                '2024-01-03T21:48:19+00:00',
+              ]
+            }
+          }
+        }
+      ]
+    } }))
   ),
   rest.patch(
     `${EVENT_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: {} }))
@@ -224,7 +277,7 @@ describe('PatrolDetailView', () => {
     });
   });
 
-  test('does not fetch the patrol data if it is in the patrol store already', async () => {
+  test('does not fetch the patrol data and fetches the leader tracks if the patrol is in the store but the tracks are not', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -232,6 +285,7 @@ describe('PatrolDetailView', () => {
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
+      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/`))).toBeDefined();
     });
   });
 
