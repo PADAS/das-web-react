@@ -1,6 +1,6 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplay": "Press enter to search",
+    "gpsDisplayTooltip": "Press enter to search",
     "titleIconSearch": "Search"
   },
   "baseLayer": {

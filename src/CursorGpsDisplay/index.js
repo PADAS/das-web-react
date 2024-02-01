@@ -105,7 +105,7 @@ const CursorGpsDisplay = () => {
         onButtonClick={onGPSInputButtonClick}
         onKeyDown={onGPSInputKeyDown}
         onValidChange={onGPSInputChange}
-        tooltip={t('gpsDisplay')}
+        tooltip={t('gpsDisplayTooltip')}
       />
     </Dropdown.Menu>
   </Dropdown>;
