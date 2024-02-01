@@ -93,16 +93,16 @@ const SideBar = () => {
 
   const tabTitle = useMemo(() => {
     switch (currentTab) {
-      case TAB_KEYS.REPORTS:
-        return t('reportsLink');
-      case TAB_KEYS.PATROLS:
-        return t('patrolsLink');
-      case TAB_KEYS.SETTINGS:
-        return t('settingsLink');
-      case TAB_KEYS.LAYERS:
-        return t('mapLayersLink');
-      default:
-        return '';
+    case TAB_KEYS.REPORTS:
+      return t('reportsLink');
+    case TAB_KEYS.PATROLS:
+      return t('patrolsLink');
+    case TAB_KEYS.SETTINGS:
+      return t('settingsLink');
+    case TAB_KEYS.LAYERS:
+      return t('mapLayersLink');
+    default:
+      return '';
     }
   }, [currentTab, t]);
 
