@@ -27,6 +27,7 @@
     },
     "outdatedNotifications_one": "Tienes {{count}} mensaje nuevo.",
     "outdatedNotifications_other": "Tienes {{count}} mensajes nuevos.",
+    "readMore": "Leer más",
     "seeAllNewsButton": "Ver todas las noticias >",
     "tryAgainButton": "Intentar de nuevo"
   },

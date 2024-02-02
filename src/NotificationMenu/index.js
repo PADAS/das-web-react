@@ -25,8 +25,8 @@ const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7;
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
-const formatUnreadNewsItemsAsNotifications = (news = []) => news.map(item => ({
-  confirmText: 'Read more',
+const formatUnreadNewsItemsAsNotifications = (news = [], t) => news.map(item => ({
+  confirmText: t('readMore'),
   date: item?.additional?.created_at,
   id: item.id,
   message: item.description,
@@ -126,7 +126,7 @@ const NotificationMenu = (props) => {
   const fetchNewsForMenu = () => {
     setNewsFetchError(null);
     fetchNews()
-      .then(({ data: { data } }) => setNews(formatUnreadNewsItemsAsNotifications(data.results)))
+      .then(({ data: { data } }) => setNews(formatUnreadNewsItemsAsNotifications(data.results, t)))
       .catch((error) => setNewsFetchError(error));
   };
 
@@ -163,17 +163,17 @@ const NotificationMenu = (props) => {
 
   useEffect(() => {
     fetchNewsForMenu();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (socket) {
-      const consumeMessage = ({ data: msg }) => setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
+      const consumeMessage = ({ data: msg }) => setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news], t);
 
       const [, fnRef] = socket.on('new_announcement', consumeMessage);
 
       return () => socket.off('new_announcement', fnRef);
     }
-  }, [news, socket]);
+  }, [news, socket, t]);
 
   return <Dropdown align="end" className={styles.dropdown} onToggle={onToggle} {...props}>
     <Dropdown.Toggle as="div" data-testid="notification-toggle" ref={toggleBtnRef}>

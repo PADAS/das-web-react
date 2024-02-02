@@ -27,6 +27,7 @@
     },
     "outdatedNotifications_one": "You have {{count}} unread notification.",
     "outdatedNotifications_other": "You have {{count}} unread notifications.",
+    "readMore": "Read more",
     "seeAllNewsButton": "See all news >",
     "tryAgainButton": "Try again"
   },
