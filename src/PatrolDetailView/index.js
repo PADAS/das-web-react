@@ -25,6 +25,7 @@ import {
 } from '../utils/patrols';
 import { extractObjectDifference } from '../utils/objects';
 import { fetchPatrol } from '../ducks/patrols';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
@@ -516,6 +517,12 @@ const PatrolDetailView = () => {
     patrolId,
     state,
   ]);
+
+  useEffect(() => {
+    if (leader?.id) {
+      fetchTracksIfNecessary([leader?.id]);
+    }
+  }, [leader?.id]);
 
   useEffect(() => {
     if (redirectTo) {
