@@ -9,7 +9,11 @@ on:
 
 jobs:
   config:
+    if: contains(github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.head_ref }}
+      url: "https://${{ github.head_ref }}.dev.pamdas.org"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node
