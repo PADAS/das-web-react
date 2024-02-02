@@ -29,6 +29,7 @@ jobs:
           path: package.json
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
+    needs: config
     uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v1-stable
     with:
       environment: padas-app
