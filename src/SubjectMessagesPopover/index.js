@@ -1,6 +1,8 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -14,41 +16,61 @@ import SubjectControlButton from '../SubjectControls/button';
 
 import styles from './styles.module.scss';
 
-const SubjectMessagesPopover = ({ className = '', subject, ...rest }) => {
+const SubjectMessagesPopover = ({ className, subject, ...restProps }) => {
+  const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });
+
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 
-  const buttonClassName = `${className} ${styles.button}`;
+  if (!subject) {
+    return null;
+  }
 
-  const params = useMemo(() => ({ subject_id: subject?.id }), [subject]);
-
-  if (!subject) return null;
-
-  const PopoverContent = <Popover className={styles.popover}>
+  const popover = <Popover className={styles.popover}>
     <Popover.Header>
-      <h6><ChatIcon /> {subject.name}</h6>
+      <h6>
+        <ChatIcon /> {subject.name}
+      </h6>
     </Popover.Header>
 
     <Popover.Body>
-      <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} params={params} isReverse={true} />
+      <ParamFedMessageList
+        isReverse
+        params={{ subject_id: subject.id }}
+        senderDetailStyle={SENDER_DETAIL_STYLES.SHORT}
+      />
+
       {!!hasMessagingWritePermissions && <MessageInput subjectId={subject.id} />}
     </Popover.Body>
   </Popover>;
 
   return <OverlayTrigger
-      shouldUpdatePosition={true}
+      flip
+      overlay={popover}
+      placement="auto"
       rootClose
-      trigger='click'
-      placement='auto'
-      overlay={PopoverContent}
-      flip={true}
+      shouldUpdatePosition
+      trigger="click"
     >
     <SubjectControlButton
-      buttonClassName={buttonClassName}
+      buttonClassName={`${className} ${styles.button}`}
       containerClassName={styles.container}
-      labelText='Messaging'
-      {...rest}
+      labelText={t('label')}
+      {...restProps}
     />
   </OverlayTrigger>;
+};
+
+SubjectMessagesPopover.defaultProps = {
+  className: '',
+  subject: null,
+};
+
+SubjectMessagesPopover.propTypes = {
+  className: PropTypes.string,
+  subject: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+  }),
 };
 
 export default memo(SubjectMessagesPopover);

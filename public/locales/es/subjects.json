@@ -1,0 +1,28 @@
+{
+  "subjectControls": {
+    "historicalDataModalTitle": "Histórico de datos: {{subjectName}}"
+  },
+  "subjectHistoricalDataModal": {
+    "observationRow": {
+      "noDataLabel": "No hay datos"
+    },
+    "tableDateHeader": "Fecha",
+    "tableLocationHeader": "Ubicación"
+  },
+  "subjectHistoryButton": {
+    "label": "Histórico de datos"
+  },
+  "subjectMessagesPopover": {
+    "label": "Mensajería"
+  },
+  "subjectPopup": {
+    "additionalPropsButton": {
+      "fewer": "< menos detalles",
+      "more": "más detalles >"
+    },
+    "dateTimeSuffix": "atrás",
+    "micActivityHeader": "Actividad con micrófono",
+    "noHistoricalDataSpan": "No hay histórico de datos",
+    "subjectIconAlt": "Ícono del sujeto {{name}}"
+  }
+}
