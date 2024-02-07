@@ -13,6 +13,7 @@ import TimeAgo from '../TimeAgo';
 import Select from '../Select';
 
 import styles from './styles.module.scss';
+import {useTranslation} from "react-i18next";
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 
@@ -129,8 +130,11 @@ const MenuList = ({ options, children, maxHeight, getValue }) => {
 };
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps, isDisabled } = props;
-
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, options: optionsFromProps, isDisabled } = props;
+  const { t } = useTranslation('filters');
+  const {
+    placeholder = t('reportedByPlaceholder')
+  } = props;
   const selections = optionsFromProps ? optionsFromProps : reporters;
 
   const recentRadios = useMemo(() =>
@@ -234,7 +238,6 @@ ReportedBySelect.defaultProps = {
   isDisabled: false,
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
-  placeholder: 'Reported By...',
 };
 
 

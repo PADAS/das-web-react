@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import getMonth from 'date-fns/get_month';
 import getYear from 'date-fns/get_year';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
@@ -10,8 +11,7 @@ import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-r
 
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
-
-const DEFAULT_TIME_INPUT_LABEL = 'Time:';
+import { DATE_LOCALES } from '../constants';
 
 const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) => {
   const [time, setTime] = useState(initialValue);
@@ -33,7 +33,7 @@ CustomTimePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-const renderCustomHeader = (maxDate, minDate) => {
+const renderCustomHeader = (maxDate, minDate, currentLocale) => {
   const CustomHeader = ({
     changeMonth,
     changeYear,
@@ -73,7 +73,7 @@ const renderCustomHeader = (maxDate, minDate) => {
         className={styles.headerTitle}
         data-testid="datePicker-monthYearPicker-input"
       >
-      {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
+      {`${date.toLocaleString(currentLocale, { month: 'short' })} ${getYear(date)}`}
 
       <div className={styles.triangle} />
     </div>;
@@ -243,6 +243,7 @@ const CustomDatePicker = ({
   ...rest
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t, i18n: { language } } = useTranslation('filters', { keyPrefix: 'dateSelector' });
 
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
@@ -254,7 +255,7 @@ const CustomDatePicker = ({
     onCalendarClose?.();
   }, [onCalendarClose]);
 
-  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate), [rest?.maxDate, rest?.minDate]);
+  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate, language), [rest?.maxDate, rest?.minDate, language]);
 
   return <DatePicker
     customInput={<CustomInputForwardRef isPopperOpen={isOpen} dateFormat={dateFormat} />}
@@ -265,7 +266,7 @@ const CustomDatePicker = ({
     ref={ref}
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
-    timeInputLabel={DEFAULT_TIME_INPUT_LABEL}
+    timeInputLabel={t('defaultTimeLabel')}
     showTimeInput={showTimeInput}
     customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
     fixedHeight

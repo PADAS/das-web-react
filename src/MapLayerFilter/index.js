@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { updateMapLayerFilter } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
@@ -11,6 +12,7 @@ const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
   const { text } = mapLayerFilter;
   const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
+  const { t } = useTranslation('filters');
 
   const onClearSearch = (e) => {
     e.stopPropagation();
@@ -28,7 +30,7 @@ const MapLayerFilter = (props) => {
   };
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <SearchBar className={styles.search} placeholder='Search Layers...' value={text || ''}
+    <SearchBar className={styles.search} placeholder={t('mapLayerSearchbarPlaceholder')} value={text || ''}
       onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
 };

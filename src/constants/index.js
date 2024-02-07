@@ -222,14 +222,17 @@ export const EVENT_STATE_CHOICES = [
   {
     label: 'Active',
     value: ['active', 'new'],
+    key: 'active'
   },
   {
     label: 'Resolved',
     value: ['resolved'],
+    key: 'resolved'
   },
   {
     label: 'All',
     value: null,
+    key: 'all'
   },
 ];
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +6,7 @@ import DateRangePopover from '.';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../../ducks/global-date-range';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen, waitFor } from '../../test-utils';
 
 jest.mock('../../ducks/global-date-range', () => ({
   __esModule: true,

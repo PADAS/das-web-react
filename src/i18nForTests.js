@@ -10,6 +10,7 @@ import sideBarEnUS from '../public/locales/en-US/side-bar.json';
 import patrolsEnUS from '../public/locales/en-US/patrols.json';
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsView from '../public/locales/en-US/details-view.json';
+import filters from '../public/locales/en-US/filters.json';
 
 
 i18n
@@ -33,6 +34,7 @@ i18n
         'patrols': patrolsEnUS,
         'dates': datesEnUS,
         'details-view': detailsView,
+        'filters': filters,
       },
     },
   });

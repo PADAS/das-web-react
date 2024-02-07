@@ -1,5 +1,4 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +6,7 @@ import { endOfToday, generateDaysAgoDate } from '../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import PatrolFilter, { PATROL_TEXT_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
+import { cleanup, render, screen, waitFor } from '../test-utils';
 
 jest.mock('../ducks/patrol-filter', () => ({
   ...jest.requireActual('../ducks/patrol-filter'),

@@ -5,6 +5,7 @@ import intersection from 'lodash-es/intersection';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash-es/uniq';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../../common/images/icons/user-profile.svg';
 import ReportedBySelect from '../../ReportedBySelect';
@@ -16,20 +17,20 @@ import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 
 import styles from '../styles.module.scss';
 
-const StateSelector = ({ onStateSelect, state }) => (
+const StateSelector = ({ onStateSelect, state, translateFn }) => (
   <ul className={styles.stateList} data-testid="state-filter-options">
     {EVENT_STATE_CHOICES.map(choice =>
       <li key={choice.value}>
         <Button variant='link'
-            className={isEqual(choice.value, state) ? styles.activeState : ''}
-            onClick={() => onStateSelect(choice)}>
-          {choice.label}
+                  className={isEqual(choice.value, state) ? styles.activeState : ''}
+                  onClick={() => onStateSelect(choice)}>
+          {translateFn(`stateSelector.${choice.key}`)}
         </Button>
       </li>)}
   </ul>
 );
 
-const ResetButton = ({ text = 'Reset', ...otherProps }) => (
+const ResetButton = ({ text, ...otherProps }) => (
   <Button type="button" variant='light' size='sm' {...otherProps}>
     {text}
   </Button>
@@ -57,6 +58,7 @@ const Filters = ({
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
   const someReportTypesChecked = !isEventTypeFilterEmpty && !!reportTypesCheckedCount;
   const noReportTypesChecked = !isEventTypeFilterEmpty && !someReportTypesChecked;
+  const { t } = useTranslation('filters', { keyPrefix: 'filtersPopover' });
 
   const selectedReporters = useMemo(() =>
     reportedByFilter && !!reportedByFilter.length
@@ -158,33 +160,54 @@ const Filters = ({
     }
   }, [eventFilterTracker, state, updateEventFilter]);
 
+  const appliedFilterLabel = useMemo(() => {
+    if (isEventTypeFilterEmpty){
+      return t('reportTypesSelectionLabels.allSelected');
+    }
+    if (someReportTypesChecked) {
+      return t('reportTypesSelectionLabels.someSelected', {
+        reportTypesCheckedCount,
+        eventTypeIDsLength: eventTypeIDs.length
+      });
+    }
+
+    return t('reportTypesSelectionLabels.noneSelected');
+  }, [eventTypeIDs.length, isEventTypeFilterEmpty, reportTypesCheckedCount, someReportTypesChecked, t]);
+
   return <>
     <Popover.Header>
       <div className={styles.popoverTitle}>
-        Report Filters
-        <ResetButton onClick={onResetPopoverFilters} disabled={!isFilterModified} text="Reset all"/>
+        {t('title')}
+        <ResetButton onClick={onResetPopoverFilters} disabled={!isFilterModified} text={t('restAllTextButton')}/>
       </div>
     </Popover.Header>
 
     <Popover.Body>
       <div className={styles.filterRow}>
-        <label>State</label>
-        <StateSelector onStateSelect={onStateSelect} state={state} />
-        <ResetButton disabled={!isStateFilterModified} onClick={onResetStateFilter}/>
+        <label>
+          {t('stateLabel')}
+        </label>
+        <StateSelector onStateSelect={onStateSelect} state={state} translateFn={t} />
+        <ResetButton disabled={!isStateFilterModified} onClick={onResetStateFilter} text={t('restTextButton')} />
       </div>
 
       <div className={`${styles.filterRow} ${styles.priorityRow}`}>
-        <label>Priority</label>
-        <PriorityPicker className={styles.priorityPicker} onSelect={onPriorityChange} selected={priority}
-                        isMulti={true}/>
-        <ResetButton disabled={!isPriorityFilterModified} onClick={onResetPriorityFilter}/>
+        <label>
+          {t('priorityPickerLabel')}
+        </label>
+        <PriorityPicker
+            className={styles.priorityPicker}
+            onSelect={onPriorityChange}
+            selected={priority}
+            isMulti={true} />
+        <ResetButton disabled={!isPriorityFilterModified} onClick={onResetPriorityFilter} text={t('restTextButton')} />
       </div>
 
       <div className={styles.filterRow}>
         <UserIcon className={styles.userIcon}/>
         <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange}
                           isMulti={true}/>
-        <ResetButton disabled={!isReportedByFilterModified} onClick={onResetReportedByFilter}/>
+        <ResetButton disabled={!isReportedByFilterModified} onClick={onResetReportedByFilter} text={t('restTextButton')} />
       </div>
 
       <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
@@ -193,15 +216,13 @@ const Filters = ({
             <CheckMark fullyChecked={!noReportTypesChecked && !someReportTypesChecked}
                        partiallyChecked={!noReportTypesChecked && someReportTypesChecked}
                        onClick={onToggleAllReportTypes}/>
-            <span>All</span>
+            <span>{t('reportTypesAllLabel')}</span>
           </div>
-          Report Types
+          {t('reportTypesLabel')}
           <small className={!isEventTypeFilterEmpty ? styles.modified : ''}>
-            {isEventTypeFilterEmpty && 'All selected'}
-            {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
-            {noReportTypesChecked && 'None selected'}
+            {appliedFilterLabel}
           </small>
-          <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes}/>
+          <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes} text={t('restTextButton')} />
         </h5>
 
         <ReportTypeMultiSelect filter={reportTypeFilterText}

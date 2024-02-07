@@ -19,17 +19,31 @@ export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
-export const calcFriendlyDurationString = (from, until) => {
-  if (!from && !until) return '1 month ago until now';
+export const calcFriendlyDurationString = (from, until, translateFn, locale) => {
+  if (!from && !until) return translateFn('monthAgo');
 
-  if (!until) return `${distanceInWords(startOfDay(from), new Date())} ago until now`;
+  if (!until){
+    return translateFn('untilNow', {
+      humanDate: distanceInWords(startOfDay(from), new Date(), { locale })
+    });
+  }
 
-  if (!from) return `1 month ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
+  if (!from){
+    return translateFn('monthAgoUntilNow', {
+      humanDate: distanceInWords(startOfDay(until), new Date(), { locale })
+    });
+  }
 
   const untilIsFuture = isFuture(until);
   const untilDate = untilIsFuture ? new Date(until) : startOfDay(new Date(until));
 
-  return `${distanceInWords(startOfDay(from), new Date())} ago until ${distanceInWords(untilDate, new Date())}${untilIsFuture ? ' from now' : ' ago'}`;
+  const fromDistanceInWords = distanceInWords(startOfDay(from), new Date(), { locale });
+  const untilDistanceInWords = distanceInWords(untilDate, new Date(), { locale });
+
+  return translateFn(untilIsFuture ? 'someAgoFromNow' : 'someAgo', {
+    fromDistanceInWords,
+    untilDistanceInWords
+  });
 };
 
 export const SHORT_TIME_FORMAT = 'HH:mm';

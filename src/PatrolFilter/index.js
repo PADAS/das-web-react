@@ -21,6 +21,7 @@ import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
+import {useTranslation} from "react-i18next";
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
@@ -28,7 +29,7 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const PatrolFilter = ({ className }) => {
   const containerRef = useRef(null);
-
+  const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
   const patrols = useSelector(getPatrolList);
   const patrolFilter = useSelector(state => state.data.patrolFilter);
@@ -86,7 +87,7 @@ const PatrolFilter = ({ className }) => {
       >
       <SearchBar
         className={`${styles.search} ${patrolFilterStyles.search}`}
-        placeholder='Search Patrols...'
+        placeholder={t('searchbarPlaceHolder')}
         value={filterText}
         onChange={onSearchChange}
         onClear={resetSearch}
@@ -107,8 +108,8 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
-          <FilterIcon className={styles.filterIcon} />
-          <span>Filters</span>
+          <FilterIcon className={styles.filterIcon} title={t('filtersTitle')} />
+          <span>{t('filtersTitle')}</span>
         </Button>
       </OverlayTrigger>
 
@@ -127,8 +128,8 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
           data-testid="patrolFilter-dateRangeButton"
         >
-          <ClockIcon className={styles.clockIcon} />
-          <span>Dates</span>
+          <ClockIcon className={styles.clockIcon} title={t('datesTitle')} />
+          <span>{t('datesTitle')}</span>
         </Button>
       </OverlayTrigger>
     </div>
