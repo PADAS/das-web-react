@@ -5,9 +5,6 @@
     "startDateNullMessage": "{{distanceInWordsDate}} ago",
     "title": "Date Range"
   },
-  "dateSelector": {
-    "defaultTimeLabel": "Time:"
-  },
   "dateRangeSelector": {
     "endDateLabel": "To:",
     "lastSevenDaysLabel": "Last 7 days",
