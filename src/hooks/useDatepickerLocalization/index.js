@@ -11,12 +11,12 @@ const longDateTimeFormats = {
   'en-US': 'mm/dd/yyyy hh:mm:ss',
 };
 
-const useLocale = () => {
+const useDatepickerLocalization = () => {
   const { t, i18n: { language } } = useTranslation('datepicker');
   const translatedDays = dayKeys.map((dayKey) => t(`days.${dayKey}`));
   const translatedMonths = monthKeys.map((dayKey) => t(`months.${dayKey}`));
 
-  return {
+  const locale = {
     localize: {
       day: n => translatedDays[n],
       month: n => translatedMonths[n]
@@ -27,6 +27,8 @@ const useLocale = () => {
       time: () => 'hh:mm:ss',
     }
   };
+
+  return { locale, language, t };
 };
 
-export default useLocale;
+export default useDatepickerLocalization;

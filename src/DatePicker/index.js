@@ -7,12 +7,10 @@ import PropTypes from 'prop-types';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-right.svg';
-import useLocale from '../hooks/useLocale';
+import useDatepickerLocalization from '../hooks/useDatepickerLocalization';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
-
-const DEFAULT_TIME_INPUT_LABEL = 'Time:';
 
 const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) => {
   const [time, setTime] = useState(initialValue);
@@ -34,7 +32,7 @@ CustomTimePicker.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-const renderCustomHeader = (maxDate, minDate) => {
+const renderCustomHeader = (maxDate, minDate, currentLang, currentLocale) => {
   const CustomHeader = ({
     changeMonth,
     changeYear,
@@ -74,7 +72,7 @@ const renderCustomHeader = (maxDate, minDate) => {
         className={styles.headerTitle}
         data-testid="datePicker-monthYearPicker-input"
       >
-      {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
+      {`${date.toLocaleString(currentLang, { month: 'short' })} ${getYear(date)}`}
 
       <div className={styles.triangle} />
     </div>;
@@ -123,6 +121,7 @@ const renderCustomHeader = (maxDate, minDate) => {
         selected={date}
         showMonthYearPicker
         showPopperArrow={false}
+        locale={currentLocale}
       />
 
       <button
@@ -244,7 +243,12 @@ const CustomDatePicker = ({
   ...rest
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
-  const locale = useLocale();
+  const { locale, language, t } = useDatepickerLocalization();
+
+  console.log(language);
+  console.log(locale);
+  console.log(t('defaultTimeLabel'));
+
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
     onCalendarOpen?.();
@@ -255,7 +259,7 @@ const CustomDatePicker = ({
     onCalendarClose?.();
   }, [onCalendarClose]);
 
-  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate), [rest?.maxDate, rest?.minDate]);
+  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate, language, locale), [rest?.maxDate, rest?.minDate, language, locale]);
 
   return <DatePicker
     customInput={<CustomInputForwardRef isPopperOpen={isOpen} dateFormat={dateFormat} />}
@@ -266,7 +270,7 @@ const CustomDatePicker = ({
     ref={ref}
     renderCustomHeader={CustomHeader}
     showPopperArrow={false}
-    timeInputLabel={DEFAULT_TIME_INPUT_LABEL}
+    timeInputLabel={t('defaultTimeLabel')}
     showTimeInput={showTimeInput}
     customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
     fixedHeight
