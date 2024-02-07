@@ -520,9 +520,11 @@ const PatrolDetailView = () => {
 
   useEffect(() => {
     if (leader?.id) {
-      fetchTracksIfNecessary([leader?.id]);
+      fetchTracksIfNecessary([leader?.id], {
+        optionalDateBoundaries: { since: patrolStartTime, until: patrolEndTime }
+      });
     }
-  }, [leader?.id]);
+  }, [leader?.id, patrolEndTime, patrolStartTime]);
 
   useEffect(() => {
     if (redirectTo) {
