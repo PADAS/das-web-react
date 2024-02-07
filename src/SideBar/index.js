@@ -91,20 +91,7 @@ const SideBar = () => {
     return navigate(-1, {});
   }, [hasRouteHistory, location, navigate, reportIsBeingAdded]);
 
-  const tabTitle = useMemo(() => {
-    switch (currentTab) {
-      case TAB_KEYS.REPORTS:
-        return t('reportsLink');
-      case TAB_KEYS.PATROLS:
-        return t('patrolsLink');
-      case TAB_KEYS.SETTINGS:
-        return t('settingsLink');
-      case TAB_KEYS.LAYERS:
-        return t('mapLayersLink');
-      default:
-        return '';
-    }
-  }, [currentTab, t]);
+  const tabTitle = t(`${currentTab}Link`);
 
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
@@ -154,7 +141,7 @@ const SideBar = () => {
 
       <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
         <LayersIcon />
-        <span>{t('mapLayersLink')}</span>
+        <span>{t('layersLink')}</span>
       </Link>
 
       <Link className={styles.navItem} to={TAB_KEYS.SETTINGS}>

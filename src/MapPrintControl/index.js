@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 
@@ -15,6 +16,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapPrintControl = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('map-controls', { keyPrefix: 'mapPrintControl' });
 
   const printTitle = useSelector((state) => state.view.printTitle);
 
@@ -84,10 +86,10 @@ const MapPrintControl = () => {
       onClick={toggleActiveState}
       ref={buttonRef}
       type='button'
-      title='Print map'
+      title={t('printButtonTitle')}
       className={`${styles.button} ${active ? styles.active : ''}`}
     >
-      <PrinterIcon />
+      <PrinterIcon title={t('printButtonTitle')} />
     </button>
 
     <Overlay
@@ -100,15 +102,15 @@ const MapPrintControl = () => {
         <Popover.Body>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>
             <label>
-              <span>Document Title:</span>
+              <span>{t('documentTitle')}</span>
               <input type='text' value={printTitle} onChange={onInputChange} />
             </label>
 
             <Button size='sm' variant='dark' type='submit'>
-              Print map
+              {t('printButton')}
             </Button>
 
-            <small>Adjust the &quot;scale&quot; setting when printing for best results</small>
+            <small>{t('printInstructions')}</small>
           </form>
         </Popover.Body>
       </Popover>
