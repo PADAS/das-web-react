@@ -277,7 +277,7 @@ describe('PatrolDetailView', () => {
     });
   });
 
-  test.only('does not fetch the patrol data and fetches the leader tracks if the patrol is in the store but the tracks are not', async () => {
+  test('does not fetch the patrol data and fetches the leader tracks if the patrol is in the store but the tracks are not', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/123' })));
     useLocation.mockImplementation(useLocationMock);
 
