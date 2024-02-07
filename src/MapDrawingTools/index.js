@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
+import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
@@ -217,6 +217,7 @@ PropTypes.propTypes = {
 
 const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => {
   const map = useContext(MapContext);
+  const { t } = useTranslation('map-controls', { keyPrefix: 'mapDrawingTools' });
 
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
   const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
@@ -230,17 +231,24 @@ const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, p
     anchor="left"
     >
     {drawing ? <>
-      {points.length === 0 && <p>Click to add a point</p>}
+      {points.length === 0 && <p>{t('popupLabel')}</p>}
 
       {!!points.length && <>
         {!showPromptForSecondPoint && <>
-          <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
-
-          <p>Distance: {lineLength}</p>
+          <p>
+            {t('bearingLabel', {
+              bearing: calcPositiveBearing(points[points.length - 1], coords).toFixed(2)
+            })}
+          </p>
+          <p>
+            {t('distanceLabel', {
+              distance: lineLength
+            })}
+          </p>
         </>}
-        <small>Click to add a point.<br />Hit &quot;enter&quot; or &quot;return&quot; to complete.</small>
+        <small>{t('addPointLabel')}</small>
       </>}
-    </> : <span>Click &amp; drag to add a point</span>
+    </> : <span>{t('instructionsLabel')}</span>
     }
   </Popup> : null;
 };
