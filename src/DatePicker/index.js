@@ -245,10 +245,6 @@ const CustomDatePicker = ({
   const [isOpen, setIsOpen] = useState(false);
   const { locale, language, t } = useDatepickerLocalization();
 
-  console.log(language);
-  console.log(locale);
-  console.log(t('defaultTimeLabel'));
-
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
     onCalendarOpen?.();

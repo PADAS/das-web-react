@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import store from '../store';
 import userEvent from '@testing-library/user-event';
 
@@ -10,6 +9,7 @@ import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter
 import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
+import { render, screen, waitFor, within } from '../test-utils';
 
 const feedSort = DEFAULT_EVENT_SORT;
 const resetMock = jest.fn();

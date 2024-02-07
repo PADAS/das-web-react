@@ -11,6 +11,7 @@ import patrolsEnUS from '../public/locales/en-US/patrols.json';
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsView from '../public/locales/en-US/details-view.json';
 import mapControls from '../public/locales/en-US/map-controls.json';
+import datepicker from '../public/locales/en-US/datepicker.json';
 
 
 i18n
@@ -35,6 +36,7 @@ i18n
         'dates': datesEnUS,
         'details-view': detailsView,
         'map-controls': mapControls,
+        'datepicker': datepicker,
       },
     },
   });
