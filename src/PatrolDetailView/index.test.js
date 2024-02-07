@@ -285,7 +285,7 @@ describe('PatrolDetailView', () => {
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
-      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/`))).toBeDefined();
+      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/?since=2022-01-18T21:42:39.502Z`))).toBeDefined();
     });
   });
 
