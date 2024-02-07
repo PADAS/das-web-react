@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-right.svg';
+import useLocale from '../hooks/useLocale';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
@@ -243,7 +244,7 @@ const CustomDatePicker = ({
   ...rest
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const locale = useLocale();
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
     onCalendarOpen?.();
@@ -269,6 +270,7 @@ const CustomDatePicker = ({
     showTimeInput={showTimeInput}
     customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
     fixedHeight
+    locale={locale}
     {...rest}
   />;
 };
