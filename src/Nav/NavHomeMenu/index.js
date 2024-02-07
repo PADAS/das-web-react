@@ -1,72 +1,75 @@
-import React, { Fragment, memo } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-
-import { useMatchMedia } from '../../hooks';
-import { BREAKPOINTS } from '../../constants';
-import NavHomeItem from '../NavHomeItem';
-
-import { userLocationCanBeShown } from '../../selectors';
-
-import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
-import styles from './styles.module.scss';
-import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../../utils/analytics';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSmallIcon } from '../../common/images/icons/arrow-down-small.svg';
+import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 
-const { Toggle, Menu, Item, Divider } = Dropdown;
+import { BREAKPOINTS } from '../../constants';
+import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { useMatchMedia } from '../../hooks';
+import { userLocationCanBeShown as userLocationCanBeShownSelector } from '../../selectors';
+
+import NavHomeItem from '../NavHomeItem';
+
+import styles from './styles.module.scss';
+
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-const NavHomeMenu = function NavHomeMenu(props) {
-  const { maps, onMapSelect, selectedMap, userLocation, userLocationCanBeShown, onCurrentLocationClick } = props;
+const NavHomeMenu = function NavHomeMenu({ maps, onCurrentLocationClick, onMapSelect, selectedMap }) {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'nav.navHomeMenu' });
 
   const isMediumLayout = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const onDropdownToggle = (isOpen) => {
-    mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Home Area Menu`);
-  };
+  const userLocation = useSelector((state) => state.view.userLocation);
+  const userLocationCanBeShown = useSelector(userLocationCanBeShownSelector);
 
-  return (
-    <Dropdown className="home-select" onToggle={onDropdownToggle} align="end">
-      <Toggle className={styles.toggle}>
-        <NavHomeItem {...selectedMap} showIcon={true} /> {isMediumLayout && <ArrowDownSmallIcon />}
-      </Toggle>
-      <Menu className={styles.menu}>
-        {maps.map(map =>
-          <Item as="button" active={selectedMap.id === map.id ? 'active' : null}
-            className={styles.listItem} key={map.id}
-            onClick={() => onMapSelect(map)}>
-            <NavHomeItem {...map} />
-          </Item>)}
-        {userLocationCanBeShown && <Fragment>
-          <Divider />
-          <Item className={styles.currentLocationJump}
-            onClick={() => onCurrentLocationClick(userLocation)}>
-            <h6>
-              <GpsLocationIcon /> My Current Location
-            </h6>
-          </Item>
-        </Fragment>}
-      </Menu>
-    </Dropdown>
-  );
-};
+  return <Dropdown
+      align="end"
+      className="home-select"
+      onToggle={(isOpen) => mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Home Area Menu`)}
+    >
+    <Dropdown.Toggle className={styles.toggle}>
+      <NavHomeItem {...selectedMap} showIcon />
 
-const mapStateToProps = (state) => ({
-  userLocation: state.view.userLocation,
-  userLocationCanBeShown: userLocationCanBeShown(state),
-});
-export default connect(mapStateToProps, null)(memo(NavHomeMenu));
+      {isMediumLayout && <ArrowDownSmallIcon />}
+    </Dropdown.Toggle>
 
-NavHomeMenu.defaultProps = {
-  onCurrentLocationClick() {
-  },
+    <Dropdown.Menu className={styles.menu}>
+      {maps.map((map) => <Dropdown.Item
+        active={selectedMap.id === map.id ? 'active' : null}
+        as="button"
+        className={styles.listItem}
+        key={map.id}
+        onClick={() => onMapSelect(map)}
+      >
+        <NavHomeItem {...map} />
+      </Dropdown.Item>)}
+
+      {userLocationCanBeShown && <>
+        <Dropdown.Divider />
+
+        <Dropdown.Item className={styles.currentLocationJump} onClick={() => onCurrentLocationClick(userLocation)}>
+          <h6>
+            <GpsLocationIcon /> {t('myCurrentLocationItem')}
+          </h6>
+        </Dropdown.Item>
+      </>}
+    </Dropdown.Menu>
+  </Dropdown>;
 };
 
 NavHomeMenu.propTypes = {
-  maps: PropTypes.array.isRequired,
-  selectedMap: PropTypes.object.isRequired,
+  maps: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+  })).isRequired,
+  onCurrentLocationClick: PropTypes.func.isRequired,
   onMapSelect: PropTypes.func.isRequired,
-  onCurrentLocationClick: PropTypes.func,
+  selectedMap: PropTypes.shape({
+    id: PropTypes.string,
+  }).isRequired,
 };
+
+export default memo(NavHomeMenu);

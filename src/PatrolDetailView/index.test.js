@@ -265,7 +265,7 @@ describe('PatrolDetailView', () => {
     });
   });
 
-  test('does not fetch the patrol data if the id is "new"', async () => {
+  test('does not fetch the patrol data nor the tracks if the id is "new"', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/new' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -274,6 +274,7 @@ describe('PatrolDetailView', () => {
 
     await waitFor(() => {
       expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
+      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/`))).not.toBeDefined();
     });
   });
 

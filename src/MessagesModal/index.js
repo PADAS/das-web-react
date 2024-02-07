@@ -1,115 +1,121 @@
-import React, { Fragment, memo, useEffect, useMemo, useState }  from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useEffect, useMemo, useState }  from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-
-import { usePermissions } from '../hooks';
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
-
-
-import MessageSummaryList from '../MessageList/MessageSummaryList';
-import ParamFedMessageList from '../MessageList/ParamFedMessageList';
-import MessageInput from '../MessageInput';
-import MessagingSelect from '../MessagingSelect';
-import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-
-import { removeModal } from '../ducks/modals';
-import { extractSubjectFromMessage } from '../utils/messaging';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as EditIcon } from '../common/images/icons/edit.svg';
 
-const bodyStyles ={
+import { extractSubjectFromMessage } from '../utils/messaging';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
+import { usePermissions } from '../hooks';
+
+import MessageInput from '../MessageInput';
+import MessageSummaryList from '../MessageList/MessageSummaryList';
+import MessagingSelect from '../MessagingSelect';
+import ParamFedMessageList from '../MessageList/ParamFedMessageList';
+
+const BODY_STYLES ={
   height: '26rem',
-  padding: 0,
   maxWidth: '28rem',
+  padding: 0,
   width: '100vw',
 };
 
-const headerStyles = {
-  alignItems: 'center',
-  height: '4rem',
-  h5: {
-    margin: 0,
-  },
-};
+const MessagesModal = ({ onSelectSubject, selectedSubject }) => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'messagesModal' });
 
-const { Body, Footer, Header } = Modal;
-
-const MessagesModal =  ({ id: modalId, showClose = true, onSelectSubject, selectedSubject, removeModal, subjectStore }) => {
-  const [selectingRecipient, setSelectingRecipient] = useState(false);
+  const subjectStore = useSelector((state) => state.data.subjectStore);
 
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 
-  const params = useMemo(() => {
-    if (selectedSubject) return {
-      subject_id: selectedSubject.id,
-    };
+  const [selectingRecipient, setSelectingRecipient] = useState(false);
 
+  const params = useMemo(() => {
+    if (selectedSubject) {
+      return { subject_id: selectedSubject.id };
+    }
   }, [selectedSubject]);
+
+  const onRecipientSelect = (subject) => {
+    setSelectingRecipient(false);
+    onSelectSubject(subject);
+  };
 
   useEffect(() => {
     setSelectingRecipient(false);
   }, [params]);
 
-  const onSummaryMessageClick = (message) => {
-    const subject = subjectStore?.[extractSubjectFromMessage(message)?.id];
+  return <>
+    <Modal.Header style={{ alignItems: 'center', h5: { margin: 0 }, height: '4rem' }}>
+      {selectedSubject
+        ? <h5 style={{ alignItems: 'center', display: 'flex' }}>
+          {selectedSubject.name}
 
-    onSelectSubject(subject);
-  };
+          <Button
+            onClick={() => onSelectSubject(null)}
+            size="sm"
+            style={{ fontSize: '0.85rem', marginLeft: '1em' }}
+            variant="secondary"
+          >
+            {t('backToAllMessagesButton')}
+          </Button>
+        </h5>
+        : <h5>{t('messagesHeader')}</h5>}
+    </Modal.Header>
 
-  const showNewMessageDialog = () => {
-    setSelectingRecipient(true);
-  };
+    <Modal.Body style={{ display: selectedSubject ? 'none' : 'block', ...BODY_STYLES }}>
+      <MessageSummaryList
+        onMessageClick={(message) => onSelectSubject(subjectStore?.[extractSubjectFromMessage(message)?.id])}
+      />
+    </Modal.Body>
 
-  const onRecipientSelect = (subject) => {
-    setSelectingRecipient(false);
+    {selectedSubject && <Modal.Body style={BODY_STYLES}>
+      <ParamFedMessageList isReverse params={params} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
+    </Modal.Body>}
 
-    onSelectSubject(subject);
-  };
-
-  const clearSelectedSubject = () => {
-    onSelectSubject(null);
-  };
-
-  return <Fragment>
-    <Header style={headerStyles}>
-      {selectedSubject && <h5 style={{ display: 'flex', alignItems: 'center' }}>
-        {selectedSubject.name}
-        <Button style={{ fontSize: '0.85rem', marginLeft: '1em' }} variant='secondary' size='sm' onClick={clearSelectedSubject}>&larr; All messages</Button>
-      </h5>}
-      {!selectedSubject && <h5>Messages</h5>}
-      {showClose && <Button variant='info' onClick={() => removeModal(modalId)}>Close</Button>}
-    </Header>
-    <Body style={{ display: selectedSubject ? 'none' : 'block', ...bodyStyles }}>
-      <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
-    </Body>
-    {selectedSubject && <Body style={bodyStyles}>
-      <ParamFedMessageList params={params} isReverse={true} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
-    </Body>}
-
-    {!selectingRecipient && <Fragment>
-      {!selectedSubject && !!hasMessagingWritePermissions && <Footer>
-        <Button variant='light' onClick={showNewMessageDialog}>
-          <EditIcon /> New Message
+    {!selectingRecipient && <>
+      {!selectedSubject && !!hasMessagingWritePermissions && <Modal.Footer>
+        <Button onClick={() => setSelectingRecipient(true)} variant="light">
+          <EditIcon /> {t('newMessageButton')}
         </Button>
-      </Footer>}
-      {selectedSubject && <Footer>
-        {!selectedSubject.messaging && <strong>You may not send messages to this subject.</strong>}
+      </Modal.Footer>}
+
+      {selectedSubject && <Modal.Footer>
+        {!selectedSubject.messaging && <strong>{t('noMessagingSubjectText')}</strong>}
+
         {!!hasMessagingWritePermissions && <MessageInput subjectId={selectedSubject.id} />}
-      </Footer>}
-    </Fragment>}
+      </Modal.Footer>}
+    </>}
 
-    {selectingRecipient && <Footer>
+    {selectingRecipient && <Modal.Footer>
       <MessagingSelect onChange={onRecipientSelect} />
-      <Button style={{ fontSize: '0.85rem', marginLeft: '1em' }} variant='secondary' size='sm' onClick={() => setSelectingRecipient(false)}>Cancel</Button>
-    </Footer>}
 
-
-  </Fragment>;
+      <Button
+        onClick={() => setSelectingRecipient(false)}
+        size="sm"
+        style={{ fontSize: '0.85rem', marginLeft: '1em' }}
+        variant="secondary"
+      >
+        {t('cancelButton')}
+      </Button>
+    </Modal.Footer>}
+  </>;
 };
 
-const mapStateToProps = ({ data: { subjectStore } }) => ({
-  subjectStore,
-});
+MessagesModal.defaultProps = {
+  selectedSubject: null,
+};
 
-export default connect(mapStateToProps, { removeModal })(memo(MessagesModal));
+MessagesModal.propTypes = {
+  onSelectSubject: PropTypes.func.isRequired,
+  selectedSubject: PropTypes.shape({
+    id: PropTypes.string,
+    messaging: PropTypes.array,
+    name: PropTypes.string,
+  }),
+};
+
+export default memo(MessagesModal);

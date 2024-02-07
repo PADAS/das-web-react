@@ -2,6 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import userEvent from '@testing-library/user-event';
 
 import { NEWS_API_URL } from '../ducks/news';
 
@@ -9,8 +10,6 @@ import { mockStore } from '../__test-helpers/MockStore';
 import SocketProvider from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
 import { render, waitFor, waitForElementToBeRemoved, screen } from '../test-utils';
-
-import userEvent from '@testing-library/user-event';
 
 import NotificationMenu from '../NotificationMenu';
 
