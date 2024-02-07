@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsViewEnUS from '../public/locales/en-US/details-view.json';
 import loginEnUS from '../public/locales/en-US/login.json';
+import mapControlsEnUs from '../public/locales/en-US/map-controls.json';
 import mapPopupsEnUS from '../public/locales/en-US/map-popups.json';
 import menuDrawerEnUS from '../public/locales/en-US/menu-drawer.json';
 import patrolsEnUS from '../public/locales/en-US/patrols.json';
@@ -27,6 +28,7 @@ i18n
         'dates': datesEnUS,
         'details-view': detailsViewEnUS,
         'login': loginEnUS,
+        'map-controls': mapControlsEnUs,
         'map-popups': mapPopupsEnUS,
         'menu-drawer': menuDrawerEnUS,
         'patrols': patrolsEnUS,
