@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, Fragment, useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
+import { useTranslation } from 'react-i18next';
 
 import { withMap } from '../EarthRangerMap';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
@@ -22,7 +23,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
   const { map, setIsPickingLocation } = props;
-
+  const { t } = useTranslation('map-controls', { keyPrefix: 'mapRuler' });
   const [active, setActiveState] = useState(false);
   const [drawing, setDrawingState] = useState(false);
   const [points, setPoints] = useState([]);
@@ -176,12 +177,12 @@ const MapRulerControl = (props) => {
     <div className={styles.buttons}>
       {active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
-        {!drawing ? 'Close' : 'Cancel'}
+        {t(!drawing ? 'closeButton' : 'cancelButton')}
       </Button>}
-      <button type='button' title='Map ruler'
+      <button type='button' title={t('title')}
         className={`${styles.button} ${active ? 'active' : ''}`}
         onClick={toggleActiveState}>
-        <RulerIcon />
+        <RulerIcon title={t('title')} />
       </button>
     </div>
     {active && points.length > 1 && <>
