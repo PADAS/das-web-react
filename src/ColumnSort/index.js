@@ -99,7 +99,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
       >
         <SortLines />
 
-        <span>{selectedOption.label}</span>
+        { t(`eventOrderOptions.${selectedOption.key}`) }
       </Button>
     </OverlayTrigger>
 
