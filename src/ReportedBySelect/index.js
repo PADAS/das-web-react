@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { components } from 'react-select';
 import { FixedSizeList as List } from 'react-window';
+import { useTranslation } from 'react-i18next';
 
 import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
@@ -13,7 +14,6 @@ import TimeAgo from '../TimeAgo';
 import Select from '../Select';
 
 import styles from './styles.module.scss';
-import {useTranslation} from "react-i18next";
 
 const placeholderImgSrc = calcUrlForImage('static/ranger-gray.svg');
 

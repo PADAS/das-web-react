@@ -5,6 +5,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { caseInsensitiveCompare } from '../utils/string';
 import { getPatrolList } from '../selectors/patrols';
@@ -21,7 +22,6 @@ import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
-import {useTranslation} from "react-i18next";
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
