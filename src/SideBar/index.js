@@ -91,8 +91,6 @@ const SideBar = () => {
     return navigate(-1, {});
   }, [hasRouteHistory, location, navigate, reportIsBeingAdded]);
 
-  const tabTitle = t(`${currentTab}Link`);
-
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
   useEffect(() => {
@@ -172,7 +170,7 @@ const SideBar = () => {
               />}
           </div>
 
-          <h3>{tabTitle}</h3>
+          <h3>{t(`${currentTab}Link`)}</h3>
 
           <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
             <CrossIcon />

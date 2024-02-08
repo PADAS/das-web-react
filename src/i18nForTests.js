@@ -12,6 +12,7 @@ import reportsEnUS from '../public/locales/en-US/reports.json';
 import settingsEnUS from '../public/locales/en-US/settings.json';
 import sideBarEnUS from '../public/locales/en-US/side-bar.json';
 import subjectsEnUS from '../public/locales/en-US/subjects.json';
+import topBarEnUS from '../public/locales/en-US/top-bar.json';
 
 i18n
   .use(initReactI18next)
@@ -36,6 +37,7 @@ i18n
         'settings': settingsEnUS,
         'side-bar': sideBarEnUS,
         'subjects': subjectsEnUS,
+        'top-bar': topBarEnUS,
       },
     },
   });
