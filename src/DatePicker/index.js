@@ -1,7 +1,6 @@
 import React, { createRef, forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
-import getMonth from 'date-fns/get_month';
-import getYear from 'date-fns/get_year';
+import { getMonth, getYear } from 'date-fns';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';

@@ -1,5 +1,5 @@
 import uniqBy from 'lodash/uniqBy';
-import differenceInSeconds from 'date-fns/difference_in_seconds';
+import { differenceInSeconds } from 'date-fns';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';

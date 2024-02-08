@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import es from 'date-fns/locale/es';
-import enUS from 'date-fns/locale/en';
+import enUS from 'date-fns/locale/en-US';
 
 import * as packageJson from '../../package.json';
 import layoutVariables from '../common/styles/layout.module.scss';
@@ -349,7 +349,7 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
 };
 
 export const DATE_LOCALES = {
-  'es': es,
-  'en-US': enUS
+  'es': es.es,
+  'en-US': enUS.enUS
 };
 

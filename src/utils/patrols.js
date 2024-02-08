@@ -1,12 +1,14 @@
 import React, { lazy } from 'react';
-import addMinutes from 'date-fns/add_minutes';
-import isWithinRange from 'date-fns/is_within_range';
-import isToday from 'date-fns/is_today';
-import isThisYear from 'date-fns/is_this_year';
-import format from 'date-fns/format';
+import {
+  addMinutes,
+  isToday,
+  isThisYear,
+  isAfter,
+  isWithinInterval as isWithinRange,
+  formatDistance as distanceInWords,
+  format
+} from 'date-fns';
 
-import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, DATE_LOCALES } from '../constants';
-import { SHORT_TIME_FORMAT } from './datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import cloneDeep from 'lodash/cloneDeep';
@@ -14,6 +16,9 @@ import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
+
+import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, DATE_LOCALES } from '../constants';
+import { SHORT_TIME_FORMAT } from './datetime';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import TimeAgo from '../TimeAgo';
 
@@ -23,10 +28,8 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 
 import { getReporterById } from './events';
 
-import distanceInWords from 'date-fns/distance_in_words';
-import isAfter from 'date-fns/is_after';
-
 import colorVariables from '../common/styles/vars/colors.module.scss';
+
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
 const defaultDatesLang = 'en-US';
@@ -480,8 +483,8 @@ export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLa
 };
 
 export const formatPatrolStateTitleDate = (date, lang = defaultDatesLang) => {
-  const otherYearFormat = 'D MMM \'YY HH:mm';
-  const defaultFormat = 'D MMM HH:mm';
+  const otherYearFormat = 'd MMM \'YY HH:mm';
+  const defaultFormat = 'd MMM HH:mm';
   const locale = DATE_LOCALES[lang];
 
   if (!date) return '';

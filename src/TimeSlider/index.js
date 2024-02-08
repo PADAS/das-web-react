@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 import TimeAgo from '../TimeAgo';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

@@ -1,7 +1,7 @@
 import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 import Button from 'react-bootstrap/Button';
 
 import TimeAgo from '../TimeAgo';

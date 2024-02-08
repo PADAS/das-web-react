@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
-import distanceInWords from 'date-fns/distance_in_words';
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import {
+  formatDistance as distanceInWords,
+  formatDistanceToNow as distanceInWordsToNow
+} from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 

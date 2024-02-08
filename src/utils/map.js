@@ -1,7 +1,7 @@
 import { featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 
 
 import store from '../store';

@@ -1,13 +1,11 @@
 import React, { memo, useMemo, useState } from 'react';
 import { findDOMNode } from 'react-dom';
 // import PropTypes from 'prop-types';
-import isSameDay from 'date-fns/is_same_day';
-import isToday from 'date-fns/is_today';
-import isYesterday from 'date-fns/is_yesterday';
+import { isSameDay, isToday, isYesterday  } from 'date-fns';
 
 import InfiniteScroll from 'react-infinite-scroller';
 
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 
 import { SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { uuid } from '../utils/string';

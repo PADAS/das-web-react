@@ -3,9 +3,11 @@ import { CancelToken } from 'axios';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 import { featureCollection }  from '@turf/helpers';
-import subDays from 'date-fns/sub_days';
-import startOfDay from 'date-fns/start_of_day';
-import dateIsEqual from 'date-fns/is_equal';
+import {
+  subDays,
+  startOfDay,
+  isEqual as dateIsEqual
+} from 'date-fns';
 
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';

@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import { formatDistanceToNow as distanceInWordsToNow } from 'date-fns';
 
 import { dateIsValid } from '../utils/datetime';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import subSeconds from 'date-fns/sub_seconds';
+import { subSeconds } from 'date-fns';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

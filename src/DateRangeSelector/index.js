@@ -1,8 +1,7 @@
 import React, { memo, useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import endOfDay from 'date-fns/end_of_day';
-import subSeconds from 'date-fns/sub_seconds';
+import { endOfDay, subSeconds } from 'date-fns';
 
 import DatePicker from '../DatePicker';
 import FilterSettingsControl from '../FilterSettingsControl';

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays } from 'date-fns';
 
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import HeatmapLegend from '../HeatmapLegend';

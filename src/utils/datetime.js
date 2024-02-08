@@ -1,16 +1,17 @@
-
-import distanceInWords from 'date-fns/distance_in_words';
-import subMonths from 'date-fns/sub_months';
-import subWeeks from 'date-fns/sub_weeks';
-import subDays from 'date-fns/sub_days';
-import startOfDay from 'date-fns/start_of_day';
-import endOfDay from 'date-fns/end_of_day';
-import format from 'date-fns/format';
-import setSeconds from 'date-fns/set_seconds';
-import setMilliseconds from 'date-fns/set_milliseconds';
-import isFuture from 'date-fns/is_future';
 import humanizeDuration from 'humanize-duration';
 import pluralize from 'pluralize';
+import {
+  formatDistance as distanceInWords,
+  subMonths,
+  subWeeks,
+  subDays,
+  startOfDay,
+  endOfDay,
+  format,
+  setSeconds,
+  setMilliseconds,
+  isFuture
+} from 'date-fns';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
@@ -33,7 +34,7 @@ export const calcFriendlyDurationString = (from, until) => {
 };
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
-export const STANDARD_DATE_FORMAT = 'D MMM \'YY HH:mm';
+export const STANDARD_DATE_FORMAT = 'd MMM \'YY HH:mm';
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
 

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState, useEffect } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays } from 'date-fns';
 
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
