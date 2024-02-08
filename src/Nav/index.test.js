@@ -1,14 +1,13 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils';
 import { NEWS_API_URL } from '../ducks/news';
 import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 import store from '../store';
 import { MapContext } from '../App';
@@ -71,23 +70,21 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe('the Nav component', () => {
-  let renderWithWrapper, map, navigate, useNavigateMock;
+  let map, navigate, useNavigateMock;
   beforeEach(() => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
     map = createMapMock();
 
-    renderWithWrapper = (Component) => render(Component, { wrapper: ({ children }) =>
+    render(
       <Provider store={store}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            {children}
-            <ModalRenderer />
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider> });
-
+        <MapContext.Provider value={map}>
+          <Nav map={map} />
+          <ModalRenderer />
+        </MapContext.Provider>
+      </Provider>
+    );
   });
 
   afterEach(() => {
@@ -103,8 +100,14 @@ describe('the Nav component', () => {
       })
     );
 
-    renderWithWrapper(
-      <Nav map={map} />
+    cleanup();
+    render(
+      <Provider store={store}>
+        <MapContext.Provider value={map}>
+          <Nav map={map} />
+          <ModalRenderer />
+        </MapContext.Provider>
+      </Provider>
     );
 
     expect(navigate).not.toHaveBeenCalled();
@@ -125,10 +128,6 @@ describe('the Nav component', () => {
 
       window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
       window.location.reload = reloadMock;
-
-      renderWithWrapper(
-        <Nav map={map} />
-      );
 
       userToggleBtn = await screen.findByTestId('user-menu-toggle-btn');
 
