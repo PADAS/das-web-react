@@ -1,42 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import length from '@turf/length';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { trimmedVisibleTrackData } from '../selectors/tracks';
 
-// import { trimmedTrack } from '../selectors/tracks';
+const TrackLength = ({ className, trackId }) => {
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLength' });
 
-function TrackLength(props) {
-  const { tracks, trackId, className } = props;
+  const tracks = useSelector(trimmedVisibleTrackData);
+
   const [trackFeature, setTrackFeature] = useState();
 
   useEffect(() => {
-    const match = tracks.find(({ track }) => !!track && track.features[0].properties.id === trackId);
+    const match = tracks.find(({ track }) => track?.features[0].properties.id === trackId);
+
     if (match) {
       setTrackFeature(match.track.features[0]);
     }
   }, [trackId, tracks]);
 
-  if (!trackFeature) return null;
+  return trackFeature ? <div className={className}>
+    <span>
+      <strong>{t('title')}</strong>
+    </span>
 
-  return <div className={className || ''}>
-    <span><strong>Track length</strong></span>
-    <span>{length(trackFeature).toFixed(2)} kilometers</span>
-  </div>;
-
-}
-
-const mapStateToProps = (state) => {
-  return {
-    tracks: trimmedVisibleTrackData(state),
-  };
+    <span>{t('length', { length: length(trackFeature).toFixed(2) })}</span>
+  </div> : null;
 };
 
-export default connect(mapStateToProps, null)(TrackLength);
+TrackLength.defaultProps = {
+  className: '',
+};
 
 TrackLength.propTypes = {
-  trackId: PropTypes.string.isRequired,
-  tracks: PropTypes.array,
   className: PropTypes.string,
+  trackId: PropTypes.string.isRequired,
 };
+
+export default TrackLength;

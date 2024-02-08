@@ -1,0 +1,32 @@
+{
+  "patrolTrackLegend": {
+    "multiplePatrolsTitle": "{{count}} patrols",
+    "singlePatrolTitle": "Patrol: {{patrolDisplayTitle}}",
+    "titleElement": {
+      "coveredSpan": " covered",
+      "icon": "Icon for {{title}}",
+      "lengthCovered": "{{length}} covered",
+      "removeButton": "remove"
+    }
+  },
+  "trackLegend": {
+    "multipleSubjectsTitle": "{{count}} subjects",
+    "titleElement": {
+      "icon": "Icon for {{title}}",
+      "pointCount_one": "{{count}} point",
+      "pointCount_other": "{{count}} points",
+      "pointsOverTimeSpan": "{{pointCount}} points over {{trackDuration}}",
+      "removeButton": "remove"
+    }
+  },
+  "trackLength": {
+    "length": "{{length}} kilometers",
+    "title": "Track length"
+  },
+  "trackLengthControls": {
+    "customLengthLabel": "Custom length",
+    "header": "Track Length:",
+    "invalidCustomLengthAlert": "Please enter a track length between {{min}} and {{max}}.",
+    "matchReportFilterDateLabel": "Match report filter \"from\" date ({{reportFilterDateRangeLength}} days)"
+  }
+}

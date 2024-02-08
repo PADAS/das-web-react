@@ -1,11 +1,13 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
+import { MapContext } from '../App';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
-const trackLayerLinePaint = {
+
+const TRACK_LAYER_LINE_PAINT = {
   'line-color': [
     'case',
     ['has', 'stroke'], ['get', 'stroke'],
@@ -14,12 +16,12 @@ const trackLayerLinePaint = {
   'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
 };
 
-const trackLayerLineLayout = {
+const TRACK_LAYER_LINE_LAYOUT = {
   'line-join': 'round',
   'line-cap': 'round',
 };
 
-const timepointLayerLayout = {
+const TIMEPOINT_LAYER_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 15, true],
   'icon-anchor': 'bottom',
   'icon-size': ['step', ['zoom'], 0, 11, 0.3/MAP_ICON_SCALE, 15, 0.5/MAP_ICON_SCALE],
@@ -29,7 +31,7 @@ const timepointLayerLayout = {
   'icon-rotation-alignment': 'map',
 };
 
-const timepointLayerPaint = {
+const TIMEPOINT_LAYER_PAINT = {
   'icon-opacity': [
     'case',
     ['==', ['get', 'index'], 0], 0,
@@ -37,26 +39,10 @@ const timepointLayerPaint = {
   ],
 };
 
-const trackSourceConfig = {
-  tolerance: 1.5,
-  type: 'geojson',
-};
+const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimepoints, trackData }) => {
+  const map = useContext(MapContext);
 
-const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch }) => {
-  const trackLinePaint = useMemo(() => ({
-    ...trackLayerLinePaint,
-    ...linePaint,
-  }), [linePaint]);
-
-  const trackLineLayout = useMemo(() => ({
-    ...trackLayerLineLayout,
-    ...lineLayout,
-  }), [lineLayout]);
-
-  const layerBefore = useMemo(() => before || SUBJECT_SYMBOLS, [before]);
-
-  const { track: trackCollection, points: trackPointCollection } = trackData;
-  const trackId = id || trackCollection.features[0].properties.id;
+  const trackId = id || trackData.track.features[0].properties.id;
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -67,11 +53,25 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
-  useMapSource(sourceId, trackCollection, trackSourceConfig);
-  useMapSource(pointSourceId, trackPointCollection);
+  useMapSource(sourceId, trackData.track, { tolerance: 1.5, type: 'geojson' });
+  useMapSource(pointSourceId, trackData.points);
 
-  useMapLayer(layerId, 'line', sourceId, trackLinePaint, trackLineLayout, { before: layerBefore });
-  useMapLayer(pointLayerId, 'symbol', pointSourceId, timepointLayerPaint, timepointLayerLayout, { before: layerBefore, condition: showTimepoints });
+  useMapLayer(
+    layerId,
+    'line',
+    sourceId,
+    { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
+    { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
+    { before: before || SUBJECT_SYMBOLS }
+  );
+  useMapLayer(
+    pointLayerId,
+    'symbol',
+    pointSourceId,
+    TIMEPOINT_LAYER_PAINT,
+    TIMEPOINT_LAYER_LAYOUT,
+    { before: before || SUBJECT_SYMBOLS, condition: showTimepoints }
+  );
 
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
@@ -80,18 +80,25 @@ const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, tr
   return null;
 };
 
-export default memo(TrackLayer);
-
 TrackLayer.defaultProps = {
-  onPointClick() {
-  },
+  before: null,
+  id: null,
+  lineLayout: {},
+  linePaint: {},
   showTimepoints: true,
 };
 
 TrackLayer.propTypes = {
-  map: PropTypes.object.isRequired,
-  onPointClick: PropTypes.func,
+  before: PropTypes.string,
+  id: PropTypes.string,
+  lineLayout: PropTypes.object,
+  linePaint: PropTypes.object,
+  onPointClick: PropTypes.func.isRequired,
   showTimepoints: PropTypes.bool,
-  trackCollection: PropTypes.object,
-  trackPointCollection: PropTypes.object,
+  trackData: PropTypes.shape({
+    points: PropTypes.object,
+    track: PropTypes.object,
+  }).isRequired,
 };
+
+export default memo(TrackLayer);
