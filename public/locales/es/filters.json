@@ -1,8 +1,8 @@
 {
   "dateFilter": {
-    "endDateNullMessage": "Hoy",
-    "resetButtonText": "Restablecer",
-    "startDateNullMessage": "{{distanceInWordsDate}} atrás",
+    "emptyEndDateMessage": "Hoy",
+    "resetButton": "Restablecer",
+    "emptyStartDateMessage": "{{distanceInWordsDate}} atrás",
     "title": "Rango de fechas"
   },
   "dateRangeSelector": {
@@ -16,19 +16,13 @@
     "yesterdayLabel": "Ayer"
   },
   "eventsFilter": {
-    "datesTextButton": "Fechas",
-    "filtersTextButton": "Filtros",
-    "resetTextButton": "Restaurar",
+    "datesButton": "Fechas",
+    "filtersButton": "Filtros",
+    "resetButton": "Restaurar",
     "searchBarPlaceholder": "Buscar reportes..."
   },
-  "filtersPopover": {
+  "filters": {
     "priorityPickerLabel": "Prioridad",
-    "priorityPickerOptions": {
-      "red": "Rojo",
-      "amber": "Amber",
-      "green": "Verde",
-      "none": "Ninguno"
-    },
     "reportTypesAllLabel": "Todos",
     "reportTypesLabel": "Tipos de reportes",
     "reportTypesSelectionLabels": {
@@ -36,8 +30,8 @@
       "noneSelected": "Ninguno seleccionado",
       "someSelected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} seleccionados"
     },
-    "restAllTextButton": "Restablecer todos",
-    "restTextButton": "Restablecer",
+    "restAllButton": "Restablecer todos",
+    "restButton": "Restablecer",
     "stateLabel": "Estado",
     "stateSelector": {
       "active": "Activo",
@@ -46,17 +40,17 @@
     },
     "title": "Filtros de reportes"
   },
-  "friendlyDurationString": {
+  "friendlyFilterString": {
     "monthAgo": "hace 1 mes hasta hoy",
-    "monthAgoUntilNow": "hace 1 mes hasta hoy {{humanDate}}",
-    "someAgoFromNow": "{{fromDistanceInWords}} hasta {{untilDistanceInWords}} desde hoy",
-    "someAgo": "desde {{fromDistanceInWords}} hasta {{untilDistanceInWords}} atrás",
-    "untilNow": "desde {{humanDate}} hasta hoy",
+    "monthAgoUntilNow": "hace 1 mes hasta hoy {{date}}",
+    "someAgoFromNow": "{{from}} hasta {{until}} desde hoy",
+    "someAgo": "desde {{from}} hasta {{until}} atrás",
+    "untilNow": "desde {{date}} hasta hoy",
     "resultLabel": "resultado",
     "resultsLabel": "Resultados",
     "fromLabel": " ",
     "filteredLabel": " filtrado",
-    "sortingTypeLabel": ", ordenado {{sortDirectionString}}",
+    "sortingTypeLabel": ", ordenado {{sortDirection}}",
     "byLabel": " por ",
     "eventSortOptions": {
       "updatedAtLabel": "Fecha de actualización",
@@ -70,19 +64,15 @@
     "datesTitle": "Fechas",
     "dateRangePopover": {
       "title": "Rango de fechas",
-      "resetButton": "Restablecer",
-      "byStartDateLabel": "Filtrar por fecha de inicio",
-      "byRangeDateLabel": "Filtrar por rango de fechas superpuestas",
-      "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
-      "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
+      "resetButton": "Restablecer"
     },
     "filtersTitle": "Filtros",
     "searchbarPlaceHolder": "Buscar patrullajes...",
     "filtersPopover": {
       "checkBoxAllOption": "Todos",
       "title": "Filtros del patrullaje",
-      "resetAllButtonText": "Restablecer todo",
-      "resetButtonText": "Restablecer",
+      "resetAllButton": "Restablecer todo",
+      "resetButton": "Restablecer",
       "trackedByLabel": "Rastreado por",
       "statusLabel": "Estado",
       "patrolTypeLabel": "Tipo de patrullaje",
@@ -93,6 +83,18 @@
         "cancelled": "Cancelado"
       }
     }
+  },
+  "patrolFiltersSettings": {
+    "byStartDateLabel": "Filtrar por fecha de inicio",
+    "byRangeDateLabel": "Filtrar por rango de fechas superpuestas",
+    "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
+    "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
+  },
+  "priorityPicker": {
+    "red": "Rojo",
+    "amber": "Amber",
+    "green": "Verde",
+    "none": "Ninguno"
   },
   "reportedByPlaceholder": "Reportado por...",
   "reportTypeMultiSelect": {

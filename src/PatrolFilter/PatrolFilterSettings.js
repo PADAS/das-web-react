@@ -13,7 +13,7 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 const PatrolFilterSettings = (props) => {
   const { handleFilterOptionChange, patrolFilter } = props;
   const { filter: { patrols_overlap_daterange } } = patrolFilter;
-  const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters.dateRangePopover' });
+  const { t } = useTranslation('filters', { keyPrefix: 'patrolFiltersSettings' });
 
   const startInfo = props => (
     <Tooltip className={styles.filterTooltip} {...props}>

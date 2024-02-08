@@ -197,8 +197,8 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='filter-btn'
           >
-            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} title={t('filtersTextButton')} />
-            <span>{t('filtersTextButton')}</span>
+            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} title={t('filtersButton')} />
+            <span>{t('filtersButton')}</span>
           </Button>
         </OverlayTrigger>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
@@ -208,8 +208,8 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='date-filter-btn'
           >
-            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked} title={t('datesTextButton')} />
-            <span>{t('datesTextButton')}</span>
+            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked} title={t('datesButton')} />
+            <span>{t('datesButton')}</span>
           </Button>
         </OverlayTrigger>
         {children}
@@ -226,8 +226,8 @@ const EventFilter = ({
       {
         (filterModified || isDateRangeModified || isSortModified) &&
         <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'>
-          <RefreshIcon title={t('resetTextButton')} />
-          {t('resetTextButton')}
+          <RefreshIcon title={t('resetButton')} />
+          {t('resetButton')}
         </Button>
       }
     </div>}

@@ -17,7 +17,7 @@ const DateFilter = ({ onClearDateRange, isDateRangeModified }) => {
         <ClockIcon title={t('title')} />
         {t('title')}
         <Button type="button" variant='light' size='sm' onClick={onClearDateRange} disabled={!isDateRangeModified}>
-          {t('resetButtonText')}
+          {t('resetButton')}
         </Button>
       </div>
     </Popover.Header>

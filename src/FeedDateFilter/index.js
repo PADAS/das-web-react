@@ -57,7 +57,7 @@ const FeedDateFilter = (props) => {
 
   const startDateNullMessage = useMemo(() => {
     if (hasLower){
-      return t('startDateNullMessage', {
+      return t('emptyStartDateMessage', {
         distanceInWordsDate: distanceInWordsToNow(new Date(lower), DATE_LOCALES[language])
       });
     }
@@ -74,7 +74,7 @@ const FeedDateFilter = (props) => {
       className={styles.dateSelect}
       endDate={endDate}
       endDateLabelClass={styles.endDateLabel}
-      endDateNullMessage={t('endDateNullMessage')}
+      endDateNullMessage={t('emptyEndDateMessage')}
       filterSettings={filterSettings}
       isAtDefault={isAtDefault}
       onClickDateRangePreset={onClickDateRangePreset}

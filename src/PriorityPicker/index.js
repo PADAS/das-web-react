@@ -16,7 +16,7 @@ const calcClassNameForPriority = (priority) => {
 
 const PriorityPicker = (props) => {
   const { className, onSelect, selected, isMulti } = props;
-  const { t } = useTranslation('filters', { keyPrefix: 'filtersPopover' });
+  const { t } = useTranslation('filters', { keyPrefix: 'priorityPicker' });
 
   const isSelected = (value) => isMulti ?
     selected.some(v => v === value)
@@ -25,7 +25,7 @@ const PriorityPicker = (props) => {
   return <ul className={`${styles.list} ${className}`}>
     {
       REPORT_PRIORITIES.map(({ value, key }) => {
-        const display = t(`priorityPickerOptions.${key}`);
+        const display = t(key);
         return <li key={value}>
           <button title={display}
                   type='button'

@@ -185,7 +185,7 @@ const FiltersPopover = React.forwardRef(({
             type="button"
             variant='light'
           >
-            {t('resetAllButtonText')}
+            {t('resetAllButton')}
           </Button>
         }
       </div>
@@ -213,7 +213,7 @@ const FiltersPopover = React.forwardRef(({
             type="button"
             variant='light'
           >
-            {t('resetButtonText')}
+            {t('resetButton')}
           </Button>
         </div>
       </div>
@@ -229,7 +229,7 @@ const FiltersPopover = React.forwardRef(({
             type="button"
             variant='light'
           >
-            {t('resetButtonText')}
+            {t('resetButton')}
           </Button>
         </div>
         <div className='checkboxListContainer' data-testid='patrolFilter-status-checkbox-list'>
@@ -252,7 +252,7 @@ const FiltersPopover = React.forwardRef(({
             type="button"
             variant='light'
           >
-            {t('resetButtonText')}
+            {t('resetButton')}
           </Button>
         </div>
         <div className='checkboxListContainer' data-testid='patrolFilter-patrol-type-checkbox-list'>

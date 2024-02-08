@@ -6,16 +6,15 @@ import { useTranslation } from 'react-i18next';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
 import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
-import { DATE_LOCALES } from '../constants';
 
 const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sortConfig, totalFeedCount }) => {
-  const { t, i18n: { language }  } = useTranslation('filters', { keyPrefix: 'friendlyDurationString' });
+  const { t } = useTranslation('filters', { keyPrefix: 'friendlyFilterString' });
 
   const resultString = totalFeedCount
     ? `${totalFeedCount} ${pluralize(t('resultLabel'), totalFeedCount)} `
     : t('resultsLabel');
 
-  const friendlyDurationString = calcFriendlyDurationString(dateRange.lower, dateRange.upper, t, DATE_LOCALES[language]);
+  const friendlyDurationString = calcFriendlyDurationString(dateRange.lower, dateRange.upper);
 
   const sortDirectionString = sortConfig?.[0] === SORT_DIRECTION.up ? t('ascendingLabel') : '';
 
@@ -24,25 +23,20 @@ const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sort
   const sortTypeMatch = hasSortConfig && EVENT_SORT_OPTIONS.find(option => option.value === sortConfig[1].value);
   const sortTypeName = hasSortConfig && t(`eventSortOptions.${sortTypeMatch.key}`).toLowerCase();
 
-  const sortingByLabel = useMemo(() => {
-    if (!sortTypeName){
-      return '';
-    }
-    return <>
-      <span>{t('byLabel')}</span>
-      <strong>{sortTypeName}</strong>
-    </>;
-  }, [sortTypeName, t]);
-
   const sortingTypeLabel = useMemo(() => {
     if (!hasSortConfig || !sortModified){
       return '';
     }
     return <span>
-      {t('sortingTypeLabel', { sortDirectionString })}
-      {sortingByLabel}
+      {t('sortingTypeLabel', { sortDirection: sortDirectionString })}
+      { !sortTypeName ? '' : (
+        <>
+          <span>{t('byLabel')}</span>
+          <strong>{sortTypeName}</strong>
+        </>
+      )}
     </span>;
-  }, [hasSortConfig, sortDirectionString, sortModified, sortingByLabel, t]);
+  }, [hasSortConfig, sortDirectionString, sortModified, sortTypeName, t]);
 
   return <p className={className || ''}>
     <span>{resultString}</span>

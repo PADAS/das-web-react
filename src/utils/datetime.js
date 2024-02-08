@@ -11,26 +11,31 @@ import setMilliseconds from 'date-fns/set_milliseconds';
 import isFuture from 'date-fns/is_future';
 import humanizeDuration from 'humanize-duration';
 import pluralize from 'pluralize';
+import i18next from 'i18next';
+
+import { DATE_LOCALES } from '../constants';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
-
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
-export const calcFriendlyDurationString = (from, until, translateFn, locale) => {
-  if (!from && !until) return translateFn('monthAgo');
+export const calcFriendlyDurationString = (from, until) => {
+  const locale = DATE_LOCALES[i18next.language];
+  const t = i18next.getFixedT(null, 'filters', 'friendlyFilterString');
+
+  if (!from && !until) return t('monthAgo');
 
   if (!until){
-    return translateFn('untilNow', {
-      humanDate: distanceInWords(startOfDay(from), new Date(), { locale })
+    return t('untilNow', {
+      date: distanceInWords(startOfDay(from), new Date(), { locale })
     });
   }
 
   if (!from){
-    return translateFn('monthAgoUntilNow', {
-      humanDate: distanceInWords(startOfDay(until), new Date(), { locale })
+    return t('monthAgoUntilNow', {
+      date: distanceInWords(startOfDay(until), new Date(), { locale })
     });
   }
 
@@ -40,9 +45,9 @@ export const calcFriendlyDurationString = (from, until, translateFn, locale) => 
   const fromDistanceInWords = distanceInWords(startOfDay(from), new Date(), { locale });
   const untilDistanceInWords = distanceInWords(untilDate, new Date(), { locale });
 
-  return translateFn(untilIsFuture ? 'someAgoFromNow' : 'someAgo', {
-    fromDistanceInWords,
-    untilDistanceInWords
+  return t(untilIsFuture ? 'someAgoFromNow' : 'someAgo', {
+    from: fromDistanceInWords,
+    until: untilDistanceInWords
   });
 };
 

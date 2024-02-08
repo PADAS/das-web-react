@@ -17,14 +17,14 @@ import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 
 import styles from '../styles.module.scss';
 
-const StateSelector = ({ onStateSelect, state, translateFn }) => (
+const StateSelector = ({ onStateSelect, state, t }) => (
   <ul className={styles.stateList} data-testid="state-filter-options">
     {EVENT_STATE_CHOICES.map(choice =>
       <li key={choice.value}>
         <Button variant='link'
                   className={isEqual(choice.value, state) ? styles.activeState : ''}
                   onClick={() => onStateSelect(choice)}>
-          {translateFn(`stateSelector.${choice.key}`)}
+          {t(`stateSelector.${choice.key}`)}
         </Button>
       </li>)}
   </ul>
@@ -58,7 +58,7 @@ const Filters = ({
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
   const someReportTypesChecked = !isEventTypeFilterEmpty && !!reportTypesCheckedCount;
   const noReportTypesChecked = !isEventTypeFilterEmpty && !someReportTypesChecked;
-  const { t } = useTranslation('filters', { keyPrefix: 'filtersPopover' });
+  const { t } = useTranslation('filters', { keyPrefix: 'filters' });
 
   const selectedReporters = useMemo(() =>
     reportedByFilter && !!reportedByFilter.length
@@ -178,7 +178,7 @@ const Filters = ({
     <Popover.Header>
       <div className={styles.popoverTitle}>
         {t('title')}
-        <ResetButton onClick={onResetPopoverFilters} disabled={!isFilterModified} text={t('restAllTextButton')}/>
+        <ResetButton onClick={onResetPopoverFilters} disabled={!isFilterModified} text={t('restAllButton')}/>
       </div>
     </Popover.Header>
 
@@ -187,8 +187,8 @@ const Filters = ({
         <label>
           {t('stateLabel')}
         </label>
-        <StateSelector onStateSelect={onStateSelect} state={state} translateFn={t} />
-        <ResetButton disabled={!isStateFilterModified} onClick={onResetStateFilter} text={t('restTextButton')} />
+        <StateSelector onStateSelect={onStateSelect} state={state} t={t} />
+        <ResetButton disabled={!isStateFilterModified} onClick={onResetStateFilter} text={t('restButton')} />
       </div>
 
       <div className={`${styles.filterRow} ${styles.priorityRow}`}>
@@ -200,14 +200,14 @@ const Filters = ({
             onSelect={onPriorityChange}
             selected={priority}
             isMulti={true} />
-        <ResetButton disabled={!isPriorityFilterModified} onClick={onResetPriorityFilter} text={t('restTextButton')} />
+        <ResetButton disabled={!isPriorityFilterModified} onClick={onResetPriorityFilter} text={t('restButton')} />
       </div>
 
       <div className={styles.filterRow}>
         <UserIcon className={styles.userIcon}/>
         <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange}
                           isMulti={true}/>
-        <ResetButton disabled={!isReportedByFilterModified} onClick={onResetReportedByFilter} text={t('restTextButton')} />
+        <ResetButton disabled={!isReportedByFilterModified} onClick={onResetReportedByFilter} text={t('restButton')} />
       </div>
 
       <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
@@ -222,7 +222,7 @@ const Filters = ({
           <small className={!isEventTypeFilterEmpty ? styles.modified : ''}>
             {appliedFilterLabel}
           </small>
-          <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes} text={t('restTextButton')} />
+          <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes} text={t('restButton')} />
         </h5>
 
         <ReportTypeMultiSelect filter={reportTypeFilterText}
