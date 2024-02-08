@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, userEvent, waitFor } from '@testing-library/react';
 
+import { render, screen, userEvent, waitFor } from '../test-utils';
 import SubjectHistoryButton from './';
 
 const onClick = jest.fn();

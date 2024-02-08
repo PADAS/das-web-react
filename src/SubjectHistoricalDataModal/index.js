@@ -1,116 +1,134 @@
-import React, { useEffect, useCallback, useState, memo } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import Modal from 'react-bootstrap/Modal';
-import Table from 'react-bootstrap/Table';
-import Pagination from 'react-js-pagination';
-import unionBy from 'lodash/unionBy';
+import React, { memo, useEffect, useState } from 'react';
 import flatten from 'lodash/flatten';
+import Modal from 'react-bootstrap/Modal';
+import Pagination from 'react-js-pagination';
+import PropTypes from 'prop-types';
 import startCase from 'lodash/startCase';
-
-import { fetchObservationsForSubject } from '../ducks/observations';
-import { removeModal } from '../ducks/modals';
+import Table from 'react-bootstrap/Table';
+import unionBy from 'lodash/unionBy';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { calcGpsDisplayString } from '../utils/location';
+import { fetchObservationsForSubject } from '../ducks/observations';
 
-import LoadingOverlay from '../LoadingOverlay';
 import DateTime from '../DateTime';
+import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
-const { Header, Title, Body } = Modal;
-
-export const ITEMS_PER_PAGE = 10;
 export const DISPLAYED_PAGES_LIMIT = 5;
+export const ITEMS_PER_PAGE = 10;
 export const SORT_BY = '-recorded_at';
 
 export const getObservationUniqProperties = (observations) => {
-  const observationsDeviceProperties = observations.map(result => result?.device_status_properties ?? []);
+  const observationsDeviceProperties = observations.map((result) => result?.device_status_properties ?? []);
   const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
-  return uniqPropertiesByLabel.map(property => property.label);
+  return uniqPropertiesByLabel.map((property) => property.label);
 };
 
-const SubjectHistoricalDataModal = ({ gpsFormat, title, subjectId, subjectIsStatic, fetchObservationsForSubject }) => {
+const ObservationRow = ({ observation, observationProperties, subjectIsStatic }) => {
+  const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal.observationRow' });
+
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
+  const locationString = !subjectIsStatic
+    && calcGpsDisplayString(observation.location.latitude, observation.location.longitude, gpsFormat);
+
+  return <tr>
+    <td>
+      <DateTime className={styles.dateTime} date={observation.recorded_at}/>
+    </td>
+
+    {observationProperties.map((property) => {
+      const matchedProp = observation.device_status_properties?.find((observationProperty) => observationProperty.label === property);
+      if (!matchedProp) {
+        return <span className={styles.noDataLabel} key={property}>{t('noDataLabel')}</span>;
+      }
+
+      const propertyUnitsLabel = JSON.parse(JSON.stringify(matchedProp.units)) ? ` ${matchedProp.units}` : '';
+
+      return <td key={property}>
+        <span className={styles.propertyValue}>{`${matchedProp.value}${propertyUnitsLabel}`}</span>
+      </td>;
+    })}
+
+    {!!locationString && <td>{locationString}</td>}
+  </tr>;
+};
+
+const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('subjects', { keyPrefix: 'subjectHistoricalDataModal' });
+
+  const [activePage, setActivePage] = useState(1);
   const [loading, setLoadState] = useState(true);
-  const [subjectObservations, setSubjectObservations] = useState([]);
   const [observationsCount, setObservationsCount] = useState(1);
   const [observationProperties, setObservationProperties] = useState([]);
-  const [activePage, setActivePage] = useState(1);
-
-  const fetchObservations = useCallback((page = 1) => {
-    setLoadState(true);
-    fetchObservationsForSubject({ subject_id: subjectId, page: page, page_size: ITEMS_PER_PAGE, sort_by: SORT_BY })
-      .then((data) => {
-        setSubjectObservations(data.results);
-        setObservationsCount(data.count);
-        setLoadState(false);
-        setObservationProperties(getObservationUniqProperties(data.results));
-      });
-  }, [fetchObservationsForSubject, subjectId]);
+  const [subjectObservations, setSubjectObservations] = useState([]);
 
   useEffect(() => {
-    fetchObservations(activePage);
-  }, [activePage, fetchObservations]);
+    setLoadState(true);
 
-  const onPageClick = useCallback(async (page) => {
-    setActivePage(page);
-  }, []);
-
-  const getMatchedProperty = useCallback((labelToMatch, observationProperties = []) => {
-    const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
-    if (!matchedProp) return <span className={styles.noDataLabel}>No data</span>;
-    const propertyUnitsLabel = JSON.parse(JSON.stringify(matchedProp.units)) ? ` ${matchedProp.units}` : '';
-
-    return <span className={styles.propertyValue}>{`${matchedProp.value}${propertyUnitsLabel}`}</span>;
-  }, []);
+    dispatch(fetchObservationsForSubject({
+      subject_id: subjectId,
+      page: activePage,
+      page_size: ITEMS_PER_PAGE,
+      sort_by: SORT_BY,
+    })).then((data) => {
+      setSubjectObservations(data.results);
+      setObservationsCount(data.count);
+      setLoadState(false);
+      setObservationProperties(getObservationUniqProperties(data.results));
+    });
+  }, [activePage, dispatch, subjectId]);
 
   return <>
-    <Header closeButton>
-      <Title>{title}</Title>
-    </Header>
-    <Body className={styles.modalBody}>
+    <Modal.Header closeButton>
+      <Modal.Title>{title}</Modal.Title>
+    </Modal.Header>
+
+    <Modal.Body className={styles.modalBody}>
       {loading && <LoadingOverlay/>}
+
       <Table bordered hover responsive size="sm">
         <thead>
           <tr>
-            <th>Date</th>
-            {observationProperties.map(property => <th key={property}>{startCase(property)}</th>)}
-            {!subjectIsStatic && <th>Location</th>}
+            <th>{t('tableDateHeader')}</th>
+
+            {observationProperties.map((property) => <th key={property}>{startCase(property)}</th>)}
+
+            {!subjectIsStatic && <th>{t('tableLocationHeader')}</th>}
           </tr>
         </thead>
-        <tbody>
-          {subjectObservations.map(({ id, recorded_at, location, device_status_properties }) => {
-            const locationString = !subjectIsStatic && calcGpsDisplayString(location.latitude, location.longitude, gpsFormat);
 
-            return <tr key={id}>
-              <td><DateTime className={styles.dateTime} date={recorded_at}/></td>
-              {observationProperties.map(property => <td key={property}>{getMatchedProperty(property, device_status_properties)}</td>)}
-              {!!locationString && <td>{locationString}
-              </td>}
-            </tr>;
-          })}
+        <tbody>
+          {subjectObservations.map((observation) => <ObservationRow
+            key={observation.id}
+            observation={observation}
+            observationProperties={observationProperties}
+            subjectIsStatic={subjectIsStatic}
+          />)}
         </tbody>
       </Table>
+
       {observationsCount > ITEMS_PER_PAGE && <Pagination
         activePage={activePage}
-        itemsCountPerPage={ITEMS_PER_PAGE}
-        totalItemsCount={observationsCount}
-        pageRangeDisplayed={DISPLAYED_PAGES_LIMIT}
-        onChange={onPageClick}
-        linkClass="page-link"
         itemClass="page-item"
+        itemsCountPerPage={ITEMS_PER_PAGE}
+        linkClass="page-link"
+        onChange={(page) => setActivePage(page)}
+        pageRangeDisplayed={DISPLAYED_PAGES_LIMIT}
+        totalItemsCount={observationsCount}
       />}
-    </Body>
+    </Modal.Body>
   </>;
 };
 
 SubjectHistoricalDataModal.propTypes = {
-  title: PropTypes.string.isRequired,
   subjectId: PropTypes.string.isRequired,
-  fetchObservationsForSubject: PropTypes.func.isRequired,
   subjectIsStatic: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ gpsFormat });
-
-export default connect(mapStateToProps, { fetchObservationsForSubject, removeModal })(memo(SubjectHistoricalDataModal));
+export default memo(SubjectHistoricalDataModal);
