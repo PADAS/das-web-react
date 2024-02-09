@@ -49,7 +49,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
-      return <span data-testid="patrol-drawer-header-details" className={styles.headerDetails}>
+      return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
         {patrolElapsedTime}
         <span className={styles.distanceCovered}>
           <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
@@ -57,7 +57,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span className={styles.scheduledStartTime} data-testid="patrol-drawer-header-details">
+      return <span className={`${styles.scheduledStartTime} ${styles.overflowedEllipsisText}`} data-testid="patrol-drawer-header-details">
         {t('patrolSchedule', { scheduledStartTime })}
       </span>;
     }
@@ -119,7 +119,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
     <div className={styles.titleAndDetails}>
       {title && <div
-        className={styles.title}
+        className={`${styles.title} ${styles.overflowedEllipsisText}`}
         contentEditable
         data-testid="patrolDetailView-header-title"
         onBlur={onTitleBlur}
@@ -168,6 +168,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       patrol={patrol}
       patrolTitle={title}
       printableContentRef={printableContentRef}
+      className={styles.patrolMenu}
     />}
   </div>;
 };

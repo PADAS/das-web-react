@@ -23,6 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 3rem;
   width: 3rem;
   height: 100%;
 
@@ -64,6 +65,11 @@
 .titleAndDetails {
   display: flex;
   flex-direction: column;
+  width: 40%;
+
+  @media (min-width: 415px) {
+    width: 50%;
+  }
 
   @media (min-width: $md-layout-width-min) {
     width: 20.25rem;
@@ -77,13 +83,8 @@
   font-weight: 500;
   line-height: 1.25rem;
   color: $dark-gray;
-  overflow: hidden;
-  text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  white-space: nowrap;
-  display: block;
-  width: 15rem;
 
 
   &::-webkit-scrollbar {
@@ -104,8 +105,7 @@
     max-height: 3rem;
     font-size: 1.375rem;
     line-height: 1.5rem;
-    display: unset;
-    width: 20rem;
+    width: 80%;
   }
 }
 
@@ -114,6 +114,7 @@
   text-align: right;
   margin-left: auto;
   margin-right: 0.5rem;
+  padding-left: 1em;
   
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
@@ -189,9 +190,6 @@
 }
 
 .headerDetails {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   width: 15rem;
   font-size: 0.79rem;
 
@@ -203,7 +201,18 @@
 
 .scheduledStartTime {
   font-size: 0.79rem;
+
   @media (min-width: $md-layout-width-min) {
     font-size: unset;
   }
+}
+
+.patrolMenu {
+  min-width: 2.25rem;
+}
+
+.overflowedEllipsisText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
