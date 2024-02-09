@@ -1,18 +1,15 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
-import TrackLegend from '../TrackLegend';
+import { useSelector } from 'react-redux';
 
-import { updateTrackState } from '../ducks/map-ui';
 import { trimmedVisibleTrackData } from '../selectors/tracks';
 
+import TrackLegend from '../TrackLegend';
 
-const mapStateToProps = (state) => ({
-  trackState: state.view.subjectTrackState,
-  trackData: trimmedVisibleTrackData(state),
-});
+const SubjectTrackLegend = (props) => {
+  const trackData = useSelector(trimmedVisibleTrackData);
+  const trackState = useSelector((state) => state.view.subjectTrackState);
 
-const mapDispatchToProps = dispatch => ({
-  updateTrackState: update => dispatch(updateTrackState(update)),
-});
+  return <TrackLegend trackData={trackData} trackState={trackState} {...props} />;
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(memo(TrackLegend));
+export default memo(SubjectTrackLegend);

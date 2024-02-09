@@ -1,25 +1,21 @@
-import React, { memo, Fragment } from 'react';
-import { connect } from 'react-redux';
+import React, { memo } from 'react';
+import { useSelector } from 'react-redux';
 
 import { patrolsWithTrackShown } from '../selectors/patrols';
-import { trackTimeEnvelope } from '../selectors/tracks';
+import { trackTimeEnvelope as trackTimeEnvelopeSelector } from '../selectors/tracks';
 
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
-const PatrolTracks = ({ patrols, dispatch: _dispatch, ...rest }) => {
-  return <Fragment>
-    {patrols
-      .map((patrol, index) =>
-        <PatrolTrackLayer key={`patrol-track-${patrol.id}-${index}`} patrol={patrol} trackTimeEnvelope={trackTimeEnvelope} {...rest} />
-      )
-    }
-  </Fragment>;
+const PatrolTracks = (props) => {
+  const patrols = useSelector(patrolsWithTrackShown);
+  const trackTimeEnvelope = useSelector(trackTimeEnvelopeSelector);
 
+  return patrols.map((patrol, index) => <PatrolTrackLayer
+    key={`patrol-track-${patrol.id}-${index}`}
+    patrol={patrol}
+    trackTimeEnvelope={trackTimeEnvelope}
+    {...props}
+  />);
 };
 
-const mapStateToProps = (state) => ({
-  trackTimeEnvelope: trackTimeEnvelope(state),
-  patrols: patrolsWithTrackShown(state),
-});
-
-export default connect(mapStateToProps, null)(memo(PatrolTracks));
+export default memo(PatrolTracks);

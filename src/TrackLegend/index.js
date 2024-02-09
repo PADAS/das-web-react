@@ -1,145 +1,166 @@
 import React, { memo, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 import distanceInWords from 'date-fns/distance_in_words';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import PropTypes from 'prop-types';
+import uniq from 'lodash/uniq';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
-import uniq from 'lodash/uniq';
+import { DATE_LOCALES } from '../constants';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { trackTimeEnvelope as trackTimeEnvelopeSelector } from '../selectors/tracks';
+import { updateTrackState } from '../ducks/map-ui';
 
 import MapLegend from '../MapLegend';
 import TrackLengthControls from '../TrackLengthControls';
-import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 import TrackToggleButton from '../TrackToggleButton';
 
-import { updateTrackState } from '../ducks/map-ui';
-import { trackTimeEnvelope } from '../selectors/tracks';
-
 import styles from './styles.module.scss';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const getIconForTrack = (track, subjectStore) => {
   const { properties: { id, image } } = track.features[0];
-  const storeMatch = subjectStore[id];
 
-  return (
-    storeMatch
-    && storeMatch.last_position
-    && storeMatch.last_position.properties
-    && storeMatch.last_position.properties.image
-  ) || image;
+  return subjectStore[id]?.last_position?.properties?.image || image;
 };
 
-const TitleElement = memo((props) => { // eslint-disable-line
-  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, subjectStore, trackData, trackPointCount, trackDuration } = props;
-  const { t } = useTranslation('map-legends');
+const TitleElement = ({
+  displayTitle,
+  iconSrc,
+  onRemoveTrackClick,
+  subjectCount,
+  subjectStore,
+  trackData,
+  trackDuration,
+  trackPointCount,
+}) => {
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.titleElement' });
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
-    const { properties: { title, id } } = track.features[0];
+    const { properties: { id, title } } = track.features[0];
     const pointCount = track.features[0].geometry ? track.features[0].geometry.coordinates.length : 0;
 
-    const image = getIconForTrack(track, subjectStore);
-
     return <li key={id}>
-      <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
+      <img alt={t('icon', { title })} className={styles.icon} src={getIconForTrack(track, subjectStore)} />
+
       <div>
         <span>{title}</span>
+
         <small>{t('pointCount', { count: pointCount })}</small>
       </div>
-      <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
+
+      <Button onClick={onRemoveTrackClick} value={id} variant="secondary">{t('removeButton')}</Button>
     </li>;
   };
 
   return <div className={styles.titleWrapper}>
-    <TrackToggleButton trackPinned={false} trackVisible={false} className={styles.trackIcon} showLabel={false} />
+    <TrackToggleButton className={styles.trackIcon} showLabel={false} trackPinned={false} trackVisible={false} />
+
     <div className={styles.innerTitleWrapper}>
       <h6>
         {displayTitle}
-        {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
-        {subjectCount > 1 &&
-          <OverlayTrigger trigger="click" rootClose
-            onExited={() => mapInteractionTracker.track('Close Tracks Legend Subject List')}
-            onEntered={() => mapInteractionTracker.track('Show Tracks Legend Subject List')}
-            placement="right" overlay={
-              <Popover className={styles.popover} id="track-details">
-                <ul>
-                  {trackData.map(convertTrackToSubjectDetailListItem)}
-                </ul>
-              </Popover>
-            }>
-            <button type="button" className={styles.infoButton}>
-              <InfoIcon className={styles.infoIcon} />
-            </button>
-          </OverlayTrigger>}
+
+        {iconSrc && <img alt={t('icon', { title: displayTitle })} className={styles.icon} src={iconSrc} />}
+
+        {subjectCount > 1 && <OverlayTrigger
+          onEntered={() => mapInteractionTracker.track('Show Tracks Legend Subject List')}
+          onExited={() => mapInteractionTracker.track('Close Tracks Legend Subject List')}
+          overlay={<Popover className={styles.popover} id="track-details">
+            <ul>{trackData.map(convertTrackToSubjectDetailListItem)}</ul>
+          </Popover>}
+          placement="right"
+          rootClose
+          trigger="click"
+        >
+          <button className={styles.infoButton} type="button">
+            <InfoIcon className={styles.infoIcon} />
+          </button>
+        </OverlayTrigger>}
       </h6>
-      <span>{trackPointCount} points over {trackDuration}</span>
+
+      <span>{t('pointsOverTimeSpan', { pointCount: trackPointCount, trackDuration })}</span>
     </div>
   </div>;
-});
+};
 
-const TrackLegend = (props) => {
-  const { trackData, onClose, trackState, subjectStore, updateTrackState, trackTimeEnvelope } = props;
+const TrackLegend = ({ onClose, trackData, trackState }) => {
+  const dispatch = useDispatch();
+  const { i18n, t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
 
-  const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
-  const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
+  const subjectStore = useSelector((state) => state.data.subjectStore);
+  const trackTimeEnvelope = useSelector(trackTimeEnvelopeSelector);
+
   const hasTrackData = !!trackData.length;
+  const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
 
-  const displayTitle = useMemo(() => {
-    if (!subjectCount || !hasTrackData) {
-      return null;
-    }
-    if (subjectCount !== 1) {
-      return `${subjectCount} subjects`;
-    }
+  const iconSrc = hasTrackData && subjectCount === 1 ? getIconForTrack(trackData[0].track, subjectStore) : null;
 
-    return trackData[0].track.features[0].properties.title;
-  }, [hasTrackData, subjectCount, trackData]);
+  let displayTitle;
+  if (!subjectCount || !hasTrackData) {
+    displayTitle = null;
+  } else if (subjectCount !== 1) {
+    displayTitle = t('multipleSubjectsTitle', { count: subjectCount });
+  } else {
+    displayTitle = trackData[0].track.features[0].properties.title;
+  }
 
-  const displayTrackLength = useMemo(() => {
-    const { from, until } = trackTimeEnvelope;
-    if (!until) return distanceInWordsToNow(new Date(from));
-    return distanceInWords(new Date(from), new Date(until));
-  }, [trackTimeEnvelope]);
+  const displayTrackLength = useMemo(
+    () => trackTimeEnvelope.until
+      ? distanceInWords(
+        new Date(trackTimeEnvelope.from),
+        new Date(trackTimeEnvelope.until),
+        { locale: DATE_LOCALES[i18n.language] }
+      )
+      : distanceInWordsToNow(new Date(trackTimeEnvelope.from), { locale: DATE_LOCALES[i18n.language] }),
+    [i18n.language, trackTimeEnvelope.from, trackTimeEnvelope.until]
+  );
 
-  const iconSrc = useMemo(() => {
-    if (!subjectCount || !hasTrackData || subjectCount !== 1) return null;
-    return getIconForTrack(trackData[0].track, subjectStore);
-  }, [hasTrackData, subjectCount, subjectStore, trackData]);
+  const trackPointCount = useMemo(
+    () => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0),
+    [trackData]
+  );
 
-  const onRemoveTrackClick = ({ target: { value: id } }) => {
+  const onRemoveTrackClick = (event) => {
     mapInteractionTracker.track('Remove Subject Tracks Via Track Legend Popover');
-    updateTrackState({
-      pinned: trackState.pinned.filter(item => item !== id),
-      visible: trackState.visible.filter(item => item !== id),
-    });
+
+    dispatch(updateTrackState({
+      pinned: trackState.pinned.filter((item) => item !== event.target.value),
+      visible: trackState.visible.filter((item) => item !== event.target.value),
+    }));
   };
 
-  return !!subjectCount && hasTrackData && <MapLegend
-    titleElement={
-      <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick}
-        subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData}
-        trackPointCount={trackPointCount} trackDuration={displayTrackLength} />
-    }
+  return !!subjectCount && hasTrackData ? <MapLegend
     onClose={onClose}
     settingsComponent={<TrackLengthControls />}
-  />;
+    titleElement={<TitleElement
+      displayTitle={displayTitle}
+      iconSrc={iconSrc}
+      onRemoveTrackClick={onRemoveTrackClick}
+      subjectCount={subjectCount}
+      subjectStore={subjectStore}
+      trackData={trackData}
+      trackDuration={displayTrackLength}
+      trackPointCount={trackPointCount}
+    />}
+  /> : null;
 };
-
-const mapStatetoProps = (state) => ({
-  subjectStore: state.data.subjectStore,
-  trackTimeEnvelope: trackTimeEnvelope(state),
-  trackLength: state.view.trackLength,
-});
-
-export default connect(mapStatetoProps, { updateTrackState })(memo(TrackLegend));
 
 TrackLegend.propTypes = {
-  trackData: PropTypes.array.isRequired,
-  trackState: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+  trackData: PropTypes.arrayOf(PropTypes.shape({
+    points: PropTypes.object,
+    track: PropTypes.object,
+  })).isRequired,
+  trackState: PropTypes.shape({
+    pinned: PropTypes.array,
+    visible: PropTypes.array,
+  }).isRequired,
 };
+
+export default memo(TrackLegend);
