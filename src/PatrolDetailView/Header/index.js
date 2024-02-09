@@ -49,12 +49,17 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
-      return <span data-testid="patrol-drawer-header-details">
-        {patrolElapsedTime} | <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+      return <span data-testid="patrol-drawer-header-details" className={styles.headerDetails}>
+        {patrolElapsedTime}
+        <span className={styles.distanceCovered}>
+          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+        </span>
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span data-testid="patrol-drawer-header-details">{t('patrolSchedule', { scheduledStartTime })}</span>;
+      return <span className={styles.scheduledStartTime} data-testid="patrol-drawer-header-details">
+        {t('patrolSchedule', { scheduledStartTime })}
+      </span>;
     }
     return null;
   }, [

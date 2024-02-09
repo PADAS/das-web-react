@@ -64,7 +64,6 @@
 .titleAndDetails {
   display: flex;
   flex-direction: column;
-  width: 8rem;
 
   @media (min-width: $md-layout-width-min) {
     width: 20.25rem;
@@ -80,9 +79,12 @@
   color: $dark-gray;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  white-space: nowrap;
+  display: block;
+  width: 15rem;
+
 
   &::-webkit-scrollbar {
     background: transparent;  /* Optional: just make scrollbar invisible */
@@ -102,6 +104,8 @@
     max-height: 3rem;
     font-size: 1.375rem;
     line-height: 1.5rem;
+    display: unset;
+    width: 22rem;
   }
 }
 
@@ -176,4 +180,33 @@
 
 .date {
   font-style: italic;
+}
+
+.distanceCovered {
+  &:before {
+    content: ' | ';
+  }
+}
+
+.headerDetails {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 15rem;
+  font-size: 0.79rem;
+
+  @media (min-width: $md-layout-width-min) {
+    overflow: unset;
+    white-space: unset;
+    text-overflow: unset;
+    width: unset;
+    font-size: unset;
+  }
+}
+
+.scheduledStartTime {
+  font-size: 0.79rem;
+  @media (min-width: $md-layout-width-min) {
+    font-size: unset;
+  }
 }

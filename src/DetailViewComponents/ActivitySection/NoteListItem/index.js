@@ -95,7 +95,7 @@ const NoteListItem = ({
         <NoteIcon />
       </div>
 
-      <div className={styles.itemDetails}>
+      <div className={`${styles.noteTitle} ${styles.itemDetails}`}>
         <p
           className={styles.itemTitle}
           data-testid={`activitySection-noteTitle-${note.id || note.text}`}
