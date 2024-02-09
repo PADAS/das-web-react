@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 
 import FriendlyFilterString from '.';
 import { EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
+import { render, screen } from '../test-utils';
 
 describe('FriendlyFilterString', () => {
   beforeAll(() => {
@@ -46,7 +46,8 @@ describe('FriendlyFilterString', () => {
     expect(await screen.findByText('50 results')).toBeDefined();
     expect(await screen.findByText('filtered from')).toBeDefined();
     expect(await screen.findByText('30 days ago until 1 day from now')).toBeDefined();
-    expect(await screen.findByText(', sorted ascending by')).toBeDefined();
+    expect(await screen.findByText(', sorted ascending')).toBeDefined();
+    expect(await screen.findByText('by')).toBeDefined();
     expect(await screen.findByText('created date')).toBeDefined();
   });
 });

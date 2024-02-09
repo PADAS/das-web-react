@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
@@ -12,6 +12,7 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 import { trackEventFactory, EVENT_FILTER_CATEGORY } from '../utils/analytics';
+import { useTranslation } from 'react-i18next';
 
 const filterProps = ['display', 'value', 'category.display'];
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
@@ -35,6 +36,7 @@ const filterEventTypes = (eventTypes, filterText) =>
 
 const ReportTypeMultiSelect = (props) => {
   const { eventTypes = [], filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
+  const { t } = useTranslation('filters', { keyPrefix: 'reportTypeMultiSelect' });
 
   const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
 
@@ -85,16 +87,22 @@ const ReportTypeMultiSelect = (props) => {
 
   const MemoizedListItem = memo(ListItem);
 
+  const matchesButtonText = useMemo(() => {
+    if (filteredEventTypes.length){
+      return filteredEventTypes.length > 1
+        ? t('someResultsLabel', { resultCount: filteredEventTypes.length })
+        : t('singleResultLabel');
+    }
+    return t('noResultsLabel');
+  }, [filteredEventTypes, t]);
+
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
-      <SearchBar className={styles.search} placeholder='Search types' value={filter}
+      <SearchBar className={styles.search} placeholder={t('placeholder')} value={filter}
         onChange={onSearchValueChange} onClear={onFilterClear} />
       {!!filter.length
         && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>
-          {filteredEventTypes.length ?
-            `Set to ${filteredEventTypes.length > 1 ? `these ${filteredEventTypes.length}`  : 'this one'}`
-            : 'No matches'
-          }
+          {matchesButtonText}
         </Button>
       }
     </div>

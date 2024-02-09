@@ -2,6 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useTranslation } from 'react-i18next';
 
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
@@ -12,13 +13,18 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 const PatrolFilterSettings = (props) => {
   const { handleFilterOptionChange, patrolFilter } = props;
   const { filter: { patrols_overlap_daterange } } = patrolFilter;
+  const { t } = useTranslation('filters', { keyPrefix: 'patrolFiltersSettings' });
 
   const startInfo = props => (
-    <Tooltip className={styles.filterTooltip} {...props}>Include patrols starting within the date range</Tooltip>
+    <Tooltip className={styles.filterTooltip} {...props}>
+      {t('patrolWithinRangeTooltip')}
+    </Tooltip>
   );
 
   const overlapInfo = props => (
-    <Tooltip className={styles.filterTooltip} {...props}>Include patrols whose start to end date range overlaps with the date range</Tooltip>
+    <Tooltip className={styles.filterTooltip} {...props}>
+      {t('patrolOverlapsRangeTooltip')}
+    </Tooltip>
   );
 
   const handleOptionClick = useCallback((e) => {
@@ -38,7 +44,10 @@ const PatrolFilterSettings = (props) => {
                 value="start_dates"
                 checked={!patrols_overlap_daterange}
                 onChange={handleOptionClick}
-              /><label htmlFor="start_dates">Filter by start date</label>
+              />
+              <label htmlFor="start_dates">
+                {t('byStartDateLabel')}
+              </label>
             </span>
           </OverlayTrigger>
         </div>
@@ -51,7 +60,10 @@ const PatrolFilterSettings = (props) => {
                 value="overlap_dates"
                 checked={patrols_overlap_daterange}
                 onChange={handleOptionClick}
-              /><label htmlFor="overlap_dates">Filter by date range overlap</label>
+              />
+              <label htmlFor="overlap_dates">
+                {t('byRangeDateLabel')}
+              </label>
             </span>
           </OverlayTrigger>
         </div>

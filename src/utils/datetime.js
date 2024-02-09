@@ -11,25 +11,44 @@ import setMilliseconds from 'date-fns/set_milliseconds';
 import isFuture from 'date-fns/is_future';
 import humanizeDuration from 'humanize-duration';
 import pluralize from 'pluralize';
+import i18next from 'i18next';
+
+import { DATE_LOCALES } from '../constants';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
-
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
 export const calcFriendlyDurationString = (from, until) => {
-  if (!from && !until) return '1 month ago until now';
+  const locale = DATE_LOCALES[i18next.language];
+  const t = i18next.getFixedT(null, 'filters', 'friendlyFilterString');
 
-  if (!until) return `${distanceInWords(startOfDay(from), new Date())} ago until now`;
+  if (!from && !until) return t('monthAgo');
 
-  if (!from) return `1 month ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
+  if (!until){
+    return t('untilNow', {
+      date: distanceInWords(startOfDay(from), new Date(), { locale })
+    });
+  }
+
+  if (!from){
+    return t('monthAgoUntilNow', {
+      date: distanceInWords(startOfDay(until), new Date(), { locale })
+    });
+  }
 
   const untilIsFuture = isFuture(until);
   const untilDate = untilIsFuture ? new Date(until) : startOfDay(new Date(until));
 
-  return `${distanceInWords(startOfDay(from), new Date())} ago until ${distanceInWords(untilDate, new Date())}${untilIsFuture ? ' from now' : ' ago'}`;
+  const fromDistanceInWords = distanceInWords(startOfDay(from), new Date(), { locale });
+  const untilDistanceInWords = distanceInWords(untilDate, new Date(), { locale });
+
+  return t(untilIsFuture ? 'someAgoFromNow' : 'someAgo', {
+    from: fromDistanceInWords,
+    until: untilDistanceInWords
+  });
 };
 
 export const SHORT_TIME_FORMAT = 'HH:mm';

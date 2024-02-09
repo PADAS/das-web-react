@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { REPORT_PRIORITIES } from '../constants';
 
@@ -15,18 +16,26 @@ const calcClassNameForPriority = (priority) => {
 
 const PriorityPicker = (props) => {
   const { className, onSelect, selected, isMulti } = props;
+  const { t } = useTranslation('filters', { keyPrefix: 'priorityPicker' });
 
   const isSelected = (value) => isMulti ?
     selected.some(v => v === value)
     : selected === value;
 
   return <ul className={`${styles.list} ${className}`}>
-    {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>
-      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${isSelected(value) ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
-        {display}
-      </button>
-    </li>
-    )}
+    {
+      REPORT_PRIORITIES.map(({ value, key }) => {
+        const display = t(key);
+        return <li key={value}>
+          <button title={display}
+                  type='button'
+                  className={`${styles[calcClassNameForPriority(value)]} ${isSelected(value) ? styles.selected : ''}`}
+                  value={value}
+                  onClick={() => onSelect(value)} >
+            {display}
+          </button>
+        </li>;
+    })}
   </ul>;
 
 };
