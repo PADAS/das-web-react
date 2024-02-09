@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 18
       - run: |
-          npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
+          npm pkg set "buildbranch"="${{ github.event.pull_request.head.sha }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
       - uses: actions/upload-artifact@v3
         with:
