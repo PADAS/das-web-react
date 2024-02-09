@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
+import { DATE_LOCALES } from '../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { trackTimeEnvelope as trackTimeEnvelopeSelector } from '../selectors/tracks';
 import { updateTrackState } from '../ducks/map-ui';
@@ -90,7 +91,7 @@ const TitleElement = ({
 
 const TrackLegend = ({ onClose, trackData, trackState }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
+  const { i18n, t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
 
   const subjectStore = useSelector((state) => state.data.subjectStore);
   const trackTimeEnvelope = useSelector(trackTimeEnvelopeSelector);
@@ -111,9 +112,13 @@ const TrackLegend = ({ onClose, trackData, trackState }) => {
 
   const displayTrackLength = useMemo(
     () => trackTimeEnvelope.until
-      ? distanceInWords(new Date(trackTimeEnvelope.from), new Date(trackTimeEnvelope.until))
-      : distanceInWordsToNow(new Date(trackTimeEnvelope.from)),
-    [trackTimeEnvelope]
+      ? distanceInWords(
+        new Date(trackTimeEnvelope.from),
+        new Date(trackTimeEnvelope.until),
+        { locale: DATE_LOCALES[i18n.language] }
+      )
+      : distanceInWordsToNow(new Date(trackTimeEnvelope.from), { locale: DATE_LOCALES[i18n.language] }),
+    [i18n.language, trackTimeEnvelope.from, trackTimeEnvelope.until]
   );
 
   const trackPointCount = useMemo(
