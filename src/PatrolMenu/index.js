@@ -24,6 +24,7 @@ const PatrolMenu = ({
   patrolTitle,
   isPatrolCancelled,
   showPatrolPrintOption,
+  className,
   ...rest
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
@@ -107,7 +108,7 @@ const PatrolMenu = ({
     return () => window.removeEventListener('click', handleClickOutside);
   }, [menuRef]);
 
-  return <Dropdown align="end" className={styles.kebabMenu} {...rest} onClick={onDropdownClick}>
+  return <Dropdown align="end" className={`${styles.kebabMenu} ${className}`} {...rest} onClick={onDropdownClick}>
     <Dropdown.Toggle as="button" className={styles.kebabToggle} >
       <KebabMenuIcon />
     </Dropdown.Toggle>
@@ -146,6 +147,7 @@ const PatrolMenu = ({
 
 PatrolMenu.defaultProps = {
   patrolTitle: '',
+  className: '',
   isPatrolCancelled: false,
   showPatrolPrintOption: true,
 };
@@ -153,6 +155,7 @@ PatrolMenu.defaultProps = {
 PatrolMenu.propTypes = {
   patrol: PropTypes.object.isRequired,
   patrolState: PropTypes.object,
+  className: PropTypes.string,
   onPatrolChange: PropTypes.func.isRequired,
   patrolTitle: PropTypes.string,
   isPatrolCancelled: PropTypes.bool,

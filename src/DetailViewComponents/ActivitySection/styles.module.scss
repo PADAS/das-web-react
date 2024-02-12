@@ -88,6 +88,11 @@ $cardExpansionTransitionTime: 300ms;
   &.collapseRow {
     cursor: pointer;
   }
+
+  .noteTitle {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
 .nonImageAttachment {
