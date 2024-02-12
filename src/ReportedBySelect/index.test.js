@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from '../__test-helpers/MockStore';
@@ -8,6 +7,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
 import { subjectStore } from '../__test-helpers/fixtures/subjects';
+import { render, screen, waitFor } from '../test-utils';
 
 import ReportedBySelect from './';
 

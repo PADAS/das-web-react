@@ -1,0 +1,110 @@
+{
+  "dateFilter": {
+    "emptyEndDateMessage": "Now",
+    "resetButton": "Reset",
+    "emptyStartDateMessage": "{{distanceInWordsDate}} ago",
+    "title": "Date Range"
+  },
+  "dateRangeSelector": {
+    "endDateLabel": "To:",
+    "lastSevenDaysLabel": "Last 7 days",
+    "lastThirtyDaysLabel": "Last 30 days",
+    "lastThreeMonthsLabel": "Last 3 months",
+    "todayLabel": "Today",
+    "settingsTitle": "Settings",
+    "startDateLabel": "From:",
+    "yesterdayLabel": "Yesterday"
+  },
+  "eventsFilter": {
+    "datesButton": "Dates",
+    "filtersButton": "Filters",
+    "resetButton": "Reset",
+    "searchBarPlaceholder": "Search Reports..."
+  },
+  "filters": {
+    "priorityPickerLabel": "Priority",
+    "reportTypesAllLabel": "All",
+    "reportTypesLabel": "Report Types",
+    "reportTypesSelectionLabels": {
+      "allSelected": "All selected",
+      "noneSelected": "None selected",
+      "someSelected": "{{reportTypesCheckedCount}} of {{eventTypeIDsLength}} selected"
+    },
+    "restAllButton": "Reset All",
+    "restButton": "Reset",
+    "stateLabel": "State",
+    "stateSelector": {
+      "active": "Active",
+      "resolved": "Resolved",
+      "all": "All"
+    },
+    "title": "Report Filters"
+  },
+  "friendlyFilterString": {
+    "monthAgo": "1 month ago until now",
+    "monthAgoUntilNow": "1 month ago until {{date}} ago",
+    "someAgoFromNow": "{{from}} ago until {{until}} from now",
+    "someAgo": "{{from}} ago until {{until}} ago",
+    "untilNow": "{{date}} ago until now",
+    "resultLabel": "result",
+    "resultsLabel": "Results",
+    "fromLabel": " from ",
+    "filteredLabel": " filtered",
+    "sortingTypeLabel": ", sorted {{sortDirection}}",
+    "byLabel": " by ",
+    "eventSortOptions": {
+      "updatedAtLabel": "Date Updated",
+      "createdAtLabel": "Created Date",
+      "eventTimeLabel": "Report Date"
+    },
+    "ascendingLabel": " ascending"
+  },
+  "mapLayerSearchbarPlaceholder": "Search Layers...",
+  "patrolFilters": {
+    "datesTitle": "Dates",
+    "dateRangePopover": {
+      "title": "Date Range",
+      "resetButton": "Reset"
+    },
+    "filtersTitle": "Filters",
+    "searchbarPlaceHolder": "Search Patrols...",
+    "filtersPopover": {
+      "checkBoxAllOption": "All",
+      "title": "Patrol Filters",
+      "resetAllButton": "Reset All",
+      "resetButton": "Reset",
+      "trackedByLabel": "Tracked by",
+      "statusLabel": "Status",
+      "patrolTypeLabel": "Patrol Type",
+      "reportedByPlaceholder": "Select Device...",
+      "patrolStatuses": {
+        "active": "Active",
+        "done": "Done",
+        "cancelled": "Cancelled"
+      }
+    }
+  },
+  "patrolFiltersSettings": {
+    "byStartDateLabel": "Filter by start date",
+    "byRangeDateLabel": "Filter by date range overlap",
+    "patrolWithinRangeTooltip": "Include patrols starting within the date range",
+    "patrolOverlapsRangeTooltip": "Include patrols whose start to end date range overlaps with the date range"
+  },
+  "priorityPicker": {
+    "red": "Red",
+    "amber": "Amber",
+    "green": "Green",
+    "none": "None"
+  },
+  "reportedByPlaceholder": "Reported By...",
+  "reportTypeMultiSelect": {
+    "placeholder": "Search types",
+    "noResultsLabel": "No matches",
+    "someResultsLabel": "Set to these {{resultCount}}",
+    "singleResultLabel": "Set to this one"
+  },
+  "searchBar": {
+    "defaultPlaceHolder": "Search...",
+    "iconTitle": "Clear search bar"
+  }
+}

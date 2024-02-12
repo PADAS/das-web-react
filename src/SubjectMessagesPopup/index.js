@@ -1,44 +1,47 @@
-import React, { memo, useMemo } from 'react';
-import { connect } from 'react-redux';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
-import ParamFedMessageList from '../MessageList/ParamFedMessageList';
-import MessageInput from '../MessageInput';
-import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
-
-import { hidePopup } from '../ducks/popup';
-import { addModal } from '../ducks/modals';
-
-import { usePermissions } from '../hooks';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
+import { usePermissions } from '../hooks';
+
+import MessageInput from '../MessageInput';
+import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 
 import styles from './styles.module.scss';
 
-const isReverse = true;
-
-const SubjectMessagesPopup = (props) => {
-  const  { data: { properties } } = props;
-
+const SubjectMessagesPopup = ({ data }) => {
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 
-  const params = useMemo(() => {
-    return { subject_id: properties.id };
-  }, [properties.id]);
+  const { properties } = data;
 
   return <>
     <div className={styles.header}>
-      <h6><ChatIcon /> {properties.name}</h6>
-      {/* <img src={ExpandIcon} alt='Expand subject chat history' onClick={expandChat} /> */}
+      <h6>
+        <ChatIcon /> {properties.name}
+      </h6>
     </div>
-    <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} className={styles.messageList} params={params} isReverse={isReverse} />
-    {!!hasMessagingWritePermissions && <MessageInput subjectId={properties.id} />}
 
+    <ParamFedMessageList
+      className={styles.messageList}
+      isReverse
+      params={{ subject_id: properties.id }}
+      senderDetailStyle={SENDER_DETAIL_STYLES.SHORT}
+    />
+
+    {!!hasMessagingWritePermissions && <MessageInput subjectId={properties.id} />}
   </>;
 };
 
-export default connect(null, { addModal, hidePopup })(memo(SubjectMessagesPopup));
-
 SubjectMessagesPopup.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    properties: PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+    }),
+  }).isRequired,
 };
+
+export default memo(SubjectMessagesPopup);

@@ -1,19 +1,16 @@
-import React, { useContext, useCallback, useRef } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { MapContext } from '../App';
-import { togglePatrolTrackState } from '../ducks/patrols';
-import { toggleTrackState } from '../ducks/map-ui';
-import usePatrol from '../hooks/usePatrol';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
+import { MapContext } from '../App';
+import usePatrol from '../hooks/usePatrol';
 
 import LocationJumpButton from '../LocationJumpButton';
 import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 
 import styles from './styles.module.scss';
 
-const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
+const PatrolTrackControls = ({ className, onLocationClick, patrol }) => {
   const {
     patrolData,
     patrolTrackState,
@@ -24,15 +21,16 @@ const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
   } = usePatrol(patrol);
 
   const map = useContext(MapContext);
+
   const trackToggleButtonRef = useRef(null);
+
   const { leader } = patrolData;
 
   const handleLocationClick = useCallback((event) => {
     const patrolTrackIsVisible = [...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
     const leaderTrackIsVisible = !!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id);
 
-    if (!patrolTrackIsVisible
-    || (!!leader && !leaderTrackIsVisible)) {
+    if (!patrolTrackIsVisible || (!!leader && !leaderTrackIsVisible)) {
       trackToggleButtonRef?.current?.click();
     }
 
@@ -41,15 +39,29 @@ const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
   }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
   return <div className={`${styles.patrolTrackControls} ${className}`}>
-    {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
-    {!!patrolBounds && <LocationJumpButton onClick={handleLocationClick} bypassLocationValidation={true} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
+    {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton
+      buttonRef={trackToggleButtonRef}
+      data-testid={`patrol-list-item-track-btn-${patrol.id}`}
+      patrolData={patrolData}
+      showLabel={false}
+    />}
+
+    {!!patrolBounds && <LocationJumpButton
+      bypassLocationValidation
+      data-testid={`patrol-list-item-jump-btn-${patrol.id}`}
+      onClick={handleLocationClick}
+    />}
   </div>;
 };
 
-PatrolTrackControls.propTypes = {
-  patrol: PropTypes.object.isRequired,
-  onLocationClick: PropTypes.func,
-  className: PropTypes.string,
+PatrolTrackControls.defaultProps = {
+  className: '',
 };
 
-export default connect(null, { togglePatrolTrackState, toggleTrackState })(PatrolTrackControls);
+PatrolTrackControls.propTypes = {
+  className: PropTypes.string,
+  onLocationClick: PropTypes.func.isRequired,
+  patrol: PropTypes.object.isRequired,
+};
+
+export default PatrolTrackControls;

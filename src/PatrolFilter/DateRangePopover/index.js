@@ -4,6 +4,7 @@ import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClockIcon } from '../../common/images/icons/clock-icon.svg';
 
@@ -22,7 +23,7 @@ const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
 
 const DateRangePopover = React.forwardRef(({ containerRef, ...rest }, ref) => {
   const dispatch = useDispatch();
-
+  const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters.dateRangePopover' });
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
 
   const onFilterSettingsOptionChange = useCallback((event) => {
@@ -47,9 +48,7 @@ const DateRangePopover = React.forwardRef(({ containerRef, ...rest }, ref) => {
     <Popover.Header>
       <div className={styles.popoverTitle}>
         <ClockIcon />
-
-        Date Range
-
+        {t('title')}
         <Button
           type="button"
           variant='light'
@@ -57,7 +56,7 @@ const DateRangePopover = React.forwardRef(({ containerRef, ...rest }, ref) => {
           onClick={resetDateRange}
           disabled={!dateRangeModified}
         >
-          Reset
+          {t('resetButton')}
         </Button>
       </div>
     </Popover.Header>

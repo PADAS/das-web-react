@@ -26,6 +26,7 @@ import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-ic
 import styles from './styles.module.scss';
 import DateFilter from './DateFilter';
 import Filters from './Filters';
+import { useTranslation } from 'react-i18next';
 
 export const UPDATE_FILTER_DEBOUNCE_TIME = 200;
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
@@ -49,6 +50,7 @@ const EventFilter = ({
   const [reportTypeFilterText, setReportTypeFilterText] = useState('');
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
   const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
+  const { t } = useTranslation('filters', { keyPrefix: 'eventsFilter' });
 
   const isSortModified = !isEqual(DEFAULT_EVENT_SORT, sortConfig);
   const isDateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
@@ -183,7 +185,7 @@ const EventFilter = ({
       <div className={styles.controls}>
         <SearchBar
           className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`}
-          placeholder='Search Reports...'
+          placeholder={t('searchBarPlaceholder')}
           value={filterText}
           onChange={onSearchChange}
           onClear={onSearchClear}
@@ -195,7 +197,8 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='filter-btn'
           >
-            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
+            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} title={t('filtersButton')} />
+            <span>{t('filtersButton')}</span>
           </Button>
         </OverlayTrigger>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={DateFilterPopover} flip={true}>
@@ -205,8 +208,8 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='date-filter-btn'
           >
-            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
-            <span>Dates</span>
+            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked} title={t('datesButton')} />
+            <span>{t('datesButton')}</span>
           </Button>
         </OverlayTrigger>
         {children}
@@ -220,7 +223,13 @@ const EventFilter = ({
         sortConfig={sortConfig}
         totalFeedCount={feedEvents.count}
       />
-      {(filterModified || isDateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon />Reset</Button>}
+      {
+        (filterModified || isDateRangeModified || isSortModified) &&
+        <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'>
+          <RefreshIcon title={t('resetButton')} />
+          {t('resetButton')}
+        </Button>
+      }
     </div>}
   </>;
 };

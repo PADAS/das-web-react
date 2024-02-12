@@ -1,60 +1,53 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
+import { MapContext } from '../App';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 
-import { withMap } from '../EarthRangerMap';
 import TrackLayer from '../TracksLayer/track';
 
-
-const linePaint = {
+const LINE_PAINT = {
   'line-width': ['step', ['zoom'], 2, 8, ['+', ['get', 'stroke-width'], 1.5]],
   'line-offset': -0.75,
   'line-opacity': 1,
 };
 
-const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
+const getPointLayer = (event, map) => map.queryRenderedFeatures(event.point)
+  .filter((item) => item.layer.id.includes('track-layer-points-'))[0];
 
-const PatrolTrackLayer = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const { map, patrolData: { trackData, patrol }, showTrackTimepoints, trackTimeEnvelope, tracks, dispatch: _dispatch, onPointClick, ...rest } = props;
+const PatrolTrackLayer = ({ onPointClick, patrol: patrolFromProps, trackTimeEnvelope, ...restProps }) => {
+  const map = useContext(MapContext);
 
-  const trimmedTrackData = useMemo(() =>
-    !!trackData
-    && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until),
-  [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);
+  const { patrol, trackData } = useSelector((state) => {
+    const getDataForPatrolFromProps = createPatrolDataSelector();
+    return getDataForPatrolFromProps(state, { patrol: patrolFromProps });
+  });
+  const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
-  const onTimepointClick = useCallback((e) => {
-    const layer = getPointLayer(e, map);
-    onPointClick(layer);
-  }, [map, onPointClick]);
+  const trimmedTrackData = useMemo(
+    () => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until),
+    [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]
+  );
 
-  if (!trackData || !trackData.track) return null;
-
-  return <TrackLayer id={patrol.id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={trimmedTrackData} {...rest} />;
+  return trackData && trackData.track ? <TrackLayer
+    id={patrol.id}
+    linePaint={LINE_PAINT}
+    onPointClick={(event) => onPointClick(getPointLayer(event, map))}
+    showTimepoints={showTrackTimepoints}
+    trackData={trimmedTrackData}
+    {...restProps}
+  /> : null;
 };
-
-const makeMapStateToProps = () => {
-  const getDataForPatrolFromProps = createPatrolDataSelector();
-
-  const mapStateToProps = (state, props) => {
-    const { view: { showTrackTimepoints } } = state;
-    return {
-      patrolData: getDataForPatrolFromProps(state, props),
-      showTrackTimepoints,
-    };
-  };
-  return mapStateToProps;
-};
-
-export default connect(makeMapStateToProps, null)(
-  withMap(
-    memo(PatrolTrackLayer)
-  )
-);
 
 PatrolTrackLayer.propTypes = {
-  patrol: PropTypes.object,
+  onPointClick: PropTypes.func.isRequired,
+  patrol: PropTypes.func.isRequired,
+  trackTimeEnvelope: PropTypes.shape({
+    from: PropTypes.any,
+    until: PropTypes.any,
+  }).isRequired,
 };
+
+export default memo(PatrolTrackLayer);

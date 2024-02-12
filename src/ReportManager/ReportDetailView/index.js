@@ -828,8 +828,8 @@ const ReportDetailView = ({
             {shouldRenderLinksSection && <div className={styles.sectionSeparation} />}
 
             <QuickLinks.Section
-              anchorTitle="Links"
-              hidden={t('reportDetailView.quickLinks.linksAnchor')}
+              anchorTitle={t('reportDetailView.quickLinks.linksAnchor')}
+              hidden={!shouldRenderLinksSection}
             >
               <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
             </QuickLinks.Section>

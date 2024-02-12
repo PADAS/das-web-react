@@ -193,7 +193,7 @@ describe('After filters being applied', () => {
     const mockedStore = mockStore(initialState);
     await assertResolvedOptionBtn(mockedStore);
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-    const searchBar = await screen.getByPlaceholderText('Search Reports...');
+    const searchBar = await screen.getAllByTestId('search-input')[0];
     const searchValue = 'Chimpanzee';
     userEvent.type(searchBar, searchValue);
     jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);

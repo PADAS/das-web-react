@@ -11,14 +11,17 @@ export const EVENT_SORT_OPTIONS = [
   {
     label: 'Date Updated',
     value: 'updated_at',
+    key: 'updatedAtLabel'
   },
   {
     label: 'Created Date',
     value: 'created_at',
+    key: 'createdAtLabel'
   },
   {
     label: 'Report Date',
     value: 'event_time',
+    key: 'eventTimeLabel'
   },
 ];
 
@@ -31,10 +34,12 @@ export const EVENT_SORT_ORDER_OPTIONS = [
   {
     label: 'Newest to Oldest',
     value: SORT_DIRECTION.down,
+    key: 'newest'
   },
   {
     label: 'Oldest to Newest',
     value: SORT_DIRECTION.up,
+    key: 'oldest'
   },
 ];
 

@@ -62,7 +62,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
         >
           {option.value === selectedOption.value && <CheckIcon className={styles.checkIcon}/>}
 
-          {option.label}
+          { t(`eventSortOptions.${option.key}`) }
         </ListGroup.Item>)}
       </ListGroup>
 
@@ -75,7 +75,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
         >
           {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
 
-          {option.label}
+          { t(`eventOrderOptions.${option.key}`) }
         </ListGroup.Item>)}
       </ListGroup>
     </Popover.Body>
@@ -99,7 +99,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
       >
         <SortLines />
 
-        <span>{selectedOption.label}</span>
+        { t(`eventSortOptions.${selectedOption.key}`) }
       </Button>
     </OverlayTrigger>
 
