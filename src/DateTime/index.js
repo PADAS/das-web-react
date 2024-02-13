@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns/format';
 
 import TimeAgo from '../TimeAgo';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/datetime';
@@ -12,12 +12,20 @@ import styles from './styles.module.scss';
 const DateTime = ({ date, showElapsed, className, ...rest }) => {
   const { i18n: { language } } = useTranslation('dates');
   const dateLocale = DATE_LOCALES[language];
-  console.log(typeof date);
-  //console.log(parseISO(date));
+
+  if (!date){
+    return null;
+  }
 
   return <div className={`${styles.container} ${className}`} title={generateCurrentTimeZoneTitle()} {...rest}>
     <span className={styles.date}>
-      {format(new Date(parseISO(date)), STANDARD_DATE_FORMAT, { locale: dateLocale })}
+      {
+        format(new Date(date), STANDARD_DATE_FORMAT, {
+          useAdditionalDayOfYearTokens: true,
+          useAdditionalWeekYearTokens: true,
+          locale: dateLocale
+        })
+      }
     </span>
     {showElapsed && <TimeAgo className={styles.elapsed} date={date} {...rest} />}
   </div>;

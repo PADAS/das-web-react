@@ -878,7 +878,7 @@ describe('ReportManager - ReportDetailView', () => {
       jest.restoreAllMocks();
     });
 
-    test.only('showing a warning prompt for unsaved changes', async () => {
+    test('showing a warning prompt for unsaved changes', async () => {
       const onCancelAddedReport = jest.fn();
 
       renderWithWrapper(

@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
+import { DATE_LOCALES } from '../constants';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
@@ -21,8 +22,8 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = ({ data }) => {
-  const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
-
+  const { t, i18n: { language } } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
+  const dateLocale = DATE_LOCALES[language];
   const isTimeSliderActive = useSelector((state) => state.view.timeSliderState.active);
 
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
@@ -98,7 +99,15 @@ const SubjectPopup = ({ data }) => {
       <h5>{t('micActivityHeader')}</h5>
 
       <div>
-        <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
+        <span>
+          {
+            format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT, {
+              useAdditionalDayOfYearTokens: true,
+              useAdditionalWeekYearTokens: true,
+              locale: dateLocale
+            })
+          }
+        </span>
 
         <TimeAgo
           className={styles.timeAgo}
