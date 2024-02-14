@@ -2,7 +2,6 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import datesEnUS from '../public/locales/en-US/dates.json';
-import datepicker from '../public/locales/en-US/datepicker.json';
 import detailsViewEnUS from '../public/locales/en-US/details-view.json';
 import filters from '../public/locales/en-US/filters.json';
 import loginEnUS from '../public/locales/en-US/login.json';
@@ -29,7 +28,6 @@ i18n
     resources: {
       'en-US': {
         'dates': datesEnUS,
-        'datepicker': datepicker,
         'details-view': detailsViewEnUS,
         'filters': filters,
         'login': loginEnUS,
