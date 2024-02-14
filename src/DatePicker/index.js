@@ -2,11 +2,12 @@ import React, { createRef, forwardRef, memo, useCallback, useEffect, useMemo, us
 import DatePicker from 'react-datepicker';
 import { getMonth, getYear } from 'date-fns';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-right.svg';
-import useDatepickerLocalization from '../hooks/useDatepickerLocalization';
+import { DATE_LOCALES } from '../constants';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
@@ -242,7 +243,8 @@ const CustomDatePicker = ({
   ...rest
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { locale, language, t } = useDatepickerLocalization();
+  const { t, i18n: { language } } = useTranslation('dates');
+  const locale = DATE_LOCALES[language];
 
   const handleCalendarOpen = useCallback(() => {
     setIsOpen(true);
