@@ -1,7 +1,6 @@
 import { featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { format } from 'date-fns';
 
 
 import store from '../store';
@@ -9,7 +8,7 @@ import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
-import { formatEventSymbolDate } from '../utils/datetime';
+import { format, formatEventSymbolDate } from './datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
 const addItemPropsToFeatureByKey = (item, feature, key) => {

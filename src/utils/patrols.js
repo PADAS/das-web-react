@@ -6,7 +6,6 @@ import {
   isAfter,
   isWithinInterval as isWithinRange,
   formatDistance as distanceInWords,
-  format
 } from 'date-fns';
 
 import concat from 'lodash/concat';
@@ -18,7 +17,7 @@ import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 
 import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, DATE_LOCALES } from '../constants';
-import { SHORT_TIME_FORMAT } from './datetime';
+import { format, SHORT_TIME_FORMAT } from './datetime';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import TimeAgo from '../TimeAgo';
 
@@ -483,7 +482,7 @@ export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLa
 };
 
 export const formatPatrolStateTitleDate = (date, lang = defaultDatesLang) => {
-  const otherYearFormat = 'd MMM \'YY HH:mm';
+  const otherYearFormat = 'd MMM YY HH:mm';
   const defaultFormat = 'd MMM HH:mm';
   const locale = DATE_LOCALES[lang];
 

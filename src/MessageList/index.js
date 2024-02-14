@@ -5,9 +5,7 @@ import { isSameDay, isToday, isYesterday  } from 'date-fns';
 
 import InfiniteScroll from 'react-infinite-scroller';
 
-import { format } from 'date-fns';
-
-import { SHORTENED_DATE_FORMAT } from '../utils/datetime';
+import { format, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { uuid } from '../utils/string';
 
 import MessageListItem from './MessageListItem';

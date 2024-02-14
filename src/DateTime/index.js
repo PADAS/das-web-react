@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns/format';
 
 import TimeAgo from '../TimeAgo';
-import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/datetime';
+import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, format } from '../utils/datetime';
 import { DATE_LOCALES } from '../constants';
 
 import styles from './styles.module.scss';
@@ -21,8 +20,6 @@ const DateTime = ({ date, showElapsed, className, ...rest }) => {
     <span className={styles.date}>
       {
         format(new Date(date), STANDARD_DATE_FORMAT, {
-          useAdditionalDayOfYearTokens: true,
-          useAdditionalWeekYearTokens: true,
           locale: dateLocale
         })
       }

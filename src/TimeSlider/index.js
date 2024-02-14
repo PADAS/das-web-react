@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import { format } from 'date-fns';
 import TimeAgo from '../TimeAgo';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -13,7 +12,7 @@ import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
+import { format } from '../utils/datetime';
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 

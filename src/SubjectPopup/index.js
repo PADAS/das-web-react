@@ -2,11 +2,10 @@ import React, { memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import { STANDARD_DATE_FORMAT } from '../utils/datetime';
+import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { DATE_LOCALES } from '../constants';
 
@@ -102,8 +101,6 @@ const SubjectPopup = ({ data }) => {
         <span>
           {
             format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT, {
-              useAdditionalDayOfYearTokens: true,
-              useAdditionalWeekYearTokens: true,
               locale: dateLocale
             })
           }

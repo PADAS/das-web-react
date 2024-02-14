@@ -7,7 +7,7 @@ import {
   subDays,
   startOfDay,
   endOfDay,
-  format,
+  format as formatDate,
   setSeconds,
   setMilliseconds,
   isFuture
@@ -19,6 +19,12 @@ import { DATE_LOCALES } from '../constants';
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
+
+export const format = (date, format, options = {}) => formatDate(date, format, {
+  ...options,
+  useAdditionalWeekYearTokens: true,
+  useAdditionalDayOfYearTokens: true,
+});
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
@@ -53,7 +59,7 @@ export const calcFriendlyDurationString = (from, until) => {
 };
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
-export const STANDARD_DATE_FORMAT = 'D MMM \'YY HH:mm';
+export const STANDARD_DATE_FORMAT = 'D MMM YY HH:mm';
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
 
@@ -155,3 +161,4 @@ export const getUserLocaleTime = (date = new Date()) => {
 };
 
 export const isGreaterThan = (date1, date2) => date1.getTime() > date2.getTime();
+
