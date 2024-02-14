@@ -20,11 +20,16 @@ export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
 
-export const format = (date, format, options = {}) => formatDate(date, format, {
-  ...options,
-  useAdditionalWeekYearTokens: true,
-  useAdditionalDayOfYearTokens: true,
-});
+export const format = (date, format) => {
+  const { language } = i18next;
+  const locale = DATE_LOCALES[language];
+
+  return formatDate(date, format, {
+    locale,
+    useAdditionalWeekYearTokens: true,
+    useAdditionalDayOfYearTokens: true,
+  });
+};
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 

@@ -62,7 +62,7 @@ const usePatrol = (patrolFromProps) => {
     [patrolData.patrol, patrolState, language]
   );
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrolData.patrol), [patrolData.patrol]);
-  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrolData.patrol, language), [patrolData.patrol, language]);
+  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrolData.patrol), [patrolData.patrol]);
   const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
 
   const patrolCancellationTime = useMemo(() => {
@@ -73,16 +73,16 @@ const usePatrol = (patrolFromProps) => {
       ?? null;
     if (!cancellation) return null;
 
-    return formatPatrolStateTitleDate(new Date(cancellation.time), language);
+    return formatPatrolStateTitleDate(new Date(cancellation.time));
 
-  }, [isPatrolCancelled, patrolData.patrol.updates, language]);
+  }, [isPatrolCancelled, patrolData.patrol.updates]);
 
   const dateComponentDateString = useMemo(() => {
     if (isPatrolCancelled) return patrolCancellationTime;
-    if (isPatrolDone) return patrolStateDetailsEndTime(patrolData.patrol, language);
+    if (isPatrolDone) return patrolStateDetailsEndTime(patrolData.patrol);
     if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrolData.patrol, language);
     if (isPatrolActive || isPatrolScheduled) {
-      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrolData.patrol), language);
+      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrolData.patrol));
     }
 
     return null;

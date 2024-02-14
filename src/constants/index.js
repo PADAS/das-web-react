@@ -352,6 +352,6 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
 };
 
 export const DATE_LOCALES = {
-  'es': es,
-  'en-US': enUS
+  'es': es.es ?? es,
+  'en-US': enUS.enUS ?? enUS
 };

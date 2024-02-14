@@ -7,7 +7,6 @@ import Button from 'react-bootstrap/Button';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
-import { DATE_LOCALES } from '../constants';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
@@ -21,8 +20,7 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = ({ data }) => {
-  const { t, i18n: { language } } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
-  const dateLocale = DATE_LOCALES[language];
+  const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
   const isTimeSliderActive = useSelector((state) => state.view.timeSliderState.active);
 
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
@@ -100,9 +98,7 @@ const SubjectPopup = ({ data }) => {
       <div>
         <span>
           {
-            format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT, {
-              locale: dateLocale
-            })
+            format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)
           }
         </span>
 

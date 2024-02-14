@@ -481,22 +481,21 @@ export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLa
   return distanceInWords(startTime, currentTime, { includeSeconds: true, locale });
 };
 
-export const formatPatrolStateTitleDate = (date, lang = defaultDatesLang) => {
+export const formatPatrolStateTitleDate = (date) => {
   const otherYearFormat = 'd MMM YY HH:mm';
   const defaultFormat = 'd MMM HH:mm';
-  const locale = DATE_LOCALES[lang];
 
   if (!date) return '';
 
   if (isToday(date)) {
-    return format(date, SHORT_TIME_FORMAT, { locale });
+    return format(date, SHORT_TIME_FORMAT);
   }
 
   if (!isThisYear(date)) {
-    return format(date, otherYearFormat, { locale });
+    return format(date, otherYearFormat);
   }
 
-  return format(date, defaultFormat, { locale });
+  return format(date, defaultFormat);
 };
 
 export const displayPatrolEndOverdueTime = (patrol) => {
@@ -505,16 +504,14 @@ export const displayPatrolEndOverdueTime = (patrol) => {
   return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
-export const patrolStateDetailsStartTime = (patrol, lang) =>
+export const patrolStateDetailsStartTime = (patrol) =>
   formatPatrolStateTitleDate(
-    displayStartTimeForPatrol(patrol),
-    lang
+    displayStartTimeForPatrol(patrol)
   );
 
-export const patrolStateDetailsEndTime = (patrol, lang) =>
+export const patrolStateDetailsEndTime = (patrol) =>
   formatPatrolStateTitleDate(
-    displayEndTimeForPatrol(patrol),
-    lang
+    displayEndTimeForPatrol(patrol)
   );
 
 export const calcPatrolState = (patrol) => {
