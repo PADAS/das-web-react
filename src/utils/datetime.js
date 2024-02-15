@@ -1,7 +1,7 @@
 import humanizeDuration from 'humanize-duration';
 import pluralize from 'pluralize';
 import {
-  formatDistance as distanceInWords,
+  formatDistance,
   subMonths,
   subWeeks,
   subDays,
@@ -13,49 +13,50 @@ import {
   isFuture
 } from 'date-fns';
 import i18next from 'i18next';
-
-import { DATE_LOCALES } from '../constants';
+import es from 'date-fns/locale/es';
+import enUS from 'date-fns/locale/en-US';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
-
-export const format = (date, format) => {
-  const { language } = i18next;
-  const locale = DATE_LOCALES[language];
-
-  return formatDate(date, format, {
-    locale,
-    useAdditionalWeekYearTokens: true,
-    useAdditionalDayOfYearTokens: true,
-  });
+const DATE_LOCALES = {
+  'es': es.es ?? es,
+  'en-US': enUS.enUS ?? enUS
 };
+
+export const getCurrentLocale = () => DATE_LOCALES[i18next.language];
+
+export const format = (date, format) => formatDate(date, format, {
+  locale: getCurrentLocale(),
+  useAdditionalWeekYearTokens: true,
+  useAdditionalDayOfYearTokens: true,
+});
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
 export const calcFriendlyDurationString = (from, until) => {
-  const locale = DATE_LOCALES[i18next.language];
+  const locale = getCurrentLocale();
   const t = i18next.getFixedT(null, 'filters', 'friendlyFilterString');
 
   if (!from && !until) return t('monthAgo');
 
   if (!until){
     return t('untilNow', {
-      date: distanceInWords(startOfDay(from), new Date(), { locale })
+      date: formatDistance(startOfDay(from), new Date(), { locale })
     });
   }
 
   if (!from){
     return t('monthAgoUntilNow', {
-      date: distanceInWords(startOfDay(until), new Date(), { locale })
+      date: formatDistance(startOfDay(until), new Date(), { locale })
     });
   }
 
   const untilIsFuture = isFuture(until);
   const untilDate = untilIsFuture ? new Date(until) : startOfDay(new Date(until));
 
-  const fromDistanceInWords = distanceInWords(startOfDay(from), new Date(), { locale });
-  const untilDistanceInWords = distanceInWords(untilDate, new Date(), { locale });
+  const fromDistanceInWords = formatDistance(startOfDay(from), new Date(), { locale });
+  const untilDistanceInWords = formatDistance(untilDate, new Date(), { locale });
 
   return t(untilIsFuture ? 'someAgoFromNow' : 'someAgo', {
     from: fromDistanceInWords,
@@ -166,4 +167,3 @@ export const getUserLocaleTime = (date = new Date()) => {
 };
 
 export const isGreaterThan = (date1, date2) => date1.getTime() > date2.getTime();
-

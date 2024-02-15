@@ -6,7 +6,7 @@ import { featureCollection }  from '@turf/helpers';
 import {
   subDays,
   startOfDay,
-  isEqual as dateIsEqual
+  isEqual as isEqualDate
 } from 'date-fns';
 
 import cloneDeep from 'lodash/cloneDeep';
@@ -141,7 +141,7 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     ) {
       results.until = times.length;
     } else if (untilIndex > -1) {
-      results.until = dateIsEqual(new Date(times[untilIndex]), new Date(until)) ? untilIndex :  untilIndex + 1;
+      results.until = isEqualDate(new Date(times[untilIndex]), new Date(until)) ? untilIndex :  untilIndex + 1;
     }
   }
   return results;

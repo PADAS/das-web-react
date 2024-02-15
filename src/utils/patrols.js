@@ -4,8 +4,8 @@ import {
   isToday,
   isThisYear,
   isAfter,
-  isWithinInterval as isWithinRange,
-  formatDistance as distanceInWords,
+  isWithinInterval,
+  formatDistance,
 } from 'date-fns';
 
 import concat from 'lodash/concat';
@@ -16,8 +16,8 @@ import isNil from 'lodash/isNil';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 
-import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES, DATE_LOCALES } from '../constants';
-import { format, SHORT_TIME_FORMAT } from './datetime';
+import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import {format, getCurrentLocale, SHORT_TIME_FORMAT} from './datetime';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import TimeAgo from '../TimeAgo';
 
@@ -320,7 +320,7 @@ export const extractAttachmentUpdates = (collection) => {
   return extractedUpdates;
 };
 
-export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
+export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolState(patrol);
 
   if (patrolState === PATROL_UI_STATES.READY_TO_START
@@ -331,7 +331,7 @@ export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
 
   const now = new Date();
   const nowTime = now.getTime();
-  const locale = DATE_LOCALES[lang];
+  const locale = getCurrentLocale();
 
   const displayStartTime = actualStartTimeForPatrol(patrol);
   const displayEndTime = actualEndTimeForPatrol(patrol);
@@ -348,7 +348,7 @@ export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
     return <TimeAgo date={displayStartTime} />;
   }
 
-  return distanceInWords(displayStartTime, displayEndTime, { locale });
+  return formatDistance(displayStartTime, displayEndTime, { locale });
 };
 
 export const PATROL_SAVE_ACTIONS = {
@@ -474,11 +474,13 @@ export const isSegmentOverdueToEnd = (patrolSegment) => {
   return false;
 };
 
-export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLang) => {
+export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
-  const locale = DATE_LOCALES[lang];
-  return distanceInWords(startTime, currentTime, { includeSeconds: true, locale });
+  return formatDistance(startTime, currentTime, {
+    includeSeconds: true,
+    locale: getCurrentLocale()
+  });
 };
 
 export const formatPatrolStateTitleDate = (date) => {
@@ -501,7 +503,7 @@ export const formatPatrolStateTitleDate = (date) => {
 export const displayPatrolEndOverdueTime = (patrol) => {
   const endTime = displayEndTimeForPatrol(patrol);
   const currentTime = new Date();
-  return distanceInWords(currentTime, endTime, { includeSeconds: true });
+  return formatDistance(currentTime, endTime, { includeSeconds: true });
 };
 
 export const patrolStateDetailsStartTime = (patrol) =>
@@ -540,7 +542,7 @@ export const calcPatrolState = (patrol) => {
     const now = new Date();
     const nextHour = now.setHours(now.getHours() + 1);
     const patrolStartDate = displayStartTimeForPatrol(patrol);
-    const happensTheNextHour = isWithinRange(patrolStartDate, now, nextHour);
+    const happensTheNextHour = isWithinInterval(patrolStartDate, now, nextHour);
     const isPatrolInOverdueDelta = patrolStartDate.getTime() < now.getTime();
 
     return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;

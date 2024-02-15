@@ -1,11 +1,10 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
-import { formatDistanceToNow as distanceInWordsToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import { dateIsValid } from '../utils/datetime';
-import { DATE_LOCALES } from '../constants';
+import { dateIsValid, getCurrentLocale } from '../utils/datetime';
 
 import DateRangeSelector from '../DateRangeSelector';
 
@@ -13,7 +12,7 @@ import styles from './styles.module.scss';
 
 const FeedDateFilter = (props) => {
   const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, ...rest } = props;
-  const { t, i18n: { language } } = useTranslation('filters', { keyPrefix: 'dateFilter' });
+  const { t } = useTranslation('filters', { keyPrefix: 'dateFilter' });
 
   const { lower, upper } = dateRange;
 
@@ -58,11 +57,11 @@ const FeedDateFilter = (props) => {
   const startDateNullMessage = useMemo(() => {
     if (hasLower){
       return t('emptyStartDateMessage', {
-        distanceInWordsDate: distanceInWordsToNow(new Date(lower), DATE_LOCALES[language])
+        distanceInWordsDate: formatDistanceToNow(new Date(lower), getCurrentLocale())
       });
     }
     return null;
-  }, [hasLower, language, lower, t]);
+  }, [hasLower, lower, t]);
 
   const endDate = hasUpper ?
     new Date(upper)
