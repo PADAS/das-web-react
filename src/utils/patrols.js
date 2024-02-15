@@ -17,7 +17,7 @@ import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 
 import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
-import {format, getCurrentLocale, SHORT_TIME_FORMAT} from './datetime';
+import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import TimeAgo from '../TimeAgo';
 
