@@ -13,18 +13,13 @@ import {
   isFuture
 } from 'date-fns';
 import i18next from 'i18next';
-import es from 'date-fns/locale/es';
-import enUS from 'date-fns/locale/en-US';
+
+import dateLocales from './locales';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
-const DATE_LOCALES = {
-  'es': es.es ?? es,
-  'en-US': enUS.enUS ?? enUS
-};
-
-export const getCurrentLocale = () => DATE_LOCALES[i18next.language];
+export const getCurrentLocale = () => dateLocales[i18next.language];
 
 export const format = (date, format) => formatDate(date, format, {
   locale: getCurrentLocale(),
