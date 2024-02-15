@@ -1,13 +1,19 @@
 import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '../..';
-import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes, openModalForPatrol } from '../../../utils/patrols';
+import {
+  createNewPatrolForPatrolType,
+  generatePseudoReportCategoryForPatrolTypes,
+  openModalForPatrol,
+} from '../../../utils/patrols';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { MapContext } from '../../../App';
 import { trackEvent } from '../../../utils/analytics';
 import { useFeatureFlag } from '../../../hooks';
+import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
 
 import SearchBar from '../../../SearchBar';
@@ -17,7 +23,10 @@ import styles from '../styles.module.scss';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
-const AddPatrolTab = ({ navigate, onHideModal }) => {
+const AddPatrolTab = ({ onHideModal }) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation('components', { keyPrefix: 'addItemButton.addItemModal.addPatrolTab' });
+
   const map = useContext(MapContext);
   const { analyticsMetadata, formProps, onAddPatrol, patrolData } = useContext(AddItemContext);
 
@@ -65,17 +74,13 @@ const AddPatrolTab = ({ navigate, onHideModal }) => {
     patrolData,
   ]);
 
-  const onSearchTextChange = useCallback((event) => setSearchText(event.target.value), []);
-
-  const onSearchTextClear = useCallback(() => setSearchText(''), []);
-
   return <>
     <div className={styles.typesSearchControls}>
       <SearchBar
         className={styles.searchBar}
-        onChange={onSearchTextChange}
-        onClear={onSearchTextClear}
-        placeholder="Search"
+        onChange={(event) => setSearchText(event.target.value)}
+        onClear={() => setSearchText('')}
+        placeholder={t('searchBarPlaceholder')}
         value={searchText}
       />
     </div>
@@ -85,7 +90,6 @@ const AddPatrolTab = ({ navigate, onHideModal }) => {
 };
 
 AddPatrolTab.propTypes = {
-  navigate: PropTypes.func.isRequired,
   onHideModal: PropTypes.func.isRequired,
 };
 

@@ -1,104 +1,96 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import WithMessageContext from '../InReach';
-import MessageContext from '../InReach/context';
-import { SocketContext } from '../withSocketConnection';
-import LoadingOverlay from '../LoadingOverlay';
-
-import MessageList, { MESSAGE_LIST_TYPES } from './';
-import { SENDER_DETAIL_STYLES } from './SenderDetails';
-// import ParamFedMessageList from './ParamFedMessageList';
+import { useTranslation } from 'react-i18next';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
+import {
+  fetchAllMessages,
+  fetchMessagesNextPage,
+  fetchMessagesSuccess,
+  updateMessageFromRealtime,
+} from '../ducks/messaging';
+import MessageContext from '../InReach/context';
+import { SENDER_DETAIL_STYLES } from './SenderDetails';
+import { SocketContext } from '../withSocketConnection';
+import WithMessageContext from '../InReach';
 
-import { updateMessageFromRealtime, fetchMessagesNextPage, fetchMessagesSuccess, fetchAllMessages } from '../ducks/messaging';
+import LoadingOverlay from '../LoadingOverlay';
+import MessageList, { MESSAGE_LIST_TYPES } from './';
 
 import styles from './styles.module.scss';
 
 const MessageSummaryList = (props) => {
-  const containerRef = useRef(null);
-  const loadStateTimeoutRef = useRef(null);
-  const [loading, setLoadState] = useState(false);
+  const { t } = useTranslation('components', { keyPrefix: 'messageList.messageSummaryList' });
 
   const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
+
+  const containerRef = useRef(null);
+  const loadStateTimeoutRef = useRef(null);
+
+  const [loading, setLoadState] = useState(false);
+
+  const mostRecentMessagesPerSubject = useMemo(() => state.results.reduce((accumulator, message) => {
+    const subjectId = extractSubjectFromMessage(message)?.id;
+
+    const itemIndex = accumulator.findIndex((item) => extractSubjectFromMessage(item)?.id === subjectId);
+    if (!itemIndex > -1) {
+      return [...accumulator, message];
+    } else {
+      const messageIsNewerThanExistingEntry = (new Date(message.message_time) - new Date(accumulator[itemIndex].message_time)) > 0;
+      if (messageIsNewerThanExistingEntry) {
+        accumulator[itemIndex] = message;
+      }
+      return accumulator;
+    }
+  }, []), [state.results]);
 
   const loadMoreMessages = useCallback(() => {
     setLoadState(true);
     clearTimeout(loadStateTimeoutRef.current);
     fetchMessagesNextPage(state.next)
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data));
-      })
+      .then((response) => dispatch(fetchMessagesSuccess(response.data.data)))
       .finally(() => {
-        loadStateTimeoutRef.current = setTimeout(() => {
-          setLoadState(false);
-        }, 150);
+        loadStateTimeoutRef.current = setTimeout(() => setLoadState(false), 150);
       });
   }, [dispatch, state.next]);
 
-  const mostRecentMessagesPerSubject = useMemo(() => {
-    return state.results.reduce((accumulator, message) => {
-      const subjectId = extractSubjectFromMessage(message)?.id;
-      const itemIndex = accumulator.findIndex((item) => {
-        const itemSubjectId = extractSubjectFromMessage(item)?.id;
-        return itemSubjectId === subjectId;
-      });
-
-      const alreadyInArray = itemIndex > -1;
-
-      if (!alreadyInArray) {
-        return [
-          ...accumulator,
-          message,
-        ];
-      } else {
-        const messageIsNewerThanExistingEntry = (new Date(message.message_time) - new Date(accumulator[itemIndex].message_time)) > 0;
-        if (messageIsNewerThanExistingEntry) {
-          accumulator[itemIndex] = message;
-        }
-        return accumulator;
-      }
-
-    }, []);
-  }, [state.results]);
-
   useEffect(() => {
-    const handleRealtimeMessage = ({ data: msg }) => {
-      dispatch(updateMessageFromRealtime(msg));
-    };
+    const handleRealtimeMessage = ({ data }) => dispatch(updateMessageFromRealtime(data));
 
     const [, fnRef] = socket.on('radio_message', handleRealtimeMessage);
 
-    return () => {
-      socket.off('radio_message', fnRef);
-    };
+    return () => socket.off('radio_message', fnRef);
   }, [dispatch, socket]);
 
   useEffect(() => {
     setLoadState(true);
     fetchAllMessages({ page_size: 100, recent_message: 1 })
-      .then((results) => {
-        dispatch(fetchMessagesSuccess({ results }));
-      })
-      .catch((error) => {
-        console.warn('error fetching messages', { error });
-      })
+      .then((results) => dispatch(fetchMessagesSuccess({ results })))
+      .catch((error) => console.warn('error fetching messages', { error }))
       .finally(() => {
-        loadStateTimeoutRef.current = setTimeout(() => {
-          setLoadState(false);
-        }, 150);
+        loadStateTimeoutRef.current = setTimeout(() => setLoadState(false), 150);
       });
   }, [dispatch]);
 
   return <div ref={containerRef} className={styles.scrollContainer}>
     {loading && <LoadingOverlay className={styles.summaryLoadingOverlay} />}
-    <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} type={MESSAGE_LIST_TYPES.SUMMARY} senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT} className={styles.summaryList} containerRef={containerRef} hasMore={!!state.next} onScroll={loadMoreMessages} messages={mostRecentMessagesPerSubject} {...props} />
+
+    <MessageList
+      className={styles.summaryList}
+      containerRef={containerRef}
+      emptyMessage={loading ? t('loadingEmptyMessage') : undefined}
+      hasMore={!!state.next}
+      messages={mostRecentMessagesPerSubject}
+      onScroll={loadMoreMessages}
+      senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT}
+      type={MESSAGE_LIST_TYPES.SUMMARY}
+      {...props}
+    />
   </div>;
 };
 
-const WithContext = (props) => <WithMessageContext>
+const MessageSummaryListWithMessageContext = (props) => <WithMessageContext>
   <MessageSummaryList {...props} />
 </WithMessageContext>;
 
-export default memo(WithContext);
-
+export default memo(MessageSummaryListWithMessageContext);

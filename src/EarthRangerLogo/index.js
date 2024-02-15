@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 const SOURCES = {
   horizontal: '#earth-ranger-logo-horizontal',
@@ -7,20 +8,15 @@ const SOURCES = {
   vertical: '#earth-ranger-logo-vertical',
 };
 
-const EarthRangerLogo = (props) => {
+const EarthRangerLogo = ({ type, ...restProps }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'earthRangerLogo' });
 
-  const { type, ...rest } = props;
+  return <svg {...restProps}>
+    <title>{t('title')}</title>
 
-  return (
-    <svg {...rest}>
-      <title>EarthRanger Logo</title>
-      <use href={SOURCES[type] || SOURCES.horizontalWhite} />
-    </svg>
-  );
+    <use href={SOURCES[type] || SOURCES.horizontalWhite} />
+  </svg>;
 };
-
-export default memo(EarthRangerLogo);
-
 
 EarthRangerLogo.defaultProps = {
   type: 'horizontalWhite',
@@ -29,3 +25,5 @@ EarthRangerLogo.defaultProps = {
 EarthRangerLogo.propTypes = {
   type: PropTypes.string,
 };
+
+export default memo(EarthRangerLogo);
