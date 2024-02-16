@@ -1,10 +1,12 @@
-import React, { Fragment, memo } from 'react';
+import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../common/images/icons/solid-user-icon.svg';
 
-import { isRadioWithImage, subjectIsStatic } from '../utils/subjects';
 import { calcSenderNameForMessage } from '../utils/messaging';
 import { calcUrlForImage } from '../utils/img';
+import { isRadioWithImage, subjectIsStatic } from '../utils/subjects';
+
 import styles from './styles.module.scss';
 
 export const SENDER_DETAIL_STYLES = {
@@ -14,47 +16,75 @@ export const SENDER_DETAIL_STYLES = {
   NONE: 'none',
 };
 
-const SenderDetails = (props) => {
-  const { message, onMessageSubjectClick, senderDetailStyle, subject } = props;
+const SenderDetails = ({ message, onMessageSubjectClick, senderDetailStyle, subject }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'messageList.senderDetails' });
 
-  const onClickSubjectName = () => {
-    if (!onMessageSubjectClick) return null;
-    return onMessageSubjectClick(subject);
-  };
-
-  const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
   const iconStyles = subjectIsStatic(subject) ? { filter: 'brightness(0.3)' } : {};
   const isOutgoing = message.message_type === 'outbox';
+  const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
 
-  if (senderDetailStyle === SENDER_DETAIL_STYLES.FULL) return <em className={styles.senderDetails}>
-    {isOutgoing && <span>
-      {message?.sender?.content_type === 'accounts.user' && <UserIcon />}
-      {`${calcSenderNameForMessage(message)} > `}
-    </span>}
-    <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-      {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles} />}
-      {subject.name}</span>
-  </em>;
+  if (senderDetailStyle === SENDER_DETAIL_STYLES.FULL) {
+    return <em className={styles.senderDetails}>
+      {isOutgoing && <span>
+        {message?.sender?.content_type === 'accounts.user' && <UserIcon />}
 
-  if (senderDetailStyle === SENDER_DETAIL_STYLES.SHORT) return <em className={styles.senderDetails}>
-    {isOutgoing && <Fragment>
-      {message?.sender?.content_type === 'accounts.user' && <UserIcon />}
-      {calcSenderNameForMessage(message)}
-    </Fragment>}
-    {!isOutgoing && <Fragment>
-      <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-        {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles}/>}
+        {`${calcSenderNameForMessage(message)} > `}
+      </span>}
+
+      <span
+        className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+        onClick={() => onMessageSubjectClick?.(subject)}
+      >
+        {radioImage && <img
+          alt={t('radioIconTitle', { subjectName: subject.name })}
+          src={radioImage}
+          style={iconStyles}
+        />}
+
         {subject.name}
       </span>
-    </Fragment>}
-  </em>;
+    </em>;
+  }
 
-  if (senderDetailStyle === SENDER_DETAIL_STYLES.SUBJECT) return <em className={styles.senderDetails}>
-    <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-      {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles}/>}
-      {subject.name}
-    </span>
-  </em>;
+  if (senderDetailStyle === SENDER_DETAIL_STYLES.SHORT) {
+    return <em className={styles.senderDetails}>
+      {isOutgoing
+        ? <>
+          {message?.sender?.content_type === 'accounts.user' && <UserIcon />}
+
+          {calcSenderNameForMessage(message)}
+        </>
+        : <span
+            className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+            onClick={() => onMessageSubjectClick?.(subject)}
+          >
+          {radioImage && <img
+            alt={t('radioIconTitle', { subjectName: subject.name })}
+            src={radioImage}
+            style={iconStyles}
+          />}
+
+          {subject.name}
+        </span>}
+    </em>;
+  }
+
+  if (senderDetailStyle === SENDER_DETAIL_STYLES.SUBJECT) {
+    return <em className={styles.senderDetails}>
+      <span
+        className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+        onClick={() => onMessageSubjectClick?.(subject)}
+      >
+        {radioImage && <img
+          alt={t('radioIconTitle', { subjectName: subject.name })}
+          src={radioImage}
+          style={iconStyles}
+        />}
+
+        {subject.name}
+      </span>
+    </em>;
+  }
 
   return null;
 };

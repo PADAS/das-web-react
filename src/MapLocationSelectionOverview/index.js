@@ -5,6 +5,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
@@ -34,6 +35,8 @@ const MapLocationSelectionOverview = ({
   onClickUndo: onClickUndoCallback,
   onShowInformation,
 }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'mapLocationSelectionOverview' });
+
   const { mapDrawingData } = useContext(MapDrawingToolsContext);
 
   const event = useSelector((state) => state.view.mapLocationSelection?.event);
@@ -80,7 +83,9 @@ const MapLocationSelectionOverview = ({
 
   return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
-      <h2>{isDrawingEventGeometry ? 'Create report area' : `Choose ${patrol ? 'patrol' : 'report'} location`}</h2>
+      <h2>{isDrawingEventGeometry
+        ? t('drawingReportGeometryHeader')
+        : t(`chooseLocationHeader.${patrol ? 'patrol' : 'report'}`)}</h2>
 
       <div className={styles.actions}>
         {onShowInformation && <InformationIcon onClick={onClickInformationIcon} />}
@@ -98,11 +103,11 @@ const MapLocationSelectionOverview = ({
         {isDrawingEventGeometry && <>
           <div className={styles.measurements}>
             <div>
-              {`Area: ${areaDisplayString}`}
+              {t('drawingReportGeometryArea', { areaDisplay: areaDisplayString })}
             </div>
 
             <div>
-              {`Perimeter: ${perimeterDisplayString}`}
+              {t('drawingReportGeometryPerimeter', { perimeterDisplay: perimeterDisplayString })}
             </div>
           </div>
 
@@ -110,38 +115,40 @@ const MapLocationSelectionOverview = ({
 
           <div className={styles.buttons}>
             <OverlayTrigger
-            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
-            overlay={(props) => <Tooltip {...props}>Reverse your last action</Tooltip>}
-            placement="bottom"
-          >
-              <Button
-              className={styles.undoButton}
-              disabled={isUndoButtonDisabled}
-              onClick={onClickUndo}
-              onFocus={(event) => event.target.blur()}
-              type="button"
-              variant="secondary"
+              delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
+              overlay={(props) => <Tooltip {...props}>{t('undoButtonTooltip')}</Tooltip>}
+              placement="bottom"
             >
+              <Button
+                className={styles.undoButton}
+                disabled={isUndoButtonDisabled}
+                onClick={onClickUndo}
+                onFocus={(event) => event.target.blur()}
+                type="button"
+                variant="secondary"
+              >
                 <UndoArrowIcon />
-                Undo
+
+                {t('undoButton')}
               </Button>
             </OverlayTrigger>
 
             <OverlayTrigger
-            delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
-            overlay={(props) => <Tooltip {...props}>Remove all points</Tooltip>}
-            placement="bottom"
-          >
-              <Button
-              className={styles.discardButton}
-              disabled={isDiscardButtonDisabled}
-              onClick={onClickDiscard}
-              onFocus={(event) => event.target.blur()}
-              type="button"
-              variant="secondary"
+              delay={{ show: TOOLTIP_SHOW_TIME, hide: TOOLTIP_HIDE_TIME }}
+              overlay={(props) => <Tooltip {...props}>{t('discardButtonTooltip')}</Tooltip>}
+              placement="bottom"
             >
+              <Button
+                className={styles.discardButton}
+                disabled={isDiscardButtonDisabled}
+                onClick={onClickDiscard}
+                onFocus={(event) => event.target.blur()}
+                type="button"
+                variant="secondary"
+              >
                 <TrashCanIcon />
-                Discard
+
+                {t('discardButton')}
               </Button>
             </OverlayTrigger>
           </div>

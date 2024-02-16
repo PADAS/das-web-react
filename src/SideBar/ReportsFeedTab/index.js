@@ -2,6 +2,7 @@ import React, { useContext, useState, useCallback, useEffect, memo } from 'react
 import Button from 'react-bootstrap/Button';
 import uniq from 'lodash/uniq';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -39,6 +40,7 @@ const excludeContainedReports = (events) => {
 const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation('components', { keyPrefix: 'sideBar.reportsFeedTab' });
 
   const map = useContext(MapContext);
 
@@ -90,10 +92,10 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
     </div>
 
     {!!events.error && <div className={styles.feedError}>
-      <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
+      <ErrorMessage message={t('fetchReportsErrorMessage')} details={events.error} />
       <Button onClick={loadFeedEvents} type='button' variant='primary'>
         <RefreshIcon />
-        Try again
+        {t('tryAgainButton')}
       </Button>
     </div>}
 
