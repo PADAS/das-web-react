@@ -1,14 +1,16 @@
-import React, { memo, useRef, useState, useCallback } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useCallback, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { updateHeatmapConfig } from '../ducks/map-ui';
 
 import InlineEditable from '../InlineEditable';
 import LogarithmicSlider from '../LogarithmicSlider';
 
-import { updateHeatmapConfig } from '../ducks/map-ui';
-
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
 import styles from './styles.module.scss';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MINIMUM_RADIUS = 10;
 const MAXIMUM_RADIUS = 20000;
@@ -17,76 +19,93 @@ const MINIMUM_SENSITIVITY = 1;
 const MAXIUMUM_SENSITIVITY = 100;
 
 const HIGH_HEAT_WEIGHT = 5;
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const HeatmapStyleControls = (props) => {
+const HeatmapStyleControls = () => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('heatmap', { keyPrefix: 'heatmapStyleControls' });
 
-  const { heatmapStyles: { radiusInMeters, intensity }, updateHeatmapConfig } = props;
+  const heatmapStyles = useSelector((state) => state.view.heatmapStyles);
 
   const trackEventDebounced = useRef(mapInteractionTracker.debouncedTrack());
+
   const [editingRadius, setRadiusEditState] = useState(false);
-
-  const startRadiusEdit = useCallback(() => {
-    setRadiusEditState(true);
-  }, []);
-
-  const cancelRadiusEdit = useCallback(() => {
-    setRadiusEditState(false);
-  }, []);
 
   const onRadiusChange = useCallback((value) => {
     const updateValue = parseFloat(value) || MINIMUM_RADIUS;
+    dispatch(updateHeatmapConfig({ radiusInMeters: updateValue }));
+
     trackEventDebounced.current('Set Heatmap Radius', `${updateValue} meters`);
-    updateHeatmapConfig({
-      radiusInMeters: updateValue,
-    });
-    return Promise.resolve();
-  }, [updateHeatmapConfig]);
+  }, [dispatch]);
 
   const onRadiusSave = useCallback((value) => {
     onRadiusChange(value);
     setRadiusEditState(false);
-    return Promise.resolve();
   }, [onRadiusChange]);
 
-  const onSensitivityChange = useCallback(({ target: { value } }) => {
-    const val = parseFloat(value) || MINIMUM_SENSITIVITY;
+  const onSensitivityChange = useCallback((event) => {
+    const value = parseFloat(event.target.value) || MINIMUM_SENSITIVITY;
     const minimumSensitivityValue = MINIMUM_SENSITIVITY / MAXIUMUM_SENSITIVITY;
 
-    trackEventDebounced.current('Set Heatmap Sensitivity', `${val} out ${MAXIUMUM_SENSITIVITY}`);
-
     const intensity = Math.max(
-      parseFloat(((val - MINIMUM_SENSITIVITY) / (MAXIUMUM_SENSITIVITY - MINIMUM_SENSITIVITY)).toFixed(2)),
+      parseFloat(((value - MINIMUM_SENSITIVITY) / (MAXIUMUM_SENSITIVITY - MINIMUM_SENSITIVITY)).toFixed(2)),
       minimumSensitivityValue
     );
 
-    updateHeatmapConfig({
-      intensity: intensity * HIGH_HEAT_WEIGHT,
-    });
-  }, [updateHeatmapConfig]);
+    dispatch(updateHeatmapConfig({ intensity: intensity * HIGH_HEAT_WEIGHT }));
 
-  const sensitivityInputValue = (intensity / HIGH_HEAT_WEIGHT) * MAXIUMUM_SENSITIVITY;
+    trackEventDebounced.current('Set Heatmap Sensitivity', `${value} out ${MAXIUMUM_SENSITIVITY}`);
+  }, [dispatch]);
 
+  const sensitivityInputValue = (heatmapStyles.intensity / HIGH_HEAT_WEIGHT) * MAXIUMUM_SENSITIVITY;
   return <div className={styles.controls}>
-    <label htmlFor='heatmap-radius-input'>
-      <span>Radius (in meters):</span>
-      <InlineEditable step='1' onCancel={cancelRadiusEdit}
-        editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit}
-        showCancel={false} onSave={onRadiusSave} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS}
-        value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
-    </label>
-    <LogarithmicSlider value={radiusInMeters} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} onChange={onRadiusChange} />
+    <label htmlFor="heatmap-radius-input">
+      <span>{t('radiusLabel')}</span>
 
-    <label htmlFor='heatmap-sensitivity-input'>
-      <span>Sensitivity:</span>
+      <InlineEditable
+        editing={editingRadius}
+        max={MAXIMUM_RADIUS}
+        min={MINIMUM_RADIUS}
+        onCancel={() => setRadiusEditState(false)}
+        onChange={onRadiusChange}
+        onClick={() => setRadiusEditState(true)}
+        onEsc={() => setRadiusEditState(false)}
+        onSave={onRadiusSave}
+        showCancel={false}
+        step="1"
+        value={heatmapStyles.radiusInMeters}
+      />
+
+      <span className={styles.unit}>{t('radiusUnit')}</span>
     </label>
+
+    <LogarithmicSlider
+      max={MAXIMUM_RADIUS}
+      min={MINIMUM_RADIUS}
+      onChange={onRadiusChange}
+      value={heatmapStyles.radiusInMeters}
+    />
+
+    <label htmlFor="heatmap-sensitivity-input">
+      <span>{t('sensitivityLabel')}</span>
+    </label>
+
     <div>
-      Low
-      <input className={styles.sensitivity} type='range' step='1' id='heatmap-sensitivity-input' value={sensitivityInputValue} min={MINIMUM_SENSITIVITY} max={MAXIUMUM_SENSITIVITY} onChange={onSensitivityChange} />
-      High
+      {t('sensitivityLowIndicator')}
+
+      <input
+        className={styles.sensitivity}
+        id="heatmap-sensitivity-input"
+        max={MAXIUMUM_SENSITIVITY}
+        min={MINIMUM_SENSITIVITY}
+        onChange={onSensitivityChange}
+        step="1"
+        type="range"
+        value={sensitivityInputValue}
+      />
+
+      {t('sensitivityHighIndicator')}
     </div>
   </div>;
 };
 
-const mapStatetoProps = ({ view: { heatmapStyles } }) => ({ heatmapStyles });
-export default connect(mapStatetoProps, { updateHeatmapConfig })(memo(HeatmapStyleControls));
+export default memo(HeatmapStyleControls);
