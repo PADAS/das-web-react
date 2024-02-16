@@ -18,10 +18,9 @@ i18n
       escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
     },
     react: {
-      useSuspense: true,
+      useSuspense: false,
     },
     supportedLngs: Object.keys(SUPPORTED_LANGUAGES),
-    preload: Object.keys(SUPPORTED_LANGUAGES),
     ns: preloadNamespaces,
     backend: {
       backends: [
@@ -29,8 +28,12 @@ i18n
         HttpBackend
       ],
       backendOptions: [{
-        expirationTime: 24 * 60 * 60 * 1000 * 7, // 7 days
-        defaultVersion: 'v1'
+        expirationTime: 24 * 60 * 60 * 1000 * 7,
+        defaultVersion: 'v0.1',
+        versions: {
+          es: '0.1',
+          'en-US': '0.1',
+        }
       }]
     }
   });
