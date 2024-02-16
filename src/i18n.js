@@ -1,15 +1,15 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import Backend from 'i18next-chained-backend';
-import resourcesToBackend from 'i18next-resources-to-backend';
+import ChainedBackend from 'i18next-chained-backend';
+import HttpBackend from 'i18next-http-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
 import { SUPPORTED_LANGUAGES } from './constants';
 
 const preloadNamespaces = [ 'dates', 'details-view', 'eula', 'filters', 'layers', 'login', 'map-controls', 'map-legends', 'map-popups', 'menu-drawer', 'patrols', 'reports', 'settings', 'side-bar', 'subjects', 'top-bar', 'tracks'];
 
 i18n
-  .use(Backend)
+  .use(ChainedBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
@@ -26,11 +26,7 @@ i18n
     backend: {
       backends: [
         LocalStorageBackend,
-        resourcesToBackend((lang, namespace, callback) => {
-          import(`/public/locales/${lang}/${namespace}.json`)
-            .then(resources => callback(null, resources))
-            .catch(error => callback(error, null));
-        })
+        HttpBackend
       ],
       backendOptions: [{
         expirationTime: 24 * 60 * 60 * 1000 * 7, // 7 days
