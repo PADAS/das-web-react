@@ -1,12 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../../';
 import AddPatrolTab from './';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
+import { render, screen } from '../../../test-utils';
 
 jest.mock('../../../constants', () => ({
   ...jest.requireActual('../../../constants'),

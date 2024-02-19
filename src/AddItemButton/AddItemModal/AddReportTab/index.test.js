@@ -1,12 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../..';
 import AddReportTab from '.';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { render, screen } from '../../../test-utils';
 
 describe('AddItemButton - AddItemModal - AddReportTab', () => {
   const navigate = jest.fn(), onHideModal = jest.fn();

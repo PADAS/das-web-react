@@ -1,14 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from './';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { render, screen, waitFor } from '../test-utils';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -33,9 +32,7 @@ describe('AddItemButton', () => {
     renderAddItemButton = (props, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
-          <NavigationWrapper>
-            <AddItemButton {...props} />
-          </NavigationWrapper>
+          <AddItemButton {...props} />
         </Provider>
       );
     };
