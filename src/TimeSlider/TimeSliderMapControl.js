@@ -1,26 +1,32 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
-
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import { setTimeSliderState } from '../ducks/timeslider';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timeslider-icon.svg';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { setTimeSliderState } from '../ducks/timeslider';
 
 import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const TimeSliderMapControl = ({ active, dateSet, setTimeSliderState }) => {
+const TimeSliderMapControl = () => {
+  const dispatch = useDispatch();
+
+  const active = useSelector((state) => state.view.timeSliderState.active);
+  const dateSet = useSelector((state) => !!state.view.timeSliderState.virtualDate);
+
   const toggleState = () => {
-    setTimeSliderState(!active);
+    dispatch(setTimeSliderState(!active));
+
     mapInteractionTracker.track(`${!active ? 'Open' : 'Close'} 'Time Slider' control`);
   };
 
-  return <button className={styles.mapControl} type="button" onClick={toggleState}>
-    <TimeSliderIcon className={`${styles.icon} ${active ? styles.activeIcon : ''} ${dateSet ? styles.warningIcon : ''}`} />
+  return <button className={styles.mapControl} onClick={toggleState} type="button">
+    <TimeSliderIcon
+      className={`${styles.icon} ${active ? styles.activeIcon : ''} ${dateSet ? styles.warningIcon : ''}`}
+    />
   </button>;
 };
 
-const mapStateToProps = ({ view: { timeSliderState: { active, virtualDate } } }) => ({ active, dateSet: !!virtualDate });
-
-export default connect(mapStateToProps, { setTimeSliderState })(memo(TimeSliderMapControl));
+export default memo(TimeSliderMapControl);
