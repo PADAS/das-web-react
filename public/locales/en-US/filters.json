@@ -41,11 +41,6 @@
     "title": "Report Filters"
   },
   "friendlyFilterString": {
-    "monthAgo": "1 month ago until now",
-    "monthAgoUntilNow": "1 month ago until {{date}} ago",
-    "someAgoFromNow": "{{from}} ago until {{until}} from now",
-    "someAgo": "{{from}} ago until {{until}} ago",
-    "untilNow": "{{date}} ago until now",
     "resultLabel": "result",
     "resultsLabel": "Results",
     "fromLabel": " from ",
@@ -90,21 +85,10 @@
     "patrolWithinRangeTooltip": "Include patrols starting within the date range",
     "patrolOverlapsRangeTooltip": "Include patrols whose start to end date range overlaps with the date range"
   },
-  "priorityPicker": {
-    "red": "Red",
-    "amber": "Amber",
-    "green": "Green",
-    "none": "None"
-  },
-  "reportedByPlaceholder": "Reported By...",
   "reportTypeMultiSelect": {
     "placeholder": "Search types",
     "noResultsLabel": "No matches",
     "someResultsLabel": "Set to these {{resultCount}}",
     "singleResultLabel": "Set to this one"
-  },
-  "searchBar": {
-    "defaultPlaceHolder": "Search...",
-    "iconTitle": "Clear search bar"
   }
 }

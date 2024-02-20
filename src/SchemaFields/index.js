@@ -1,9 +1,10 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
-import isPlainObject from 'lodash/isPlainObject';
 import { components } from 'react-select';
+import Form from 'react-bootstrap/Form';
+import isPlainObject from 'lodash/isPlainObject';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
@@ -17,19 +18,22 @@ import { getHoursAndMinutesString } from '../utils/datetime';
 import { uuid } from '../utils/string';
 
 import DatePicker from '../DatePicker';
+import Select from '../Select';
 import TimePicker from '../TimePicker';
 
 import styles from './styles.module.scss';
-import Select from '../Select';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
-export const AddButton = ({ className, uiSchema: _uiSchema, ...rest }) => (
-  <Button className={`${className} ${styles.addButton}`} title="Add Item" {...rest}>
+export const AddButton = ({ className, uiSchema: _uiSchema, ...restProps }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'schemaFields.addButton' });
+
+  return <Button className={`${className} ${styles.addButton}`} title={t('title')} {...restProps}>
     <AddButtonIcon />
-    New
-  </Button>
-);
+
+    {t('content')}
+  </Button>;
+};
 
 export const ArrayFieldItemTemplate = ({
   children,
@@ -189,27 +193,29 @@ const IconButton = ({ icon, iconType: _iconType, uiSchema: _uiSchema, variant, .
   {icon}
 </Button>;
 
-export const MoveDownButton = (props) => <IconButton
-  className={styles.moveButton}
-  title="Move down"
-  icon={<ArrowDownIcon />}
-  {...props}
-/>;
+export const MoveDownButton = (props) => {
+  const { t } = useTranslation('components', { keyPrefix: 'schemaFields.moveDownButton' });
 
-export const MoveUpButton = (props) => <IconButton
-  className={styles.moveButton}
-  title="Move up"
-  icon={<ArrowUpIcon />}
-  {...props}
-/>;
+  return <IconButton className={styles.moveButton} title={t('title')} icon={<ArrowDownIcon />} {...props} />;
+};
 
-export const RemoveButton = (props) => <IconButton
-  className={styles.removeButton}
-  icon={<TrashCanIcon />}
-  title="Remove"
-  variant="danger"
-  {...props}
-/>;
+export const MoveUpButton = (props) => {
+  const { t } = useTranslation('components', { keyPrefix: 'schemaFields.moveUpButton' });
+
+  return <IconButton className={styles.moveButton} title={t('title')} icon={<ArrowUpIcon />} {...props} />;
+};
+
+export const RemoveButton = (props) => {
+  const { t } = useTranslation('components', { keyPrefix: 'schemaFields.removeButton' });
+
+  return <IconButton
+    className={styles.removeButton}
+    icon={<TrashCanIcon />}
+    title={t('title')}
+    variant="danger"
+    {...props}
+  />;
+};
 
 const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, heightToAdd) => {
   const {

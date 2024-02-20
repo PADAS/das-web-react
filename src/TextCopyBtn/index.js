@@ -1,64 +1,68 @@
 import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { showToast } from '../utils/toast';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
 import { ReactComponent as CloseIcon } from '../common/images/icons/cross.svg';
 
+import { showToast } from '../utils/toast';
+
 import styles from './styles.module.scss';
 
-const { TYPE: { INFO } } = toast;
+const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, successMessage, text }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'textCopyBtn' });
 
-const TextCopyBtn = ({ getText, label, text, icon, successMessage, permitPropagation, className }) => {
-
-  const onClickCopy = useCallback(async (e) => {
-    e.preventDefault();
-    permitPropagation || e.stopPropagation();
+  const onClickCopy = useCallback(async (event) => {
+    event.preventDefault();
+    if (!permitPropagation) {
+      event.stopPropagation();
+    }
 
     try {
       await window.navigator.clipboard.writeText(text || getText());
       showToast({
-        message: successMessage,
+        message: successMessage || t('defaultToastMessage'),
         toastConfig: {
-          type: INFO,
           autoClose: 2000,
-          hideProgressBar: true,
           className: styles.toast,
-          closeButton: <CloseIcon className={styles.closeIcon} />
+          closeButton: <CloseIcon className={styles.closeIcon} />,
+          hideProgressBar: true,
+          type: toast.TYPE.INFO,
         }
       });
     } catch (error) {
       console.warn('error copying value to clipboard', error);
     }
-  }, [getText, permitPropagation, successMessage, text]);
+  }, [getText, permitPropagation, successMessage, t, text]);
 
   return <span className={`${styles.clipboardWrapper} ${className}`}>
-    <button data-testid='textCopyBtn' type='button' onClick={onClickCopy}>
-      { icon }
+    <button data-testid="textCopyBtn" onClick={onClickCopy} type="button">
+      {icon}
+
       {label && <span>{label}</span> }
     </button>
   </span>;
 };
 
 TextCopyBtn.defaultProps = {
-  getText: null,
-  text: null,
-  icon: <ClipboardIcon />,
-  successMessage: 'Copied to clipboard',
   className: '',
-  permitPropagation: false,
+  getText: null,
+  icon: <ClipboardIcon />,
   label: '',
+  permitPropagation: false,
+  successMessage: null,
+  text: null,
 };
 
 TextCopyBtn.propTypes = {
-  getText: PropTypes.func,
-  text: PropTypes.string,
-  icon: PropTypes.element,
-  successMessage: PropTypes.string,
   className: PropTypes.string,
-  permitPropagation: PropTypes.bool,
+  getText: PropTypes.func,
+  icon: PropTypes.element,
   label: PropTypes.string,
+  permitPropagation: PropTypes.bool,
+  successMessage: PropTypes.string,
+  text: PropTypes.string,
 };
 
 export default memo(TextCopyBtn);

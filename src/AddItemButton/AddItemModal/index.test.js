@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../';
@@ -8,9 +7,9 @@ import AddItemModal, { ADD_TAB_KEYS } from './';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { getStoredTab, storeTab } from './utils';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
+import { render, screen } from '../../test-utils';
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
@@ -45,30 +44,28 @@ describe('AddItemButton - AddItemModal', () => {
     renderAddItemModal = (props, addItemContext, overrideStore) => {
       render(
         <Provider store={mockStore({ ...store, ...overrideStore })}>
-          <NavigationWrapper>
-            <AddItemContext.Provider value={{
-                analyticsMetadata: {
-                  category: 'Feed',
-                  location: null,
-                },
-                formProps: {
-                  hidePatrols: false,
-                  isPatrolReport: false,
-                  onSaveError: null,
-                  onSaveSuccess: null,
-                  relationshipButtonDisabled: false,
-                },
-                hideAddPatrolTab: false,
-                hideAddReportTab: false,
-                onAddPatrol: null,
-                onAddReport: null,
-                patrolData: {},
-                reportData: {},
-              ...addItemContext
-            }}>
-              <AddItemModal onHide={onHide} show {...props} />
-            </AddItemContext.Provider>
-          </NavigationWrapper>
+          <AddItemContext.Provider value={{
+              analyticsMetadata: {
+                category: 'Feed',
+                location: null,
+              },
+              formProps: {
+                hidePatrols: false,
+                isPatrolReport: false,
+                onSaveError: null,
+                onSaveSuccess: null,
+                relationshipButtonDisabled: false,
+              },
+              hideAddPatrolTab: false,
+              hideAddReportTab: false,
+              onAddPatrol: null,
+              onAddReport: null,
+              patrolData: {},
+              reportData: {},
+            ...addItemContext
+          }}>
+            <AddItemModal onHide={onHide} show {...props} />
+          </AddItemContext.Provider>
         </Provider>
       );
     };

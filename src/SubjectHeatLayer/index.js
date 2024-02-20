@@ -1,29 +1,22 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-
 import { featureCollection } from '@turf/helpers';
+import { useSelector } from 'react-redux';
 
 import { trimmedHeatmapTrackData } from '../selectors/tracks';
 
 import HeatLayer from '../HeatLayer';
 
-const convertTrackDataToHeatmapPoints = trackData => featureCollection(trackData.reduce((accumulator, { points }) => [...accumulator, ...points.features], []));
+const SubjectHeatLayer = () => {
+  const trackData = useSelector(trimmedHeatmapTrackData);
 
-
-const SubjectHeatLayer = ({ trackData }) => {
   const [points, setPoints] = useState(featureCollection([]));
 
   useEffect(() => {
-    setPoints(convertTrackDataToHeatmapPoints(trackData));
+    const pointFeatures = trackData.reduce((accumulator, { points }) => [...accumulator, ...points.features], []);
+    setPoints(featureCollection(pointFeatures));
   }, [trackData]);
 
-  if (!points.features.length) return null;
-
-  return <HeatLayer points={points} />;
+  return points.features.length > 0 ? <HeatLayer points={points} /> : null;
 };
 
-const mapStateToProps = state => ({
-  trackData: trimmedHeatmapTrackData(state),
-});
-
-export default connect(mapStateToProps, null)(memo(SubjectHeatLayer));
+export default memo(SubjectHeatLayer);

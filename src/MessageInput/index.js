@@ -1,61 +1,66 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
-
-import { sendMessage } from '../ducks/messaging';
-import { generateNewMessage } from '../utils/messaging';
-
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { generateNewMessage } from '../utils/messaging';
+import { sendMessage } from '../ducks/messaging';
 
 import styles from './styles.module.scss';
 
 const TEXT_MAX_LENGTH = 160;
 
-const MessageInput = (props) => {
-  const { subject } = props;
+const MessageInput = ({ subjectId }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'messageInput' });
+
   const formRef = useRef(null);
   const textInputRef = useRef(null);
+
+  const subject = useSelector((state) => state.data.subjectStore[subjectId]);
+
   const [inputValue, setInputValue] = useState('');
-
-  const characterCount = inputValue.length;
-
-  useEffect(() => {
-    if (!!textInputRef.current) {
-      textInputRef.current.focus();
-    }
-  }, []);
 
   const onMessageSubmit = useCallback((event) => {
     event.preventDefault();
 
     const data = new FormData(formRef.current);
     const value = data.get(`chat-${subject.id}`);
-
-
     const { url } = subject.messaging[0];
-    const msg = generateNewMessage({ geometry: subject?.last_position, properties: subject }, { text: value, read: true });
+    const msg = generateNewMessage(
+      { geometry: subject?.last_position, properties: subject },
+      { text: value, read: true }
+    );
 
     sendMessage(url, msg);
-
     setInputValue('');
     textInputRef.current.focus();
-
   }, [subject]);
 
-  const handleInputChange = useCallback(({ target: { value } }) => {
-    setInputValue(value);
+  useEffect(() => {
+    textInputRef.current?.focus();
   }, []);
 
-  if (!subject?.messaging?.length) return null;
+  return subject?.messaging?.length ? <form className={styles.chatControls} onSubmit={onMessageSubmit} ref={formRef}>
+    <input
+      id={`chat-${subject.id}`}
+      maxLength={TEXT_MAX_LENGTH}
+      name={`chat-${subject.id}`}
+      onChange={(event) => setInputValue(event.target.value)}
+      placeholder={t('placeholder')}
+      ref={textInputRef}
+      type="text"
+      value={inputValue}
+    />
 
-  return <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
-    <input placeholder='Type your message here...' maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${subject.id}`} id={`chat-${subject.id}`} />
-    <Button type='submit' id={`chat-submit-${subject.id}`} disabled={!inputValue.length}>Send</Button>
-    <small>{characterCount}/{TEXT_MAX_LENGTH}</small>
-  </form>;
+    <Button disabled={!inputValue.length} id={`chat-submit-${subject.id}`} type="submit">{t('sendButton')}</Button>
+
+    <small>{inputValue.length}/{TEXT_MAX_LENGTH}</small>
+  </form> : null;
 };
 
-const mapStateToProps = ({ data: { subjectStore } }, ownProps) => ({
-  subject: subjectStore[ownProps?.subjectId],
-});
+MessageInput.propTypes = {
+  subjectId: PropTypes.string.isRequired,
+};
 
-export default connect(mapStateToProps, null)(memo(MessageInput));
+export default memo(MessageInput);
