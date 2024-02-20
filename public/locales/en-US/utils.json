@@ -1,0 +1,13 @@
+{
+  "calcFriendlyDurationString": {
+    "monthAgo": "1 month ago until now",
+    "monthAgoUntilNow": "1 month ago until {{date}} ago",
+    "someAgoFromNow": "{{from}} ago until {{until}} from now",
+    "someAgo": "{{from}} ago until {{until}} ago",
+    "untilNow": "{{date}} ago until now"
+  },
+  "calcSenderNameForMessage": {
+    "operator": "Operator"
+  },
+  "currentTimeZoneTitle": "Date displayed in the {{timeZone}} time zone"
+}

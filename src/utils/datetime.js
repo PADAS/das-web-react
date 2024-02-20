@@ -88,7 +88,11 @@ export const endOfTime = () => new Date(8640000000000000);
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
 
-export const generateCurrentTimeZoneTitle = () => `Date displayed in the ${window.Intl.DateTimeFormat().resolvedOptions().timeZone} time zone`;
+export const generateCurrentTimeZoneTitle = () => {
+  const t = i18next.getFixedT(null, 'utils');
+
+  return t('currentTimeZoneTitle', { timeZone: window.Intl.DateTimeFormat().resolvedOptions().timeZone });
+};
 
 export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   const flattenDate = date => setSeconds(

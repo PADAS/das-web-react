@@ -1,44 +1,50 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { GEOLOCATOR_OPTIONS } from '../constants';
-
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
-import { showToast } from '../utils/toast';
-
 import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
+import { showToast } from '../utils/toast';
+import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const ONE_MINUTE = 1000 * 60;
-const GRANTED_STATE = 'granted';
 const DENIED_STATE = 'denied';
+const GRANTED_STATE = 'granted';
+const ONE_MINUTE = 1000 * 60;
 
-const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGranted, user, userLocation, userLocationAccessGranted, updateRate = ONE_MINUTE }) => {
+const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('components', { keyPrefix: 'geoLocationWatcher' });
+
+  const user = useSelector((state) => state.data.user);
+  const userLocation = useSelector((state) => state.view.userLocation);
+  const userLocationAccessGranted = useSelector((state) => state.view.userLocationAccessGranted?.granted);
+
+  const errorToastId = useRef(null);
   const localUserLocationState = useRef(userLocation);
   const locationWatchId = useRef(null);
-  const errorToastId = useRef(null);
 
   const showPermissionsToast = useCallback(() => {
     if (!errorToastId.current) {
       errorToastId.current = showToast({
-        link: { href: 'https://support.google.com/chrome/answer/142065', title: 'Learn how' },
-        message: 'Share your location to view data with geo-permissions',
+        link: { href: 'https://support.google.com/chrome/answer/142065', title: t('shareLocationToastTitle') },
+        message: t('shareLocationToastMessage'),
         toastConfig: {
           autoClose: false,
-          type: toast.TYPE.ERROR,
-          onClose() {
+          onClose: () => {
             errorToastId.current = null;
           },
+          type: toast.TYPE.ERROR,
         },
       });
     }
-  }, []);
+  }, [t]);
 
   const clearUserLocation = useCallback(() => {
     localUserLocationState.current = null;
-    setCurrentUserLocation(null);
-  }, [setCurrentUserLocation]);
+    dispatch(setCurrentUserLocation(null));
+  }, [dispatch]);
 
   const onGeoUpdateSuccess = useCallback((location) => {
     localUserLocationState.current = location;
@@ -46,8 +52,8 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
 
   const onGeoInitSuccess = useCallback((location) => {
     onGeoUpdateSuccess();
-    setCurrentUserLocation(location);
-  }, [onGeoUpdateSuccess, setCurrentUserLocation]);
+    dispatch(setCurrentUserLocation(location));
+  }, [dispatch, onGeoUpdateSuccess]);
 
   const onGeoError = useCallback((error) => {
     if (error && error.code === error.PERMISSION_DENIED && userIsGeoPermissionRestricted(user)) {
@@ -55,31 +61,21 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
     }
   }, [clearUserLocation, user]);
 
-  const startWatchingPosition = useCallback(() => {
-    return window.navigator.geolocation.watchPosition(
-      onGeoUpdateSuccess,
-      onGeoError,
-      GEOLOCATOR_OPTIONS,
-    );
-  }, [onGeoUpdateSuccess, onGeoError]);
-
-
   useEffect(() => {
-    let permStatus;
-
     const setPermissionState = (state) => {
       if (state === GRANTED_STATE) {
         toast.dismiss(errorToastId.current);
-        return setUserLocationAccessGranted(true);
+        return dispatch(setUserLocationAccessGranted(true));
       }
-      return setUserLocationAccessGranted(false);
+      return dispatch(setUserLocationAccessGranted(false));
     };
 
-    const handlePermissionStateChange = ({ target: { state } }) => setPermissionState(state);
+    const handlePermissionStateChange = (event) => setPermissionState(event.target.state);
 
     if (navigator?.permissions?.query) {
+      let permStatus;
       window.navigator.permissions.query({ name: 'geolocation' })
-        .then(function(permissionStatus) {
+        .then((permissionStatus) => {
           permStatus = permissionStatus;
 
           setPermissionState(permStatus.state);
@@ -87,19 +83,15 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
           permStatus.addEventListener('change', handlePermissionStateChange);
         });
 
-      return () => {
-        permStatus?.removeEventListener('change', handlePermissionStateChange);
-      };
-    }
-
-    else {
+      return () => permStatus?.removeEventListener('change', handlePermissionStateChange);
+    } else {
       window.navigator.geolocation.getCurrentPosition(
-        () =>  setPermissionState(GRANTED_STATE),
+        () => setPermissionState(GRANTED_STATE),
         () => setPermissionState(DENIED_STATE),
         GEOLOCATOR_OPTIONS
       );
     }
-  }, [setUserLocationAccessGranted]);
+  }, [dispatch]);
 
   useEffect(() => {
     window.navigator.geolocation.getCurrentPosition(onGeoInitSuccess, onGeoError, GEOLOCATOR_OPTIONS);
@@ -117,16 +109,18 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
   useEffect(() => {
     if (userLocationAccessGranted) {
       window.navigator.geolocation.getCurrentPosition(onGeoInitSuccess, onGeoError, GEOLOCATOR_OPTIONS);
-      locationWatchId.current = startWatchingPosition();
+      locationWatchId.current = window.navigator.geolocation.watchPosition(
+        onGeoUpdateSuccess,
+        onGeoError,
+        GEOLOCATOR_OPTIONS,
+      );
     }
-    return () => {
-      window.navigator.geolocation.clearWatch(locationWatchId.current);
-    };
-  }, [startWatchingPosition, onGeoError, onGeoInitSuccess, userLocationAccessGranted]);
+    return () => window.navigator.geolocation.clearWatch(locationWatchId.current);
+  }, [onGeoError, onGeoInitSuccess, onGeoUpdateSuccess, userLocationAccessGranted]);
 
   useEffect(() => {
     const setNewUserLocation = () => {
-      setCurrentUserLocation(localUserLocationState.current);
+      dispatch(setCurrentUserLocation(localUserLocationState.current));
     };
 
     if (localUserLocationState.current && !userLocation) {
@@ -135,14 +129,10 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
 
     const intervalId = window.setInterval(setNewUserLocation, updateRate);
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [updateRate, userLocation, setCurrentUserLocation]);
+    return () => window.clearInterval(intervalId);
+  }, [dispatch, updateRate, userLocation]);
 
   return null;
 };
 
-const mapStateToProps = ({ data: { user }, view: { userLocation, userLocationAccessGranted } }) => ({ user, userLocation, userLocationAccessGranted: userLocationAccessGranted?.granted });
-
-export default connect(mapStateToProps, { setCurrentUserLocation, setUserLocationAccessGranted })(GeoLocationWatcher);
+export default GeoLocationWatcher;

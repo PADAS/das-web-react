@@ -42,7 +42,7 @@ import styles from './styles.module.scss';
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation('side-bar');
+  const { t } = useTranslation('components', { keyPrefix: 'sideBar' });
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
@@ -211,7 +211,7 @@ const SideBar = () => {
                   <SubjectGroupList map={map} />
                   <FeatureLayerList map={map} />
                   <AnalyzerLayerList map={map} />
-                  <div className={styles.noItems}>No items to display.</div>
+                  <div className={styles.noItems}>{t('noItemsToDisplayInLayers')}</div>
                 </div>
 
                 <div className={styles.mapLayerFooter}>

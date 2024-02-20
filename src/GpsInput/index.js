@@ -17,19 +17,12 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 import styles from './styles.module.scss';
 
-const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...rest }) => {
+const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...restProps }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'gpsInput' });
+
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  const { t } = useTranslation('details-view', { keyPrefix: 'gpsInput' });
 
   const hasInitialLocation = !!lngLat && lngLat.length === 2;
-
-  const gpsFormatLabels = {
-    DDM: t('gpsFormatDDMLabel'),
-    DEG: t('gpsFormatDEGLabel'),
-    DMS: t('gpsFormatDMSLabel'),
-    UTM: t('gpsFormatUTMLabel'),
-    MGRS: t('gpsFormatMGRSLabel')
-  };
 
   const [inputValue, setInputValue] = useState(hasInitialLocation
     ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
@@ -79,36 +72,33 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
       const location = lastKnownValidValue || lngLat;
       setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gpsFormat]);
+  }, [gpsFormat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>
     <GpsFormatToggle showGpsString={false} />
 
     <div className={`${styles.actionsWrapper} ${onButtonClick ? styles.withButton : ''}`}>
       <OverlayTrigger
-        placement="bottom-end"
         overlay={(props) => tooltip ? <Tooltip {...props}>{tooltip}</Tooltip> : <div />}
+        placement="bottom-end"
       >
         <input
           className={!isValid ? styles.error : ''}
           onBlur={onInputBlur}
           onChange={onInputChange}
-          placeholder={gpsFormatLabels[gpsFormat] || t('defaultLabel')}
+          placeholder={gpsFormat ? t(`gpsFormats.${gpsFormat}`) : t('defaultPlaceholder')}
           type="text"
           value={inputValue}
-          {...rest}
+          {...restProps}
         />
       </OverlayTrigger>
 
-      {onButtonClick && <Button onClick={onButtonClick} variant="light">
-        {buttonContent}
-      </Button>}
+      {onButtonClick && <Button onClick={onButtonClick} variant="light">{buttonContent}</Button>}
     </div>
 
     <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
       {isValid
-          ? t('exampleLabel', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
+          ? t('inputExample', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
           : t('invalidLocation')
       }
     </small>

@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 import store from '../store';
 
 export const extractSubjectFromMessage = (message) =>
@@ -26,4 +28,8 @@ export const generateNewMessage = ({ geometry, properties }, config = {}) => {
   };
 };
 
-export const calcSenderNameForMessage = (message) => message?.sender?.name ?? message?.sender?.username ?? 'Operator';
+export const calcSenderNameForMessage = (message) => {
+  const t = i18next.getFixedT(null, 'utils', 'calcSenderNameForMessage');
+
+  return message?.sender?.name ?? message?.sender?.username ?? t('operator');
+};

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../../';
 import AddPatrolTab from './';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
+import { render, screen } from '../../../test-utils';
+import useNavigate from '../../../hooks/useNavigate';
 
 jest.mock('../../../constants', () => ({
   ...jest.requireActual('../../../constants'),
@@ -15,10 +16,17 @@ jest.mock('../../../constants', () => ({
   },
 }));
 
+jest.mock('../../../hooks/useNavigate', () => jest.fn());
+
 describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
-  const navigate = jest.fn(), onHideModal = jest.fn();
+  let navigate, useNavigateMock;
+  const onHideModal = jest.fn();
   let renderAddPatrolTab, store;
   beforeEach(() => {
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
+
     store = { data: { patrolTypes }, view: { featureFlagOverrides: {} } };
 
     renderAddPatrolTab = (props, addItemContext, overrideStore) => {

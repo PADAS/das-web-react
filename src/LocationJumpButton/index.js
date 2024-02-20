@@ -1,81 +1,106 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
+
+import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 
 import { BREAKPOINTS } from '../constants';
 import { trackEvent } from '../utils/analytics';
-import { validateLngLat } from '../utils/location';
-import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
+import { validateLngLat } from '../utils/location';
 
 import styles from './styles.module.scss';
-import { useTranslation } from 'react-i18next';
-
-const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = ({
+  bypassLocationValidation,
+  className,
   clickAnalytics,
-  onClick,
   coordinates,
   isMulti,
-  bypassLocationValidation,
+  onClick,
   zoom,
-  iconOverride,
-  className,
-  dispatch: _dispatch,
-  ...rest
+  ...restProps
 }) => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
-  const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
-  const { t } = useTranslation('patrols');
+  const { t } = useTranslation('components', { keyPrefix: 'locationJumpButton' });
 
-  const isValidLocation = useMemo(() => bypassLocationValidation || (!!coordinates &&
-      (Array.isArray(coordinates[0]) ?
-        coordinates.every(coords => {
-          if ( Array.isArray(coords[0]) ){
-            const [lat, long] = coords[0];
-            return validateLngLat(lat, long);
+  const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
+
+  const isValidLocation = useMemo(() => {
+    if (bypassLocationValidation) {
+      return true;
+    }
+
+    if (!!coordinates) {
+      if (Array.isArray(coordinates[0])) {
+        return coordinates.every((coords) => {
+          if (Array.isArray(coords[0])) {
+            return validateLngLat(coords[0][0], coords[0][1]);
           }
           return validateLngLat(coords[0], coords[1]);
-        })
-        : validateLngLat(coordinates[0], coordinates[1])
-      )), [bypassLocationValidation, coordinates]);
-
-  const closeSidebarForSmallViewports = useCallback(() => {
-    if (!screenIsMediumLayoutOrLarger.matches) {
-      navigate('/');
+        });
+      } else {
+        return validateLngLat(coordinates[0], coordinates[1]);
+      }
     }
-  }, [navigate]);
 
-  const onJumpButtonClick = useCallback((e) => {
-    const clickHandler = onClick ? e => onClick(e) : () => jumpToLocation(coordinates, zoom);
+    return false;
+  }, [bypassLocationValidation, coordinates]);
+
+  const onJumpButtonClick = useCallback((event) => {
     if (clickAnalytics) {
       trackEvent(...clickAnalytics);
     }
-    clickHandler(e);
-    closeSidebarForSmallViewports();
-  }, [clickAnalytics, closeSidebarForSmallViewports, coordinates, jumpToLocation, onClick, zoom]);
 
-  const defaultIcon = useMemo(() => isMulti
+    if (onClick) {
+      onClick(event);
+    } else {
+      jumpToLocation(coordinates, zoom);
+    }
+
+    if (!BREAKPOINTS.screenIsMediumLayoutOrLarger.matches) {
+      navigate('/');
+    }
+  }, [clickAnalytics, coordinates, jumpToLocation, navigate, onClick, zoom]);
+
+  const icon = isMulti
     ? <>
       <MarkerIcon />
       <MarkerIcon />
     </>
-    : <MarkerIcon />, [isMulti]);
+    : <MarkerIcon />;
 
-  return isValidLocation &&
-  <button title={t('jumpToLocationBtnLabel')} type="button" className={buttonClass} onClick={onJumpButtonClick} {...rest}>
-    {iconOverride ? iconOverride : defaultIcon}
-  </button>
-  ;
+  return isValidLocation && <button
+      className={buttonClass}
+      onClick={onJumpButtonClick}
+      title={t('title')}
+      type="button"
+      {...restProps}
+    >
+    {icon}
+  </button>;
 };
 
-export default memo(LocationJumpButton);
+LocationJumpButton.defaultProps = {
+  bypassLocationValidation: false,
+  className: '',
+  clickAnalytics: null,
+  coordinates: null,
+  isMulti: false,
+  onClick: null,
+  zoom: null,
+};
 
 LocationJumpButton.propTypes = {
-  coordinates: PropTypes.array,
+  bypassLocationValidation: PropTypes.bool,
+  className: PropTypes.string,
   clickAnalytics: PropTypes.arrayOf(PropTypes.string),
+  coordinates: PropTypes.array,
+  isMulti: PropTypes.bool,
   onClick: PropTypes.func,
   zoom: PropTypes.number,
 };
+
+export default memo(LocationJumpButton);
