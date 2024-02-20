@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import { clearVirtualDate, setVirtualDate } from '../ducks/timeslider';
-import { DATE_LOCALES } from '../constants';
 import {
   generateCurrentTimeZoneTitle,
   generateWeeksAgoDate,
@@ -24,6 +23,7 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import TimeAgo from '../TimeAgo';
+import dateLocales from '../utils/locales';
 
 import styles from './styles.module.scss';
 
@@ -102,9 +102,9 @@ const TimeSlider = ({ className }) => {
     const twoWeekAgo = new Date(generateWeeksAgoDate(2));
     const DateTime = new Date(dateTime);
     if (DateTime >= twoWeekAgo){
-      return format(DateTime, STANDARD_DATE_FORMAT, { locale: DATE_LOCALES[i18n.language] });
+      return format(DateTime, STANDARD_DATE_FORMAT, { locale: dateLocales[i18n.language] });
     }
-    return format(DateTime, SHORTENED_DATE_FORMAT, { locale: DATE_LOCALES[i18n.language] });
+    return format(DateTime, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] });
   };
 
   useEffect(() => {
@@ -195,7 +195,7 @@ const TimeSlider = ({ className }) => {
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
 
         {(until || virtualDate)
-          ? <span>{format(currentDate, STANDARD_DATE_FORMAT, { locale: DATE_LOCALES[i18n.language] })}</span>
+          ? <span>{format(currentDate, STANDARD_DATE_FORMAT, { locale: dateLocales[i18n.language] })}</span>
           : <span style={{ color: '#6d6d6d' }}>{t('slider')}</span>}
       </span>
     </div>
