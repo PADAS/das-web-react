@@ -1,0 +1,173 @@
+{
+  "addItemButton": {
+    "addItemModal": {
+      "addPatrolTab": {
+        "searchBarPlaceholder": "Search"
+      },
+      "addPatroTabTitle": "Add Patrol",
+      "addReportTab": {
+        "reportsSelectPlaceholder": "Jump to...",
+        "searchBarPlaceholder": "Search"
+      },
+      "addReportTabTitle": "Add Report"
+    },
+    "defaultTitle": "Add"
+  },
+  "detectOffline": {
+    "offlineToastMessage": "You are currently offline. EarthRanger may not function as expected. Please check your network connection.",
+    "reconnectionToastMessage": "Back online!"
+  },
+  "earthRangerLogo": {
+    "title": "EarthRanger Logo"
+  },
+  "errorBoundary": {
+    "reloadButton": "Reload"
+  },
+  "errorMessage": {
+    "defaultMessage": "An error has occured",
+    "hideDetailsButton": "Hide Details",
+    "showDetailsButton": "See Details"
+  },
+  "geoLocationWatcher": {
+    "shareLocationToastMessage": "Share your location to view data with geo-permissions",
+    "shareLocationToastTitle": "Learn how"
+  },
+  "gpsInput": {
+    "gpsFormats": {
+      "DDM": "Degrees, Decimals, Minutes",
+      "DEG": "Latitude, Longitude",
+      "DMS": "Degrees, Minutes, Seconds",
+      "UTM": "Universal Transverse Mercator",
+      "MGRS": "Military Grid Reference System"
+    },
+    "defaultPlaceholder": "Location",
+    "inputExample": "Example: {{gpsFormat}}",
+    "invalidLocation": "Invalid location"
+  },
+  "locationJumpButton": {
+    "title": "Jump to this location"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Cancel",
+    "popupLabel": "Click to select a location",
+    "selectLocationButtonLabel": "Choose on map",
+    "selectLocationButtonTitle": "Place marker on map"
+  },
+  "mapLocationSelectionOverview": {
+    "chooseLocationHeader": {
+      "patrol": "Choose patrol location",
+      "report": "Choose report location"
+    },
+    "discardButton": "Discard",
+    "discardButtonTooltip": "Remove all points",
+    "drawingReportGeometryArea": "Area: {{areaDisplay}}",
+    "drawingReportGeometryHeader": "Create report area",
+    "drawingReportGeometryPerimeter": "Perimeter: {{perimeterDisplay}}",
+    "undoButton": "Undo",
+    "undoButtonTooltip": "Reverse your last action"
+  },
+  "messageInput": {
+    "placeholder": "Type your message here...",
+    "sendButton": "Send"
+  },
+  "messageList": {
+    "defaultEmptyMessage": "No messages to display.",
+    "groupTitle": {
+      "today": "today",
+      "yesterday": "yesterday"
+    },
+    "messageSummaryList": {
+      "loadingEmptyMessage": "Loading messages..."
+    },
+    "paramFedMessageList": {
+      "loadingEmptyMessage": "Loading messages..."
+    },
+    "senderDetails": {
+      "radioIconTitle": "Radio icon for {{subjectName}}"
+    }
+  },
+  "priorityPicker": {
+    "amber": "Amber",
+    "green": "Green",
+    "none": "None",
+    "red": "Red"
+  },
+  "reportedBySelect": {
+    "control": {
+      "radioIconPlaceholder": "Radio icon placeholder for reported by selector"
+    },
+    "multiValueLabel": {
+      "radioIcon": "Radio icon for {{name}} value"
+    },
+    "option": {
+      "radioIcon": "Radio icon for {{name}} option"
+    },
+    "placeholder": "Reported By...",
+    "restrictedOptionLabel": "RESTRICTED",
+    "singleValue": {
+      "radioIcon": "Radio icon for {{name}} value"
+    }
+  },
+  "schemaFields": {
+    "addButton": {
+      "content": "New",
+      "title": "Add Item"
+    },
+    "moveDownButton": {
+      "title": "Move down"
+    },
+    "moveUpButton": {
+      "title": "Move up"
+    },
+    "removeButton": {
+      "title": "Remove"
+    }
+  },
+  "searchBar": {
+    "clearIconTitle": "Clear search bar",
+    "defaultPlaceholder": "Search..."
+  },
+  "serviceWorkerWatcher": {
+    "confirmNotification": "Reload",
+    "newVersionAvailableNotification": "A new version of EarthRanger is available. It will be loaded the next time you refresh your browser."
+  },
+  "sideBar": {
+    "layersLink": "Map Layers",
+    "noItemsToDisplayInLayers": "No items to display.",
+    "patrolsLink": "Patrols",
+    "reportsFeedTab": {
+      "fetchReportsErrorMessage": "Could not load reports. Please try again.",
+      "tryAgainButton": "Try again"
+    },
+    "reportsLink": "Reports",
+    "settingsPane": {
+      "alertsFrameTitle": "Configure your EarthRanger alerts",
+      "alertsTabTitle": "Alerts",
+      "appRefreshDescription": "Preserve my settings on page refresh for",
+      "appRefreshHeader": "App Refresh",
+      "appRefreshMapLayersLabel": "Map Layers",
+      "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
+      "appRefreshPatrolFiltersLabel": "Patrol Filters",
+      "appRefreshReportFiltersLabel": "Report Filters",
+      "clusterDataDescription": "Cluster data when there is overlap for",
+      "displayHeader": "Display",
+      "experimentalFeaturesHeader": "Experimental Features",
+      "generalHeader": "General",
+      "generalTabTitle": "General",
+      "languagesHeader": "Language",
+      "mapMarkersDescription": "Show names on map markers for",
+      "mapMarkersHeader": "Map Markers",
+      "mapTabTitle": "Map"
+    },
+    "settingsLink": "Settings"
+  },
+  "textCopyBtn": {
+    "defaultToastMessage": "Copied to clipboard"
+  },
+  "toastBody": {
+    "defaultLinkTitle": "Click here",
+    "defaultMessage": "An error has occurred",
+    "hideDetailsButton": "Hide Details",
+    "showDetailsButton": "See Details"
+  }
+}

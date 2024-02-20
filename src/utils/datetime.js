@@ -23,7 +23,7 @@ export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf()
 
 export const calcFriendlyDurationString = (from, until) => {
   const locale = DATE_LOCALES[i18next.language];
-  const t = i18next.getFixedT(null, 'filters', 'friendlyFilterString');
+  const t = i18next.getFixedT(null, 'utils', 'calcFriendlyDurationString');
 
   if (!from && !until) return t('monthAgo');
 
@@ -80,7 +80,11 @@ export const endOfTime = () => new Date(8640000000000000);
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
 
-export const generateCurrentTimeZoneTitle = () => `Date displayed in the ${window.Intl.DateTimeFormat().resolvedOptions().timeZone} time zone`;
+export const generateCurrentTimeZoneTitle = () => {
+  const t = i18next.getFixedT(null, 'utils');
+
+  return t('currentTimeZoneTitle', { timeZone: window.Intl.DateTimeFormat().resolvedOptions().timeZone });
+};
 
 export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   const flattenDate = date => setSeconds(

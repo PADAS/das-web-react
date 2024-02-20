@@ -7,11 +7,19 @@ import AddReportTab from '.';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen } from '../../../test-utils';
+import useNavigate from '../../../hooks/useNavigate';
+
+jest.mock('../../../hooks/useNavigate', () => jest.fn());
 
 describe('AddItemButton - AddItemModal - AddReportTab', () => {
-  const navigate = jest.fn(), onHideModal = jest.fn();
+  let navigate, useNavigateMock;
+  const onHideModal = jest.fn();
   let renderAddReportTab, store;
   beforeEach(() => {
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
+
     store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
 
     renderAddReportTab = (props, addItemContext, overrideStore) => {
