@@ -31,7 +31,7 @@ export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf()
 
 export const calcFriendlyDurationString = (from, until) => {
   const locale = getCurrentLocale();
-  const t = i18next.getFixedT(null, 'filters', 'friendlyFilterString');
+  const t = i18next.getFixedT(null, 'utils', 'calcFriendlyDurationString');
 
   if (!from && !until) return t('monthAgo');
 
