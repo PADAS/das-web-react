@@ -164,6 +164,12 @@
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
   },
+  "timeSlider": {
+    "popoverHeader": "Rango de fechas",
+    "popoverResetButton": "Reiniciar",
+    "slider": "Control de tiempo",
+    "untilNowButton": "Ahora"
+  },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",
     "defaultMessage": "Ha ocurrido un error",
