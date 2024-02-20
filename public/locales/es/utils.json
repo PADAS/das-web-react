@@ -9,5 +9,8 @@
   "calcSenderNameForMessage": {
     "operator": "Operador"
   },
-  "currentTimeZoneTitle": "Fecha mostrada en la zona horaria {{timeZone}}"
+  "currentTimeZoneTitle": "Fecha mostrada en la zona horaria {{timeZone}}",
+  "displayTitleForPatrol": {
+    "unknown": "Tipo de patrulla desconocido"
+  }
 }

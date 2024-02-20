@@ -1,5 +1,6 @@
 import React, { lazy } from 'react';
 import addMinutes from 'date-fns/add_minutes';
+import i18next from 'i18next';
 import isWithinRange from 'date-fns/is_within_range';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
@@ -29,7 +30,6 @@ import isAfter from 'date-fns/is_after';
 import colorVariables from '../common/styles/vars/colors.module.scss';
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
-const defaultDatesLang = 'en-US';
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -186,7 +186,7 @@ export const iconTypeForPatrol = (patrol) => {
 };
 
 export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
-  const UNKNOWN_MESSAGE = 'Unknown patrol type';
+  const t = i18next.getFixedT(null, 'utils', 'displayTitleForPatrol');
   if (patrol.title) return patrol.title;
 
   if (includeLeaderName && leader && leader.name) {
@@ -195,7 +195,7 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
 
 
   if (!patrol.patrol_segments.length
-    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
+    || !patrol.patrol_segments[0].patrol_type) return t('unknown');
 
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t =>
@@ -205,7 +205,7 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
 
   if (matchingType) return matchingType.display;
 
-  return UNKNOWN_MESSAGE;
+  return t('unknown');
 };
 
 export const displayStartTimeForPatrol = (patrol) => {
@@ -318,7 +318,7 @@ export const extractAttachmentUpdates = (collection) => {
   return extractedUpdates;
 };
 
-export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
+export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolState(patrol);
 
   if (patrolState === PATROL_UI_STATES.READY_TO_START
@@ -329,7 +329,7 @@ export const displayDurationForPatrol = (patrol, lang = defaultDatesLang) => {
 
   const now = new Date();
   const nowTime = now.getTime();
-  const locale = DATE_LOCALES[lang];
+  const locale = DATE_LOCALES[i18next.language];
 
   const displayStartTime = actualStartTimeForPatrol(patrol);
   const displayEndTime = actualEndTimeForPatrol(patrol);
@@ -472,17 +472,17 @@ export const isSegmentOverdueToEnd = (patrolSegment) => {
   return false;
 };
 
-export const patrolStateDetailsOverdueStartTime = (patrol, lang = defaultDatesLang) => {
+export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
-  const locale = DATE_LOCALES[lang];
+  const locale = DATE_LOCALES[i18next.language];
   return distanceInWords(startTime, currentTime, { includeSeconds: true, locale });
 };
 
-export const formatPatrolStateTitleDate = (date, lang = defaultDatesLang) => {
+export const formatPatrolStateTitleDate = (date) => {
   const otherYearFormat = 'D MMM \'YY HH:mm';
   const defaultFormat = 'D MMM HH:mm';
-  const locale = DATE_LOCALES[lang];
+  const locale = DATE_LOCALES[i18next.language];
 
   if (!date) return '';
 
@@ -503,16 +503,16 @@ export const displayPatrolEndOverdueTime = (patrol) => {
   return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
-export const patrolStateDetailsStartTime = (patrol, lang) =>
+export const patrolStateDetailsStartTime = (patrol) =>
   formatPatrolStateTitleDate(
     displayStartTimeForPatrol(patrol),
-    lang
+    i18next.language
   );
 
-export const patrolStateDetailsEndTime = (patrol, lang) =>
+export const patrolStateDetailsEndTime = (patrol) =>
   formatPatrolStateTitleDate(
     displayEndTimeForPatrol(patrol),
-    lang
+    i18next.language
   );
 
 export const calcPatrolState = (patrol) => {

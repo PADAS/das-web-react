@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import merge from 'lodash/merge';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 
 import {
   actualEndTimeForPatrol,
@@ -36,8 +35,6 @@ const usePatrol = (patrolFromProps) => {
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrolData.patrol));
 
-  const { i18n: { language } } = useTranslation();
-
   const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
   const isPatrolDone = patrolState === PATROL_UI_STATES.DONE;
@@ -58,11 +55,11 @@ const usePatrol = (patrolFromProps) => {
   );
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
   const patrolElapsedTime = useMemo(
-    () => !!patrolState && displayDurationForPatrol(patrolData.patrol, language),
-    [patrolData.patrol, patrolState, language]
+    () => !!patrolState && displayDurationForPatrol(patrolData.patrol),
+    [patrolData.patrol, patrolState]
   );
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrolData.patrol), [patrolData.patrol]);
-  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrolData.patrol, language), [patrolData.patrol, language]);
+  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrolData.patrol), [patrolData.patrol]);
   const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
 
   const patrolCancellationTime = useMemo(() => {
@@ -73,16 +70,16 @@ const usePatrol = (patrolFromProps) => {
       ?? null;
     if (!cancellation) return null;
 
-    return formatPatrolStateTitleDate(new Date(cancellation.time), language);
+    return formatPatrolStateTitleDate(new Date(cancellation.time));
 
-  }, [isPatrolCancelled, patrolData.patrol.updates, language]);
+  }, [isPatrolCancelled, patrolData.patrol.updates]);
 
   const dateComponentDateString = useMemo(() => {
     if (isPatrolCancelled) return patrolCancellationTime;
-    if (isPatrolDone) return patrolStateDetailsEndTime(patrolData.patrol, language);
-    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrolData.patrol, language);
+    if (isPatrolDone) return patrolStateDetailsEndTime(patrolData.patrol);
+    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrolData.patrol);
     if (isPatrolActive || isPatrolScheduled) {
-      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrolData.patrol), language);
+      return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrolData.patrol));
     }
 
     return null;
@@ -95,7 +92,6 @@ const usePatrol = (patrolFromProps) => {
     isPatrolScheduled,
     patrolData.patrol,
     patrolCancellationTime,
-    language
   ]);
 
   useEffect(() => {
