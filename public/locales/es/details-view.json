@@ -31,16 +31,6 @@
     "loadingMessage": "Obteniendo tu ubicación...",
     "readingLocationError": "No fue posible obtener tu ubicación: {{locationErrorMessage}}"
   },
-  "gpsInput": {
-    "defaultLabel": "Ubicación",
-    "gpsFormatDDMLabel": "Grados, Decimales, Minutos",
-    "gpsFormatDEGLabel": "Latitud, Longitud",
-    "gpsFormatDMSLabel": "Grados, Minutos, Segundos",
-    "gpsFormatUTMLabel": "Sistema de coordenadas UTM",
-    "gpsFormatMGRSLabel": "Sistema de Referencia de Cuadrícula Militar",
-    "exampleLabel": "Ejemplo: {{gpsFormat}}",
-    "invalidLocation": "Ubicación no válida"
-  },
   "goToReportButtonTooltip": "Ir a reporte",
   "header": {
     "historyLinkCreated": "Creado",
@@ -59,12 +49,6 @@
   "locationSelector": {
     "inputLabel": "Ubicación:",
     "inputPlaceHolder": "Click para seleccionar la ubicación"
-  },
-  "mapLocationPicker": {
-    "cancelButton": "Cancelar",
-    "popupLabel": "Click para seleccionar una ubicación",
-    "selectLocationButtonTitle": "Posiciona el marcador en el mapa",
-    "selectLocationButtonLabel": "Seleccionar en el mapa"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",

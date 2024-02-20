@@ -1,15 +1,15 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
-import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '..';
 import { getStoredTab, storeTab } from './utils';
-import { useSystemConfigFlag, usePermissions } from '../../hooks';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
-import useNavigate from '../../hooks/useNavigate';
+import { usePermissions, useSystemConfigFlag } from '../../hooks';
 
 import AddPatrolTab from './AddPatrolTab';
 import AddReportTab from './AddReportTab';
@@ -18,8 +18,8 @@ import styles from './styles.module.scss';
 
 export const ADD_TAB_KEYS = { ADD_REPORT: 'reports', ADD_PATROL: 'patrols' };
 
-const AddItemModal = ({ onHide, show, ...rest }) => {
-  const navigate = useNavigate();
+const AddItemModal = ({ onHide, show, ...restProps }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'addItemButton.addItemModal' });
 
   const { hideAddPatrolTab, hideAddReportTab } = useContext(AddItemContext);
 
@@ -32,9 +32,7 @@ const AddItemModal = ({ onHide, show, ...rest }) => {
 
   const [activeTabKey, setActiveTabKey] = useState(storedActiveTabKey);
 
-  const patrolsEnabled = !!patrolFlagEnabled
-    && !!hasPatrolWritePermissions
-    && !!patrolTypes.length;
+  const patrolsEnabled = !!patrolFlagEnabled && !!hasPatrolWritePermissions && !!patrolTypes.length;
 
   const onTabSelect = useCallback((tab) => {
     storeTab(tab);
@@ -51,7 +49,7 @@ const AddItemModal = ({ onHide, show, ...rest }) => {
     }
   }, [activeTabKey, hideAddPatrolTab, hideAddReportTab, onTabSelect, patrolsEnabled, storedActiveTabKey]);
 
-  return <Modal data-testid="addItemButton-addItemModal" onHide={onHide} show={show} {...rest}>
+  return <Modal data-testid="addItemButton-addItemModal" onHide={onHide} show={show} {...restProps}>
     <Modal.Header closeButton />
 
     <Modal.Body className={styles.modalBody}>
@@ -64,23 +62,26 @@ const AddItemModal = ({ onHide, show, ...rest }) => {
         {!hideAddReportTab && <Tab
           data-testid="addItemButton-addItemModal-reportTab"
           eventKey={ADD_TAB_KEYS.ADD_REPORT}
-          title="Add Report"
+          title={t('addReportTabTitle')}
         >
-          <AddReportTab navigate={navigate} onHideModal={onHide} />
+          <AddReportTab onHideModal={onHide} />
         </Tab>}
 
         {patrolsEnabled && !hideAddPatrolTab && <Tab
           data-testid="addItemButton-addItemModal-patrolTab"
           eventKey={ADD_TAB_KEYS.ADD_PATROL}
-          title="Add Patrol"
+          title={t('addPatroTabTitle')}
         >
-          <AddPatrolTab navigate={navigate} onHideModal={onHide} />
+          <AddPatrolTab onHideModal={onHide} />
         </Tab>}
       </Tabs>
     </Modal.Body>
   </Modal>;
 };
 
-AddItemModal.propTypes = { onHide: PropTypes.func.isRequired };
+AddItemModal.propTypes = {
+  onHide: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired,
+};
 
 export default memo(AddItemModal);

@@ -31,16 +31,6 @@
     "loadingMessage": "Trying to read your location...",
     "readingLocationError": "Could not read your current location: {{locationErrorMessage}}"
   },
-  "gpsInput": {
-    "defaultLabel": "Location",
-    "gpsFormatDDMLabel": "Degrees, Decimals, Minutes",
-    "gpsFormatDEGLabel": "Latitude, Longitude",
-    "gpsFormatDMSLabel": "Degrees, Minutes, Seconds",
-    "gpsFormatUTMLabel": "Universal Transverse Mercator",
-    "gpsFormatMGRSLabel": "Military Grid Reference System",
-    "exampleLabel": "Example: {{gpsFormat}}",
-    "invalidLocation": "Invalid location"
-  },
   "goToReportButtonTooltip": "Go to report",
   "header": {
     "historyLinkCreated": "Created",
@@ -59,12 +49,6 @@
   "locationSelector": {
     "inputLabel": "Location:",
     "inputPlaceHolder": "Click here to set location"
-  },
-  "mapLocationPicker": {
-    "cancelButton": "Cancel",
-    "popupLabel": "Click to select a location",
-    "selectLocationButtonTitle": "Place marker on map",
-    "selectLocationButtonLabel": "Choose on map"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Go Back",

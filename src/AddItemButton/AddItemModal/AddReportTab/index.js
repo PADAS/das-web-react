@@ -1,11 +1,13 @@
-import React, { memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '../..';
-import  { TAB_KEYS } from '../../../constants';
 import { getUserCreatableEventTypesByCategory } from '../../../selectors';
+import  { TAB_KEYS } from '../../../constants';
 import { trackEvent } from '../../../utils/analytics';
+import useNavigate from '../../../hooks/useNavigate';
 import { uuid } from '../../../utils/string';
 
 import SearchBar from '../../../SearchBar';
@@ -16,10 +18,11 @@ import styles from '../styles.module.scss';
 
 const SCROLL_OFFSET_CORRECTION = 96;
 
-const AddReportTab = ({ navigate, onHideModal }) => {
-  const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
+const AddReportTab = ({ onHideModal }) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation('components', { keyPrefix: 'addItemButton.addItemModal.addReportTab' });
 
-  const reportDataToEdit = useMemo(() => ({ ...reportData }), [reportData]);
+  const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
 
   const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
 
@@ -27,17 +30,15 @@ const AddReportTab = ({ navigate, onHideModal }) => {
 
   const [searchText, setSearchText] = useState('');
 
-  const getQuickJumpSelectOptionLabel = useCallback((option) => option.display, []);
-
   const onClickReportType = useCallback((reportType) => {
     onHideModal();
 
+    const reportDataToEdit = { ...reportData };
     if (reportType.geometry_type !== 'Point') {
       delete reportDataToEdit.location;
     }
 
     if (!!onAddReport) {
-
       onAddReport(formProps, reportDataToEdit, reportType.id);
     } else {
       navigate(
@@ -58,12 +59,8 @@ const AddReportTab = ({ navigate, onHideModal }) => {
     navigate,
     onAddReport,
     onHideModal,
-    reportDataToEdit,
+    reportData,
   ]);
-
-  const onSearchTextChange = useCallback((event) => setSearchText(event.target.value), []);
-
-  const onSearchTextClear = useCallback(() => setSearchText(''), []);
 
   const onQuickJumpSelectChange = useCallback((category) => {
     const targetList = reportTypesListRef?.current?.querySelector(`#${category.value}-quick-select`);
@@ -76,20 +73,20 @@ const AddReportTab = ({ navigate, onHideModal }) => {
     <div className={styles.typesSearchControls}>
       <SearchBar
         className={styles.searchBar}
-        onChange={onSearchTextChange}
-        onClear={onSearchTextClear}
-        placeholder="Search"
+        onChange={(event) => setSearchText(event.target.value)}
+        onClear={() => setSearchText('')}
+        placeholder={t('searchBarPlaceholder')}
         value={searchText}
       />
 
       <Select
         className={styles.quickJumpSelect}
-        data-testid='addItemButton-addItemModal-addReportTab-quickJumpSelect'
-        getOptionLabel={getQuickJumpSelectOptionLabel}
+        data-testid="addItemButton-addItemModal-addReportTab-quickJumpSelect"
+        getOptionLabel={(option) => option.display}
         isSearchable
         onChange={onQuickJumpSelectChange}
         options={eventsByCategory}
-        placeholder="Jump to..."
+        placeholder={t('reportsSelectPlaceholder')}
       />
     </div>
 
@@ -103,7 +100,6 @@ const AddReportTab = ({ navigate, onHideModal }) => {
 };
 
 AddReportTab.propTypes = {
-  navigate: PropTypes.func.isRequired,
   onHideModal: PropTypes.func.isRequired,
 };
 

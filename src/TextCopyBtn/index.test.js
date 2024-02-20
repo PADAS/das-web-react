@@ -2,9 +2,10 @@ import React from 'react';
 
 import TextCopyBtn from './';
 
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Slide, ToastContainer } from 'react-toastify';
+
+import { render, screen } from '../test-utils';
 
 Object.defineProperty(global.navigator, 'clipboard', { value: {
   writeText: jest.fn().mockReturnValue(Promise.resolve()),

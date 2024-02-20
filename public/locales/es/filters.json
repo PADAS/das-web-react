@@ -41,11 +41,6 @@
     "title": "Filtros de reportes"
   },
   "friendlyFilterString": {
-    "monthAgo": "hace 1 mes hasta hoy",
-    "monthAgoUntilNow": "hace 1 mes hasta hoy {{date}}",
-    "someAgoFromNow": "{{from}} hasta {{until}} desde hoy",
-    "someAgo": "desde {{from}} hasta {{until}} atrás",
-    "untilNow": "desde {{date}} hasta hoy",
     "resultLabel": "resultado",
     "resultsLabel": "Resultados",
     "fromLabel": " ",
@@ -76,7 +71,6 @@
       "trackedByLabel": "Rastreado por",
       "statusLabel": "Estado",
       "patrolTypeLabel": "Tipo de patrullaje",
-      "reportedByPlaceholder": "Selecciona un dispositivo...",
       "patrolStatuses": {
         "active": "Activo",
         "done": "Finalizado",
@@ -90,21 +84,11 @@
     "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
     "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
   },
-  "priorityPicker": {
-    "red": "Rojo",
-    "amber": "Amber",
-    "green": "Verde",
-    "none": "Ninguno"
-  },
   "reportedByPlaceholder": "Reportado por...",
   "reportTypeMultiSelect": {
     "placeholder": "Buscar tipos",
     "noResultsLabel": "Sin resultados",
     "someResultsLabel": "Seleccionar {{resultCount}} resultados",
     "singleResultLabel": "Selecionar este resultado"
-  },
-  "searchBar": {
-    "defaultPlaceHolder": "Buscar...",
-    "iconTitle": "Limpiar barra de búsqueda"
   }
 }

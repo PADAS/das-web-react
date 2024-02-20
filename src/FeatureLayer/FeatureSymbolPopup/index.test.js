@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 
 import AddItemButton from '../../AddItemButton';
 import FeatureSymbolPopup from './';
 import { hidePopup } from '../../ducks/popup';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen } from '../../test-utils';
 
 jest.mock('../../AddItemButton', () => jest.fn());
 
