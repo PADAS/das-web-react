@@ -91,7 +91,7 @@ const BaseLayerControl = (props) => {
             return <li key={`${layer.id}`}>
               <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer?.id ? styles.active : ''}>
                 <img src={logoSrc} alt={t('logoAlt', { logoName: layer.name })} />
-                {layer.name}
+                {layer.name ?? t(layer.nameKey)}
               </button>
             </li>;
           })}

@@ -17,18 +17,19 @@ export const setFlagOverrideValue = (flagName, value) => ({
   payload: { flagName, value }
 });
 
-export const INTIAL_REDUCER_STATE = {
+export const INITIAL_REDUCER_STATE = {
   [ENABLE_PATROL_NEW_UI]: {
-    label: 'New Patrol Form UI',
+    labelKey: 'patrolUI',
     value: DEVELOPMENT_FEATURE_FLAGS[ENABLE_PATROL_NEW_UI],
   },
   [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: {
-    label: 'Play Sound For New Reports',
+    labelKey: 'reportNotification',
     value: false,
   }
 };
 
-const reducer = (state = INTIAL_REDUCER_STATE, action = {}) => {
+
+const reducer = (state = INITIAL_REDUCER_STATE, action = {}) => {
   if (action.type === SET_FLAG_OVERRIDE_VALUE) {
     const { flagName, value } = action.payload;
     return {

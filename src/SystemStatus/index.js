@@ -16,6 +16,8 @@ import styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
+
+
 const SystemStatus = () => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'systemStatus' });
 
@@ -34,7 +36,8 @@ const SystemStatus = () => {
 
         <div className={styles.details}>
           <span>
-            {item.heartbeat.title}{!!item.heartbeat.timestamp && ':'}
+            {item.heartbeat.title ?? t('heartBeatDefTitle')}
+            {!!item.heartbeat.timestamp && ':'}
 
             {!!item.heartbeat.timestamp && <span className={styles.timestamp}>
               <TimeAgo date={item.heartbeat.timestamp} suffix={t('dateTimeSuffix')} />
@@ -42,7 +45,8 @@ const SystemStatus = () => {
           </span>
 
           <span>
-            {item.datasource.title}{!!item.datasource.timestamp && ':'}
+            {item.datasource.title ?? t('datasourceDefTitle')}
+            {!!item.datasource.timestamp && ':'}
 
             {!!item.datasource.timestamp && <span className={styles.timestamp}>
               <TimeAgo date={item.datasource.timestamp} suffix={t('dateTimeSuffix')} />
@@ -52,16 +56,20 @@ const SystemStatus = () => {
       </Dropdown.Item>);
     }
 
+    const details = value.details ?? t(value.detailsKey);
+
     return <Dropdown.Item className={styles.listItem} key={index}>
       <div className={styles.summary}>
         <Badge className={styles.badge} status={value.status} />
 
-        <span className={styles.itemTitle}>{value.title}</span>
+        <span className={styles.itemTitle}>
+          { value.title ?? t(value.titleKey, { version: value.version }) }
+        </span>
       </div>
 
       <div className={styles.details}>
         <span>
-          {!!value.details && value.details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
+          {!!details && details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
 
           {!!value.timestamp && <span className={styles.timestamp}>
             <TimeAgo date={value.timestamp} suffix={t('dateTimeSuffix')} />

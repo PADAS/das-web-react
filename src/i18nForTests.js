@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsViewEnUS from '../public/locales/en-US/details-view.json';
+import ducksEnUS from '../public/locales/en-US/ducks.json';
 import filters from '../public/locales/en-US/filters.json';
 import loginEnUS from '../public/locales/en-US/login.json';
 import mapControlsEnUS from '../public/locales/en-US/map-controls.json';
@@ -29,6 +30,7 @@ i18n
       'en-US': {
         'dates': datesEnUS,
         'details-view': detailsViewEnUS,
+        'ducks': ducksEnUS,
         'filters': filters,
         'login': loginEnUS,
         'map-controls': mapControlsEnUS,

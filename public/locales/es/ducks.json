@@ -1,0 +1,6 @@
+{
+  "featureFlagLabels": {
+    "patrolUI": "Nueva interfaz del formulario de patrullajes",
+    "reportNotification": "Reproducir alerta para nuevos reportes"
+  }
+}
