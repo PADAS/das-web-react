@@ -1,7 +1,0 @@
-{
-  "remove": "remove",
-  "subjectCount_one": "{{count}} subject",
-  "subjectCount_other": "{{count}} subjects",
-  "dayTimespan_one": "over {{count}} day", 
-  "dayTimespan_other": "over {{count}} days"
-}

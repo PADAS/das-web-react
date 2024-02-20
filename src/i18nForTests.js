@@ -5,6 +5,7 @@ import componentsEnUS from '../public/locales/en-US/components.json';
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsViewEnUS from '../public/locales/en-US/details-view.json';
 import filtersEnUS from '../public/locales/en-US/filters.json';
+import heatmapEnUS from '../public/locales/en-US/heatmap.json';
 import loginEnUS from '../public/locales/en-US/login.json';
 import mapControlsEnUS from '../public/locales/en-US/map-controls.json';
 import mapPopupsEnUS from '../public/locales/en-US/map-popups.json';
@@ -32,6 +33,7 @@ i18n
         'dates': datesEnUS,
         'details-view': detailsViewEnUS,
         'filters': filtersEnUS,
+        'heatmap': heatmapEnUS,
         'login': loginEnUS,
         'map-controls': mapControlsEnUS,
         'map-popups': mapPopupsEnUS,
