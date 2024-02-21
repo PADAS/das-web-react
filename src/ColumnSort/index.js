@@ -67,7 +67,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
       </ListGroup>
 
       <ListGroup className="styles.listGroup" data-testid="order-options">
-        {orderOptions.map(option => <ListGroup.Item
+        {orderOptions.map((option) => <ListGroup.Item
           action
           className={styles.listItem}
           key={option.value}

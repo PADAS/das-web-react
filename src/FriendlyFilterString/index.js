@@ -20,7 +20,7 @@ const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sort
 
   const hasSortConfig = !!sortConfig;
   const sortModified = hasSortConfig && !isEqual(sortConfig, DEFAULT_EVENT_SORT);
-  const sortTypeMatch = hasSortConfig && EVENT_SORT_OPTIONS.find(option => option.value === sortConfig[1].value);
+  const sortTypeMatch = hasSortConfig && EVENT_SORT_OPTIONS.find((option) => option.value === sortConfig[1].value);
   const sortTypeName = hasSortConfig && t(`eventSortOptions.${sortTypeMatch.key}`).toLowerCase();
 
   const sortingTypeLabel = useMemo(() => {
