@@ -34,7 +34,6 @@ const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
 const TimeSlider = ({ className }) => {
   const dispatch = useDispatch();
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timeSlider' });
-
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
   const since = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const timeSliderState = useSelector((state) => state.view.timeSliderState);
