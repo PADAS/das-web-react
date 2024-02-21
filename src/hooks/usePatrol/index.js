@@ -91,7 +91,7 @@ const usePatrol = (patrolFromProps) => {
     isPatrolOverdue,
     isPatrolScheduled,
     patrolData.patrol,
-    patrolCancellationTime
+    patrolCancellationTime,
   ]);
 
   useEffect(() => {

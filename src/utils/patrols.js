@@ -7,6 +7,7 @@ import {
   isWithinInterval,
   formatDistance,
 } from 'date-fns';
+import i18next from 'i18next';
 
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
@@ -31,7 +32,6 @@ import colorVariables from '../common/styles/vars/colors.module.scss';
 
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
-const defaultDatesLang = 'en-US';
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -188,7 +188,7 @@ export const iconTypeForPatrol = (patrol) => {
 };
 
 export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
-  const UNKNOWN_MESSAGE = 'Unknown patrol type';
+  const t = i18next.getFixedT(null, 'utils', 'displayTitleForPatrol');
   if (patrol.title) return patrol.title;
 
   if (includeLeaderName && leader && leader.name) {
@@ -197,7 +197,7 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
 
 
   if (!patrol.patrol_segments.length
-    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
+    || !patrol.patrol_segments[0].patrol_type) return t('unknown');
 
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t =>
@@ -207,7 +207,7 @@ export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) 
 
   if (matchingType) return matchingType.display;
 
-  return UNKNOWN_MESSAGE;
+  return t('unknown');
 };
 
 export const displayStartTimeForPatrol = (patrol) => {

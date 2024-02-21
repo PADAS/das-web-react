@@ -9,5 +9,8 @@
   "calcSenderNameForMessage": {
     "operator": "Operator"
   },
-  "currentTimeZoneTitle": "Date displayed in the {{timeZone}} time zone"
+  "currentTimeZoneTitle": "Date displayed in the {{timeZone}} time zone",
+  "displayTitleForPatrol": {
+    "unknown": "Unknown patrol type"
+  }
 }
