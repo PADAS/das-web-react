@@ -477,7 +477,6 @@ export const isSegmentOverdueToEnd = (patrolSegment) => {
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
-
   return formatDistance(startTime, currentTime, {
     includeSeconds: true,
     locale: getCurrentLocale()
@@ -485,8 +484,8 @@ export const patrolStateDetailsOverdueStartTime = (patrol) => {
 };
 
 export const formatPatrolStateTitleDate = (date) => {
-  const otherYearFormat = 'D MMM \'YY HH:mm';
-  const defaultFormat = 'D MMM HH:mm';
+  const otherYearFormat = 'd MMM YY HH:mm';
+  const defaultFormat = 'd MMM HH:mm';
 
   if (!date) return '';
 
@@ -509,14 +508,12 @@ export const displayPatrolEndOverdueTime = (patrol) => {
 
 export const patrolStateDetailsStartTime = (patrol) =>
   formatPatrolStateTitleDate(
-    displayStartTimeForPatrol(patrol),
-    i18next.language
+    displayStartTimeForPatrol(patrol)
   );
 
 export const patrolStateDetailsEndTime = (patrol) =>
   formatPatrolStateTitleDate(
-    displayEndTimeForPatrol(patrol),
-    i18next.language
+    displayEndTimeForPatrol(patrol)
   );
 
 export const calcPatrolState = (patrol) => {
