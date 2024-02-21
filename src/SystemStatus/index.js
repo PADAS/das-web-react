@@ -16,8 +16,6 @@ import styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-
-
 const SystemStatus = () => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'systemStatus' });
 
@@ -69,7 +67,7 @@ const SystemStatus = () => {
 
       <div className={styles.details}>
         <span>
-          {!!details && details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
+          {details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
 
           {!!value.timestamp && <span className={styles.timestamp}>
             <TimeAgo date={value.timestamp} suffix={t('dateTimeSuffix')} />

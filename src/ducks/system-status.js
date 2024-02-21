@@ -111,8 +111,6 @@ const fetchSystemStatusError = (error) => ({
   payload: error,
 });
 
-
-
 // utility functions
 const createServiceModelsFromApiResponse = services => services.map(service => genericStatusModel({
   title: service.display_name,

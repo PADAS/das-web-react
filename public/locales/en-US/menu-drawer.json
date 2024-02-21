@@ -3,6 +3,10 @@
     "iframeBottomMessage": "Each EarthRanger user can receive up to 20 alerts per day.",
     "iframeTitle": "Configure your EarthRanger alerts"
   },
+  "betaToggles": {
+    "patrolUI": "New Patrol Form UI",
+    "reportNotification": "Play Sound For New Reports"
+  },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",
     "todaysReportButton": "Today's Report",

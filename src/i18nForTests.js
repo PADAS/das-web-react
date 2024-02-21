@@ -4,7 +4,6 @@ import { initReactI18next } from 'react-i18next';
 import componentsEnUS from '../public/locales/en-US/components.json';
 import datesEnUS from '../public/locales/en-US/dates.json';
 import detailsViewEnUS from '../public/locales/en-US/details-view.json';
-import ducksEnUS from '../public/locales/en-US/ducks.json';
 import filtersEnUS from '../public/locales/en-US/filters.json';
 import heatmapEnUS from '../public/locales/en-US/heatmap.json';
 import loginEnUS from '../public/locales/en-US/login.json';
@@ -33,7 +32,6 @@ i18n
         'components': componentsEnUS,
         'dates': datesEnUS,
         'details-view': detailsViewEnUS,
-        'ducks': ducksEnUS,
         'filters': filtersEnUS,
         'heatmap': heatmapEnUS,
         'login': loginEnUS,

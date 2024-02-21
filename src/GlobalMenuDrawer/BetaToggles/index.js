@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -10,30 +10,30 @@ const tracker = trackEventFactory(BETA_PREVIEW_CATEGORY);
 
 const BetaToggles = () => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('ducks', { keyPrefix: 'featureFlagLabels' });
+  const { t } = useTranslation('menu-drawer', { keyPrefix: 'betaToggles' });
 
   const toggleableFeatures = useSelector(
-    (state) => Object.entries(state.view.featureFlagOverrides).filter(([key]) => key !== '_persist')
+    (state) => Object.entries(state.view.featureFlagOverrides)
+      .filter(([key]) => key !== '_persist')
+      .map(([label, feature]) => ([
+        label,
+        {
+          ...feature,
+          label: t(feature.labelKey)
+        }
+      ]))
   );
-
-  const translatedToggleableFeatures = useMemo(() => toggleableFeatures.map(([label, feature]) => ([
-    label,
-    {
-      ...feature,
-      label: t(feature.labelKey)
-    }
-  ])), [t, toggleableFeatures]);
 
   const onFlagOverrideToggle = useCallback((event) => {
     const { checked, value } = event.target;
     dispatch(setFlagOverrideValue(value, checked));
 
-    const toggledLabel = translatedToggleableFeatures.find(([flag]) => flag === value)[1].label;
+    const toggledLabel = toggleableFeatures.find(([flag]) => flag === value)[1].label;
     tracker.track(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
-  }, [dispatch, translatedToggleableFeatures]);
+  }, [dispatch, toggleableFeatures]);
 
   return <ul>
-    {translatedToggleableFeatures.map(([key, { label, value }]) =>
+    {toggleableFeatures.map(([key, { label, value }]) =>
       <li key={key}>
         <label>
           <input
