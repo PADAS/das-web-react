@@ -171,7 +171,6 @@ const PlanSection = ({
           >
             {t('startDateLabel')}
             <DatePicker
-              className={styles.datepicker}
               onChange={handleStartDateChange}
               selected={startDate ?? new Date()}
               selectsStart
@@ -219,7 +218,6 @@ const PlanSection = ({
           >
             {t('endDateLabel')}
             <DatePicker
-              className={styles.datepicker}
               endDate={endDate}
               minDate={startDate}
               onChange={handleEndDateChange}
