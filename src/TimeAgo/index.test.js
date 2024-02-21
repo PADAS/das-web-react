@@ -1,10 +1,12 @@
 import React from 'react';
 
-import subMinutes from 'date-fns/sub_minutes';
-import subSeconds from 'date-fns/sub_seconds';
-import subHours from 'date-fns/sub_hours';
-import subMonths from 'date-fns/sub_months';
-import subYears from 'date-fns/sub_years';
+import {
+  subMinutes,
+  subSeconds,
+  subHours,
+  subMonths,
+  subYears
+} from 'date-fns';
 
 import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';

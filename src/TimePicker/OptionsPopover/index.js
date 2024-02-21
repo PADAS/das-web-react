@@ -1,6 +1,5 @@
 import React, { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
-import addMinutes from 'date-fns/add_minutes';
-import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
+import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';

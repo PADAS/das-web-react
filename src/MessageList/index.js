@@ -1,18 +1,16 @@
 import React, { memo, useMemo, useState } from 'react';
 import { findDOMNode } from 'react-dom';
-import format from 'date-fns/format';
-import InfiniteScroll from 'react-infinite-scroller';
-import isSameDay from 'date-fns/is_same_day';
-import isToday from 'date-fns/is_today';
-import isYesterday from 'date-fns/is_yesterday';
-import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
+import { isSameDay, isToday, isYesterday  } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import noop from 'lodash/noop';
+import InfiniteScroll from 'react-infinite-scroller';
 
-import { DATE_LOCALES } from '../constants';
+
+import { format, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { SENDER_DETAIL_STYLES } from './SenderDetails';
-import { SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { uuid } from '../utils/string';
+import dateLocales from '../utils/locales';
 
 import MessageListItem from './MessageListItem';
 import MessageSummaryListItem from './MessageSummaryListItem';
@@ -26,7 +24,7 @@ const calcMessageGroupTitle = (date, i18n, t) => {
   if (isYesterday(date)) {
     return t('groupTitle.yesterday');
   }
-  return format(date, SHORTENED_DATE_FORMAT, { locale: DATE_LOCALES[i18n.language] });
+  return format(date, SHORTENED_DATE_FORMAT, { locale: dateLocales[i18n.language] });
 };
 
 export const MESSAGE_LIST_TYPES = {
@@ -84,7 +82,7 @@ const MessageList = ({
   return <InfiniteScroll
       className={`${styles.messageHistory} ${className}`}
       element="ul"
-      getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
+      getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node
       hasMore={hasMore}
       isReverse={isReverse}
       loadMore={onScroll}

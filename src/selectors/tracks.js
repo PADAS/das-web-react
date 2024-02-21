@@ -1,6 +1,5 @@
 import uniq from 'lodash/uniq';
-import subDays from 'date-fns/sub_days';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays, subDays } from 'date-fns';
 import { createSelector } from 'reselect';
 
 import { getTimeSliderState, getEventFilterDateRange } from './';

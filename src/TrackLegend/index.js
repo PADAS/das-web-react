@@ -1,17 +1,18 @@
 import React, { memo, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
-import distanceInWords from 'date-fns/distance_in_words';
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import {
+  formatDistance,
+  formatDistanceToNow
+} from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
-import { DATE_LOCALES } from '../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { trackTimeEnvelope as trackTimeEnvelopeSelector } from '../selectors/tracks';
 import { updateTrackState } from '../ducks/map-ui';
@@ -19,6 +20,7 @@ import { updateTrackState } from '../ducks/map-ui';
 import MapLegend from '../MapLegend';
 import TrackLengthControls from '../TrackLengthControls';
 import TrackToggleButton from '../TrackToggleButton';
+import { getCurrentLocale } from '../utils/datetime';
 
 import styles from './styles.module.scss';
 
@@ -91,7 +93,7 @@ const TitleElement = ({
 
 const TrackLegend = ({ onClose, trackData, trackState }) => {
   const dispatch = useDispatch();
-  const { i18n, t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
 
   const subjectStore = useSelector((state) => state.data.subjectStore);
   const trackTimeEnvelope = useSelector(trackTimeEnvelopeSelector);
@@ -112,13 +114,13 @@ const TrackLegend = ({ onClose, trackData, trackState }) => {
 
   const displayTrackLength = useMemo(
     () => trackTimeEnvelope.until
-      ? distanceInWords(
+      ? formatDistance(
         new Date(trackTimeEnvelope.from),
         new Date(trackTimeEnvelope.until),
-        { locale: DATE_LOCALES[i18n.language] }
+        { locale: getCurrentLocale() }
       )
-      : distanceInWordsToNow(new Date(trackTimeEnvelope.from), { locale: DATE_LOCALES[i18n.language] }),
-    [i18n.language, trackTimeEnvelope.from, trackTimeEnvelope.until]
+      : formatDistanceToNow(new Date(trackTimeEnvelope.from), { locale: getCurrentLocale() }),
+    [getCurrentLocale, trackTimeEnvelope.from, trackTimeEnvelope.until]
   );
 
   const trackPointCount = useMemo(

@@ -1,4 +1,5 @@
 {
+  "defaultTimeLabel": "Hora",
   "minutesLabel": "minuto",
   "timeUnitAbbreviations": {
     "day": "d",

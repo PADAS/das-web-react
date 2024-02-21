@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
-import isToday from 'date-fns/is_today';
+import { isToday } from 'date-fns';
 import PropTypes from 'prop-types';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';

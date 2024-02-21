@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { differenceInCalendarDays } from 'date-fns';
 
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { setTrackLength, setTrackLengthRangeOrigin, TRACK_LENGTH_ORIGINS } from '../ducks/tracks';

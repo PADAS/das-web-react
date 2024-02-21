@@ -64,7 +64,7 @@ describe('DatePicker', () => {
 
     userEvent.click(decreaseYearButton);
 
-    expect((await screen.findByText('Feb 2019'))).toBeDefined();
+    expect((await screen.findByTestId('datePicker-monthYearPicker-input'))).toHaveTextContent('Feb 2019');
   });
 
   test('decreases one month when clicking left arrow button', async () => {
@@ -83,7 +83,7 @@ describe('DatePicker', () => {
 
     userEvent.click(decreaseMonthButton);
 
-    expect((await screen.findByText('Jan 2020'))).toBeDefined();
+    expect((await screen.findByTestId('datePicker-monthYearPicker-input'))).toHaveTextContent('Jan 2020');
   });
 
   test('increases one year when clicking double right arrow button', async () => {
@@ -102,7 +102,7 @@ describe('DatePicker', () => {
 
     userEvent.click(increaseYearButton);
 
-    expect((await screen.findByText('Feb 2021'))).toBeDefined();
+    expect((await screen.findByTestId('datePicker-monthYearPicker-input'))).toHaveTextContent('Feb 2021');
   });
 
   test('increases one month when clicking right arrow button', async () => {
@@ -121,7 +121,7 @@ describe('DatePicker', () => {
 
     userEvent.click(increaseMonthButton);
 
-    expect((await screen.findByText('Mar 2020'))).toBeDefined();
+    expect((await screen.findByTestId('datePicker-monthYearPicker-input'))).toHaveTextContent('Mar 2020');
   });
 
   test('opens and closes the month / year picker when clicking the input', async () => {

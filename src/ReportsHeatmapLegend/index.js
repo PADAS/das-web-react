@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import PropTypes from 'prop-types';
+import { differenceInCalendarDays } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

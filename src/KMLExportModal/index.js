@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import setHours from 'date-fns/set_hours';
-import startOfDay from 'date-fns/start_of_day';
-import subDays from 'date-fns/sub_days';
+import {
+  setHours,
+  startOfDay,
+  subDays
+} from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { KML_EXPORT_CATEGORY, REPORT_EXPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
