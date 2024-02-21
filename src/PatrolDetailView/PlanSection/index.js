@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import isFuture from 'date-fns/is_future';
+import { isFuture } from 'date-fns';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 

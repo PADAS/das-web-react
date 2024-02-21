@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import format from 'date-fns/format';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import Button from 'react-bootstrap/Button';
 
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import { STANDARD_DATE_FORMAT } from '../utils/datetime';
+import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 
 import AddItemButton from '../AddItemButton';
@@ -22,7 +21,6 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = ({ data }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectPopup' });
-
   const isTimeSliderActive = useSelector((state) => state.view.timeSliderState.active);
 
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(
@@ -98,7 +96,11 @@ const SubjectPopup = ({ data }) => {
       <h5>{t('micActivityHeader')}</h5>
 
       <div>
-        <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
+        <span>
+          {
+            format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)
+          }
+        </span>
 
         <TimeAgo
           className={styles.timeAgo}

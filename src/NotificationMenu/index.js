@@ -1,6 +1,6 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays } from 'date-fns';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';

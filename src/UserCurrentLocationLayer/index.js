@@ -1,29 +1,29 @@
-import React, { memo, useCallback, useMemo, useEffect, useState, useRef } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { point } from '@turf/helpers';
+import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import booleanContains from '@turf/boolean-contains';
-
-import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
+import { point } from '@turf/helpers';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
+import { bboxBoundsPolygon, userLocationCanBeShown as userLocationCanBeShownSelector } from '../selectors';
 import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
-import { withMap } from '../EarthRangerMap';
-import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
+import { MapContext } from '../App';
 import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+
+import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 
 const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
 
 const ICON_LAYER_ID = 'current-user-location-icon-layer';
 const CIRCLE_LAYER_ID = 'current-user-location-circle-layer';
 
-const framesPerSecond = 20;
-const initialOpacity = 1;
-const initialRadius = 12;
-const initialStrokeWidth = 2;
-const maxRadius = 18;
+const FRAMES_PER_SECOND = 20;
+const INITIAL_OPACITY = 1;
+const INITIAL_RADIUS = 12;
+const INITIAL_STROKE_WIDTH = 2;
+const MAX_RADIUS = 18;
 
-const symbolLayout = {
+const SYMBOL_LAYOUT = {
   'icon-image': 'current-location-icon',
   'icon-allow-overlap': true,
   'icon-anchor': 'center',
@@ -32,31 +32,55 @@ const symbolLayout = {
 
 const updateBlipAnimation = (animationState, setAnimationState) => {
   setTimeout(() => {
-    const radius = animationState.radius + ((maxRadius - animationState.radius) / framesPerSecond);
     const opacity = animationState.opacity - .05;
-    const strokeWidth = animationState.strokeWidth - .05;
     if (opacity <= 0) {
-      setAnimationState({
-        radius: initialRadius, opacity: initialOpacity, strokeWidth: initialStrokeWidth,
-      });
+      setAnimationState({ opacity: INITIAL_OPACITY, radius: INITIAL_RADIUS, strokeWidth: INITIAL_STROKE_WIDTH });
     } else {
-      setAnimationState({
-        radius, opacity, strokeWidth,
-      });
+      const radius = animationState.radius + ((MAX_RADIUS - animationState.radius) / FRAMES_PER_SECOND);
+      const strokeWidth = animationState.strokeWidth - .05;
+
+      setAnimationState({ opacity, radius, strokeWidth });
     }
-  }, 1000 / framesPerSecond);
+  }, 1000 / FRAMES_PER_SECOND);
 };
 
-const UserCurrentLocationLayer = (props) => {
-  const { currentMapBbox, map, onIconClick, userLocationCanBeShown, userLocation } = props;
+const UserCurrentLocationLayer = ({ onIconClick }) => {
+  const map = useContext(MapContext);
 
-  const animationFrameID = useRef(null);
+  const currentMapBbox = useSelector(bboxBoundsPolygon);
+  const userLocation = useSelector((state) => state.view.userLocation);
+  const userLocationCanBeShown = useSelector(userLocationCanBeShownSelector);
 
   const [animationState, setAnimationState] = useState({
-    opacity: initialOpacity,
-    radius: initialRadius,
-    strokeWidth: initialStrokeWidth,
+    opacity: INITIAL_OPACITY,
+    radius: INITIAL_RADIUS,
+    strokeWidth: INITIAL_STROKE_WIDTH,
   });
+
+  const userLocationIsInMapBounds = useMemo(
+    () => !!currentMapBbox
+      && !!userLocation?.coords
+      && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude])),
+    [currentMapBbox, userLocation]
+  );
+
+  const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
+
+  const userLocationPoint = showLayer && userLocation?.coords?.longitude
+    ? point([userLocation.coords.longitude, userLocation.coords.latitude])
+    : null;
+
+  const circlePaint = {
+    'circle-radius': animationState.radius,
+    'circle-radius-transition': { duration: 0 },
+    'circle-opacity-transition': { duration: 0 },
+    'circle-color': 'rgba(0,0,0,0)',
+    'circle-stroke-color': '#007cbf',
+    'circle-stroke-width': animationState.strokeWidth,
+    'circle-stroke-opacity': animationState.opacity,
+  };
+
+  const layerConfig = { minZoom: 6, condition: !!showLayer };
 
   const onCurrentLocationIconClick = useCallback(() => {
     onIconClick(userLocation);
@@ -68,47 +92,19 @@ const UserCurrentLocationLayer = (props) => {
     }
   }, [map]);
 
-  const userLocationIsInMapBounds = useMemo(() => {
-    return !!currentMapBbox
-    && !!userLocation
-    && !!userLocation.coords
-    && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude]));
-  }, [currentMapBbox, userLocation]);
-
-  const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
-
   useEffect(() => {
     if (showLayer) {
-      animationFrameID.current = window.requestAnimationFrame(() => updateBlipAnimation(animationState, setAnimationState));
+      const animationFrameID = window.requestAnimationFrame(
+        () => updateBlipAnimation(animationState, setAnimationState)
+      );
+
+      return () => window.cancelAnimationFrame(animationFrameID);
     }
-    return () => {
-      window.cancelAnimationFrame(animationFrameID.current);
-    };
   }, [animationState, showLayer]);
-
-  const userLocationPoint = useMemo(() => showLayer && userLocation?.coords?.longitude
-    ? point([
-      userLocation.coords.longitude,
-      userLocation.coords.latitude,
-    ])
-    : null
-  , [showLayer, userLocation?.coords]);
-
-  const circlePaint = useMemo(() => ({
-    'circle-radius': animationState.radius,
-    'circle-radius-transition': { duration: 0 },
-    'circle-opacity-transition': { duration: 0 },
-    'circle-color': 'rgba(0,0,0,0)',
-    'circle-stroke-color': '#007cbf',
-    'circle-stroke-width': animationState.strokeWidth,
-    'circle-stroke-opacity': animationState.opacity,
-  }), [animationState.radius, animationState.strokeWidth, animationState.opacity]);
-
-  const layerConfig = { minZoom: 6, condition: !!showLayer };
 
   useMapSource(CURRENT_USER_LOCATION_SOURCE, userLocationPoint);
 
-  useMapLayer(ICON_LAYER_ID, 'symbol', CURRENT_USER_LOCATION_SOURCE, null, symbolLayout, layerConfig);
+  useMapLayer(ICON_LAYER_ID, 'symbol', CURRENT_USER_LOCATION_SOURCE, null, SYMBOL_LAYOUT, layerConfig);
   useMapLayer(CIRCLE_LAYER_ID, 'circle', CURRENT_USER_LOCATION_SOURCE, circlePaint, null, layerConfig);
 
   useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
@@ -116,19 +112,8 @@ const UserCurrentLocationLayer = (props) => {
   return null;
 };
 
-const mapStateToProps = (state) => ({
-  currentMapBbox: bboxBoundsPolygon(state),
-  userLocation: state.view.userLocation,
-  userLocationCanBeShown: userLocationCanBeShown(state),
-});
-export default connect(mapStateToProps, null)(withMap(memo(UserCurrentLocationLayer)));
-
-UserCurrentLocationLayer.defaultProps = {
-  onIconClick() {
-
-  },
-};
-
 UserCurrentLocationLayer.propTypes = {
-  onIconClick: PropTypes.func,
+  onIconClick: PropTypes.func.isRequired,
 };
+
+export default memo(UserCurrentLocationLayer);
