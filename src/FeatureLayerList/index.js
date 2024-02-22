@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
+import { useTranslation } from 'react-i18next';
 
 import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
@@ -21,7 +22,15 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
-const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
+const FeatureLayerList = ({
+  featureList,
+  hideFeatures,
+  showFeatures,
+  hiddenFeatureIDs,
+  map,
+  mapLayerFilter
+}) => {
+  const { t } = useTranslation('map-controls');
 
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
@@ -96,7 +105,9 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
 
   const trigger = <div>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
-    <h5 className={listStyles.trigger}>Features</h5>
+    <h5 className={listStyles.trigger}>
+      {t('featureLayerTitle')}
+    </h5>
   </div>;
 
   return <ul className={listStyles.list}>

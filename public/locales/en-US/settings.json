@@ -1,4 +1,5 @@
 {
+  "clusterMemberControl": "All",
   "inactiveRadioControl": {
     "label": "Show Inactive Radios"
   },

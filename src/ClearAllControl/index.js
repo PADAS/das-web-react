@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
 import { updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { hideSubjects, displayReportsOnMapState } from '../ducks/map-layer-filter';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
@@ -12,9 +14,14 @@ import styles from './styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const ClearAllControl = (props) => {
-
-  const { subjectGroups, hideSubjects, displayReportsOnMapState, updateTrackState, updateHeatmapSubjects } = props;
+const ClearAllControl = ({
+  subjectGroups,
+  hideSubjects,
+  displayReportsOnMapState,
+  updateTrackState,
+  updateHeatmapSubjects
+}) => {
+  const { t } = useTranslation('map-controls');
 
   const clearAll = () => {
     // Note: no longer removing the map features in a clear all
@@ -33,7 +40,8 @@ const ClearAllControl = (props) => {
   return <div className={styles.clearAllRow}>
     <div>
       <button onClick={() => onClearAllClick()}>
-        <CheckIcon className={styles.checkmark} onClick={() => onClearAllClick()} />Clear All
+        <CheckIcon className={styles.checkmark} onClick={() => onClearAllClick()} />
+        {t('clearAllButton')}
       </button>
     </div>
   </div>;

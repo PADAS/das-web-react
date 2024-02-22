@@ -1,11 +1,14 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { setMapClusterConfig } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
 const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSliderActive }) => {
+  const { t } = useTranslation('settings');
+
   const configEntries = Object.entries(mapClusterConfig).filter(([key]) => key !== '_persist');
 
   const fullyChecked = configEntries.every(([, val]) => !!val);
@@ -42,7 +45,9 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
         }}
         onChange={toggleAll}
       />
-      <span className={styles.checkboxlabel}>All</span>
+      <span className={styles.checkboxlabel}>
+        {t('clusterMemberControl')}
+      </span>
     </label>
     <ul className={styles.subListItems}>
       {configEntries.map(([key, value]) =>

@@ -1,4 +1,6 @@
 {
+  "analyzerLayerTitle": "Analyzers",
+  "clearAllButton": "Clear All",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Press enter to search",
     "titleIconSearch": "Search"
@@ -9,6 +11,7 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "EarthRanger Terrain Map"
   },
+  "featureLayerTitle": "Features",
   "mapDrawingTools": {
     "addPointLabel": "Click to add a point. \n Hit 'enter' or 'return' to complete.",
     "bearingLabel": "Bearing: {{bearing}}°",
@@ -31,5 +34,6 @@
     "bearingLabel": "Bearing:",
     "distanceLabel": "Distance from start:",
     "finishButton": "click here to finish"
-  }
+  },
+  "reportMapControlTitle": "Reports"
 }

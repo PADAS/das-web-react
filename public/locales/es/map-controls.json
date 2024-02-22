@@ -1,4 +1,6 @@
 {
+  "analyzerLayerTitle": "Analizadores",
+  "clearAllButton": "Limpiar todo",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Presiona enter para buscar",
     "titleIconSearch": "Buscar"
@@ -9,6 +11,7 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "Mapa del terreno EarthRanger"
   },
+  "featureLayerTitle": "Caracteristicas",
   "mapDrawingTools": {
     "addPointLabel": "Click para agregar un punto.\n Presiona 'enter' para completar.",
     "bearingLabel": "Rumbo: {{bearing}}°",
@@ -31,5 +34,6 @@
     "bearingLabel": "Rumbo:",
     "distanceLabel": "Distancia del inicio:",
     "finishButton": "Click para finalizar"
-  }
+  },
+  "reportMapControlTitle": "Reportes"
 }
