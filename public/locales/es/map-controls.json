@@ -1,6 +1,4 @@
 {
-  "analyzerLayerTitle": "Analizadores",
-  "clearAllButton": "Limpiar todo",
   "clusterMemberControl": "Todos",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Presiona enter para buscar",
@@ -12,7 +10,6 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "Mapa del terreno EarthRanger"
   },
-  "featureLayerTitle": "Caracteristicas",
   "mapDrawingTools": {
     "addPointLabel": "Click para agregar un punto.\n Presiona 'enter' para completar.",
     "bearingLabel": "Rumbo: {{bearing}}°",

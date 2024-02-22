@@ -30,7 +30,7 @@ const FeatureLayerList = ({
   map,
   mapLayerFilter
 }) => {
-  const { t } = useTranslation('map-controls');
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
@@ -106,7 +106,7 @@ const FeatureLayerList = ({
   const trigger = <div>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
     <h5 className={listStyles.trigger}>
-      {t('featureLayerTitle')}
+      {t('featuresTitle')}
     </h5>
   </div>;
 

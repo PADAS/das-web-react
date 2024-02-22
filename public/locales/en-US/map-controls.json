@@ -1,6 +1,4 @@
 {
-  "analyzerLayerTitle": "Analyzers",
-  "clearAllButton": "Clear All",
   "clusterMemberControl": "All",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Press enter to search",
@@ -12,7 +10,6 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "EarthRanger Terrain Map"
   },
-  "featureLayerTitle": "Features",
   "mapDrawingTools": {
     "addPointLabel": "Click to add a point. \n Hit 'enter' or 'return' to complete.",
     "bearingLabel": "Bearing: {{bearing}}°",

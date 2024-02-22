@@ -21,7 +21,7 @@ const ClearAllControl = ({
   updateTrackState,
   updateHeatmapSubjects
 }) => {
-  const { t } = useTranslation('map-controls');
+  const { t } = useTranslation('layers');
 
   const clearAll = () => {
     // Note: no longer removing the map features in a clear all

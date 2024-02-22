@@ -32,7 +32,7 @@ const AnalyzerLayerList = memo(({
   map,
   mapLayerFilter
 }) => {
-  const { t } = useTranslation('map-controls');
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const analyzers = useMemo(() => {
     const { text } = mapLayerFilter;
@@ -111,7 +111,7 @@ const AnalyzerLayerList = memo(({
   const trigger = <span>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={partiallyChecked} />
     <h5 className={listStyles.trigger}>
-      {t('analyzerLayerTitle')}
+      {t('analyzersTitle')}
     </h5>
   </span>;
 
