@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { BETA_PREVIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
-
+import { FEATURE_FLAG_INPUT_LABELS, setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
 
 const tracker = trackEventFactory(BETA_PREVIEW_CATEGORY);
 
@@ -13,39 +12,30 @@ const BetaToggles = () => {
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'betaToggles' });
 
   const toggleableFeatures = useSelector(
-    (state) => Object.entries(state.view.featureFlagOverrides)
-      .filter(([key]) => key !== '_persist')
-      .map(([label, feature]) => ([
-        label,
-        {
-          ...feature,
-          label: t(feature.labelKey)
-        }
-      ]))
+    (state) => Object.entries(state.view.featureFlagOverrides).filter(([key]) => key !== '_persist')
   );
 
   const onFlagOverrideToggle = useCallback((event) => {
     const { checked, value } = event.target;
     dispatch(setFlagOverrideValue(value, checked));
 
-    const toggledLabel = toggleableFeatures.find(([flag]) => flag === value)[1].label;
-    tracker.track(toggledLabel, `Turned ${checked ? 'On' : 'Off'}`);
-  }, [dispatch, toggleableFeatures]);
+    tracker.track(t(FEATURE_FLAG_INPUT_LABELS[value]), `Turned ${checked ? 'On' : 'Off'}`);
+  }, [dispatch, t]);
 
   return <ul>
-    {toggleableFeatures.map(([key, { label, value }]) =>
+    {toggleableFeatures.map(([key, { value }]) =>
       <li key={key}>
         <label>
           <input
             checked={value}
             data-testid={`beta-toggle-${key}`}
-            label={label}
+            label={t(FEATURE_FLAG_INPUT_LABELS[key])}
             onChange={onFlagOverrideToggle}
             type="checkbox"
             value={key}
           />
 
-          <span>{label}</span>
+          <span>{t(FEATURE_FLAG_INPUT_LABELS[key])}</span>
         </label>
       </li>
     )}
