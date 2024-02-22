@@ -34,14 +34,11 @@ const NavigationContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (isNavigationBlocked) {
-      const onUnload = (event) => {
-        event.returnValue = 'Would you like to discard changes?';
-      };
+      const onUnload = (event) => event.preventDefault();
+
       window.addEventListener('beforeunload', onUnload);
 
-      return () => {
-        window.removeEventListener('beforeunload', onUnload);
-      };
+      return () => window.removeEventListener('beforeunload', onUnload);
     }
   }, [isNavigationBlocked]);
 

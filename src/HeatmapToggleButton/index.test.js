@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen, userEvent, waitFor } from '@testing-library/react';
 
 import HeatmapToggleButton from './';
+import { render, screen, userEvent, waitFor } from '../test-utils';
 
 const onButtonClick = jest.fn();
 

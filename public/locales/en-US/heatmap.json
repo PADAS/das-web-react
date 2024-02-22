@@ -1,0 +1,31 @@
+{
+  "heatmapLegend": {
+    "dayTimespan_one": "over {{count}} day", 
+    "dayTimespan_other": "over {{count}} days",
+    "pointCount_one": "{{count}} point",
+    "pointCount_other": "{{count}} points"
+  },
+  "heatmapStyleControls": {
+    "radiusLabel": "Radius (in meters):",
+    "radiusUnit": "m",
+    "sensitivityHighIndicator": "High",
+    "sensitivityLabel": "Sensitivity:",
+    "sensitivityLowIndicator": "Low"
+  },
+  "heatmapToggleButton": {
+    "heatmapOffLabel": "Heatmap off",
+    "heatmapOnLabel": "Heatmap on"
+  },
+  "reportsHeatmapLegend": {
+    "heatmapLegendTitle": "Visible Reports"
+  },
+  "subjectHeatmapLegend": {
+    "subjectCount_one": "{{count}} subject",
+    "subjectCount_other": "{{count}} subjects",
+    "titleElement": {
+      "pointCount_one": "{{count}} point",
+      "pointCount_other": "{{count}} points",
+      "remove": "remove"
+    }
+  }
+}

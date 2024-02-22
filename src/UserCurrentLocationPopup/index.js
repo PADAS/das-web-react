@@ -1,36 +1,42 @@
 import React, { memo, useCallback } from 'react';
 import isEqual from 'react-fast-compare';
 import PropTypes from 'prop-types';
-import TimeAgo from '../TimeAgo';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-import { hidePopup } from '../ducks/popup';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { hidePopup } from '../ducks/popup';
 
 import AddItemButton from '../AddItemButton';
 import GpsFormatToggle from '../GpsFormatToggle';
+import TimeAgo from '../TimeAgo';
 
-const UserCurrentLocationPopup = ({ data: { location }, id }) => {
+const UserCurrentLocationPopup = ({ data, id }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('user', { keyPrefix: 'userCurrentLocationPopup' });
 
-  const { coords, timestamp } = location;
-  const lastRead = new Date(timestamp);
+  const lastRead = new Date(data.location.timestamp);
 
   const onComplete = useCallback(() => dispatch(hidePopup(id)), [dispatch, id]);
 
   return <>
-    <h4>Your current location:</h4>
-    <GpsFormatToggle lng={coords.longitude} lat={coords.latitude} />
-    <p>Accurate to within {coords.accuracy} meters</p>
-    <p>Last checked <TimeAgo date={lastRead} /></p>
+    <h4>{t('header')}</h4>
+
+    <GpsFormatToggle lat={data.location.coords.latitude} lng={data.location.coords.longitude} />
+
+    <p>{t('accuracy', { accuracy: data.location.coords.accuracy })}</p>
+
+    <p>{t('lastChecked')} <TimeAgo date={lastRead} /></p>
+
     <hr />
+
     <AddItemButton
       analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'current user location' }}
-      formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
+      formProps={{ onSaveError: onComplete, onSaveSuccess: onComplete }}
       reportData={{
         location: {
-          latitude: coords.latitude,
-          longitude: coords.longitude,
+          latitude: data.location.coords.latitude,
+          longitude: data.location.coords.longitude,
         }
       }}
       showLabel={false}
@@ -39,12 +45,13 @@ const UserCurrentLocationPopup = ({ data: { location }, id }) => {
 };
 
 UserCurrentLocationPopup.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    location: PropTypes.object,
+  }).isRequired,
+  id: PropTypes.string.isRequired,
 };
 
-const compareFunction = (
-  { data: { location: oldLocation } },
-  { data: { location: newLocation } }
-) => isEqual(oldLocation, newLocation);
-
-export default memo(UserCurrentLocationPopup, compareFunction);
+export default memo(
+  UserCurrentLocationPopup,
+  (oldProps, newProps) => isEqual(oldProps.data.location, newProps.data.location)
+);

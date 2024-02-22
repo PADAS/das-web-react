@@ -1,5 +1,5 @@
 import uniq from 'lodash/uniq';
-import isAfter from 'date-fns/is_after';
+import { isAfter } from 'date-fns';
 import { createSelector } from 'reselect';
 
 import { getTimeSliderState } from './';

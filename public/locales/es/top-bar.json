@@ -37,8 +37,16 @@
     "userLabel": "Usuario: "
   },
   "systemStatus": {
+    "datasourceDefTitle": "actividad del dispositivo",
     "dateTimeSuffix": "atrás",
     "HEALTHY": "Estable",
+    "heartBeatDefTitle": "actividad del sistema",
+    "initialRealTimeStatusTitle": "Tiempo real de EarthRanger",
+    "initialRealTimeStatusDetails": "Actividad",
+    "initialNetworkStatusTitle": "Red",
+    "networkOnlineLabel": "en línea",
+    "networkOfflineLabel": "desconectado",
+    "serverVersionLabel": "Servidor de EarthRanger {{version}}",
     "UNHEALTHY": "Inestable",
     "UNKNOWN": "Desconocido",
     "WARNING": "Precaución"

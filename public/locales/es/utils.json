@@ -1,0 +1,16 @@
+{
+  "calcFriendlyDurationString": {
+    "monthAgo": "Hace un mes hasta ahora",
+    "monthAgoUntilNow": "Hace un mes hasta hace {{date}}",
+    "someAgoFromNow": "Hace {{from}} hasta {{until}} desde ahora",
+    "someAgo": "Hace {{from}} hasta hace {{until}}",
+    "untilNow": "Hace {{date}} hasta ahora"
+  },
+  "calcSenderNameForMessage": {
+    "operator": "Operador"
+  },
+  "currentTimeZoneTitle": "Fecha mostrada en la zona horaria {{timeZone}}",
+  "displayTitleForPatrol": {
+    "unknown": "Tipo de patrulla desconocido"
+  }
+}

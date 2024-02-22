@@ -37,8 +37,16 @@
     "userLabel": "User: "
   },
   "systemStatus": {
+    "datasourceDefTitle": "device activity",
     "dateTimeSuffix": "ago",
     "HEALTHY": "Healthy",
+    "heartBeatDefTitle": "system activity",
+    "initialRealTimeStatusTitle": "EarthRanger Realtime",
+    "initialRealTimeStatusDetails": "Activity",
+    "initialNetworkStatusTitle": "Network",
+    "networkOnlineLabel": "online",
+    "networkOfflineLabel": "offline",
+    "serverVersionLabel": "EarthRanger Server {{version}}",
     "UNHEALTHY": "Unhealthy",
     "UNKNOWN": "Unknown",
     "WARNING": "Warning"

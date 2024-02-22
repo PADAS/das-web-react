@@ -2,9 +2,11 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import { useMatchMedia, usePermissions } from '../hooks';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import isFuture from 'date-fns/is_future';
-import isPast from 'date-fns/is_past';
-import differenceInMinutes from 'date-fns/difference_in_minutes';
+import {
+  differenceInMinutes,
+  isPast,
+  isFuture
+} from 'date-fns';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import { isEmpty } from 'lodash';

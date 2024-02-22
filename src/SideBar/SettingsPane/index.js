@@ -33,7 +33,7 @@ const TAB_KEYS = {
 };
 
 const SettingsPane = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
@@ -80,19 +80,19 @@ const SettingsPane = () => {
       className={styles.tab}
       data-testid="settings-generalTab"
       eventKey={TAB_KEYS.GENERAL}
-      title="General"
+      title={t('generalTabTitle')}
     >
       <section>
-        <h3>App Refresh</h3>
+        <h3>{t('appRefreshHeader')}</h3>
 
-        <h6>Preserve my settings on page refresh for</h6>
+        <h6>{t('appRefreshDescription')}</h6>
 
         <ul>
           <li>
             <label htmlFor={MAP_POSITION_STORAGE_KEY}>
               <input type='checkbox' id={MAP_POSITION_STORAGE_KEY} onChange={onMapPositionPersistToggle} name={MAP_POSITION_STORAGE_KEY} checked={mapPositionRestorable} />
 
-              <span>Map Position &amp; Zoom Level</span>
+              <span>{t('appRefreshMapPositionAndZoomLevelLabel')}</span>
             </label>
           </li>
 
@@ -100,7 +100,7 @@ const SettingsPane = () => {
             <label htmlFor={EVENT_FILTER_STORAGE_KEY}>
               <input type='checkbox' id={EVENT_FILTER_STORAGE_KEY} onChange={onEventFilterPersistToggle} name={EVENT_FILTER_STORAGE_KEY} checked={eventFilterRestorable} />
 
-              <span>Report Filters</span>
+              <span>{t('appRefreshReportFiltersLabel')}</span>
             </label>
           </li>
 
@@ -108,7 +108,7 @@ const SettingsPane = () => {
             <label htmlFor={PATROL_FILTER_STORAGE_KEY}>
               <input type='checkbox' id={PATROL_FILTER_STORAGE_KEY} onChange={onPatrolFilterPersistToggle} name={PATROL_FILTER_STORAGE_KEY} checked={patrolFilterRestorable} />
 
-              <span>Patrol Filters</span>
+              <span>{t('appRefreshPatrolFiltersLabel')}</span>
             </label>
           </li>
 
@@ -116,14 +116,14 @@ const SettingsPane = () => {
             <label htmlFor={MAP_LAYER_FILTER_STORAGE_KEY}>
               <input type='checkbox' id={MAP_LAYER_FILTER_STORAGE_KEY} onChange={onMapLayersPersistToggle} name={MAP_LAYER_FILTER_STORAGE_KEY} checked={mapLayersRestorable} />
 
-              <span>Map Layers</span>
+              <span>{t('appRefreshMapLayersLabel')}</span>
             </label>
           </li>
         </ul>
       </section>
 
       {isI18nActive ? <section>
-        <h3>Language</h3>
+        <h3>{t('languagesHeader')}</h3>
 
         <Select
           className={styles.languageSelect}
@@ -134,7 +134,7 @@ const SettingsPane = () => {
       </section> : null}
 
       <section>
-        <h3>Experimental Features</h3>
+        <h3>{t('experimentalFeaturesHeader')}</h3>
 
         <BetaToggles />
       </section>
@@ -144,10 +144,10 @@ const SettingsPane = () => {
       className={styles.tab}
       data-testid="settings-mapTab"
       eventKey={TAB_KEYS.MAP}
-      title="Map"
+      title={t('mapTabTitle')}
     >
       <section>
-        <h3>General</h3>
+        <h3>{t('generalHeader')}</h3>
 
         <ul>
           <li><MapLockControl /></li>
@@ -159,7 +159,7 @@ const SettingsPane = () => {
       </section>
 
       <section>
-        <h3>Display</h3>
+        <h3>{t('displayHeader')}</h3>
 
         <ul>
           <li><MapTrackTimepointsControl /></li>
@@ -167,7 +167,7 @@ const SettingsPane = () => {
           <li><InactiveRadioControl /></li>
         </ul>
 
-        <h6>Cluster data when there is overlap for</h6>
+        <h6>{t('clusterDataDescription')}</h6>
 
         <ul>
           <li><ClusterMemberControl /></li>
@@ -175,9 +175,9 @@ const SettingsPane = () => {
       </section>
 
       <section>
-        <h3>Map Markers</h3>
+        <h3>{t('mapMarkersHeader')}</h3>
 
-        <h6>Show names on map markers for</h6>
+        <h6>{t('mapMarkersDescription')}</h6>
 
         <ul>
           <li><MapNamesControl /></li>
@@ -193,14 +193,14 @@ const SettingsPane = () => {
       className={`${styles.tab} ${styles.alertsTab}`}
       data-testid="settings-alertsTab"
       eventKey={TAB_KEYS.ALERTS}
-      title="Alerts"
+      title={t('alertsTabTitle')}
     >
       <iframe
         className={styles.alerts}
         data-testid="settings-alertsIframe"
         src={ALERTS_URL}
         style={{ width: '100%', height: '100vh' }}
-        title='Configure your EarthRanger alerts'
+        title={t('alertsFrameTitle')}
       />
     </Tab>}
   </Tabs>;

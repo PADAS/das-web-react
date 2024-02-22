@@ -1,6 +1,11 @@
-import addMinutes from 'date-fns/add_minutes';
+import { addMinutes } from 'date-fns';
 
-import { calcPatrolState, createNewPatrolForPatrolType, DELTA_FOR_OVERDUE, sortPatrolList } from './patrols';
+import {
+  calcPatrolState,
+  createNewPatrolForPatrolType,
+  DELTA_FOR_OVERDUE,
+  sortPatrolList
+} from './patrols';
 import { PATROL_UI_STATES } from '../constants';
 import {
   newPatrol,

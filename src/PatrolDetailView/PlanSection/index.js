@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import isFuture from 'date-fns/is_future';
+import { isFuture } from 'date-fns';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -171,7 +171,6 @@ const PlanSection = ({
           >
             {t('startDateLabel')}
             <DatePicker
-              className={styles.datepicker}
               onChange={handleStartDateChange}
               selected={startDate ?? new Date()}
               selectsStart
@@ -219,7 +218,6 @@ const PlanSection = ({
           >
             {t('endDateLabel')}
             <DatePicker
-              className={styles.datepicker}
               endDate={endDate}
               minDate={startDate}
               onChange={handleEndDateChange}

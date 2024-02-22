@@ -1,12 +1,14 @@
 import React, { createContext, memo, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { addReportFormProps } from '../proptypes';
-import { trackEvent } from '../utils/analytics';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { trackEvent } from '../utils/analytics';
+
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
@@ -29,11 +31,14 @@ const AddItemButton = ({
   showLabel,
   title,
   variant,
-  ...rest
+  ...restProps
 }) => {
-  const [showModal, setShowModal] = useState(false);
-  const patrolTypes = useSelector((state) => state.data.patrolTypes);
+  const { t } = useTranslation('components', { keyPrefix: 'addItemButton' });
+
   const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const [showModal, setShowModal] = useState(false);
 
   const onClick = useCallback(() => {
     setShowModal(true);
@@ -43,8 +48,6 @@ const AddItemButton = ({
       `Click 'Add Report' button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
-
-  const onHideModal = useCallback(() => setShowModal(false), []);
 
   const addItemContextValue = {
     analyticsMetadata,
@@ -56,32 +59,28 @@ const AddItemButton = ({
     patrolData,
     reportData,
   };
-
   return <AddItemContext.Provider value={addItemContextValue}>
     <DelayedUnmount isMounted={showModal}>
-      <AddItemModal {...modalProps} onHide={onHideModal} show={showModal} />
+      <AddItemModal {...modalProps} onHide={() => setShowModal(false)} show={showModal} />
     </DelayedUnmount>
-    {
-      (eventsByCategory?.length || patrolTypes?.length) ?
-          (<button className={`${styles[`addItemButton-${variant}`]} ${className}`}
-                   data-testid="addItemButton"
-                   onClick={onClick}
-                   title={title}
-                   type="button"
-                   {...rest}>
-            {iconComponent}
-            {showLabel && <label>{title}</label>}
-          </button>)
-          : null
-    }
+
+    {(eventsByCategory?.length || patrolTypes?.length) ? <button
+      className={`${styles[`addItemButton-${variant}`]} ${className}`}
+      data-testid="addItemButton"
+      onClick={onClick}
+      title={title || t('defaultTitle')}
+      type="button"
+      {...restProps}
+    >
+      {iconComponent}
+
+      {showLabel && <label>{title || t('defaultTitle')}</label>}
+    </button> : null}
   </AddItemContext.Provider>;
 };
 
 AddItemButton.defaultProps = {
-  analyticsMetadata: {
-    category: 'Feed',
-    location: null,
-  },
+  analyticsMetadata: { category: 'Feed', location: null },
   className: '',
   formProps: {
     hidePatrols: false,
@@ -99,7 +98,7 @@ AddItemButton.defaultProps = {
   patrolData: {},
   reportData: {},
   showLabel: true,
-  title: 'Add',
+  title: null,
   variant: 'primary',
 };
 

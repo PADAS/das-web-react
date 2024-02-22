@@ -1,5 +1,5 @@
 import React, { lazy, useCallback, useMemo } from 'react';
-import getYear from 'date-fns/get_year';
+import { getYear } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
