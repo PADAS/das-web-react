@@ -35,10 +35,8 @@ $contrast: 25%;
 }
 
 .rightPopover.sidebarClosed {
-  $adjustment: 13rem;
-  margin-left: -#{$adjustment};
   > [class*=arrow] {
-    margin-left: $adjustment;
+    margin-left: 13rem;
   }
 }
 
