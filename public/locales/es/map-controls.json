@@ -1,6 +1,7 @@
 {
   "analyzerLayerTitle": "Analizadores",
   "clearAllButton": "Limpiar todo",
+  "clusterMemberControl": "Todos",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Presiona enter para buscar",
     "titleIconSearch": "Buscar"

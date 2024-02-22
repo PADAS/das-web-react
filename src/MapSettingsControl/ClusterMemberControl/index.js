@@ -7,7 +7,7 @@ import { setMapClusterConfig } from '../../ducks/map-ui';
 import styles from './styles.module.scss';
 
 const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSliderActive }) => {
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation('map-controls');
 
   const configEntries = Object.entries(mapClusterConfig).filter(([key]) => key !== '_persist');
 
