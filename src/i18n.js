@@ -6,7 +6,27 @@ import HttpBackend from 'i18next-http-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
 import { SUPPORTED_LANGUAGES } from './constants';
 
-const preloadNamespaces = [ 'components', 'dates', 'details-view', 'eula', 'filters', 'heatmap', 'layers', 'login', 'map-controls', 'map-legends', 'map-popups', 'menu-drawer', 'patrols', 'reports', 'settings', 'side-bar', 'subjects', 'top-bar', 'tracks'];
+const preloadNamespaces = [
+  'components',
+  'dates',
+  'details-view',
+  'eula',
+  'filters',
+  'heatmap',
+  'layers',
+  'login',
+  'map-controls',
+  'map-popups',
+  'menu-drawer',
+  'patrols',
+  'reports',
+  'settings',
+  'subjects',
+  'top-bar',
+  'tracks',
+  'user',
+  'utils'
+];
 
 i18n
   .use(ChainedBackend)
