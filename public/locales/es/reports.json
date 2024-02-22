@@ -75,7 +75,7 @@
     "cancelationConfirmationModal": {
       "continueEditingButton": "Continuar editando",
       "discardButton": "Descartar",
-      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del reporte. Está seguro de querer descartar estos cambios?",
+      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del reporte. ¿Está seguro de querer descartar estos cambios?",
       "modalTitle": "Descartar cambios"
     },
     "footer": {
@@ -88,13 +88,13 @@
     },
     "informationModal": {
       "addingPointsHeader": "Agregar puntos",
-      "addingPointsContent": "Haz clic en cualquier parte del mapa para agregar puntos del área del reporte.",
+      "addingPointsContent": "Haga clic en cualquier parte del mapa para agregar puntos del área del reporte.",
       "addingPointsToExistingAreaHeader": "Agregar puntos a un área existente",
-      "addingPointsToExistingAreaContent": "Coloca el cursor sobre un segmento del área del reporte, luego haz clic y arrastra el nuevo punto a la ubicación deseada.",
+      "addingPointsToExistingAreaContent": "Coloque el cursor sobre un segmento del área del reporte, luego haga clic y arrastre el nuevo punto a la ubicación deseada.",
       "closingAreaHeader": "Cerrar el área",
-      "closingAreaContent": "Haz clic sobre el primer punto o presiona 'enter' para cerrar el área.",
+      "closingAreaContent": "Haga clic sobre el primer punto o presiona 'enter' para cerrar el área.",
       "deletingPointsHeader": "Borrar puntos",
-      "deletingPointsContent": "Haz clic sobre el punto que deseas borrar y presiona 'delete' o 'backspace' (retroceso) para borrarlo.",
+      "deletingPointsContent": "Haga clic sobre el punto que deseas borrar y presione 'delete' o 'backspace' (retroceso) para borrarlo.",
       "modalTitle": "Crear Área del Reporte",
       "reportAreaHeader": "Área del Reporte",
       "reportAreaContent": "Una figura cerrada con 3 o más puntos sin intersecciones. Las medidas de área y distancia son aproximaciones, no consideran cambios en terreno y elevación."
