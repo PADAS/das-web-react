@@ -29,8 +29,15 @@ const subjectsTranslationKeys = {
   subjects: 'subjectsTitle'
 };
 
-const TriggerComponent = memo((props) => { // eslint-disable-line react/display-name
-  const { listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle } = props;
+const TriggerComponent = memo(({ // eslint-disable-line react/display-name
+  listLevel,
+  name,
+  showHeatmapControl,
+  groupIsFullyHeatmapped,
+  loadingTracks,
+  groupIsPartiallyHeatmapped,
+  onGroupHeatmapToggle
+}) => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
   const translationKey = subjectsTranslationKeys[name.toLowerCase()];
   const itemTitle = !!translationKey ? t(translationKey) : name;
