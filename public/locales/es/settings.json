@@ -1,4 +1,9 @@
 {
+  "clusterMembers": {
+    "all": "Todo",
+    "reports": "Reportes",
+    "subjects": "Sujetos"
+  },
   "inactiveRadioControl": {
     "label": "Mostrar radios inactivos"
   },
@@ -20,6 +25,7 @@
   "mapTrackTimepointsControl": {
     "label": "Mostrar puntos de tiempo en trayectorias"
   },
+  "mapTerrain3DOption": "Mapa de Terreno 3D",
   "userLocationMapControl": {
     "label": "Mostrar mi ubicación actual"
   }

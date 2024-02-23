@@ -1,5 +1,4 @@
 {
-  "clusterMemberControl": "All",
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Press enter to search",
     "titleIconSearch": "Search"

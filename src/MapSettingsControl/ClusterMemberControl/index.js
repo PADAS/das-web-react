@@ -6,8 +6,13 @@ import { setMapClusterConfig } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
+const groupTranslationKeys = {
+  reports: 'reports',
+  subjects: 'subjects'
+};
+
 const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSliderActive }) => {
-  const { t } = useTranslation('map-controls');
+  const { t } = useTranslation('settings', { keyPrefix: 'clusterMembers' });
 
   const configEntries = Object.entries(mapClusterConfig).filter(([key]) => key !== '_persist');
 
@@ -46,7 +51,7 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
         onChange={toggleAll}
       />
       <span className={styles.checkboxlabel}>
-        {t('clusterMemberControl')}
+        {t('all')}
       </span>
     </label>
     <ul className={styles.subListItems}>
@@ -54,7 +59,9 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
         <li key={key}>
           <label>
             <input type='checkbox' disabled={disableAll} id={key} data-testid={`cluster-config-control-${key}`} checked={value} onChange={toggle}/>
-            <span style={{ textTransform: 'capitalize' }} className={styles.checkboxlabel}>{key}</span>
+            <span style={{ textTransform: 'capitalize' }} className={styles.checkboxlabel}>
+              { !!groupTranslationKeys[key] ? t(groupTranslationKeys[key]) : key }
+            </span>
           </label>
         </li>
     )}

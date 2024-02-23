@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
+import { useTranslation } from 'react-i18next';
 
 import CheckableList from '../CheckableList';
 import HeatmapToggleButton from '../HeatmapToggleButton';
@@ -24,11 +25,19 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
+const subjectsTranslationKeys = {
+  subjects: 'subjectsTitle'
+};
+
 const TriggerComponent = memo((props) => { // eslint-disable-line react/display-name
   const { listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle } = props;
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
+  const translationKey = subjectsTranslationKeys[name.toLowerCase()];
+  const itemTitle = !!translationKey ? t(translationKey) : name;
+
   return <div className={listStyles.trigger}>
-    {listLevel === 0 && <h5>{name}</h5>}
-    {listLevel > 0 && <h6>{name}</h6>}
+    {listLevel === 0 && <h5>{itemTitle}</h5>}
+    {listLevel > 0 && <h6>{itemTitle}</h6>}
     {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks}
       heatmapVisible={groupIsFullyHeatmapped}
       heatmapPartiallyVisible={groupIsPartiallyHeatmapped}
