@@ -78,6 +78,10 @@
 
   button {
     margin-bottom: 0.5rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   @media (min-width: $lg-layout-width-min) {

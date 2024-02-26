@@ -151,7 +151,7 @@
       "appRefreshReportFiltersLabel": "Filtros de Reportes",
       "clusterDataDescription": "Agrupar datos cuando se superpongan",
       "displayHeader": "Información mostrada",
-      "experimentalFeaturesHeader": "Funcionalidades experimentales TEST",
+      "experimentalFeaturesHeader": "Funcionalidades experimentales",
       "generalHeader": "General",
       "generalTabTitle": "General",
       "languagesHeader": "Lenguaje",
@@ -159,7 +159,7 @@
       "mapMarkersHeader": "Marcadores del mapa",
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Configuraciones"
+    "settingsLink": "Preferencias"
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
