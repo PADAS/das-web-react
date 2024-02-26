@@ -6,6 +6,10 @@ export const migrations = {
   0: (state) => {
     const { ENABLE_REPORT_NEW_UI: _removedKey, ...rest } = state;
     return rest;
+  },
+  1: (state) => {
+    const { ENABLE_PATROL_NEW_UI: _removedKey, ...rest } = state;
+    return rest;
   }
 };
 
