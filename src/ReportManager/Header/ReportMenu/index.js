@@ -20,12 +20,9 @@ import {
   getReportLink,
 } from '../../../utils/events';
 import { basePrintingStyles } from '../../../utils/styles';
-import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
+import { TAB_KEYS } from '../../../constants';
 import { fetchPatrol } from '../../../ducks/patrols';
-import { MapContext } from '../../../App';
-import { openModalForPatrol } from '../../../utils/patrols';
 import { TrackerContext } from '../../../utils/analytics';
-import { useFeatureFlag } from '../../../hooks';
 
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
@@ -34,15 +31,9 @@ import TextCopyBtn from '../../../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
-
 const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
-  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
-
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
-
-  const map = useContext(MapContext);
   const reportTracker = useContext(TrackerContext);
 
   const handlePrint = useReactToPrint({
@@ -95,13 +86,9 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     reportTracker.track(`Added ${report.is_collection ? 'Incident':'Event'} to Patrol`);
 
     dispatch(fetchEvent(savedReport.id));
-    dispatch(fetchPatrol(patrol.id)).then(({ data: { data } }) => {
+    dispatch(fetchPatrol(patrol.id)).then(() => {
       removeModal();
-      if (enableNewPatrolUI) {
-        setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
-      } else {
-        openModalForPatrol(data, map);
-      }
+      setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
     });
   };
 

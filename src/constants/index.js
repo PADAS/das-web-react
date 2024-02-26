@@ -1,6 +1,4 @@
 import { toast } from 'react-toastify';
-import es from 'date-fns/locale/es';
-import enUS from 'date-fns/locale/en-US';
 
 import * as packageJson from '../../package.json';
 import layoutVariables from '../common/styles/layout.module.scss';
@@ -13,7 +11,6 @@ export const {
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
   REACT_APP_ROUTE_PREFIX,
-  REACT_APP_GA_TRACKING_ID,
   REACT_APP_GA4_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
   REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS,
@@ -340,13 +337,11 @@ export const SUPPORTED_LANGUAGES = {
 };
 
 export const FEATURE_FLAG_LABELS = {
-  ENABLE_PATROL_NEW_UI: 'ENABLE_PATROL_NEW_UI',
   I18N_ENABLED: 'I18N_ENABLED',
   LEGACY_RT_ENABLED: 'LEGACY_RT_ENABLED',
 };
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAG_LABELS.ENABLE_PATROL_NEW_UI]: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
   [FEATURE_FLAG_LABELS.I18N_ENABLED]: process.env.REACT_APP_I18N_ENABLED === 'true',
   [FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED]: process.env.REACT_APP_LEGACY_RT_ENABLED === 'true',
 };

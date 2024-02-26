@@ -9,13 +9,6 @@ import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import { render, screen } from '../../../test-utils';
 import useNavigate from '../../../hooks/useNavigate';
 
-jest.mock('../../../constants', () => ({
-  ...jest.requireActual('../../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_PATROL_NEW_UI: true,
-  },
-}));
-
 jest.mock('../../../hooks/useNavigate', () => jest.fn());
 
 describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
