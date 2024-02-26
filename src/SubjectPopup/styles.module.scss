@@ -4,13 +4,14 @@ $background_image_url: '../common/images/icons/';
 .header {
   text-align: left;
   margin: -.7rem -.7rem 0 -.7rem;
-  padding: .7rem;
+  padding: .5rem;
   border-radius: 0.5rem 0.5rem 0 0;
   background-color: $off-black;
   color: white;
 
   > div {
     &:first-child {
+      align-items: center;
       display: flex;
       justify-content: space-between;
     }
@@ -58,8 +59,8 @@ $background_image_url: '../common/images/icons/';
 .addReport {
   display: inline;
   align-items: end;
-  padding: 0.4rem 0 0 0;
-  height: 1.5rem;
+  padding: 0.3rem 0 0 0;
+  height: 1.75rem;
   width: 1.75rem;
 
   svg {
@@ -179,7 +180,7 @@ $background_image_url: '../common/images/icons/';
 .controls {
   flex-wrap: wrap;
   > * {
-    width: 45%;
-    margin: 0 0.25rem 0.25rem;
+    width: 48%;
+    margin: 0 0.1rem 0.25rem;
   }
 }

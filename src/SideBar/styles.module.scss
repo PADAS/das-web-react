@@ -68,6 +68,11 @@
     text-decoration: none;
     width: 100%;
 
+    &.active {
+      background-color: rgba(255, 255, 255, 0.1);
+      opacity: 1;
+    }
+
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
       opacity: 1;

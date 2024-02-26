@@ -39,7 +39,7 @@
       "clientVersion": "Versión del cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
       "dataPrivacyPolicyLink": "Política de Privacidad de datos",
-      "eulaLink": "EULA",
+      "eulaLink": "Acuerdo de Licencia de Usuario Final",
       "serverVersion": "Versión del servidor: {{version}}",
       "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
     },

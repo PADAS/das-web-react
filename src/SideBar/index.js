@@ -125,25 +125,43 @@ const SideBar = () => {
 
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={TAB_KEYS.REPORTS}>
+      <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.REPORTS ? styles.active : ''}`}
+        to={TAB_KEYS.REPORTS}
+      >
         <DocumentIcon />
+
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+
         <NewEventNotifier />
+
         <span>{t('reportsLink')}</span>
       </Link>
 
-      {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
+      {showPatrols && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.PATROLS ? styles.active : ''}`}
+        to={TAB_KEYS.PATROLS}
+      >
         <PatrolIcon />
+
         <span>{t('patrolsLink')}</span>
       </Link>}
 
-      <Link className={styles.navItem} to={TAB_KEYS.LAYERS}>
+      <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
+        to={TAB_KEYS.LAYERS}
+      >
         <LayersIcon />
+
         <span>{t('layersLink')}</span>
       </Link>
 
-      <Link className={styles.navItem} to={TAB_KEYS.SETTINGS}>
+      <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
+        to={TAB_KEYS.SETTINGS}
+      >
         <GearIcon />
+
         <span>{t('settingsLink')}</span>
       </Link>
     </div>
