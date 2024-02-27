@@ -1,5 +1,21 @@
 @import "../../common/styles/vars/colors";
 
+.tabs {
+  border: 0;
+  background-color: $light-gray;
+
+  button[role=tab] {
+    border: 0;
+    border-bottom: 3px solid $light-gray;
+    color: $secondary-medium-gray;
+
+    &[class*=active] {
+      border-bottom: 3px solid $bright-blue;
+      color: $bright-blue;
+    }
+  }
+}
+
 .tab {
   padding: 1rem 1.5rem;
 
