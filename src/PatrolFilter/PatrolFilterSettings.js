@@ -32,12 +32,12 @@ const PatrolFilterSettings = (props) => {
     patrolFilterTracker.track(`Select "${e.target.value === 'start_dates' ? 'Filter by start date' : 'Filter by date range overlap'}"`);
   }, [handleFilterOptionChange]);
 
-  return <div className={styles.filterSelection}>
+  return <div>
     <form>
       <fieldset>
         <div>
           <OverlayTrigger placement="top" overlay={startInfo} delay={{ show: 1000 }}>
-            <span>
+            <span className={styles.settingsInputContainer}>
               <input
                 type="radio"
                 id="start_dates"
@@ -53,7 +53,7 @@ const PatrolFilterSettings = (props) => {
         </div>
         <div>
           <OverlayTrigger placement="top" overlay={overlapInfo} delay={{ show: 1000 }}>
-            <span>
+            <span className={styles.settingsInputContainer}>
               <input
                 type="radio"
                 id="overlap_dates"

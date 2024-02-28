@@ -89,7 +89,7 @@
   "priorityPicker": {
     "amber": "Ambar",
     "green": "Verde",
-    "none": "Ninguna",
+    "none": "N/A",
     "red": "Roja"
   },
   "reportedBySelect": {

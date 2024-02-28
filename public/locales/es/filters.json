@@ -71,6 +71,7 @@
       "trackedByLabel": "Rastreado por",
       "statusLabel": "Estado",
       "patrolTypeLabel": "Tipo de patrullaje",
+      "reportedByPlaceholder": "Reportado por...",
       "patrolStatuses": {
         "active": "Activo",
         "done": "Finalizado",
@@ -84,7 +85,6 @@
     "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
     "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
   },
-  "reportedByPlaceholder": "Reportado por...",
   "reportTypeMultiSelect": {
     "placeholder": "Buscar tipos",
     "noResultsLabel": "Sin resultados",

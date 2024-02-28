@@ -112,9 +112,7 @@
 .description {
   font-size: 0.75rem;
   text-align: right;
-  margin-left: auto;
-  margin-right: 0.5rem;
-  padding-left: 1em;
+  margin-left: 0.5rem;
   
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
@@ -153,7 +151,7 @@
   border-radius: 4px;
   color: $secondary-medium-gray;
   font-weight: 700;
-  margin: 0 0.5rem;
+  margin-left: 0.5rem;
 
   @media print {
     display: none !important;
@@ -208,6 +206,7 @@
 }
 
 .patrolMenu {
+  margin-left: 0.5rem;
   min-width: 2.25rem;
 }
 
