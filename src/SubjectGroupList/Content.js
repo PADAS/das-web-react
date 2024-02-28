@@ -25,10 +25,6 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const subjectsTranslationKeys = {
-  subjects: 'subjectsTitle'
-};
-
 const TriggerComponent = memo(({ // eslint-disable-line react/display-name
   listLevel,
   name,
@@ -39,8 +35,7 @@ const TriggerComponent = memo(({ // eslint-disable-line react/display-name
   onGroupHeatmapToggle
 }) => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
-  const translationKey = subjectsTranslationKeys[name.toLowerCase()];
-  const itemTitle = !!translationKey ? t(translationKey) : name;
+  const itemTitle = name === 'Subjects' ? t('subjectsTitle') : name;
 
   return <div className={listStyles.trigger}>
     {listLevel === 0 && <h5>{itemTitle}</h5>}
