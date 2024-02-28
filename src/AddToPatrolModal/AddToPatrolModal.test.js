@@ -12,8 +12,8 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import mockPatrolData from '../__test-helpers/fixtures/patrols';
 import mockPatrolTypeData from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import AddtoPatrolModal from './';
@@ -46,23 +46,23 @@ const onAddToPatrol = jest.fn();
 
 const store = mockStore({ ...defaultStoreValue });
 
-test('rendering without crashing', () => {
-  render(<Provider store={store}>
+const renderAddToPatrolModal = (storeOverride  = store, testModalId) => render(
+  <Provider store={storeOverride}>
     <SocketProvider>
-      <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />
+      <AddtoPatrolModal onAddToPatrol={onAddToPatrol} id={testModalId} />
     </SocketProvider>
-  </Provider>);
+  </Provider>
+);
+
+test('rendering without crashing', () => {
+  renderAddToPatrolModal();
 });
 
 describe('the "add to patrol" modal within a report form', () => {
   test('fetching patrols and updating the patrol store on render', async () => {
     const storeUpdateSpy = jest.spyOn(patrolDuckExports, 'updatePatrolStore');
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     await waitFor(() => {
       expect(storeUpdateSpy).toHaveBeenCalledWith(mockPatrolApiResponse);
@@ -83,21 +83,13 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     await screen.findByTestId('patrol-feed-container');
   });
 
   test('showing a loading overlay initially', async () => {
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     await screen.findByTestId('patrol-feed-loading-overlay');
   });
@@ -115,11 +107,7 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     await screen.findByTestId('patrol-feed-container');
 
@@ -136,11 +124,7 @@ describe('the "add to patrol" modal within a report form', () => {
       })
     );
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal();
 
     const container = await screen.findByTestId('patrol-feed-container');
 
@@ -160,11 +144,7 @@ describe('the "add to patrol" modal within a report form', () => {
       }
       ));
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(store);
 
     expect(onAddToPatrol).not.toHaveBeenCalled();
 
@@ -180,11 +160,7 @@ describe('the "add to patrol" modal within a report form', () => {
 
     const removeModalSpy = jest.spyOn(modalDuckExports, 'removeModal');
 
-    render(<Provider store={store}>
-      <SocketProvider>
-        <AddtoPatrolModal id={TEST_MODAL_ID} onAddToPatrol={onAddToPatrol}/>
-      </SocketProvider>
-    </Provider>);
+    renderAddToPatrolModal(undefined, TEST_MODAL_ID);
 
     const cancelBtn = await screen.findByTestId('close-modal-button');
     userEvent.click(cancelBtn);

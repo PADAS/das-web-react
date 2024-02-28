@@ -2,7 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import bbox from '@turf/bbox';
 import { lineString } from '@turf/helpers';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
@@ -21,6 +20,7 @@ import { UPDATE_PATROL_TRACK_STATE, updatePatrol } from '../ducks/patrols';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
+import { render, screen } from '../test-utils';
 
 import PatrolListItem from './';
 
@@ -84,19 +84,16 @@ const initialProps = {
 
 const getPatrolListItemComponent = ({ onClick, onPatrolSelfManagedStateChange, patrol, map, showStateTitle, showTitleDetails, ...otherProps }, storeObject = store) => (
   <Provider store={storeObject}>
-    <NavigationWrapper>
-      <MapContext.Provider value={map}>
-        <PatrolListItem
-          onClick={onClick}
-          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-          patrol={patrol}
-          map={map}
-          showStateTitle={showStateTitle}
-          showTitleDetails={showTitleDetails}
-          {...otherProps}
-        />
-      </MapContext.Provider>
-    </NavigationWrapper>
+    <MapContext.Provider value={map}>
+      <PatrolListItem
+              onClick={onClick}
+              onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+              patrol={patrol}
+              map={map}
+              showStateTitle={showStateTitle}
+              showTitleDetails={showTitleDetails}
+              {...otherProps} />
+    </MapContext.Provider>
   </Provider>
 );
 

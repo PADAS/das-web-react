@@ -8,7 +8,7 @@ import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection
 import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols, addDefaultStatusValue, subjectIsStatic } from '../utils/subjects';
 
 const getMapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
-const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
+const hiddenSubjectIDs = ({ data: { mapLayerFilter: { hiddenSubjectIDs } } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;

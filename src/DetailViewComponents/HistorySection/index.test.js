@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { TrackerContext } from '../../utils/analytics';
+import { render, screen, within } from '../../test-utils';
 
 import HistorySection from './';
 

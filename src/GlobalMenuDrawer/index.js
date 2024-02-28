@@ -1,7 +1,13 @@
-import React, { lazy, useCallback, useEffect, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
-import getYear from 'date-fns/get_year';
-import PropTypes from 'prop-types';
+import React, { lazy, useCallback, useMemo } from 'react';
+import { getYear } from 'date-fns';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
+import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -16,25 +22,22 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  SYSTEM_CONFIG_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
+  SYSTEM_CONFIG_FLAGS,
   TAB_KEYS,
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { useSystemConfigFlag, useMatchMedia, usePermissions } from '../hooks';
+import {
+  JIRA_IFRAME_HELP_BUTTON_SELECTOR,
+  JIRA_WIDGET_IFRAME_SELECTOR,
+  selectSupportFormFieldByLabelText,
+} from '../JiraSupportWidget';
+import { useMatchMedia, usePermissions, useSystemConfigFlag } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
-
-import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
-import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
-import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
-import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
-import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
-
-import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
 
 import styles from './styles.module.scss';
 
@@ -48,82 +51,77 @@ const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
 export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
+export const DATA_PRIVACY_POLICY_URL = 'https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf';
+export const EULA_URL = 'https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf';
 export const HELP_CENTER_SITE_URL = 'https://support.earthranger.com/';
 export const USERS_GUIDE_SITE_URL = 'https://community.earthranger.com/t/earthranger-users-guide/60';
+export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
 
-const GlobalMenuDrawer = ({
-  addModal,
-  alertsEnabled,
-  eventFilter,
-  eventTypes,
-  fetchTableauDashboard,
-  hideDrawer,
-  serverData,
-  tableauEnabled,
-  token,
-  selectedUserProfile,
-  user,
-}) => {
+const GlobalMenuDrawer = () => {
   const dailyReportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.KML_EXPORT);
   const patrolFlagEnabled = useSystemConfigFlag(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT);
 
-  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
-  const navigate = useNavigate();
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const [modals, setModals] = useState([]);
+  const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
+  const eventFilter = useSelector((state) => state.data.eventFilter);
+  const eventTypes = useSelector((state) => state.data.eventTypes);
+  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
+  const serverData = useSelector((state) => state.data.systemStatus.server);
+  const tableauEnabled = useSelector((state) => state.view.systemConfig.tableau_enabled);
+  const token = useSelector((state) => state.data.token);
+  const user = useSelector((state) => state.data.user);
 
-  const showPatrols = useMemo(
-    () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
-    [hasPatrolViewPermissions, patrolFlagEnabled]
-  );
-
-  useEffect(() => {
-    setModals([
-      ...(dailyReportEnabled ? [{
-        title: 'Daily Report',
-        content: DailyReportModal,
-        modalProps: { className: 'daily-report-modal' },
-      }] : []),
-      {
-        title: 'Field Reports',
-        content: DataExportModal,
-        url: 'activity/events/export',
-        paramString: calcEventFilterForRequest(),
-        children: <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div>
-      },
-      ...(kmlExportEnabled ? [{
-        title: 'Master KML',
-        content: KMLExportModal,
-        url: 'subjects/kml/root',
-        modalProps: { className: 'kml-export-modal' },
-      }] : []),
-      {
-        title: 'Subject Information',
-        content: DataExportModal,
-        url: 'trackingmetadata/export',
-      },
-      {
-        title: 'Subject Reports',
-        content: DataExportModal,
-        url: 'trackingdata/export',
-      },
-    ]);
-  }, [dailyReportEnabled, eventFilter, eventTypes,  kmlExportEnabled]);
+  const modals = useMemo(() => [
+    ...(dailyReportEnabled ? [{
+      title: t('dailyReportModal.title'),
+      content: DailyReportModal,
+      modalProps: { className: 'daily-report-modal' },
+    }] : []),
+    {
+      title: t('fieldReportsModal.title'),
+      content: DataExportModal,
+      url: 'activity/events/export',
+      paramString: calcEventFilterForRequest(),
+      children: <div>{t('fieldReportsModal.content')}</div>
+    },
+    ...(kmlExportEnabled ? [{
+      title: t('masterKMLModal.title'),
+      content: KMLExportModal,
+      url: 'subjects/kml/root',
+      modalProps: { className: 'kml-export-modal' },
+    }] : []),
+    {
+      title: t('subjectInformationModal.title'),
+      content: DataExportModal,
+      url: 'trackingmetadata/export',
+    },
+    {
+      title: t('subjectReportsModal.title'),
+      content: DataExportModal,
+      url: 'trackingdata/export',
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [dailyReportEnabled, eventFilter, eventTypes, kmlExportEnabled, t]);
+  const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
   const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
 
-    addModal({ ...modal });
-  }, [addModal]);
+    dispatch(addModal({ ...modal }));
+  }, [dispatch]);
 
   const openTableauReport = () => {
     tableuAnalysisTracker.track('Click Analysis (via Tableau) menu item');
 
-    fetchTableauDashboard()
+    dispatch(fetchTableauDashboard())
       .then(({ display_url }) => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
@@ -150,7 +148,7 @@ const GlobalMenuDrawer = ({
       }
     } else {
       window.open(
-        `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
+        `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=${t('contactSupport.subject')}&body=${t('contactSupport.body')}`,
         '_self'
       );
     }
@@ -160,49 +158,55 @@ const GlobalMenuDrawer = ({
     mainToolbarTracker.track('Click \'Help Center\' menu item');
 
     const newWindow = window.open(HELP_CENTER_SITE_URL, '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null;
+    if (newWindow) {
+      newWindow.opener = null;
+    }
   };
 
   const onCommunityClick = () => {
     mainToolbarTracker.track('Click \'Community\' menu item');
 
     const newWindow = window.open(COMMUNITY_SITE_URL, '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null;
+    if (newWindow) {
+      newWindow.opener = null;
+    }
   };
 
   const onUsersGuideClick = () => {
     mainToolbarTracker.track('Click \'Users Guide\' menu item');
 
     const newWindow = window.open(USERS_GUIDE_SITE_URL, '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null;
+    if (newWindow) {
+      newWindow.opener = null;
+    }
   };
 
   const onOpenAlertsModalClick = useCallback(() => {
-    const alertModal = {
-      title: 'Alerts',
-      content: AlertsModal,
-      modalProps: { className: 'alerts-modal' },
-    };
-
     document.cookie = `token=${token.access_token};path=/`;
 
-    onModalClick(alertModal, ALERTS_CATEGORY);
-  }, [onModalClick, token.access_token]);
+    onModalClick({
+      title: t('alertsModal.title'),
+      content: AlertsModal,
+      modalProps: { className: 'alerts-modal' },
+    }, ALERTS_CATEGORY);
+  }, [onModalClick, t, token.access_token]);
 
   const onNavigationItemClick = useCallback((navigationItem) => () => {
-    hideDrawer();
+    dispatch(hideDrawer());
 
     navigate(`/${navigationItem.sidebarTab}`);
-  }, [hideDrawer, navigate]);
+  }, [dispatch, navigate]);
 
-  const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
+  const onClose = useCallback(() => dispatch(hideDrawer()), [dispatch]);
 
   const navigationItems = useMemo(() => [
-    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
-    ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
-    { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: 'Map Layers' },
-    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: 'Settings' },
-  ], [showPatrols]);
+    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: t('navigationButton.reports') },
+    ...(showPatrols
+      ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
+      : []),
+    { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') },
+    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
+  ], [showPatrols, t]);
 
   return <div className={styles.globalMenuDrawer} data-testid="globalMenuDrawer">
     <div className={styles.header}>
@@ -226,16 +230,16 @@ const GlobalMenuDrawer = ({
 
     <div className={styles.content}>
       <div className={styles.section}>
-        {!!tableauEnabled && <button onClick={() => openTableauReport()}>Tableau</button>}
-        {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick}>Alerts</button>}
-        <button onClick={onContactSupportClick}>Contact Support</button>
-        <button onClick={onHelpCenterClick}>Help Center</button>
-        <button onClick={onCommunityClick}>Community</button>
-        <button onClick={onUsersGuideClick}>User&apos;s Guide</button>
+        {!!tableauEnabled && <button onClick={() => openTableauReport()}>{t('tableauButton')}</button>}
+        {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick}>{t('alertsButton')}</button>}
+        <button onClick={onContactSupportClick}>{t('contactSupportButton')}</button>
+        <button onClick={onHelpCenterClick}>{t('helpCenterButton')}</button>
+        <button onClick={onCommunityClick}>{t('communityButton')}</button>
+        <button onClick={onUsersGuideClick}>{t('usersGuideButton')}</button>
       </div>
 
       <div className={styles.section}>
-        <h6>EXPORTS</h6>
+        <h6>{t('exportsHeader')}</h6>
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
       </div>
@@ -243,58 +247,42 @@ const GlobalMenuDrawer = ({
 
     <div className={styles.footer}>
       <p className={styles.releaseVersions}>
-        Server version: {serverData.version}
+        {t('footer.serverVersion', { version: serverData.version })}
         <br />
-        Web client version: {CLIENT_BUILD_VERSION}
+        {t('footer.clientVersion', { version: CLIENT_BUILD_VERSION })}
         <br />
-        &copy;{getYear(new Date())} EarthRanger
+        {t('footer.copyright', { year: getYear(new Date()) })}
       </p>
 
       <ul className={styles.policies}>
         <li>
-          <a data-testid='eula-link' rel="noreferrer" href="https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf" target="_blank">EULA</a>
+          <a data-testid="eula-link" href={EULA_URL} rel="noreferrer" target="_blank">{t('footer.eulaLink')}</a>
         </li>
 
         <li>
-          <a data-testid='terms-and-conditions-link' rel="noreferrer" href="https://allenai.org/terms" target="_blank">Terms & Conditions</a>
+          <a
+            data-testid="website-privacy-policy"
+            href={WEBSITE_PRIVACY_POLICY_URL}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t('footer.websitePrivacyPolicyLink')}
+          </a>
         </li>
 
         <li>
-          <a data-testid='website-privacy-policy' rel="noreferrer" href="https://www.earthranger.com/privacy-policy" target="_blank">Website Privacy Policy</a>
-        </li>
-
-        <li>
-          <a data-testid='data-privacy-policy' rel="noreferrer" href="https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf" target="_blank">Data Privacy Policy</a>
+          <a
+            data-testid="data-privacy-policy"
+            href={DATA_PRIVACY_POLICY_URL}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {t('footer.dataPrivacyPolicyLink')}
+          </a>
         </li>
       </ul>
     </div>
   </div>;
 };
 
-GlobalMenuDrawer.propTypes = {
-  addModal: PropTypes.func.isRequired,
-  alertsEnabled: PropTypes.bool.isRequired,
-  eventFilter: PropTypes.object.isRequired,
-  eventTypes: PropTypes.array.isRequired,
-  fetchTableauDashboard: PropTypes.func.isRequired,
-  hideDrawer: PropTypes.func.isRequired,
-  serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
-  tableauEnabled: PropTypes.bool.isRequired,
-  token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
-};
-
-const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
-  alertsEnabled: systemConfig.alerts_enabled,
-  eventFilter,
-  eventTypes,
-  selectedUserProfile,
-  serverData: systemStatus.server,
-  tableauEnabled: systemConfig.tableau_enabled,
-  token,
-  user,
-});
-
-export default connect(
-  mapStateToProps,
-  { addModal, fetchTableauDashboard, hideDrawer }
-)(GlobalMenuDrawer);
+export default GlobalMenuDrawer;

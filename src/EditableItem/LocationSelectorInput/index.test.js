@@ -1,5 +1,4 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -13,6 +12,7 @@ import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { setModalVisibilityState } from '../../ducks/modals';
 import { setIsPickingLocation } from '../../ducks/map-ui';
+import { cleanup, render, screen, waitFor } from '../../test-utils';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -59,17 +59,15 @@ describe('LocationSelectorInput', () => {
 
     const output = render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <LocationSelectorInput
                 label="label"
                 map={map}
                 onLocationChange={onLocationChange}
               />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </Provider>
     );
 
@@ -168,18 +166,16 @@ describe('LocationSelectorInput', () => {
     });
 
     rerender(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <LocationSelectorInput
             label="label"
             location={[10, 10]}
             map={map}
             onLocationChange={onLocationChange}
           />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     await waitFor(() => {
@@ -211,13 +207,11 @@ describe('LocationSelectorInput', () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
       </Provider>
     );
 

@@ -1,97 +1,107 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { trimmedHeatmapTrackData } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';
 
-import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
-
 import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const TitleElement = memo((props) => { // eslint-disable-line
-  const { displayTitle, iconSrc, subjectCount, trackData, onRemoveTrackClick } = props;
+const TitleElement = ({ displayTitle, iconSrc, onRemoveTrackClick, subjectCount, trackData }) => {
+  const { t } = useTranslation('heatmap', { keyPrefix: 'subjectHeatmapLegend.titleElement' });
+
   const convertTrackToSubjectDetailListItem = ({ track }) => {
     const { properties: { title, image, id }, geometry } = track.features[0];
+    const pointCount = geometry ? geometry.coordinates.length : 0;
 
     return <li key={id}>
-      <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
+      <img alt={`Icon for ${title}`} className={styles.icon} src={image} />
+
       <div>
         <span>{title}</span>
-        <small>{geometry ? geometry.coordinates.length : 0} points</small>
+
+        <small>{t('pointCount', { count: pointCount })}</small>
       </div>
-      <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
+
+      <Button onClick={onRemoveTrackClick} value={id} variant="secondary">{t('remove')}</Button>
     </li>;
   };
+
   return <h6>
     {displayTitle}
-    {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
+
+    {iconSrc && <img alt={`Icon for ${displayTitle}`} className={styles.icon} src={iconSrc} />}
+
     {subjectCount > 1 && <OverlayTrigger
+      onEntered={() => mapInteractionTracker.track('Show Heatmap Legend Subject List')}
       onExited={() => mapInteractionTracker.track('Close Heatmap Legend Subject List')}
-      onEntered={() => mapInteractionTracker.track('Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
-        <Popover className={styles.popover} id="track-details">
-          <ul>
-            {trackData.map(convertTrackToSubjectDetailListItem)}
-          </ul>
-        </Popover>
-      }>
+      overlay={<Popover className={styles.popover} id="track-details">
+        <ul>{trackData.map(convertTrackToSubjectDetailListItem)}</ul>
+      </Popover>}
+      placement="right"
+      rootClose
+      trigger="click"
+    >
       <button type="button" className={styles.infoButton}>
         <InfoIcon className={styles.infoIcon} />
       </button>
     </OverlayTrigger>}
   </h6>;
-});
+};
 
-const SubjectHeatmapLegend = ({ trackData, trackLength: { length: track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
+const SubjectHeatmapLegend = ({ onClose }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('heatmap', { keyPrefix: 'subjectHeatmapLegend' });
+
+  const heatmapSubjectIDs = useSelector((state) => state.view.heatmapSubjectIDs);
+  const trackData = useSelector(trimmedHeatmapTrackData);
+  const trackLength = useSelector((state) => state.view.trackLength);
+
   const subjectCount = trackData.length;
   const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
-  let displayTitle, iconSrc;
 
+  let displayTitle, iconSrc;
   if (subjectCount === 1) {
     const { title, image } = trackData[0].track.features[0].properties;
     displayTitle = `${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `${subjectCount} subjects`;
+    displayTitle = t('subjectCount', { count: subjectCount });
   }
 
-  const onRemoveTrackClick = ({ target: { value: id } }) => {
+  const onRemoveTrackClick = (event) => {
+    dispatch(updateHeatmapSubjects(heatmapSubjectIDs.filter((item) => item !== event.target.value)));
+
     mapInteractionTracker.track('Remove Subject Tracks Via Heatmap Legend Popover');
-    updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
   };
 
   return <HeatmapLegend
-    title={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} subjectCount={subjectCount} trackData={trackData} onRemoveTrackClick={onRemoveTrackClick} />}
+    dayCount={trackLength.length}
+    onClose={onClose}
     pointCount={trackPointCount}
-    dayCount={track_days}
-    onClose={onClose} />;
+    title={<TitleElement
+      displayTitle={displayTitle}
+      iconSrc={iconSrc}
+      onRemoveTrackClick={onRemoveTrackClick}
+      subjectCount={subjectCount}
+      trackData={trackData}
+    />}
+  />;
 };
-
-const mapStateToProps = (state) => ({
-  trackData: trimmedHeatmapTrackData(state),
-  trackLength: state.view.trackLength,
-  heatmapSubjectIDs: state.view.heatmapSubjectIDs,
-});
-
-export default connect(mapStateToProps, { updateHeatmapSubjects })(memo(SubjectHeatmapLegend));
-
-/* HEATMAP
-  
-title
-point count
-onClose
-
-*/
-
 
 SubjectHeatmapLegend.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
+
+export default memo(SubjectHeatmapLegend);

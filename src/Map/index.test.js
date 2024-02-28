@@ -116,6 +116,7 @@ describe('Map', () => {
         featureSets: { data: [] },
         feedEvents: {},
         mapEvents: { events: [] },
+        mapLayerFilter: {},
         maps: [{
           center: [-103.5, 20.6],
           id: '87cb0294-4fe1-4a9e-8c04-dada5d1391be',
@@ -186,15 +187,20 @@ describe('Map', () => {
     map.__test__.fireHandlers('moveend');
 
     const actions = mockStoreInstance.getActions();
-    expect(actions).toEqual([
-      {
-        type: 'SET_MAP_POSITION',
-        payload: {
-          bounds: map.getBounds(),
-          zoom: parseFloat(map.getZoom().toFixed(2)),
+    await waitFor(() => {
+
+      expect(actions).toEqual([
+        {
+          type: 'SET_MAP_POSITION',
+          payload: {
+            bearing: 0,
+            center: map.getCenter(),
+            pitch: 0,
+            zoom: parseFloat(map.getZoom().toFixed(2)),
+          }
         }
-      }
-    ]);
+      ]);
+    });
 
   });
 

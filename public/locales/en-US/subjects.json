@@ -1,0 +1,28 @@
+{
+  "subjectControls": {
+    "historicalDataModalTitle": "Historical Data: {{subjectName}}"
+  },
+  "subjectHistoricalDataModal": {
+    "observationRow": {
+      "noDataLabel": "No data"
+    },
+    "tableDateHeader": "Date",
+    "tableLocationHeader": "Location"
+  },
+  "subjectHistoryButton": {
+    "label": "Historical Data"
+  },
+  "subjectMessagesPopover": {
+    "label": "Messaging"
+  },
+  "subjectPopup": {
+    "additionalPropsButton": {
+      "fewer": "< fewer details",
+      "more": "more details >"
+    },
+    "dateTimeSuffix": "ago",
+    "micActivityHeader": "Mic activity",
+    "noHistoricalDataSpan": "No historical data",
+    "subjectIconAlt": "Subject icon for {{name}}"
+  }
+}

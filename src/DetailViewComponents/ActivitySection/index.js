@@ -1,6 +1,7 @@
 import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
 
@@ -36,6 +37,7 @@ const ActivitySection = ({
   startTime,
 }, ref) => {
   const tracker = useContext(TrackerContext);
+  const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
 
   const [cardsExpanded, setCardsExpanded] = useState([]);
 
@@ -98,20 +100,20 @@ const ActivitySection = ({
     const now = new Date();
     if (startTime && isGreaterThan(now, startTime)){
       dates.push({
-        node: <DateListItem date={startTime} key="startTime" title="Started" />,
+        node: <DateListItem date={startTime} key="startTime" title={t('dateItemStartTitle')} />,
         sortDate: new Date(startTime),
       });
     }
 
     if (endTime && !isGreaterThan(endTime, now)){
       dates.push({
-        node: <DateListItem date={endTime} key="endTime" title="Ended" />,
+        node: <DateListItem date={endTime} key="endTime" title={t('dateItemEndedTitle')} />,
         sortDate: new Date(endTime),
       });
     }
 
     return dates;
-  }, [endTime, startTime]);
+  }, [endTime, startTime, t]);
 
   const notesRendered = useMemo(() => notes.map((note) => ({
     sortDate: new Date(note.updated_at || note.created_at || note.updates[0].time),
@@ -195,11 +197,11 @@ const ActivitySection = ({
       <div className={styles.title}>
         <BulletListIcon />
 
-        <h2>Activity</h2>
+        <h2>{t('sectionTitle')}</h2>
       </div>
 
       {sortableList.length > 0 && <div className={styles.actions}>
-        <label>Time</label>
+        <label>{t('timeLabel')}</label>
 
         <SortButton />
 
@@ -210,7 +212,7 @@ const ActivitySection = ({
           type="button"
           variant="secondary"
         >
-          {areAllItemsExpanded ? 'Collapse All' : 'Expand All'}
+          {t(areAllItemsExpanded ? 'collapseAllButton' : 'expandAllButton')}
         </Button>
       </div>}
     </div>

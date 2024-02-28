@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DateTimeWidget, ExternalLinkField } from './';
+import { render, screen, within } from '../test-utils';
 
 describe('the ExternalLinkField field',  () => {
   beforeEach(() => {

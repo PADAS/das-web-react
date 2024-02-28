@@ -1,28 +1,29 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { toggleDisplayUserLocation } from '../ducks/map-ui';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const UserLocationMapControl = (props) => {
+const UserLocationMapControl = () => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('settings', { keyPrefix: 'userLocationMapControl' });
 
-  const { showUserLocation, toggleDisplayUserLocation } = props;
+  const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
   const handleChange = () => {
-    toggleDisplayUserLocation();
+    dispatch(toggleDisplayUserLocation());
 
     mapInteractionTracker.track(`${showUserLocation? 'Uncheck' : 'Check'} 'Show My Current Location' checkbox`);
   };
 
   return <label>
-    <input type='checkbox' id='mapname' name='mapname' checked={showUserLocation} onChange={handleChange}/>
-    <span style={{ paddingLeft: '.4rem' }}>Show My Current Location</span>
+    <input checked={showUserLocation} id="mapname" name="mapname" onChange={handleChange} type="checkbox" />
+
+    <span style={{ paddingLeft: '.4rem' }}>{t('label')}</span>
   </label>;
 };
 
-const mapStateToProps = ( { view: { showUserLocation } } ) => ({
-  showUserLocation,
-});
-
-export default connect(mapStateToProps, { toggleDisplayUserLocation })(memo(UserLocationMapControl));
+export default memo(UserLocationMapControl);

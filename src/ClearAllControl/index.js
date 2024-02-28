@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import { updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import { hideSubjects, displayReportsOnMapState } from '../ducks/map-layer-filter';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor, within } from '@testing-library/react';
 import store from '../store';
 import userEvent from '@testing-library/user-event';
 
@@ -10,6 +9,7 @@ import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter
 import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
+import { render, screen, waitFor, within } from '../test-utils';
 
 const feedSort = DEFAULT_EVENT_SORT;
 const resetMock = jest.fn();
@@ -193,7 +193,7 @@ describe('After filters being applied', () => {
     const mockedStore = mockStore(initialState);
     await assertResolvedOptionBtn(mockedStore);
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
-    const searchBar = await screen.getByPlaceholderText('Search Reports...');
+    const searchBar = await screen.getAllByTestId('search-input')[0];
     const searchValue = 'Chimpanzee';
     userEvent.type(searchBar, searchValue);
     jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);

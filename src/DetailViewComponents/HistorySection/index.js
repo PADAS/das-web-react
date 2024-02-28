@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
 
@@ -14,6 +15,7 @@ const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
 const HistorySection = ({ className, updates }) => {
   const tracker = useContext(TrackerContext);
+  const { t } = useTranslation('details-view', { keyPrefix: 'historySection' });
 
   const updatesRendered = useMemo(() => updates.reduce((accumulator, update) => {
     if (!FILTERED_UPDATE_MESSAGES.includes(update.message)) {
@@ -42,11 +44,11 @@ const HistorySection = ({ className, updates }) => {
       <div className={styles.title}>
         <HistoryIcon />
 
-        <h2>History</h2>
+        <h2>{t('sectionTitle')}</h2>
       </div>
 
       <div className={styles.actions}>
-        <label>Time</label>
+        <label>{t('timeLabel')}</label>
 
         <SortButton />
       </div>

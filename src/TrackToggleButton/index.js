@@ -1,50 +1,49 @@
-import React, { forwardRef, memo, useMemo } from 'react';
-import noop from 'lodash/noop';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
 import SubjectControlButton from '../SubjectControls/button';
 
-const TrackToggleButton = (props, ref) => {
-  const { className = '', trackVisible, trackPinned, showTransparentIcon, ...rest } = props;
-  const containerClasses = useMemo(() => {
-    let string = styles.container;
+import styles from './styles.module.scss';
 
-    if (trackPinned) string+= ' pinned';
-    if (!trackPinned && trackVisible) string+= ' visible';
+const TrackToggleButton = ({ className, trackVisible, trackPinned, showTransparentIcon, ...restProps }, ref) => {
+  const { t } = useTranslation('patrols', { keyPrefix: 'trackToggleButton' });
 
-    return string;
-  }, [trackPinned, trackVisible]);
+  let containerClasses = styles.container;
+  if (trackPinned) {
+    containerClasses += ' pinned';
+  } else if (trackVisible) {
+    containerClasses += ' visible';
+  }
 
-  const buttonClasses = useMemo(() => {
-    const buttonClass = styles.button;
-    const defaultIcon = showTransparentIcon ? `${buttonClass} ${styles.defaultTransparent}` : `${buttonClass} ${styles.default}`;
-    let string = `${defaultIcon} ${className}`;
-    if (trackPinned) string+= ` ${styles.pinned}`;
-    if (!trackPinned && trackVisible) string+= ` ${styles.visible}`;
+  let buttonClasses = `${styles.button} ${showTransparentIcon ? styles.defaultTransparent : styles.default} ${className}`;
+  if (trackPinned) {
+    buttonClasses += ` ${styles.pinned}`;
+  } else if (trackVisible) {
+    buttonClasses += ` ${styles.visible}`;
+  }
 
-    return string;
-  }, [className, showTransparentIcon, trackPinned, trackVisible]);
-
-  const labelText = (trackPinned && 'Tracks pinned') || (trackVisible && 'Tracks on') || 'Tracks off';
-
-  return <SubjectControlButton ref={ref} buttonClassName={buttonClasses} containerClassName={containerClasses} labelText={labelText} {...rest} />;
+  return <SubjectControlButton
+    buttonClassName={buttonClasses}
+    containerClassName={containerClasses}
+    labelText={t((trackPinned && 'tracksPinned') || (trackVisible && 'tracksOn') || 'tracksOff')}
+    ref={ref}
+    {...restProps}
+  />;
 };
 
-export default memo(forwardRef(TrackToggleButton));
+const TrackToggleButtonForwardRef = forwardRef(TrackToggleButton);
 
-TrackToggleButton.defaultProps = {
-  onClick: noop,
-  showLabel: true,
-  loading: false,
+TrackToggleButtonForwardRef.defaultProps = {
+  className: '',
   showTransparentIcon: false,
 };
 
-TrackToggleButton.propTypes = {
-  trackVisible: PropTypes.bool.isRequired,
-  trackPinned: PropTypes.bool.isRequired,
-  onClick: PropTypes.func,
-  showLabel: PropTypes.bool,
-  loading: PropTypes.bool,
+TrackToggleButtonForwardRef.propTypes = {
+  className: PropTypes.string,
   showTransparentIcon: PropTypes.bool,
+  trackPinned: PropTypes.bool.isRequired,
+  trackVisible: PropTypes.bool.isRequired,
 };
+
+export default memo(TrackToggleButtonForwardRef);

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { ToastContainer } from 'react-toastify';
 import { useReactToPrint } from 'react-to-print';
 import userEvent from '@testing-library/user-event';
@@ -10,6 +9,7 @@ import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import NavigationWrapper from '../../../__test-helpers/navigationWrapper';
+import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../../utils/analytics';
 

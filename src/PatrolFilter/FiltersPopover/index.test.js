@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +6,7 @@ import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import FiltersPopover from '.';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
+import { render, screen, within } from '../../test-utils';
 
 jest.mock('../../ducks/trackedby', () => ({
   ...jest.requireActual('../../ducks/trackedby'),

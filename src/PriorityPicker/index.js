@@ -1,52 +1,52 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { REPORT_PRIORITIES } from '../constants';
 
 import styles from './styles.module.scss';
 
-const calcClassNameForPriority = (priority) => {
-  if (priority === 300) return 'highPriority';
-  if (priority === 200) return 'mediumPriority';
-  if (priority === 100) return 'lowPriority';
-  return 'noPriority';
+const PRIORITY_CLASSNAMES = {
+  100: 'lowPriority',
+  200: 'mediumPriority',
+  300: 'highPriority',
 };
 
+const PriorityPicker = ({ className, isMulti, onSelect, selected }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'priorityPicker' });
 
-const PriorityPicker = (props) => {
-  const { className, onSelect, selected, isMulti } = props;
-
-  const isSelected = (value) => isMulti ?
-    selected.some(v => v === value)
-    : selected === value;
+  const isSelected = (value) => isMulti ? selected.some((v) => v === value) : selected === value;
 
   return <ul className={`${styles.list} ${className}`}>
-    {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>
-      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${isSelected(value) ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
-        {display}
+    {REPORT_PRIORITIES.map(({ value, key }) => <li key={value}>
+      <button
+        className={`${styles[PRIORITY_CLASSNAMES[value] || 'noPriority']} ${isSelected(value) ? styles.selected : ''}`}
+        onClick={() => onSelect?.(value)}
+        title={t(key)}
+        type="button"
+        value={value}
+      >
+        {t(key)}
       </button>
-    </li>
-    )}
+    </li>)}
   </ul>;
-
 };
-
-export default memo(PriorityPicker);
 
 PriorityPicker.defaultProps = {
   className: '',
-  onSelect() {
-  },
   isMulti: false,
+  onSelect: null,
   selected: 0,
 };
 
 PriorityPicker.propTypes = {
   className: PropTypes.string,
-  onSelect: PropTypes.func,
   isMulti: PropTypes.bool,
+  onSelect: PropTypes.func,
   selected: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.array
   ]),
 };
+
+export default memo(PriorityPicker);

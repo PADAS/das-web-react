@@ -1,5 +1,3 @@
-import { TAB_KEYS } from '../constants';
-
 // Actions
 const SET_SHOW_SIDE_BAR = 'SET_SHOW_SIDE_BAR';
 

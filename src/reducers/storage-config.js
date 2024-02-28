@@ -5,6 +5,7 @@ import storage from 'redux-persist/lib/storage';
 
 import useLocalStorage from '../hooks/useLocalStorage';
 
+const BLACKLISTED_PERISTENCE_KEYS = ['_persist'];
 const RESTORABLE_PREFIX = 'er-web-restorable';
 
 const namespaceForKey = key => `${RESTORABLE_PREFIX}:${key}`;
@@ -31,10 +32,11 @@ export const generateOptionalStorageConfig = (key, INITIAL_STATE) => {
 
   const transform = createTransform(
     inboundState => inboundState,
-    (outboundState, key) =>
-      shouldRestore
+    (outboundState, key) => {
+      return shouldRestore && !BLACKLISTED_PERISTENCE_KEYS.includes(key)
         ? outboundState
-        : INITIAL_STATE[key],
+        : INITIAL_STATE[key];
+    },
   );
 
   storageConfig.transforms = [transform];

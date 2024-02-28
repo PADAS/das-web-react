@@ -1,57 +1,56 @@
-import React, { memo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setIsPickingLocation } from '../ducks/map-ui';
-import PropTypes from 'prop-types';
+import React, { memo, useContext, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
-
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
-import { withMap } from '../EarthRangerMap';
-import Popup from '../Popup';
+import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { MapContext } from '../App';
+import { setIsPickingLocation } from '../ducks/map-ui';
+
+import Popup from '../Popup';
+
 import styles from './styles.module.scss';
-
-const bindExternal = function (map, eventType, toInvoke) {
-  map.on(eventType, toInvoke);
-  return toInvoke;
-};
-
-const unbindExternal = (map, eventType, func) => {
-  map.off(eventType, func);
-};
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapLocationPicker = (props) => {
-  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, showCancelButton, showPopup, wrapperClassName } = props;
-
+const MapLocationPicker = ({
+  className,
+  disabled,
+  onLocationSelect,
+  onLocationSelectCancel,
+  onLocationSelectStart,
+  showCancelButton,
+  showPopup,
+  wrapperClassName,
+}) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('components', { keyPrefix: 'mapLocationPicker' });
+
+  const map = useContext(MapContext);
+
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
     event.preventDefault();
     event.stopPropagation();
+
     onCancel();
   });
 
-  const bindMapEvents = () => {
-    clickFunc.current = bindExternal(map, 'click', onSelect);
-    document.addEventListener('keydown', keydownFunc.current);
-  };
-
-
   const unbindMapEvents = () => {
-    unbindExternal(map, 'click', clickFunc.current);
+    map.off('click', clickFunc.current);
     document.removeEventListener('keydown', keydownFunc.current);
   };
 
   const onCancel = () => {
     dispatch(setIsPickingLocation(false));
     unbindMapEvents();
-    onLocationSelectCancel();
+    onLocationSelectCancel?.();
+
     mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
@@ -59,55 +58,61 @@ const MapLocationPicker = (props) => {
     dispatch(setIsPickingLocation(false));
     unbindMapEvents();
     onLocationSelect(e);
+
     mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
   const onSelectStart = () => {
     dispatch(setIsPickingLocation(true));
-    bindMapEvents();
-    onLocationSelectStart();
+
+    map.on('click', onSelect);
+    clickFunc.current = onSelect;
+    document.addEventListener('keydown', keydownFunc.current);
+
+    onLocationSelectStart?.();
+
     mapInteractionTracker.track('Click \'Drop Marker\' button');
   };
 
-  return  <>
+  return <>
     <div className={wrapperClassName}>
-      {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+      {showCancelButton && <Button
+        id="cancel-location-select"
+        onClick={onCancel}
+        size="sm"
+        type="button"
+        variant="dark"
+      >
+        {t('cancelButton')}
+      </Button>}
+
       <button
-      disabled={disabled}
-      type='button'
-      className={`${className} controlButton`}
-      onClick={onSelectStart}
-      title='Place marker on map'
-    >
+        className={`${className} controlButton`}
+        disabled={disabled}
+        onClick={onSelectStart}
+        title={t('selectLocationButtonTitle')}
+        type="button"
+      >
         <LocationIcon />
-        <span>{label}</span>
+
+        <span>{t('selectLocationButtonLabel')}</span>
       </button>
     </div>
-    {showPopup && isPickingLocation &&
-      <Popup
-            map={map}
-            className={styles.popup}
-            offset={[-8, 0]}
-            anchor="left"
-            trackPointer={true}
-        >
-        <p>Click to select a location</p>
-      </Popup>
-    }
+
+    {showPopup && isPickingLocation && <Popup
+        anchor="left"
+        className={styles.popup}
+        map={map}
+        offset={[-8, 0]}
+        trackPointer={true}
+      >
+      <p>{t('popupLabel')}</p>
+    </Popup>}
   </>;
 };
 
-export default withMap(memo(MapLocationPicker));
-
 MapLocationPicker.defaultProps = {
   className: '',
-  onLocationSelectStart() {
-
-  },
-  onLocationSelectCancel() {
-
-  },
-  label: 'Choose on map',
   disabled: false,
   showCancelButton: false,
   showPopup: true,
@@ -117,11 +122,12 @@ MapLocationPicker.defaultProps = {
 MapLocationPicker.propTypes = {
   className: PropTypes.string,
   disabled: PropTypes.bool,
-  onLocationSelectStart: PropTypes.func,
   onLocationSelect: PropTypes.func.isRequired,
-  map: PropTypes.object.isRequired,
-  label: PropTypes.string,
+  onLocationSelectStart: PropTypes.func.isRequired,
+  onLocationSelectCancel: PropTypes.func.isRequired,
   showCancelButton: PropTypes.bool,
   showPopup: PropTypes.bool,
   wrapperClassName: PropTypes.string,
 };
+
+export default memo(MapLocationPicker);

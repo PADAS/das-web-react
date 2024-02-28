@@ -1,117 +1,67 @@
 import React, { memo, useEffect, useMemo, useRef } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { components } from 'react-select';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
 import { allSubjects } from '../selectors/subjects';
 
-import styles from './styles.module.scss';
 import Select from '../Select';
 
-// const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
+import styles from './styles.module.scss';
 
+const getOptionLabel = (t) => (option) => {
+  if (option.hidden) {
+    return t('restrictedOptionLabel');
+  }
+  return option.content_type === 'accounts.user' ? `${option.first_name} ${option.last_name}` : option.name;
+};
 
-const MessagingSelect = (props) => {
-  const { subjects = [], onChange, value = null, isMulti = false, className } = props;
+const Option = ({ data, ...props }) => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'messagingSelect' });
+
+  return <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`}>
+    <components.Option {...props}>
+      <span>{getOptionLabel(t)(data)}</span>
+    </components.Option>
+  </div>;
+};
+
+const MessagingSelect = ({ onChange }) => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'messagingSelect' });
+
+  const subjects = useSelector(allSubjects);
 
   const selectRef = useRef(null);
 
-
-  const allMessagingCapableRadios = useMemo(() =>
-    subjects.filter(({ messaging }) => !!messaging?.length)
-  , [subjects]);
-
-
-
-  const optionalProps = {};
-  const selectStyles = {
-    container(styles) {
-      return {
-        ...styles,
-        flexGrow: 1,
-      };
-    }
-  };
-
-  const options = [
-    /*     {
-      label: 'Recent radios',
-      options: recentMessageRadios,
-    }, */
-    {
-      label: 'All',
-      options: allMessagingCapableRadios || [],
-    },
-  ];
-
-  const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
-    if (hidden) return 'RESTRICTED';
-    return content_type === 'accounts.user'
-      ? `${first_name} ${last_name}`
-      : name;
-  };
-
-  const getOptionValue = ({ hidden, id }) => {
-    if (hidden) return 'hidden';
-    return id;
-  };
-
-  const Option = (props) => {
-    const { data } = props;
-
-    /*     const isRecent = recentMessageRadios.some(item => item.id === data.id)
-      && (data.last_voice_call_start_at || data.last_position_date); */
-
-    return (
-      <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`} >
-        <components.Option {...props}>
-          <span>{getOptionLabel(data)}</span>
-          {/* {isRecent &&
-            <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
-          } */}
-        </components.Option>
-      </div>
-    );
-  };
+  const allMessagingCapableRadios = useMemo(
+    () => subjects?.filter((subject) => !!subject.messaging?.length) || [],
+    [subjects]
+  );
 
   useEffect(() => {
-    if (selectRef?.current?.focus) {
-      selectRef.current.focus();
-    }
+    selectRef.current?.focus?.();
   }, []);
 
   return <Select
-    className={className}
     components={{ Option }}
-    value={value}
+    getOptionLabel={getOptionLabel(t)}
+    getOptionValue={(option) => option.hidden ? t('hiddenValue') : option.id}
     isClearable={true}
     isSearchable={true}
-    isMulti={isMulti}
     onChange={onChange}
-    options={options}
-    placeholder='Send message to...'
-    styles={selectStyles}
+    options={[{
+      label: t('allOptionsLabel'),
+      options: allMessagingCapableRadios || [],
+    }]}
+    placeholder={t('placeholder')}
     ref={selectRef}
-    getOptionValue={getOptionValue}
-    getOptionLabel={getOptionLabel}
-    {...optionalProps}
+    styles={{ container: (styles) => ({ ...styles, flexGrow: 1 }) }}
   />;
 };
 
-const mapStateToProps = (state) => ({
-  subjects: allSubjects(state),
-});
-
-export default connect(mapStateToProps, null)(memo(MessagingSelect));
-
-MessagingSelect.defaultProps = {
-  value: null,
-};
-
-
 MessagingSelect.propTypes = {
-  value: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.array,
-  ]),
   onChange: PropTypes.func.isRequired,
 };
+
+export default memo(MessagingSelect);

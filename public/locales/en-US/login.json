@@ -1,0 +1,10 @@
+{
+  "errorAlert": {
+    "invalidCredentialsMessage": "Invalid credentials given. Please try again.",
+    "unknownErrorMessage": "An error has occurred. Please try again."
+  },
+  "eulaLink": "EarthRanger EULA",
+  "loginButton": "Log in",
+  "passwordLabel": "Password",
+  "usernameLabel": "Username"
+}

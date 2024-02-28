@@ -1,9 +1,10 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
-import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
-import { dateIsValid } from '../utils/datetime';
+import { dateIsValid, getCurrentLocale } from '../utils/datetime';
 
 import DateRangeSelector from '../DateRangeSelector';
 
@@ -11,6 +12,7 @@ import styles from './styles.module.scss';
 
 const FeedDateFilter = (props) => {
   const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, ...rest } = props;
+  const { t } = useTranslation('filters', { keyPrefix: 'dateFilter' });
 
   const { lower, upper } = dateRange;
 
@@ -52,8 +54,14 @@ const FeedDateFilter = (props) => {
     afterStartChange && afterStartChange(dateRangeUpdate);
   }, [afterStartChange, dateRange, updateFilter]);
 
-  const startDateNullMessage = useMemo(() => hasLower ? `${distanceInWordsToNow(new Date(lower))} ago` : null, [hasLower, lower]);
-  const endDateNullMessage = 'Now';
+  const startDateNullMessage = useMemo(() => {
+    if (hasLower){
+      return t('emptyStartDateMessage', {
+        distanceInWordsDate: formatDistanceToNow(new Date(lower), getCurrentLocale())
+      });
+    }
+    return null;
+  }, [hasLower, lower, t]);
 
   const endDate = hasUpper ?
     new Date(upper)
@@ -65,7 +73,7 @@ const FeedDateFilter = (props) => {
       className={styles.dateSelect}
       endDate={endDate}
       endDateLabelClass={styles.endDateLabel}
-      endDateNullMessage={endDateNullMessage}
+      endDateNullMessage={t('emptyEndDateMessage')}
       filterSettings={filterSettings}
       isAtDefault={isAtDefault}
       onClickDateRangePreset={onClickDateRangePreset}

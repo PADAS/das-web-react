@@ -1,8 +1,10 @@
 import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
-import differenceInMinutes from 'date-fns/difference_in_minutes';
-import setSeconds from 'date-fns/set_seconds';
-import isFuture from 'date-fns/is_future';
+import {
+  differenceInMinutes,
+  setSeconds,
+  isFuture
+} from 'date-fns';
 
 import DatePicker from '../DatePicker';
 

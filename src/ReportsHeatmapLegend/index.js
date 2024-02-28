@@ -1,38 +1,36 @@
 import React, { memo } from 'react';
-import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
+
 import HeatmapLegend from '../HeatmapLegend';
 
+const ReportsHeatmapLegend = ({ onClose }) => {
+  const { t } = useTranslation('heatmap', { keyPrefix: 'reportsHeatmapLegend' });
 
-const ReportsHeatmapLegend = ({ onClose, eventFilter: { filter: { date_range } } }) => {
+  const eventFilter = useSelector((state) => state.data.eventFilter);
   const reports = useSelector(getMapEventSymbolPointsWithVirtualDate);
 
   const reportCount = reports?.features?.length ?? 0;
-  const { lower, upper } = date_range;
 
   const dayCount = differenceInCalendarDays(
-    upper || new Date(),
-    lower,
+    eventFilter.filter.date_range.upper || new Date(),
+    eventFilter.filter.date_range.lower,
   );
 
-  const titleElement = <h6>{'Visible Reports'}</h6>;
-
   return <HeatmapLegend
-    title={titleElement}
-    pointCount={reportCount}
     dayCount={dayCount}
-    onClose={onClose} />;
+    onClose={onClose}
+    pointCount={reportCount}
+    title={<h6>{t('heatmapLegendTitle')}</h6>}
+  />;
 };
-
-const mapStateToProps = (state) => ({
-  eventFilter: state.data.eventFilter,
-});
-
-export default connect(mapStateToProps, null)(memo(ReportsHeatmapLegend));
 
 ReportsHeatmapLegend.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
+
+export default memo(ReportsHeatmapLegend);

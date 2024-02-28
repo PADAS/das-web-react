@@ -2,12 +2,14 @@ import React, { memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
 import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-icon.svg';
 
+import { addEventToIncident, createEvent, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
 import {
   addPatrolSegmentToEvent,
@@ -16,7 +18,7 @@ import {
   eventBelongsToPatrol,
   getReportLink,
 } from '../../../utils/events';
-import { createEvent, addEventToIncident, fetchEvent } from '../../../ducks/events';
+import { basePrintingStyles } from '../../../utils/styles';
 import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../../../constants';
 import { fetchPatrol } from '../../../ducks/patrols';
 import { MapContext } from '../../../App';
@@ -27,7 +29,6 @@ import { useFeatureFlag } from '../../../hooks';
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
 import TextCopyBtn from '../../../TextCopyBtn';
-import { basePrintingStyles } from '../../../utils/styles';
 import OptionsMenu, { Option } from '../../../OptionsMenu';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
@@ -36,6 +37,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
   const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
   const map = useContext(MapContext);
   const reportTracker = useContext(TrackerContext);
@@ -46,8 +48,8 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     pageStyle: basePrintingStyles,
   });
 
-  const canAddToIncident = !report.is_collection && !eventBelongsToCollection(report);
   const belongsToPatrol = eventBelongsToPatrol(report);
+  const canAddToIncident = !report.is_collection && !eventBelongsToCollection(report);
 
   const onAddToIncident = async (existingIncident) => {
     const parallelOperations = [onSaveReport(undefined, false)];
@@ -109,27 +111,27 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
   return <OptionsMenu align="end">
     {canAddToIncident && <Option as="button" onClick={onStartAddToIncident}>
       <IncidentIcon />
-      Add to Incident
-      </Option>}
+      {t('header.reportMenu.addToIncidentItem')}
+    </Option>}
 
     {!belongsToPatrol && <Option as="button" onClick={onStartAddToPatrol}>
       <PatrolIcon />
-      Add to Patrol
-      </Option>}
+      {t('header.reportMenu.addToPatrolItem')}
+    </Option>}
 
     {!!report.id && <Option as="div">
       <TextCopyBtn
           getText={() => getReportLink(report)}
           icon={<ClipIcon />}
-          label="Copy report link"
+          label={t('header.reportMenu.textCopyButtonLabel')}
           permitPropagation
-          successMessage="Link copied"
-        />
+          successMessage={t('header.reportMenu.textCopyButtonSuccessMessage')}
+      />
       </Option>}
 
     <Option as="button" onClick={handlePrint}>
       <PrinterIcon />
-      Print Report
+      {t('header.reportMenu.printReportItem')}
     </Option>
   </OptionsMenu>;
 };

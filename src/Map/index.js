@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { differenceInCalendarDays } from 'date-fns';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -37,7 +37,6 @@ import useNavigate from '../hooks/useNavigate';
 
 import {
   LAYER_IDS,
-  MAX_ZOOM,
   TAB_KEYS,
 } from '../constants';
 
@@ -86,7 +85,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
-const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const Map = ({
   children,
@@ -102,8 +101,8 @@ const Map = ({
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
   const heatmapSubjectIDs = useSelector(state => state.view.heatmapSubjectIDs);
-  const hiddenAnalyzerIDs = useSelector(state => state.view.hiddenAnalyzerIDs);
-  const hiddenFeatureIDs = useSelector(state => state.view.hiddenFeatureIDs);
+  const hiddenAnalyzerIDs = useSelector(state => state.data.mapLayerFilter.hiddenAnalyzerIDs);
+  const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter.hiddenFeatureIDs);
   const mapIsLocked = useSelector(state => state.view.mapIsLocked);
   const patrolTrackState = useSelector(state => state.view.patrolTrackState);
   const popup = useSelector(state => state.view.popup);
@@ -231,10 +230,13 @@ const Map = ({
 
   const saveMapPosition = useCallback(() => {
     if (map) {
-      const bounds = map.getBounds();
+      const bearing = map.getBearing();
+      const center = map.getCenter();
+      const pitch = map.getPitch();
+
       const zoom = parseFloat(map.getZoom().toFixed(2));
       dispatch(
-        setMapPosition({ bounds, zoom })
+        setMapPosition({ bearing, center, pitch, zoom })
       );
     }
   }, [dispatch, map]);
@@ -325,23 +327,6 @@ const Map = ({
       onSelectSubject: onSelectSubject,
     });
   }, [onSelectEvent, onSelectSubject, showPopup]);
-
-  const onClusterClick = withLocationPickerState(({ point }) => {
-    const features = map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-    const clusterId = features[0].properties.cluster_id;
-    const clusterSource = map.getSource('events-data-clustered');
-
-    clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) return;
-
-      const mapZoom = map.getZoom();
-      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
-
-      if (mapZoom < MAX_ZOOM && mapZoom < zoom) {
-        map.easeTo({ center: features[0].geometry.coordinates, zoom: newMapZoom });
-      }
-    });
-  });
 
   const onCurrentUserLocationClick = withLocationPickerState((location) => {
     showPopup('current-user-location', {
@@ -577,7 +562,7 @@ const Map = ({
 
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
-  useMapEventBinding('moveend', saveMapPosition);
+  useMapEventBinding('moveend', debounce(saveMapPosition));
   useMapEventBinding('zoom', onMapZoom);
   useMapEventBinding('click', onMapClick);
 
@@ -603,7 +588,6 @@ const Map = ({
       <EventsLayer
           mapImages={mapImages}
           onEventClick={onSelectEvent}
-          onClusterClick={onClusterClick}
           bounceEventIDs={bounceEventIDs}
         />
 

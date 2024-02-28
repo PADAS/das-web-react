@@ -1,6 +1,8 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { useReactToPrint } from 'react-to-print';
+import { useTranslation } from 'react-i18next';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
@@ -17,8 +19,18 @@ import styles from './styles.module.scss';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef, printableContentRef, patrolTitle, isPatrolCancelled, showPatrolPrintOption, ...rest } = props;
+const PatrolMenu = ({
+  patrol,
+  onPatrolChange,
+  menuRef,
+  printableContentRef,
+  patrolTitle,
+  isPatrolCancelled,
+  showPatrolPrintOption,
+  className,
+  ...rest
+}) => {
+  const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
 
   const patrolState = calcPatrolState(patrol);
 
@@ -55,14 +67,14 @@ const PatrolMenu = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
 
   const patrolStartStopTitle = useMemo(() => {
-    if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
-    return 'Start Patrol';
-  }, [canEnd, patrolIsCancelled, patrolIsDone]);
+    if (canEnd || patrolIsCancelled || patrolIsDone) return t('endPatrol');
+    return t('startPatrol');
+  }, [canEnd, patrolIsCancelled, patrolIsDone, t]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore Patrol';
-    return 'Cancel Patrol';
-  }, [canRestorePatrol]);
+    if (canRestorePatrol) return t('restorePatrol');
+    return t('cancelPatrol');
+  }, [canRestorePatrol, t]);
 
   const togglePatrolCancellationState = useCallback(() => {
     patrolListItemTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol list item kebab menu`);
@@ -90,7 +102,7 @@ const PatrolMenu = (props) => {
     pageStyle: basePrintingStyles,
   });
 
-  return  <OptionsMenu align='end' {...rest} ref={menuRef}>
+  return <OptionsMenu align='end' className={className} ref={menuRef} {...rest}>
     { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>
       <PlayIcon />
       {patrolStartStopTitle}
@@ -98,24 +110,23 @@ const PatrolMenu = (props) => {
     { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>{patrolCancelRestoreTitle}</Option>}
     { (!!patrol.id && !isPatrolCancelled) && <Option className={styles.copyBtn}>
       <TextCopyBtn
-          label='Copy patrol link'
+          label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}
           icon={<ClipIcon />}
-          successMessage='Link copied'
+          successMessage={t('copyButtonMessage')}
           permitPropagation
       />
     </Option>}
     { showPatrolPrintOption && <Option onClick={handlePrint}>
       <PrinterIcon />
-      Print patrol
+      {t('printPatrolButton')}
     </Option>}
   </OptionsMenu>;
 };
 
-export default memo(PatrolMenu);
-
 PatrolMenu.defaultProps = {
   patrolTitle: '',
+  className: '',
   isPatrolCancelled: false,
   showPatrolPrintOption: true,
 };
@@ -123,8 +134,11 @@ PatrolMenu.defaultProps = {
 PatrolMenu.propTypes = {
   patrol: PropTypes.object.isRequired,
   patrolState: PropTypes.object,
+  className: PropTypes.string,
   onPatrolChange: PropTypes.func.isRequired,
   patrolTitle: PropTypes.string,
   isPatrolCancelled: PropTypes.bool,
   showPatrolPrintOption: PropTypes.bool,
 };
+
+export default memo(PatrolMenu);

@@ -12,7 +12,7 @@ import { trackEventFactory, REPORT_NOTE_CATEGORY } from '../utils/analytics';
 const { Header, Title, Body, Footer } = Modal;
 const reportNoteTracker = trackEventFactory(REPORT_NOTE_CATEGORY);
 
-
+// TODO: Remove unused code (once we clean old patrol view)
 const NoteModal = (props) => {
   const { note, id, removeModal, onSubmit } = props;
 

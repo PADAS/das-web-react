@@ -3,6 +3,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/arrow-into.svg';
@@ -27,6 +28,7 @@ const LOADER_SIZE = 4;
 const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation('details-view');
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
@@ -64,7 +66,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       />
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
-        {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip="Go to report">
+        {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip={t('goToReportButtonTooltip')}>
           <ArrowIntoIcon />
         </ItemActionButton>}
       </div>

@@ -1,0 +1,32 @@
+{
+  "patrolTrackLegend": {
+    "multiplePatrolsTitle": "{{count}} patrullas",
+    "singlePatrolTitle": "Patrulla: {{patrolDisplayTitle}}",
+    "titleElement": {
+      "coveredSpan": " cubiertas",
+      "icon": "Ícono para {{title}}",
+      "lengthCovered": "{{length}} cubiertos",
+      "removeButton": "remover"
+    }
+  },
+  "trackLegend": {
+    "multipleSubjectsTitle": "{{count}} sujetos",
+    "titleElement": {
+      "icon": "Ícono para {{title}}",
+      "pointCount_one": "{{count}} punto",
+      "pointCount_other": "{{count}} puntos",
+      "pointsOverTimeSpan": "{{pointCount}} puntos en {{trackDuration}}",
+      "removeButton": "remover"
+    }
+  },
+  "trackLength": {
+    "length": "{{length}} kilómetros",
+    "title": "Longitud de trayectoria"
+  },
+  "trackLengthControls": {
+    "customLengthLabel": "Longitud personalizada",
+    "header": "Longitud de trayectoria:",
+    "invalidCustomLengthAlert": "Por favor ingrese una longitud de trayectoria entre {{min}} y {{max}}.",
+    "matchReportFilterDateLabel": "Igualar al valor \"desde\" de la fecha en el filtro de reportes ({{reportFilterDateRangeLength}} días)"
+  }
+}

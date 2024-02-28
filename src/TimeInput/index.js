@@ -21,6 +21,7 @@ const numberToTimeString = (value) => {
   return asString.length > 1 ? asString : `0${asString}`;
 };
 
+// TODO: Remove this unused code
 const TimeInput = (props, ref) => {
   const { disabled, onChange, value } = props;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../test-utils';
 import userEvent from '@testing-library/user-event';
 
 import InvalidDatesModal from './';
@@ -12,7 +12,9 @@ describe('InvalidDatesModal', () => {
   });
 
   test('triggers onHide the modal when  user clicks Ok', async () => {
-    render(<InvalidDatesModal onHide={onHide} show />);
+    render(
+      <InvalidDatesModal onHide={onHide} show />
+    );
 
     expect(onHide).toHaveBeenCalledTimes(0);
 

@@ -1,7 +1,6 @@
 import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import axios from 'axios';
-
-import { LngLatBounds } from 'mapbox-gl';
+import { useTranslation } from 'react-i18next';
 
 import Map from './Map';
 import Nav from './Nav';
@@ -61,6 +60,9 @@ const App = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // TODO: Preload all translation files and block rendering until they are ready
+  const { ready: _ready } = useTranslation('utils');
+
   const currentTab = getCurrentTabFromURL(location.pathname);
   let sidebarOpen = !!currentTab;
 
@@ -85,16 +87,10 @@ const App = (props) => {
 
       map.jumpTo({ center: lngLatFromParams, zoom: 16 });
 
-    } else if (mapPosition?.bounds && mapPosition?.zoom) {
-      const { bounds, zoom } = mapPosition;
-      map.fitBounds(new LngLatBounds(bounds._sw, bounds._ne), { duration: 0 })
-        .setZoom(zoom);
-
-    } else if (homeMap) {
+    } else if (homeMap && !mapPosition?.center && !mapPosition?.zoom) {
       const { center, zoom } = homeMap;
       map.jumpTo({ center, zoom });
     }
-
   }, [homeMap, location, mapPosition, navigate]);
 
   const onMapHasLoaded = useCallback((map) => {

@@ -4,12 +4,12 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import {
   calcActualGpsPositionForRawText,
   calcGpsDisplayString,
   GPS_FORMAT_EXAMPLES,
-  GPS_FORMAT_LABELS,
   validateLngLat,
 } from '../utils/location';
 
@@ -17,7 +17,9 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 import styles from './styles.module.scss';
 
-const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...rest }) => {
+const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...restProps }) => {
+  const { t } = useTranslation('components', { keyPrefix: 'gpsInput' });
+
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
   const hasInitialLocation = !!lngLat && lngLat.length === 2;
@@ -70,35 +72,35 @@ const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip
       const location = lastKnownValidValue || lngLat;
       setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gpsFormat]);
+  }, [gpsFormat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>
     <GpsFormatToggle showGpsString={false} />
 
     <div className={`${styles.actionsWrapper} ${onButtonClick ? styles.withButton : ''}`}>
       <OverlayTrigger
-        placement="bottom-end"
         overlay={(props) => tooltip ? <Tooltip {...props}>{tooltip}</Tooltip> : <div />}
+        placement="bottom-end"
       >
         <input
           className={!isValid ? styles.error : ''}
           onBlur={onInputBlur}
           onChange={onInputChange}
-          placeholder={GPS_FORMAT_LABELS[gpsFormat] || 'Location'}
+          placeholder={gpsFormat ? t(`gpsFormats.${gpsFormat}`) : t('defaultPlaceholder')}
           type="text"
           value={inputValue}
-          {...rest}
+          {...restProps}
         />
       </OverlayTrigger>
 
-      {onButtonClick && <Button onClick={onButtonClick} variant="light">
-        {buttonContent}
-      </Button>}
+      {onButtonClick && <Button onClick={onButtonClick} variant="light">{buttonContent}</Button>}
     </div>
 
     <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
-      {isValid ? `Example: ${GPS_FORMAT_EXAMPLES[gpsFormat]}` : 'Invalid location'}
+      {isValid
+          ? t('inputExample', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
+          : t('invalidLocation')
+      }
     </small>
   </>;
 };

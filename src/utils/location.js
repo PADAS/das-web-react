@@ -15,14 +15,6 @@ export const GPS_FORMATS = {
   MGRS: 'MGRS',
 };
 
-export const GPS_FORMAT_LABELS = {
-  DDM: 'Degrees, Decimals, Minutes',
-  DEG: 'Latitude, Longitude',
-  DMS: 'Degrees, Minutes, Seconds',
-  UTM: 'Universal Transverse Mercator',
-  MGRS: 'Military Grid Reference System',
-};
-
 export const GPS_FORMAT_EXAMPLES = {
   DDM: '00° 09.1758′ S, 037° 18.5436′ E',
   DEG: ' -0.15293, 37.30906',

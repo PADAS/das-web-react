@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, waitFor, screen } from '@testing-library/react';
 import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
@@ -9,6 +8,7 @@ import { fetchObservationsForSubject } from '../ducks/observations';
 import { mockStore } from '../__test-helpers/MockStore';
 import { GPS_FORMATS } from '../utils/location';
 import mockedObservationsData from '../__test-helpers/fixtures/observations';
+import { render, waitFor, screen } from '../test-utils';
 
 import SubjectHistoricalDataModal, { ITEMS_PER_PAGE, getObservationUniqProperties, SORT_BY } from './';
 

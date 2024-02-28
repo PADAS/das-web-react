@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Header from './';
@@ -15,6 +14,7 @@ import {
   patrolDefaultStoreData
 } from '../../__test-helpers/fixtures/patrols';
 import { updatePatrol } from '../../ducks/patrols';
+import { render, screen, waitFor } from '../../test-utils';
 
 jest.mock('../../ducks/patrols', () => ({
   ...jest.requireActual('../../ducks/patrols'),

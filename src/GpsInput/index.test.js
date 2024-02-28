@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
 import merge from 'lodash/merge';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
+import { fireEvent, render, screen } from '../test-utils';
 
 import GpsInput from '../GpsInput';
 

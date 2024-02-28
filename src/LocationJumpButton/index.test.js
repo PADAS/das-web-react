@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -7,8 +6,8 @@ import { createMapMock } from '../__test-helpers/mocks';
 import LocationJumpButton from './';
 import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import useNavigate from '../hooks/useNavigate';
+import { render, screen } from '../test-utils';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -18,30 +17,34 @@ jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('AddReport', () => {
   const onClick = jest.fn();
-  let map, navigate, store, useNavigateMock;
+  let map, navigate, useNavigateMock;
+  const initialStore = mockStore({ view: { showUserLocation: true, userPreferences: {} } });
+  const initialProps = {
+    bypassLocationValidation: true,
+    onClick
+  };
+
   beforeEach(() => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
     map = createMapMock();
-    store = mockStore({ view: { showUserLocation: true, userPreferences: {} } });
-
-    render(
-      <Provider store={store}>
-        <NavigationWrapper>
-          <MapContext.Provider value={map}>
-            <LocationJumpButton bypassLocationValidation onClick={onClick} />
-          </MapContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
   });
+
+  const renderLocationJumpButton = (props = initialProps) => render(
+    <Provider store={initialStore}>
+      <MapContext.Provider value={map}>
+        <LocationJumpButton {...props} />
+      </MapContext.Provider>
+    </Provider>
+  );
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('navigates out of the sidebar when jumping to a location in a small device', async () => {
+    renderLocationJumpButton();
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const jumpButton = await screen.findByTitle('Jump to this location');
@@ -50,4 +53,40 @@ describe('AddReport', () => {
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');
   });
+
+  test('shows jump button when receiving event coords', async () => {
+    const coordinates = [-103.93549299890081, 34.49211537131302];
+    renderLocationJumpButton({ ...initialProps, bypassLocationValidation: false, coordinates });
+
+    expect(await screen.findByTitle('Jump to this location')).toBeInTheDocument();
+  });
+
+  test('shows jump button when receiving an event collection coords', async () => {
+    const coordinates = [[-103.93549299890081, 34.49211537131302], [-112.26236016407142, 46.61672813483423]];
+    renderLocationJumpButton({ ...initialProps, bypassLocationValidation: false, coordinates });
+
+    expect(await screen.findByTitle('Jump to this location')).toBeInTheDocument();
+  });
+
+  test('shows jump button when receiving an event collection coords with at least one polygon', async () => {
+    const coordinates = [
+      [[-114.37499012262823, 46.787177293733976], [-112.26236016407142, 46.61672813483423], [-112.26272865732636, 45.408552883751014]],
+      [-103.93549299890081, 34.49211537131302]
+    ];
+    renderLocationJumpButton({ ...initialProps, bypassLocationValidation: false, coordinates });
+
+    expect(await screen.findByTitle('Jump to this location')).toBeInTheDocument();
+  });
+
+  test('hides jump button when receiving invalid coords', async () => {
+    const coordinates = [
+      [-103.93549299890081, 34.49211537131302],
+      [-114.37499012262823, 'not a coordinate'],
+    ];
+    renderLocationJumpButton({ ...initialProps, bypassLocationValidation: false, coordinates });
+
+    expect(await screen.queryByTitle('Jump to this location')).not.toBeInTheDocument();
+  });
+
+
 });

@@ -1,32 +1,32 @@
 import React, { lazy, memo, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
-import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { addModal } from '../ducks/modals';
+import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
+import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
-import { useMatchMedia, usePermissions } from '../hooks';
 import useJumpToLocation from '../hooks/useJumpToLocation';
+import { useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
-
-import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import NavHomeMenu from './NavHomeMenu';
-import UserMenu from '../UserMenu';
-import SystemStatus from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
 import ProfilePINModal from '../ProfilePINModal';
+import SystemStatus from '../SystemStatus';
+import UserMenu from '../UserMenu';
 
 import './Nav.scss';
 
-const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const MessageMenu = lazy(() => import('./MessageMenu'));
+
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
 const reloadOnceProfileIsPersisted = (isMainUser) => {
   setTimeout(() => {
@@ -39,21 +39,8 @@ const reloadOnceProfileIsPersisted = (isMainUser) => {
   }, [250]);
 };
 
-const Nav = ({
-  addModal,
-  clearAuth,
-  clearUserProfile,
-  fetchCurrentUser,
-  fetchCurrentUserProfiles,
-  homeMap,
-  maps,
-  setHomeMap,
-  showDrawer,
-  selectedUserProfile,
-  setUserProfile,
-  user,
-  userProfiles,
-}) => {
+const Nav = () => {
+  const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,95 +48,95 @@ const Nav = ({
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
+  const homeMap = useSelector((state) => state.view.homeMap);
+  const maps = useSelector((state) => state.data.maps);
+  const user = useSelector((state) => state.data.user);
+  const userProfiles = useSelector((state) => state.data.userProfiles);
+  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
+
   const onHomeMapSelect = (chosenMap) => {
-    setHomeMap(chosenMap);
-    const { zoom, center } = chosenMap;
-    jumpToLocation(center, zoom);
+    dispatch(setHomeMap(chosenMap));
+    jumpToLocation(chosenMap.center, chosenMap.zoom);
+
     mainToolbarTracker.track('Change Home Area', `Home Area:${chosenMap.title}`);
   };
 
   const onCurrentLocationClick = (location) => {
     jumpToLocation([location.coords.longitude, location.coords.latitude], (MAX_ZOOM - 2));
+
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
   const handleProfileChange = useCallback((profile) => {
     const isMainUser = profile.username === user.username;
     if (isMainUser) {
-      clearUserProfile();
+      dispatch(clearUserProfile());
+
       mainToolbarTracker.track('Select to operate as the main user');
     } else {
+      dispatch(setUserProfile(profile, true));
+
       mainToolbarTracker.track('Select to operate as a user profile');
-      setUserProfile(profile, isMainUser ? false : true);
     }
 
     reloadOnceProfileIsPersisted(isMainUser);
-  }, [clearUserProfile, setUserProfile, user.username]);
+  }, [dispatch, user.username]);
 
   const onProfileClick = useCallback((profile) => {
-
     if (!profile.pin) {
       return handleProfileChange(profile);
     }
 
-    return addModal({
+    return dispatch(addModal({
       content: ProfilePINModal,
-      modalProps: {
-        className: 'profile-pin-modal',
-      },
+      modalProps: { className: 'profile-pin-modal' },
       profile,
       onSuccess: () => handleProfileChange(profile),
-    });
-
-  }, [addModal, handleProfileChange]);
+    }));
+  }, [dispatch, handleProfileChange]);
 
   useEffect(() => {
-    fetchCurrentUser()
-      .catch(() => {
-        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
-      });
-    fetchCurrentUserProfiles();
-  }, []); // eslint-disable-line
+    dispatch(fetchCurrentUser())
+      .catch(() => navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }));
+    dispatch(fetchCurrentUserProfiles());
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <nav className="primary-nav">
     <div className="left-controls">
-      <HamburgerMenuIcon className="global-menu-button" onClick={() => showDrawer(globalMenuDrawerId)} />
+      <HamburgerMenuIcon className="global-menu-button" onClick={() => dispatch(showDrawer(globalMenuDrawerId))} />
+
       <div className="logo-wrapper">
         <EarthRangerLogo className="logo" />
       </div>
+
       {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
-    {!!maps.length &&
-      <div className="center-controls">
-        <NavHomeMenu
-          maps={maps}
-          selectedMap={homeMap}
-          onMapSelect={onHomeMapSelect}
-          onCurrentLocationClick={onCurrentLocationClick}
-        />
-      </div>}
+    {!!maps.length && <div className="center-controls">
+      <NavHomeMenu
+        maps={maps}
+        onCurrentLocationClick={onCurrentLocationClick}
+        onMapSelect={onHomeMapSelect}
+        selectedMap={homeMap}
+      />
+    </div>}
 
     <div className="rightMenus">
       {!!isMediumLayoutOrLarger && <SystemStatus />}
+
       {!!canViewMessages && <MessageMenu />}
+
       <NotificationMenu />
+
       <UserMenu
-        user={user}
+        onLogOutClick={() => dispatch(clearAuth())}
         onProfileClick={onProfileClick}
-        userProfiles={userProfiles}
         selectedUserProfile={selectedUserProfile}
-        onLogOutClick={clearAuth}
+        user={user}
+        userProfiles={userProfiles}
       />
-      <div className="alert-menu"></div>
     </div>
   </nav>;
 };
 
-const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) =>
-  ({ homeMap, maps, user, userProfiles, selectedUserProfile });
-
-export default connect(
-  mapStatetoProps,
-  { addModal, clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
-)(memo(Nav));
+export default memo(Nav);

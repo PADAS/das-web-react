@@ -1,0 +1,58 @@
+{
+  "messagesModal": {
+    "backToAllMessagesButton": "← All messages",
+    "cancelButton": "Cancel",
+    "messagesHeader": "Messages",
+    "newMessageButton": "New Message",
+    "noMessagingSubjectText": "You may not send messages to this subject."
+  },
+  "messagingSelect": {
+    "allOptionsLabel": "All",
+    "hiddenValue": "hidden",
+    "placeholder": "Send message to...",
+    "restrictedOptionLabel": "RESTRICTED"
+  },
+  "nav": {
+    "navHomeMenu": {
+      "myCurrentLocationItem": "My Current Location"
+    }
+  },
+  "notificationMenu": {
+    "errorFetchingHeader": "Error fetching recent announcements.",
+    "noNewNotificationsHeader": "No new notifications at this time.",
+    "notificationItem": {
+      "confirmButton": "Confirm",
+      "dismissButton": "Dismiss",
+      "moreInformationLink": "More information"
+    },
+    "outdatedNotifications_one": "You have {{count}} unread notification.",
+    "outdatedNotifications_other": "You have {{count}} unread notifications.",
+    "readMore": "Read more",
+    "seeAllNewsButton": "See all news >",
+    "tryAgainButton": "Try again"
+  },
+  "profilePINModal": {
+    "error": "Incorrect PIN",
+    "title": "Enter Your PIN",
+    "userLabel": "User: "
+  },
+  "systemStatus": {
+    "datasourceDefTitle": "device activity",
+    "dateTimeSuffix": "ago",
+    "HEALTHY": "Healthy",
+    "heartBeatDefTitle": "system activity",
+    "initialRealTimeStatusTitle": "EarthRanger Realtime",
+    "initialRealTimeStatusDetails": "Activity",
+    "initialNetworkStatusTitle": "Network",
+    "networkOnlineLabel": "online",
+    "networkOfflineLabel": "offline",
+    "serverVersionLabel": "EarthRanger Server {{version}}",
+    "UNHEALTHY": "Unhealthy",
+    "UNKNOWN": "Unknown",
+    "WARNING": "Warning"
+  },
+  "userMenu": {
+    "cookieSettingsItem": "Cookie Settings",
+    "logoutItem": "Log out"
+  }
+}

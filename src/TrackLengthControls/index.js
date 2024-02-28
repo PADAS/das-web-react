@@ -1,109 +1,141 @@
-import React, { memo, useCallback, useState, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
-import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
-import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { differenceInCalendarDays } from 'date-fns';
 
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from '../ducks/tracks';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { setTrackLength, setTrackLengthRangeOrigin, TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
-const { Label, Check } = Form;
-
-const RANGE_INPUT_ATTRS = {
-  min: 1,
-  max: 60,
-};
-
-const FREEHAND_INPUT_ATTRS = {
-  min: RANGE_INPUT_ATTRS.min,
-  max: 365,
-};
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin } = props;
+const RANGE_INPUT_ATTRS = { max: 60, min: 1 };
+const FREEHAND_INPUT_ATTRS = { max: 365, min: RANGE_INPUT_ATTRS.min };
 
-  const [customLengthValue, setCustomLengthValue] = useState(length);
+const TrackLengthControls = () => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLengthControls' });
+
+  const eventFilterDateRange = useSelector((state) => state.data.eventFilter.filter.date_range);
+  const trackLength = useSelector((state) => state.view.trackLength);
+
   const [customLengthValid, setCustomLengthValidity] = useState(true);
+  const [customLengthValue, setCustomLengthValue] = useState(trackLength.length);
   const [initialized, setInitState] = useState(false);
 
-  const eventFilterDateRangeLength = differenceInCalendarDays(
-    new Date(),
-    lower,
-  );
+  const eventFilterDateRangeLength = differenceInCalendarDays(new Date(), eventFilterDateRange.lower);
+
+  const focusRange = () => {
+    if (trackLength.origin !== TRACK_LENGTH_ORIGINS.customLength) {
+      dispatch(setTrackLengthRangeOrigin(TRACK_LENGTH_ORIGINS.customLength));
+    }
+  };
 
   const setTrackLengthToEventDateRange = useCallback(() => {
     mapInteractionTracker.debouncedTrack('Set Track Length To Match Report Filter');
-    setTrackLength(eventFilterDateRangeLength);
-  }, [eventFilterDateRangeLength, setTrackLength]);
+
+    dispatch(setTrackLength(eventFilterDateRangeLength));
+  }, [dispatch, eventFilterDateRangeLength]);
 
   const setTrackLengthToCustomDateRange = useCallback(() => {
-    const rangeIsValid = (customLengthValue >= FREEHAND_INPUT_ATTRS.min) && (customLengthValue <= FREEHAND_INPUT_ATTRS.max);
+    const rangeIsValid = (customLengthValue >= FREEHAND_INPUT_ATTRS.min)
+      && (customLengthValue <= FREEHAND_INPUT_ATTRS.max);
     if (rangeIsValid) {
       setCustomLengthValidity(true);
-      setTrackLength(customLengthValue);
+      dispatch(setTrackLength(customLengthValue));
+
       mapInteractionTracker.debouncedTrack('Set Track Length To Custom Length', `${customLengthValue} days`);
     } else {
       setCustomLengthValidity(false);
     }
-  }, [customLengthValue, setTrackLength]);
+  }, [customLengthValue, dispatch]);
 
   useEffect(() => {
-    if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLength.origin === TRACK_LENGTH_ORIGINS.eventFilter) {
       setTrackLengthToEventDateRange();
-    } else if (origin === TRACK_LENGTH_ORIGINS.customLength) {
+    } else if (trackLength.origin === TRACK_LENGTH_ORIGINS.customLength) {
       setTrackLengthToCustomDateRange();
     }
-  }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength, setTrackLengthToEventDateRange, setTrackLengthToCustomDateRange]);
+  }, [
+    eventFilterDateRange,
+    eventFilterDateRangeLength,
+    setTrackLengthToCustomDateRange,
+    setTrackLengthToEventDateRange,
+    trackLength.origin,
+  ]);
 
   useEffect(() => {
-    if (!initialized) setInitState(true);
+    if (!initialized) {
+      setInitState(true);
+    }
   }, [initialized]);
 
-  const onOriginChange = ({ target: { value } }) => setTrackLengthRangeOrigin(value);
+  return <Form className={styles.form} onSubmit={(event) => event.preventDefault()}>
+    <h6>{t('header')}</h6>
 
-  const onRangeInputChange = ({ target: { value } }) => setCustomLengthValue(parseFloat(value));
+    <Form.Label className={styles.label} htmlFor="filter">
+      <Form.Check
+        checked={TRACK_LENGTH_ORIGINS.eventFilter === trackLength.origin}
+        className={styles.radio}
+        id="filter"
+        name="track-length-method"
+        onChange={(event) => dispatch(setTrackLengthRangeOrigin(event.target.value))}
+        type="radio"
+        value={TRACK_LENGTH_ORIGINS.eventFilter}
+      />
 
-  const focusRange = () => {
-    if (origin !== TRACK_LENGTH_ORIGINS.customLength) {
-      setTrackLengthRangeOrigin(TRACK_LENGTH_ORIGINS.customLength);
-    }
-  };
-  const isSelected = val => val === origin;
+      <span>{t('matchReportFilterDateLabel', { reportFilterDateRangeLength: eventFilterDateRangeLength })}</span>
+    </Form.Label>
 
-  return <Form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <h6>Track Length:</h6>
-    <Label htmlFor='filter' className={styles.label}>
-      <Check onChange={onOriginChange} id='filter' checked={isSelected(TRACK_LENGTH_ORIGINS.eventFilter)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.eventFilter} type='radio' name='track-length-method' />
-      <span>Match report filter &quot;from&quot; date ({eventFilterDateRangeLength} days)</span>
-    </Label>
-    <Label htmlFor='custom-length' className={styles.label}>
-      <Check onChange={onOriginChange} id='custom-length' checked={isSelected(TRACK_LENGTH_ORIGINS.customLength)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.customLength} type='radio' name='track-length-method' />
-      <span>Custom length</span>
+    <Form.Label className={styles.label} htmlFor="custom-length">
+      <Form.Check
+        checked={TRACK_LENGTH_ORIGINS.customLength === trackLength.origin}
+        className={styles.radio}
+        id="custom-length"
+        name="track-length-method"
+        onChange={(event) => dispatch(setTrackLengthRangeOrigin(event.target.value))}
+        type="radio"
+        value={TRACK_LENGTH_ORIGINS.customLength}
+      />
+
+      <span>{t('customLengthLabel')}</span>
+
       <div className={styles.rangeControls}>
-        <input type='range' {...RANGE_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeSlider} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} value={customLengthValue} onChange={onRangeInputChange} />
-        <input autoComplete='off' {...FREEHAND_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeFreeformInput} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} type='number' value={customLengthValue} name='range-freeform-input' onChange={onRangeInputChange} />
+        <input
+          type="range"
+          {...RANGE_INPUT_ATTRS}
+          className={`${styles.rangeSlider} ${trackLength.origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`}
+          disabled={trackLength.origin !== TRACK_LENGTH_ORIGINS.customLength}
+          onChange={(event) => setCustomLengthValue(parseFloat(event.target.value))}
+          onFocus={focusRange}
+          onMouseDown={focusRange}
+          onTouchStart={focusRange}
+          value={customLengthValue}
+        />
+
+        <input
+          autoComplete="off"
+          {...FREEHAND_INPUT_ATTRS}
+          className={`${styles.rangeFreeformInput} ${trackLength.origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`}
+          disabled={trackLength.origin !== TRACK_LENGTH_ORIGINS.customLength}
+          name="range-freeform-input"
+          onChange={(event) => setCustomLengthValue(parseFloat(event.target.value))}
+          onFocus={focusRange}
+          onMouseDown={focusRange}
+          onTouchStart={focusRange}
+          type="number"
+          value={customLengthValue}
+        />
       </div>
-      {!customLengthValid && <Alert variant='danger'>
-        Please enter a track length between {FREEHAND_INPUT_ATTRS.min} and {FREEHAND_INPUT_ATTRS.max}.
+
+      {!customLengthValid && <Alert variant="danger">
+        {t('invalidCustomLengthAlert', { max: FREEHAND_INPUT_ATTRS.max, min: FREEHAND_INPUT_ATTRS.min })}
       </Alert>}
-    </Label>
+    </Form.Label>
   </Form>;
 };
 
-const mapStatetoProps = ({ view: { trackLength }, data: { eventFilter, tracks } }) => ({
-  trackLength,
-  tracks,
-  eventFilterTimeRange: eventFilter.filter.date_range,
-});
-
-export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin })(memo(TrackLengthControls));
-
-
-TrackLengthControls.defaultProps = {
-  virtualDate: null,
-};
+export default memo(TrackLengthControls);

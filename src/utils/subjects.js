@@ -1,8 +1,9 @@
 import uniqBy from 'lodash/uniqBy';
-import differenceInSeconds from 'date-fns/difference_in_seconds';
+import { differenceInSeconds } from 'date-fns';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import keyBy from 'lodash/keyBy';
 
 import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
@@ -194,6 +195,14 @@ export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tra
       }),
   };
 };
+
+export const updateDeviceStatusProperties = (existing, incoming, matchProp = 'label') =>
+  Object.values(
+    {
+      ...keyBy(existing, matchProp),
+      ...keyBy(incoming, matchProp),
+    }
+  );
 
 /**
  * filterSubjects is a function to drill down a given subject group array tree 

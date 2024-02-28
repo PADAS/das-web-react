@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 
 import FeedDateFilter from './';
+import { render } from '../test-utils';
 
 const dateRange = { lower: null, upper: null };
 const updateFilter = jest.fn();

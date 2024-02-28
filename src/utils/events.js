@@ -1,224 +1,174 @@
 import axios from 'axios';
 import center from '@turf/center';
 import centerOfMass from '@turf/center-of-mass';
-import { featureCollection } from '@turf/helpers';
-
-import store from '../store';
-import { getEventReporters } from '../selectors';
-
-import isObject from 'lodash/isObject';
-import isEqual from 'react-fast-compare';
-import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import { customizeValidator } from '@rjsf/validator-ajv6';
+import { featureCollection } from '@turf/helpers';
+import isObject from 'lodash/isObject';
+import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 
-
-import { calcUrlForImage } from './img';
-import colorVariables from '../common/styles/vars/colors.module.scss';
-import { EVENT_FORM_STATES, EVENT_STATE_CHOICES } from '../constants';
-import { EVENT_API_URL, createEvent, updateEvent, addNoteToEvent, uploadEventFile } from '../ducks/events';
-
+import { addNoteToEvent, createEvent, EVENT_API_URL, updateEvent, uploadEventFile } from '../ducks/events';
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
+import { calcUrlForImage } from './img';
+import { EVENT_FORM_STATES } from '../constants';
+import { getEventReporters } from '../selectors';
+import store from '../store';
+
+import colorVariables from '../common/styles/vars/colors.module.scss';
 
 export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[0];
   const eventCreationUserId = eventCreationDetails?.user?.id;
 
-  if (eventCreationUserId !== currentUser.id) return false;
+  if (eventCreationUserId !== currentUser.id) {
+    return false;
+  }
 
-  const isRecentlyCreated = Math.abs(new Date() - new Date(eventCreationDetails.time)) < 60000; /* did it happen less than a minute ago? */
-
-  if (!isRecentlyCreated) return false;
+  const isRecentlyCreated = Math.abs(new Date() - new Date(eventCreationDetails.time)) < 60000;
+  if (!isRecentlyCreated) {
+    return false;
+  }
 
   return true;
-
 };
 
 export const eventTypeTitleForEvent = (event, eventTypes = []) => {
   const isPatrol = !!event?.patrol_segments?.length && isObject(event.patrol_segments[0]);
+  const matchingType = eventTypes
+    .find((type) => type.value === (isPatrol ? event.patrol_segments[0].patrol_type : event.event_type));
 
-  const matchingType = eventTypes.find(t => (t.value) ===
-    (isPatrol ? event.patrol_segments[0].patrol_type : event.event_type)
-  );
-
-
-  if (matchingType) return matchingType.display;
-  if (event.event_type) return event.event_type;
-
-  return `Unknown ${isPatrol ? 'patrol' : 'event'} type`;
+  if (matchingType) {
+    return matchingType.display;
+  }
+  return event.event_type || null;
 };
 
 export const getReporterById = (id) => {
   const reporters = getEventReporters(store.getState());
 
-  return reporters.find(r => r.id === id);
+  return reporters.find((reporter) => reporter.id === id);
 };
 
-export const displayTitleForEvent = (event, eventTypes) => {
-  if (event.title) return event.title;
+export const displayTitleForEvent = (event, eventTypes) => event.title || eventTypeTitleForEvent(event, eventTypes);
 
-  return eventTypeTitleForEvent(event, eventTypes);
-};
-
-export const getCoordinatesForEvent = event => {
+export const getCoordinatesForEvent = (event) => {
   if (event?.geojson?.geometry?.type === 'Polygon') {
-    return event.geojson.geometry.coordinates
-      .reduce((accumulator, shape) =>
-        [...accumulator, ...shape]
-      , []);
+    return event.geojson.geometry.coordinates.reduce((accumulator, shape) => [...accumulator, ...shape], []);
   }
   return event?.geojson?.geometry?.coordinates;
 };
 
-export const getIdForEvent = evt => evt.id;
+export const getCoordinatesForCollection = (collection) => {
+  if (collection.contains){
+    const collectionCoords = collection.contains
+      .map(({ related_event }) => getCoordinatesForEvent(related_event))
+      .filter((item) => !!item);
+    const collectionHasSingleCoordsItem = collectionCoords.length === 1;
 
-export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
-
-export const getCoordinatesForCollection = collection => collection.contains &&
-  collection.contains
-    .map(contained => getCoordinatesForEvent(contained.related_event))
-    .filter(item => !!item);
-
-export const getEventIdsForCollection = collection => collection.contains &&
-  collection.contains
-    .map(contained => getIdForEvent(contained.related_event))
-    .filter(item => !!item);
-
-export const eventHasLocation = (evt) => {
-  if (evt.is_collection) {
-    return evt.contains && evt.contains.some(contained => !!getCoordinatesForEvent(contained.related_event));
+    // if the collection has only 1 item with valid coords return that value in order to use it in JTLB logic, if not,
+    // return all the event coords available in the collection
+    return collectionHasSingleCoordsItem ? collectionCoords[0] : collectionCoords;
   }
-  return !!evt.location;
+  return null;
 };
 
-export const eventBelongsToCollection = event => !!event?.is_contained_in?.length;
+export const collectionHasMultipleValidLocations = (collection) => getCoordinatesForCollection(collection)?.length > 1;
+
+export const getEventIdsForCollection = (collection) => collection.contains &&
+  collection.contains
+    .map((contained) => contained.related_event.id)
+    .filter((item) => !!item);
+
+export const eventBelongsToCollection = (event) => !!event?.is_contained_in?.length;
+
 export const eventBelongsToPatrol = event => !!event?.patrol_segments?.length;
 
-export const uniqueEventIds = (value, index, self) => {
-  return self.indexOf(value) === index;
-};
-
-export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
-  const totalNumberOfEventTypes = eventTypes.length;
-  const eventTypeFilterCount = eventFilter.filter.event_type.length;
-
-  if (!eventTypeFilterCount) return 'no report types';
-  if (totalNumberOfEventTypes === eventTypeFilterCount) return 'all report types';
-  if (eventTypeFilterCount === 1) {
-    const eventTypeId = eventFilter.filter.event_type[0];
-    const eventType = eventTypes.find(eventType => eventType.id === eventTypeId);
-    if (eventType) return `"${eventType.display}" report type`;
-  }
-  return `${eventTypeFilterCount} report types`;
-};
-
-export const calcFriendlyEventStateFilterString = (eventFilter) => {
-  const { state } = eventFilter;
-  const { label } = EVENT_STATE_CHOICES.find(c => isEqual(state, c.value));
-
-  return label;
-};
-
+export const uniqueEventIds = (value, index, self) => self.indexOf(value) === index;
 
 export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
-
   const location = data && data.location;
-
   const reportedById = data && data.reportedById;
-  const reporter = reportedById && getReporterById(reportedById);
   const time = data && data.time;
 
-  const reported_by = reporter ? reporter : null;
+  const reporter = reportedById && getReporterById(reportedById);
 
   return {
+    event_details: {},
     event_type,
     icon_id,
     is_collection: false,
     location,
-    state: EVENT_FORM_STATES.ACTIVE,
     priority,
-    reported_by,
+    reported_by: reporter || null,
+    state: EVENT_FORM_STATES.ACTIVE,
     time: time ? new Date(time) : new Date(),
-    event_details: {},
   };
 };
 
-export const createNewIncidentCollection = attributes =>
-  createNewReportForEventType(
-    { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, contains: [], ...attributes }
-  );
-
-export const generateErrorListForApiResponseDetails = (response) => {
-  try {
-    const { response: { data: { status: { detail: details } } } } = response;
-    return Object.entries(JSON.parse(details.replace(/'/g, '"')))
-      .reduce((accumulator, [key, value]) =>
-        [{ label: key, message: value }, ...accumulator],
-      []);
-  } catch (e) {
-    return [{ label: 'Unknown error' }];
-  }
-};
+export const createNewIncidentCollection = (attributes) => createNewReportForEventType({
+  contains: [],
+  icon_id: 'incident_collection',
+  is_collection: true,
+  value: 'incident_collection',
+  ...attributes,
+});
 
 export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
   ...mapEventFeatureCollection,
-  features: mapEventFeatureCollection.features.filter((feature) => {
-    return new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0;
-  }),
+  features: mapEventFeatureCollection.features
+    .filter((feature) => new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0),
 });
 
-export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance) => {
-  return {
-    ...featureCollection,
-    features: featureCollection.features
-      .reduce((accumulator, item) => {
-        const diff = (new Date(virtualDate || new Date())  - new Date(item.properties.time));
-        if (diff < 0) return accumulator;
-        return [...accumulator, {
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (
+  featureCollection,
+  virtualDate,
+  totalRangeDistance
+) => ({
+  ...featureCollection,
+  features: featureCollection.features
+    .reduce((accumulator, item) => {
+      const diff = new Date(virtualDate || new Date()) - new Date(item.properties.time);
+      if (diff < 0) {
+        return accumulator;
+      }
+      return [
+        ...accumulator,
+        {
           ...item,
           properties: {
             ...item.properties,
             distanceFromVirtualDate: diff / totalRangeDistance,
           },
-        }];
-      }, []),
-  };
-};
+        },
+      ];
+    }, []),
+});
 
 export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
   if (event?.geojson?.properties?.image) {
     event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
   }
+
   if (event?.geojson?.features) {
-    event.geojson.features = event.geojson.features.map(feature => ({
+    event.geojson.features = event.geojson.features.map((feature) => ({
       ...feature,
       properties: {
         ...feature.properties,
         image: calcUrlForImage(feature.properties.image),
-      }
+      },
     }));
   }
 };
 
-export const calcEventFilterTimeRangeDistance = (eventFilterDateRange, virtualDate) => {
-  const { lower, upper } = eventFilterDateRange;
-  const upperValue = virtualDate ? new Date(virtualDate) :
-    (upper ? new Date(upper) : upper);
-
-  const eventFilterDateRangeLength = upperValue - new Date(lower);
-  return eventFilterDateRangeLength;
-};
 export const addBounceToEventMapFeatures = (features, bounceIDs) => {
-  let featurePropId = 0;
-  const featuresWithIds = features.map((item) => {
-    item.id = ++featurePropId;
-    // enable bounce using Mapbox's style conditionals
-    item.properties.bounce = (bounceIDs.includes(item.properties.id) ) ? 'true' : 'false';
+  const featuresWithIds = features.map((item, index) => {
+    item.id = index + 1;
+    item.properties.bounce = bounceIDs.includes(item.properties.id) ? 'true' : 'false';
     return item;
   });
   return featuresWithIds;
 };
 
-export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => { /* client-side filter validation -- save a round trip request after event updates */
+export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => {
   const { data: { eventFilter, eventTypes } } = (storeFromProps || store).getState();
 
   const reportMatchesDateFilter = () => {
@@ -227,60 +177,51 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
     const updateDate = new Date(updated_at);
 
-
-    if (lower &&
-     (updateDate.getTime() < new Date(lower).getTime())
-    ) {
+    if (lower && (updateDate.getTime() < new Date(lower).getTime())) {
       return false;
     }
-
-    if (upper &&
-    (updateDate.getTime() > new Date(upper).getTime())
-    ) {
+    if (upper && (updateDate.getTime() > new Date(upper).getTime())) {
       return false;
     }
-
     return true;
-
   };
 
-  const reportMatchesStateFilter = () => {
-    if (!eventFilter.state) return true;
-    return eventFilter.state.includes(report.state);
-  };
+  const reportMatchesStateFilter = () => !eventFilter.state || eventFilter.state.includes(report.state);
 
   const reportMatchesEventTypeFilter = () => {
-    if (!eventFilter.filter.event_type.length) return true;
-    const eventTypeValuesFromFilterIds = eventFilter.filter.event_type
-      .map(id => eventTypes.find(type => type.id === id))
-      .filter(item => !!item)
-      .map(({ value }) => value);
+    if (!eventFilter.filter.event_type.length) {
+      return true;
+    }
 
+    const eventTypeValuesFromFilterIds = eventFilter.filter.event_type
+      .map((id) => eventTypes.find((type) => type.id === id))
+      .filter((item) => !!item)
+      .map(({ value }) => value);
     return eventTypeValuesFromFilterIds.includes(report.event_type);
   };
 
   const reportMatchesTextFiter = () => {
     const { filter: { text } } = eventFilter;
-    if (!text || !text.length) return true;
+    if (!text || !text.length) {
+      return true;
+    }
 
     const { notes, serial_number, title, event_details } = report;
     const toTest = JSON.stringify({ notes, serial_number, title, event_details }).toLowerCase();
 
     return toTest.includes(text.toLowerCase());
-
   };
 
-  const reportMatchesPriorityFilter = () => {
-    if (!eventFilter.filter.priority.length) return true;
-    return eventFilter.filter.priority.includes(report.priority);
-  };
+  const reportMatchesPriorityFilter = () => !eventFilter.filter.priority.length
+    || eventFilter.filter.priority.includes(report.priority);
 
   const reportMatchesReportedByFilter = () => {
-    if (!eventFilter.filter.reported_by.length) return true;
-
-    if (!!eventFilter.filter.reported_by.length
-    && !report.reported_by) return false;
-
+    if (!eventFilter.filter.reported_by.length) {
+      return true;
+    }
+    if (!!eventFilter.filter.reported_by.length && !report.reported_by) {
+      return false;
+    }
     return eventFilter.filter.reported_by.includes(report.reported_by.id);
   };
 
@@ -294,23 +235,26 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
 export const addPatrolSegmentToEvent = (segment_id, event_id) => {
   const segmentPayload = { patrol_segments: [segment_id] };
+
   return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
-    .catch(function (error) {
-      console.warn('add segment error', error);
-    });
+    .catch((error) => console.warn('add segment error', error));
 };
 
 export const calcDisplayPriorityForReport = (report, eventTypes) => {
-  if (!!report.priority) return report.priority;
+  if (!!report.priority) {
+    return report.priority;
+  }
 
   if (report.is_collection) {
     const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-    if (!topRatedReportAndType) return report.priority;
+    if (!topRatedReportAndType) {
+      return report.priority;
+    }
 
-    return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-      topRatedReportAndType.related_event.priority
-      : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
-        topRatedReportAndType.event_type.default_priority
+    return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority)
+      ? topRatedReportAndType.related_event.priority
+      : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority)
+        ? topRatedReportAndType.event_type.default_priority
         : report.priority;
   }
 
@@ -327,22 +271,22 @@ export const PRIORITY_COLOR_MAP = {
   300: {
     base: colorVariables.red,
     background: colorVariables.redBg,
-    name: 'Red',
+    key: 'red',
   },
   200: {
     base: colorVariables.amber,
     background: colorVariables.amberBg,
-    name: 'Amber',
+    key: 'amber',
   },
   100: {
     base: colorVariables.green,
     background: colorVariables.greenBg,
-    name: 'Green',
+    key: 'green',
   },
   0: {
     base: colorVariables.gray,
     background: colorVariables.grayBg,
-    name: 'None',
+    key: 'none',
   },
 };
 
@@ -350,6 +294,7 @@ export const setOriginalTextToEventNotes = (event) => {
   if (!event){
     return null;
   }
+
   const { notes = [] } = event;
   return {
     ...event,
@@ -362,38 +307,22 @@ export const isReportActive = (report) => ['active', 'new'].includes(report?.sta
 export const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
 export const REPORT_SAVE_ACTIONS = {
-  create(data) {
-    return {
-      priority: 300,
-      action() {
-        return store.dispatch(createEvent(data));
-      },
-    };
-  },
-  update(data) {
-    return {
-      priority: 250,
-      action() {
-        return store.dispatch(updateEvent(data));
-      },
-    };
-  },
-  addNote(note) {
-    return {
-      priority: 200,
-      action(event_id) {
-        return store.dispatch(addNoteToEvent(event_id, note));
-      },
-    };
-  },
-  addFile(file) {
-    return {
-      priority: 200,
-      action(event_id) {
-        return store.dispatch(uploadEventFile(event_id, file));
-      },
-    };
-  },
+  create: (data) => ({
+    action: () => store.dispatch(createEvent(data)),
+    priority: 300,
+  }),
+  update: (data) => ({
+    action: () => store.dispatch(updateEvent(data)),
+    priority: 250,
+  }),
+  addNote: (note) => ({
+    action: (event_id) => store.dispatch(addNoteToEvent(event_id, note)),
+    priority: 200,
+  }),
+  addFile: (file) => ({
+    action: (event_id) => store.dispatch(uploadEventFile(event_id, file)),
+    priority: 200,
+  }),
 };
 
 export const getReportLink = (report) => {

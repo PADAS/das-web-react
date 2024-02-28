@@ -2,6 +2,7 @@ import React, { forwardRef, memo, useCallback, useContext, useMemo, useState, us
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { analyticsMetadataProps } from '../proptypes';
 import { BREAKPOINTS } from '../constants';
@@ -32,6 +33,7 @@ const EditableItemHeader = ({
 
   const menuRef = useRef(null);
   const historyRef = useRef(null);
+  const { t } = useTranslation('details-view', { keyPrefix: 'header' });
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
@@ -89,13 +91,15 @@ const EditableItemHeader = ({
 
   const HistoryLink = data.updates && <>
     <span ref={historyRef} onClick={onHistoryClick} className={styles.history}>
-      {data.updates.length > 1 ? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
+      { t(data.updates.length > 1 ? 'historyLinkUpdated' : 'historyLinkCreated' )} <TimeAgo date={updateTime}/>
     </span>
   </>;
 
   // eslint-disable-next-line react/display-name
   const HistoryPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.historyPopover}>
-    <Popover.Header>History</Popover.Header>
+    <Popover.Header>
+      {t('sectionTitle')}
+    </Popover.Header>
 
     <Popover.Body>
       <ul>
@@ -167,7 +171,9 @@ const EditableItemHeader = ({
           <HistoryPopover />
         </Overlay>
 
-        {data.state === 'resolved' && <small>resolved</small>}
+        {data.state === 'resolved' && <small>
+          {t('resolvedLabel')}
+        </small>}
       </div>
     </h4>
   </div>;

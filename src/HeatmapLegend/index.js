@@ -1,57 +1,49 @@
-import React, { memo, isValidElement } from 'react';
+import React, { isValidElement, memo } from 'react';
 import PropTypes from 'prop-types';
-import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
+
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import MapLegend from '../MapLegend';
 import HeatmapStyleControls from '../HeatmapStyleControls';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
+const HeatmapLegend = ({ dayCount, onClose, pointCount, title, ...restProps }) => {
+  const { t } = useTranslation('heatmap', { keyPrefix: 'heatmapLegend' });
 
-  const onLegendClose = (e) => {
+  const onLegendClose = (event) => {
+    onClose(event);
+
     mapInteractionTracker.track('Close Heatmap');
-    onClose(e);
   };
 
-  const titleElement = isValidElement(title) ? title : <h6>{title}</h6>;
-  const settingsComponent = <HeatmapStyleControls showCancel={false} />;
-
   return <MapLegend
+    onClose={onLegendClose}
+    settingsComponent={<HeatmapStyleControls showCancel={false} />}
     titleElement={
       <div className={styles.titleWrapper}>
-        <HeatmapToggleButton heatmapVisible={true} showLabel={false} className={styles.heatIcon} />
+        <HeatmapToggleButton className={styles.heatIcon} heatmapVisible={true} showLabel={false} />
+
         <div className={styles.innerTitleWrapper}>
-          {titleElement}
-          <span>{pointCount} points over {dayCount} day{dayCount > 1 ? 's' : ''}</span>
+          {isValidElement(title) ? title : <h6>{title}</h6>}
+
+          <span>{t('pointCount', { count: pointCount })} {t('dayTimespan', { count: dayCount })}</span>
         </div>
       </div>
     }
-    onClose={onLegendClose}
-    settingsComponent={settingsComponent}
-    {...rest}
+    {...restProps}
   />;
 };
 
 HeatmapLegend.propTypes = {
-  title: PropTypes.oneOfType([
-    PropTypes.element, PropTypes.node,
-  ]).isRequired,
-  pointCount: PropTypes.number.isRequired,
   dayCount: PropTypes.number.isRequired,
   onClose: PropTypes.func.isRequired,
+  pointCount: PropTypes.number.isRequired,
+  title: PropTypes.oneOfType([PropTypes.element, PropTypes.node]).isRequired,
 };
 
-
-
 export default memo(HeatmapLegend);
-
-
-/* heatmap state should look like this:
-  -- list of contained subjects with each subject's number of points
-  -- featureCollection with all points
-*/
-

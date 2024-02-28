@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
 import { createMapMock } from '../__test-helpers/mocks';
 
 import mapboxgl from 'mapbox-gl';
@@ -8,6 +7,7 @@ import { MapContext } from '../App';
 import MapDrawingTools, { DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
 import { useMatchMedia } from '../hooks';
+import { render, waitFor } from '../test-utils';
 
 import { LAYER_IDS } from './MapLayers';
 

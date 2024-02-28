@@ -1,0 +1,35 @@
+{
+  "cursorGPSDisplay": {
+    "gpsDisplayTooltip": "Press enter to search",
+    "titleIconSearch": "Search"
+  },
+  "baseLayer": {
+    "popoverButton": "Set Map Base Layer",
+    "popoverTitle": "Base Layers",
+    "logoAlt": "{{logoName}} logo",
+    "defaultMapLayerName": "EarthRanger Terrain Map"
+  },
+  "mapDrawingTools": {
+    "addPointLabel": "Click to add a point. \n Hit 'enter' or 'return' to complete.",
+    "bearingLabel": "Bearing: {{bearing}}°",
+    "distanceLabel": "Distance: {{distance}}",
+    "instructionsLabel": "Click & drag to add a point",
+    "popupLabel": "Click to add a point"
+  },
+  "mapPrintControl": {
+    "documentTitle": "Document Title:",
+    "printButtonTitle": "Print map",
+    "printButton": "Print map",
+    "printInstructions": "Adjust the 'scale' setting when printing for best results"
+  },
+  "mapRuler": {
+    "cancelButton": "Cancel",
+    "closeButton": "Close",
+    "title": "Map ruler"
+  },
+  "pointPopup": {
+    "bearingLabel": "Bearing:",
+    "distanceLabel": "Distance from start:",
+    "finishButton": "click here to finish"
+  }
+}

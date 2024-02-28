@@ -1,0 +1,58 @@
+{
+  "messagesModal": {
+    "backToAllMessagesButton": "← Todos los mensajes",
+    "cancelButton": "Cancelar",
+    "messagesHeader": "Mensajes",
+    "newMessageButton": "Nuevo mensaje",
+    "noMessagingSubjectText": "No puedes enviar mensajes a este sujeto."
+  },
+  "messagingSelect": {
+    "allOptionsLabel": "Todos",
+    "hiddenValue": "escondido",
+    "placeholder": "Enviar mensaje a...",
+    "restrictedOptionLabel": "RESTRINGIDO"
+  },
+  "nav": {
+    "navHomeMenu": {
+      "myCurrentLocationItem": "Mi Ubicación Actual"
+    }
+  },
+  "notificationMenu": {
+    "errorFetchingHeader": "Error cargando los anuncios.",
+    "noNewNotificationsHeader": "No hay notificaciones nuevas.",
+    "notificationItem": {
+      "confirmButton": "Confirmar",
+      "dismissButton": "Descartar",
+      "moreInformationLink": "Más información"
+    },
+    "outdatedNotifications_one": "Tienes {{count}} mensaje nuevo.",
+    "outdatedNotifications_other": "Tienes {{count}} mensajes nuevos.",
+    "readMore": "Leer más",
+    "seeAllNewsButton": "Ver todas las noticias >",
+    "tryAgainButton": "Intentar de nuevo"
+  },
+  "profilePINModal": {
+    "error": "PIN incorrecto",
+    "title": "Introduce tu PIN",
+    "userLabel": "Usuario: "
+  },
+  "systemStatus": {
+    "datasourceDefTitle": "actividad del dispositivo",
+    "dateTimeSuffix": "atrás",
+    "HEALTHY": "Estable",
+    "heartBeatDefTitle": "actividad del sistema",
+    "initialRealTimeStatusTitle": "Tiempo real de EarthRanger",
+    "initialRealTimeStatusDetails": "Actividad",
+    "initialNetworkStatusTitle": "Red",
+    "networkOnlineLabel": "en línea",
+    "networkOfflineLabel": "desconectado",
+    "serverVersionLabel": "Servidor de EarthRanger {{version}}",
+    "UNHEALTHY": "Inestable",
+    "UNKNOWN": "Desconocido",
+    "WARNING": "Precaución"
+  },
+  "userMenu": {
+    "cookieSettingsItem": "Configuración de cookies",
+    "logoutItem": "Cerrar sesión"
+  }
+}

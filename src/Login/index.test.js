@@ -1,13 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
+
+import { render, screen, waitFor } from '../test-utils';
 
 import { fetchEula } from '../ducks/eula';
 import { fetchSystemStatus } from '../ducks/system-status';
 import Login from './';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { postAuth, clearAuth } from '../ducks/auth';
 import useNavigate from '../hooks/useNavigate';
 
@@ -51,9 +51,7 @@ describe('Login', () => {
 
     render(
       <Provider store={store}>
-        <NavigationWrapper>
-          <Login />
-        </NavigationWrapper>
+        <Login />
       </Provider>
     );
   });

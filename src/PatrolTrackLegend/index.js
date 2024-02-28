@@ -1,112 +1,110 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
-import length from '@turf/length';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
+import length from '@turf/length';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-import MapLegend from '../MapLegend';
-import DasIcon from '../DasIcon';
-import PatrolDistanceCovered from '../Patrols/DistanceCovered';
+import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
 import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { visibleTrackedPatrolData } from '../selectors/patrols';
 
-import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
+import DasIcon from '../DasIcon';
+import MapLegend from '../MapLegend';
+import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import styles from '../TrackLegend/styles.module.scss';
 
-
-const TitleElement = memo((props) => { // eslint-disable-line
-  const { displayTitle, iconId, patrolData, onRemovePatrolClick } = props;
+const TitleElement = ({ displayTitle, iconId, onRemovePatrolClick, patrolData }) => {
+  const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend.titleElement' });
 
   const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData, leader }) => {
-    const title = displayTitleForPatrol(
-      patrol,
-      leader,
-    );
-
     const iconId = iconTypeForPatrol(patrol);
-    const { id } = patrol;
+    const title = displayTitleForPatrol(patrol, leader);
 
-    const trackLength = `${trackData ? length(trackData.track).toFixed(2): 0.00}km`;
+    return <li key={patrol.id}>
+      <DasIcon className={styles.svgIcon} iconId={iconId} title={t('icon', { title })} type="events" />
 
-    return <li key={id}>
-      <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} />
       <div className={styles.listItemDetails}>
         <span>{title}</span>
-        <small>{trackLength} covered</small>
+
+        <small>{t('lengthCovered', { length: `${trackData ? length(trackData.track).toFixed(2): 0.00}km` })}</small>
       </div>
-      <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
+
+      <Button onClick={onRemovePatrolClick} value={patrol.id} variant="secondary">{t('removeButton')}</Button>
     </li>;
-  }, [onRemovePatrolClick]);
+  }, [onRemovePatrolClick, t]);
 
   return <div className={styles.titleWrapper}>
-    {iconId && <DasIcon type='events' iconId={iconId} className={styles.svgIcon} />}
+    {iconId && <DasIcon className={styles.svgIcon} iconId={iconId} type="events" />}
+
     <div className={styles.innerTitleWrapper}>
       <h6>
         {displayTitle}
-        {patrolData.length > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
-          <Popover className={styles.popover} id="track-details">
+
+        {patrolData.length > 1 && <OverlayTrigger
+          overlay={<Popover className={styles.popover} id="track-details">
             <ul>
               {patrolData.map(convertPatrolTrackToDetailItem)}
             </ul>
-          </Popover>
-        }>
-          <button type="button" className={styles.infoButton}>
+          </Popover>}
+          placement="right"
+          rootClose
+          trigger="click"
+        >
+          <button className={styles.infoButton} type="button">
             <InfoIcon className={styles.infoIcon} />
           </button>
         </OverlayTrigger>}
       </h6>
-      <span><PatrolDistanceCovered patrolsData={patrolData} /> covered</span>
+
+      <span>
+        <PatrolDistanceCovered patrolsData={patrolData} />
+
+        {t('coveredSpan')}
+      </span>
     </div>
   </div>;
-});
+};
 
+const PatrolTrackLegend = (props) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend' });
 
-const PatrolTrackLegend = ({ dispatch: _dispatch, patrolData, updateTrackState, trackState, ...rest }) => {
+  const patrolData = useSelector(visibleTrackedPatrolData);
+  const trackState = useSelector((state) => state.view.patrolTrackState);
+
   const hasData = !!patrolData.length;
   const isMulti = patrolData.length > 1;
 
-  const displayTitle = useMemo(() => {
-    if (!hasData) return null;
-    if (!isMulti) return `Patrol: ${displayTitleForPatrol(
-      patrolData[0].patrol,
-      patrolData[0].leader,
-    )}`;
-
-    return `${patrolData.length} patrols`;
-  }, [hasData, isMulti, patrolData]);
-
-  const iconId = useMemo(() => {
-    if (isMulti || !hasData) return null;
-
-    return iconTypeForPatrol(patrolData[0].patrol);
-  }, [hasData, isMulti, patrolData]);
-
-  const onRemovePatrolClick = useCallback(({ target: { value: id } }) => {
-    updateTrackState({
-      visible: trackState.visible.filter(val => val !== id),
-      pinned: trackState.pinned.filter(val => val !== id),
+  let displayTitle;
+  if (!hasData) {
+    displayTitle = null;
+  } else if (!isMulti) {
+    displayTitle = t('singlePatrolTitle', {
+      patrolDisplayTitle: displayTitleForPatrol(patrolData[0].patrol, patrolData[0].leader),
     });
-  }, [trackState.pinned, trackState.visible, updateTrackState]);
+  } else {
+    displayTitle = t('multiplePatrolsTitle', { count: patrolData.length });
+  }
+
+  const iconId = !isMulti && hasData ? iconTypeForPatrol(patrolData[0].patrol) : null;
 
   return hasData ? <MapLegend
-    {...rest}
-    titleElement={
-      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData}
-        onRemovePatrolClick={onRemovePatrolClick} />
-    } /> : null;
+    {...props}
+    titleElement={<TitleElement
+      displayTitle={displayTitle}
+      iconId={iconId}
+      onRemovePatrolClick={(event) => dispatch(updatePatrolTrackState({
+        visible: trackState.visible.filter((value) => value !== event.target.value),
+        pinned: trackState.pinned.filter((value) => value !== event.target.value),
+      }))}
+      patrolData={patrolData}
+    />}
+  /> : null;
 };
 
-const mapStateToProps = (state) => ({
-  trackState: state.view.patrolTrackState,
-  patrolData: visibleTrackedPatrolData(state),
-});
-
-const mapDispatchToProps = dispatch => ({
-  updateTrackState: update => dispatch(updatePatrolTrackState(update)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(memo(PatrolTrackLegend));
+export default memo(PatrolTrackLegend);

@@ -118,11 +118,13 @@ const createServiceModelsFromApiResponse = services => services.map(service => g
   provider_key: service.provider_key,
   status: service.status_code === 'OK' ? HEALTHY_STATUS : service.status_code === 'WARNING' ? WARNING_STATUS : UNHEALTHY_STATUS,
   heartbeat: {
-    title: service.heartbeat.title || 'system activity',
+    title: service.heartbeat.title,
+    keyDefaultTitle: 'heartBeatDefTitle',
     timestamp: new Date(service.heartbeat.latest_at) || null,
   },
   datasource: {
-    title: service.datasource.title || 'device activity',
+    title: service.datasource.title,
+    keyDefaultTitle: 'datasourceDefTitle',
     timestamp: new Date(service.datasource.latest_at) || null,
   },
 }));
@@ -171,10 +173,11 @@ const genericStatusReducer = (reducer, onApiResponse = (update, state) => state)
 };
 
 const INITIAL_NETWORK_STATUS_STATE = genericStatusModel({
-  title: 'Network',
-  details: window.navigator.onLine ? 'online' : 'offline',
+  titleKey: 'initialNetworkStatusTitle',
+  detailsKey: window.navigator.onLine ? 'networkOnlineLabel' : 'networkOfflineLabel',
   status: window.navigator.onLine ? HEALTHY_STATUS : UNHEALTHY_STATUS,
 });
+
 const networkStatusReducer = function (state = INITIAL_NETWORK_STATUS_STATE, { payload, type }) {
   switch (type) {
   case (NETWORK_STATUS_CHANGE): {
@@ -204,7 +207,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
     return {
       ...state,
       version,
-      title: `EarthRanger Server ${version}`,
+      titleKey: 'serverVersionLabel',
     };
   }
   case (NETWORK_STATUS_CHANGE): {
@@ -234,15 +237,16 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
     version: version,
     details: DAS_HOST || window.location.origin,
     status: HEALTHY_STATUS,
-    title: `EarthRanger Server ${version}`,
+    titleKey: 'serverVersionLabel'
   };
 });
 
 const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
-  title: 'EarthRanger Realtime',
-  details: 'Activity',
+  titleKey: 'initialRealTimeStatusTitle',
+  detailsKey: 'initialRealTimeStatusDetails',
   timestamp: null,
 });
+
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {
   switch (type) {
   case (SOCKET_HEALTHY_STATUS): {

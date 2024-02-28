@@ -1,10 +1,10 @@
 import React from 'react';
-import subSeconds from 'date-fns/sub_seconds';
+import { subSeconds } from 'date-fns';
 
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { generateDaysAgoDate } from '../utils/datetime';
+import { render, screen } from '../test-utils';
 
 import DateRangeSelector from './';
 

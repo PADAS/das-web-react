@@ -4,7 +4,7 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
 import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
-import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
@@ -34,7 +34,7 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
   const [featureFilterEnabled, setFeatureFilterEnabledState] = useState(false);
 
   useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
+    const filterText = mapLayerFilter.text || '';
     setSearchTextState(filterText);
     setFeatureFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
@@ -123,7 +123,7 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
 
 const mapStateToProps = (state) => ({
   featureList: getFeatureLayerListState(state),
-  hiddenFeatureIDs: state.view.hiddenFeatureIDs,
+  hiddenFeatureIDs: state.data.mapLayerFilter.hiddenFeatureIDs,
   mapLayerFilter: state.data.mapLayerFilter
 });
 

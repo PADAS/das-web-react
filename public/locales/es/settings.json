@@ -1,0 +1,26 @@
+{
+  "inactiveRadioControl": {
+    "label": "Mostrar radios inactivos"
+  },
+  "mapDataZoomSimplificationControl": {
+    "label": "Simplificar información del mapa al hacer zoom"
+  },
+  "mapLockControl": {
+    "label": "Bloquear mapa"
+  },
+  "mapNamesControl": {
+    "allCheckboxLabel": "Todos",
+    "layerLabels": {
+      "subjects": "Sujetos",
+      "stationary_subjects": "Sujetos estacionarios",
+      "reports": "Reportes",
+      "patrols": "Patrullas"
+    }
+  },
+  "mapTrackTimepointsControl": {
+    "label": "Mostrar puntos de tiempo en trayectorias"
+  },
+  "userLocationMapControl": {
+    "label": "Mostrar mi ubicación actual"
+  }
+}

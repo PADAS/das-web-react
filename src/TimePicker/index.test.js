@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
 import TimePicker from '.';
-import addMinutes from 'date-fns/add_minutes';
+import { addMinutes } from 'date-fns';
 import { getUserLocaleTime } from '../utils/datetime';
+import { render, screen } from '../test-utils';
 
 describe('TimePicker', () => {
   const onChange = jest.fn();

@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
@@ -42,17 +43,23 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   } = usePatrol(patrol);
 
   const titleInput = useRef();
+  const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
 
   const isNewPatrol = !patrol.id;
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
-      return <span data-testid="patrol-drawer-header-details">
-        {patrolElapsedTime} | <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+      return <span data-testid="patrol-drawer-header-details" className={`${styles.headerDetails} ${styles.overflowedEllipsisText}`}>
+        {patrolElapsedTime}
+        <span className={styles.distanceCovered}>
+          <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+        </span>
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span data-testid="patrol-drawer-header-details">Scheduled {scheduledStartTime}</span>;
+      return <span className={`${styles.scheduledStartTime} ${styles.overflowedEllipsisText}`} data-testid="patrol-drawer-header-details">
+        {t('patrolSchedule', { scheduledStartTime })}
+      </span>;
     }
     return null;
   }, [
@@ -112,7 +119,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
     <div className={styles.titleAndDetails}>
       {title && <div
-        className={styles.title}
+        className={`${styles.title} ${styles.overflowedEllipsisText}`}
         contentEditable
         data-testid="patrolDetailView-header-title"
         onBlur={onTitleBlur}
@@ -127,7 +134,9 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     </div>
 
     {!isNewPatrol && <div className={styles.description} data-testid="patrol-drawer-header-description">
-      <span style={{ color: (theme?.fontColor ?? theme?.base) }}>{patrolState.title}</span>
+      <span style={{ color: (theme?.fontColor ?? theme?.base) }}>
+        {t(`uiStateTitles.${patrolState.key}`)}
+      </span>
       <br />
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
@@ -141,7 +150,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       variant="secondary"
     >
       <PlayIcon />
-      Start
+      {t('patrolStartButton')}
     </Button>}
 
     {isPatrolCancelled && <Button
@@ -150,10 +159,17 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       type="button"
       variant="secondary"
     >
-      Restore
+      {t('patrolRestoreButton')}
     </Button>}
 
-    {!isNewPatrol && <PatrolMenu isPatrolCancelled={isPatrolCancelled} printableContentRef={printableContentRef} onPatrolChange={onPatrolChange} patrol={patrol} patrolTitle={title} />}
+    {!isNewPatrol && <PatrolMenu
+      isPatrolCancelled={isPatrolCancelled}
+      onPatrolChange={onPatrolChange}
+      patrol={patrol}
+      patrolTitle={title}
+      printableContentRef={printableContentRef}
+      className={styles.patrolMenu}
+    />}
   </div>;
 };
 

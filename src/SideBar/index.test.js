@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { useLocation } from 'react-router-dom';
@@ -15,9 +14,9 @@ import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
+import { render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
@@ -82,7 +81,7 @@ describe('SideBar', () => {
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },
-        mapLayerFilter: { filter: { text: '' } },
+        mapLayerFilter: { text: '', hiddenAnalyzerIDs: [] },
         patrolFilter: {
           filter: {
             date_range: { lower: null, upper: null },
@@ -105,7 +104,6 @@ describe('SideBar', () => {
       },
       view: {
         featureFlagOverrides: {},
-        hiddenAnalyzerIDs: [],
         userPreferences: {},
         sideBar: {},
         systemConfig: {
@@ -127,13 +125,11 @@ describe('SideBar', () => {
 
   const renderSideBar = (mockedStore = mockStore(store)) => render(
     <Provider store={mockedStore}>
-      <NavigationWrapper>
-        <MockSocketProvider>
-          <MapContext.Provider value={map}>
-            <SideBar />
-          </MapContext.Provider>
-        </MockSocketProvider>
-      </NavigationWrapper>
+      <MockSocketProvider>
+        <MapContext.Provider value={map}>
+          <SideBar />
+        </MapContext.Provider>
+      </MockSocketProvider>
     </Provider>
   );
 
