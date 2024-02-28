@@ -1,10 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../test-utils';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 
-import { INTIAL_REDUCER_STATE, setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
+import { INITIAL_REDUCER_STATE, setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
 
 import BetaToggles from './';
 
@@ -15,7 +15,7 @@ describe('the BetaToggles component', () => {
   beforeEach(() => {
     store = mockStore({
       view: {
-        featureFlagOverrides: INTIAL_REDUCER_STATE,
+        featureFlagOverrides: INITIAL_REDUCER_STATE,
       }
     });
 
@@ -28,8 +28,9 @@ describe('the BetaToggles component', () => {
   });
   test('listing overrides', async () => {
     const wrapper = await screen.findByTestId('wrapper');
+    const overrideLabels = ['New Patrol Form UI', 'Play Sound For New Reports'];
 
-    Object.values(INTIAL_REDUCER_STATE).forEach(({ label }) => {
+    overrideLabels.forEach((label) => {
       expect(wrapper).toHaveTextContent(label);
     });
 
@@ -43,7 +44,7 @@ describe('the BetaToggles component', () => {
     toggle.click();
 
     const actions = store.getActions();
-    const expectedPayload = setFlagOverrideValue(betaFlagToToggle, !INTIAL_REDUCER_STATE[betaFlagToToggle].value);
+    const expectedPayload = setFlagOverrideValue(betaFlagToToggle, !INITIAL_REDUCER_STATE[betaFlagToToggle].value);
     expect(actions).toEqual([expectedPayload]);
   });
 

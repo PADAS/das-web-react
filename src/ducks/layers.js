@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { API_URL, REACT_APP_BASE_MAP_STYLES } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
@@ -6,7 +7,6 @@ import globallyResettableReducer from '../reducers/global-resettable';
 const FETCH_BASE_LAYERS_START = 'FETCH_BASE_LAYERS_START';
 const FETCH_BASE_LAYERS_SUCCESS = 'FETCH_BASE_LAYERS_SUCCESS';
 const FETCH_BASE_LAYERS_ERROR = 'FETCH_BASE_LAYERS_ERROR';
-
 const SET_BASE_LAYER = 'SET_BASE_LAYER';
 
 export const BASE_LAYER_API_URL = `${API_URL}layers`;
@@ -38,7 +38,7 @@ export const setBaseLayer = (layer) => ({
 });
 
 const DEFAULT_BASE_LAYER = {
-  name: 'EarthRanger Terrain Map',
+  nameKey: 'defaultMapLayerName',
   id: 'earthranger-terrain-map',
   attributes: {
     url: REACT_APP_BASE_MAP_STYLES,

@@ -1,16 +1,27 @@
 import React, { memo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { BETA_PREVIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { setFlagOverrideValue } from '../../ducks/feature-flag-overrides';
+
 
 const tracker = trackEventFactory(BETA_PREVIEW_CATEGORY);
 
 const BetaToggles = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('menu-drawer', { keyPrefix: 'betaToggles' });
 
   const toggleableFeatures = useSelector(
-    (state) => Object.entries(state.view.featureFlagOverrides).filter(([key]) => key !== '_persist')
+    (state) => Object.entries(state.view.featureFlagOverrides)
+      .filter(([key]) => key !== '_persist')
+      .map(([label, feature]) => ([
+        label,
+        {
+          ...feature,
+          label: t(feature.labelKey)
+        }
+      ]))
   );
 
   const onFlagOverrideToggle = useCallback((event) => {

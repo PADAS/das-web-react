@@ -3,6 +3,10 @@
     "iframeBottomMessage": "Cada usuario de EarthRanger puede recibir hasta 20 alertas al día.",
     "iframeTitle": "Configure sus alertas de EarthRanger"
   },
+  "betaToggles": {
+    "patrolUI": "Nueva interfaz del formulario de patrullajes",
+    "reportNotification": "Reproducir alerta para nuevos reportes"
+  },
   "dailyReportModal": {
     "dataExportModalTitle": "Reportes diarios",
     "todaysReportButton": "Reportes de hoy",
