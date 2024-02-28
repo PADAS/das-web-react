@@ -21,7 +21,6 @@ import {
 } from '../../../utils/events';
 import { basePrintingStyles } from '../../../utils/styles';
 import { TAB_KEYS } from '../../../constants';
-import { fetchPatrol } from '../../../ducks/patrols';
 import { TrackerContext } from '../../../utils/analytics';
 
 import AddToIncidentModal from '../../../AddToIncidentModal';
@@ -85,8 +84,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
 
     reportTracker.track(`Added ${report.is_collection ? 'Incident':'Event'} to Patrol`);
 
-    dispatch(fetchEvent(savedReport.id));
-    dispatch(fetchPatrol(patrol.id)).then(() => {
+    dispatch(fetchEvent(savedReport.id)).then(() => {
       removeModal();
       setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
     });

@@ -3,7 +3,6 @@ import {
   addMinutes,
   isToday,
   isThisYear,
-  isAfter,
   isWithinInterval,
   formatDistance,
 } from 'date-fns';
@@ -240,26 +239,6 @@ export const getLeaderForPatrol = (patrol, subjectStore) => {
   return subjectStore[leader.id] || leader;
 };
 
-export const getPatrolsForSubject = (patrols, subject) => {
-  return patrols.filter(patrol => {
-    return getLeaderForPatrol(patrol)?.id === subject.id;
-  });
-};
-
-export const getReportIdsForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return [];
-  // this is only grabbibng the first segment for now
-  const [firstLeg] = patrol.patrol_segments;
-  const { events } = firstLeg;
-  const eventIds =
-    events?.reduce((accumulator, { id }) =>
-      id
-        ? [...accumulator, id]
-        : accumulator, []
-    );
-  return eventIds || [];
-};
-
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
@@ -366,14 +345,6 @@ export const displayPatrolSegmentId = (patrol) => {
   return id || null;
 };
 
-export const isSegmentEndScheduled = (patrolSegment) => {
-  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
-  const time = end_time || scheduled_end;
-
-  return !!time && new Date(time).getTime() > new Date().getTime();
-};
-
-
 export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
 
 export const isPatrolDone = (patrol) => patrol.state === 'done';
@@ -432,19 +403,6 @@ export const isSegmentPending = (patrolSegment) => {
   return !start_time || isPatrolStartDateInTheFuture;
 };
 
-export const isSegmentOverdueToEnd = (patrolSegment) => {
-  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
-
-  if (!end_time && !!scheduled_end) {
-    const patrolEndDate = new Date(scheduled_end);
-    const patrolEndOverdueDate = addMinutes(patrolEndDate.getTime(), DELTA_FOR_OVERDUE);
-    const now = new Date();
-
-    return patrolEndOverdueDate < now.getTime();
-  }
-  return false;
-};
-
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
@@ -469,12 +427,6 @@ export const formatPatrolStateTitleDate = (date) => {
   }
 
   return format(date, defaultFormat);
-};
-
-export const displayPatrolEndOverdueTime = (patrol) => {
-  const endTime = displayEndTimeForPatrol(patrol);
-  const currentTime = new Date();
-  return formatDistance(currentTime, endTime, { includeSeconds: true });
 };
 
 export const patrolStateDetailsStartTime = (patrol) =>
@@ -519,13 +471,6 @@ export const calcPatrolState = (patrol) => {
     return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
-};
-
-export const canStartPatrol = (patrol) => {
-  const patrolState = calcPatrolState(patrol);
-  return (patrolState === PATROL_UI_STATES.READY_TO_START
-      || patrolState === PATROL_UI_STATES.SCHEDULED
-      || patrolState === PATROL_UI_STATES.START_OVERDUE);
 };
 
 export const canEndPatrol = (patrol) => {
@@ -695,21 +640,6 @@ export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackDa
   return multiLineString(asArray, { stroke: start_location.properties.stroke });
 
 };
-
-export const patrolTimeRangeIsValid = (patrol) => {
-  const startTime = displayStartTimeForPatrol(patrol);
-  const endTime = displayEndTimeForPatrol(patrol);
-
-  if (startTime && !endTime) {
-    return true;
-  } else if (startTime && endTime && isAfter(endTime, startTime)) {
-    return true;
-  }
-
-  return false;
-
-};
-
 
 export const patrolHasGeoDataToDisplay = (trackData, startStopGeometries) => !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
 
