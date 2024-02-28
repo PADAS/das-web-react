@@ -1,7 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { customizeValidator } from '@rjsf/validator-ajv6';
 import Form from '@rjsf/bootstrap-4';
-import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +16,9 @@ import {
   ObjectFieldTemplate,
   RemoveButton,
 } from '../SchemaFields';
+import { formValidator } from '../utils/events';
 
 import styles from './styles.module.scss';
-
-const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
 
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });

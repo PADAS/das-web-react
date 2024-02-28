@@ -8,43 +8,19 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import store from '../store';
 
 export const EVENT_SORT_OPTIONS = [
-  {
-    label: 'Date Updated',
-    value: 'updated_at',
-    key: 'updatedAtLabel'
-  },
-  {
-    label: 'Created Date',
-    value: 'created_at',
-    key: 'createdAtLabel'
-  },
-  {
-    label: 'Report Date',
-    value: 'event_time',
-    key: 'eventTimeLabel'
-  },
+  { value: 'updated_at', key: 'updatedAtLabel' },
+  { value: 'created_at', key: 'createdAtLabel' },
+  { value: 'event_time', key: 'eventTimeLabel' },
 ];
 
-export const SORT_DIRECTION = {
-  up: 'up',
-  down: 'down'
-};
+export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const EVENT_SORT_ORDER_OPTIONS = [
-  {
-    label: 'Newest to Oldest',
-    value: SORT_DIRECTION.down,
-    key: 'newest'
-  },
-  {
-    label: 'Oldest to Newest',
-    value: SORT_DIRECTION.up,
-    key: 'oldest'
-  },
+  { value: SORT_DIRECTION.down, key: 'newest' },
+  { value: SORT_DIRECTION.up, key: 'oldest' },
 ];
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
-
 
 export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
   !isEqual(INITIAL_FILTER_STATE.state, state)
@@ -53,17 +29,10 @@ export const isFilterModified = ({ state, filter: { priority, reported_by, text 
     || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by)
 );
 
-export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
+export const calcSortParamForEventFilter = ([direction, sortProp]) =>
+  `${direction === SORT_DIRECTION.down ? '-' : ''}${sortProp.value}`;
 
-export const calcSortParamForEventFilter = (sortConfig) => {
-  const [direction, sortProp] = sortConfig;
-  return `${direction === SORT_DIRECTION.down ? '-' : ''}${sortProp.value}`;
-};
-
-export const calcTimePropForSortConfig = (sortConfig) => {
-  const [, sortProp] = sortConfig;
-  return sortProp.value === 'event_time' ? 'time' : sortProp.value;
-};
+export const calcTimePropForSortConfig = ([, sortProp]) => sortProp.value === 'event_time' ? 'time' : sortProp.value;
 
 export const sortEventsBySortConfig = (events, sortConfig) => {
   const [direction] = sortConfig;
@@ -73,7 +42,9 @@ export const sortEventsBySortConfig = (events, sortConfig) => {
     const date1 = new Date(a[comparisonProp]).getTime();
     const date2 = new Date(b[comparisonProp]).getTime();
 
-    if (direction === SORT_DIRECTION.up) return date1 - date2;
+    if (direction === SORT_DIRECTION.up) {
+      return date1 - date2;
+    }
     return date2 - date1;
   });
 };
@@ -110,8 +81,13 @@ export const calcEventFilterForRequest = (options = {}, sortConfig = DEFAULT_EVE
 
   cleaned.sort_by = calcSortParamForEventFilter(sortConfig);
 
-  if (format === 'string') return objectToParamString(cleaned);
-  if (format === 'object') return cleaned;
+  if (format === 'string') {
+    return objectToParamString(cleaned);
+  }
+
+  if (format === 'object') {
+    return cleaned;
+  }
 
   throw new Error('invalid format specified');
 };
