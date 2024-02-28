@@ -77,7 +77,6 @@ describe('Map', () => {
     updatePatrolTrackStateMock,
     updateTrackStateMock,
     map,
-    renderMap,
     store;
   beforeEach(() => {
     clearEventDataMock = jest.fn(() => () => {});
@@ -146,18 +145,6 @@ describe('Map', () => {
         userPreferences: {},
       },
     };
-
-    renderMap = (props, overrideStore) => {
-      return render(<Provider store={mockStore(overrideStore || store)}>
-        <NavigationWrapper>
-          <MapDrawingToolsContextProvider>
-            <MapContext.Provider value={map}>
-              <Map map={map} socket={mockedSocket} {...props} />
-            </MapContext.Provider>
-          </MapDrawingToolsContextProvider>
-        </NavigationWrapper>
-      </Provider>);
-    };
   });
 
   afterEach(() => {
@@ -167,7 +154,15 @@ describe('Map', () => {
   test('shows the EventFilter', async () => {
     store.view.mapLocationSelection.isPickingLocation = false;
 
-    renderMap();
+    render(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
 
     await waitFor(() => {
       expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
@@ -211,29 +206,39 @@ describe('Map', () => {
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
-    renderMap();
+    render(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
 
     expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
   });
 
-  test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {
+  test('does not show the ReportAreaOverview if user is drawing a geometry on the map', async () => {
     store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
-    renderMap();
+    render(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
 
-    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
+
+    expect((await screen.queryByTestId('reportAreaOverview-wrapper'))).toBeNull();
   });
 
-  test('does not show the MapLocationSelectionOverview if user is picking location for a marker or using the ruler', async () => {
-    store.view.mapLocationSelection = {
-      isPickingLocation: true,
-      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
-    };
-    renderMap();
-
-    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
-  });
-
-  test('shows the MapLocationSelectionOverview if user is drawing a geometry', async () => {
+  test('shows the ReportAreaOverview', async () => {
     const mockEvent = {
       id: 'hello',
       geometry: null,
@@ -248,32 +253,21 @@ describe('Map', () => {
       isPickingLocation: true,
       mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
     };
-    renderMap();
+    render(<Provider store={mockStore(store)}>
+      <NavigationWrapper>
+        <MapDrawingToolsContextProvider>
+
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} />
+          </MapContext.Provider>
+
+        </MapDrawingToolsContextProvider>
+      </NavigationWrapper>
+    </Provider>);
 
     await waitFor(() => {
-      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+      expect(screen.findByTestId('reportAreaOverview-wrapper')).toBeDefined();
     });
-  });
 
-  test('shows the MapLocationSelectionOverview if user is picking an event location', async () => {
-    const mockEvent = {
-      id: 'hello',
-      geometry: null,
-    };
-
-    store.data.eventStore = {
-      [mockEvent.id]: mockEvent
-    };
-
-    store.view.mapLocationSelection = {
-      event: mockEvent,
-      isPickingLocation: true,
-      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
-    };
-    renderMap();
-
-    await waitFor(() => {
-      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
-    });
   });
 });

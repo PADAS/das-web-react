@@ -81,7 +81,7 @@ const MapLocationSelectionOverview = ({
     eventReportTracker.track('Clicks discard while drawing area');
   }, [onClickDiscardCallback]);
 
-  return <div className={styles.mapLocationSelectionOverview} data-testid="mapLocationSelectionOverview-wrapper">
+  return <div className={styles.reportAreaOverview} data-testid="reportAreaOverview-wrapper">
     <div className={styles.header} onClick={onClickHeader}>
       <h2>{isDrawingEventGeometry
         ? t('drawingReportGeometryHeader')

@@ -139,7 +139,6 @@ const Map = ({
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const isSelectingEventLocation = mapLocationSelection.isPickingLocation
-    && mapLocationSelection.event
     && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
