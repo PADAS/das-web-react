@@ -84,22 +84,22 @@ export const eventBelongsToPatrol = event => !!event?.patrol_segments?.length;
 
 export const uniqueEventIds = (value, index, self) => self.indexOf(value) === index;
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
-  const location = data && data.location;
-  const reportedById = data && data.reportedById;
-  const time = data && data.time;
+export const createNewReportForEventType = (reportType, data) => {
+  const location = data?.location;
+  const reportedById = data?.reportedById;
+  const time = data?.time;
 
   const reporter = reportedById && getReporterById(reportedById);
 
   return {
     event_details: {},
-    event_type,
-    icon_id,
+    event_type: reportType.value,
+    icon_id: reportType.icon_id,
     is_collection: false,
     location,
-    priority,
+    priority: reportType.default_priority || 0,
     reported_by: reporter || null,
-    state: EVENT_FORM_STATES.ACTIVE,
+    state: reportType.default_state || EVENT_FORM_STATES.ACTIVE,
     time: time ? new Date(time) : new Date(),
   };
 };
