@@ -1,0 +1,171 @@
+{
+  "addToIncidentModal": {
+    "modalBody": {
+      "addToNewIncidentButton": "Ajouter à un nouvel Incident",
+      "loadingItem": "Chargement...",
+      "noMoreEventsItem": "Aucun autre incident à afficher."
+    },
+    "modalFooter": {
+      "cancelButton": "Annuler"
+    },
+    "modalTitle": "Ajouter à un Incident"
+  },
+  "columnSort": {
+    "popoverTitle": "Trié par:",
+    "eventSortOptions": {
+      "updatedAtLabel": "Date Actualisée",
+      "createdAtLabel": "Date de Création",
+      "eventTimeLabel": "Date de l'Événement"
+    },
+    "eventOrderOptions": {
+      "newest": "Du plus récent au plus ancien",
+      "oldest": "Du plus ancien au plus récent"
+    }
+  },
+  "errorMessages": {
+    "accordionHeaderButton": {
+      "closed": "Afficher plus de détails",
+      "open": "Masquer les détails"
+    }
+  },
+  "eventFeed": {
+    "loadingMoreReportsItem": "Chargement d'autres événements...",
+    "noMoreReportsItem": "Aucun autre événement à afficher.",
+    "noReportsItem": "Aucun événement à afficher."
+  },
+  "eventItemContextMenu": {
+    "errorToastMessage": "#{{serialNumber}} est toujours {{state}}, une erreur s'est produite",
+    "notificationDetails": {
+      "failedReports": "ALERTE: Ces événements sont toujours {{state}}",
+      "processedReports": {
+        "activated": "Actif",
+        "resolved": "Résolu",
+        "title": "Ces événements associés sont aussi {{newState}}:"
+      }
+    },
+    "state": {
+      "active": "Actif",
+      "resolved": "Résolu"
+    },
+    "textCopyButtonItem": {
+      "label": "Copier le lien de l'événement",
+      "successMessage": "Lien copié avec succès"
+    },
+    "updatedCollectionInfoToast": {
+      "activated": "Actif",
+      "message": "La collection d'événements #{{collectionSerialNumber}} a été {{newState}} avec succès",
+      "resolved": "Résolu"
+    },
+    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+    "updateReportStateItem": {
+      "reopen": "Réouvrir",
+      "resolve": "Résoudre"
+    }
+  },
+  "prioritySelect": {
+    "labels": {
+      "amber": "Ambre",
+      "green": "Verte",
+      "none": "Aucune",
+      "red": "Rouge"
+    },
+    "placeholder": "Sélectionner"
+  },
+  "reportGeometryDrawer": {
+    "cancelationConfirmationModal": {
+      "continueEditingButton": "Continuer la modification",
+      "discardButton": "Annuler",
+      "modalBody": "Si vous annulez sans sauvegarder, les modifications apportées à la zone d'événement seront annulées. Êtes-vous sûr de vouloir annuler les modifications ?",
+      "modalTitle": "Annuler les Modifications"
+    },
+    "footer": {
+      "cancelButton": "Annuler",
+      "saveButton": "Sauvegarder",
+      "saveButtonTooltip": {
+        "drawing": "Uniquement les polygones fermés peuvent etre sauvegardés",
+        "invalidGeometry": "Les segments du polygones ne peuvent pas s'intersecter"
+      }
+    },
+    "informationModal": {
+      "addingPointsHeader": "Ajouter des points  ",
+      "addingPointsContent": "Sélectionner un point quelconque sur la carte pour ajouter un point à la zone d'événement ",
+      "addingPointsToExistingAreaHeader": "Ajouter des points à une zone existante",
+      "addingPointsToExistingAreaContent": "Survolez un segment de la zone d'événement, puis cliquez et faites glisser le nouveau point à l'endroit souhaité.",
+      "closingAreaHeader": "Fermer la zone",
+      "closingAreaContent": "Sélectionnez le point d'origine ou appuyer sur \"entrée\" pour fermer le polygone",
+      "deletingPointsHeader": "Supprimer des points",
+      "deletingPointsContent": "Sélectionnez le point que vous souhaitez supprimer puis appuyez sur \"supprimer\" ou \"retour\" sur votre clavier.",
+      "modalTitle": "Créer une Zone d'Événement",
+      "reportAreaHeader": "Zone d'Événement",
+      "reportAreaContent": "Un polygone fermé avec 3 points ou plus et aucune intersection entre les segments. La mesure du périmètre et de la surface sont approximatives, ne prenant pas en compte le relief et la topographie."
+    }
+  },
+  "reportListItem": {
+    "dateTimeSuffix": "depuis",
+    "resolvedState": "résolu"
+  },
+  "reportManager": {
+    "detailsSection": {
+      "areaSelectorInput": {
+        "area": "Surface:",
+        "deleteAreaButton": "Supprimer la Zone",
+        "deleteAreaButtonTitle": "Supprimer la Zone",
+        "displayString": "{{areaDisplayString}} surface, {{perimeterDisplayString}} périmètre",
+        "editAreaButton": "Modifier la Zone",
+        "editAreaButtonTitle": "Ajuster le polygone sur la carte",
+        "inputPlaceholder": "Définir la zone d'événement",
+        "staticMapImageAlt": "Carte statique avec le polygone",
+        "perimeter": "Périmètre: ",
+        "provenanceLabel": "Crée dans EarthRanger {{provenance}}"
+      },
+      "dateLabel": "Date de l'Événement",
+      "detailsHeader": "Détails",
+      "locationLabel": "Position de l'événement",
+      "priorityLabel": "Priorité",
+      "reportedByLabel": "Complété Par",
+      "stateDropdown": {
+        "active": "Actif",
+        "resolved": "Résolu"
+      },
+      "timeLabel": "Heure de l'Événement"
+    },
+    "header": {
+      "priority": {
+        "amber": "Ambre",
+        "green": "Verte",
+        "none": "Aucune",
+        "red": "Rouge"
+      },
+      "reportMenu": {
+        "addToIncidentItem": "Ajouter à un Incident",
+        "addToPatrolItem": "Ajouter à une Patrouille",
+        "printReportItem": "Imprimer l'Événement",
+        "textCopyButtonLabel": "Copier le lien de l'événement",
+        "textCopyButtonSuccessMessage": "Lien copié avec succès"
+      }
+    },
+    "linksSection": {
+      "linksHeader": "Liens"
+    },
+    "reportDetailView": {
+      "cancelButton": "Annuler",
+      "cantAddNoteAlert": "Impossible d'ajouter un nouveau commentaire: il y a un commentaire vide qui n'a pas encore été sauvegardé",
+      "loadingMessage": "Sauvegardement....",
+      "quickLinks": {
+        "activityAnchor": "Activité",
+        "detailsAnchor": "Détails",
+        "historyAnchor": "Historique",
+        "linksAnchor": "Liens"
+      },
+      "saveErrorMessage": "Erreur de sauvegarde de l'événement",
+      "saveSplitButton": {
+        "saveAndReopenItem": "Sauvegarder et réouvrir",
+        "saveAndResolveItem": "Sauvegarder et résoudre",
+        "title": "Sauvegarder"
+      },
+      "unknownErrorLabel": "Erreur rencontrée indéterminée"
+    }
+  },
+  "unknownEventTitle": "Titre d'événement indéterminé",
+  "unknownEventType": "Type d'événement indéterminée"
+}

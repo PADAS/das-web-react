@@ -1,0 +1,9 @@
+{
+  "clearAllButton": "Tout Désélectionner",
+  "layerList": {
+    "analyzersTitle": "Analyzers",
+    "featuresTitle": "Caractéristiques Cartographiques",
+    "subjectsTitle": "Appareils Suivis",
+    "reportsTitle": "Événements"
+  }
+}

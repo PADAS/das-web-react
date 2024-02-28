@@ -1,0 +1,69 @@
+{
+  "alertsModal": {
+    "iframeBottomMessage": "Chaque utilisateur EarthRanger peut recevoir jusqu'à 20 alertes par jour.",
+    "iframeTitle": "Configurer vos alertes EarthRanger"
+  },
+  "betaToggles": {
+    "patrolUI": "Nouveau Format UI des Patrouilles ",
+    "reportNotification": "Notifier les Nouveaux Événements à l'aide d'un Son"
+  },
+  "dailyReportModal": {
+    "dataExportModalTitle": "Rapport Quotidien",
+    "todaysReportButton": "Rapport d'Aujourd'hui",
+    "yesterdaysReportButton": "Rapport d'Hier"
+  },
+  "dataExportModal": {
+    "cancelButton": "Annuler",
+    "exportButton": "Exporter"
+  },
+  "globalMenuDrawer": {
+    "alertsButton": "Alertes",
+    "alertsModal": {
+      "title": "Alertes"
+    },
+    "communityButton": "Communauté",
+    "contactSupport": {
+      "body": "Que pouvons-nous faire pour vous ?",
+      "subject": "Demande d'aide de la part de l'utilisateur"
+    },
+    "contactSupportButton": "Contacter l'équipe de Soutien",
+    "dailyReportModal": {
+      "title": "Rapport Quotidien"
+    },
+    "exportsHeader": "EXPORTER",
+    "fieldReportsModal": {
+      "content": "Les informations exportées inclueront uniquement les informations filtrées selon les critères dans la rubrique des Événements ",
+      "title": "Événements"
+    },
+    "footer": {
+      "clientVersion": "Version du client web: {{version}}",
+      "copyright": "©{{year}} EarthRanger",
+      "dataPrivacyPolicyLink": "Charte de Confidentialité",
+      "eulaLink": "Contrat de License d'Utilisateur Final EarthRanger",
+      "serverVersion": "Version du Serveur: {{version}}",
+      "websitePrivacyPolicyLink": "Politique de Confidentialité du Site Web"
+    },
+    "helpCenterButton": "Centre d'Informations",
+    "masterKMLModal": {
+      "title": "Export des pistes en format KML"
+    },
+    "navigationButton": {
+      "mapLayers": "Caractéristiques Cartographiques",
+      "patrols": "Patrouilles",
+      "reports": "Événements",
+      "settings": "Réglages"
+    },
+    "subjectInformationModal": {
+      "title": "Informations sur les Appareils Connectés"
+    },
+    "subjectReportsModal": {
+      "title": "Données GPS des Appareils Connectés"
+    },
+    "tableauButton": "Tableau",
+    "usersGuideButton": "Guide pour l'Utilisateur"
+  },
+  "kmlExportModal": {
+    "dataExportModalTitle": "Exporter le fichier KML des pistes",
+    "includeInactiveSubjectsLabel": "Inclure les appareils inactifs"
+  }
+}

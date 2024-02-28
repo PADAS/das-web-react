@@ -1,0 +1,71 @@
+{
+  "activitySection": {
+    "collapseAllButton": "Réduire",
+    "dateItemStartTitle": "Début",
+    "dateItemEndedTitle": "Fin",
+    "expandAllButton": "Agrandir",
+    "sectionTitle": "Activité",
+    "timeLabel": "Heure"
+  },
+  "addAttachmentButton": "Pièce jointe",
+  "addReportButton": "Événements",
+  "addNoteButton": "Commentaire",
+  "attachmentControls": {
+    "addNoteTitle": "Ajouter un commentaire",
+    "addAttachmentTitle": "Ajouter une pièce jointe"
+  },
+  "attachmentListItem": {
+    "imagePreviewAlt": "{{fileName}} aperçu",
+    "downloadButtonTooltip": "Télécharger",
+    "deleteButtonTooltip": "Supprimer",
+    "fullViewButtonTooltip": "Vue d'Ensemble"
+  },
+  "footer": {
+    "cancelButton": "Annuler",
+    "saveButton": "Sauvegarder",
+    "stateResolveButton": "Sauvegarder et résoudre",
+    "stateReopenButton": "Sauvregarder et réouvrir"
+  },
+  "geoLocator": {
+    "buttonLabel": "Utiliser ma géolocalisation",
+    "loadingMessage": "En cours de lecture de votre géolocalisation...",
+    "readingLocationError": "Erreur de lecture de votre positionnement actuel #{{locationErrorMessage}}"
+  },
+  "goToReportButtonTooltip": "Accéder a l'événement",
+  "header": {
+    "historyLinkCreated": "Crée",
+    "historyLinkUpdated": "Actualisé",
+    "resolvedLabel": "Resolu",
+    "sectionTitle": "Historique"
+  },
+  "historySection": {
+    "sectionTitle": "Historique",
+    "timeLabel": "Heure"
+  },
+  "imageModal": {
+    "errorTitle": "Erreur de chargement de l'image",
+    "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
+  },
+  "locationSelector": {
+    "inputLabel": "Position",
+    "inputPlaceHolder": "Appuyez ici pour ajouter les coordonnées"
+  },
+  "navigationPromptModal": {
+    "cancelNavigationButtonText": "Retour",
+    "continueNavigationNegativeButtonText": "Annuler",
+    "continueNavigationPositiveButtonText": "Sauvegarder",
+    "description": "Il y a des changement non-sauvegardés. Souhaitez-vous retournez en arrière, annuler les modifications, ou enregistrer et continuer? ",
+    "title": "Changements non-sauvegardés"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Annuler",
+    "deleteNoteButtonTooltip": "Supprimer",
+    "doneEditingNoteButton": "Terminer",
+    "editNoteButtonTooltip": "Modifier",
+    "noteTitle": "Nouveau commentaire"
+  },
+  "reportFormSummary": {
+    "reportTypeLabel": "Type d'Évenement",
+    "reportedByLabel": "Complété Par"
+  }
+}

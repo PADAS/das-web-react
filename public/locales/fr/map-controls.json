@@ -1,0 +1,36 @@
+{
+  "cursorGPSDisplay": {
+    "gpsDisplayTooltip": "Press enter to search",
+    "titleIconSearch": "Recherche"
+  },
+  "baseLayer": {
+    "popoverButton": "Définir la Carte d'Arrière Plan",
+    "popoverTitle": "Cartes de Fond",
+    "logoAlt": "Logo {{logoName}} ",
+    "defaultMapLayerName": "Carte EarthRanger du Relief"
+  },
+  "mapDrawingTools": {
+    "addPointLabel": "Cliquez pour ajouter un point. Sélectionner \"entrée\" pour finaliser.",
+    "bearingLabel": "Direction: {{bearing}}°",
+    "distanceLabel": "Distance: {{distance}}",
+    "instructionsLabel": "Cliquez puis glissez pour ajouter un point",
+    "popupLabel": "Cliquez pour ajouter un point. Sélectionner \"entrée\" pour finaliser."
+  },
+  "mapPrintControl": {
+    "documentTitle": "Titre du Document:",
+    "printButtonTitle": "Imprimer la carte",
+    "printButton": "Imprimer la carte",
+    "printInstructions": "Ajuster l'échelle pour une meilleure impression"
+  },
+  "mapRuler": {
+    "cancelButton": "Annuler",
+    "closeButton": "Fermer",
+    "title": "Règle "
+  },
+  "pointPopup": {
+    "bearingLabel": "Direction: ",
+    "distanceLabel": "Distance depuis l'origine",
+    "finishButton": "Cliquez ici pour finaliser"
+  },
+  "reportMapControlTitle": "Événements"
+}

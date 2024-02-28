@@ -1,0 +1,31 @@
+{
+  "heatmapLegend": {
+    "dayTimespan_one": "au cours d' {{count}} jour",
+    "dayTimespan_other": "au cours des {{count}} jours",
+    "pointCount_one": "{{count}} point",
+    "pointCount_other": "{{count}} points"
+  },
+  "heatmapStyleControls": {
+    "radiusLabel": "Rayon (en mètres):",
+    "radiusUnit": "m",
+    "sensitivityHighIndicator": "Élevée",
+    "sensitivityLabel": "Sensibilité:",
+    "sensitivityLowIndicator": "Basse"
+  },
+  "heatmapToggleButton": {
+    "heatmapOffLabel": "Carte thermique désactivée",
+    "heatmapOnLabel": "Carte thermique activée"
+  },
+  "reportsHeatmapLegend": {
+    "heatmapLegendTitle": "Événements Visibles"
+  },
+  "subjectHeatmapLegend": {
+    "subjectCount_one": "{{count}} appareil",
+    "subjectCount_other": "{{count}} appareils",
+    "titleElement": {
+      "pointCount_one": "{{count}} point",
+      "pointCount_other": "{{count}} points",
+      "remove": "Retirer"
+    }
+  }
+}
