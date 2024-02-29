@@ -1,4 +1,9 @@
-import { calcDisplayPriorityForReport, getCoordinatesForEvent, getReportLink } from './events';
+import {
+  calcDisplayPriorityForReport,
+  createNewReportForEventType,
+  getCoordinatesForEvent,
+  getReportLink,
+} from './events';
 import { eventWithPoint, eventWithPolygon } from '../__test-helpers/fixtures/events';
 
 import * as eventTypeUtils from './event-types';
@@ -7,6 +12,65 @@ jest.mock('./event-types', () => ({
   ...jest.requireActual('./event-types'),
   calcTopRatedReportAndTypeForCollection: jest.fn(),
 }));
+
+describe('#createNewReportForEventType', () => {
+  const time = new Date('2023-01-15T16:45:30');
+  const reportType = {
+    default_priority: 100,
+    default_state: 'resolved',
+    icon_id: 'carcass_rep',
+    value: 'carcass_rep',
+  };
+  const data = {
+    location: {
+      latitude: 28.369420586280313,
+      longitude: -97.11756745711632
+    },
+    reportedById: '64243889-5955-462e-a670-39153ff61903',
+    time,
+  };
+
+  test('creates a new report with extra data', () => {
+    expect(createNewReportForEventType(reportType, data)).toStrictEqual({
+      event_details: {},
+      event_type: 'carcass_rep',
+      icon_id: 'carcass_rep',
+      is_collection: false,
+      location: {
+        latitude: 28.369420586280313,
+        longitude: -97.11756745711632,
+      },
+      priority: 100,
+      reported_by: null,
+      state: 'resolved',
+      time,
+    });
+  });
+
+  test('creates a new report without extra data', () => {
+    expect(createNewReportForEventType(reportType)).toMatchObject({
+      event_details: {},
+      event_type: 'carcass_rep',
+      icon_id: 'carcass_rep',
+      is_collection: false,
+      priority: 100,
+      reported_by: null,
+      state: 'resolved',
+    });
+  });
+
+  test('creates a new report with default values', () => {
+    expect(createNewReportForEventType({ icon_id: 'carcass_rep', value: 'carcass_rep' })).toMatchObject({
+      event_details: {},
+      event_type: 'carcass_rep',
+      icon_id: 'carcass_rep',
+      is_collection: false,
+      priority: 0,
+      reported_by: null,
+      state: 'active',
+    });
+  });
+});
 
 describe('#calcDisplayPriorityForReport', () => {
   beforeEach(() => {
