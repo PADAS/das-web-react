@@ -54,11 +54,12 @@
 }
 
 .icon {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 3rem;
+  display: flex;
   height: 100%;
+  justify-content: center;
+  min-width: 3rem;
+  width: 3rem;
 
   &.priority-300 {
     @include priority300;
@@ -92,6 +93,7 @@
   }
   
   @media (min-width: $md-layout-width-min) {
+    min-width: 4.5rem;
     width: 4.5rem;
   }
 
@@ -159,9 +161,8 @@
 }
 
 .eventType {
-  font-size: 1rem;
-  margin: 0;
   font-size: 0.75rem;
+  margin: 0;
 
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;

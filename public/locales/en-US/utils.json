@@ -12,5 +12,8 @@
   "currentTimeZoneTitle": "Date displayed in the {{timeZone}} time zone",
   "displayTitleForPatrol": {
     "unknown": "Unknown patrol type"
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
   }
 }

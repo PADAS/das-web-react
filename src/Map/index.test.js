@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
@@ -12,6 +11,7 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
+import { render, screen, waitFor } from '../test-utils';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -21,7 +21,13 @@ import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
+
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Map: class {
+    on() {}
+  },
+}));
 
 jest.mock('../ducks/events', () => ({
   ...jest.requireActual('../ducks/events'),
@@ -155,13 +161,11 @@ describe('Map', () => {
     store.view.mapLocationSelection.isPickingLocation = false;
 
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     await waitFor(() => {
@@ -174,13 +178,11 @@ describe('Map', () => {
     const mockStoreInstance = mockStore(store);
 
     render(<Provider store={mockStoreInstance}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     // Move the map
@@ -207,15 +209,13 @@ describe('Map', () => {
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
+      <MapDrawingToolsContextProvider>
 
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
 
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
@@ -224,15 +224,13 @@ describe('Map', () => {
   test('does not show the ReportAreaOverview if user is drawing a geometry on the map', async () => {
     store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
+      <MapDrawingToolsContextProvider>
 
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
 
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     expect((await screen.queryByTestId('reportAreaOverview-wrapper'))).toBeNull();
@@ -254,15 +252,13 @@ describe('Map', () => {
       mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
     };
     render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
+      <MapDrawingToolsContextProvider>
 
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
 
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     await waitFor(() => {

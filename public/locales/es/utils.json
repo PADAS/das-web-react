@@ -12,5 +12,8 @@
   "currentTimeZoneTitle": "Fecha mostrada en la zona horaria {{timeZone}}",
   "displayTitleForPatrol": {
     "unknown": "Tipo de patrulla desconocido"
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" ha sido creado pero no coincide con los criterios del filtro"
   }
 }

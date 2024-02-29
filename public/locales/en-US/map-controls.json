@@ -9,6 +9,12 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "EarthRanger Terrain Map"
   },
+  "earthRangerMap": {
+    "mapTitle": "Map",
+    "navigationResetBearing": "Reset bearing to north",
+    "navigationZoomIn": "Zoom in",
+    "navigationZoomOut": "Zoom out"
+  },
   "mapDrawingTools": {
     "addPointLabel": "Click to add a point. \n Hit 'enter' or 'return' to complete.",
     "bearingLabel": "Bearing: {{bearing}}°",

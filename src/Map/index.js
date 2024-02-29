@@ -6,6 +6,7 @@ import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
 import { differenceInCalendarDays } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -93,10 +94,10 @@ const Map = ({
   onMapLoad,
   socket,
 }) => {
+  const dispatch = useDispatch();
+  const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
@@ -559,6 +560,33 @@ const Map = ({
       }
     }
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
+
+  useEffect(() => {
+    if (!!map) {
+      const layersToTranslate = [
+        'road-label',
+        'road-intersection',
+        'path-pedestrian-label',
+        'golf-hole-label',
+        'ferry-aerialway-label',
+        'waterway-label',
+        'natural-line-label',
+        'natural-point-label',
+        'water-line-label',
+        'water-point-label',
+        'poi-label',
+        'settlement-subdivision-label',
+        'settlement-minor-label',
+        'settlement-major-label',
+        'state-label',
+        'country-label',
+        'continent-label',
+      ];
+      layersToTranslate.forEach((layer) => {
+        map.setLayoutProperty(layer, 'text-field', ['get', `name_${i18n.language.split('-')[0]}`]);
+      });
+    }
+  }, [i18n.language, map]);
 
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
