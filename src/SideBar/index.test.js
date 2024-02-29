@@ -145,10 +145,10 @@ describe('SideBar', () => {
     expect(screen.queryByText('Patrols')).toBeNull();
   });
 
-  test('sets the tab title for the Reports tab', () => {
+  test('sets the tab title for the Events tab', () => {
     renderSideBar();
 
-    expect(screen.getByRole('heading')).toHaveTextContent('Reports');
+    expect(screen.getByRole('heading')).toHaveTextContent('Events');
   });
 
   test('sets the tab title for the Patrols tab', () => {
@@ -167,7 +167,7 @@ describe('SideBar', () => {
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Map Layers');
   });
 
-  test('shows the reports badge when an event update comes through the socket and sidebar is closed', async () => {
+  test('shows the events badge when an event update comes through the socket and sidebar is closed', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -175,7 +175,7 @@ describe('SideBar', () => {
     await assertBadgeWhenEventSignals();
   });
 
-  test('shows the reports badge when a new event comes through the socket and sidebar is closed', async () => {
+  test('shows the events badge when a new event comes through the socket and sidebar is closed', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -183,7 +183,7 @@ describe('SideBar', () => {
     await assertBadgeWhenEventSignals();
   });
 
-  test('shows the reports badge also when the sidebar is open but not in the reports tab', async () => {
+  test('shows the events badge also when the sidebar is open but not in the reports tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -191,7 +191,7 @@ describe('SideBar', () => {
     await assertBadgeWhenEventSignals();
   });
 
-  test('shows the reports badge also when the sidebar is open in the report detail view', async () => {
+  test('shows the events badge also when the sidebar is open in the report detail view', async () => {
     useLocationMock = jest.fn((() => ({ pathname: `/reports/${report.id}` })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();

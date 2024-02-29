@@ -15,7 +15,7 @@
     "eventSortOptions": {
       "updatedAtLabel": "Date Updated",
       "createdAtLabel": "Created Date",
-      "eventTimeLabel": "Report Date"
+      "eventTimeLabel": "Event Date"
     },
     "eventOrderOptions": {
       "newest": "Newest to Oldest",
@@ -29,14 +29,14 @@
     }
   },
   "eventFeed": {
-    "loadingMoreReportsItem": "Loading more reports...",
-    "noMoreReportsItem": "No more reports to display.",
-    "noReportsItem": "No reports to display."
+    "loadingMoreReportsItem": "Loading more events...",
+    "noMoreReportsItem": "No more events to display.",
+    "noReportsItem": "No events to display."
   },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
     "notificationDetails": {
-      "failedReports": "WARNING: These reports are still {{state}}",
+      "failedReports": "WARNING: These events are still {{state}}",
       "processedReports": {
         "activated": "activated",
         "resolved": "resolved",
@@ -48,7 +48,7 @@
       "resolved": "resolved"
     },
     "textCopyButtonItem": {
-      "label": "Copy report link",
+      "label": "Copy event link",
       "successMessage": "Link copied"
     },
     "updatedCollectionInfoToast": {
@@ -75,7 +75,7 @@
     "cancelationConfirmationModal": {
       "continueEditingButton": "Continue Editing",
       "discardButton": "Discard",
-      "modalBody": "Canceling without saving will discard changes to the report area. Are you sure you want to discard changes?",
+      "modalBody": "Canceling without saving will discard changes to the event area. Are you sure you want to discard changes?",
       "modalTitle": "Discard Changes"
     },
     "footer": {
@@ -88,15 +88,15 @@
     },
     "informationModal": {
       "addingPointsHeader": "Adding points",
-      "addingPointsContent": "Click anywhere on the map to add the points of a report area.",
+      "addingPointsContent": "Click anywhere on the map to add the points of a event area.",
       "addingPointsToExistingAreaHeader": "Adding points to an existing area",
-      "addingPointsToExistingAreaContent": "Hover over a segment of the report area then click and drag the new point to the desired location.",
+      "addingPointsToExistingAreaContent": "Hover over a segment of the event area then click and drag the new point to the desired location.",
       "closingAreaHeader": "Closing the area",
       "closingAreaContent": "Click the first point or press ‘enter’ on your keyboard to close the shape.",
       "deletingPointsHeader": "Deleting points",
       "deletingPointsContent": "Click the point you want to delete and press ‘delete’ or ‘backspace’ key on your keyboard.",
-      "modalTitle": "Creating A Report Area",
-      "reportAreaHeader": "Report Area",
+      "modalTitle": "Creating An Event Area",
+      "reportAreaHeader": "Event Area",
       "reportAreaContent": "A single closed shape with 3 or more points and no intersecting lines. Area and distance measurements are approximate, they do not factor in changes in terrain and elevation."
     }
   },
@@ -113,21 +113,21 @@
         "displayString": "{{areaDisplayString}} area, {{perimeterDisplayString}} perimeter",
         "editAreaButton": "Edit Area",
         "editAreaButtonTitle": "Place geometry on map",
-        "inputPlaceholder": "Set report area",
+        "inputPlaceholder": "Set event area",
         "staticMapImageAlt": "Static map with geometry",
         "perimeter": "Perimeter: ",
         "provenanceLabel": "Created on EarthRanger {{provenance}}"
       },
-      "dateLabel": "Report Date",
+      "dateLabel": "Event Date",
       "detailsHeader": "Details",
-      "locationLabel": "Report location",
+      "locationLabel": "Event location",
       "priorityLabel": "Priority",
       "reportedByLabel": "Reported By",
       "stateDropdown": {
         "active": "active",
         "resolved": "resolved"
       },
-      "timeLabel": "Report Time"
+      "timeLabel": "Event Time"
     },
     "header": {
       "priority": {
@@ -139,8 +139,8 @@
       "reportMenu": {
         "addToIncidentItem": "Add to Incident",
         "addToPatrolItem": "Add to Patrol",
-        "printReportItem": "Print Report",
-        "textCopyButtonLabel": "Copy report link",
+        "printReportItem": "Print Event",
+        "textCopyButtonLabel": "Copy event link",
         "textCopyButtonSuccessMessage": "Link copied"
       }
     },
@@ -157,7 +157,7 @@
         "historyAnchor": "History",
         "linksAnchor": "Links"
       },
-      "saveErrorMessage": "Error saving report.",
+      "saveErrorMessage": "Error saving events.",
       "saveSplitButton": {
         "saveAndReopenItem": "Save and reopen",
         "saveAndResolveItem": "Save and resolve",

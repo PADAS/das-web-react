@@ -28,7 +28,7 @@ describe('the BetaToggles component', () => {
   });
   test('listing overrides', async () => {
     const wrapper = await screen.findByTestId('wrapper');
-    const overrideLabels = ['New Patrol Form UI', 'Play Sound For New Reports'];
+    const overrideLabels = ['New Patrol Form UI', 'Play Sound For New Events'];
 
     overrideLabels.forEach((label) => {
       expect(wrapper).toHaveTextContent(label);

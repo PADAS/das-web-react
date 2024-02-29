@@ -140,7 +140,7 @@ describe('The AreaSelector input', () => {
         </Provider>
       );
 
-      expect((await screen.findByText('Set report area'))).toBeDefined();
+      expect((await screen.findByText('Set event area'))).toBeDefined();
       expect((await screen.findByText('polygon.svg'))).toBeDefined();
     });
   });

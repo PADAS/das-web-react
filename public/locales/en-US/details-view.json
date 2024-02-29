@@ -8,7 +8,7 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
-  "addReportButton": "Report",
+  "addReportButton": "Event",
   "addNoteButton": "Note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
@@ -31,7 +31,7 @@
     "loadingMessage": "Trying to read your location...",
     "readingLocationError": "Could not read your current location: {{locationErrorMessage}}"
   },
-  "goToReportButtonTooltip": "Go to report",
+  "goToReportButtonTooltip": "Go to event",
   "header": {
     "historyLinkCreated": "Created",
     "historyLinkUpdated": "Updated",
@@ -65,7 +65,7 @@
     "noteTitle": "New note: {{noteText}}"
   },
   "reportFormSummary": {
-    "reportTypeLabel": "Report Type",
+    "reportTypeLabel": "Event Type",
     "reportedByLabel": "Reported By"
   }
 }

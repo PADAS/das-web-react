@@ -1,7 +1,7 @@
 {
   "clusterMembers": {
     "all": "All",
-    "reports": "Reports",
+    "reports": "Events",
     "subjects": "Subjects"
   },
   "inactiveRadioControl": {
@@ -18,7 +18,7 @@
     "layerLabels": {
       "subjects": "Subjects",
       "stationary_subjects": "Stationary Subjects",
-      "reports": "Reports",
+      "reports": "Events",
       "patrols": "Patrols"
     }
   },

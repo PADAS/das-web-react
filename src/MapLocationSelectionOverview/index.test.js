@@ -103,7 +103,7 @@ describe('MapLocationSelectionOverview', () => {
 
   describe('with a single-point location', () => {
     test('the title is "Choose report location"', async () => {
-      await screen.findByText('Choose report location');
+      await screen.findByText('Choose event location');
     });
   });
 
@@ -125,7 +125,7 @@ describe('MapLocationSelectionOverview', () => {
     });
 
     test('the title is "Create report area"', async () => {
-      await screen.findByText('Create report area');
+      await screen.findByText('Create event area');
     });
 
     test('renders default values for area and perimeter', async () => {

@@ -68,7 +68,7 @@ describe('ReportGeometryDrawer', () => {
     const informationIcon = await screen.findByText('information.svg');
     userEvent.click(informationIcon);
 
-    expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
+    expect((await screen.findByText('Creating An Event Area'))).toBeDefined();
   });
 
   test('opens the cancellation confirmation modal when pressing Escape if user made a change', async () => {
