@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 
 import { SET_MAP_CLUSTER_CONFIG } from '../../ducks/map-ui';
 import ClusterMemberControl from './';
+import { fireEvent, render, screen } from '../../test-utils';
 
 
 describe('The cluster member control', () => {

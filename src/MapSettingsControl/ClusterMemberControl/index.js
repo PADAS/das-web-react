@@ -1,11 +1,19 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { setMapClusterConfig } from '../../ducks/map-ui';
 
 import styles from './styles.module.scss';
 
+const groupTranslationKeys = {
+  reports: 'reports',
+  subjects: 'subjects'
+};
+
 const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSliderActive }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'clusterMembers' });
+
   const configEntries = Object.entries(mapClusterConfig).filter(([key]) => key !== '_persist');
 
   const fullyChecked = configEntries.every(([, val]) => !!val);
@@ -42,14 +50,18 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
         }}
         onChange={toggleAll}
       />
-      <span className={styles.checkboxlabel}>All</span>
+      <span className={styles.checkboxlabel}>
+        {t('all')}
+      </span>
     </label>
     <ul className={styles.subListItems}>
       {configEntries.map(([key, value]) =>
         <li key={key}>
           <label>
             <input type='checkbox' disabled={disableAll} id={key} data-testid={`cluster-config-control-${key}`} checked={value} onChange={toggle}/>
-            <span style={{ textTransform: 'capitalize' }} className={styles.checkboxlabel}>{key}</span>
+            <span style={{ textTransform: 'capitalize' }} className={styles.checkboxlabel}>
+              { !!groupTranslationKeys[key] ? t(groupTranslationKeys[key]) : key }
+            </span>
           </label>
         </li>
     )}
