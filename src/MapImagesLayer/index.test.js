@@ -1,23 +1,24 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
-import { render } from '@testing-library/react';
+import { MapContext } from '../App';
+import { mockStore } from '../__test-helpers/MockStore';
+import { render } from '../test-utils';
 
 import MapImagesLayer from './';
 
-let map, store;
-
 test('rendering without crashing', () => {
-  store = mockStore({ view: { mapImages: { } } });
-  map = createMapMock();
-  render(<Provider store={store}>
-    <MapImagesLayer map={map} />
+  render(<Provider store={mockStore({ view: { mapImages: { } } })}>
+    <MapContext.Provider value={createMapMock()}>
+      <MapImagesLayer />
+    </MapContext.Provider>
   </Provider>);
 });
 
 describe('adding images to the map', () => {
+  let map;
+
   beforeEach(() => {
     map = createMapMock();
   });
@@ -40,10 +41,10 @@ describe('adding images to the map', () => {
       }
     };
 
-    store = mockStore(() => state);
-
-    render(<Provider store={store}>
-      <MapImagesLayer map={map} />
+    render(<Provider store={mockStore(() => state)}>
+      <MapContext.Provider value={map}>
+        <MapImagesLayer />
+      </MapContext.Provider>
     </Provider>);
 
     expect(map.addImage).toHaveBeenCalledWith('id1', state.view.mapImages.id1.image, state.view.mapImages.id1.options);
@@ -51,6 +52,8 @@ describe('adding images to the map', () => {
   });
 
   test('not adding previously-loaded images', () => {
+    map.hasImage.mockImplementation((id) => id === EXISTING_IMG_ID);
+
     const EXISTING_IMG_ID = 'i_am_already_here_great';
 
     const state = {
@@ -68,20 +71,13 @@ describe('adding images to the map', () => {
       }
     };
 
-    store = mockStore(() => state);
-
-    map.hasImage.mockImplementation((id) => {
-
-      if (id === EXISTING_IMG_ID) return true;
-      return false;
-    });
-
-    render(<Provider store={store}>
-      <MapImagesLayer map={map} />
+    render(<Provider store={mockStore(() => state)}>
+      <MapContext.Provider value={map}>
+        <MapImagesLayer map={map} />
+      </MapContext.Provider>
     </Provider>);
 
     expect(map.addImage).toHaveBeenCalledWith('id2', state.view.mapImages.id2.image, state.view.mapImages.id2.options);
     expect(map.addImage).not.toHaveBeenCalledWith(EXISTING_IMG_ID, state.view.mapImages[EXISTING_IMG_ID].image, state.view.mapImages[EXISTING_IMG_ID].options);
   });
-
 });
