@@ -1,4 +1,9 @@
 {
+  "clusterMembers": {
+    "all": "All",
+    "reports": "Reports",
+    "subjects": "Subjects"
+  },
   "inactiveRadioControl": {
     "label": "Show Inactive Radios"
   },
@@ -20,6 +25,7 @@
   "mapTrackTimepointsControl": {
     "label": "Show Track Timepoints"
   },
+  "mapTerrain3DOption": "3D Map Terrain",
   "userLocationMapControl": {
     "label": "Show My Current Location"
   }

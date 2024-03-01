@@ -13,6 +13,21 @@
   "displayTitleForPatrol": {
     "unknown": "Tipo de patrulla desconocido"
   },
+  "filterDuplicateUploadFilenames": {
+    "duplicationAlert": "No se puede agregar {{fileName}}: el archivo ya existe"
+  },
+  "generateErrorMessageForRequest": {
+    "badGateway": "Bad gateway. Por favor intente más tarde, contacte a su administrador si el problema persiste (502).",
+    "badRequest": "Petición incorrecta. Por favor contacte a su administrador (400).",
+    "default": "Hubo un error al enviar la petición.",
+    "forbidden": "Petición denegada. Por favor contacte a su administrador (403).",
+    "internalServerError": "Error interno en el servidor. Por favor intente más tarde, contacte a su administrador si el problema persiste (500).",
+    "noCode": "Su petición falló. Por favor intente más tarde, contacte a su administrador si el problema persiste.",
+    "noResponse": "No hubo respuesta del servidor.",
+    "requestTimeout": "La petición expiro. Por favor intente de nuevo (408).",
+    "serviceUnavailable": "El recurso solicitado no está disponible. Por favor intente más tarde, contacte a su administrador si el problema persiste (503).",
+    "tooManyRequests": "Demasiadas peticiones. Por favor intente más tarde, contacte a su administrador si el problema persiste (429)."
+  },
   "showFilterMismatchToastForHiddenReports": {
     "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" ha sido creado pero no coincide con los criterios del filtro"
   }
