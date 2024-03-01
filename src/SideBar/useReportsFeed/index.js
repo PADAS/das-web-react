@@ -23,7 +23,11 @@ const useReportsFeed = () => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
-  const shouldExcludeContained = useMemo(() => isEqual(eventFilter, INITIAL_FILTER_STATE), [eventFilter]);
+  const shouldExcludeContained = useMemo(() => {
+    const { _persist, ...restEventFilter } = eventFilter;
+
+    return isEqual(restEventFilter, INITIAL_FILTER_STATE);
+  }, [eventFilter]);
   const eventParams = useRef(calcEventFilterForRequest(
     { params: { exclude_contained: shouldExcludeContained }, format: 'object' },
     feedSort
