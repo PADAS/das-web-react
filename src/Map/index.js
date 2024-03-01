@@ -621,7 +621,7 @@ const Map = ({
 
       <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
 
-      <MapImagesLayer map={map} />
+      <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 

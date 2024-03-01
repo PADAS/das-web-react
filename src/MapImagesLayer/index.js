@@ -1,22 +1,22 @@
-import React, { memo, useEffect } from 'react';
-import { getUnaddedMapImages } from './selectors';
-import { connect } from 'react-redux';
+import { memo, useContext, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
+import { MapContext } from '../App';
 
-const MapImagesLayer = (props) => {
-  const { map, newMapImages } = props;
+const MapImagesLayer = () => {
+  const map = useContext(MapContext);
+
+  const mapImages = useSelector((state) => state.view.mapImages);
 
   useEffect(() => {
-    newMapImages.forEach(({ id, data: { image, options } }) => {
-      map.addImage(id, image, options);
+    Object.entries(mapImages).forEach(([mapImageId, mapImageData]) => {
+      if (!map.hasImage(mapImageId)) {
+        map.addImage(mapImageId, mapImageData.image, mapImageData.options);
+      }
     });
-  }, [map, newMapImages]);
+  }, [map, mapImages]);
 
   return null;
 };
 
-const mapStateToProps = (state, props) => ({
-  newMapImages: getUnaddedMapImages(state, props),
-});
-
-export default connect(mapStateToProps, null)(memo(MapImagesLayer));
+export default memo(MapImagesLayer);
