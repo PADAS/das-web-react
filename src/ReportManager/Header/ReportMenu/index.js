@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
-import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-icon.svg';
+import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-outline.svg';
 
 import { addEventToIncident, createEvent, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';

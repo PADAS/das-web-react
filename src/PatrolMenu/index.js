@@ -10,10 +10,12 @@ import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import TextCopyBtn from '../TextCopyBtn';
 import { basePrintingStyles } from '../utils/styles';
 import KebabMenu from '../KebabMenu';
-import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
+import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-outline.svg';
 import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
-import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
-import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
+import { ReactComponent as PlayIcon } from '../common/images/icons/play-circle.svg';
+import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
+import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
+import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
 
 import styles from './styles.module.scss';
 
@@ -103,21 +105,21 @@ const PatrolMenu = ({
   });
 
   return <KebabMenu align='end' className={className} ref={menuRef} {...rest}>
-    { (canEditPatrol && !isPatrolCancelled) &&
-      <KebabMenu.Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>
-        <PlayIcon />
+    { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
+      <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
+        { canEnd ? <StopIcon /> : <PlayIcon /> }
         {patrolStartStopTitle}
       </KebabMenu.Option>
     }
 
-    { (canEditPatrol && !isPatrolCancelled) &&
+    { canEditPatrol &&
       <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
-        <CrossIcon />
+        { canEnd ? <CloseIcon /> : <RestoreIcon /> }
         {patrolCancelRestoreTitle}
       </KebabMenu.Option>
     }
 
-    { (!!patrol.id && !isPatrolCancelled) &&
+    { !!patrol.id &&
       <KebabMenu.Option className={styles.copyBtn}>
         <TextCopyBtn
           label={t('copyButton')}
