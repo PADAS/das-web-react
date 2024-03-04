@@ -10,10 +10,6 @@ import { render, screen } from '../../test-utils';
 import PatrolsFeedTab from './';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
 
-jest.mock('../../constants', () => ({
-  ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_PATROL_NEW_UI: true },
-}));
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 const patrolFilter = { filter: {
