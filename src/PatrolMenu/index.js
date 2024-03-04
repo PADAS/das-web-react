@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import Dropdown from 'react-bootstrap/Dropdown';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
@@ -10,10 +9,11 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 import TextCopyBtn from '../TextCopyBtn';
 import { basePrintingStyles } from '../utils/styles';
-import OptionsMenu, { Option } from '../OptionsMenu';
+import KebabMenu from '../KebabMenu';
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
+import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 
 import styles from './styles.module.scss';
 
@@ -102,26 +102,39 @@ const PatrolMenu = ({
     pageStyle: basePrintingStyles,
   });
 
-  return <OptionsMenu align='end' className={className} ref={menuRef} {...rest}>
-    { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>
-      <PlayIcon />
-      {patrolStartStopTitle}
-    </Option>}
-    { (canEditPatrol && !isPatrolCancelled) && <Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>{patrolCancelRestoreTitle}</Option>}
-    { (!!patrol.id && !isPatrolCancelled) && <Option className={styles.copyBtn}>
-      <TextCopyBtn
+  return <KebabMenu align='end' className={className} ref={menuRef} {...rest}>
+    { (canEditPatrol && !isPatrolCancelled) &&
+      <KebabMenu.Option disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>
+        <PlayIcon />
+        {patrolStartStopTitle}
+      </KebabMenu.Option>
+    }
+
+    { (canEditPatrol && !isPatrolCancelled) &&
+      <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
+        <CrossIcon />
+        {patrolCancelRestoreTitle}
+      </KebabMenu.Option>
+    }
+
+    { (!!patrol.id && !isPatrolCancelled) &&
+      <KebabMenu.Option className={styles.copyBtn}>
+        <TextCopyBtn
           label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}
           icon={<ClipIcon />}
           successMessage={t('copyButtonMessage')}
-          permitPropagation
-      />
-    </Option>}
-    { showPatrolPrintOption && <Option onClick={handlePrint}>
-      <PrinterIcon />
-      {t('printPatrolButton')}
-    </Option>}
-  </OptionsMenu>;
+          permitPropagation />
+      </KebabMenu.Option>
+    }
+
+    { showPatrolPrintOption &&
+      <KebabMenu.Option onClick={handlePrint}>
+        <PrinterIcon />
+        {t('printPatrolButton')}
+      </KebabMenu.Option>
+    }
+  </KebabMenu>;
 };
 
 PatrolMenu.defaultProps = {

@@ -4,13 +4,13 @@
 .kebabMenu {
   display: flex;
   --hamburger-menu-color: #1a2026;
-  background: none;
+  background-color: rgba(108,117,125, 0.1);
   border: none;
   border-radius: 0.25rem;
-  height: 2.25rem;
-  width: 1rem;
+  height: 2.7rem;
+  min-width: 2.25rem;
   padding: 0;
-  margin: 0 0.5rem;
+  margin-right: 0.5rem;
 
   &:active {
     background: rgba(0,0,0,0.17);

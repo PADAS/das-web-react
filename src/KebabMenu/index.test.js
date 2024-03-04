@@ -1,16 +1,16 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import OptionsMenu, { Option } from './index';
+import KebabMenu from './index';
 import userEvent from '@testing-library/user-event';
 
-describe('<OptionsMenu />',  () => {
+describe('<KebabMenu />',  () => {
 
   test('shows options when clicking kebab menu', async () => {
     const optionText = 'This is an option';
     render(
-      <OptionsMenu>
-        <Option>{optionText}</Option>
-      </OptionsMenu>
+      <KebabMenu>
+        <KebabMenu.Option>{optionText}</KebabMenu.Option>
+      </KebabMenu>
     );
 
     expect( await screen.queryByText(optionText) ).not.toBeInTheDocument();
@@ -23,9 +23,9 @@ describe('<OptionsMenu />',  () => {
     const optionText = 'This is an option';
     const handleOnClick = jest.fn();
     render(
-      <OptionsMenu>
-        <Option onClick={handleOnClick}>{optionText}</Option>
-      </OptionsMenu>
+      <KebabMenu>
+        <KebabMenu.Option onClick={handleOnClick}>{optionText}</KebabMenu.Option>
+      </KebabMenu>
     );
 
     const kebab = await screen.getByRole('button');

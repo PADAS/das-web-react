@@ -182,6 +182,7 @@ const PatrolListItem = ({
         patrol={patrol}
         showPatrolPrintOption={false}
         onClick={onDropdownClick}
+        className={styles.kebabMenu}
       />
     </div>
     : null;

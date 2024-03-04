@@ -1,5 +1,4 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import PatrolMenu from './index';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -7,6 +6,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { render, screen } from '../test-utils';
 
 describe('<PatrolMenu />', () => {
 

@@ -29,7 +29,7 @@ import { useFeatureFlag } from '../../../hooks';
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
 import TextCopyBtn from '../../../TextCopyBtn';
-import OptionsMenu, { Option } from '../../../OptionsMenu';
+import KebabMenu from '../../../KebabMenu';
 
 const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
 
@@ -108,32 +108,37 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     reportTracker.track('Click \'Add to Patrol\' button');
   };
 
-  return <OptionsMenu align="end">
-    {canAddToIncident && <Option as="button" onClick={onStartAddToIncident}>
-      <IncidentIcon />
-      {t('header.reportMenu.addToIncidentItem')}
-    </Option>}
+  return <KebabMenu align="end">
+    { canAddToIncident &&
+      <KebabMenu.Option as="button" onClick={onStartAddToIncident}>
+        <IncidentIcon />
+        {t('header.reportMenu.addToIncidentItem')}
+      </KebabMenu.Option>
+    }
 
-    {!belongsToPatrol && <Option as="button" onClick={onStartAddToPatrol}>
-      <PatrolIcon />
-      {t('header.reportMenu.addToPatrolItem')}
-    </Option>}
+    { !belongsToPatrol &&
+      <KebabMenu.Option as="button" onClick={onStartAddToPatrol}>
+        <PatrolIcon />
+        {t('header.reportMenu.addToPatrolItem')}
+      </KebabMenu.Option>
+    }
 
-    {!!report.id && <Option as="div">
-      <TextCopyBtn
+    { !!report.id &&
+      <KebabMenu.Option as="div">
+        <TextCopyBtn
           getText={() => getReportLink(report)}
           icon={<ClipIcon />}
           label={t('header.reportMenu.textCopyButtonLabel')}
           permitPropagation
-          successMessage={t('header.reportMenu.textCopyButtonSuccessMessage')}
-      />
-      </Option>}
+          successMessage={t('header.reportMenu.textCopyButtonSuccessMessage')} />
+      </KebabMenu.Option>
+    }
 
-    <Option as="button" onClick={handlePrint}>
+    <KebabMenu.Option as="button" onClick={handlePrint}>
       <PrinterIcon />
       {t('header.reportMenu.printReportItem')}
-    </Option>
-  </OptionsMenu>;
+    </KebabMenu.Option>
+  </KebabMenu>;
 };
 
 ReportMenu.propTypes = {
