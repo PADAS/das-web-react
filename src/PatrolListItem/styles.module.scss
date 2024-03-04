@@ -25,10 +25,14 @@
 
 .title {
   text-align: left;
-  width: 100%;
+  width: 94%;
+
   .mainTitle {
     display: block;
     font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 
