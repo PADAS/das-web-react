@@ -5,6 +5,8 @@ import Checkmark from '../Checkmark';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
+import { useTranslation } from 'react-i18next';
+
 import { hideAnalyzers, showAnalyzers } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
@@ -22,8 +24,15 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
-const AnalyzerLayerList = memo((props) => {
-  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
+const AnalyzerLayerList = memo(({
+  analyzerList,
+  hiddenAnalyzerIDs,
+  hideAnalyzers,
+  showAnalyzers,
+  map,
+  mapLayerFilter
+}) => {
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const analyzers = useMemo(() => {
     const { text } = mapLayerFilter;
@@ -101,7 +110,9 @@ const AnalyzerLayerList = memo((props) => {
 
   const trigger = <span>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={partiallyChecked} />
-    <h5 className={listStyles.trigger}>Analyzers</h5>
+    <h5 className={listStyles.trigger}>
+      {t('analyzersTitle')}
+    </h5>
   </span>;
 
   return !!analyzers.length && <ul className={listStyles.list}>
