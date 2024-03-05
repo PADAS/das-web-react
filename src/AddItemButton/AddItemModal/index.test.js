@@ -11,13 +11,6 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 import { render, screen } from '../../test-utils';
 
-jest.mock('../../constants', () => ({
-  ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_PATROL_NEW_UI: true,
-  },
-}));
-
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
   useSystemConfigFlag: () => true,

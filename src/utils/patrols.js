@@ -1,14 +1,12 @@
-import React, { lazy } from 'react';
+import React from 'react';
 import {
   addMinutes,
   isToday,
   isThisYear,
-  isAfter,
   isWithinInterval,
   formatDistance,
 } from 'date-fns';
 import i18next from 'i18next';
-
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import cloneDeep from 'lodash/cloneDeep';
@@ -16,21 +14,18 @@ import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
-
-import { DAS_HOST, PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
-import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
+
+import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
+import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import TimeAgo from '../TimeAgo';
 
 import store from '../store';
-import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
 import { getReporterById } from './events';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
-
-const PatrolModal = lazy(() => import('../PatrolModal'));
 
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -71,31 +66,6 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
 export const calcColorThemeForPatrolState = (patrolState) => {
 
   return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
-};
-
-export const openModalForPatrol = (patrol, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
-
-  const state = store.getState();
-
-  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-  const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
-
-  return store.dispatch(
-    addModal({
-      content: PatrolModal,
-      patrol,
-      map,
-      onSaveSuccess,
-      onSaveError,
-      relationshipButtonDisabled,
-      modalProps: {
-        className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
-        // keyboard: false,
-      },
-    }));
 };
 
 export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
@@ -269,26 +239,6 @@ export const getLeaderForPatrol = (patrol, subjectStore) => {
   return subjectStore[leader.id] || leader;
 };
 
-export const getPatrolsForSubject = (patrols, subject) => {
-  return patrols.filter(patrol => {
-    return getLeaderForPatrol(patrol)?.id === subject.id;
-  });
-};
-
-export const getReportIdsForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return [];
-  // this is only grabbibng the first segment for now
-  const [firstLeg] = patrol.patrol_segments;
-  const { events } = firstLeg;
-  const eventIds =
-    events?.reduce((accumulator, { id }) =>
-      id
-        ? [...accumulator, id]
-        : accumulator, []
-    );
-  return eventIds || [];
-};
-
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
@@ -395,14 +345,6 @@ export const displayPatrolSegmentId = (patrol) => {
   return id || null;
 };
 
-export const isSegmentEndScheduled = (patrolSegment) => {
-  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
-  const time = end_time || scheduled_end;
-
-  return !!time && new Date(time).getTime() > new Date().getTime();
-};
-
-
 export const isPatrolCancelled = (patrol) => patrol.state === 'cancelled';
 
 export const isPatrolDone = (patrol) => patrol.state === 'done';
@@ -461,19 +403,6 @@ export const isSegmentPending = (patrolSegment) => {
   return !start_time || isPatrolStartDateInTheFuture;
 };
 
-export const isSegmentOverdueToEnd = (patrolSegment) => {
-  const { time_range: { end_time } = {}, scheduled_end } = patrolSegment;
-
-  if (!end_time && !!scheduled_end) {
-    const patrolEndDate = new Date(scheduled_end);
-    const patrolEndOverdueDate = addMinutes(patrolEndDate.getTime(), DELTA_FOR_OVERDUE);
-    const now = new Date();
-
-    return patrolEndOverdueDate < now.getTime();
-  }
-  return false;
-};
-
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
@@ -498,12 +427,6 @@ export const formatPatrolStateTitleDate = (date) => {
   }
 
   return format(date, defaultFormat);
-};
-
-export const displayPatrolEndOverdueTime = (patrol) => {
-  const endTime = displayEndTimeForPatrol(patrol);
-  const currentTime = new Date();
-  return formatDistance(currentTime, endTime, { includeSeconds: true });
 };
 
 export const patrolStateDetailsStartTime = (patrol) =>
@@ -548,13 +471,6 @@ export const calcPatrolState = (patrol) => {
     return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
-};
-
-export const canStartPatrol = (patrol) => {
-  const patrolState = calcPatrolState(patrol);
-  return (patrolState === PATROL_UI_STATES.READY_TO_START
-      || patrolState === PATROL_UI_STATES.SCHEDULED
-      || patrolState === PATROL_UI_STATES.START_OVERDUE);
 };
 
 export const canEndPatrol = (patrol) => {
@@ -724,21 +640,6 @@ export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackDa
   return multiLineString(asArray, { stroke: start_location.properties.stroke });
 
 };
-
-export const patrolTimeRangeIsValid = (patrol) => {
-  const startTime = displayStartTimeForPatrol(patrol);
-  const endTime = displayEndTimeForPatrol(patrol);
-
-  if (startTime && !endTime) {
-    return true;
-  } else if (startTime && endTime && isAfter(endTime, startTime)) {
-    return true;
-  }
-
-  return false;
-
-};
-
 
 export const patrolHasGeoDataToDisplay = (trackData, startStopGeometries) => !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
 
