@@ -3,30 +3,24 @@ import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import { useTranslation } from 'react-i18next';
 
-import { FEATURE_FLAG_LABELS, TAB_KEYS } from '../constants';
-import { useFeatureFlag } from '../hooks';
+import { TAB_KEYS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
-import { openModalForPatrol } from '../utils/patrols';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { ENABLE_PATROL_NEW_UI } = FEATURE_FLAG_LABELS;
-
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, patrol, onItemClick, ...rest } = props;
-  const enableNewPatrolUI = useFeatureFlag(ENABLE_PATROL_NEW_UI);
 
   const onClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    if (enableNewPatrolUI) return onItemClick(patrol.id);
-    openModalForPatrol(patrol, map);
-  }, [enableNewPatrolUI, map, onItemClick, patrol]);
+    onItemClick(patrol.id);
+  }, [onItemClick, patrol]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
