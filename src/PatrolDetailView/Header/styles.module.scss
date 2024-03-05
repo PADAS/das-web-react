@@ -108,6 +108,8 @@
 }
 
 .description {
+  display: flex;
+  flex-direction: column;
   font-size: 0.75rem;
   margin-left: auto;
   margin-right: 0.5rem;

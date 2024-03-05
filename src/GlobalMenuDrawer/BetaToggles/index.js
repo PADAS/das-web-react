@@ -19,7 +19,7 @@ const BetaToggles = () => {
     const { checked, value } = event.target;
     dispatch(setFlagOverrideValue(value, checked));
 
-    tracker.track(t(FEATURE_FLAG_INPUT_LABELS[value]), `Turned ${checked ? 'On' : 'Off'}`);
+    tracker.track(t(FEATURE_FLAG_INPUT_LABELS[value], { lng: 'en-US' }), `Turned ${checked ? 'On' : 'Off'}`);
   }, [dispatch, t]);
 
   return <ul>

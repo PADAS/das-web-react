@@ -139,8 +139,6 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
         {t(`uiStateTitles.${patrolState.key}`)}
       </span>
 
-      <br />
-
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
