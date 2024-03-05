@@ -361,11 +361,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const subjectInformationButton = await screen.findByText('Subject Information');
+    const subjectInformationButton = await screen.findByText('Subject Summary');
     userEvent.click(subjectInformationButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Subject Information');
+    expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
   });
 
   test('opens the subject reports modal when clicking the Subject Reports button', async () => {

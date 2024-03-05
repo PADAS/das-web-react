@@ -8,7 +8,7 @@
     "reportNotification": "Play Sound For New Events"
   },
   "dailyReportModal": {
-    "dataExportModalTitle": "Export Subject KML File",
+    "dataExportModalTitle": "Daily Report",
     "todaysReportButton": "Today's Report",
     "yesterdaysReportButton": "Yesterday's Report"
   },
@@ -54,7 +54,7 @@
       "settings": "Settings"
     },
     "subjectInformationModal": {
-      "title": "Subject Information"
+      "title": "Subject Summary"
     },
     "subjectReportsModal": {
       "title": "Observations"
