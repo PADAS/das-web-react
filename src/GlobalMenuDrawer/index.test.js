@@ -329,11 +329,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const fieldReportsButton = await screen.findByText('Field Reports');
+    const fieldReportsButton = await screen.findByText('Field Events');
     userEvent.click(fieldReportsButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Field Reports');
+    expect(addModal.mock.calls[0][0].title).toBe('Field Events');
   });
 
   test('opens the kml export modal when clicking the Master KML button', async () => {

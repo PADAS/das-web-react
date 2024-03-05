@@ -33,7 +33,7 @@
     "exportsHeader": "EXPORTS",
     "fieldReportsModal": {
       "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
-      "title": "Field Reports"
+      "title": "Field Events"
     },
     "footer": {
       "clientVersion": "Web client version: {{version}}",

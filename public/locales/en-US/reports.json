@@ -120,7 +120,7 @@
       },
       "dateLabel": "Event Date",
       "detailsHeader": "Details",
-      "locationLabel": "Event location",
+      "locationLabel": "Event Location",
       "priorityLabel": "Priority",
       "reportedByLabel": "Reported By",
       "stateDropdown": {
@@ -139,8 +139,8 @@
       "reportMenu": {
         "addToIncidentItem": "Add to Incident",
         "addToPatrolItem": "Add to Patrol",
-        "printReportItem": "Print Event",
-        "textCopyButtonLabel": "Copy event link",
+        "printReportItem": "Print Event Details",
+        "textCopyButtonLabel": "Copy Event Link",
         "textCopyButtonSuccessMessage": "Link copied"
       }
     },
@@ -157,7 +157,7 @@
         "historyAnchor": "History",
         "linksAnchor": "Links"
       },
-      "saveErrorMessage": "Error saving events.",
+      "saveErrorMessage": "Error saving event.",
       "saveSplitButton": {
         "saveAndReopenItem": "Save and reopen",
         "saveAndResolveItem": "Save and resolve",

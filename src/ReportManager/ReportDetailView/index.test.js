@@ -638,7 +638,7 @@ describe('ReportManager - ReportDetailView', () => {
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
-    expect(await screen.findByText('Error saving events.')).toBeDefined();
+    expect(await screen.findByText('Error saving event.')).toBeDefined();
   });
 
   test('omits duplicated attachment files', async () => {

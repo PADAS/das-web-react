@@ -113,7 +113,7 @@ describe('Menu report options', () => {
 
     expect(handlePrint).toHaveBeenCalledTimes(0);
 
-    const printReportButton = await screen.getByText('Print Event');
+    const printReportButton = await screen.getByText('Print Event Details');
     userEvent.click(printReportButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(1);
