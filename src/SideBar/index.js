@@ -39,6 +39,8 @@ import SettingsPane from './SettingsPane';
 
 import styles from './styles.module.scss';
 
+const legacyEventsURL = 'reports';
+
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -75,6 +77,8 @@ const SideBar = () => {
     [hasPatrolViewPermissions, patrolFlagEnabled]
   );
 
+  const isLegacyEventURL = useMemo(() => currentTab === legacyEventsURL, [currentTab]);
+
   const onClickBackFromDetailView = useCallback(() => {
     if (reportIsBeingAdded) {
       return navigate(location.pathname, { replace: true });
@@ -94,10 +98,16 @@ const SideBar = () => {
   const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
   useEffect(() => {
-    if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
+    if (isLegacyEventURL){
+      navigate(location.pathname.replace(legacyEventsURL, TAB_KEYS.EVENTS), { replace: true });
+    }
+  }, [isLegacyEventURL]);
+
+  useEffect(() => {
+    if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase()) && !isLegacyEventURL) {
       navigate('/', { replace: true });
     }
-  }, [currentTab, navigate]);
+  }, [currentTab, navigate, isLegacyEventURL]);
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
