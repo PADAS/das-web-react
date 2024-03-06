@@ -21,7 +21,7 @@ const CONTROL_SELECTOR = 'set-geometry-button';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({ pathname: '/reports' }),
+  useLocation: () => ({ pathname: '/events' }),
 }));
 
 

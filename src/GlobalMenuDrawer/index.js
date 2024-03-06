@@ -200,7 +200,7 @@ const GlobalMenuDrawer = () => {
   const onClose = useCallback(() => dispatch(hideDrawer()), [dispatch]);
 
   const navigationItems = useMemo(() => [
-    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: t('navigationButton.reports') },
+    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') },
     ...(showPatrols
       ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),

@@ -160,12 +160,12 @@ describe('#getCoordinatesForEvent', () => {
 describe('#getReportLink', () => {
   test('calculates a report link for a point geometry type', () => {
     expect(getReportLink(eventWithPoint))
-      .toEqual('http://localhost/reports/3662f167-37f6-4c75-9d93-673f436aa1a6?lnglat=18.714,5.8676');
+      .toEqual('http://localhost/events/3662f167-37f6-4c75-9d93-673f436aa1a6?lnglat=18.714,5.8676');
   });
 
   test('calculates a report link for a polygon geometry type', () => {
     expect(getReportLink(eventWithPolygon))
-      .toEqual('http://localhost/reports/8b386bfe-227e-40a0-97de-425abfcb3289?lnglat=57.53006316795646,-33.27303370265189');
+      .toEqual('http://localhost/events/8b386bfe-227e-40a0-97de-425abfcb3289?lnglat=57.53006316795646,-33.27303370265189');
   });
 
   test('calculates a report link for an incident', () => {
@@ -180,6 +180,6 @@ describe('#getReportLink', () => {
     };
 
     expect(getReportLink(testReport))
-      .toEqual('http://localhost/reports/123?lnglat=38.668244465302564,-14.024200938300725');
+      .toEqual('http://localhost/events/123?lnglat=38.668244465302564,-14.024200938300725');
   });
 });

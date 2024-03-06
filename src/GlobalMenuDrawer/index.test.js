@@ -127,7 +127,7 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(reportsNavigationButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/reports');
+    expect(navigate).toHaveBeenCalledWith('/events');
   });
 
   test('does not render the Patrols navigation button if user does not have permissions', async () => {

@@ -129,7 +129,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect(nextNavState.state.reportData).toEqual({ other_field: true });
   });
 
-  test('navigates to /reports/new if onAddReports is not defined when user clicks a report type', async () => {
+  test('navigates to /events/new if onAddReports is not defined when user clicks a report type', async () => {
     renderAddReportTab();
 
     expect(navigate).toHaveBeenCalledTimes(0);
@@ -139,7 +139,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate.mock.calls[0][0].pathname).toBe('/reports/new');
+    expect(navigate.mock.calls[0][0].pathname).toBe('/events/new');
     expect(navigate.mock.calls[0][0].search).toBe('?reportType=74941f0d-4b89-48be-a62a-a74c78db8383');
   });
 });

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 
-import { TAB_KEYS } from '../../constants';
+import { LINK_TYPES, TAB_KEYS } from '../../constants';
 
 import LinkItem from './LinkItem';
 
@@ -25,14 +25,14 @@ const LinksSection = ({ linkedPatrols, linkedReports }) => {
     {linkedReports.map((linkedReport) => <LinkItem
       item={linkedReport}
       key={linkedReport.id}
-      type="report"
-      to={`/${TAB_KEYS.REPORTS}/${linkedReport.id}`}
+      type={LINK_TYPES.EVENT}
+      to={`/${TAB_KEYS.EVENTS}/${linkedReport.id}`}
     />)}
 
     {linkedPatrols.map((linkedPatrol) => <LinkItem
       item={linkedPatrol}
       key={linkedPatrol.id}
-      type="patrol"
+      type={LINK_TYPES.PATROL}
       to={`/${TAB_KEYS.PATROLS}/${linkedPatrol.id}`}
     />)}
   </div>;

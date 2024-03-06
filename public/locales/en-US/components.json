@@ -139,7 +139,7 @@
       "fetchReportsErrorMessage": "Could not load events. Please try again.",
       "tryAgainButton": "Try again"
     },
-    "reportsLink": "Events",
+    "eventsLink": "Events",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",

@@ -42,7 +42,7 @@ const AddReportTab = ({ onHideModal }) => {
       onAddReport(formProps, reportDataToEdit, reportType.id);
     } else {
       navigate(
-        { pathname: `/${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+        { pathname: `/${TAB_KEYS.EVENTS}/new`, search: `?reportType=${reportType.id}` },
         { state: { reportData: reportDataToEdit, temporalId: uuid() } },
         { formProps }
       );

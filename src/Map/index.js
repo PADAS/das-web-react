@@ -279,7 +279,7 @@ const Map = ({
       setTimeout(() => {
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
-        navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
+        navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
       }, 50);
     }
   );

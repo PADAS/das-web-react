@@ -70,7 +70,7 @@ export const PATROL_API_STATES = {
 };
 
 export const TAB_KEYS = {
-  REPORTS: 'reports',
+  EVENTS: 'events',
   LAYERS: 'layers',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
@@ -345,3 +345,5 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
   [FEATURE_FLAG_LABELS.I18N_ENABLED]: process.env.REACT_APP_I18N_ENABLED === 'true',
   [FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED]: process.env.REACT_APP_LEGACY_RT_ENABLED === 'true',
 };
+
+export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };

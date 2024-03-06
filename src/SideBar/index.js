@@ -64,7 +64,7 @@ const SideBar = () => {
   const isSettingsViewActive = !!matchPath(`/${TAB_KEYS.SETTINGS}`, location.pathname);
 
   const isReportDetailsViewActive = useMemo(() => !!matchPath(
-    `/${TAB_KEYS.REPORTS}/:id`,
+    `/${TAB_KEYS.EVENTS}/:id`,
     location.pathname
   ), [location.pathname]);
   const hasRouteHistory = useMemo(() => location.key !== 'default', [location]);
@@ -80,7 +80,7 @@ const SideBar = () => {
       return navigate(location.pathname, { replace: true });
     }
     if (location.state?.relatedEvent) {
-      return navigate(`/${TAB_KEYS.REPORTS}/${location.state.relatedEvent}`, {
+      return navigate(`/${TAB_KEYS.EVENTS}/${location.state.relatedEvent}`, {
         replace: true
       });
     }
@@ -100,7 +100,7 @@ const SideBar = () => {
   }, [currentTab, navigate]);
 
   useEffect(() => {
-    if (showEventsBadge && currentTab === TAB_KEYS.REPORTS && !isReportDetailsViewActive) {
+    if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {
       setShowEventsBadge(false);
     }
   }, [showEventsBadge, currentTab, isReportDetailsViewActive]);
@@ -108,7 +108,7 @@ const SideBar = () => {
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (isReportDetailsViewActive || currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (isReportDetailsViewActive || currentTab !== TAB_KEYS.EVENTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -125,11 +125,11 @@ const SideBar = () => {
 
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-      <Link className={styles.navItem} to={TAB_KEYS.REPORTS}>
+      <Link className={styles.navItem} to={TAB_KEYS.EVENTS}>
         <DocumentIcon />
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
         <NewEventNotifier />
-        <span>{t('reportsLink')}</span>
+        <span>{t('eventsLink')}</span>
       </Link>
 
       {showPatrols && <Link className={styles.navItem} to={TAB_KEYS.PATROLS}>
@@ -151,7 +151,7 @@ const SideBar = () => {
     <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
         <div className={styles.header}>
-          <div className={[TAB_KEYS.REPORTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
+          <div className={[TAB_KEYS.EVENTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
             {!!itemId
               ? <button
                 className={styles.backButton}
@@ -163,7 +163,7 @@ const SideBar = () => {
               </button>
               : <AddItemButton
                 className={styles.addReport}
-                hideAddPatrolTab={currentTab === TAB_KEYS.REPORTS}
+                hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
                 hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
                 showLabel={false}
                 variant="secondary"
@@ -182,7 +182,7 @@ const SideBar = () => {
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
 
-            <Route path="reports">
+            <Route path={TAB_KEYS.EVENTS}>
               <Route index element={<ReportsFeedTab
                 events={reportsFeed.events}
                 feedSort={reportsFeed.feedSort}
@@ -195,14 +195,14 @@ const SideBar = () => {
               <Route path=":id/*" element={<ReportManager onReportBeingAdded={setReportIsBeingAdded} />} />
             </Route>
 
-            <Route path="patrols">
+            <Route path={TAB_KEYS.PATROLS}>
               <Route index element={<PatrolsFeedTab loadingPatrolsFeed={patrolsFeed.loadingPatrolsFeed} />} />
 
               <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>
 
             <Route
-              path="layers"
+              path={TAB_KEYS.LAYERS}
               element={<ErrorBoundary>
                 <MapLayerFilter />
 
@@ -220,7 +220,7 @@ const SideBar = () => {
               </ErrorBoundary>}
             />
 
-            <Route path="settings"
+            <Route path={TAB_KEYS.SETTINGS}
               element={
                 <SettingsPane />
               }
