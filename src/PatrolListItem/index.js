@@ -188,11 +188,11 @@ const PatrolListItem = ({
     </div>
     : null;
 
-  useEffect(() => {
+  /*useEffect(() => {
     const preventPatrolMenuOverlapping = () => menuRef?.current?.classList.remove('show');
     window.addEventListener('click', preventPatrolMenuOverlapping, true);
     return () => window.removeEventListener('click', preventPatrolMenuOverlapping);
-  }, []);
+  }, []);*/
 
   const renderedDateComponent = <div
       className={styles.statusInfo}

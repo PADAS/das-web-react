@@ -80,7 +80,7 @@ describe('Menu report options', () => {
       <ToastContainer />
     </>);
 
-    const kebabButton = await screen.getByRole('button');
+    const kebabButton = screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect(writeText).toHaveBeenCalledTimes(0);

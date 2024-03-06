@@ -3,19 +3,21 @@ import PropTypes from 'prop-types';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
-import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { usePermissions } from '../hooks';
-import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
-import { canEndPatrol, calcPatrolState } from '../utils/patrols';
-import TextCopyBtn from '../TextCopyBtn';
-import { basePrintingStyles } from '../utils/styles';
-import KebabMenu from '../KebabMenu';
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-outline.svg';
 import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play-circle.svg';
 import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
+
+import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { usePermissions } from '../hooks';
+import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
+import { canEndPatrol, calcPatrolState } from '../utils/patrols';
+import { basePrintingStyles } from '../utils/styles';
+
+import TextCopyBtn from '../TextCopyBtn';
+import KebabMenu from '../KebabMenu';
 
 import styles from './styles.module.scss';
 
@@ -114,7 +116,7 @@ const PatrolMenu = ({
 
     { canEditPatrol &&
       <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
-        { canEnd ? <CloseIcon /> : <RestoreIcon /> }
+        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon /> }
         {patrolCancelRestoreTitle}
       </KebabMenu.Option>
     }

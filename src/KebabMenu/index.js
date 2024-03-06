@@ -12,8 +12,7 @@ const Option = ({ className = '', children, ...rest }) => (
   </Dropdown.Item>
 );
 
-// eslint-disable-next-line react/display-name
-const Menu = forwardRef(({ children, className, ...rest }, ref) => (
+const Menu = ({ children, className, ...rest }, ref) => (
   <Dropdown className={`${styles.kebabMenu} ${className}`} {...rest} >
     <Dropdown.Toggle as='button'>
       <KebabMenuIcon />
@@ -22,19 +21,21 @@ const Menu = forwardRef(({ children, className, ...rest }, ref) => (
       {children}
     </Dropdown.Menu>
   </ Dropdown>
-));
+);
 
-Menu.defaultProps = {
+const MenuForwardRef = forwardRef(Menu);
+
+MenuForwardRef.defaultProps = {
   className: ''
 };
 
-Menu.propTypes = {
+MenuForwardRef.propTypes = {
   children: PropTypes.element.isRequired,
   className: PropTypes.string
 };
 
 const KebabMenu = {
-  ...Menu,
+  ...MenuForwardRef,
   Option: Option
 };
 

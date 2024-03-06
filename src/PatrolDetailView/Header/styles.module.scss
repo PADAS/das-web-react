@@ -158,6 +158,11 @@
   @media print {
     display: none !important;
   }
+
+  &:hover {
+    background: $hover-button-background;
+    color: $secondary-medium-gray;
+  }
 }
 
 .startPatrolButton {

@@ -16,6 +16,10 @@
     background: rgba(0,0,0,0.17);
   }
 
+  &:hover {
+    background: $hover-button-background;
+  }
+
   > button {
     border: none;
     outline: none;
@@ -52,6 +56,7 @@
 }
 
 .itemBtn {
+  text-transform: capitalize;
 
   &:hover{
     @include dropdown-options-hover;
@@ -71,6 +76,5 @@
   button {
     padding: 0 0.4rem 0 0;
     color: var(--bs-dropdown-link-color);
-    text-transform: capitalize;
   }
 }

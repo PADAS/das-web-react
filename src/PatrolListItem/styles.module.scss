@@ -68,6 +68,10 @@
 .stateDependantControl {
   background: $transparent-dark-gray !important;
   border: none;
+
+  &:hover{
+    background: $hover-button-background !important;
+  }
 }
 
 .kebabMenu {
