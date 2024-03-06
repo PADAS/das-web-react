@@ -34,8 +34,7 @@ const excludeContainedReports = (events) => {
       ...item.contains.map(({ related_event: { id } }) => id),
     ], []));
 
-  return events.filter((event) => !containedEventIdsToRemove.includes(event.id)
-    && !event.is_contained_in?.length);
+  return events.filter((event) => !containedEventIdsToRemove.includes(event.id));
 };
 
 const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, setFeedSort, shouldExcludeContained }) => {
