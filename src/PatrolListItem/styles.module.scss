@@ -26,9 +26,23 @@
 .title {
   text-align: left;
   width: 100%;
+
   .mainTitle {
     display: block;
     font-weight: 500;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .875rem;
+
+    @media (min-width: $sm-layout-width-max) {
+      font-size: unset;
+      padding-right: 1.2rem;
+    }
+
+    @media (min-width: $md-layout-width-max) {
+      padding-right: unset;
+    }
   }
 }
 
@@ -65,7 +79,16 @@
   cursor: pointer;
 }
 
+.patrolMenu {
+  margin-left: 0.5rem;
+}
+
 .stateDependantControl {
   background: $transparent-dark-gray !important;
   border: none;
+  display: none;
+
+  @media (min-width: $md-layout-width-min) {
+    display: unset;
+  }
 }

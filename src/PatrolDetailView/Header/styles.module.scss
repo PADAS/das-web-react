@@ -1,5 +1,6 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
+@import '../../common/styles/inputs';
 
 .header {
   display: flex;
@@ -77,36 +78,9 @@
 }
 
 .title {
+  @include editableItemTitle;
+
   border-bottom: 1px dashed $secondary-light-gray;
-  max-height: 2.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  color: $dark-gray;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-
-
-  &::-webkit-scrollbar {
-    background: transparent;  /* Optional: just make scrollbar invisible */
-  }
-
-  &:focus {
-    outline: none;
-    text-overflow: clip;
-    white-space: normal;
-    display: unset;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
-    overflow-y: overlay;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    max-height: 3rem;
-    font-size: 1.375rem;
-    line-height: 1.5rem;
-    width: 80%;
-  }
 }
 
 .description {
@@ -209,10 +183,4 @@
 
 .patrolMenu {
   min-width: 2.25rem;
-}
-
-.overflowedEllipsisText {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
