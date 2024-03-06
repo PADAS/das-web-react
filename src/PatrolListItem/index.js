@@ -179,6 +179,7 @@ const PatrolListItem = ({
         onPatrolChange={onPatrolChange}
         patrol={patrol}
         showPatrolPrintOption={false}
+        className={styles.patrolMenu}
       />
     </div>
     : null;
