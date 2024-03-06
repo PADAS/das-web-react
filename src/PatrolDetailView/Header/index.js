@@ -119,7 +119,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
     <div className={styles.titleAndDetails}>
       {title && <div
-        className={`${styles.title} ${styles.overflowedEllipsisText}`}
+        className={styles.title}
         contentEditable
         data-testid="patrolDetailView-header-title"
         onBlur={onTitleBlur}

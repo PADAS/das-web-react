@@ -181,18 +181,18 @@ const PatrolListItem = ({
         onPatrolChange={onPatrolChange}
         patrol={patrol}
         showPatrolPrintOption={false}
+        className={styles.patrolMenu}
         onClick={onDropdownClick}
-        className={styles.kebabMenu}
         isPatrolCancelled={isPatrolCancelled}
       />
     </div>
     : null;
 
-  /*useEffect(() => {
+  useEffect(() => {
     const preventPatrolMenuOverlapping = () => menuRef?.current?.classList.remove('show');
     window.addEventListener('click', preventPatrolMenuOverlapping, true);
     return () => window.removeEventListener('click', preventPatrolMenuOverlapping);
-  }, []);*/
+  }, []);
 
   const renderedDateComponent = <div
       className={styles.statusInfo}
