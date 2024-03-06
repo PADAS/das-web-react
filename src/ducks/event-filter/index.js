@@ -87,4 +87,6 @@ const eventFilterReducer = (state, action) => {
   }
 };
 
-export default globallyResettableReducer(eventFilterReducer, INITIAL_FILTER_STATE);
+// We pass a copy of the INITIAL_FILTER_STATE, no its reference, so redux persist
+// doesn't add the _persist flag to our original INITIAL_FILTER_STATE object
+export default globallyResettableReducer(eventFilterReducer, { ...INITIAL_FILTER_STATE });
