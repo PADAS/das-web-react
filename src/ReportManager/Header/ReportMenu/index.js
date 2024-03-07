@@ -1,5 +1,4 @@
 import React, { memo, useContext } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
@@ -8,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ClipIcon } from '../../../common/images/icons/link.svg';
 import { ReactComponent as IncidentIcon } from '../../../common/images/icons/incident.svg';
 import { ReactComponent as PatrolIcon } from '../../../common/images/icons/patrol.svg';
-import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-icon.svg';
+import { ReactComponent as PrinterIcon } from '../../../common/images/icons/printer-outline.svg';
 
 import { addEventToIncident, createEvent, fetchEvent } from '../../../ducks/events';
 import { addModal, removeModal } from '../../../ducks/modals';
@@ -25,10 +24,8 @@ import { TrackerContext } from '../../../utils/analytics';
 
 import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
-import KebabMenuIcon from '../../../KebabMenuIcon';
 import TextCopyBtn from '../../../TextCopyBtn';
-
-import styles from './styles.module.scss';
+import KebabMenu from '../../../KebabMenu';
 
 const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
   const dispatch = useDispatch();
@@ -96,38 +93,37 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     reportTracker.track('Click \'Add to Patrol\' button');
   };
 
-  return <Dropdown align="end" className={styles.kebabMenu}>
-    <Dropdown.Toggle as="button" data-testid="reportMenu-kebab-button">
-      <KebabMenuIcon />
-    </Dropdown.Toggle>
-
-    <Dropdown.Menu className={styles.menuDropdown}>
-      {canAddToIncident && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToIncident}>
-        <IncidentIcon className={styles.itemIcon} />
+  return <KebabMenu align="end">
+    { canAddToIncident &&
+      <KebabMenu.Option as="button" onClick={onStartAddToIncident}>
+        <IncidentIcon />
         {t('header.reportMenu.addToIncidentItem')}
-      </Dropdown.Item>}
+      </KebabMenu.Option>
+    }
 
-      {!belongsToPatrol && <Dropdown.Item as="button" className={styles.itemBtn} onClick={onStartAddToPatrol}>
-        <PatrolIcon className={styles.itemIcon} />
+    { !belongsToPatrol &&
+      <KebabMenu.Option as="button" onClick={onStartAddToPatrol}>
+        <PatrolIcon />
         {t('header.reportMenu.addToPatrolItem')}
-      </Dropdown.Item>}
+      </KebabMenu.Option>
+    }
 
-      {!!report.id && <Dropdown.Item as="div" className={styles.itemBtn}>
+    { !!report.id &&
+      <KebabMenu.Option as="div">
         <TextCopyBtn
           getText={() => getReportLink(report)}
-          icon={<ClipIcon className={styles.itemIcon} />}
+          icon={<ClipIcon />}
           label={t('header.reportMenu.textCopyButtonLabel')}
           permitPropagation
-          successMessage={t('header.reportMenu.textCopyButtonSuccessMessage')}
-        />
-      </Dropdown.Item>}
+          successMessage={t('header.reportMenu.textCopyButtonSuccessMessage')} />
+      </KebabMenu.Option>
+    }
 
-      <Dropdown.Item as="button" className={styles.itemBtn} onClick={handlePrint}>
-        <PrinterIcon className={styles.itemIcon} />
-        {t('header.reportMenu.printReportItem')}
-      </Dropdown.Item>
-    </Dropdown.Menu>
-  </Dropdown>;
+    <KebabMenu.Option as="button" onClick={handlePrint}>
+      <PrinterIcon />
+      {t('header.reportMenu.printReportItem')}
+    </KebabMenu.Option>
+  </KebabMenu>;
 };
 
 ReportMenu.propTypes = {

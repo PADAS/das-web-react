@@ -14,7 +14,7 @@ import pluralize from 'pluralize';
 
 import dateLocales from './locales';
 
-export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
+export const EVENT_SYMBOL_DATE_FORMAT = 'dd MMM YY';
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
 export const STANDARD_DATE_FORMAT = 'dd MMM YY HH:mm';

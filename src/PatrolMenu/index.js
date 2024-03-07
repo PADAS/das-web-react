@@ -1,16 +1,23 @@
-import React, { memo, useMemo, useCallback, useEffect } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import Dropdown from 'react-bootstrap/Dropdown';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-outline.svg';
+import { ReactComponent as ClipIcon } from '../common/images/icons/link.svg';
+import { ReactComponent as PlayIcon } from '../common/images/icons/play-circle.svg';
+import { ReactComponent as StopIcon } from '../common/images/icons/stop.svg';
+import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
+import { ReactComponent as RestoreIcon } from '../common/images/icons/restore.svg';
+
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
-import KebabMenuIcon from '../KebabMenuIcon';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolState } from '../utils/patrols';
-import TextCopyBtn from '../TextCopyBtn';
 import { basePrintingStyles } from '../utils/styles';
+
+import TextCopyBtn from '../TextCopyBtn';
+import KebabMenu from '../KebabMenu';
 
 import styles from './styles.module.scss';
 
@@ -73,7 +80,7 @@ const PatrolMenu = ({
     return t('cancelPatrol');
   }, [canRestorePatrol, t]);
 
-  const togglePatrolCancelationState = useCallback(() => {
+  const togglePatrolCancellationState = useCallback(() => {
     patrolListItemTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol list item kebab menu`);
 
     if (canRestorePatrol) {
@@ -93,56 +100,45 @@ const PatrolMenu = ({
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  const onDropdownClick = useCallback((event) => event.stopPropagation(), []);
-
   const handlePrint = useReactToPrint({
     content: () => printableContentRef.current,
     documentTitle: `${patrol.serial_number} ${patrolTitle} `,
     pageStyle: basePrintingStyles,
   });
 
-  useEffect(() => {
-    const handleClickOutside = () => menuRef?.current?.classList.remove('show');
-    window.addEventListener('click', handleClickOutside, true);
-
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, [menuRef]);
-
-  return <Dropdown align="end" className={`${styles.kebabMenu} ${className}`} {...rest} onClick={onDropdownClick}>
-    <Dropdown.Toggle as="button" className={styles.kebabToggle} >
-      <KebabMenuIcon />
-    </Dropdown.Toggle>
-
-    <Dropdown.Menu className={styles.menuDropdown} ref={menuRef}>
-      {canEditPatrol && !isPatrolCancelled && <Dropdown.Item
-        disabled={!patrolStartEndCanBeToggled || patrolIsCancelled}
-        onClick={togglePatrolStartStopState}
-      >
+  return <KebabMenu align='end' className={className} ref={menuRef} {...rest}>
+    { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
+      <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
+        { canEnd ? <StopIcon /> : <PlayIcon /> }
         {patrolStartStopTitle}
-      </Dropdown.Item>}
+      </KebabMenu.Option>
+    }
 
-      {canEditPatrol && !isPatrolCancelled && <Dropdown.Item
-        disabled={!patrolCancelRestoreCanBeToggled}
-        onClick={togglePatrolCancelationState}
-      >
+    { canEditPatrol &&
+      <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
+        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon /> }
         {patrolCancelRestoreTitle}
-      </Dropdown.Item>}
+      </KebabMenu.Option>
+    }
 
-      {!!patrol.id && !isPatrolCancelled && <Dropdown.Item className={styles.copyBtn}>
+    { !!patrol.id &&
+      <KebabMenu.Option className={styles.copyBtn}>
         <TextCopyBtn
-          icon={null}
           label={t('copyButton')}
-          permitPropagation
-          successMessage={t('copyButtonMessage')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}
-        />
-      </Dropdown.Item>}
+          icon={<ClipIcon />}
+          successMessage={t('copyButtonMessage')}
+          permitPropagation />
+      </KebabMenu.Option>
+    }
 
-      {showPatrolPrintOption && <Dropdown.Item onClick={handlePrint}>
+    { showPatrolPrintOption &&
+      <KebabMenu.Option onClick={handlePrint}>
+        <PrinterIcon />
         {t('printPatrolButton')}
-      </Dropdown.Item>}
-    </Dropdown.Menu>
-  </Dropdown>;
+      </KebabMenu.Option>
+    }
+  </KebabMenu>;
 };
 
 PatrolMenu.defaultProps = {
