@@ -132,6 +132,11 @@
   @media print {
     display: none !important;
   }
+
+  &:hover {
+    background: $hover-button-background;
+    color: $secondary-medium-gray;
+  }
 }
 
 .startPatrolButton {
@@ -183,4 +188,10 @@
 
 .patrolMenu {
   min-width: 2.25rem;
+}
+
+.overflowedEllipsisText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

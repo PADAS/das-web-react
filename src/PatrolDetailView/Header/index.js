@@ -168,7 +168,6 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       patrol={patrol}
       patrolTitle={title}
       printableContentRef={printableContentRef}
-      className={styles.patrolMenu}
     />}
   </div>;
 };

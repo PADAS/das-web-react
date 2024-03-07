@@ -88,7 +88,15 @@
   border: none;
   display: none;
 
+  &:hover{
+    background: $hover-button-background !important;
+  }
+
   @media (min-width: $md-layout-width-min) {
     display: unset;
   }
+}
+
+.kebabMenu {
+  margin-left: 0.5rem;
 }
