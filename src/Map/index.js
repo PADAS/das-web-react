@@ -80,13 +80,26 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 import './Map.scss';
 import { useMapEventBinding } from '../hooks';
 
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
+
+const MAP_SUPPORTED_TEXT_FIELD_LANGUAGES = ['ar', 'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ha', 'ko', 'vi'];
+
+const replaceLayoutTextFieldLanguage = (textField, language) => {
+  if (!Array.isArray(textField) || textField.length === 0) {
+    return textField;
+  }
+
+  if (textField[0] === 'get' && textField[1].startsWith('name_')) {
+    return ['get', `name_${language}`];
+  }
+
+  return textField.map((textField) => replaceLayoutTextFieldLanguage(textField, language));
+};
 
 const Map = ({
   children,
@@ -564,28 +577,21 @@ const Map = ({
 
   useEffect(() => {
     if (!!map) {
-      const layersToTranslate = [
-        'road-label',
-        'road-intersection',
-        'path-pedestrian-label',
-        'golf-hole-label',
-        'ferry-aerialway-label',
-        'waterway-label',
-        'natural-line-label',
-        'natural-point-label',
-        'water-line-label',
-        'water-point-label',
-        'poi-label',
-        'settlement-subdivision-label',
-        'settlement-minor-label',
-        'settlement-major-label',
-        'state-label',
-        'country-label',
-        'continent-label',
-      ];
-      layersToTranslate.forEach((layer) => {
-        map.setLayoutProperty(layer, 'text-field', ['get', `name_${i18n.language.split('-')[0]}`]);
-      });
+      // If i18n language change, here we update the map layer layouts to set the translated text fields recursively
+      let newLanguage = i18n.language.split('-')[0];
+      if (!MAP_SUPPORTED_TEXT_FIELD_LANGUAGES.includes(newLanguage)) {
+        newLanguage = 'en';
+      }
+
+      console.log(map.getStyle().layers);
+      map.getStyle().layers
+        .filter((layer) => layer.type === 'symbol'
+          && Array.isArray(layer.layout?.['text-field'])
+          && layer.layout?.['text-field'].length)
+        .forEach((layer) => map.setLayoutProperty(
+          layer.id,
+          'text-field',
+          replaceLayoutTextFieldLanguage(layer.layout['text-field'], newLanguage)));
     }
   }, [i18n.language, map]);
 

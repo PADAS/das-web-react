@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
@@ -27,6 +28,11 @@ jest.mock('mapbox-gl', () => ({
   Map: class {
     on() {}
   },
+}));
+
+jest.mock('react-i18next', () => ({
+  ...jest.requireActual('react-i18next'),
+  useTranslation: jest.fn(),
 }));
 
 jest.mock('../ducks/events', () => ({
@@ -84,7 +90,8 @@ describe('Map', () => {
     updateTrackStateMock,
     map,
     renderMap,
-    store;
+    store,
+    useTranslationMock;
   beforeEach(() => {
     clearEventDataMock = jest.fn(() => () => {});
     clearEventData.mockImplementation(clearEventDataMock);
@@ -110,8 +117,11 @@ describe('Map', () => {
     updatePatrolTrackState.mockImplementation(updatePatrolTrackStateMock);
     updateTrackStateMock = jest.fn(() => () => {});
     updateTrackState.mockImplementation(updateTrackStateMock);
+    useTranslationMock = jest.fn(() => ({ i18n: { language: 'en-US' }, t: (key) => key }));
+    useTranslation.mockImplementation(useTranslationMock);
 
     map = createMapMock();
+    map.getStyle.mockImplementation(() => ({ layers: [] }));
 
     store = {
       data: {
@@ -209,6 +219,81 @@ describe('Map', () => {
       ]);
     });
 
+  });
+
+  test('translates the map text layers when i18n language changes', async () => {
+    map.getStyle.mockImplementation(() => ({
+      layers: [{
+        id: 'background',
+        type: 'fill',
+      }, {
+        id: 'place-island',
+        layout: {
+          'text-field': [
+            'to-string',
+            ['coalesce', ['get', 'name_en'], ['get', 'name']],
+          ],
+        },
+        type: 'symbol',
+      }, {
+        id: 'country-label-md',
+        layout: {
+          'text-field': [
+            'step',
+            ['zoom'],
+            ['to-string', ['get', 'iso_3166_1']],
+            2,
+            ['to-string', ['get', 'name_en']],
+          ],
+        },
+        type: 'symbol',
+      }],
+    }));
+
+    const { rerender } = render(<Provider store={mockStore(store)}>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
+    </Provider>);
+
+    expect(map.setLayoutProperty).toHaveBeenCalledTimes(2);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [
+      'to-string',
+      ['coalesce', ['get', 'name_en'], ['get', 'name']]
+    ]);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('country-label-md', 'text-field', [
+      'step',
+      ['zoom'],
+      ['to-string', ['get', 'iso_3166_1']],
+      2,
+      ['to-string', ['get', 'name_en']],
+    ]);
+
+    useTranslationMock = jest.fn(() => ({ i18n: { language: 'es' }, t: (key) => key }));
+    useTranslation.mockImplementation(useTranslationMock);
+
+    rerender(<Provider store={mockStore(store)}>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
+    </Provider>);
+
+    expect(map.setLayoutProperty).toHaveBeenCalledTimes(4);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [
+      'to-string',
+      ['coalesce', ['get', 'name_es'], ['get', 'name']]
+    ]);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('country-label-md', 'text-field', [
+      'step',
+      ['zoom'],
+      ['to-string', ['get', 'iso_3166_1']],
+      2,
+      ['to-string', ['get', 'name_es']],
+    ]);
   });
 
   test('does not show the EventFilter if user is picking a location on the map', async () => {
