@@ -22,17 +22,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <% if (process.env.NODE_ENV==='production' ) { %>
-    <!-- OneTrust Cookies Consent Notice start for pamdas.org -->
-
-    <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true"
-      type="text/javascript" charset="UTF-8" data-domain-script="3593d516-42e1-432a-89b5-ecb82c267279"></script>
-    <!-- OneTrust Cookies Consent Notice end for pamdas.org -->
-    <script type="text/javascript">
-      function OptanonWrapper() { }
-    </script>
-    <% } %>
-      <title>EarthRanger</title>
+  <title>EarthRanger</title>
 </head>
 
 <body>
@@ -53,6 +43,16 @@
     -->
   <script data-jsd-embedded data-key="e1d5f5e4-1bf6-43ce-ae10-972895d6c040"
     data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+  <% if (process.env.NODE_ENV==='production' ) { %>
+    <!-- OneTrust Cookies Consent Notice start for pamdas.org -->
+
+    <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true"
+      type="text/javascript" charset="UTF-8" data-domain-script="3593d516-42e1-432a-89b5-ecb82c267279"></script>
+    <!-- OneTrust Cookies Consent Notice end for pamdas.org -->
+    <script type="text/javascript">
+      function OptanonWrapper() { }
+    </script>
+    <% } %>
 </body>
 
 </html>
