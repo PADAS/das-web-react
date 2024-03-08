@@ -297,13 +297,25 @@ describe('SideBar', () => {
   });
 
   test('redirects to map if a tab is not recognized', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/inalid' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/invalid' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+    });
+  });
+
+  test('redirects to new /events URL when coming from legacy URL', async () => {
+    const eventID = '1234-6563';
+    useLocationMock = jest.fn((() => ({ pathname: `/reports/${eventID}` })));
+    useLocation.mockImplementation(useLocationMock);
+    renderSideBar();
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(`/events/${eventID}`, { replace: true });
     });
   });
 });
