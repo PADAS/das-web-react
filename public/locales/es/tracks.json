@@ -27,6 +27,6 @@
     "customLengthLabel": "Longitud personalizada",
     "header": "Longitud de trayectoria:",
     "invalidCustomLengthAlert": "Por favor ingrese una longitud de trayectoria entre {{min}} y {{max}}.",
-    "matchReportFilterDateLabel": "Igualar al valor \"desde\" de la fecha en el filtro de reportes ({{reportFilterDateRangeLength}} días)"
+    "matchReportFilterDateLabel": "Igualar al valor \"desde\" de la fecha en el filtro de eventos ({{reportFilterDateRangeLength}} días)"
   }
 }

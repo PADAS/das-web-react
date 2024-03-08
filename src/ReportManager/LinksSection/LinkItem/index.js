@@ -1,16 +1,14 @@
 import React, { memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { TAB_KEYS } from '../../../constants';
 import { TrackerContext } from '../../../utils/analytics';
 
 import Link from '../../../Link';
 import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
+import { LINK_TYPES, TAB_KEYS } from '../../../constants';
 
 import styles from './styles.module.scss';
-
-const LINK_TYPES = { PATROL: 'patrol', REPORT: 'report' };
 
 const LinkItem = ({ item, to, type }) => {
   const analytics = useContext(TrackerContext);
@@ -31,7 +29,7 @@ const LinkItem = ({ item, to, type }) => {
     </Link>;
   }
 
-  if (type === LINK_TYPES.REPORT) {
+  if (type === LINK_TYPES.EVENT) {
     return <Link className={styles.link} onClick={onClick} to={to}>
       <ReportListItem
         className={styles.item}

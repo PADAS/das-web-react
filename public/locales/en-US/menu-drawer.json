@@ -5,7 +5,7 @@
   },
   "betaToggles": {
     "patrolUI": "New Patrol Form UI",
-    "reportNotification": "Play Sound For New Reports"
+    "reportNotification": "Play Sound For New Events"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",
@@ -32,8 +32,8 @@
     },
     "exportsHeader": "EXPORTS",
     "fieldReportsModal": {
-      "content": "Exported reports will only include those matching the filter criteria currently set in the Reports tab.",
-      "title": "Field Reports"
+      "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
+      "title": "Field Events"
     },
     "footer": {
       "clientVersion": "Web client version: {{version}}",
@@ -45,25 +45,25 @@
     },
     "helpCenterButton": "Help Center",
     "masterKMLModal": {
-      "title": "Master KML"
+      "title": "Subject KML"
     },
     "navigationButton": {
       "mapLayers": "Map Layers",
       "patrols": "Patrols",
-      "reports": "Reports",
+      "reports": "Events",
       "settings": "Settings"
     },
     "subjectInformationModal": {
-      "title": "Subject Information"
+      "title": "Subject Summary"
     },
     "subjectReportsModal": {
-      "title": "Subject Reports"
+      "title": "Observations"
     },
     "tableauButton": "Tableau",
     "usersGuideButton": "User's Guide"
   },
   "kmlExportModal": {
-    "dataExportModalTitle": "Export Master KML File",
+    "dataExportModalTitle": "Export Subject KML File",
     "includeInactiveSubjectsLabel": "Include inactive subjects"
   }
 }

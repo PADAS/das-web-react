@@ -21,7 +21,7 @@ const CONTROL_SELECTOR = 'set-geometry-button';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({ pathname: '/reports' }),
+  useLocation: () => ({ pathname: '/events' }),
 }));
 
 
@@ -140,7 +140,7 @@ describe('The AreaSelector input', () => {
         </Provider>
       );
 
-      expect((await screen.findByText('Set report area'))).toBeDefined();
+      expect((await screen.findByText('Set event area'))).toBeDefined();
       expect((await screen.findByText('polygon.svg'))).toBeDefined();
     });
   });

@@ -17,7 +17,7 @@
     "heatmapOnLabel": "Heatmap on"
   },
   "reportsHeatmapLegend": {
-    "heatmapLegendTitle": "Visible Reports"
+    "heatmapLegendTitle": "Visible Events"
   },
   "subjectHeatmapLegend": {
     "subjectCount_one": "{{count}} subject",
