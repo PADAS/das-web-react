@@ -263,7 +263,7 @@ const ReportDetailView = ({
       onSaveAddedReportCallback?.();
     } else if (redirectToFromFormProps || redirectTo) {
       setRedirectTo(redirectToFromFormProps || redirectTo);
-      setScrollPosition(TAB_KEYS.REPORTS, 0);
+      setScrollPosition(TAB_KEYS.EVENTS, 0);
     }
 
     if (reportToSubmit.is_collection && reportToSubmit.state) {
@@ -453,7 +453,7 @@ const ReportDetailView = ({
     setSaveError([...formattedErrors]);
   }, [reportSchemas?.schema?.properties]);
 
-  const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.REPORTS}`), [onSaveReport]);
+  const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -589,7 +589,7 @@ const ReportDetailView = ({
 
           reportTracker.track('Added report to report');
           onSaveSuccess({}, [
-            `/${TAB_KEYS.REPORTS}/${collectionId}`,
+            `/${TAB_KEYS.EVENTS}/${collectionId}`,
             { state: { relatedEvent: originalReport.related_event.id }, replace: true }
           ])(collectionRefreshedResults);
         }
@@ -657,7 +657,7 @@ const ReportDetailView = ({
     } else if (isPatrolAddedReport) {
       navigate(...redirectToFromFormProps);
     } else {
-      navigate(`/${TAB_KEYS.REPORTS}`);
+      navigate(`/${TAB_KEYS.EVENTS}`);
     }
   }, [
     isAddedReport,

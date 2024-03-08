@@ -91,7 +91,7 @@ describe('Menu report options', () => {
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledTimes(1);
       expect(writeText).toHaveBeenCalledWith(
-        'http://localhost/reports/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
+        'http://localhost/events/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
       );
       expect(screen.getByText('Link copied')).toBeDefined();
     });
@@ -113,7 +113,7 @@ describe('Menu report options', () => {
 
     expect(handlePrint).toHaveBeenCalledTimes(0);
 
-    const printReportButton = await screen.getByText('Print Report');
+    const printReportButton = await screen.getByText('Print Event Details');
     userEvent.click(printReportButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(1);

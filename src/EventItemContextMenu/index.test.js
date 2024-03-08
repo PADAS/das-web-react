@@ -122,7 +122,7 @@ describe('EventItemContextMenu', () => {
     await waitFor(() => {
       expect(screen.getByText(`The collection #${report.serial_number} was resolved correctly`)).toBeDefined();
       expect(screen.queryByText('These related events were resolved as well:')).toBeNull();
-      expect(screen.getByText('WARNING: These reports are still active')).toBeDefined();
+      expect(screen.getByText('WARNING: These events are still active')).toBeDefined();
       expect(screen.getByText('#1')).toBeDefined();
       expect(screen.getByText('#2')).toBeDefined();
     });
@@ -153,7 +153,7 @@ describe('EventItemContextMenu', () => {
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledTimes(1);
       expect(writeText).toHaveBeenCalledWith(
-        'http://localhost/reports/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
+        'http://localhost/events/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
       );
       expect(screen.getByText('Link copied')).toBeDefined();
     });

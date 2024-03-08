@@ -131,7 +131,7 @@ describe('useJumpToLocation', () => {
   });
 
   test('sets the right padding if a sidebar tab is open', async () => {
-    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports' }),);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/events' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
@@ -150,7 +150,7 @@ describe('useJumpToLocation', () => {
   });
 
   test('sets the right padding if a sidebar tab is open in detail view', async () => {
-    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/events/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
 
     const coordinates = [-104.19557197413907, 20.75709101172957];
@@ -169,7 +169,7 @@ describe('useJumpToLocation', () => {
   });
 
   test('uses standard padding with the sidebar open if it is a small device', async () => {
-    useRouterLocationMock = jest.fn(() => ({ pathname: '/reports/123' }),);
+    useRouterLocationMock = jest.fn(() => ({ pathname: '/events/123' }),);
     useRouterLocation.mockImplementation(useRouterLocationMock);
     useMatchMediaMock = jest.fn(() => false);
     useMatchMedia.mockImplementation(useMatchMediaMock);

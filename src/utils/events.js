@@ -326,7 +326,7 @@ export const REPORT_SAVE_ACTIONS = {
 };
 
 export const getReportLink = (report) => {
-  let reportLink = `${window.location.origin}/reports/${report.id}`;
+  let reportLink = `${window.location.origin}/events/${report.id}`;
   if (report?.geojson) {
     const geoJSONCentroidCoordinates = centerOfMass(report.geojson).geometry.coordinates;
     reportLink += `?lnglat=${geoJSONCentroidCoordinates[0]},${geoJSONCentroidCoordinates[1]}`;

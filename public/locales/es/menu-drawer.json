@@ -5,7 +5,7 @@
   },
   "betaToggles": {
     "patrolUI": "Nueva interfaz del formulario de patrullajes",
-    "reportNotification": "Reproducir alerta para nuevos reportes"
+    "reportNotification": "Reproducir alerta para nuevos eventos"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Reportes diarios",
@@ -32,8 +32,8 @@
     },
     "exportsHeader": "EXPORTAR",
     "fieldReportsModal": {
-      "content": "Reportes exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
-      "title": "Reportes de campo"
+      "content": "Eventos exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
+      "title": "Eventos de campo"
     },
     "footer": {
       "clientVersion": "Versión del cliente web: {{version}}",
@@ -50,14 +50,14 @@
     "navigationButton": {
       "mapLayers": "Capas de mapa",
       "patrols": "Patrullas",
-      "reports": "Reportes",
+      "reports": "Eventos",
       "settings": "Configuraciones"
     },
     "subjectInformationModal": {
       "title": "Información de Sujeto"
     },
     "subjectReportsModal": {
-      "title": "Reportes de Sujeto"
+      "title": "Eventos de Sujeto"
     },
     "tableauButton": "Tableau",
     "usersGuideButton": "Guía de Usuario"

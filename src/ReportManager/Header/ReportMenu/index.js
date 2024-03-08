@@ -58,7 +58,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     dispatch(fetchEvent(savedReport.id));
     dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
       removeModal();
-      setRedirectTo(`/${TAB_KEYS.REPORTS}/${data.id}`);
+      setRedirectTo(`/${TAB_KEYS.EVENTS}/${data.id}`);
     });
   };
 

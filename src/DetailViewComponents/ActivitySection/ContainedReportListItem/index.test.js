@@ -158,7 +158,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     renderCursorGpsDisplay(undefined, mockedStore);
 
-    expect((await screen.findByText('Report Type'))).toBeDefined();
+    expect((await screen.findByText('Event Type'))).toBeDefined();
   });
 
   test('while the schema has not loaded yet, the schema form does not show up', async () => {

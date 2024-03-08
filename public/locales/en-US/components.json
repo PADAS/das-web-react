@@ -9,7 +9,7 @@
         "reportsSelectPlaceholder": "Jump to...",
         "searchBarPlaceholder": "Search"
       },
-      "addReportTabTitle": "Add Report"
+      "addReportTabTitle": "Add Event"
     },
     "defaultTitle": "Add"
   },
@@ -56,12 +56,12 @@
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
       "patrol": "Choose patrol location",
-      "report": "Choose report location"
+      "report": "Choose event location"
     },
     "discardButton": "Discard",
     "discardButtonTooltip": "Remove all points",
     "drawingReportGeometryArea": "Area: {{areaDisplay}}",
-    "drawingReportGeometryHeader": "Create report area",
+    "drawingReportGeometryHeader": "Create event area",
     "drawingReportGeometryPerimeter": "Perimeter: {{perimeterDisplay}}",
     "undoButton": "Undo",
     "undoButtonTooltip": "Reverse your last action"
@@ -136,10 +136,10 @@
     "noItemsToDisplayInLayers": "No items to display.",
     "patrolsLink": "Patrols",
     "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load reports. Please try again.",
+      "fetchReportsErrorMessage": "Could not load events. Please try again.",
       "tryAgainButton": "Try again"
     },
-    "reportsLink": "Reports",
+    "eventsLink": "Events",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
@@ -148,7 +148,7 @@
       "appRefreshMapLayersLabel": "Map Layers",
       "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
       "appRefreshPatrolFiltersLabel": "Patrol Filters",
-      "appRefreshReportFiltersLabel": "Report Filters",
+      "appRefreshReportFiltersLabel": "Event Filters",
       "clusterDataDescription": "Cluster data when there is overlap for",
       "displayHeader": "Display",
       "experimentalFeaturesHeader": "Experimental Features",

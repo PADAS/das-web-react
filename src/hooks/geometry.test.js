@@ -37,7 +37,7 @@ const mockGeometry = {
 const wrapper = ({ children }) => <div>{children}</div>;
 
 describe('#useEventGeoMeasurementDisplayStrings', () => {
-  test('returning the area and perimeter values of of an un-edited report geometry', async () => {
+  test('returning the area and perimeter values of of an un-edited event geometry', async () => {
     const event = { id: 'hello', geometry: mockGeometry };
     const originalEvent = { ...event };
 
@@ -47,7 +47,7 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
     expect(areaDisplayString).toBe('0.37km²');
   });
 
-  test('returning the area and perimeter values of an edited report geometry, with tildes prefixed', () => {
+  test('returning the area and perimeter values of an edited event geometry, with tildes prefixed', () => {
     const event = { id: 'hello', geometry: {
       type: 'Feature',
       geometry: {
@@ -92,7 +92,7 @@ describe('#useEventGeoMeasurementDisplayStrings', () => {
     expect(perimeterDisplayString).toBe('~55.05km');
   });
 
-  test('returning 0 when there is no report geometry to render', () => {
+  test('returning 0 when there is no event geometry to render', () => {
     const withNoGeo = { id: 'hello', geometry: null };
 
     const { result: { current: [perimeterDisplayString, areaDisplayString] } } = renderHook(() => useEventGeoMeasurementDisplayStrings(withNoGeo, withNoGeo), { wrapper });

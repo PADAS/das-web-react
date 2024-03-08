@@ -19,12 +19,12 @@
     "datesButton": "Dates",
     "filtersButton": "Filters",
     "resetButton": "Reset",
-    "searchBarPlaceholder": "Search Reports..."
+    "searchBarPlaceholder": "Search Events..."
   },
   "filters": {
     "priorityPickerLabel": "Priority",
     "reportTypesAllLabel": "All",
-    "reportTypesLabel": "Report Types",
+    "reportTypesLabel": "Event Types",
     "reportTypesSelectionLabels": {
       "allSelected": "All selected",
       "noneSelected": "None selected",
@@ -38,7 +38,7 @@
       "resolved": "Resolved",
       "all": "All"
     },
-    "title": "Report Filters"
+    "title": "Event Filters"
   },
   "friendlyFilterString": {
     "resultLabel": "result",
@@ -50,7 +50,7 @@
     "eventSortOptions": {
       "updatedAtLabel": "Date Updated",
       "createdAtLabel": "Created Date",
-      "eventTimeLabel": "Report Date"
+      "eventTimeLabel": "Event Date"
     },
     "ascendingLabel": " ascending"
   },

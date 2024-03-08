@@ -98,7 +98,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
   useEffect(() => {
     if (isNewReport) {
       if (!reportType) {
-        navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+        navigate(`/${TAB_KEYS.EVENTS}`, { replace: true });
       } else if (!newReportTemporalId) {
         navigate(
           `${location.pathname}${location.search}`,
@@ -113,7 +113,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
       setIsLoadingReport(true);
       dispatch(fetchEvent(reportId))
         .then(() => setIsLoadingReport(false))
-        .catch(() => navigate(`/${TAB_KEYS.REPORTS}`, { replace: true }));
+        .catch(() => navigate(`/${TAB_KEYS.EVENTS}`, { replace: true }));
     }
   }, [dispatch, eventStore, isNewReport, navigate, reportId]);
 

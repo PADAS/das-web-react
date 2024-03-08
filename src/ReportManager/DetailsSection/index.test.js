@@ -341,7 +341,7 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    expect((await screen.findByText('Set report area'))).toBeDefined();
+    expect((await screen.findByText('Set event area'))).toBeDefined();
   });
 
   test('triggers the onReportGeometryChange callback when redux state suggests a geometry selection', async () => {

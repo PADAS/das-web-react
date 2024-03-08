@@ -17,7 +17,7 @@
     "heatmapOnLabel": "Mostrar mapa de calor"
   },
   "reportsHeatmapLegend": {
-    "heatmapLegendTitle": "Reportes visibles"
+    "heatmapLegendTitle": "Eventos visibles"
   },
   "subjectHeatmapLegend": {
     "subjectCount_one": "{{count}} sujeto",

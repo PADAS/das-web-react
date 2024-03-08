@@ -16,7 +16,7 @@ describe('useReport', () => {
     jest.restoreAllMocks();
   });
 
-  test('provides the expected data for a report', async () => {
+  test('provides the expected data for an event', async () => {
     const wrapper = ({ children }) => <Provider store={mockStore({ data: { eventTypes } })}>
       <I18nextProvider i18n={i18n}>
         <MemoryRouter>
