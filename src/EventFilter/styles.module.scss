@@ -200,12 +200,11 @@ div.filterPopover {
     font-size: 65%;
     font-style: italic;
     margin-left: 0.5rem;
-    white-space: nowrap;
+    max-width: 5rem;
   }
 }
 
 .reportFilterTitle {
-  align-items: baseline;
   padding: 0.25rem 0.5rem 0;
 }
 

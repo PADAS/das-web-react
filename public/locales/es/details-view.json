@@ -1,9 +1,9 @@
 {
   "activitySection": {
-    "collapseAllButton": "Colapsar todo",
+    "collapseAllButton": "Colapsar",
     "dateItemStartTitle": "Comienzo",
     "dateItemEndedTitle": "Fin",
-    "expandAllButton": "Expandir todo",
+    "expandAllButton": "Expandir",
     "sectionTitle": "Actividad",
     "timeLabel": "Tiempo"
   },

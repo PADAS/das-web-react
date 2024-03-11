@@ -136,7 +136,7 @@ const SideBar = () => {
   return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
       <Link
-        className={`${styles.navItem} ${currentTab === TAB_KEYS.REPORTS ? styles.active : ''}`}
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}
         to={TAB_KEYS.EVENTS}
       >
         <DocumentIcon />
