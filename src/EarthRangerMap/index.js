@@ -1,6 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import React, { Fragment, forwardRef, memo, useCallback, useRef, useState, useEffect } from 'react';
 import { connect, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { MapContext } from '../App';
 import MapTerrain from '../MapTerrain';
 import SkyLayer from '../SkyLayer';
@@ -41,6 +42,9 @@ const getStartingMapPositionValues = (savedMapPosition = {}) => {
 
 const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, dispatch: _dispatch, ...rest } = props;
+
+  const { t } = useTranslation('map-controls', { keyPrefix: 'earthRangerMap' });
+
   const mapPosition = useSelector(state => state.data.mapPosition);
 
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -78,6 +82,12 @@ const EarthRangerMap = (props) => {
         style: REACT_APP_BASE_MAP_STYLES,
         minZoom: MIN_ZOOM,
         maxZoom: MAX_ZOOM,
+        locale: {
+          'Map.Title': t('mapTitle'),
+          'NavigationControl.ResetBearing': t('navigationResetBearing'),
+          'NavigationControl.ZoomIn': t('navigationZoomIn'),
+          'NavigationControl.ZoomOut': t('navigationZoomOut'),
+        },
         logoPosition: 'bottom-left',
         ...initialMapPositionOptions,
       });

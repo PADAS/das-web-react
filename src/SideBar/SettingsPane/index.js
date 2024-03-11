@@ -72,6 +72,7 @@ const SettingsPane = () => {
   }, [i18n]);
 
   return <Tabs
+      className={styles.tabs}
       defaultActiveKey={activeTabKey}
       fill
       onSelect={setActiveTabKey}

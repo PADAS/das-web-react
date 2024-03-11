@@ -102,7 +102,9 @@ const TrackLengthControls = () => {
       />
 
       <span>{t('customLengthLabel')}</span>
+    </Form.Label>
 
+    <div>
       <div className={styles.rangeControls}>
         <input
           type="range"
@@ -134,7 +136,7 @@ const TrackLengthControls = () => {
       {!customLengthValid && <Alert variant="danger">
         {t('invalidCustomLengthAlert', { max: FREEHAND_INPUT_ATTRS.max, min: FREEHAND_INPUT_ATTRS.min })}
       </Alert>}
-    </Form.Label>
+    </div>
   </Form>;
 };
 

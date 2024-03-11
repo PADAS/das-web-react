@@ -132,8 +132,14 @@
   background-color: transparent;
   border-color: transparent;
   color: $secondary-medium-gray;
+  font-size: 0.875rem;
   font-weight: bold;
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
+  
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+  }
 }
 
 .saveButton {
@@ -141,6 +147,22 @@
 
   .saveSplitButtonItem:hover {
     background-color: unset;
+  }
+
+  > button {
+    font-size: 0.875rem;
+
+    &:first-child {
+      padding-right: 0;
+
+      @media (min-width: $md-layout-width-min) {
+        padding-right: 0.75rem;
+      }
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      font-size: 1rem;
+    }
   }
 
   &:disabled {

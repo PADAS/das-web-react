@@ -27,5 +27,8 @@
     "requestTimeout": "Request timed out. Please try again (408).",
     "serviceUnavailable": "The requested resource is currently unavailable. Please try again later, and contact your administrator if this problem persists (503).",
     "tooManyRequests": "Too many requests. Please try again later, and contact your administrator if this problem persists (429)."
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
   }
 }

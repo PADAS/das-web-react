@@ -13,8 +13,8 @@
     "sensitivityLowIndicator": "Baja"
   },
   "heatmapToggleButton": {
-    "heatmapOffLabel": "Desactivar mapa de calor",
-    "heatmapOnLabel": "Activar mapa de calor"
+    "heatmapOffLabel": "Ocultar mapa de calor",
+    "heatmapOnLabel": "Mostrar mapa de calor"
   },
   "reportsHeatmapLegend": {
     "heatmapLegendTitle": "Eventos visibles"

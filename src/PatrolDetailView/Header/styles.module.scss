@@ -3,13 +3,13 @@
 @import '../../common/styles/inputs';
 
 .header {
-  display: flex;
   align-items: center;
-  height: 3.5rem;
-  width: 100%;
   background-color: $very-light-gray;
   box-shadow: 0 0 15px #00000040;
+  display: flex;
+  height: 4rem;
   position: relative;
+  width: 100%;
 
   @media (min-width: $md-layout-width-min) {
     height: 5rem;
@@ -44,6 +44,7 @@
   }
   
   @media (min-width: $md-layout-width-min) {
+    min-width: 4.5rem;
     width: 4.5rem;
   }
 
@@ -66,11 +67,7 @@
 .titleAndDetails {
   display: flex;
   flex-direction: column;
-  width: 40%;
-
-  @media (min-width: 415px) {
-    width: 50%;
-  }
+  width: 8rem;
 
   @media (min-width: $md-layout-width-min) {
     width: 20.25rem;
@@ -84,14 +81,16 @@
 }
 
 .description {
+  display: flex;
+  flex-direction: column;
   font-size: 0.75rem;
-  text-align: right;
   margin-left: auto;
   margin-right: 0.5rem;
-  padding-left: 1em;
+  text-align: right;
   
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
+    margin-right: 1rem;
   }
 
   span:first-child {
@@ -127,7 +126,7 @@
   border-radius: 4px;
   color: $secondary-medium-gray;
   font-weight: 700;
-  margin: 0 0.5rem;
+  margin-left: 0.5rem;
 
   @media print {
     display: none !important;
@@ -187,7 +186,12 @@
 }
 
 .patrolMenu {
+  margin-left: 0.5rem;
   min-width: 2.25rem;
+
+  @media print {
+    display: none;
+  }
 }
 
 .overflowedEllipsisText {

@@ -1,9 +1,9 @@
 {
   "activitySection": {
-    "collapseAllButton": "Colapsar todo",
+    "collapseAllButton": "Colapsar",
     "dateItemStartTitle": "Comienzo",
     "dateItemEndedTitle": "Fin",
-    "expandAllButton": "Expandir todo",
+    "expandAllButton": "Expandir",
     "sectionTitle": "Actividad",
     "timeLabel": "Tiempo"
   },
@@ -44,7 +44,7 @@
   },
   "imageModal": {
     "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subiste esta imagen recientemente, espera una minuto y vuelve a intentarlo, por favor."
+    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
   },
   "locationSelector": {
     "inputLabel": "Ubicación:",
@@ -54,7 +54,7 @@
     "cancelNavigationButtonText": "Regresar",
     "continueNavigationNegativeButtonText": "Descartar",
     "continueNavigationPositiveButtonText": "Guardar",
-    "description": "Hay cambios sin guardar. ¿Deseas regresar, descartar cambios o guardar y continuar?",
+    "description": "Hay cambios sin guardar. ¿Desea regresar, descartar cambios o guardar y continuar?",
     "title": "Cambios sin guardar"
   },
   "noteListItem": {

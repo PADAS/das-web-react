@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import mapboxgl from 'mapbox-gl';
 
 import {
   addNewClusterMarkers,
@@ -28,11 +27,14 @@ const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
 const mapMarkers = [];
 
-class MockMarker {
-  constructor(marker) { this.marker = marker; }
-  addTo() { mapMarkers.push(this.marker); }
-  setLngLat() { return this; }
-};
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Marker: class {
+    constructor(marker) { this.marker = marker; }
+    addTo() { mapMarkers.push(this.marker); }
+    setLngLat() { return this; }
+  },
+}));
 
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -51,8 +53,6 @@ describe('ClustersLayer', () => {
   beforeEach(() => {
     getClusterExpansionZoomMock = jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1));
     removeClusterPolygon = jest.fn();
-    mapboxgl.Marker.mockImplementation((...args) => new MockMarker(...args));
-
   });
 
   describe('the map layer', () => {

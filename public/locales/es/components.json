@@ -89,7 +89,7 @@
   "priorityPicker": {
     "amber": "Ambar",
     "green": "Verde",
-    "none": "Ninguna",
+    "none": "N/A",
     "red": "Roja"
   },
   "reportedBySelect": {
@@ -159,7 +159,7 @@
       "mapMarkersHeader": "Marcadores del mapa",
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Configuraciones"
+    "settingsLink": "Preferencias"
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
