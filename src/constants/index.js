@@ -1,6 +1,4 @@
 import { toast } from 'react-toastify';
-import es from 'date-fns/locale/es';
-import enUS from 'date-fns/locale/en-US';
 
 import * as packageJson from '../../package.json';
 import layoutVariables from '../common/styles/layout.module.scss';
