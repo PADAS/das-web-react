@@ -1,6 +1,6 @@
 import reportGeometryReducer, { reset, setGeometryPoints, undo } from './report-geometry';
 
-describe('Ducks - Report geometry', () => {
+describe('Ducks - Event geometry', () => {
   test('returns default state', () => {
     expect(reportGeometryReducer(undefined, { type: 'UNKNOWN' })).toEqual({
       current: { points: [] },

@@ -11,6 +11,18 @@ import { mockStore } from '../__test-helpers/MockStore';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportGeometryDrawer from './';
 
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setLngLat() {}
+    setOffset() {}
+  },
+}));
+
 jest.mock('../ducks/map-ui', () => ({
   ...jest.requireActual('../ducks/map-ui'),
   setIsPickingLocation: jest.fn(),
@@ -68,7 +80,7 @@ describe('ReportGeometryDrawer', () => {
     const informationIcon = await screen.findByText('information.svg');
     userEvent.click(informationIcon);
 
-    expect((await screen.findByText('Creating A Report Area'))).toBeDefined();
+    expect((await screen.findByText('Creating An Event Area'))).toBeDefined();
   });
 
   test('opens the cancellation confirmation modal when pressing Escape if user made a change', async () => {

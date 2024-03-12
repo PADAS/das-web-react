@@ -39,7 +39,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
     ? getSchemasForEventTypeByEventId(eventSchemas, reportFromEventStore.event_type, reportFromEventStore.id)
     : null;
 
-  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.REPORTS}/${report.id}`), [navigate, report]);
+  const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`), [navigate, report]);
 
   useEffect(() => {
     if (!reportFromEventStore) {

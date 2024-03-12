@@ -18,23 +18,21 @@ export const setFlagOverrideValue = (flagName, value) => ({
   payload: { flagName, value }
 });
 
-export const INITIAL_REDUCER_STATE = {
-  [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: {
-    labelKey: 'reportNotification',
-    value: false,
-  }
+export const FEATURE_FLAG_INPUT_LABELS = {
+  [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: 'reportNotification',
 };
 
+export const INITIAL_REDUCER_STATE = {
+  [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: { value: false },
+};
 
 const reducer = (state = INITIAL_REDUCER_STATE, action = {}) => {
   if (action.type === SET_FLAG_OVERRIDE_VALUE) {
     const { flagName, value } = action.payload;
+
     return {
       ...state,
-      [flagName]: {
-        ...state[flagName],
-        value,
-      },
+      [flagName]: { ...state[flagName], value },
     };
   }
 

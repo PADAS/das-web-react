@@ -32,7 +32,7 @@ describe('the BetaToggles component', () => {
   });
   test('listing overrides', async () => {
     const wrapper = await screen.findByTestId('wrapper');
-    const overrideLabels = ['Play Sound For New Reports'];
+    const overrideLabels = ['Play Sound For New Events'];
 
     overrideLabels.forEach((label) => {
       expect(wrapper).toHaveTextContent(label);

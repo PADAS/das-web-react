@@ -108,7 +108,7 @@ describe('GlobalMenuDrawer', () => {
       </Provider>
     );
 
-    expect((await screen.findByText('Reports'))).toBeDefined();
+    expect((await screen.findByText('Events'))).toBeDefined();
     expect((await screen.findByText('Patrols'))).toBeDefined();
     expect((await screen.findByText('Map Layers'))).toBeDefined();
   });
@@ -123,11 +123,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    const reportsNavigationButton = await screen.findByText('Reports');
+    const reportsNavigationButton = await screen.findByText('Events');
     userEvent.click(reportsNavigationButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/reports');
+    expect(navigate).toHaveBeenCalledWith('/events');
   });
 
   test('does not render the Patrols navigation button if user does not have permissions', async () => {
@@ -329,11 +329,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const fieldReportsButton = await screen.findByText('Field Reports');
+    const fieldReportsButton = await screen.findByText('Field Events');
     userEvent.click(fieldReportsButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Field Reports');
+    expect(addModal.mock.calls[0][0].title).toBe('Field Events');
   });
 
   test('opens the kml export modal when clicking the Master KML button', async () => {
@@ -345,11 +345,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const masterKMLButton = await screen.findByText('Master KML');
+    const masterKMLButton = await screen.findByText('Subject KML');
     userEvent.click(masterKMLButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Master KML');
+    expect(addModal.mock.calls[0][0].title).toBe('Subject KML');
   });
 
   test('opens the subject information modal when clicking the Subject Information button', async () => {
@@ -361,11 +361,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const subjectInformationButton = await screen.findByText('Subject Information');
+    const subjectInformationButton = await screen.findByText('Subject Summary');
     userEvent.click(subjectInformationButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Subject Information');
+    expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
   });
 
   test('opens the subject reports modal when clicking the Subject Reports button', async () => {
@@ -377,11 +377,11 @@ describe('GlobalMenuDrawer', () => {
 
     expect(addModal).toHaveBeenCalledTimes(0);
 
-    const subjectReportsButton = await screen.findByText('Subject Reports');
+    const subjectReportsButton = await screen.findByText('Observations');
     userEvent.click(subjectReportsButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Subject Reports');
+    expect(addModal.mock.calls[0][0].title).toBe('Observations');
   });
 
   test('lists links to various privacy and data policies', async () => {

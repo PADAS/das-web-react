@@ -28,7 +28,7 @@ const EventFeed = ({ className, events, hasMore, loading, onScroll, onTitleClick
     return <LoadingOverlay className={styles.loadingOverlay} />;
   }
 
-  return <ScrollRestoration className={`${className} ${styles.scrollContainer}`} namespace={TAB_KEYS.REPORTS}>
+  return <ScrollRestoration className={`${className} ${styles.scrollContainer}`} namespace={TAB_KEYS.EVENTS}>
     <InfiniteScroll
       element="ul"
       getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node

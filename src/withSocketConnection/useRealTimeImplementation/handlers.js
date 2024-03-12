@@ -1,27 +1,23 @@
 import { toast } from 'react-toastify';
-
-import store from '../../store';
+import i18next from 'i18next';
 
 import { displayTitleForEvent, eventWasRecentlyEditedByCurrentUser } from '../../utils/events';
 import { showToast } from '../../utils/toast';
+import store from '../../store';
 
-export const showFilterMismatchToastForHiddenReports = (msg) => {
-  const { event_data, matches_current_filter } = msg;
+export const showFilterMismatchToastForHiddenReports = (message) => {
+  const t = i18next.getFixedT(null, 'utils', 'showFilterMismatchToastForHiddenReports');
+
+  const { event_data, matches_current_filter } = message;
   const { data: { user } } = store.getState();
 
-  if (
-    eventWasRecentlyEditedByCurrentUser(event_data, user)
-    && !matches_current_filter
-  ) {
-
+  if (eventWasRecentlyEditedByCurrentUser(event_data, user) && !matches_current_filter) {
     const eventTypes = store.getState().data.eventTypes;
     const displayTitle = displayTitleForEvent(event_data, eventTypes);
 
     showToast({
-      message: `${event_data.serial_number} "${displayTitle}" has been created but does not match the current filter`,
-      toastConfig: {
-        type: toast.TYPE.INFO,
-      },
+      message: t('eventCreatedDoesNotMatchFilterToast', { displayTitle, serialNumber: event_data.serial_number }),
+      toastConfig: { type: toast.TYPE.INFO },
     });
   }
 };

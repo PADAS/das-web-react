@@ -19,6 +19,8 @@ import styles from './styles.module.scss';
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
 const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) => {
+  const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
+
   const {
     patrolData,
 
@@ -43,9 +45,9 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
   } = usePatrol(patrol);
 
   const titleInput = useRef();
-  const { t } = useTranslation('patrols', { keyPrefix: 'detailView.header' });
 
   const isNewPatrol = !patrol.id;
+  const title = patrol.title || displayTitle;
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
@@ -70,6 +72,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     patrolData,
     patrolElapsedTime,
     scheduledStartTime,
+    t,
   ]);
 
   const onTitleBlur = useCallback((event) => {
@@ -108,8 +111,6 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
     setRedirectTo(`/${TAB_KEYS.PATROLS}`);
   }, [onSavePatrolChange, setRedirectTo]);
 
-  const title = patrol.title || displayTitle;
-
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
       <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} type='events' iconId={patrolIconId}  />
@@ -137,7 +138,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       <span style={{ color: (theme?.fontColor ?? theme?.base) }}>
         {t(`uiStateTitles.${patrolState.key}`)}
       </span>
-      <br />
+
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
@@ -168,7 +169,6 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       patrol={patrol}
       patrolTitle={title}
       printableContentRef={printableContentRef}
-      className={styles.patrolMenu}
     />}
   </div>;
 };

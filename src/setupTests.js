@@ -1,23 +1,21 @@
 import ReactGA4 from 'react-ga4';
 import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
-import mapboxgl from 'mapbox-gl';
+import { TextDecoder, TextEncoder } from 'util';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
-import { createMapMock, createMockPopup } from './__test-helpers/mocks';
+
+Object.defineProperty(window, 'TextEncoder', {
+  writable: true,
+  value: TextEncoder
+});
+
+Object.defineProperty(window, 'TextDecoder', {
+  writable: true,
+  value: TextDecoder
+});
 
 ReactGA4.initialize('dummy', { testMode: true });
-
-jest.mock('mapbox-gl', () => ({
-  ...jest.requireActual('mapbox-gl'),
-  Map: jest.fn(),
-  Popup: jest.fn(),
-  Marker: jest.fn(),
-}));
-
-
-mapboxgl.Map.prototype = createMapMock();
-mapboxgl.Popup.prototype = createMockPopup();
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

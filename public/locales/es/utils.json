@@ -27,5 +27,8 @@
     "requestTimeout": "La petición expiro. Por favor intente de nuevo (408).",
     "serviceUnavailable": "El recurso solicitado no está disponible. Por favor intente más tarde, contacte a su administrador si el problema persiste (503).",
     "tooManyRequests": "Demasiadas peticiones. Por favor intente más tarde, contacte a su administrador si el problema persiste (429)."
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" ha sido creado pero no coincide con los criterios del filtro"
   }
 }

@@ -1,6 +1,6 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Presiona enter para buscar",
+    "gpsDisplayTooltip": "Presione enter para buscar",
     "titleIconSearch": "Buscar"
   },
   "baseLayer": {
@@ -9,15 +9,21 @@
     "logoAlt": "{{logoName}} logo",
     "defaultMapLayerName": "Mapa del terreno EarthRanger"
   },
+  "earthRangerMap": {
+    "mapTitle": "Mapa",
+    "navigationResetBearing": "Restablecer norte",
+    "navigationZoomIn": "Acercarse",
+    "navigationZoomOut": "Alejarse"
+  },
   "mapDrawingTools": {
-    "addPointLabel": "Click para agregar un punto.\n Presiona 'enter' para completar.",
+    "addPointLabel": "Click para agregar un punto.\n Presione 'enter' para completar.",
     "bearingLabel": "Rumbo: {{bearing}}°",
     "distanceLabel": "Distancia: {{distance}}",
-    "instructionsLabel": "Haz click y arrastra para agregar un punto",
+    "instructionsLabel": "Haga click y arrastre para agregar un punto",
     "popupLabel": "Click para agregar un punto."
   },
   "mapPrintControl": {
-    "documentTitle": "Titulo del documento:",
+    "documentTitle": "Título del documento:",
     "printButtonTitle": "Imprimir mapa",
     "printButton": "Imprimir",
     "printInstructions": "Ajustar la configuración de la escala al imprimir para mejorar los resultados"
@@ -32,5 +38,5 @@
     "distanceLabel": "Distancia del inicio:",
     "finishButton": "Click para finalizar"
   },
-  "reportMapControlTitle": "Reportes"
+  "reportMapControlTitle": "Eventos"
 }

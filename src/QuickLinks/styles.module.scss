@@ -23,6 +23,16 @@
     cursor: pointer;
     border-bottom: 1px solid rgba(177, 179, 179, 0.25);
 
+    &:hover {
+      color: $bright-blue !important;
+      background-color: $very-light-blue !important;
+      font-weight: bold;
+  
+      svg {
+        color: $bright-blue;
+      }
+    }
+
     svg {
       color: $secondary-light-gray;
       
@@ -58,6 +68,16 @@
     color: $secondary-light-gray !important;
     background-color: white !important;
     font-weight: normal;
+
+    &:hover {
+      color: $bright-blue !important;
+      background-color: $very-light-blue !important;
+      font-weight: bold;
+  
+      svg {
+        color: $bright-blue;
+      }
+    }
 
     svg {
       color: $secondary-light-gray;

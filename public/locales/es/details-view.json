@@ -1,14 +1,14 @@
 {
   "activitySection": {
-    "collapseAllButton": "Colapsar todo",
+    "collapseAllButton": "Colapsar",
     "dateItemStartTitle": "Comienzo",
     "dateItemEndedTitle": "Fin",
-    "expandAllButton": "Expandir todo",
+    "expandAllButton": "Expandir",
     "sectionTitle": "Actividad",
     "timeLabel": "Tiempo"
   },
   "addAttachmentButton": "Adjuntar",
-  "addReportButton": "Reporte",
+  "addReportButton": "Evento",
   "addNoteButton": "Nota",
   "attachmentControls": {
     "addNoteTitle": "Agregar Nota",
@@ -31,7 +31,7 @@
     "loadingMessage": "Obteniendo tu ubicación...",
     "readingLocationError": "No fue posible obtener tu ubicación: {{locationErrorMessage}}"
   },
-  "goToReportButtonTooltip": "Ir a reporte",
+  "goToReportButtonTooltip": "Ir a evento",
   "header": {
     "historyLinkCreated": "Creado",
     "historyLinkUpdated": "Actualizado",
@@ -44,7 +44,7 @@
   },
   "imageModal": {
     "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subiste esta imagen recientemente, espera una minuto y vuelve a intentarlo, por favor."
+    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
   },
   "locationSelector": {
     "inputLabel": "Ubicación:",
@@ -54,7 +54,7 @@
     "cancelNavigationButtonText": "Regresar",
     "continueNavigationNegativeButtonText": "Descartar",
     "continueNavigationPositiveButtonText": "Guardar",
-    "description": "Hay cambios sin guardar. ¿Deseas regresar, descartar cambios o guardar y continuar?",
+    "description": "Hay cambios sin guardar. ¿Desea regresar, descartar cambios o guardar y continuar?",
     "title": "Cambios sin guardar"
   },
   "noteListItem": {
@@ -65,7 +65,7 @@
     "noteTitle": "Nueva nota: {{noteText}}"
   },
   "reportFormSummary": {
-    "reportTypeLabel": "Tipo de reporte",
+    "reportTypeLabel": "Tipo de evento",
     "reportedByLabel": "Reportado por"
   }
 }
