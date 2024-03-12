@@ -58,8 +58,10 @@ const RootApp = () => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    document.documentElement.lang = i18n.language;
-    window.OneTrust.changeLanguage(i18n.language);
+    if (window?.OneTrust) {
+      document.documentElement.lang = i18n.language;
+      window.OneTrust.changeLanguage(i18n.language);
+    }
   }, [i18n.language]);
 
   return <>
