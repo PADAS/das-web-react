@@ -1,5 +1,5 @@
 {
-  "defaultTimeLabel": "Time",
+  "defaultTimeLabel": "Temps",
   "minutesLabel": "minute",
   "timeUnitAbbreviations": {
     "day": "d",
@@ -7,7 +7,7 @@
     "minute": "m",
     "month": "mo",
     "second": "s",
-    "week": "w",
-    "year": "y"
+    "week": "sem",
+    "year": "ans"
   }
 }
