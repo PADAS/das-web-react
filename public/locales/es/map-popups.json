@@ -1,19 +1,19 @@
 {
-  "analyzerConfigPopup": {
-    "analyzerTypeHeader": {
-      "environmental": "Ambiental",
-      "generic": "Genérico",
-      "geofence": "Geocerca",
-      "immobility": "Inmobilidad",
-      "proximity": "Proximidad",
-      "subject_proximity": "Proximidad de sujeto",
-      "low_speed": "Baja velocidad"
+    "analyzerConfigPopup": {
+        "analyzerTypeHeader": {
+            "environmental": "Ambiental",
+            "generic": "Alerta Genérica",
+            "geofence": "Geocerca",
+            "immobility": "Inmobilidad",
+            "proximity": "Proximidad",
+            "subject_proximity": "Proximidad del sujeto",
+            "low_speed": "Baja velocidad"
+        }
+    },
+    "layerSelectorPopup": {
+        "searchBarPlaceholder": "Buscar"
+    },
+    "mouseMarkerPopup": {
+        "title": "Haz click en el mapa para colocar marcador. "
     }
-  },
-  "layerSelectorPopup": {
-    "searchBarPlaceholder": "Buscar"
-  },
-  "mouseMarkerPopup": {
-    "title": "Hacer click en el mapa para colocar el marcador."
-  }
 }

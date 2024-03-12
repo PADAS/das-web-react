@@ -1,9 +1,9 @@
 {
-  "clearAllButton": "Limpiar todo",
-  "layerList": {
-    "analyzersTitle": "Analizadores",
-    "featuresTitle": "Funcionalidades",
-    "subjectsTitle": "Sujetos",
-    "reportsTitle": "Eventos"
-  }
+    "clearAllButton": "Borrar Todo",
+    "layerList": {
+        "analyzerTitle": "Analizadores",
+        "featuresTitle": "Características",
+        "subjectsTitle": "Sujetos",
+        "reportsTitle": "Eventos"
+    }
 }

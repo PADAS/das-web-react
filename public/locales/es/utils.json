@@ -1,34 +1,31 @@
 {
-  "calcFriendlyDurationString": {
-    "monthAgo": "Hace un mes hasta ahora",
-    "monthAgoUntilNow": "Hace un mes hasta hace {{date}}",
-    "someAgoFromNow": "Hace {{from}} hasta {{until}} desde ahora",
-    "someAgo": "Hace {{from}} hasta hace {{until}}",
-    "untilNow": "Hace {{date}} hasta ahora"
-  },
-  "calcSenderNameForMessage": {
-    "operator": "Operador"
-  },
-  "currentTimeZoneTitle": "Fecha mostrada en la zona horaria {{timeZone}}",
-  "displayTitleForPatrol": {
-    "unknown": "Tipo de patrulla desconocido"
-  },
-  "filterDuplicateUploadFilenames": {
-    "duplicationAlert": "No se puede agregar {{fileName}}: el archivo ya existe"
-  },
-  "generateErrorMessageForRequest": {
-    "badGateway": "Bad gateway. Por favor intente más tarde, contacte a su administrador si el problema persiste (502).",
-    "badRequest": "Petición incorrecta. Por favor contacte a su administrador (400).",
-    "default": "Hubo un error al enviar la petición.",
-    "forbidden": "Petición denegada. Por favor contacte a su administrador (403).",
-    "internalServerError": "Error interno en el servidor. Por favor intente más tarde, contacte a su administrador si el problema persiste (500).",
-    "noCode": "Su petición falló. Por favor intente más tarde, contacte a su administrador si el problema persiste.",
-    "noResponse": "No hubo respuesta del servidor.",
-    "requestTimeout": "La petición expiro. Por favor intente de nuevo (408).",
-    "serviceUnavailable": "El recurso solicitado no está disponible. Por favor intente más tarde, contacte a su administrador si el problema persiste (503).",
-    "tooManyRequests": "Demasiadas peticiones. Por favor intente más tarde, contacte a su administrador si el problema persiste (429)."
-  },
-  "showFilterMismatchToastForHiddenReports": {
-    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" ha sido creado pero no coincide con los criterios del filtro"
-  }
+    "calcFriendlyDurationString": {
+        "monthAgo": "Hace 1 mes hasta ahora",
+        "monthAgoUntilNow": "Hace 1 mes hasta hace {{date}}",
+        "someAgoFromNow": "Hace {{from}} hasta {{until}} desde ahora",
+        "someAgo": "{{from}} hace {{until}}",
+        "untilNow": "Desde {{date}} hasta hoy"
+    },
+    "calcSenderNameForMessage": {
+        "operator": "Operador"
+    },
+    "currentTimeZoneTitle": "Fecha mostrada en {{timeZone}}",
+    "displayTitleForPatrol": {
+        "unknown": "Tipo de patrulla desconocido"
+    },
+    "filterDuplicateUploadFilenames": {
+        "duplicationAlert": "No se puede agregar {{fileName}}: el archivo ya existe"
+    },
+    "generateErrorMessageForRequest": {
+        "badGateway": "Error de enrutamiento. Inténtelo de nuevo más tarde y comuníquese con su administrador si el problema persiste (502).",
+        "badRequest": "Error en la solicitud. Comuníquese con su administrador (400).",
+        "default": "Se produjo un error al procesar su solicitud.",
+        "forbidden": "Solicitud rechazada. Comuníquese con su administrador (403).",
+        "internalServerError": "Error Interno del Servidor. Inténtelo de nuevo más tarde y comuníquese con su administrador si este problema persiste (500).",
+        "noCode": "Su solicitud no pudo enviarse. Inténtelo de nuevo más tarde y comuníquese con su administrador si el problema persiste.",
+        "noResponse": "No hay respuesta del servidor.",
+        "requestTimeout": "Tiempo de espera agotado. Inténtelo de nuevo (408).",
+        "serviceUnavailable": "El recurso solicitado no está disponible actualmente. Inténtelo de nuevo más tarde y comuníquese con su administrador si este problema persiste (503).",
+        "tooManyRequests": "Demasiadas solicitudes. Inténtelo de nuevo más tarde y comuníquese con su administrador si este problema persiste (429)."
+    }
 }

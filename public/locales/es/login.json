@@ -1,10 +1,10 @@
 {
-  "errorAlert": {
-    "invalidCredentialsMessage": "Las credenciales son inválidas. Por favor intente de nuevo.",
-    "unknownErrorMessage": "Ha ocurrido un error. Por favor intente de nuevo."
-  },
-  "eulaLink": "EULA de EarthRanger",
-  "loginButton": "Iniciar sesión",
-  "passwordLabel": "Contraseña",
-  "usernameLabel": "Usuario"
+    "errorAlert": {
+        "invalidCredentialsMessage": "Credenciales proporcionadas no válidas. Por favor\nintentar otra vez.",
+        "unknownErrorMessage": "Se ha producido un error. Intente\nde nuevo."
+    },
+    "eulaLink": "EULA de EarthRanger",
+    "loginButton": "Acceso",
+    "passwordLabel": "Contraseña",
+    "usernameLabel": "Nombre de Usuario"
 }

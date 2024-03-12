@@ -1,71 +1,71 @@
 {
-  "activitySection": {
-    "collapseAllButton": "Colapsar",
-    "dateItemStartTitle": "Comienzo",
-    "dateItemEndedTitle": "Fin",
-    "expandAllButton": "Expandir",
-    "sectionTitle": "Actividad",
-    "timeLabel": "Tiempo"
-  },
-  "addAttachmentButton": "Adjuntar",
-  "addReportButton": "Evento",
-  "addNoteButton": "Nota",
-  "attachmentControls": {
-    "addNoteTitle": "Agregar Nota",
-    "addAttachmentTitle": "Adjuntar archivo"
-  },
-  "attachmentListItem": {
-    "imagePreviewAlt": "{{fileName}} vista previa",
-    "downloadButtonTooltip": "Descargar",
-    "deleteButtonTooltip": "Borrar",
-    "fullViewButtonTooltip": "Vista completa"
-  },
-  "footer": {
-    "cancelButton": "Cancelar",
-    "saveButton": "Guardar",
-    "stateResolveButton": "Guardar y resolver",
-    "stateReopenButton": "Guardar y reabrir"
-  },
-  "geoLocator": {
-    "buttonLabel": "Usar mi ubicación",
-    "loadingMessage": "Obteniendo tu ubicación...",
-    "readingLocationError": "No fue posible obtener tu ubicación: {{locationErrorMessage}}"
-  },
-  "goToReportButtonTooltip": "Ir a evento",
-  "header": {
-    "historyLinkCreated": "Creado",
-    "historyLinkUpdated": "Actualizado",
-    "resolvedLabel": "Resuelto",
-    "sectionTitle": "Historial"
-  },
-  "historySection": {
-    "sectionTitle": "Historial",
-    "timeLabel": "Tiempo"
-  },
-  "imageModal": {
-    "errorTitle": "Error al cargar la imagen.",
-    "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
-  },
-  "locationSelector": {
-    "inputLabel": "Ubicación:",
-    "inputPlaceHolder": "Click para seleccionar la ubicación"
-  },
-  "navigationPromptModal": {
-    "cancelNavigationButtonText": "Regresar",
-    "continueNavigationNegativeButtonText": "Descartar",
-    "continueNavigationPositiveButtonText": "Guardar",
-    "description": "Hay cambios sin guardar. ¿Desea regresar, descartar cambios o guardar y continuar?",
-    "title": "Cambios sin guardar"
-  },
-  "noteListItem": {
-    "cancelEditingNoteButton": "Cancelar",
-    "deleteNoteButtonTooltip": "Borrar",
-    "doneEditingNoteButton": "Listo",
-    "editNoteButtonTooltip": "Editar",
-    "noteTitle": "Nueva nota: {{noteText}}"
-  },
-  "reportFormSummary": {
-    "reportTypeLabel": "Tipo de evento",
-    "reportedByLabel": "Reportado por"
-  }
+    "activitySection": {
+        "collapseAllButton": "Minimizar",
+        "dateItemStartTitle": "Empezado",
+        "dateItemEndedTitle": "Terminado",
+        "expandAllButton": "Expandir",
+        "sectionTitle": "Actividad",
+        "timeLabel": "Hora"
+    },
+    "addAttachmentButton": "Archivo adjunto",
+    "addReportButton": "Evento",
+    "addNoteButton": "Nota",
+    "attachmentControls": {
+        "addNoteTitle": "Añadir Nota",
+        "addAttachmentTitle": "Adjuntar archivo"
+    },
+    "attachmentListItem": {
+        "imagePreviewAlt": "{{fileName}} vista previa",
+        "downloadButtonTooltip": "Descargar",
+        "deleteButtonTooltip": "Borrar",
+        "fullViewButtonTooltip": "Vista General"
+    },
+    "footer": {
+        "cancelButton": "Cancelar",
+        "saveButton": "Guardar",
+        "stateResolveButton": "Guardar y resolver",
+        "stateReopenButton": "Guardar y reabrir"
+    },
+    "geoLocator": {
+        "buttonLabel": "Usar mi ubicación",
+        "loadingMessage": "Intentando leer tu ubicación",
+        "readingLocationError": "No se pudo leer la ubicación actual:  #{{locationErrorMessage}"
+    },
+    "goToReportButtonTooltip": "Ir a Evento",
+    "header": {
+        "historyLinkCreated": "Creado",
+        "historyLinkUpdated": "Actualizado",
+        "resolvedLabel": "Resuelto",
+        "sectionTitle": "Historia"
+    },
+    "historySection": {
+        "sectionTitle": "Historia",
+        "timeLabel": "Hora"
+    },
+    "imageModal": {
+        "errorTitle": "Error al cargar la imagen.",
+        "errorMessage": "Si subiste este archivo recientemente, espera un minuto y vuelve a intentarlo."
+    },
+    "locationSelector": {
+        "inputLabel": "Ubicación",
+        "inputPlaceHolder": "Haga click aquí para determinar la ubicación."
+    },
+    "navigationPromptModal": {
+        "cancelNavigationButtonText": "Atrás",
+        "continueNavigationNegativeButtonText": "Descartar",
+        "continueNavigationPositiveButtonText": "Guardar",
+        "description": "Hay cambios sin guardar ¿Le gustaría volver atrás, descartar los cambios o guardar y continuar?",
+        "title": "Cambios sin guardar"
+    },
+    "noteListItem": {
+        "cancelEditingNoteButton": "Cancelar",
+        "deleteNoteButtonTooltip": "Borrar",
+        "doneEditingNoteButton": "Terminar",
+        "editNoteButtonTooltip": "Editar",
+        "noteTitle": "Nueva Nota"
+    },
+    "reportFormSummary": {
+        "reportTypeLabel": "Tipo de Evento",
+        "reportedByLabel": "Reportado por"
+    }
 }

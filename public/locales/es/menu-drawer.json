@@ -1,69 +1,69 @@
 {
-  "alertsModal": {
-    "iframeBottomMessage": "Cada usuario de EarthRanger puede recibir hasta 20 alertas al día.",
-    "iframeTitle": "Configure sus alertas de EarthRanger"
-  },
-  "betaToggles": {
-    "patrolUI": "Nueva interfaz del formulario de patrullajes",
-    "reportNotification": "Reproducir alerta para nuevos eventos"
-  },
-  "dailyReportModal": {
-    "dataExportModalTitle": "Reportes diarios",
-    "todaysReportButton": "Reportes de hoy",
-    "yesterdaysReportButton": "Reportes de ayer"
-  },
-  "dataExportModal": {
-    "cancelButton": "Cancelar",
-    "exportButton": "Exportar"
-  },
-  "globalMenuDrawer": {
-    "alertsButton": "Alertas",
     "alertsModal": {
-      "title": "Alertas"
+        "iframeBottomMessage": "Cada usuario de EarthRanger puede recibir hasta 20 alerts por día. ",
+        "iframeTitle": "Configura tus alertas de EarthRanger"
     },
-    "communityButton": "Comunidad",
-    "contactSupport": {
-      "body": "¿Cómo le podemos ayudar?",
-      "subject": "Petición de soporte del usuario"
+    "betaToggles": {
+        "patrolUI": "Nueva interfaz de usuario para Patrullas",
+        "reportNotification": "Reproduce sonido para nuevos eventos"
     },
-    "contactSupportButton": "Contactar soporte",
     "dailyReportModal": {
-      "title": "Reportes del día"
+        "dataExportModalTitle": "Reporte diario",
+        "todaysReportButton": "Reporte de hoy",
+        "yesterdaysReportButton": "Reporte de ayer"
     },
-    "exportsHeader": "EXPORTAR",
-    "fieldReportsModal": {
-      "content": "Eventos exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
-      "title": "Eventos de campo"
+    "dataExportModal": {
+        "cancelButton": "Cancelar",
+        "exportButton": "Exportar"
     },
-    "footer": {
-      "clientVersion": "Versión del cliente web: {{version}}",
-      "copyright": "©{{year}} EarthRanger",
-      "dataPrivacyPolicyLink": "Política de Privacidad de datos",
-      "eulaLink": "Acuerdo de Licencia de Usuario Final",
-      "serverVersion": "Versión del servidor: {{version}}",
-      "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
+    "globalMenuDrawer": {
+        "alertsButton": "Alertas",
+        "alertsModal": {
+            "title": "Alertas"
+        },
+        "communityButton": "Comunidad",
+        "contactSupport": {
+            "body": "¿Cómo podemos ayudarte?",
+            "subject": "Solicita soporte de un usuario"
+        },
+        "contactSupportButton": "Contact a soporte",
+        "dailyReportModal": {
+            "title": "Reporte diario"
+        },
+        "exportsHeader": "EXPORTAR",
+        "fieldReportsModal": {
+            "content": "Eventos exportados solo incluirán aquellos filtros que concidan con los criterios actuales en la pestaña de Eventos. ",
+            "title": "Reportes de campo"
+        },
+        "footer": {
+            "clientVersion": "Versión del cliente web: {{version}}",
+            "copyright": "©{{year}} EarthRanger",
+            "dataPrivacyPolicyLink": "Política de privacidad de datos",
+            "eulaLink": "Acuerdo de licencia de usuario final",
+            "serverVersion": "Versión del servidor: {{version}}",
+            "websitePrivacyPolicyLink": "Política de privacidad del sitio web"
+        },
+        "helpCenterButton": "Centro de ayuda",
+        "masterKMLModal": {
+            "title": "KML de sujetos rastreados"
+        },
+        "navigationButton": {
+            "mapLayers": "Capas de mapa",
+            "patrols": "Patrullas",
+            "reports": "Eventos",
+            "settings": "Preferencias"
+        },
+        "subjectInformationModal": {
+            "title": "Resumen de sujetos"
+        },
+        "subjectReportsModal": {
+            "title": "Observaciones"
+        },
+        "tableauButton": "Tableau",
+        "usersGuideButton": "Guia de usuario"
     },
-    "helpCenter": "Centro de ayuda",
-    "masterKMLModal": {
-      "title": "KML Maestro"
-    },
-    "navigationButton": {
-      "mapLayers": "Capas de mapa",
-      "patrols": "Patrullas",
-      "reports": "Eventos",
-      "settings": "Configuraciones"
-    },
-    "subjectInformationModal": {
-      "title": "Información de Sujeto"
-    },
-    "subjectReportsModal": {
-      "title": "Eventos de Sujeto"
-    },
-    "tableauButton": "Tableau",
-    "usersGuideButton": "Guía de Usuario"
-  },
-  "kmlExportModal": {
-    "dataExportModalTitle": "Exportar archivo KML Maestro",
-    "includeInactiveSubjectsLabel": "Incluir sujetos inactivos"
-  }
+    "kmlExportModal": {
+        "dataExportModalTitle": "Exportar archivo KML de sujetos rastreados",
+        "includeInactiveSubjectsLabel": "Incluir sujetos inactivos"
+    }
 }
