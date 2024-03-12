@@ -88,7 +88,7 @@ describe('SettingsPane', () => {
         global.localStorage.__proto__.setItem.mockClear();
       });
       test('toggling the event filter persistence setting when clicked', async () => {
-        const eventFilterPersistToggle = await screen.findByText('Report Filters');
+        const eventFilterPersistToggle = await screen.findByText('Event Filters');
         userEvent.click(eventFilterPersistToggle);
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(

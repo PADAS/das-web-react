@@ -11,13 +11,6 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 import { render, screen } from '../../test-utils';
 
-jest.mock('../../constants', () => ({
-  ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_PATROL_NEW_UI: true,
-  },
-}));
-
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
   useSystemConfigFlag: () => true,
@@ -80,7 +73,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     const tabs = await screen.findAllByRole('tab');
 
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).not.toHaveClass('active');
@@ -93,7 +86,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     const tabs = await screen.findAllByRole('tab');
 
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).not.toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).toHaveClass('active');
@@ -104,7 +97,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     const tabs = await screen.findAllByRole('tab');
 
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).not.toHaveClass('active');
@@ -113,7 +106,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     userEvent.click(tabs[1]);
 
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).not.toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).toHaveClass('active');
@@ -124,7 +117,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     userEvent.click(tabs[0]);
 
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
     expect(tabs[1]).toHaveTextContent('Add Patrol');
     expect(tabs[1]).not.toHaveClass('active');
@@ -140,7 +133,7 @@ describe('AddItemButton - AddItemModal', () => {
     const tabs = await screen.findAllByRole('tab');
 
     expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
     expect(storeTab).toHaveBeenCalledTimes(1);
     expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);
@@ -154,7 +147,7 @@ describe('AddItemButton - AddItemModal', () => {
     const tabs = await screen.findAllByRole('tab');
 
     expect(tabs).toHaveLength(1);
-    expect(tabs[0]).toHaveTextContent('Add Report');
+    expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
     expect(storeTab).toHaveBeenCalledTimes(1);
     expect(storeTab).toHaveBeenCalledWith(ADD_TAB_KEYS.ADD_REPORT);

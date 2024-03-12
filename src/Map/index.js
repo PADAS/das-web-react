@@ -6,6 +6,7 @@ import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
 import { differenceInCalendarDays } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -79,7 +80,6 @@ import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 import './Map.scss';
 import { useMapEventBinding } from '../hooks';
 
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
@@ -87,16 +87,30 @@ const CLUSTER_APPROX_HEIGHT = 25;
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
+const MAP_SUPPORTED_TEXT_FIELD_LANGUAGES = ['ar', 'en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ha', 'ko', 'vi'];
+
+const replaceLayoutTextFieldLanguage = (textField, language) => {
+  if (!Array.isArray(textField) || textField.length === 0) {
+    return textField;
+  }
+
+  if (textField[0] === 'get' && textField[1].startsWith('name_')) {
+    return ['get', `name_${language}`];
+  }
+
+  return textField.map((textField) => replaceLayoutTextFieldLanguage(textField, language));
+};
+
 const Map = ({
   children,
   map,
   onMapLoad,
   socket,
 }) => {
+  const dispatch = useDispatch();
+  const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const dispatch = useDispatch();
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
@@ -139,6 +153,7 @@ const Map = ({
     && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const isSelectingEventLocation = mapLocationSelection.isPickingLocation
+    && mapLocationSelection.event
     && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
@@ -278,7 +293,7 @@ const Map = ({
       setTimeout(() => {
         mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
 
-        navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
+        navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
       }, 50);
     }
   );
@@ -560,6 +575,26 @@ const Map = ({
     }
   }, [hiddenAnalyzerIDs, hiddenFeatureIDs, hidePopup, map, popup]);
 
+  useEffect(() => {
+    if (!!map) {
+      // If i18n language change, here we update the map layer layouts to set the translated text fields recursively
+      let newLanguage = i18n.language.split('-')[0];
+      if (!MAP_SUPPORTED_TEXT_FIELD_LANGUAGES.includes(newLanguage)) {
+        newLanguage = 'en';
+      }
+
+      console.log(map.getStyle().layers);
+      map.getStyle().layers
+        .filter((layer) => layer.type === 'symbol'
+          && Array.isArray(layer.layout?.['text-field'])
+          && layer.layout?.['text-field'].length)
+        .forEach((layer) => map.setLayoutProperty(
+          layer.id,
+          'text-field',
+          replaceLayoutTextFieldLanguage(layer.layout['text-field'], newLanguage)));
+    }
+  }, [i18n.language, map]);
+
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
   useMapEventBinding('moveend', debounce(saveMapPosition));
@@ -593,7 +628,7 @@ const Map = ({
 
       <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
 
-      <MapImagesLayer map={map} />
+      <MapImagesLayer />
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 

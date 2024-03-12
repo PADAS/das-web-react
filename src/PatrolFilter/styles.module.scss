@@ -57,3 +57,13 @@
     }
   }
 }
+
+.settingsInputContainer {
+  display: flex;
+  line-height: 1.25;
+  margin: 0.25rem 0;
+
+  input {
+    margin-right: 0.5rem;
+  }
+}

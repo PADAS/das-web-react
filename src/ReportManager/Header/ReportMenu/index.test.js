@@ -80,7 +80,7 @@ describe('Menu report options', () => {
       <ToastContainer />
     </>);
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect(writeText).toHaveBeenCalledTimes(0);
@@ -91,7 +91,7 @@ describe('Menu report options', () => {
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledTimes(1);
       expect(writeText).toHaveBeenCalledWith(
-        'http://localhost/reports/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
+        'http://localhost/events/d45cb504-4612-41fe-9ea5-f1b423ac3ba4?lnglat=-104.19557197413907,20.75709101172957'
       );
       expect(screen.getByText('Link copied')).toBeDefined();
     });
@@ -108,18 +108,18 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(0);
 
-    const printReportButton = await screen.getByText('Print Report');
+    const printReportButton = await screen.getByText('Print Event Details');
     userEvent.click(printReportButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(1);
   });
 
-  test('should not show the incident option if the report is a collection', async () => {
+  test('should not show the incident option if the report is a collection', () => {
     const collectionReport = { ...report, ...{ is_collection: true } };
     renderWithWrapper(
       <ReportMenu
@@ -131,14 +131,14 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
     expect((screen.queryByText('Add to Parol'))).toBeDefined();
   });
 
-  test('should not show the incident option if the report belongs to a collection', async () => {
+  test('should not show the incident option if the report belongs to a collection', () => {
     const reportWithCollection = { ...report, ...{ is_contained_in: [{ type: 'contains', ordernum: null, url: 'https://fake.com', related_event: {} }] } };
     renderWithWrapper(
       <ReportMenu
@@ -150,7 +150,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
@@ -168,7 +168,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.getByRole('button');
     userEvent.click(kebabButton);
 
     const addToIncidentButton = await screen.findByText('Add to Incident');
@@ -180,7 +180,7 @@ describe('Menu report options', () => {
     expect(addModal).toHaveBeenCalledTimes(1);
   });
 
-  test('should not show the patrol option if the report belongs to a patrol', async () => {
+  test('should not show the patrol option if the report belongs to a patrol', () => {
     const patrolReport = { ...report, ...{ patrol_segments: [{}] } };
     renderWithWrapper(
       <ReportMenu
@@ -192,7 +192,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = screen.getByRole('button');
     userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeDefined();
@@ -210,7 +210,7 @@ describe('Menu report options', () => {
       />
     );
 
-    const kebabButton = await screen.findByTestId('reportMenu-kebab-button');
+    const kebabButton = await screen.getByRole('button');
     userEvent.click(kebabButton);
 
     const addToPatrolButton = await screen.findByText('Add to Patrol');

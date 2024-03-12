@@ -15,7 +15,7 @@
     "eventSortOptions": {
       "updatedAtLabel": "Fecha de actualización",
       "createdAtLabel": "Fecha de creación",
-      "eventTimeLabel": "Fecha de reporte"
+      "eventTimeLabel": "Fecha de evento"
     },
     "eventOrderOptions": {
       "newest": "Más reciente a antiguo",
@@ -29,18 +29,18 @@
     }
   },
   "eventFeed": {
-    "loadingMoreReportsItem": "Cargando más reportes...",
-    "noMoreReportsItem": "No hay más reportes que mostrar.",
-    "noReportsItem": "No hay reportes que mostrar."
+    "loadingMoreReportsItem": "Cargando más eventos...",
+    "noMoreReportsItem": "No hay más eventos que mostrar.",
+    "noReportsItem": "No hay eventos que mostrar."
   },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
     "notificationDetails": {
-      "failedReports": "ADVERTENCIA: Estos reportes aún están {{state}}",
+      "failedReports": "ADVERTENCIA: Estos eventos aún están {{state}}",
       "processedReports": {
         "activated": "activos",
         "resolved": "resueltos",
-        "title": "Estos reportes relacionados ahora están {{newState}} también:"
+        "title": "Estos eventos relacionados ahora están {{newState}} también:"
       }
     },
     "state": {
@@ -48,7 +48,7 @@
       "resolved": "resuelto"
     },
     "textCopyButtonItem": {
-      "label": "Copiar enlace del reporte",
+      "label": "Copiar enlace del evento",
       "successMessage": "Enlace copiado"
     },
     "updatedCollectionInfoToast": {
@@ -66,7 +66,7 @@
     "labels": {
       "amber": "Ambar",
       "green": "Verde",
-      "none": "Ninguna",
+      "none": "N/A",
       "red": "Roja"
     },
     "placeholder": "Seleccionar"
@@ -75,7 +75,7 @@
     "cancelationConfirmationModal": {
       "continueEditingButton": "Continuar editando",
       "discardButton": "Descartar",
-      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del reporte. Está seguro de querer descartar estos cambios?",
+      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del evento. ¿Está seguro de querer descartar estos cambios?",
       "modalTitle": "Descartar cambios"
     },
     "footer": {
@@ -88,15 +88,15 @@
     },
     "informationModal": {
       "addingPointsHeader": "Agregar puntos",
-      "addingPointsContent": "Haz clic en cualquier parte del mapa para agregar puntos del área del reporte.",
+      "addingPointsContent": "Haga clic en cualquier parte del mapa para agregar puntos del área del evento.",
       "addingPointsToExistingAreaHeader": "Agregar puntos a un área existente",
-      "addingPointsToExistingAreaContent": "Coloca el cursor sobre un segmento del área del reporte, luego haz clic y arrastra el nuevo punto a la ubicación deseada.",
+      "addingPointsToExistingAreaContent": "Coloque el cursor sobre un segmento del área del evento, luego haga clic y arrastre el nuevo punto a la ubicación deseada.",
       "closingAreaHeader": "Cerrar el área",
-      "closingAreaContent": "Haz clic sobre el primer punto o presiona 'enter' para cerrar el área.",
+      "closingAreaContent": "Haga clic sobre el primer punto o presiona 'enter' para cerrar el área.",
       "deletingPointsHeader": "Borrar puntos",
-      "deletingPointsContent": "Haz clic sobre el punto que deseas borrar y presiona 'delete' o 'backspace' (retroceso) para borrarlo.",
-      "modalTitle": "Crear Área del Reporte",
-      "reportAreaHeader": "Área del Reporte",
+      "deletingPointsContent": "Haga clic sobre el punto que deseas borrar y presione 'delete' o 'backspace' (retroceso) para borrarlo.",
+      "modalTitle": "Crear Área del Evento",
+      "reportAreaHeader": "Área del Evento",
       "reportAreaContent": "Una figura cerrada con 3 o más puntos sin intersecciones. Las medidas de área y distancia son aproximaciones, no consideran cambios en terreno y elevación."
     }
   },
@@ -113,34 +113,34 @@
         "displayString": "{{areaDisplayString}} de área, {{perimeterDisplayString}} de perímetro",
         "editAreaButton": "Editar área",
         "editAreaButtonTitle": "Dibujar geometría",
-        "inputPlaceholder": "Colocar área del reporte",
+        "inputPlaceholder": "Colocar área del evento",
         "staticMapImageAlt": "Mapa estático con geometría",
         "perimeter": "Perímetro: ",
         "provenanceLabel": "Creado en EarthRanger {{provenance}}"
       },
-      "dateLabel": "Fecha del Reporte",
+      "dateLabel": "Fecha del Evento",
       "detailsHeader": "Detalles",
-      "locationLabel": "Ubicación del reporte",
+      "locationLabel": "Ubicación del evento",
       "priorityLabel": "Prioridad",
       "reportedByLabel": "Reportado por",
       "stateDropdown": {
         "active": "activo",
         "resolved": "resuelto"
       },
-      "timeLabel": "Hora del reporte"
+      "timeLabel": "Hora del evento"
     },
     "header": {
       "priority": {
         "amber": "Ambar",
         "green": "Verde",
-        "none": "Ninguna",
+        "none": "N/A",
         "red": "Roja"
       },
       "reportMenu": {
         "addToIncidentItem": "Agregar a Incidente",
         "addToPatrolItem": "Agregar a Patrulla",
-        "printReportItem": "Imprimir Reporte",
-        "textCopyButtonLabel": "Copiar enlace del reporte",
+        "printReportItem": "Imprimir Evento",
+        "textCopyButtonLabel": "Copiar enlace del evento",
         "textCopyButtonSuccessMessage": "Enlace copiado"
       }
     },
@@ -157,7 +157,7 @@
         "historyAnchor": "Histórico",
         "linksAnchor": "Enlaces"
       },
-      "saveErrorMessage": "Hubo un error guardando el reporte.",
+      "saveErrorMessage": "Hubo un error guardando el evento.",
       "saveSplitButton": {
         "saveAndReopenItem": "Guardar y reabrir",
         "saveAndResolveItem": "Guardar y resolver",
@@ -166,6 +166,6 @@
       "unknownErrorLabel": "Error desconocido"
     }
   },
-  "unknownEventTitle": "Título del reporte desconocido",
-  "unknownEventType": "Tipo de reporte desconocido"
+  "unknownEventTitle": "Título del evento desconocido",
+  "unknownEventType": "Tipo de evento desconocido"
 }

@@ -1,6 +1,7 @@
 @import '../../common/styles/layout';
 @import '../../common/styles/priorities';
 @import '../../common/styles/vars/colors';
+@import '../../common/styles/inputs';
 
 .header {
   display: flex;
@@ -54,11 +55,12 @@
 }
 
 .icon {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 3rem;
+  display: flex;
   height: 100%;
+  justify-content: center;
+  min-width: 3rem;
+  width: 3rem;
 
   &.priority-300 {
     @include priority300;
@@ -92,6 +94,7 @@
   }
   
   @media (min-width: $md-layout-width-min) {
+    min-width: 4.5rem;
     width: 4.5rem;
   }
 
@@ -114,7 +117,8 @@
 .titleAndType {
   display: flex;
   flex-direction: column;
-  width: 8rem;
+  flex-shrink: 100;
+  padding-right: 10px;
 
   @media (min-width: $md-layout-width-min) {
     width: 20.25rem;
@@ -122,46 +126,17 @@
 }
 
 .title {
-  max-height: 2.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  color: $dark-gray;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  @include editableItemTitle;
 
   &.editable {
     border-bottom: 1px dashed $secondary-light-gray;
   }
-
-  &::-webkit-scrollbar {
-    background: transparent;  /* Optional: just make scrollbar invisible */
-  }
-
-  &:focus {
-    outline: none;
-    text-overflow: clip;
-    white-space: normal;
-    display: unset;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
-    overflow-y: overlay;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    max-height: 3rem;
-    font-size: 1.375rem;
-    line-height: 1.5rem;
-  }
 }
 
 .eventType {
-  font-size: 1rem;
-  margin: 0;
   font-size: 0.75rem;
+  line-height: 1;
+  margin: 0;
 
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;

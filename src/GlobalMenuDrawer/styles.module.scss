@@ -78,6 +78,10 @@
 
   button {
     margin-bottom: 0.5rem;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.60)
+    }
   }
 
   @media (min-width: $lg-layout-width-min) {

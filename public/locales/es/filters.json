@@ -19,12 +19,12 @@
     "datesButton": "Fechas",
     "filtersButton": "Filtros",
     "resetButton": "Restaurar",
-    "searchBarPlaceholder": "Buscar reportes..."
+    "searchBarPlaceholder": "Buscar eventos..."
   },
   "filters": {
     "priorityPickerLabel": "Prioridad",
     "reportTypesAllLabel": "Todos",
-    "reportTypesLabel": "Tipos de reportes",
+    "reportTypesLabel": "Tipos de eventos",
     "reportTypesSelectionLabels": {
       "allSelected": "Todos seleccionados",
       "noneSelected": "Ninguno seleccionado",
@@ -38,7 +38,7 @@
       "resolved": "Resuelto",
       "all": "Todos"
     },
-    "title": "Filtros de reportes"
+    "title": "Filtros de eventos"
   },
   "friendlyFilterString": {
     "resultLabel": "resultado",
@@ -50,7 +50,7 @@
     "eventSortOptions": {
       "updatedAtLabel": "Fecha de actualización",
       "createdAtLabel": "Fecha de creación",
-      "eventTimeLabel": "Fecha de reporte"
+      "eventTimeLabel": "Fecha de evento"
     },
     "ascendingLabel": " ascendentemente"
   },
@@ -71,6 +71,7 @@
       "trackedByLabel": "Rastreado por",
       "statusLabel": "Estado",
       "patrolTypeLabel": "Tipo de patrullaje",
+      "reportedByPlaceholder": "Reportado por...",
       "patrolStatuses": {
         "active": "Activo",
         "done": "Finalizado",
@@ -84,7 +85,6 @@
     "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
     "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
   },
-  "reportedByPlaceholder": "Reportado por...",
   "reportTypeMultiSelect": {
     "placeholder": "Buscar tipos",
     "noResultsLabel": "Sin resultados",

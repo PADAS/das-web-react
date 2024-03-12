@@ -35,6 +35,14 @@
     font-size: 0.875rem;
   }
 
+  [class*=resolved] {
+    display: none;
+
+    @media (min-width: $md-layout-width-min) {
+      display: unset;
+    }
+  }
+
   @media (min-width: $md-layout-width-min) {
     flex: 11;
   }

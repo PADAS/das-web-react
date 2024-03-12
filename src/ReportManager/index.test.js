@@ -55,7 +55,7 @@ describe('ReportManager', () => {
     capturedRequestURLs = [];
     AddItemButtonMock = jest.fn(() => null);
     AddItemButton.mockImplementation(AddItemButtonMock);
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: { temporalId: '1234' } }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/events/new', state: { temporalId: '1234' } }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({
       reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf',
@@ -98,8 +98,8 @@ describe('ReportManager', () => {
     </Provider>);
   };
 
-  test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
+  test('redirects to /events if user tries to create a new report with an invalid reportType', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/events/new', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
@@ -108,19 +108,19 @@ describe('ReportManager', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+      expect(navigate).toHaveBeenCalledWith('/events', { replace: true });
     });
   });
 
   test('redirects to the same route assigning a temporal id in case it is missing', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', search: '?reportType=1234', state: {} }),);
+    useLocationMock = jest.fn(() => ({ pathname: '/events/new', search: '?reportType=1234', state: {} }),);
     useLocation.mockImplementation(useLocationMock);
 
     renderReportManager(store);
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalled();
-      expect(navigate.mock.calls[0][0]).toBe('/reports/new?reportType=1234');
+      expect(navigate.mock.calls[0][0]).toBe('/events/new?reportType=1234');
       expect(navigate.mock.calls[0][1]).toHaveProperty('replace');
       expect(navigate.mock.calls[0][1]).toHaveProperty('state');
       expect(navigate.mock.calls[0][1].state).toHaveProperty('temporalId');
@@ -128,7 +128,7 @@ describe('ReportManager', () => {
   });
 
   test('fetches the event data if there is an id specified in the URL', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderReportManager(store);
@@ -139,7 +139,7 @@ describe('ReportManager', () => {
   });
 
   test('does not fetch the event data if the id is "new"', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };
@@ -151,7 +151,7 @@ describe('ReportManager', () => {
   });
 
   test('does not fetch the event data if it is in the event store already', async () => {
-    useLocationMock = jest.fn((() => ({ pathname: '/reports/123' })));
+    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
     useLocation.mockImplementation(useLocationMock);
 
     store.data.eventStore = { 123: eventWithPoint };

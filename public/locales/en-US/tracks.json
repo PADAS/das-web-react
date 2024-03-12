@@ -27,6 +27,6 @@
     "customLengthLabel": "Custom length",
     "header": "Track Length:",
     "invalidCustomLengthAlert": "Please enter a track length between {{min}} and {{max}}.",
-    "matchReportFilterDateLabel": "Match report filter \"from\" date ({{reportFilterDateRangeLength}} days)"
+    "matchReportFilterDateLabel": "Match event filter \"from\" date ({{reportFilterDateRangeLength}} days)"
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { useTranslation } from 'react-i18next';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
 import { clearSubjectData, fetchMapSubjects } from '../ducks/subjects';
@@ -12,6 +12,7 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
+import { render, screen, waitFor } from '../test-utils';
 import { setTrackLength } from '../ducks/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 
@@ -21,7 +22,18 @@ import { MapContext } from '../App';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
+
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Map: class {
+    on() {}
+  },
+}));
+
+jest.mock('react-i18next', () => ({
+  ...jest.requireActual('react-i18next'),
+  useTranslation: jest.fn(),
+}));
 
 jest.mock('../ducks/events', () => ({
   ...jest.requireActual('../ducks/events'),
@@ -77,7 +89,9 @@ describe('Map', () => {
     updatePatrolTrackStateMock,
     updateTrackStateMock,
     map,
-    store;
+    renderMap,
+    store,
+    useTranslationMock;
   beforeEach(() => {
     clearEventDataMock = jest.fn(() => () => {});
     clearEventData.mockImplementation(clearEventDataMock);
@@ -103,8 +117,11 @@ describe('Map', () => {
     updatePatrolTrackState.mockImplementation(updatePatrolTrackStateMock);
     updateTrackStateMock = jest.fn(() => () => {});
     updateTrackState.mockImplementation(updateTrackStateMock);
+    useTranslationMock = jest.fn(() => ({ i18n: { language: 'en-US' }, t: (key) => key }));
+    useTranslation.mockImplementation(useTranslationMock);
 
     map = createMapMock();
+    map.getStyle.mockImplementation(() => ({ layers: [] }));
 
     store = {
       data: {
@@ -145,6 +162,16 @@ describe('Map', () => {
         userPreferences: {},
       },
     };
+
+    renderMap = (props, overrideStore) => {
+      return render(<Provider store={mockStore(overrideStore || store)}>
+        <MapDrawingToolsContextProvider>
+          <MapContext.Provider value={map}>
+            <Map map={map} socket={mockedSocket} {...props} />
+          </MapContext.Provider>
+        </MapDrawingToolsContextProvider>
+      </Provider>);
+    };
   });
 
   afterEach(() => {
@@ -154,15 +181,7 @@ describe('Map', () => {
   test('shows the EventFilter', async () => {
     store.view.mapLocationSelection.isPickingLocation = false;
 
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
-    </Provider>);
+    renderMap();
 
     await waitFor(() => {
       expect((screen.findByTestId('eventFilter-form'))).toBeDefined();
@@ -174,13 +193,11 @@ describe('Map', () => {
     const mockStoreInstance = mockStore(store);
 
     render(<Provider store={mockStoreInstance}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
     </Provider>);
 
     // Move the map
@@ -204,41 +221,106 @@ describe('Map', () => {
 
   });
 
+  test('translates the map text layers when i18n language changes', async () => {
+    map.getStyle.mockImplementation(() => ({
+      layers: [{
+        id: 'background',
+        type: 'fill',
+      }, {
+        id: 'place-island',
+        layout: {
+          'text-field': [
+            'to-string',
+            ['coalesce', ['get', 'name_en'], ['get', 'name']],
+          ],
+        },
+        type: 'symbol',
+      }, {
+        id: 'country-label-md',
+        layout: {
+          'text-field': [
+            'step',
+            ['zoom'],
+            ['to-string', ['get', 'iso_3166_1']],
+            2,
+            ['to-string', ['get', 'name_en']],
+          ],
+        },
+        type: 'symbol',
+      }],
+    }));
+
+    const { rerender } = render(<Provider store={mockStore(store)}>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
+    </Provider>);
+
+    expect(map.setLayoutProperty).toHaveBeenCalledTimes(2);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [
+      'to-string',
+      ['coalesce', ['get', 'name_en'], ['get', 'name']]
+    ]);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('country-label-md', 'text-field', [
+      'step',
+      ['zoom'],
+      ['to-string', ['get', 'iso_3166_1']],
+      2,
+      ['to-string', ['get', 'name_en']],
+    ]);
+
+    useTranslationMock = jest.fn(() => ({ i18n: { language: 'es' }, t: (key) => key }));
+    useTranslation.mockImplementation(useTranslationMock);
+
+    rerender(<Provider store={mockStore(store)}>
+      <MapDrawingToolsContextProvider>
+        <MapContext.Provider value={map}>
+          <Map map={map} socket={mockedSocket} />
+        </MapContext.Provider>
+      </MapDrawingToolsContextProvider>
+    </Provider>);
+
+    expect(map.setLayoutProperty).toHaveBeenCalledTimes(4);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('place-island', 'text-field', [
+      'to-string',
+      ['coalesce', ['get', 'name_es'], ['get', 'name']]
+    ]);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('country-label-md', 'text-field', [
+      'step',
+      ['zoom'],
+      ['to-string', ['get', 'iso_3166_1']],
+      2,
+      ['to-string', ['get', 'name_es']],
+    ]);
+  });
+
   test('does not show the EventFilter if user is picking a location on the map', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
-    </Provider>);
+    renderMap();
 
     expect((await screen.queryByTestId('eventFilter-form'))).toBeNull();
   });
 
-  test('does not show the ReportAreaOverview if user is drawing a geometry on the map', async () => {
+  test('does not show the MapLocationSelectionOverview if user is drawing a geometry on the map', async () => {
     store.view.mapLocationSelection.mode = MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
+    renderMap();
 
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
-    </Provider>);
-
-    expect((await screen.queryByTestId('reportAreaOverview-wrapper'))).toBeNull();
+    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
   });
 
-  test('shows the ReportAreaOverview', async () => {
+  test('does not show the MapLocationSelectionOverview if user is picking location for a marker or using the ruler', async () => {
+    store.view.mapLocationSelection = {
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+    };
+    renderMap();
+
+    expect((await screen.queryByTestId('mapLocationSelectionOverview-wrapper'))).toBeNull();
+  });
+
+  test('shows the MapLocationSelectionOverview if user is drawing a geometry', async () => {
     const mockEvent = {
       id: 'hello',
       geometry: null,
@@ -253,21 +335,32 @@ describe('Map', () => {
       isPickingLocation: true,
       mode: MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY,
     };
-    render(<Provider store={mockStore(store)}>
-      <NavigationWrapper>
-        <MapDrawingToolsContextProvider>
-
-          <MapContext.Provider value={map}>
-            <Map map={map} socket={mockedSocket} />
-          </MapContext.Provider>
-
-        </MapDrawingToolsContextProvider>
-      </NavigationWrapper>
-    </Provider>);
+    renderMap();
 
     await waitFor(() => {
-      expect(screen.findByTestId('reportAreaOverview-wrapper')).toBeDefined();
+      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
     });
+  });
 
+  test('shows the MapLocationSelectionOverview if user is picking an event location', async () => {
+    const mockEvent = {
+      id: 'hello',
+      geometry: null,
+    };
+
+    store.data.eventStore = {
+      [mockEvent.id]: mockEvent
+    };
+
+    store.view.mapLocationSelection = {
+      event: mockEvent,
+      isPickingLocation: true,
+      mode: MAP_LOCATION_SELECTION_MODES.DEFAULT,
+    };
+    renderMap();
+
+    await waitFor(() => {
+      expect(screen.findByTestId('mapLocationSelectionOverview-wrapper')).toBeDefined();
+    });
   });
 });

@@ -8,6 +8,7 @@ import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 import { TRACKS_API_URL } from '../../../ducks/tracks';
+import { LINK_TYPES } from '../../../constants';
 
 import LinkItem from '.';
 
@@ -32,7 +33,7 @@ afterAll(() => server.close());
 describe('ReportManager - LinksSection - LinkItem', () => {
   test('renders a patrol list item if type is patrol', async () => {
     render(<Provider store={mockStore(store)}>
-      <LinkItem item={activePatrol} type="patrol" />
+      <LinkItem item={activePatrol} type={LINK_TYPES.PATROL} />
     </Provider>);
 
     expect((await screen.findByTestId('patrol-list-item-title-05113dd3-3f41-49ef-aa7d-fbc6b7379533')))
@@ -41,7 +42,7 @@ describe('ReportManager - LinksSection - LinkItem', () => {
 
   test('renders a report list item if type is report', async () => {
     render(<Provider store={mockStore(store)}>
-      <LinkItem item={report} type="report" />
+      <LinkItem item={report} type={LINK_TYPES.EVENT} />
     </Provider>);
 
     expect((await screen.findByTestId('feed-list-item-title-container'))).toHaveTextContent('165634light_rep');

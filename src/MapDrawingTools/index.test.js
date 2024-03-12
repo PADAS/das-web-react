@@ -1,8 +1,6 @@
 import React from 'react';
 import { createMapMock } from '../__test-helpers/mocks';
 
-import mapboxgl from 'mapbox-gl';
-
 import { MapContext } from '../App';
 import MapDrawingTools, { DRAWING_MODES } from './';
 import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from './ContextProvider';
@@ -10,6 +8,20 @@ import { useMatchMedia } from '../hooks';
 import { render, waitFor } from '../test-utils';
 
 import { LAYER_IDS } from './MapLayers';
+
+const popupDomContent = [];
+
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent(domContent) { popupDomContent.push(domContent); }
+    setLngLat() {}
+    setOffset() {}
+  },
+}));
 
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
@@ -263,13 +275,9 @@ describe('MapDrawingTools', () => {
       );
 
       await waitFor(() => {
-        expect(mapboxgl.Popup.prototype.setDOMContent).toHaveBeenCalled();
-        const domContent = mapboxgl.Popup.prototype.setDOMContent.mock.calls[0][0];
-
-        expect(domContent).toHaveTextContent('Bearing');
-        expect(domContent).toHaveTextContent('Distance');
+        expect(popupDomContent[popupDomContent.length - 1]).toHaveTextContent('Bearing');
+        expect(popupDomContent[popupDomContent.length - 1]).toHaveTextContent('Distance');
       });
-
     });
 
     test('renders a popup when given a popup render function', async () => {

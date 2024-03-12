@@ -321,7 +321,7 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.click(cancelButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
+    expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.EVENTS}`);
   });
 
   test('showing the navigation warning prompt when canceling an added report', () => {
@@ -467,7 +467,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(fetchEvent).toHaveBeenCalled();
       expect(fetchEvent).toHaveBeenCalledWith('incident');
       expect(navigate).toHaveBeenCalled();
-      expect(navigate).toHaveBeenCalledWith('/reports/incident', { state: { relatedEvent: initialReport.id }, replace: true });
+      expect(navigate).toHaveBeenCalledWith('/events/incident', { state: { relatedEvent: initialReport.id }, replace: true });
     });
   });
 
@@ -517,7 +517,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
+      expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.EVENTS}`);
     });
   });
 
@@ -638,7 +638,7 @@ describe('ReportManager - ReportDetailView', () => {
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
-    expect(await screen.findByText('Error saving report.')).toBeDefined();
+    expect(await screen.findByText('Error saving event.')).toBeDefined();
   });
 
   test('omits duplicated attachment files', async () => {

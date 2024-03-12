@@ -30,6 +30,7 @@
     display: block;
 
     @media (min-width: $md-layout-width-min) {
+      align-items: flex-end;
       display: flex;
 
       > :not(:first-child) {
@@ -40,6 +41,7 @@
 }
 
 .dateTimeContainer {
+  align-items: flex-end;
   display: flex;
   width: 100%;
 

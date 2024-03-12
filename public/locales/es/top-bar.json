@@ -4,7 +4,7 @@
     "cancelButton": "Cancelar",
     "messagesHeader": "Mensajes",
     "newMessageButton": "Nuevo mensaje",
-    "noMessagingSubjectText": "No puedes enviar mensajes a este sujeto."
+    "noMessagingSubjectText": "No puede enviar mensajes a este sujeto."
   },
   "messagingSelect": {
     "allOptionsLabel": "Todos",
@@ -25,15 +25,15 @@
       "dismissButton": "Descartar",
       "moreInformationLink": "Más información"
     },
-    "outdatedNotifications_one": "Tienes {{count}} mensaje nuevo.",
-    "outdatedNotifications_other": "Tienes {{count}} mensajes nuevos.",
+    "outdatedNotifications_one": "Tiene {{count}} mensaje nuevo.",
+    "outdatedNotifications_other": "Tiene {{count}} mensajes nuevos.",
     "readMore": "Leer más",
     "seeAllNewsButton": "Ver todas las noticias >",
     "tryAgainButton": "Intentar de nuevo"
   },
   "profilePINModal": {
     "error": "PIN incorrecto",
-    "title": "Introduce tu PIN",
+    "title": "Introduzca su PIN",
     "userLabel": "Usuario: "
   },
   "systemStatus": {

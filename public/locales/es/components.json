@@ -9,7 +9,7 @@
         "reportsSelectPlaceholder": "Ir a...",
         "searchBarPlaceholder": "Buscar"
       },
-      "addReportTabTitle": "Crear Reporte"
+      "addReportTabTitle": "Crear Evento"
     },
     "defaultTitle": "Crear"
   },
@@ -56,12 +56,12 @@
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
       "patrol": "Seleccionar ubicación de patrulla",
-      "report": "Seleccionar ubicación de reporte"
+      "report": "Seleccionar ubicación de evento"
     },
     "discardButton": "Descartar",
     "discardButtonTooltip": "Eliminar todos los puntos",
     "drawingReportGeometryArea": "Área: {{areaDisplay}}",
-    "drawingReportGeometryHeader": "Crear área del reporte",
+    "drawingReportGeometryHeader": "Crear área del evento",
     "drawingReportGeometryPerimeter": "Perímetro: {{perimeterDisplay}}",
     "undoButton": "Deshacer",
     "undoButtonTooltip": "Deshacer la última acción"
@@ -89,7 +89,7 @@
   "priorityPicker": {
     "amber": "Ambar",
     "green": "Verde",
-    "none": "Ninguna",
+    "none": "N/A",
     "red": "Roja"
   },
   "reportedBySelect": {
@@ -136,10 +136,10 @@
     "noItemsToDisplayInLayers": "No hay elementos que mostrar.",
     "patrolsLink": "Patrullas",
     "reportsFeedTab": {
-      "fetchReportsErrorMessage": "No se pudieron cargar los reportes. Por favor intente de nuevo.",
+      "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
       "tryAgainButton": "Intentar de nuevo"
     },
-    "reportsLink": "Reportes",
+    "eventsLink": "Eventos",
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
@@ -148,7 +148,7 @@
       "appRefreshMapLayersLabel": "Capas de mapa",
       "appRefreshMapPositionAndZoomLevelLabel": "Posición del mapa y nivel de zoom",
       "appRefreshPatrolFiltersLabel": "Filtros de Patrullas",
-      "appRefreshReportFiltersLabel": "Filtros de Reportes",
+      "appRefreshReportFiltersLabel": "Filtros de Eventos",
       "clusterDataDescription": "Agrupar datos cuando se superpongan",
       "displayHeader": "Información mostrada",
       "experimentalFeaturesHeader": "Funcionalidades experimentales",
@@ -159,7 +159,7 @@
       "mapMarkersHeader": "Marcadores del mapa",
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Configuraciones"
+    "settingsLink": "Preferencias"
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
