@@ -76,7 +76,7 @@ const SettingsPane = () => {
     defaultActiveKey={activeTabKey}
     fill
     onSelect={setActiveTabKey}
-  >
+    >
     <Tab
       className={styles.tab}
       data-testid="settings-generalTab"
