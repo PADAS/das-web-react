@@ -230,7 +230,7 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    expect((await screen.findByText('Click here to set location'))).toBeDefined();
+    expect((await screen.findByText('Set location'))).toBeDefined();
   });
 
   test('does not show the location selector if report is collection', async () => {
@@ -257,7 +257,7 @@ describe('ReportManager - DetailsSection', () => {
       </Provider>
     );
 
-    expect((await screen.queryByText('Click here to set location'))).toBeNull();
+    expect((await screen.queryByText('Set location'))).toBeNull();
   });
 
   test('triggers the onReportLocationChange callback when the user chooses a location in map', async () => {

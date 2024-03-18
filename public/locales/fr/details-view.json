@@ -48,7 +48,7 @@
   },
   "locationSelector": {
     "inputLabel": "Position",
-    "inputPlaceHolder": "Appuyez ici pour ajouter les coordonnées"
+    "inputPlaceHolder": "Ajouter les coordonnées"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Retour",
