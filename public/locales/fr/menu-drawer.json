@@ -48,7 +48,7 @@
       "title": "Export des pistes en format KML"
     },
     "navigationButton": {
-      "mapLayers": "Caractéristiques Cartographiques",
+      "mapLayers": "Calques",
       "patrols": "Patrouilles",
       "reports": "Événements",
       "settings": "Réglages"

@@ -132,7 +132,7 @@
     "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
   },
   "sideBar": {
-    "layersLink": "Caractéristiques Cartographiques",
+    "layersLink": "Calques",
     "noItemsToDisplayInLayers": "Aucun élément à afficher.",
     "patrolsLink": "Patrouilles",
     "reportsFeedTab": {
@@ -145,7 +145,7 @@
       "alertsTabTitle": "Alertes",
       "appRefreshDescription": "Conserver mes paramètres lors de l'actualisation de la page pour:",
       "appRefreshHeader": "Actualisation de l'Application",
-      "appRefreshMapLayersLabel": "Caractéristiques Cartographiques",
+      "appRefreshMapLayersLabel": "Calques",
       "appRefreshMapPositionAndZoomLevelLabel": "Positionnement de la Carte & Niveau du Zoom",
       "appRefreshPatrolFiltersLabel": "Filtres de Patrouilles",
       "appRefreshReportFiltersLabel": "Filtres des Événements",

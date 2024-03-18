@@ -2,7 +2,7 @@
   "clearAllButton": "Tout Désélectionner",
   "layerList": {
     "analyzersTitle": "Analyzers",
-    "featuresTitle": "Caractéristiques Cartographiques",
+    "featuresTitle": "Calques",
     "subjectsTitle": "Appareils Suivis",
     "reportsTitle": "Événements"
   }
