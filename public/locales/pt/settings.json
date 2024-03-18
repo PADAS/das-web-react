@@ -1,0 +1,31 @@
+{
+  "clustermembers": {
+    "all": "Selecionar tudo",
+    "reports": "Eventos",
+    "subjects": "Indivíduos rastreados"
+  },
+  "inactiveradiocontrol": {
+    "label": "Mostrar rádios inativos"
+  },
+  "mapdatazoomsimplificationcontrol": {
+    "label": "Simplificar dados do mapa no Zoom"
+  },
+  "maplockcontrol": {
+    "label": "Bloquear mapa"
+  },
+  "mapnamescontrol": {
+    "allcheckboxlabel": "Selecionar tudo",
+    "layerlabels": {
+      "subjects": "Indivíduos rastreados",
+      "stationary_subjects": "Indivíduos estacionários",
+      "reports": "Eventos",
+      "patrols": "Patrulhas"
+    }
+  },
+  "maptracktimepointscontrol": {
+    "label": "Mostrar pontos de tempo rastreados por seguimento"
+  },
+  "userlocationmapcontrol": {
+    "label": "Mostrar minha localização atual"
+  }
+}

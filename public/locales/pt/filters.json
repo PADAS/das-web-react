@@ -1,0 +1,94 @@
+{
+  "datefilter": {
+    "emptyenddatemessage": "Agora",
+    "resetbutton": "Redefinir",
+    "emptystartdatemessage": "{{distanceInWordsDate}} atrás",
+    "title": "Intervalo de datas:"
+  },
+  "daterangeselector": {
+    "enddatelabel": "Até:",
+    "lastsevendayslabel": "Últimos 7 dias",
+    "lastthirtydayslabel": "Últimos 30 dias",
+    "lastthreemonthslabel": "Últimos 3 meses",
+    "todaylabel": "Hoje",
+    "settingstitle": "Preferências",
+    "startdatelabel": "Desde:",
+    "yesterdaylabel": "Ontem"
+  },
+  "eventsfilter": {
+    "datesbutton": "Datas",
+    "filtersbutton": "Filtros",
+    "resetbutton": "Redefinir",
+    "searchbarplaceholder": "Buscar Eventos..."
+  },
+  "filters": {
+    "prioritypickerlabel": "Prioridade",
+    "reporttypesalllabel": "Todos",
+    "reporttypeslabel": "Tipos de Eventos",
+    "reporttypesselectionlabels": {
+      "allselected": "Todos selecionados",
+      "noneselected": "Nenhum selecionado",
+      "someselected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} selecionado"
+    },
+    "restallbutton": "Redefinir tudo",
+    "restbutton": "Redefinir",
+    "statelabel": "Status ou Situação",
+    "stateselector": {
+      "active": "Ativo",
+      "resolved": "Resolvido",
+      "all": "Todos"
+    },
+    "title": "Filtro de Eventos"
+  },
+  "friendlyfilterstring": {
+    "resultlabel": "Resultado",
+    "resultslabel": "Resultados ",
+    "fromlabel": "de",
+    "filteredlabel": "filtrado",
+    "sortingtypelabel": ", ordem",
+    "bylabel": "por",
+    "eventsortoptions": {
+      "updatedatlabel": "Data de atualização",
+      "createdatlabel": "Data de criação",
+      "eventtimelabel": "Data do Evento"
+    },
+    "ascendinglabel": "crescente"
+  },
+  "maplayersearchbarplaceholder": "Buscar camadas",
+  "patrolfilters": {
+    "datestitle": "Datas",
+    "daterangepopover": {
+      "title": "Intervalo de datas",
+      "resetbutton": "Redefinir"
+    },
+    "filterstitle": "Filtros",
+    "searchbarplaceholder": "Buscar patrulhas",
+    "filterspopover": {
+      "checkboxalloption": "Selecionar tudo",
+      "title": "Filtros de Patrulhas",
+      "resetallbutton": "Redefinir tudo",
+      "resetbutton": "Redefinir",
+      "trackedbylabel": "Rastreado por",
+      "statuslabel": "Status ou Situação",
+      "patroltypelabel": "Tipo de Patrulha",
+      "reportedbyplaceholder": "Selecionar Dispositivo",
+      "patrolstatuses": {
+        "active": "Ativo",
+        "done": "Finalizado",
+        "cancelled": "Cancelado"
+      }
+    }
+  },
+  "patrolfilterssettings": {
+    "bystartdatelabel": "Filtrar por data de inicio",
+    "byrangedatelabel": "Filtrar por sobreposição de intervalo de datas",
+    "patrolwithinrangetooltip": "Incluir patrulhas que iniciam no intervalo de datas",
+    "patroloverlapsrangetooltip": "Incluir patrulhas cujas datas de início e fim se sobreponham ao intervalo de datas"
+  },
+  "reporttypemultiselect": {
+    "placeholder": "Buscar tipos de eventos",
+    "noresultslabel": "Sem correspondências",
+    "someresultslabel": "Considerar estes {{resultCount}}",
+    "singleresultlabel": "Considerar este"
+  }
+}

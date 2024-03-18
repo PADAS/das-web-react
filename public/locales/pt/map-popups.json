@@ -1,0 +1,19 @@
+{
+  "analyzerconfigpopup": {
+    "analyzertypeheader": {
+      "environmental": "Ambiental",
+      "generic": "Alerta genérico",
+      "geofence": "Geocerca",
+      "immobility": "Imobilidade",
+      "proximity": "Proximidade",
+      "subject_proximity": "Proximidade de indivíduo rastreado",
+      "low_speed": "Baixa velocidade"
+    }
+  },
+  "layerselectorpopup": {
+    "searchbarplaceholder": "Buscar"
+  },
+  "mousemarkerpopup": {
+    "title": "Clique no mapa para adicionar um marcador"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "addtoincidentmodal": {
+    "modalbody": {
+      "addtonewincidentbutton": "Adicionar a um novo incidente",
+      "loadingitem": "Carregando...",
+      "nomoreeventsitem": "Não há mais incidentes para mostrar"
+    },
+    "modalfooter": {
+      "cancelbutton": "Cancelar"
+    },
+    "modaltitle": "Adicionar a um incidente"
+  },
+  "columnsort": {
+    "popovertitle": "Ordenar por:",
+    "eventsortoptions": {
+      "updatedatlabel": "Data de atualização",
+      "createdatlabel": "Data de criação",
+      "eventtimelabel": "Data do evento"
+    },
+    "eventorderoptions": {
+      "newest": "Do mais novo ao mais antigo",
+      "oldest": "Do mais antigo ao mais novo"
+    }
+  },
+  "errormessages": {
+    "accordionheaderbutton": {
+      "closed": "Mostrar detalhes",
+      "open": "Ocultar detalhes"
+    }
+  },
+  "eventfeed": {
+    "loadingmorereportsitem": "Carregar mais eventos...",
+    "nomorereportsitem": "Não há mais eventos para mostrar",
+    "noreportsitem": "Não há eventos para mostrar"
+  },
+  "eventitemcontextmenu": {
+    "errortoastmessage": "#{{serialNumber}} continua {{state}}, algo está errado",
+    "notificationdetails": {
+      "failedreports": "ATENÇÃO: Estes eventos ainda se encontram {{state}}",
+      "processedreports": {
+        "activated": "Ativado",
+        "resolved": "Resolvido",
+        "title": "Estes eventos associados também são  {{newState}}:"
+      }
+    },
+    "state": {
+      "active": "Ativo",
+      "resolved": "Resolvido"
+    },
+    "textcopybuttonitem": {
+      "label": "Copiar link do evento",
+      "successmessage": "Link copiado"
+    },
+    "updatedcollectioninfotoast": {
+      "activated": "Ativado",
+      "message": "A coleção #{{collectionSerialNumber}} foi {{newState}} corretamente",
+      "resolved": "Resolvido"
+    },
+    "updatedreportinfotoastmessage": "#{{reportSerialNumber}} {{newState}}",
+    "updatereportstateitem": {
+      "reopen": "Reaberto",
+      "resolve": "Resolvido"
+    }
+  },
+  "priorityselect": {
+    "labels": {
+      "amber": "Laranja",
+      "green": "Verde",
+      "none": "Nenhum",
+      "red": "Vermelho"
+    },
+    "placeholder": "Selecionar"
+  },
+  "reportgeometrydrawer": {
+    "cancelationconfirmationmodal": {
+      "continueeditingbutton": "Continuar editando",
+      "discardbutton": "Descartar",
+      "modalbody": "Se você cancelar sem salvar, as alterações na área do evento serão descartadas. Tem certeza que deseja descartar as alterações?",
+      "modaltitle": "Descartar alterações"
+    },
+    "footer": {
+      "cancelbutton": "Cancelar",
+      "savebutton": "Salvar",
+      "savebuttontooltip": {
+        "drawing": "Apenas polígonos fechados podem ser salvos",
+        "invalidgeometry": "Os segmentos dos polígonos nao podem se cruzar"
+      }
+    },
+    "informationmodal": {
+      "addingpointsheader": "Adicionando pontos",
+      "addingpointscontent": "Clique em qualquer parte do mapa para adicionar os pontos da área do evento",
+      "addingpointstoexistingareaheader": "Adicionar pontos a uma área existente",
+      "addingpointstoexistingareacontent": "Passe o cursos sobre um segmento de área do evento, clique e arraste o novo ponto na localização desejada.",
+      "closingareaheader": "Fechando área",
+      "closingareacontent": "Clique no primeiro ponto ou pressione \"Enter\" em seu teclado para fechar o polígono",
+      "deletingpointsheader": "Apagando pontos",
+      "deletingpointscontent": "Clique no ponto que deseja apagar e pressione a tecla \"delete\" ou \"backspace\" do seu teclado.",
+      "modaltitle": "Criando a área de um evento",
+      "reportareaheader": "Área do evento",
+      "reportareacontent": "Um polígono fechado com 3 ou mais pontos e sem interseções entre as linhas. A área e o perímetro são aproximados e não consideram o relevo e a topografia."
+    }
+  },
+  "reportlistitem": {
+    "datetimesuffix": "atrás",
+    "resolvedstate": "Resolvido"
+  },
+  "reportmanager": {
+    "detailssection": {
+      "areaselectorinput": {
+        "area": "Área:",
+        "deleteareabutton": "Apagar área",
+        "deleteareabuttontitle": "Apagar área",
+        "displaystring": "{{areaDisplayString}} área, {{perimeterDisplayString}} perímetro",
+        "editareabutton": "Editar área",
+        "editareabuttontitle": "Definir polígono no mapa",
+        "inputplaceholder": "Definir área do evento",
+        "staticmapimagealt": "Mapa estático com polígono",
+        "perimeter": "Perímetro",
+        "provenancelabel": "Criado em EarthRanger {{provenance}}"
+      },
+      "datelabel": "Data do evento",
+      "detailsheader": "Detalhes",
+      "locationlabel": "Localização do evento",
+      "prioritylabel": "Prioridade",
+      "reportedbylabel": "Reportado por",
+      "statedropdown": {
+        "active": "Ativo",
+        "resolved": "Resolvido"
+      },
+      "timelabel": "Hora do evento"
+    },
+    "header": {
+      "priority": {
+        "amber": "Laranja",
+        "green": "Verde",
+        "none": "Nenhum",
+        "red": "Vermelho"
+      },
+      "reportmenu": {
+        "addtoincidentitem": "Adicionar a um incidente",
+        "addtopatrolitem": "Adicionar a uma patrulha",
+        "printreportitem": "Imprimir Evento",
+        "textcopybuttonlabel": "Copiar link do evento",
+        "textcopybuttonsuccessmessage": "Link copiado"
+      }
+    },
+    "linkssection": {
+      "linksheader": "Links"
+    },
+    "reportdetailview": {
+      "cancelbutton": "Cancelar",
+      "cantaddnotealert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
+      "loadingmessage": "Salvando...",
+      "quicklinks": {
+        "activityanchor": "Atividade",
+        "detailsanchor": "Detalhes",
+        "historyanchor": "Histórico",
+        "linksanchor": "Links"
+      },
+      "saveerrormessage": "Erro ao salvar o evento",
+      "savesplitbutton": {
+        "saveandreopenitem": "Salvar e abrir novamente",
+        "saveandresolveitem": "Salvar e resolver",
+        "title": "Salvar"
+      },
+      "unknownerrorlabel": "Erro desconhecido"
+    }
+  },
+  "unknowneventtitle": "Título do evento desconhecido",
+  "unknowneventtype": "Tipo de evento desconhecido"
+}

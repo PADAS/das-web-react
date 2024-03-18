@@ -1,0 +1,71 @@
+{
+  "activitysection": {
+    "collapseallbutton": "Minimizar",
+    "dateitemstarttitle": "Iniciado",
+    "dateitemendedtitle": "Finalizado",
+    "expandallbutton": "Expandir",
+    "sectiontitle": "Atividade",
+    "timelabel": "Hora"
+  },
+  "addattachmentbutton": "Arquivo anexo",
+  "addreportbutton": "Evento",
+  "addnotebutton": "Anotação",
+  "attachmentcontrols": {
+    "addnotetitle": "Adicionar anotação",
+    "addattachmenttitle": "Anexar arquivo"
+  },
+  "attachmentlistitem": {
+    "imagepreviewalt": "{{fileName}} pré-visualização",
+    "downloadbuttontooltip": "Baixar",
+    "deletebuttontooltip": "Apagar",
+    "fullviewbuttontooltip": "Visão geral"
+  },
+  "footer": {
+    "cancelbutton": "Cancelar",
+    "savebutton": "Salvar",
+    "stateresolvebutton": "Salvar e resolver",
+    "statereopenbutton": "Salvar e reabrir"
+  },
+  "geolocator": {
+    "buttonlabel": "Usar minha localização",
+    "loadingmessage": "Tentando identificar sua localização...",
+    "readinglocationerror": "Não pudemos identificar sua localização atual:  #{{locationErrorMessage}"
+  },
+  "gotoreportbuttontooltip": "Ir a Evento",
+  "header": {
+    "historylinkcreated": "Criado",
+    "historylinkupdated": "Atualizado",
+    "resolvedlabel": "Resolvido",
+    "sectiontitle": "Histórico"
+  },
+  "historysection": {
+    "sectiontitle": "Histórico",
+    "timelabel": "Hora"
+  },
+  "imagemodal": {
+    "errortitle": "Erro ao carregar a imagem.",
+    "errormessage": "Se você carregou este arquivo recentemente, espere um minuto e tente novamente."
+  },
+  "locationselector": {
+    "inputlabel": "Localização",
+    "inputplaceholder": "Marcar a localização"
+  },
+  "navigationpromptmodal": {
+    "cancelnavigationbuttontext": "Voltar",
+    "continuenavigationnegativebuttontext": "Descartar",
+    "continuenavigationpositivebuttontext": "Salvar",
+    "description": "Há alterações não salvas. Você gostaria de voltar, descartar as alterações ou salvar e continuar?",
+    "title": "Alterações não salvas"
+  },
+  "notelistitem": {
+    "canceleditingnotebutton": "Cancelar",
+    "deletenotebuttontooltip": "Apagar",
+    "doneeditingnotebutton": "Finalizar",
+    "editnotebuttontooltip": "Editar",
+    "notetitle": "Nova anotação"
+  },
+  "reportformsummary": {
+    "reporttypelabel": "Tipo de evento",
+    "reportedbylabel": "Reportado por"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "heatmaplegend": {
+    "daytimespan_one": "Mais de {{count}} dia",
+    "daytimespan_other": "Mais de {{count}} dias",
+    "pointcount_one": " {{count}} ponto",
+    "pointcount_other": " {{count}} pontos"
+  },
+  "heatmapstylecontrols": {
+    "radiuslabel": "Raio (em metros)",
+    "radiusunit": "m",
+    "sensitivityhighindicator": "Alta",
+    "sensitivitylabel": "Sensibilidade",
+    "sensitivitylowindicator": "Baixa"
+  },
+  "heatmaptogglebutton": {
+    "heatmapofflabel": "Mapa de calor desligado",
+    "heatmaponlabel": "Mapa de calor ligado"
+  },
+  "reportsheatmaplegend": {
+    "heatmaplegendtitle": "Eventos visíveis"
+  },
+  "subjectheatmaplegend": {
+    "subjectcount_one": "Indivíduo rastreado",
+    "subjectcount_other": "Indivíduos rastreados",
+    "titleelement": {
+      "pointcount_one": " {{count}} ponto",
+      "pointcount_other": " {{count}} pontos",
+      "remove": "Remover"
+    }
+  }
+}

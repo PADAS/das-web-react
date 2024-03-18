@@ -334,7 +334,8 @@ export const VALID_EVENT_GEOMETRY_TYPES = {
 export const SUPPORTED_LANGUAGES = {
   'en-US': 'English (United States)',
   es: 'Español',
-  fr: 'French',
+  fr: 'Français',
+  pt: 'Português',
 };
 
 export const FEATURE_FLAG_LABELS = {

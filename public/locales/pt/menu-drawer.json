@@ -1,0 +1,69 @@
+{
+  "alertsmodal": {
+    "iframebottommessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
+    "iframetitle": "Configure seus alertas EarthRanger"
+  },
+  "betatoggles": {
+    "patrolui": "Nova interface de usuário para Patrulhas.",
+    "reportnotification": "Reproduz notificações de som para novos eventos"
+  },
+  "dailyreportmodal": {
+    "dataexportmodaltitle": "Relatórios diário",
+    "todaysreportbutton": "Relatório de hoje",
+    "yesterdaysreportbutton": "Relatório de ontem"
+  },
+  "dataexportmodal": {
+    "cancelbutton": "Cancelar",
+    "exportbutton": "Exportar"
+  },
+  "globalmenudrawer": {
+    "alertsbutton": "Alertas",
+    "alertsmodal": {
+      "title": "Alertas"
+    },
+    "communitybutton": "Comunidade",
+    "contactsupport": {
+      "body": "Como podemos te ajudar?",
+      "subject": "Solicitação de suporte por um usuário"
+    },
+    "contactsupportbutton": "Fale com o suporte",
+    "dailyreportmodal": {
+      "title": "Relatório diário"
+    },
+    "exportsheader": "Exportar",
+    "fieldreportsmodal": {
+      "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
+      "title": "Relatórios de campo"
+    },
+    "footer": {
+      "clientversion": "Versão do cliente web: {{version}}",
+      "copyright": "©{{year}} EarthRanger",
+      "dataprivacypolicylink": "Política de privacidade de dados",
+      "eulalink": "Contrato de licença do usuário final ",
+      "serverversion": "Versão do servidor: {{version}}",
+      "websiteprivacypolicylink": "Política de privacidade da página web"
+    },
+    "helpcenterbutton": "Central de Ajuda",
+    "masterkmlmodal": {
+      "title": "KML de indivíduos rastreados"
+    },
+    "navigationbutton": {
+      "maplayers": "Camadas",
+      "patrols": "Patrulhas",
+      "reports": "Eventos",
+      "settings": "Preferências"
+    },
+    "subjectinformationmodal": {
+      "title": "Resumo de indivíduos rastreados"
+    },
+    "subjectreportsmodal": {
+      "title": "Observações"
+    },
+    "tableaubutton": "Tableau",
+    "usersguidebutton": "Guia do usuário"
+  },
+  "kmlexportmodal": {
+    "dataexportmodaltitle": "Exportar archivo KML de indivíduos rastreados",
+    "includeinactivesubjectslabel": "Incluir indivíduos inativos"
+  }
+}

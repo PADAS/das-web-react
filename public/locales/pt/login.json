@@ -1,0 +1,10 @@
+{
+  "erroralert": {
+    "invalidcredentialsmessage": "As credenciais fornecidas são inválidas. Por favor\ntente novamente.",
+    "unknownerrormessage": "Ocorreu um erro. Por favor, tente\nde novo."
+  },
+  "eulalink": "Contrato de licença do usuário final EarthRanger",
+  "loginbutton": "Conecte-se",
+  "passwordlabel": "Senha",
+  "usernamelabel": "Nome de usuário"
+}
