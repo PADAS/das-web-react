@@ -1,5 +1,5 @@
 import { subjectIsStatic, getSubjectDefaultDeviceProperty, addDefaultStatusValue } from './subjects.js';
-import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
+import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon } from '../__test-helpers/fixtures/subjects';
 
 
 describe('Determining if a subject is static', () => {

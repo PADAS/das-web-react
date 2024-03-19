@@ -79,7 +79,7 @@ export const useDrawToolGeoJson = (
 
     if (shouldCalculateLinesData) {
       data.drawnLineSegments = createLineSegmentGeoJsonForCoords(vertexCoordinates);
-    };
+    }
 
     if (shouldCalculatePolygonData) {
       const fillPolygonCoords = [...vertexCoordinates];
@@ -100,7 +100,7 @@ export const useDrawToolGeoJson = (
     }
 
     return data;
-  }, [draggedPoint, drawMode, isDrawing, vertexCoordinates, polygonHover]);
+  }, [vertexCoordinates, drawMode, isDrawing, draggedPoint, polygonHover, isMediumLayoutOrLarger]);
 
   const setMapDrawingDataThrottledRef = useRef(throttle((newGeoJson) => {
     setMapDrawingData(newGeoJson);

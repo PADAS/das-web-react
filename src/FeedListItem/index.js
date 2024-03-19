@@ -41,7 +41,7 @@ FeedListItem.propTypes = {
   className: PropTypes.string,
   themeColor: PropTypes.string.isRequired,
   themeBgColor: PropTypes.string,
-  IconComponent: PropTypes.element,
+  IconComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
   TitleComponent: PropTypes.element.isRequired,
   DateComponent: PropTypes.element,
   ControlsComponent: PropTypes.element,

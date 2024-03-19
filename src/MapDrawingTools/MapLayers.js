@@ -14,8 +14,6 @@ import {
   polygonSymbolLayout,
 } from './layerStyles';
 
-export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
-
 export const LAYER_IDS = {
   POINTS: 'draw-layer-points',
   LINES: 'draw-layer-lines',

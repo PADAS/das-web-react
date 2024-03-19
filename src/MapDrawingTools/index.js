@@ -10,15 +10,13 @@ import { calcPositiveBearing } from '../utils/location';
 import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
 import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
 import { MapContext } from '../App';
-import { useDrawToolGeoJson } from '../MapDrawingTools/hooks';
+import { useDrawToolGeoJson } from './hooks';
 import { useMapEventBinding, useMatchMedia } from '../hooks';
 
 import MapLayers from './MapLayers';
 import Popup from '../Popup';
 
 import styles from './styles.module.scss';
-
-export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
 export const DRAWING_MODES = {
   POLYGON: 'polygon',

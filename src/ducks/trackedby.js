@@ -26,7 +26,7 @@ const patrolTrackedBySchemaReducer = (state, action) => {
 
   if (type === FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS) {
     return { ...state, trackedbySchema: payload };
-  };
+  }
   return state;
 };
 

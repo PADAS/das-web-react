@@ -14,17 +14,14 @@ export const TrackerContext = createContext(null);
  */
 
 export const MAP_INTERACTION_CATEGORY = 'Map Interaction';
-export const DRAWER_CATEGORY = 'Map Drawer';
 export const MAP_LAYERS_CATEGORY = 'Map Layers';
 export const BASE_LAYER_CATEGORY = 'Base Layer';
 export const PATROL_LIST_ITEM_CATEGORY = 'Patrol List Item';
 export const PATROL_DETAIL_VIEW_CATEGORY = 'Patrol Detail View';
-export const PATROL_MODAL_CATEGORY = 'Patrol Modal';
 export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';
-export const REPORT_MODAL_CATEGORY = 'Report Modal';
 export const REPORT_EXPORT_CATEGORY = 'Report Export';
 export const INCIDENT_REPORT_CATEGORY = 'Incident Report';
 export const EVENT_REPORT_CATEGORY = 'Event Report';
@@ -47,12 +44,13 @@ export const BETA_PREVIEW_CATEGORY = 'Beta Preview';
  */
 export function trackEvent(category, action, label=null) {
   ReactGA4.event({ category, action, label });
-};
+}
 
 
 /**
  * Function to create a tracker for provided category
- * @param {string} category 
+ * @param {string} category
+ * @param tracker
  */
 export const trackEventFactory = (category, tracker = trackEvent) => {
   const track = (action, label) => tracker(category, action, label);

@@ -45,6 +45,7 @@ const useNavigate = (options = {}) => {
     isNavigationBlocked,
     onNavigationAttemptBlocked,
     setNavigationData,
+    routerNavigate,
   ]);
 
   useEffect(() => {

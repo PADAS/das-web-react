@@ -46,7 +46,7 @@ const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
 const StartStopLayer = (props) => {
-  const { key, patrolData, map, ...rest } = props;
+  const { patrolData, map, ...rest } = props;
 
   const [instanceId] = useState(uuid());
   const layerId = `${PATROL_SYMBOLS}-${instanceId}`;

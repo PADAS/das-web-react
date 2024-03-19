@@ -120,7 +120,7 @@ const TrackLegend = ({ onClose, trackData, trackState }) => {
         { locale: getCurrentLocale() }
       )
       : formatDistanceToNow(new Date(trackTimeEnvelope.from), { locale: getCurrentLocale() }),
-    [getCurrentLocale, trackTimeEnvelope.from, trackTimeEnvelope.until]
+    [trackTimeEnvelope.from, trackTimeEnvelope.until]
   );
 
   const trackPointCount = useMemo(

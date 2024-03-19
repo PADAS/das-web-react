@@ -28,7 +28,7 @@ import { fetchPatrol } from '../ducks/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { getCurrentIdFromURL } from '../utils/navigation';
-import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { PATROL_API_STATES, TAB_KEYS } from '../constants';
 import {
   TrackerContext,
   PATROL_DETAIL_VIEW_CATEGORY,
@@ -74,10 +74,6 @@ const PatrolDetailView = () => {
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
   const isAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
-  const patrolPermissions = useSelector((state) => {
-    const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-    return permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [] ;
-  });
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const patrolType = useSelector(
     (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === newPatrolTypeId)
@@ -164,8 +160,6 @@ const PatrolDetailView = () => {
     [notesToAdd]
   );
 
-  // TODO: test that a user without permissions can't do any update actions once the implementation is finished
-  const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
   const patrolSegmentId = patrol && displayPatrolSegmentId(patrol);
 
   const shouldShowNavigationPrompt = !isSaving

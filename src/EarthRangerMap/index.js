@@ -6,8 +6,6 @@ import { MapContext } from '../App';
 import MapTerrain from '../MapTerrain';
 import SkyLayer from '../SkyLayer';
 
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
@@ -19,11 +17,9 @@ import Attribution from './Attribution';
 
 mapboxgl.accessToken = REACT_APP_MAPBOX_TOKEN;
 
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-
 export function withMap(Component) {
   return forwardRef((props, ref) => <MapContext.Consumer>{map => <Component map={map} {...props} ref={ref} />}</MapContext.Consumer>); // eslint-disable-line react/display-name
-};
+}
 
 const getStartingMapPositionValues = (savedMapPosition = {}) => {
   if (savedMapPosition?.center && savedMapPosition?.zoom) {
@@ -93,7 +89,7 @@ const EarthRangerMap = (props) => {
       });
       map.current.on('load', onLoad);
     }
-  }, [mapPosition, onLoad]);
+  }, [mapPosition, onLoad, t]);
 
   useEffect(() => {
     if (map.current && currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {

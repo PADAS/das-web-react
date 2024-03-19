@@ -78,15 +78,3 @@ export const findAnalyzerIdByChildFeatureId = (featureId, analyzerFeatures) => {
   const searchResult = analyzers.find((analyzer) => analyzer.geojson.features.some(f => f.properties.id === featureId));
   return searchResult ? searchResult.id : null;
 };
-
-export const analyzerSourceLayerMap = {
-  'LineString.warning_group': ANALYZER_LINES_WARNING,
-  'MultiLineString.warning_group': ANALYZER_LINES_WARNING,
-  'LineString.critical_group': ANALYZER_LINES_CRITICAL,
-  'MultiLineString.critical_group': ANALYZER_LINES_WARNING,
-  'Polygon.critical_group': ANALYZER_POLYS_CRITICAL,
-  'Polygon.warning_group': ANALYZER_POLYS_WARNING,
-  'Polygon.proximity_group': ANALYZER_POLYS_WARNING,
-  'MultiPolygon.warning_group': ANALYZER_POLYS_WARNING,
-  'MultiPolygon.critical_group': ANALYZER_POLYS_CRITICAL
-};

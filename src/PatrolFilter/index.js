@@ -145,19 +145,12 @@ const PatrolFilter = ({ className }) => {
   </>;
 };
 
-PatrolFilter.defaultProps = { className: '' };
+PatrolFilter.defaultProps = {
+  className: '',
+};
 
 PatrolFilter.propTypes = {
   className: PropTypes.string,
-  patrolFilter: PropTypes.shape({
-    status: PropTypes.arrayOf(PropTypes.string),
-    filters: PropTypes.shape({
-      date_range: PropTypes.object,
-      patrol_type: PropTypes.arrayOf(PropTypes.string),
-      tracked_by: PropTypes.arrayOf(PropTypes.string),
-      text: PropTypes.string,
-    }),
-  }).isRequired,
 };
 
 export default PatrolFilter;

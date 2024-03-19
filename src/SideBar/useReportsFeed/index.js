@@ -57,7 +57,7 @@ const useReportsFeed = () => {
 
     loadFeedEvents(true);
 
-    return () => fetchEventFeedCancelToken.cancel();;
+    return () => fetchEventFeedCancelToken.cancel();
   }, [geoResrictedUserLocationCoords, loadFeedEvents]);
 
   useEffect(() => {

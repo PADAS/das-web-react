@@ -22,26 +22,12 @@ export const DAS_HOST = process.env.REACT_APP_DAS_HOST
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
-export const GA_EVENT_CATEGORIES = {
-  EVENT_REPORTS: 'Event Reports',
-  REPORT_EXPORT: 'Report Export',
-  MAP_INTERATION: 'Map Interaction',
-  MAP_LAYERS: 'Map Layers',
-  FEED: 'Feed',
-  TABS: 'Tabs',
-  DRAWER: 'Drawer',
-  GPS_FORMAT: 'GPS Format',
-  SYSTEM_STATUS: 'System Status',
-};
-
 export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 20;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
-
-export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
 

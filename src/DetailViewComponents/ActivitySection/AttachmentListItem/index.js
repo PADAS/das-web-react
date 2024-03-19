@@ -24,7 +24,7 @@ import ItemActionButton from '../ItemActionButton';
 
 import styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref = null) => {
+const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref) => {
   const dispatch = useDispatch();
 
   const tracker = useContext(TrackerContext);
@@ -179,14 +179,16 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   </li>;
 };
 
-AttachmentListItem.defaultProps = {
+const AttachmentListItemForwardRef = forwardRef(AttachmentListItem);
+
+AttachmentListItemForwardRef.defaultProps = {
   cardsExpanded: [],
   onCollapse: null,
   onDelete: null,
   onExpand: null,
 };
 
-AttachmentListItem.propTypes = {
+AttachmentListItemForwardRef.propTypes = {
   attachment: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
@@ -202,4 +204,4 @@ AttachmentListItem.propTypes = {
   onExpand: PropTypes.func,
 };
 
-export default memo(forwardRef(AttachmentListItem));
+export default AttachmentListItemForwardRef;

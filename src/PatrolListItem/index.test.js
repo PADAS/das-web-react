@@ -8,7 +8,6 @@ import { within } from '@testing-library/dom';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
-import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';

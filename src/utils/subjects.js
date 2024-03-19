@@ -103,7 +103,7 @@ export const addDefaultStatusValue = (originalFeature) => {
   if (!isEmpty(defaultProperty)) {
     const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
     set(feature, 'properties.default_status_value', `${defaultProperty.value}${propertyUnitsLabel}`);
-  };
+  }
 
   if (!properties?.image?.length) {
     set(feature, 'properties.default_status_label', defaultProperty.label) ;

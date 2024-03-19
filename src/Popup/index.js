@@ -86,7 +86,7 @@ Popup.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
-    null,
+    PropTypes.exact(null),
   ]),
   className: PropTypes.string,
   coordinates: PropTypes.array.isRequired,

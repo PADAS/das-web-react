@@ -223,12 +223,14 @@ const ActivitySection = ({
   </div>;
 };
 
-ActivitySection.defaultProps = {
+const ActivitySectionForwardRef = forwardRef(ActivitySection);
+
+ActivitySectionForwardRef.defaultProps = {
   endTime: null,
   startTime: null,
 };
 
-ActivitySection.propTypes = {
+ActivitySectionForwardRef.propTypes = {
   attachments: PropTypes.arrayOf(PropTypes.shape({
     created_at: PropTypes.string,
     id: PropTypes.string,
@@ -261,4 +263,4 @@ ActivitySection.propTypes = {
   startTime: PropTypes.instanceOf(Date),
 };
 
-export default memo(forwardRef(ActivitySection));
+export default ActivitySectionForwardRef;

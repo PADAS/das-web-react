@@ -35,7 +35,7 @@ describe('useJumpToLocation', () => {
 
   const TestComponent = ({ coordinates, zoom }) => {
     const jumpToLocation = useJumpToLocation();
-    useEffect(() => { jumpToLocation(coordinates, zoom); }, [jumpToLocation]);
+    useEffect(() => { jumpToLocation(coordinates, zoom); }, [jumpToLocation, coordinates, zoom]);
     return null;
   };
 

@@ -23,7 +23,7 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
   const onChange = useCallback(() => {
     if (error) {
       setError(null);
-    };
+    }
   }, [error]);
 
   const onComplete = useCallback((pin) => {

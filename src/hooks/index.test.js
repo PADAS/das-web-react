@@ -12,7 +12,6 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { useFeatureFlag, useMemoCompare, useMapEventBinding, useMapLayer, useMapSource } from './';
-import { ENABLE_NEW_REPORT_NOTIFICATION_SOUND } from '../ducks/feature-flag-overrides';
 
 describe('#useMapEventBinding', () => {
   let map, wrapper, handler;

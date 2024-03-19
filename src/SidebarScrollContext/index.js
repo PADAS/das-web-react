@@ -48,10 +48,12 @@ export const ScrollRestoration = ({ Component, namespace, children, ...props }) 
     }, 1000);
 
     return () => element?.removeEventListener?.('scroll', onScrollFeed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     scrollToLastPosition(namespace);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <Component ref={scrollRef} {...props}>
@@ -69,7 +71,7 @@ ScrollRestoration.defaultProps = {
 };
 
 ScrollRestoration.propTypes = {
-  Component: PropTypes.element,
+  Component: PropTypes.oneOfType([PropTypes.object, PropTypes.element, PropTypes.array, PropTypes.func]),
   namespace: PropTypes.string.isRequired,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.oneOfType([PropTypes.element, PropTypes.array]).isRequired,
 };

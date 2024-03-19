@@ -1,16 +1,14 @@
 import axios, { CancelToken } from 'axios';
 
 import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
-import { clearUserProfile } from '../ducks/user';
+import { clearUserProfile } from './user';
 import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, deleteTemporaryAccessTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
 
 const AUTH_URL = `${DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
 // actions
-export const POST_AUTH = 'POST_AUTH';
 export const POST_AUTH_SUCCESS = 'POST_AUTH_SUCCESS';
-export const POST_AUTH_ERROR = 'POST_AUTH_ERROR';
 export const CLEAR_AUTH = 'CLEAR_AUTH';
 
 // master cancel token actions
