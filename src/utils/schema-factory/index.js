@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/2019'; // including 2019-09 and 2020-12 drafts https://ajv.js.org/guide/schema-language.html#draft-2019-09-and-draft-2020-12
+import Ajv from 'ajv-latest/dist/2019'; // including 2019-09 and 2020-12 drafts https://ajv.js.org/guide/schema-language.html#draft-2019-09-and-draft-2020-12
 
 const ajv = new Ajv();
 
