@@ -139,7 +139,7 @@
       "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
       "tryAgainButton": "Réessayez"
     },
-    "reportsLink": "Événements",
+    "eventsLink": "Événements",
     "settingsPane": {
       "alertsFrameTitle": "Configurer vos alertes EarthRanger",
       "alertsTabTitle": "Alertes",
