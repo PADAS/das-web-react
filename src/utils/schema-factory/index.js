@@ -1,6 +1,9 @@
-import Ajv from 'ajv-latest/dist/2019'; // including 2019-09 and 2020-12 drafts https://ajv.js.org/guide/schema-language.html#draft-2019-09-and-draft-2020-12
+import AjvLatest from 'ajv-latest/dist/2019'; // including 2019-09 and 2020-12 drafts https://ajv.js.org/guide/schema-language.html#draft-2019-09-and-draft-2020-12
+import Ajv6 from 'ajv-6';
 
-const ajv = new Ajv();
+const getAjvInstance = (useLatest = true) => useLatest ? new AjvLatest() : new Ajv6();
+
+const ajv = getAjvInstance();
 
 const validateSchema = (schema) => {
   const isValid = ajv.validateSchema(schema);
