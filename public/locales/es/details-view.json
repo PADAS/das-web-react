@@ -48,7 +48,7 @@
   },
   "locationSelector": {
     "inputLabel": "Ubicación:",
-    "inputPlaceHolder": "Click para seleccionar la ubicación"
+    "inputPlaceHolder": "Seleccionar la ubicación"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",
