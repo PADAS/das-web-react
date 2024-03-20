@@ -1,171 +1,171 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "Agregar a nuevo incidente",
-      "loadingItem": "Cargando...",
-      "noMoreEventsItem": "No hay más incidentes que mostrar."
+    "addToIncidentModal": {
+        "modalBody": {
+            "addToNewIncidentButton": "Añadir a un nuevo incidente",
+            "loadingItem": "Cargando... ",
+            "noMoreEventsItem": "No hay más incidentes que mostrar."
+        },
+        "modalFooter": {
+            "cancelButton": "Cancelar"
+        },
+        "modalTitle": "Añadir a un Incident"
     },
-    "modalFooter": {
-      "cancelButton": "Cancelar"
+    "columnSort": {
+        "popoverTitle": "Ordernar por: ",
+        "eventSortOptions": {
+            "updatedAtLabel": "Fecha actualizada",
+            "createdAtLabel": "Fecha creada",
+            "eventTimeLabel": "Fecha del evento"
+        },
+        "eventOrderOptions": {
+            "newest": "Del más nuevo al más antiguo",
+            "oldest": "Del más antiguo al más nuevo"
+        }
     },
-    "modalTitle": "Agregar a Incidente"
-  },
-  "columnSort": {
-    "popoverTitle": "Ordenar por:",
-    "eventSortOptions": {
-      "updatedAtLabel": "Fecha de actualización",
-      "createdAtLabel": "Fecha de creación",
-      "eventTimeLabel": "Fecha de evento"
+    "errorMessages": {
+        "accordionHeaderButton": {
+            "closed": "Mostrar detalles",
+            "open": "Esconder Detalles"
+        }
     },
-    "eventOrderOptions": {
-      "newest": "Más reciente a antiguo",
-      "oldest": "Más antiguo a reciente"
-    }
-  },
-  "errorMessages": {
-    "accordionHeaderButton": {
-      "closed": "Ver detalles",
-      "open": "Ocultar detalles"
-    }
-  },
-  "eventFeed": {
-    "loadingMoreReportsItem": "Cargando más eventos...",
-    "noMoreReportsItem": "No hay más eventos que mostrar.",
-    "noReportsItem": "No hay eventos que mostrar."
-  },
-  "eventItemContextMenu": {
-    "errorToastMessage": "#{{serialNumber}} aún está {{state}}, algo salió mal",
-    "notificationDetails": {
-      "failedReports": "ADVERTENCIA: Estos eventos aún están {{state}}",
-      "processedReports": {
-        "activated": "activos",
-        "resolved": "resueltos",
-        "title": "Estos eventos relacionados ahora están {{newState}} también:"
-      }
+    "eventFeed": {
+        "loadingMoreReportsItem": "Cargar más eventos...",
+        "noMoreReportsItem": "No más eventos para mostrar.",
+        "noReportsItem": "No hay eventos para mostrar."
     },
-    "state": {
-      "active": "activo",
-      "resolved": "resuelto"
+    "eventItemContextMenu": {
+        "errorToastMessage": "#{{serialNumber}} se mantiene {{state}}, algo salió mal",
+        "notificationDetails": {
+            "failedReports": "ADVERTENCIA: Estos eventos aún se encuentran {{state}}",
+            "processedReports": {
+                "activated": "activado",
+                "resolved": "resuelto",
+                "title": "Estos eventos asociados también son {{newState}}:"
+            }
+        },
+        "state": {
+            "active": "activo",
+            "resolved": "resuelto"
+        },
+        "textCopyButtonItem": {
+            "label": "Copiar enlace del evento",
+            "successMessage": "Enlace copiado"
+        },
+        "updatedCollectionInfoToast": {
+            "activated": "activado",
+            "message": "La colección #{{collectionSerialNumber}} ha sido {{newState}} correctamente",
+            "resolved": "resuelto"
+        },
+        "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+        "updateReportStateItem": {
+            "reopen": "Reabierto",
+            "resolve": "Resuelto"
+        }
     },
-    "textCopyButtonItem": {
-      "label": "Copiar enlace del evento",
-      "successMessage": "Enlace copiado"
+    "prioritySelect": {
+        "labels": {
+            "amber": "Ambar",
+            "green": "Verde",
+            "none": "Ninguno",
+            "red": "Rojo"
+        },
+        "placeholder": "Seleccionar"
     },
-    "updatedCollectionInfoToast": {
-      "activated": "activada",
-      "message": "La colección #{{collectionSerialNumber}} fue {{newState}} correctamente",
-      "resolved": "resuelta"
+    "reportGeometryDrawer": {
+        "cancelationConfirmationModal": {
+            "continueEditingButton": "Continuar editando",
+            "discardButton": "Descartar",
+            "modalBody": "Cancelar sin guardar descartará los cambios del área del evento. ¿Está seguro de que desea descartar los cambios?",
+            "modalTitle": "Descartar cambios"
+        },
+        "footer": {
+            "cancelButton": "Cancelar",
+            "saveButton": "Salvar",
+            "saveButtonTooltip": {
+                "drawing": "Sólo se pueden guardar polígonos cerrados.",
+                "invalidGeometry": "Los segmentos del polígono no se pueden cruzar"
+            }
+        },
+        "informationModal": {
+            "addingPointsHeader": "Añadiendo puntos",
+            "addingPointsContent": "Haz click en cualquier parte del mapa para agregar los puntos del area de eventos. ",
+            "addingPointsToExistingAreaHeader": "Agregar puntos a un área existente",
+            "addingPointsToExistingAreaContent": "Pase el cursor sobre un segmento del área del evento, luego haga clic y arrastre el nuevo punto a la ubicación deseada.",
+            "closingAreaHeader": "Cerrando área",
+            "closingAreaContent": "Haga clic en el primer punto o presione \"enter\" en su teclado para cerrar el polígono. ",
+            "deletingPointsHeader": "Borrando puntos",
+            "deletingPointsContent": "Haga clic en el punto que desea eliminar y presione la tecla \"eliminar\" o \"retroceso\" en su teclado.",
+            "modalTitle": "Creando el area de un evento. ",
+            "reportAreaHeader": "Área del evento",
+            "reportAreaContent": "Un polígono cerrado con 3 o más puntos y sin intersecciones entre segmentos. La medida del perímetro y la superficie son aproximadas, sin tener en cuenta el relieve y la topografía."
+        }
     },
-    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
-    "updateReportStateItem": {
-      "reopen": "Reabierto",
-      "resolve": "Resuelto"
-    }
-  },
-  "prioritySelect": {
-    "labels": {
-      "amber": "Ambar",
-      "green": "Verde",
-      "none": "N/A",
-      "red": "Roja"
+    "reportListItem": {
+        "dateTimeSuffix": "hace",
+        "resolvedState": "resuelto"
     },
-    "placeholder": "Seleccionar"
-  },
-  "reportGeometryDrawer": {
-    "cancelationConfirmationModal": {
-      "continueEditingButton": "Continuar editando",
-      "discardButton": "Descartar",
-      "modalBody": "Cancelar sin guardar dscartará los cambios en el área del evento. ¿Está seguro de querer descartar estos cambios?",
-      "modalTitle": "Descartar cambios"
+    "reportManager": {
+        "detailsSection": {
+            "areaSelectorInput": {
+                "area": "Área: ",
+                "deleteAreaButton": "Área borrada ",
+                "deleteAreaButtonTitle": "Área borrada ",
+                "displayString": "{{areaDisplayString}} área, {{perimeterDisplayString}} perímetro",
+                "editAreaButton": "Editar área",
+                "editAreaButtonTitle": "Colocar polígono en el mapa",
+                "inputPlaceholder": "Definir un área de evento",
+                "staticMapImageAlt": "Mapa estático con polígono",
+                "perimeter": "Perímetro",
+                "provenanceLabel": "Creado en EarthRanger {{provenance}}"
+            },
+            "dateLabel": "Fecha del evento",
+            "detailsHeader": "Detalles",
+            "locationLabel": "Ubicación del evento",
+            "priorityLabel": "Prioridad",
+            "reportedByLabel": "Reportado por",
+            "stateDropdown": {
+                "active": "activo",
+                "resolved": "resuelto"
+            },
+            "timeLabel": "Hora del evento"
+        },
+        "header": {
+            "priority": {
+                "amber": "Ambar",
+                "green": "Verde",
+                "none": "Ninguno",
+                "red": "Rojo"
+            },
+            "reportMenu": {
+                "addToIncidentItem": "Añadir a un incidente",
+                "addToPatrolItem": "Añadir a una patrulla",
+                "printReportItem": "Imprimir evento ",
+                "textCopyButtonLabel": "Copiar enlace del evento",
+                "textCopyButtonSuccessMessage": "Enlace copiado"
+            }
+        },
+        "linksSection": {
+            "linksHeader": "Enlaces"
+        },
+        "reportDetailView": {
+            "cancelButton": "Cancelar",
+            "cantAddNoteAlert": "No se puede agregar una nota nueva: hay una nota vacía que aún no se ha guardado",
+            "loadingMessage": "Guardando",
+            "quickLinks": {
+                "activityAnchor": "Actividad",
+                "detailsAnchor": "Detalles",
+                "historyAnchor": "Historia",
+                "linksAnchor": "Enlaces"
+            },
+            "saveErrorMessage": "Error salvando el evento",
+            "saveSplitButton": {
+                "saveAndReopenItem": "Guardar y volver a abrir ",
+                "saveAndResolveItem": "Guardar y resolver",
+                "title": "Guardar"
+            },
+            "unknownErrorLabel": "Error desconocido"
+        }
     },
-    "footer": {
-      "cancelButton": "Cancelar",
-      "saveButton": "Guardar",
-      "saveButtonTooltip": {
-        "drawing": "Solo se pueden guardar figuras cerradas",
-        "invalidGeometry": "Los segmentos de la figura no se deben intersectar"
-      }
-    },
-    "informationModal": {
-      "addingPointsHeader": "Agregar puntos",
-      "addingPointsContent": "Haga clic en cualquier parte del mapa para agregar puntos del área del evento.",
-      "addingPointsToExistingAreaHeader": "Agregar puntos a un área existente",
-      "addingPointsToExistingAreaContent": "Coloque el cursor sobre un segmento del área del evento, luego haga clic y arrastre el nuevo punto a la ubicación deseada.",
-      "closingAreaHeader": "Cerrar el área",
-      "closingAreaContent": "Haga clic sobre el primer punto o presiona 'enter' para cerrar el área.",
-      "deletingPointsHeader": "Borrar puntos",
-      "deletingPointsContent": "Haga clic sobre el punto que deseas borrar y presione 'delete' o 'backspace' (retroceso) para borrarlo.",
-      "modalTitle": "Crear Área del Evento",
-      "reportAreaHeader": "Área del Evento",
-      "reportAreaContent": "Una figura cerrada con 3 o más puntos sin intersecciones. Las medidas de área y distancia son aproximaciones, no consideran cambios en terreno y elevación."
-    }
-  },
-  "reportListItem": {
-    "dateTimeSuffix": "atrás",
-    "resolvedState": "resuelto"
-  },
-  "reportManager": {
-    "detailsSection": {
-      "areaSelectorInput": {
-        "area": "Área: ",
-        "deleteAreaButton": "Borrar Área",
-        "deleteAreaButtonTitle": "Borrar Área",
-        "displayString": "{{areaDisplayString}} de área, {{perimeterDisplayString}} de perímetro",
-        "editAreaButton": "Editar área",
-        "editAreaButtonTitle": "Dibujar geometría",
-        "inputPlaceholder": "Colocar área del evento",
-        "staticMapImageAlt": "Mapa estático con geometría",
-        "perimeter": "Perímetro: ",
-        "provenanceLabel": "Creado en EarthRanger {{provenance}}"
-      },
-      "dateLabel": "Fecha del Evento",
-      "detailsHeader": "Detalles",
-      "locationLabel": "Ubicación del evento",
-      "priorityLabel": "Prioridad",
-      "reportedByLabel": "Reportado por",
-      "stateDropdown": {
-        "active": "activo",
-        "resolved": "resuelto"
-      },
-      "timeLabel": "Hora del evento"
-    },
-    "header": {
-      "priority": {
-        "amber": "Ambar",
-        "green": "Verde",
-        "none": "N/A",
-        "red": "Roja"
-      },
-      "reportMenu": {
-        "addToIncidentItem": "Agregar a Incidente",
-        "addToPatrolItem": "Agregar a Patrulla",
-        "printReportItem": "Imprimir Evento",
-        "textCopyButtonLabel": "Copiar enlace del evento",
-        "textCopyButtonSuccessMessage": "Enlace copiado"
-      }
-    },
-    "linksSection": {
-      "linksHeader": "Enlaces"
-    },
-    "reportDetailView": {
-      "cancelButton": "Cancelar",
-      "cantAddNoteAlert": "No se puede agregar una nueva nota: hay una nota vacía sin guardar",
-      "loadingMessage": "Cargando...",
-      "quickLinks": {
-        "activityAnchor": "Actividad",
-        "detailsAnchor": "Detalles",
-        "historyAnchor": "Histórico",
-        "linksAnchor": "Enlaces"
-      },
-      "saveErrorMessage": "Hubo un error guardando el evento.",
-      "saveSplitButton": {
-        "saveAndReopenItem": "Guardar y reabrir",
-        "saveAndResolveItem": "Guardar y resolver",
-        "title": "Guardar"
-      },
-      "unknownErrorLabel": "Error desconocido"
-    }
-  },
-  "unknownEventTitle": "Título del evento desconocido",
-  "unknownEventType": "Tipo de evento desconocido"
+    "unknownEventTitle": "Título del evento desconocido",
+    "unknownEventType": "Tipo de evento desconocido"
 }

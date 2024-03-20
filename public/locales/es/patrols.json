@@ -1,82 +1,82 @@
 {
-  "addToPatrolModal": {
-    "cancel": "Cancelar",
-    "loading": "Cargando...",
-    "noMorePatrols": "No hay más patrullas que mostrar.",
-    "title": "Agregar a patrullaje"
-  },
-  "detailView": {
-    "addEmptyNoteAlert": "No es posible agregar una nota nueva: existe una nota sin guardar",
-    "formButtons": {
-      "cancel": "Cancelar",
-      "save": "Guardar"
+    "addToPatrolModal": {
+        "title": "Añadir a Patrulla",
+        "cancel": "Cancelar",
+        "noMorePatrols": "No hay más patrullas para mostrar. ",
+        "loading": "Cargando..."
     },
-    "header": {
-      "patrolSchedule": "Agendado {{scheduledStartTime}}",
-      "patrolStartButton": "Iniciar",
-      "patrolRestoreButton": "Restaurar",
-      "uiStateTitles": {
-        "active": "Activo",
-        "cancelled": "Cancelado",
-        "done": "Finalizado",
-        "invalid": "Configuración no válida",
-        "readyToStart": "Listo para iniciar",
-        "scheduled": "Agendado",
-        "startOverdue": "Inicio atrasado"
-      }
+    "detailView": {
+        "addEmptyNoteAlert": "No se puede agregar una nota nueva: hay una nota vacía que aún no se ha guardado",
+        "formButtons": {
+            "save": "Guardar",
+            "cancel": "Cancelar"
+        },
+        "header": {
+            "patrolSchedule": "Programado para {{scheduledStartTime}}",
+            "patrolStartButton": "Iniciar",
+            "patrolRestoreButton": "Restaurar",
+            "uiStateTitles": {
+                "active": "Activo",
+                "cancelled": "Cancelado ",
+                "done": "Terminado",
+                "invalid": "Configuración invalida",
+                "readyToStart": "Listo para empezar ",
+                "scheduled": "Programado",
+                "startOverdue": "Inicio de patrulla retrasado"
+            }
+        },
+        "loadingMessage": "Guardando...",
+        "planSection": {
+            "autoStartCheckboxLargeLabel": "Iniciar automáticamente la patrulla en EarthRanger al tiempo seleccionado",
+            "autoStartCheckboxSmallLabel": "Iniciar automáticamente la patrulla en EarthRanger",
+            "autoEndCheckboxLargeLabel": "Terminar automáticamente la patrulla en EarthRanger al tiempo seleccionado",
+            "autoEndCheckboxSmallLabel": "Terminar automáticamente la patrulla en EarthRanger",
+            "endDateLabel": "Fecha de finalización",
+            "endTimeLabel": "Hora de finalización",
+            "endLocationLargeLabel": "Ubicación de finalización",
+            "endLocationSmallLabel": "Ubicación",
+            "locationSelectorPlaceholder": "Establecer ubicación",
+            "objectiveLabel": "Objectivo",
+            "objectivePlaceholder": "Describe el propósito de la patrulla...",
+            "startDateLabel": "Fecha de inicio",
+            "startTimeLabel": "Hora de inicio",
+            "startLocationLargeLabel": "Ubicación de inicio",
+            "startLocationSmallLabel": "Ubicación",
+            "title": "Plan",
+            "trackedByLabel": "Seguido por:",
+            "trackedByPlaceholder": "Selecciona dispositivo..."
+        },
+        "quickLinksTitles": {
+            "activity": "Actividad",
+            "history": "Historia",
+            "plan": "Plan"
+        }
     },
-    "loadingMessage": "Guardando...",
-    "planSection": {
-      "autoStartCheckboxLargeLabel": "Iniciar la patrulla automaticamente en EarthRanger en esta fecha",
-      "autoStartCheckboxSmallLabel": "Iniciar la patrulla automaticamente en EarthRanger",
-      "autoEndCheckboxLargeLabel": "Finalizar la patrulla automaticamente en EarthRanger en esta fecha",
-      "autoEndCheckboxSmallLabel": "Finalizar la patrulla automaticamente en EarthRanger",
-      "endDateLabel": "Fecha de finalización",
-      "endTimeLabel": "Hora de finalización",
-      "endLocationLargeLabel": "Ubicación final",
-      "endLocationSmallLabel": "Ubicación",
-      "locationSelectorPlaceholder": "Seleccione una ubicación",
-      "objectiveLabel": "Objetivo",
-      "objectivePlaceholder": "Describa el propósito del patrullaje...",
-      "startDateLabel": "Fecha de inicio",
-      "startTimeLabel": "Hora de inicio",
-      "startLocationLargeLabel": "Ubicación inicial",
-      "startLocationSmallLabel": "Ubicación",
-      "title": "Plan",
-      "trackedByLabel": "Rastreador",
-      "trackedByPlaceholder": "Selecciona un dispositivo..."
+    "invalidDatesModal": {
+        "body": "Esta patrulla no se puede guardar. La hora de finalización de una patrulla debe ser posterior a la hora de inicio. Corrija la hora de inicio o finalización de la patrulla.",
+        "okButton": "OK",
+        "title": "Fechas de patrulla no válidas"
     },
-    "quickLinksTitles": {
-      "activity": "Actividad",
-      "history": "Historial",
-      "plan": "Plan"
+    "patrolMenu": {
+        "cancelPatrol": "Cancelar patrulla",
+        "copyButton": "Copiar enlace de patrulla",
+        "copyButtonMessage": "Enlace copiado",
+        "endPatrol": "Terminar patrulla",
+        "printPatrolButton": "Imprimir patrulla",
+        "restorePatrol": "Restaurar patrulla",
+        "startPatrol": "Inciar patrulla"
+    },
+    "patrolList": {
+        "emptyPatrolList": "No hay patrullas por mostrar."
+    },
+    "patrolListItem": {
+        "restoreButton": "Restaurar",
+        "scheduledTitle": "Programado: ",
+        "startButton": "Inciar"
+    },
+    "trackToggleButton": {
+        "tracksPinned": "Pistas fijadas",
+        "tracksOn": "Pistas encendidas",
+        "tracksOff": "Pistas apagadas"
     }
-  },
-  "invalidDatesModal": {
-    "body": "No es posible guardar esta patrulla. La fecha de finalización de una patrulla debe ser posterior a la fecha de inicio. Por favor, corrija la fecha de finalización.",
-    "okButton": "Entendido",
-    "title": "Fechas de patrullaje no válidas"
-  },
-  "patrolMenu": {
-    "cancelPatrol": "Cancelar Patrulla",
-    "copyButton": "Copiar link del patrulla",
-    "copyButtonMessage": "Link copiado",
-    "endPatrol": "Finalizar Patrullaje",
-    "printPatrolButton": "Imprimir patrulla",
-    "restorePatrol": "Restaurar Patrulla",
-    "startPatrol": "Iniciar Patrullaje"
-  },
-  "patrolList": {
-    "emptyPatrolList": "No hay más patrullas que mostrar."
-  },
-  "patrolListItem": {
-    "restoreButton": "Restaurar",
-    "scheduledTitle": "Agendado:",
-    "startButton": "Iniciar"
-  },
-  "trackToggleButton": {
-    "tracksPinned": "Rutas fijadas",
-    "tracksOn": "Rutas visibles",
-    "tracksOff": "Rutas ocultas"
-  }
 }

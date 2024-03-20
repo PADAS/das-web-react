@@ -1,179 +1,179 @@
 {
-  "addItemButton": {
-    "addItemModal": {
-      "addPatrolTab": {
-        "searchBarPlaceholder": "Buscar"
-      },
-      "addPatroTabTitle": "Crear Patrulla",
-      "addReportTab": {
-        "reportsSelectPlaceholder": "Ir a...",
-        "searchBarPlaceholder": "Buscar"
-      },
-      "addReportTabTitle": "Crear Evento"
+    "addItemButton": {
+        "addItemModal": {
+            "addPatrolTab": {
+                "searchBarPlaceholder": "Buscar"
+            },
+            "addPatroTabTitle": "Añadir patrulla",
+            "addReportTab": {
+                "reportsSelectPlaceholder": "Navegar a...",
+                "searchBarPlaceholder": "Buscar"
+            },
+            "addReportTabTitle": "Añadir evento"
+        },
+        "defaultTitle": "Añadir"
     },
-    "defaultTitle": "Crear"
-  },
-  "detectOffline": {
-    "offlineToastMessage": "ER está desconectado y podría no funcionar correctamente. Por favor, revise su conexión.",
-    "reconnectionToastMessage": "¡En línea!"
-  },
-  "earthRangerLogo": {
-    "title": "Logo de EarthRanger"
-  },
-  "errorBoundary": {
-    "reloadButton": "Recargar"
-  },
-  "errorMessage": {
-    "defaultMessage": "Ha ocurrido un error",
-    "hideDetailsButton": "Ocultar Detalles",
-    "showDetailsButton": "Mostrar Detalles"
-  },
-  "geoLocationWatcher": {
-    "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
-    "shareLocationToastTitle": "Aprende cómo"
-  },
-  "gpsInput": {
-    "gpsFormats": {
-      "DDM": "Grados, Decimales, Minutos",
-      "DEG": "Latitud, Longitud",
-      "DMS": "Grados, Minutos, Segundos",
-      "UTM": "Universal Transversal de Mercator",
-      "MGRS": "Sistema de Referencia de Cuadrícula Militar"
+    "detectOffline": {
+        "offlineToastMessage": "Actualmente estás desconectado. Es posible que EarthRanger no funcione como se esperaba. Por favor verifique su conexión de red.",
+        "reconnectionToastMessage": "¡De nuevo en línea!"
     },
-    "defaultPlaceholder": "Ubicación",
-    "inputExample": "Ejemplo: {{gpsFormat}}",
-    "invalidLocation": "Ubicación inválida"
-  },
-  "locationJumpButton": {
-    "title": "Ir a está ubicación"
-  },
-  "mapLocationPicker": {
-    "cancelButton": "Cancelar",
-    "popupLabel": "Da clic para seleccionar una ubicación",
-    "selectLocationButtonLabel": "Seleccionar en mapa",
-    "selectLocationButtonTitle": "Colocar marcador en el mapa"
-  },
-  "mapLocationSelectionOverview": {
-    "chooseLocationHeader": {
-      "patrol": "Seleccionar ubicación de patrulla",
-      "report": "Seleccionar ubicación de evento"
+    "earthRangerLogo": {
+        "title": "Logo de EarthRanger"
     },
-    "discardButton": "Descartar",
-    "discardButtonTooltip": "Eliminar todos los puntos",
-    "drawingReportGeometryArea": "Área: {{areaDisplay}}",
-    "drawingReportGeometryHeader": "Crear área del evento",
-    "drawingReportGeometryPerimeter": "Perímetro: {{perimeterDisplay}}",
-    "undoButton": "Deshacer",
-    "undoButtonTooltip": "Deshacer la última acción"
-  },
-  "messageInput": {
-    "placeholder": "Escribe tu mensaje aquí...",
-    "sendButton": "Enviar"
-  },
-  "messageList": {
-    "defaultEmptyMessage": "No hay mensajes que mostrar.",
-    "groupTitle": {
-      "today": "Hoy",
-      "yesterday": "Ayer"
+    "errorBoundary": {
+        "reloadButton": "Recargar"
     },
-    "messageSummaryList": {
-      "loadingEmptyMessage": "Cargando mensajes..."
+    "errorMessage": {
+        "defaultMessage": "Se ha producido un error",
+        "hideDetailsButton": "Ocultar detalles",
+        "showDetailsButton": "Mostrar detalles"
     },
-    "paramFedMessageList": {
-      "loadingEmptyMessage": "Cargando mensajes..."
+    "geoLocationWatcher": {
+        "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos",
+        "shareLocationToastTitle": "Aprende cómo"
     },
-    "senderDetails": {
-      "radioIconTitle": "Ícono del radio para {{subjectName}}"
+    "gpsInput": {
+        "gpsFormats": {
+            "DDM": "Grados, decimales, minutos (DDM)",
+            "DEG": "Latitud, longitud",
+            "DMS": "Grados, Minutos, Segundos (DMS)",
+            "UTM": "Mercator transversal universal (UTM)",
+            "MGRS": "Sistema de referencia de red militar (MGRS)"
+        },
+        "defaultPlaceholder": "Ubicación",
+        "inputExample": "Ejemplo: {{gpsFormat}}",
+        "invalidLocation": "Ubicación inválida"
+    },
+    "locationJumpButton": {
+        "title": "Navegar a esta ubicación"
+    },
+    "mapLocationPicker": {
+        "cancelButton": "Cancelar",
+        "popupLabel": "Haz click para seleccionar una ubicación",
+        "selectLocationButtonLabel": "Escoger en el mapa",
+        "selectLocationButtonTitle": "Colocar marcador en el mapa"
+    },
+    "mapLocationSelectionOverview": {
+        "chooseLocationHeader": {
+            "patrol": "Elige la ubicación de la patrulla",
+            "report": "Elige la ubicación del evento"
+        },
+        "discardButton": "Descartar",
+        "discardButtonTooltip": "Eliminar todos los puntos",
+        "drawingReportGeometryArea": "Área: {{areaDisplay}}",
+        "drawingReportGeometryHeader": "Crear área de eventos",
+        "drawingReportGeometryPerimeter": "Perímetro: {{perimeterDisplay}}",
+        "undoButton": "Deshacer",
+        "undoButtonTooltip": "Revierte tu última acción"
+    },
+    "messageInput": {
+        "placeholder": "Escribe tu mensaje aquí...",
+        "sendButton": "Enviar"
+    },
+    "messageList": {
+        "defaultEmptyMessage": "No hay mensajes por mostrar.",
+        "groupTitle": {
+            "today": "hoy",
+            "yesterday": "ayer"
+        },
+        "messageSummaryList": {
+            "loadingEmptyMessage": "Cargando mensajes..."
+        },
+        "paramFedMessageList": {
+            "loadingEmptyMessage": "Cargando mensajes..."
+        },
+        "senderDetails": {
+            "radioIconTitle": "Ícono de radio para {{subjectName}}"
+        }
+    },
+    "priorityPicker": {
+        "amber": "Ambar",
+        "green": "Verde",
+        "none": "Ninguno",
+        "red": "Rojo"
+    },
+    "reportedBySelect": {
+        "control": {
+            "radioIconPlaceholder": "Ícono de radio para entrada \"reportado por\""
+        },
+        "multiValueLabel": {
+            "radioIcon": "Icono de radio para {{name}}"
+        },
+        "option": {
+            "radioIcon": "Icono de radio para {{name}}"
+        },
+        "placeholder": "Reportado por...",
+        "restrictedOptionLabel": "RESTRINGIDO",
+        "singleValue": {
+            "radioIcon": "Icono de radio para {{name}}"
+        }
+    },
+    "schemaFields": {
+        "addButton": {
+            "content": "Agregar",
+            "title": "Agregar elemento"
+        },
+        "moveDownButton": {
+            "title": "Mover hacia abajo"
+        },
+        "moveUpButton": {
+            "title": "Mover hacia arriba"
+        },
+        "removeButton": {
+            "title": "Remover"
+        }
+    },
+    "searchBar": {
+        "clearIconTitle": "Borrar barra de busqueda",
+        "defaultPlaceholder": "Buscar..."
+    },
+    "serviceWorkerWatcher": {
+        "confirmNotification": "Recargar",
+        "newVersionAvailableNotification": "Está disponible una nueva versión de EarthRanger. Se cargará la próxima vez que actualice su navegador."
+    },
+    "sideBar": {
+        "layersLink": "Capas del mapa",
+        "noItemsToDisplayInLayers": "No hay elementos que mostrar. ",
+        "patrolsLink": "Patrullas",
+        "reportsFeedTab": {
+            "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Inténtalo de nuevo.",
+            "tryAgainButton": "Intentar de nuevo"
+        },
+        "eventsLink": "Eventos",
+        "settingsPane": {
+            "alertsFrameTitle": "Configura tus alerts de EarthRanger",
+            "alertsTabTitle": "Alertas",
+            "appRefreshDescription": "Preservar mi configuración al actualizar la página para:",
+            "appRefreshHeader": "Actualización de la aplicación",
+            "appRefreshMapLayersLabel": "Capas del mapa",
+            "appRefreshMapPositionAndZoomLevelLabel": "Posición del mapa y nivel de zoom",
+            "appRefreshPatrolFiltersLabel": "Filtros de patrullas",
+            "appRefreshReportFiltersLabel": "Filtros de eventos",
+            "clusterDataDescription": "Agrupar datos cuando exista superposición en: ",
+            "displayHeader": "Visualización",
+            "experimentalFeaturesHeader": "Funciones experimentales",
+            "generalHeader": "Características Generales",
+            "generalTabTitle": "Características Generales",
+            "languagesHeader": "Lenguaje",
+            "mapMarkersDescription": "Mostrar nombres en los marcadores del mapa para",
+            "mapMarkersHeader": "Marcadores del mapa",
+            "mapTabTitle": "Mapa"
+        },
+        "settingsLink": "Preferencias"
+    },
+    "textCopyBtn": {
+        "defaultToastMessage": "Copiar al portapapeles"
+    },
+    "toastBody": {
+        "defaultLinkTitle": "Haz click aquí",
+        "defaultMessage": "Se ha producido un error",
+        "hideDetailsButton": "Ocultar detalles",
+        "showDetailsButton": "Mostrar detalles"
+    },
+    "timeSlider": {
+        "popoverHeader": "Rango de fechas",
+        "popoverResetButton": "Reiniciar",
+        "slider": "Deslizador de tiempo",
+        "untilNowButton": "Ahora"
     }
-  },
-  "priorityPicker": {
-    "amber": "Ambar",
-    "green": "Verde",
-    "none": "N/A",
-    "red": "Roja"
-  },
-  "reportedBySelect": {
-    "control": {
-      "radioIconPlaceholder": "Ícono del radio para el selector de reportado por"
-    },
-    "multiValueLabel": {
-      "radioIcon": "Ícono de radio para el valor {{name}}"
-    },
-    "option": {
-      "radioIcon": "Ícono de radio para la opción {{name}}"
-    },
-    "placeholder": "Reportado por...",
-    "restrictedOptionLabel": "RESTRINGIDO",
-    "singleValue": {
-      "radioIcon": "Ícono de radio para el valor {{name}}"
-    }
-  },
-  "schemaFields": {
-    "addButton": {
-      "content": "Nuevo",
-      "title": "Crear elemento"
-    },
-    "moveDownButton": {
-      "title": "Mover abajo"
-    },
-    "moveUpButton": {
-      "title": "Mover arriba"
-    },
-    "removeButton": {
-      "title": "Borrar"
-    }
-  },
-  "searchBar": {
-    "clearIconTitle": "Limpiar la barra de búsqueda",
-    "defaultPlaceholder": "Buscar..."
-  },
-  "serviceWorkerWatcher": {
-    "confirmNotification": "Recargar",
-    "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
-  },
-  "sideBar": {
-    "layersLink": "Capas de mapa",
-    "noItemsToDisplayInLayers": "No hay elementos que mostrar.",
-    "patrolsLink": "Patrullas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
-      "tryAgainButton": "Intentar de nuevo"
-    },
-    "eventsLink": "Eventos",
-    "settingsPane": {
-      "alertsFrameTitle": "Configure sus alertas de EarthRanger",
-      "alertsTabTitle": "Alertas",
-      "appRefreshDescription": "Preservar mis configuraciones al recargar la página",
-      "appRefreshHeader": "Recargar la página",
-      "appRefreshMapLayersLabel": "Capas de mapa",
-      "appRefreshMapPositionAndZoomLevelLabel": "Posición del mapa y nivel de zoom",
-      "appRefreshPatrolFiltersLabel": "Filtros de Patrullas",
-      "appRefreshReportFiltersLabel": "Filtros de Eventos",
-      "clusterDataDescription": "Agrupar datos cuando se superpongan",
-      "displayHeader": "Información mostrada",
-      "experimentalFeaturesHeader": "Funcionalidades experimentales",
-      "generalHeader": "General",
-      "generalTabTitle": "General",
-      "languagesHeader": "Lenguaje",
-      "mapMarkersDescription": "Mostrar nombres de marcadores del mapa para",
-      "mapMarkersHeader": "Marcadores del mapa",
-      "mapTabTitle": "Mapa"
-    },
-    "settingsLink": "Preferencias"
-  },
-  "textCopyBtn": {
-    "defaultToastMessage": "Copiado al portapapeles"
-  },
-  "timeSlider": {
-    "popoverHeader": "Rango de fechas",
-    "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
-    "untilNowButton": "Ahora"
-  },
-  "toastBody": {
-    "defaultLinkTitle": "Haga clic aquí",
-    "defaultMessage": "Ha ocurrido un error",
-    "hideDetailsButton": "Ocultar Detalles",
-    "showDetailsButton": "Mostrar Detalles"
-  }
 }

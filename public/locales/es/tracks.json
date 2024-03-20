@@ -1,32 +1,32 @@
 {
-  "patrolTrackLegend": {
-    "multiplePatrolsTitle": "{{count}} patrullas",
-    "singlePatrolTitle": "Patrulla: {{patrolDisplayTitle}}",
-    "titleElement": {
-      "coveredSpan": " cubiertas",
-      "icon": "Ícono para {{title}}",
-      "lengthCovered": "{{length}} cubiertos",
-      "removeButton": "remover"
+    "patrolTrackLegend": {
+        "multiplePatrolsTitle": "{{count}} patrullas",
+        "singlePatrolTitle": "Patrulla: {{patrolDisplayTitle}}",
+        "titleElement": {
+            "coveredSpan": "cubierto",
+            "icon": "Icono para {{title}}",
+            "lengthCovered": "{{length}} cubierto",
+            "removeButton": "remover"
+        }
+    },
+    "trackLegend": {
+        "multipleSubjectsTitle": "{{count}} sujetos",
+        "titleElement": {
+            "icon": "Icono para {{title}}",
+            "pointCount_one": "{{count}} punto",
+            "pointCount_other": "{{count}} puntos",
+            "pointsOverTimeSpan": "{{pointCount}} puntos sobre {{trackDuration}}",
+            "removeButton": "remover"
+        }
+    },
+    "trackLength": {
+        "length": "{{length}} kilometros",
+        "title": "Duración:"
+    },
+    "trackLengthControls": {
+        "customLengthLabel": "Duración personalizada",
+        "header": "Duración:",
+        "invalidCustomLengthAlert": "Introduzca una duración entre {{min}} y {{max}}.",
+        "matchReportFilterDateLabel": "Filtro de fecha de coincidencia ({{reportFilterDateRangeLength}} días)"
     }
-  },
-  "trackLegend": {
-    "multipleSubjectsTitle": "{{count}} sujetos",
-    "titleElement": {
-      "icon": "Ícono para {{title}}",
-      "pointCount_one": "{{count}} punto",
-      "pointCount_other": "{{count}} puntos",
-      "pointsOverTimeSpan": "{{pointCount}} puntos en {{trackDuration}}",
-      "removeButton": "remover"
-    }
-  },
-  "trackLength": {
-    "length": "{{length}} kilómetros",
-    "title": "Longitud de trayectoria"
-  },
-  "trackLengthControls": {
-    "customLengthLabel": "Longitud personalizada",
-    "header": "Longitud de trayectoria:",
-    "invalidCustomLengthAlert": "Por favor ingrese una longitud de trayectoria entre {{min}} y {{max}}.",
-    "matchReportFilterDateLabel": "Igualar al valor \"desde\" de la fecha en el filtro de eventos ({{reportFilterDateRangeLength}} días)"
-  }
 }

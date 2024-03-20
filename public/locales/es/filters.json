@@ -1,94 +1,94 @@
 {
-  "dateFilter": {
-    "emptyEndDateMessage": "Hoy",
-    "resetButton": "Restablecer",
-    "emptyStartDateMessage": "{{distanceInWordsDate}} atrás",
-    "title": "Rango de fechas"
-  },
-  "dateRangeSelector": {
-    "endDateLabel": "Hasta:",
-    "lastSevenDaysLabel": "Últimos 7 días",
-    "lastThirtyDaysLabel": "Últimos 30 días",
-    "lastThreeMonthsLabel": "Últimos 3 meses",
-    "todayLabel": "Hoy",
-    "settingsTitle": "Ajustes",
-    "startDateLabel": "Desde:",
-    "yesterdayLabel": "Ayer"
-  },
-  "eventsFilter": {
-    "datesButton": "Fechas",
-    "filtersButton": "Filtros",
-    "resetButton": "Restaurar",
-    "searchBarPlaceholder": "Buscar eventos..."
-  },
-  "filters": {
-    "priorityPickerLabel": "Prioridad",
-    "reportTypesAllLabel": "Todos",
-    "reportTypesLabel": "Tipos de eventos",
-    "reportTypesSelectionLabels": {
-      "allSelected": "Todos seleccionados",
-      "noneSelected": "Ninguno seleccionado",
-      "someSelected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} seleccionados"
+    "dateFilter": {
+        "emptyEndDateMessage": "Actualmente",
+        "resetButton": "Restablecer",
+        "emptyStartDateMessage": "Hace {{distanceInWordsDate}} ",
+        "title": "Rango de datos"
     },
-    "restAllButton": "Restablecer todos",
-    "restButton": "Restablecer",
-    "stateLabel": "Estado",
-    "stateSelector": {
-      "active": "Activo",
-      "resolved": "Resuelto",
-      "all": "Todos"
+    "dateRangeSelector": {
+        "endDateLabel": "Hasta: ",
+        "lastSevenDaysLabel": "Últimos 7 días",
+        "lastThirtyDaysLabel": "Últimos 30 días",
+        "lastThreeMonthsLabel": "Últimos 3 meses",
+        "todayLabel": "Hoy",
+        "settingsTitle": "Preferencias",
+        "startDateLabel": "Desde: ",
+        "yesterdayLabel": "Ayer"
     },
-    "title": "Filtros de eventos"
-  },
-  "friendlyFilterString": {
-    "resultLabel": "resultado",
-    "resultsLabel": "Resultados",
-    "fromLabel": " ",
-    "filteredLabel": " filtrado",
-    "sortingTypeLabel": ", ordenado {{sortDirection}}",
-    "byLabel": " por ",
-    "eventSortOptions": {
-      "updatedAtLabel": "Fecha de actualización",
-      "createdAtLabel": "Fecha de creación",
-      "eventTimeLabel": "Fecha de evento"
+    "eventsFilter": {
+        "datesButton": "Fechas",
+        "filtersButton": "Filtros",
+        "resetButton": "Restabecer",
+        "searchBarPlaceholder": "Buscar Eventos..."
     },
-    "ascendingLabel": " ascendentemente"
-  },
-  "mapLayerSearchbarPlaceholder": "Buscar capas...",
-  "patrolFilters": {
-    "datesTitle": "Fechas",
-    "dateRangePopover": {
-      "title": "Rango de fechas",
-      "resetButton": "Restablecer"
+    "filters": {
+        "priorityPickerLabel": "Prioridad",
+        "reportTypesAllLabel": "Todos",
+        "reportTypesLabel": "Tipos de Eventos",
+        "reportTypesSelectionLabels": {
+            "allSelected": "Todos seleccionados",
+            "noneSelected": "Ninguno seleccionado",
+            "someSelected": "{{reportTypesCheckedCount}} de {{eventTypeIDsLength}} selecionado"
+        },
+        "restAllButton": "Restablecer todo",
+        "restButton": "Restablecer",
+        "stateLabel": "Estado",
+        "stateSelector": {
+            "active": "Activo",
+            "resolved": "Resuelto",
+            "all": "Todos"
+        },
+        "title": "Filtro de Eventos"
     },
-    "filtersTitle": "Filtros",
-    "searchbarPlaceHolder": "Buscar patrullajes...",
-    "filtersPopover": {
-      "checkBoxAllOption": "Todos",
-      "title": "Filtros del patrullaje",
-      "resetAllButton": "Restablecer todo",
-      "resetButton": "Restablecer",
-      "trackedByLabel": "Rastreado por",
-      "statusLabel": "Estado",
-      "patrolTypeLabel": "Tipo de patrullaje",
-      "reportedByPlaceholder": "Reportado por...",
-      "patrolStatuses": {
-        "active": "Activo",
-        "done": "Finalizado",
-        "cancelled": "Cancelado"
-      }
+    "friendlyFilterString": {
+        "resultLabel": "Resultado",
+        "resultsLabel": "Resultados ",
+        "fromLabel": "de",
+        "filteredLabel": "filtrado",
+        "sortingTypeLabel": ", ordenado {{sortDirection}}",
+        "byLabel": "por",
+        "eventSortOptions": {
+            "updatedAtLabel": "Fecha actualizado",
+            "createdAtLabel": "Fecha de creación",
+            "eventTimeLabel": "Fecha del Evento"
+        },
+        "ascendingLabel": "ascendente"
+    },
+    "mapLayerSearchbarPlaceholder": "Buscar capas...",
+    "patrolFilters": {
+        "datesTitle": "Fechas",
+        "dateRangePopover": {
+            "title": "Rango de fechas",
+            "resetButton": "Restablecer"
+        },
+        "filtersTitle": "Filtros",
+        "searchbarPlaceHolder": "Buscar Patrullas...",
+        "filtersPopover": {
+            "checkBoxAllOption": "Seleccionar Todos",
+            "title": "Filtros de Patrullas",
+            "resetAllButton": "Restablecer Todo",
+            "resetButton": "Restablecer",
+            "trackedByLabel": "Seguimiento por:",
+            "statusLabel": "Estado",
+            "patrolTypeLabel": "Tipo de Patrulla",
+            "reportedByPlaceholder": "Seleccionar Dispositivo",
+            "patrolStatuses": {
+                "active": "Activo",
+                "done": "Terminado",
+                "cancelled": "Cancelado"
+            }
+        }
+    },
+    "patrolFiltersSettings": {
+        "byStartDateLabel": "Filtrar por fecha de inicio",
+        "byRangeDateLabel": "Filtrar por superposición de rango de fechas",
+        "patrolWithinRangeTooltip": "Incluir patrullas que comiencen dentro del rango de fechas. ",
+        "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
+    },
+    "reportTypeMultiSelect": {
+        "placeholder": "Buscar tipo de Eventos",
+        "noResultsLabel": "No hay coincidencias",
+        "someResultsLabel": "Establecer con {{resultCount}}",
+        "singleResultLabel": "Establecer en este"
     }
-  },
-  "patrolFiltersSettings": {
-    "byStartDateLabel": "Filtrar por fecha de inicio",
-    "byRangeDateLabel": "Filtrar por rango de fechas superpuestas",
-    "patrolWithinRangeTooltip": "Incluir patrullajes que iniciaron entre el rango de fechas",
-    "patrolOverlapsRangeTooltip": "Incluir patrullas cuyo rango de fechas de inicio a fin se superponga con el rango de fechas"
-  },
-  "reportTypeMultiSelect": {
-    "placeholder": "Buscar tipos",
-    "noResultsLabel": "Sin resultados",
-    "someResultsLabel": "Seleccionar {{resultCount}} resultados",
-    "singleResultLabel": "Selecionar este resultado"
-  }
 }

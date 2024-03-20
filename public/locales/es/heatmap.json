@@ -1,31 +1,31 @@
 {
-  "heatmapLegend": {
-    "dayTimespan_one": "en {{count}} día", 
-    "dayTimespan_other": "en {{count}} días",
-    "pointCount_one": "{{count}} punto",
-    "pointCount_other": "{{count}} puntos"
-  },
-  "heatmapStyleControls": {
-    "radiusLabel": "Radio (en metros):",
-    "radiusUnit": "m",
-    "sensitivityHighIndicator": "Alta",
-    "sensitivityLabel": "Sensibilidad:",
-    "sensitivityLowIndicator": "Baja"
-  },
-  "heatmapToggleButton": {
-    "heatmapOffLabel": "Ocultar mapa de calor",
-    "heatmapOnLabel": "Mostrar mapa de calor"
-  },
-  "reportsHeatmapLegend": {
-    "heatmapLegendTitle": "Eventos visibles"
-  },
-  "subjectHeatmapLegend": {
-    "subjectCount_one": "{{count}} sujeto",
-    "subjectCount_other": "{{count}} sujetos",
-    "titleElement": {
-      "pointCount_one": "{{count}} punto",
-      "pointCount_other": "{{count}} puntos",
-      "remove": "borrar"
+    "heatmapLegend": {
+        "dayTimespan_one": "{{count}} día",
+        "dayTimespan_other": "Más de {{count}} días",
+        "pointCount_one": "{{count}} punto",
+        "pointCount_other": "{{count}} puntos"
+    },
+    "heatmapStyleControls": {
+        "radiusLabel": "Radio (en metros):",
+        "radiusUnit": "m",
+        "sensitivityHighIndicator": "Alta",
+        "sensitivityLabel": "Sensitividad:",
+        "sensitivityLowIndicator": "Baja"
+    },
+    "heatmapToggleButton": {
+        "heatmapOffLabel": "Mapa de calor desactivado",
+        "heatmapOnLabel": "Mapa de calor activado"
+    },
+    "reportsHeatmapLegend": {
+        "heatmapLegendTitle": "Eventos visibles"
+    },
+    "subjectHeatmapLegend": {
+        "subjectCount_one": "{{count}} sujeto",
+        "subjectCount_other": "{{count}} sujetos",
+        "titleElement": {
+            "pointCount_one": "{{count}} punto",
+            "pointCount_other": "{{count}} puntos",
+            "remove": "remover"
+        }
     }
-  }
 }
