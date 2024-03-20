@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';

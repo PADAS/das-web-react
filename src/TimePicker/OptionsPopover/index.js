@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
