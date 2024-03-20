@@ -1,6 +1,5 @@
 import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import axios from 'axios';
-import { useTranslation } from 'react-i18next';
 
 import Map from './Map';
 import Nav from './Nav';
@@ -59,9 +58,6 @@ const App = (props) => {
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  // TODO: Preload all translation files and block rendering until they are ready
-  const { ready: _ready } = useTranslation('utils');
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   let sidebarOpen = !!currentTab;

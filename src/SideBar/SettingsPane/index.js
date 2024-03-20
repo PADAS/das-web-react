@@ -68,14 +68,14 @@ const SettingsPane = () => {
   }, [mapLayersRestorable, setMapLayerFiltersAreRestorable]);
 
   const onChangeLanguage = useCallback((language) => {
-    i18n.changeLanguage(language.value);
+    i18n?.changeLanguage?.(language?.value);
   }, [i18n]);
 
   return <Tabs
-      className={styles.tabs}
-      defaultActiveKey={activeTabKey}
-      fill
-      onSelect={setActiveTabKey}
+    className={styles.tabs}
+    defaultActiveKey={activeTabKey}
+    fill
+    onSelect={setActiveTabKey}
     >
     <Tab
       className={styles.tab}
