@@ -1,12 +1,5 @@
-### The EarthRanger web is derived from the Apache License, Version 2.0, with the following notable changes:
 
-- Mapbox GL, a required dependency, is closed-source. It is provided here in a "bring your own token" capacity; you may use and modify all EarthRanger-authored code herein, but will need to provide your own Mapbox access token, tied to your own Mapbox account.
-
-All other code contained in this project which has been authored by EarthRanger is covered by the Apache License, as provided below.
-
-------------------
-
-                              MODIFIED Apache License
+                              Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
