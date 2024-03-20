@@ -2,10 +2,13 @@ import Ajv from 'ajv-latest/dist/2019'; // including 2019-09 and 2020-12 drafts 
 
 const ajv = new Ajv();
 
-const validateSchema = (schema) => ({
-  errors: !ajv.validateSchema(schema) ? ajv.errors : null,
-  schema
-});
+const validateSchema = (schema) => {
+  const isValid = ajv.validateSchema(schema);
+  return {
+    errors: !isValid ? ajv.errors : null,
+    isValid
+  };
+};
 
 const getFieldName = (field) => Object.keys(field)[0];
 
@@ -31,7 +34,7 @@ const makeFieldRequired = (schema, field) => {
   };
 };
 
-const createNewEmptySchema = (id, title, description = '', generalSchemaProps = {}) => validateSchema({
+const createNewEmptySchema = (id, title, description = '', generalSchemaProps = {}) => ({
   '$id': id,
   type: 'object',
   properties: {},
@@ -73,7 +76,6 @@ const addFieldsToSchema = (schema, ...fields) => {
 const prepareSchema = (schema) => ajv.compile(schema);
 
 const SchemaFactory = {
-  addFieldToSchema,
   createNewEmptySchema,
   generateField,
   addFieldsToSchema,

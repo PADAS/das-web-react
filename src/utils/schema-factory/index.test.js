@@ -2,9 +2,10 @@ import SchemaFactory from './';
 
 describe('Schema Factory', () => {
 
-  it('creates an new empty schema factory', () => {
+  it('creates an new empty schema', () => {
     const id = 'myschema.com/shchema.json';
-    const { schema, errors } = SchemaFactory.createNewEmptySchema(id,  'A form', 'some description');
+    const schema = SchemaFactory.createNewEmptySchema(id,  'A form', 'some description');
+    const { errors } = SchemaFactory.validateSchema(schema);
 
     expect(errors).toBe(null);
 
@@ -19,13 +20,15 @@ describe('Schema Factory', () => {
   });
 
   it('throws validation error when a schema prop is no valid', () => {
-    const {  errors } = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  null);
+    const schema = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  null);
+    const {  errors } = SchemaFactory.validateSchema(schema);
     const [ error ] = errors;
+
     expect(error.instancePath).toBe('/title');
   });
 
   it('Adds string field to an existing schema', () => {
-    const { schema } = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
+    const schema = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
     const type = 'string';
     const fieldProps = {
       isRequired: true,
@@ -33,7 +36,7 @@ describe('Schema Factory', () => {
       maxLength: 10
     };
     const field = SchemaFactory.generateField('firstName', type, fieldProps);
-    const updatedSchema = SchemaFactory.addFieldToSchema(schema, field);
+    const updatedSchema = SchemaFactory.addFieldsToSchema(schema, field);
 
     expect(updatedSchema.properties).toEqual({
       firstName: {
@@ -48,7 +51,7 @@ describe('Schema Factory', () => {
   });
 
   it('Adds several fields at once to an existing schema', () => {
-    const { schema } = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
+    const schema = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
     const stringField = SchemaFactory.generateField('firstName', 'string', {
       isRequired: true,
       minLength: 1,
@@ -80,7 +83,7 @@ describe('Schema Factory', () => {
   };
 
   it('validates data against schema successfully', () => {
-    const { schema } = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
+    const schema = SchemaFactory.createNewEmptySchema('my-schema.com/schema.json',  'A form');
     const stringField = SchemaFactory.generateField('firstName', 'string', {
       isRequired: true,
       minLength: 1,
@@ -100,7 +103,7 @@ describe('Schema Factory', () => {
   });
 
   it('validates data with wrong information against schema', () => {
-    const { schema } = SchemaFactory.createNewEmptySchema('the-schema.com/schema.json',  'A form');
+    const schema = SchemaFactory.createNewEmptySchema('the-schema.com/schema.json',  'A form');
     const numberField = SchemaFactory.generateField('age', 'number', {
       minimum: 0,
       maximum: 100
@@ -114,7 +117,7 @@ describe('Schema Factory', () => {
   });
 
   it('validates data against malformed schema', () => {
-    const { schema } = SchemaFactory.createNewEmptySchema('an-schema.com/schema.json',  'A form');
+    const schema = SchemaFactory.createNewEmptySchema('an-schema.com/schema.json',  'A form');
     const numberField = SchemaFactory.generateField('name', 'BAD_TYPE', {
       notAProp: null,
     });
