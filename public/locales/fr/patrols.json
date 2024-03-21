@@ -1,0 +1,82 @@
+{
+  "addToPatrolModal": {
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "noMorePatrols": "Il n'y a plus de patrouilles à afficher.",
+    "title": "Ajouter à une Patrouille"
+  },
+  "detailView": {
+    "addEmptyNoteAlert": "Impossible d'ajouter un nouveau commentaire: il y a un commentaire vide qui n'a pas encore été sauvegardé",
+    "formButtons": {
+      "cancel": "Annuler",
+      "save": "Sauvegarder"
+    },
+    "header": {
+      "patrolSchedule": "Planifiée pour {{scheduledStartTime}}",
+      "patrolStartButton": "Début",
+      "patrolRestoreButton": "Restaurer",
+      "uiStateTitles": {
+        "active": "Active",
+        "cancelled": "Annulée",
+        "done": "Terminée",
+        "invalid": "Configuration Invalide",
+        "readyToStart": "Prête à Démarrer",
+        "scheduled": "Planifiée pour  ",
+        "startOverdue": "Début de la Patrouille Retardée"
+      }
+    },
+    "loadingMessage": "Sauvegardement...",
+    "planSection": {
+      "autoStartCheckboxLargeLabel": "Commencer automatiquement la patrouille dans EarthRanger à l'heure suivante",
+      "autoStartCheckboxSmallLabel": "Commencer automatiquement la patrouille dans EarthRanger",
+      "autoEndCheckboxLargeLabel": "Terminer automatiquement la patrouille dans EarthRanger à l'heure suivante",
+      "autoEndCheckboxSmallLabel": "Terminer automatiquement la patrouille dans EarthRanger",
+      "endDateLabel": "Date de Fin",
+      "endTimeLabel": "Heure de Fin",
+      "endLocationLargeLabel": "Coordonnées GPS de Fin",
+      "endLocationSmallLabel": "Coordonnées GPS  ",
+      "locationSelectorPlaceholder": "Déterminer les Coordonnées GPS",
+      "objectiveLabel": "Objectif",
+      "objectivePlaceholder": "Décrire l'objectif de la patrouille...",
+      "startDateLabel": "Date de Début",
+      "startTimeLabel": "Heure de Début",
+      "startLocationLargeLabel": "Coordonnées GPS de Début",
+      "startLocationSmallLabel": "Coordonnées GPS",
+      "title": "Description",
+      "trackedByLabel": "Suivi par:",
+      "trackedByPlaceholder": "Sélectionnez l'Appareil..."
+    },
+    "quickLinksTitles": {
+      "activity": "Activité",
+      "history": "Historique",
+      "plan": "Description"
+    }
+  },
+  "invalidDatesModal": {
+    "body": "Cette patrouille ne peut pas être sauvegardée. L'heure de fin d'une patrouille doit être postérieure à l'heure de début. Veuillez corriger l'heure de début ou de fin de la patrouille.",
+    "okButton": "OK",
+    "title": "Dates de Patrouille Invalides"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Annuler la Patrouille",
+    "copyButton": "Copier le lien de la patrouille",
+    "copyButtonMessage": "Lien copié avec succès",
+    "endPatrol": "Terminer la Patrouille",
+    "printPatrolButton": "Imprimer la Patrouille",
+    "restorePatrol": "Restaurer la Patrouille",
+    "startPatrol": "Commencer la Patrouille"
+  },
+  "patrolList": {
+    "emptyPatrolList": "Aucune patrouille à afficher."
+  },
+  "patrolListItem": {
+    "restoreButton": "Restaurer  ",
+    "scheduledTitle": "Planifiée pour:",
+    "startButton": "Commencer"
+  },
+  "trackToggleButton": {
+    "tracksPinned": "Pistes verrouillées",
+    "tracksOn": "Pistes activées",
+    "tracksOff": "Pistes désactivées"
+  }
+}

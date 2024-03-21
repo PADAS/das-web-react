@@ -1,0 +1,58 @@
+{
+  "messagesModal": {
+    "backToAllMessagesButton": "← Tous les Messages",
+    "cancelButton": "Annuler",
+    "messagesHeader": "Messagerie",
+    "newMessageButton": "Nouveau Message",
+    "noMessagingSubjectText": "Vous n'avez pas la permission d'envoyer des messages à cet appareil"
+  },
+  "messagingSelect": {
+    "allOptionsLabel": "Tous les Appareils",
+    "hiddenValue": "caché",
+    "placeholder": "Envoyer un message à...",
+    "restrictedOptionLabel": "RESTRICTION"
+  },
+  "nav": {
+    "navHomeMenu": {
+      "myCurrentLocationItem": "Ma Position Actuelle"
+    }
+  },
+  "notificationMenu": {
+    "errorFetchingHeader": "Impossible de récupérer les anonces récentes",
+    "noNewNotificationsHeader": "Aucune nouvelle notification",
+    "notificationItem": {
+      "confirmButton": "Confirmer",
+      "dismissButton": "Ignorer",
+      "moreInformationLink": "Plus de détails"
+    },
+    "outdatedNotifications_one": "Vous avez {{count}} notification non lue",
+    "outdatedNotifications_other": "Vous avez {{count}} notifications non lues",
+    "readMore": "En savoir plus",
+    "seeAllNewsButton": "Afficher toutes les notifications >",
+    "tryAgainButton": "Réessayez"
+  },
+  "profilePINModal": {
+    "error": "Code PIN Incorrect",
+    "title": "Saisissez votre Code PIN",
+    "userLabel": "Utilisateur:"
+  },
+  "systemStatus": {
+    "datasourceDefTitle": "activité de l'appareil",
+    "dateTimeSuffix": "depuis",
+    "HEALTHY": "Stable",
+    "heartBeatDefTitle": "activité du système",
+    "initialRealTimeStatusTitle": "Temps-réel de EarthRanger",
+    "initialRealTimeStatusDetails": "Activité",
+    "initialNetworkStatusTitle": "Réseau",
+    "networkOnlineLabel": "En ligne",
+    "networkOfflineLabel": "Hors ligne",
+    "serverVersionLabel": "Serveur de EarthRanger {{version}}",
+    "UNHEALTHY": "Instable",
+    "UNKNOWN": "Inconnu",
+    "WARNING": "Alerte"
+  },
+  "userMenu": {
+    "cookieSettingsItem": "Réglages des Cookies",
+    "logoutItem": "Déconnexion"
+  }
+}

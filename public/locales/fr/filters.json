@@ -1,0 +1,94 @@
+{
+  "dateFilter": {
+    "emptyEndDateMessage": "À l'heure actuelle",
+    "resetButton": "Réinitialiser",
+    "emptyStartDateMessage": "Depuis {{distanceInWordsDate}} ",
+    "title": "Intervalle de Dates"
+  },
+  "dateRangeSelector": {
+    "endDateLabel": "Jusqu'à:",
+    "lastSevenDaysLabel": "7 derniers jours",
+    "lastThirtyDaysLabel": "30 derniers jours",
+    "lastThreeMonthsLabel": "3 derniers mois",
+    "todayLabel": "Aujourd'hui",
+    "settingsTitle": "Réglages",
+    "startDateLabel": "Depuis:",
+    "yesterdayLabel": "Hier"
+  },
+  "eventsFilter": {
+    "datesButton": "Dates",
+    "filtersButton": "Filtres",
+    "resetButton": "Réinitialiser",
+    "searchBarPlaceholder": "Recherche d'événement..."
+  },
+  "filters": {
+    "priorityPickerLabel": "Priorité",
+    "reportTypesAllLabel": "Tout sélectionner",
+    "reportTypesLabel": "Tous types d'événement",
+    "reportTypesSelectionLabels": {
+      "allSelected": "Tout sélectionner",
+      "noneSelected": "Aucune sélection",
+      "someSelected": "{{reportTypesCheckedCount}} sur {{eventTypeIDsLength}} sélectionnés "
+    },
+    "restAllButton": "Tout réinitialiser",
+    "restButton": "Réinitialiser",
+    "stateLabel": "Statut",
+    "stateSelector": {
+      "active": "Actif",
+      "resolved": "Résolu",
+      "all": "Tous statut"
+    },
+    "title": "Filtre d'Événements"
+  },
+  "friendlyFilterString": {
+    "resultLabel": "Résultat",
+    "resultsLabel": "Résultats",
+    "fromLabel": "Depuis:",
+    "filteredLabel": "filtré",
+    "sortingTypeLabel": "trié {{sortDirection}}",
+    "byLabel": "par",
+    "eventSortOptions": {
+      "updatedAtLabel": "Date Actualisée",
+      "createdAtLabel": "Date de Création",
+      "eventTimeLabel": "Date de l'Événement"
+    },
+    "ascendingLabel": "croissant"
+  },
+  "mapLayerSearchbarPlaceholder": "Recherche de caractéristiques...",
+  "patrolFilters": {
+    "datesTitle": "Dates",
+    "dateRangePopover": {
+      "title": "Intervalle de Dates",
+      "resetButton": "Réinitialiser"
+    },
+    "filtersTitle": "Filtres",
+    "searchbarPlaceHolder": "Recherche de Patrouilles...",
+    "filtersPopover": {
+      "checkBoxAllOption": "Tout Sélectionner",
+      "title": "Filtres de Patrouilles",
+      "resetAllButton": "Tout Réinitialiser",
+      "resetButton": "Réinitialiser",
+      "trackedByLabel": "Suivi depuis:",
+      "statusLabel": "Statut",
+      "patrolTypeLabel": "Type de Patrouille",
+      "reportedByPlaceholder": "Sélectionner l'Appareil",
+      "patrolStatuses": {
+        "active": "Active",
+        "done": "Terminée",
+        "cancelled": "Annulée"
+      }
+    }
+  },
+  "patrolFiltersSettings": {
+    "byStartDateLabel": "Filtrer par date de départ",
+    "byRangeDateLabel": "Filtrer par dates comprises dans l'intervalle",
+    "patrolWithinRangeTooltip": "Comprend les patrouilles débutant dans l'intervalle de dates sélectionnée",
+    "patrolOverlapsRangeTooltip": "Comprend les patrouilles ayant une date de début et de fin compris dans l'intervalle de dates sélectionnée"
+  },
+  "reportTypeMultiSelect": {
+    "placeholder": "Recherche de types de patrouilles",
+    "noResultsLabel": "Aucune correspondance",
+    "someResultsLabel": "Filtrer selon les options suivantes:",
+    "singleResultLabel": "Filtrer selon l'option suivante:"
+  }
+}

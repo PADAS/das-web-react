@@ -1,0 +1,10 @@
+{
+  "errorAlert": {
+    "invalidCredentialsMessage": "Identifiants fournis incorrectes. Veuillez réessayez.",
+    "unknownErrorMessage": "Une erreur s'est produite. Veuillez réessayez."
+  },
+  "eulaLink": "Contrat de License d'Utilisateur Final EarthRanger",
+  "loginButton": "Se Connecter",
+  "passwordLabel": "Mot de passe",
+  "usernameLabel": "Nom d'utilisateur"
+}

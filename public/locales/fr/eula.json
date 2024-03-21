@@ -1,0 +1,16 @@
+{
+  "modalBody": {
+    "acceptanceCheckboxLabel": "J'accepte les conditions d'utilisation du Contrat de License d'Utilisateur Final EarthRanger.",
+    "eulaLink": {
+      "0": "S'il vous plaît",
+      "1": "Appuyez ici et consultez notre Contrat de License d'Utilisateur Final",
+      "2": "Avant d'utiliser EarthRanger"
+    }
+  },
+  "modalFooter": {
+    "acceptButton": "Accepter",
+    "cancelButton": "Annuler",
+    "errorAlertMessage": "Il y a eu un problème en acceptant notre Contrat de License d'Utilisateur Final. Veuillez réessayer."
+  },
+  "modalTitle": "Vous devez accepter notre Contrat de License d'Utilisateur Final pour continuer"
+}

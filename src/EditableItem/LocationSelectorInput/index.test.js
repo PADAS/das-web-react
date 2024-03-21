@@ -40,13 +40,13 @@ describe('LocationSelectorInput', () => {
   const onLocationChange = jest.fn();
   let map, rerender, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
   beforeEach(() => {
-    hideSideBarMock = jest.fn(() => () => {});
+    hideSideBarMock = jest.fn(() => () => { });
     hideSideBar.mockImplementation(hideSideBarMock);
-    setModalVisibilityStateMock = jest.fn(() => () => {});
+    setModalVisibilityStateMock = jest.fn(() => () => { });
     setModalVisibilityState.mockImplementation(setModalVisibilityStateMock);
-    showSideBarMock = jest.fn(() => () => {});
+    showSideBarMock = jest.fn(() => () => { });
     showSideBar.mockImplementation(showSideBarMock);
-    setIsPickingLocationMock = jest.fn(() => () => {});
+    setIsPickingLocationMock = jest.fn(() => () => { });
     setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
 
     map = createMapMock();
@@ -62,10 +62,10 @@ describe('LocationSelectorInput', () => {
         <MapDrawingToolsContextProvider>
           <MapContext.Provider value={map}>
             <LocationSelectorInput
-                label="label"
-                map={map}
-                onLocationChange={onLocationChange}
-              />
+              label="label"
+              map={map}
+              onLocationChange={onLocationChange}
+            />
           </MapContext.Provider>
         </MapDrawingToolsContextProvider>
       </Provider>
@@ -157,7 +157,7 @@ describe('LocationSelectorInput', () => {
 
   test('showing a placeholder when no value is present', async () => {
     const displayValue = await screen.getByTestId('locationSelectorInput-displayValue');
-    expect(displayValue).toHaveTextContent('Click here to set location');
+    expect(displayValue).toHaveTextContent('Set location');
   });
 
   test('only showing a "copy to clipboard" button when a value is present', async () => {

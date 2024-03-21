@@ -1,0 +1,179 @@
+{
+  "addItemButton": {
+    "addItemModal": {
+      "addPatrolTab": {
+        "searchBarPlaceholder": "Recherche"
+      },
+      "addPatroTabTitle": "Ajouter une Patrouille",
+      "addReportTab": {
+        "reportsSelectPlaceholder": "Naviguer à la catégorie....",
+        "searchBarPlaceholder": "Recherche"
+      },
+      "addReportTabTitle": "Ajouter un Événement"
+    },
+    "defaultTitle": "Ajouter"
+  },
+  "detectOffline": {
+    "offlineToastMessage": "Vous êtes actuellement hors ligne. EarthRanger risque de mal fonctionner. Veuillez vérifier votre connexion internet.",
+    "reconnectionToastMessage": "De retour en ligne!"
+  },
+  "earthRangerLogo": {
+    "title": "Logo EarthRanger"
+  },
+  "errorBoundary": {
+    "reloadButton": "Recharger"
+  },
+  "errorMessage": {
+    "defaultMessage": "Une erreur s'est produite",
+    "hideDetailsButton": "Masquer les Détails",
+    "showDetailsButton": "Afficher les Détails"
+  },
+  "geoLocationWatcher": {
+    "shareLocationToastMessage": "Partager votre position pour afficher des données avec des autorisations géographiques",
+    "shareLocationToastTitle": "Comment faire?"
+  },
+  "gpsInput": {
+    "gpsFormats": {
+      "DDM": "Degrés Decimaux Minutes (DDM)",
+      "DEG": "Lattitude, Longitude",
+      "DMS": "Degrés Minutes Secondes (DMS)",
+      "UTM": "Transversale Universelle de Mercator (UTM)",
+      "MGRS": "Système de Coordonnées Militaire (MGRS)"
+    },
+    "defaultPlaceholder": "Position",
+    "inputExample": "Exemple: {{gpsFormat}}",
+    "invalidLocation": "Coordonnées GPS invalides"
+  },
+  "locationJumpButton": {
+    "title": "Naviguer à la position suivante"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Annuler",
+    "popupLabel": "Cliquez ici pour placer les coordonnées GPS",
+    "selectLocationButtonLabel": "Sélectionnez sur la carte",
+    "selectLocationButtonTitle": "Placer le curseur sur la carte"
+  },
+  "mapLocationSelectionOverview": {
+    "chooseLocationHeader": {
+      "patrol": "Sélectionnez le positionnement de la patrouille",
+      "report": "Sélectionnez la position de l'événement"
+    },
+    "discardButton": "Annuler",
+    "discardButtonTooltip": "Retirer tous les points",
+    "drawingReportGeometryArea": "Surface: {{areaDisplay}}",
+    "drawingReportGeometryHeader": "Créer une zone d'événement",
+    "drawingReportGeometryPerimeter": "Périmètre: {{perimeterDisplay}}",
+    "undoButton": "Retour arrière",
+    "undoButtonTooltip": "Supprimer votre dernière action"
+  },
+  "messageInput": {
+    "placeholder": "Saisissez votre message ici...",
+    "sendButton": "Envoyer"
+  },
+  "messageList": {
+    "defaultEmptyMessage": "Aucun message à afficher.",
+    "groupTitle": {
+      "today": "aujourd'hui",
+      "yesterday": "hier"
+    },
+    "messageSummaryList": {
+      "loadingEmptyMessage": "Chargement des messages..."
+    },
+    "paramFedMessageList": {
+      "loadingEmptyMessage": "Chargement des messages..."
+    },
+    "senderDetails": {
+      "radioIconTitle": "Icône de radio pour {{subjectName}}"
+    }
+  },
+  "priorityPicker": {
+    "amber": "Ambre",
+    "green": "Verte",
+    "none": "Aucune",
+    "red": "Rouge"
+  },
+  "reportedBySelect": {
+    "control": {
+      "radioIconPlaceholder": "Icône de radio pour  la saisie \"complétée par\""
+    },
+    "multiValueLabel": {
+      "radioIcon": "Icône de radio pour"
+    },
+    "option": {
+      "radioIcon": "Icône de radio pour"
+    },
+    "placeholder": "Complété Par",
+    "restrictedOptionLabel": "RESTRICTION",
+    "singleValue": {
+      "radioIcon": "Icône de radio pour"
+    }
+  },
+  "schemaFields": {
+    "addButton": {
+      "content": "Ajouter",
+      "title": "Ajouter un Élément"
+    },
+    "moveDownButton": {
+      "title": "Déplacer vers le bas"
+    },
+    "moveUpButton": {
+      "title": "Déplacer vers le haut"
+    },
+    "removeButton": {
+      "title": "Retirer  "
+    }
+  },
+  "searchBar": {
+    "clearIconTitle": "Effacer la barre de recherche",
+    "defaultPlaceholder": "Recherche...."
+  },
+  "serviceWorkerWatcher": {
+    "confirmNotification": "Recharger",
+    "newVersionAvailableNotification": "Une nouvelle version de EarthRanger est disponible. Elle sera appliquée la prochaine fois que vous actualiserez votre navigateur. "
+  },
+  "sideBar": {
+    "layersLink": "Calques",
+    "noItemsToDisplayInLayers": "Aucun élément à afficher.",
+    "patrolsLink": "Patrouilles",
+    "reportsFeedTab": {
+      "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
+      "tryAgainButton": "Réessayez"
+    },
+    "eventsLink": "Événements",
+    "settingsPane": {
+      "alertsFrameTitle": "Configurer vos alertes EarthRanger",
+      "alertsTabTitle": "Alertes",
+      "appRefreshDescription": "Conserver mes paramètres lors de l'actualisation de la page pour:",
+      "appRefreshHeader": "Actualisation de l'Application",
+      "appRefreshMapLayersLabel": "Calques",
+      "appRefreshMapPositionAndZoomLevelLabel": "Positionnement de la Carte & Niveau du Zoom",
+      "appRefreshPatrolFiltersLabel": "Filtres de Patrouilles",
+      "appRefreshReportFiltersLabel": "Filtres des Événements",
+      "clusterDataDescription": "Regrouper les données lorsqu'il y a plusieurs:",
+      "displayHeader": "Affichage",
+      "experimentalFeaturesHeader": "Fonctionnalités expérimentales",
+      "generalHeader": "Caractéristiques Générales",
+      "generalTabTitle": "Caractéristiques Générales",
+      "languagesHeader": "Langues",
+      "mapMarkersDescription": "Afficher les noms pour:",
+      "mapMarkersHeader": "Repères",
+      "mapTabTitle": "Carte"
+    },
+    "settingsLink": "Réglages"
+  },
+  "textCopyBtn": {
+    "defaultToastMessage": "Copié"
+  },
+  "timeSlider": {
+    "popoverHeader": "Intervalle de Dates",
+    "popoverResetButton": "Réinitialiser",
+    "slider": "Curseur Temporel",
+    "untilNowButton": "Maintenant"
+  },
+  "toastBody": {
+    "defaultLinkTitle": "Cliquez ici  ",
+    "defaultMessage": "Une erreur s'est produite",
+    "hideDetailsButton": "Masquer les Détails",
+    "showDetailsButton": "Afficher les Détails"
+  }
+}

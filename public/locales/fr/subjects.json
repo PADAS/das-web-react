@@ -1,0 +1,28 @@
+{
+  "subjectControls": {
+    "historicalDataModalTitle": "Données Historiques: {{subjectName}}"
+  },
+  "subjectHistoricalDataModal": {
+    "observationRow": {
+      "noDataLabel": "Aucune donnée"
+    },
+    "tableDateHeader": "Date",
+    "tableLocationHeader": "Position"
+  },
+  "subjectHistoryButton": {
+    "label": "Données Historiques"
+  },
+  "subjectMessagesPopover": {
+    "label": "Messagerie"
+  },
+  "subjectPopup": {
+    "additionalPropsButton": {
+      "fewer": "< Moins de détails",
+      "more": "Plus de détails >"
+    },
+    "dateTimeSuffix": "depuis",
+    "micActivityHeader": "Activité du microphone",
+    "noHistoricalDataSpan": "Aucune donnée historique",
+    "subjectIconAlt": "Icône de l'appareil {{name}}"
+  }
+}

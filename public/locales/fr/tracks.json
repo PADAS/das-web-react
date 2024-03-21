@@ -1,0 +1,32 @@
+{
+  "patrolTrackLegend": {
+    "multiplePatrolsTitle": "{{count}} patrouilles",
+    "singlePatrolTitle": "Patrouille: {{patrolDisplayTitle}}",
+    "titleElement": {
+      "coveredSpan": "parcourue",
+      "icon": "Icône pour {{title}}",
+      "lengthCovered": "{{length}} parcourue",
+      "removeButton": "retirer"
+    }
+  },
+  "trackLegend": {
+    "multipleSubjectsTitle": "{{count}} appareils suivis",
+    "titleElement": {
+      "icon": "Icône pour {{title}}",
+      "pointCount_one": "{{count}} de points",
+      "pointCount_other": "{{count}} de points",
+      "pointsOverTimeSpan": "{{pointCount}} points au cours des {{trackDuration}}",
+      "removeButton": "retirer"
+    }
+  },
+  "trackLength": {
+    "length": "{{length}} kilomètres",
+    "title": "Durée:"
+  },
+  "trackLengthControls": {
+    "customLengthLabel": "Durée déterminée",
+    "header": "Durée:",
+    "invalidCustomLengthAlert": "Veuillez déterminer une durée entre {{min}} et {{max}}",
+    "matchReportFilterDateLabel": "Correspondre le filtre de dates ({{reportFilterDateRangeLength}} jours)"
+  }
+}

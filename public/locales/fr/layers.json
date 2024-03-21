@@ -1,0 +1,9 @@
+{
+  "clearAllButton": "Tout Désélectionner",
+  "layerList": {
+    "analyzersTitle": "Analyzers",
+    "featuresTitle": "Calques",
+    "subjectsTitle": "Appareils Suivis",
+    "reportsTitle": "Événements"
+  }
+}

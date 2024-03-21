@@ -1,0 +1,19 @@
+{
+  "analyzerConfigPopup": {
+    "analyzerTypeHeader": {
+      "environmental": "Alerte Environnementale",
+      "generic": "Alerte Générique",
+      "geofence": "Barrière virtuelle",
+      "immobility": "Alerte d'Immobilité",
+      "proximity": "Alerte de Proximité d'une caractéristique cartographique",
+      "subject_proximity": "Alerte de Proximité avec un appareil",
+      "low_speed": "Alerte de vitesse minimale"
+    }
+  },
+  "layerSelectorPopup": {
+    "searchBarPlaceholder": "Recherche"
+  },
+  "mouseMarkerPopup": {
+    "title": "Cliquez sur la carte pour placer le marqueur"
+  }
+}

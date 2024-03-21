@@ -1,0 +1,32 @@
+{
+  "clusterMembers": {
+    "all": "Tout sélectionner",
+    "reports": "Événements",
+    "subjects": "Appareils Suivis"
+  },
+  "inactiveRadioControl": {
+    "label": "Afficher les Radios Inactives"
+  },
+  "mapDataZoomSimplificationControl": {
+    "label": "Simplifier les Données Cartographiques sur Zoom"
+  },
+  "mapLockControl": {
+    "label": "Verrouiller la Carte"
+  },
+  "mapNamesControl": {
+    "allCheckboxLabel": "Tout sélectionner",
+    "layerLabels": {
+      "subjects": "Appareils Suivis",
+      "stationary_subjects": "Appareils Fixes",
+      "reports": "Événements",
+      "patrols": "Patrouilles"
+    }
+  },
+  "mapTrackTimepointsControl": {
+    "label": "Afficher les Points Temporels du Suivi"
+  },
+  "mapTerrain3DOption": "3D Map Terrain",
+  "userLocationMapControl": {
+    "label": "Afficher votre Position Actuelle"
+  }
+}

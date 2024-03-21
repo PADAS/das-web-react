@@ -48,7 +48,7 @@
   },
   "locationSelector": {
     "inputLabel": "Location:",
-    "inputPlaceHolder": "Click here to set location"
+    "inputPlaceHolder": "Set location"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Go Back",
