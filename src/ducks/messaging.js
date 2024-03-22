@@ -12,7 +12,6 @@ import { messageIsValidForDisplay } from '../utils/messaging';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
-export const FETCH_MESSAGES_FOR_SUBJECT_SUCCESS = 'FETCH_MESSAGES_FOR_SUBJECT_SUCCESS';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
 
 export const MESSAGING_API_URL = `${API_URL}messages/`;
@@ -34,7 +33,7 @@ export const removeMessageById = id => ({
   payload: id,
 });
 
-const { get, post, patch } = axios;
+const { get, post } = axios;
 
 export const fetchMessages = (params = {}) => {
   const paramString = objectToParamString(
@@ -61,8 +60,6 @@ export const bulkReadMessages = (ids) => post(MESSAGING_API_URL,
 );
 
 export const sendMessage = (url, message) => post(url, message);
-export const readMessage = (message) => patch(`${MESSAGING_API_URL}${message.id}`, { read: true });
-
 
 export const INITIAL_MESSAGE_LIST_STATE = {
   loaded: false,

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
@@ -127,13 +127,13 @@ const OptionsPopover = ({
     return options;
   }, [
     optionsToDisplay,
-    value,
     initialDate,
     currentValueDate,
     isTimeBelowMax,
     minTime,
     showDurationFromMinTime,
     minutesInterval,
+    getHumanizedTimeDuration
   ]);
 
   useEffect(() => {
@@ -159,7 +159,9 @@ const OptionsPopover = ({
   </Popover>;
 };
 
-OptionsPopover.defaultProps = {
+const OptionsPopoverForwardRef = forwardRef(OptionsPopover);
+
+OptionsPopoverForwardRef.defaultProps = {
   className: '',
   minTime: '',
   minutesInterval: 30,
@@ -167,7 +169,7 @@ OptionsPopover.defaultProps = {
   value: '',
 };
 
-OptionsPopover.propTypes = {
+OptionsPopoverForwardRef.propTypes = {
   className: PropTypes.string,
   isTimeBelowMax: PropTypes.func.isRequired,
   minTime: PropTypes.string,
@@ -177,4 +179,4 @@ OptionsPopover.propTypes = {
   value: PropTypes.string,
 };
 
-export default memo(forwardRef(OptionsPopover));
+export default OptionsPopoverForwardRef;

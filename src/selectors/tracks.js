@@ -10,7 +10,6 @@ const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
-export const getPatrols = ({ data: { patrols: { results } } }) => results;
 const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore } }) => uniq(
   [...patrolTrackState.visible, ...patrolTrackState.pinned]
     .map(patrolId => patrolStore[patrolId])
@@ -18,11 +17,6 @@ const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore } }
     .map(p => !!p.patrol_segments.length && p.patrol_segments[0].leader)
     .filter(l => !!l)
     .map(({ id }) => id),
-);
-
-export const getVisibleTrackIds = createSelector(
-  [subjectTrackState],
-  (subjectTrackState) => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]),
 );
 
 const visibleTrackData = createSelector(

@@ -92,24 +92,11 @@ export const createMapMock = (override = {}) => {
   return mockMap;
 };
 
-export const createMockPopup = (override = {}) => ({
-  addTo: jest.fn(),
-  setLngLat: jest.fn(),
-  setOffset: jest.fn(),
-  setDOMContent: jest.fn(),
-  remove: jest.fn(),
-  on: jest.fn(),
-  toggleClass: jest.fn(),
-  ...override,
-});
-
-
 export const createMockInteractionEvent = (data) => ({
   preventDefault: jest.fn(),
   stopPropagation: jest.fn(),
   ...data,
 });
-
 
 export const createMockMapInteractionEvent = (data) => ({
   preventDefault: jest.fn(),

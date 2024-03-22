@@ -12,7 +12,6 @@ import {
   IF_IS_GENERIC,
   LAYER_IDS,
   MAP_ICON_SCALE,
-  MAX_ZOOM,
   SOURCE_IDS,
 } from '../constants';
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
@@ -52,12 +51,6 @@ const EVENTS_LAYER_TEXT_PAINT = {
     ],
     'rgba(255,255,255,0.7)',
   ],
-};
-
-export const CLUSTER_CONFIG = {
-  cluster: true,
-  clusterMaxZoom: MAX_ZOOM - 1,
-  clusterRadius: 40,
 };
 
 const SYMBOL_LAYER_FILTER = [

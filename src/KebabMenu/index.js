@@ -30,7 +30,7 @@ MenuForwardRef.defaultProps = {
 };
 
 MenuForwardRef.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.oneOfType([PropTypes.array, PropTypes.element]).isRequired,
   className: PropTypes.string
 };
 

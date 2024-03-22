@@ -583,7 +583,6 @@ const Map = ({
         newLanguage = 'en';
       }
 
-      console.log(map.getStyle().layers);
       map.getStyle().layers
         .filter((layer) => layer.type === 'symbol'
           && Array.isArray(layer.layout?.['text-field'])

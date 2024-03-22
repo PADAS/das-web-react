@@ -18,7 +18,7 @@ export const hidePopup = (id) => ({
   payload: id,
 });
 
-export default (state = null, action = {}) => {
+const popupReducer = (state = null, action = {}) => {
   const { type, payload } = action;
   if (type === SHOW_POPUP) {
     const popup = { ...payload, id: uuid() };
@@ -41,9 +41,9 @@ export default (state = null, action = {}) => {
 
   if (type === SOCKET_SUBJECT_STATUS) {
     if (!state
-      || state.type !== 'subject'
-      || !state.data.properties
-      || state.data.properties.id !== payload.properties.id) {
+        || state.type !== 'subject'
+        || !state.data.properties
+        || state.data.properties.id !== payload.properties.id) {
       return state;
     }
     const { geometry, properties } = payload;
@@ -68,3 +68,5 @@ export default (state = null, action = {}) => {
   }
   return state;
 };
+
+export default popupReducer;

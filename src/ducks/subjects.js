@@ -1,7 +1,6 @@
 import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 import merge from 'lodash/merge';
-import keyBy from 'lodash/keyBy';
 
 import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';

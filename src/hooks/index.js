@@ -17,7 +17,7 @@ export const useFeatureFlag = (flagName) => {
 
   if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
     throw new Error('no feature flag with that name exists');
-  };
+  }
 
   return featureFlagOverrides.hasOwnProperty(flagName)
     ? featureFlagOverrides[flagName].value
@@ -57,17 +57,6 @@ export const useMatchMedia = (matchMediaDef) => {
 
   return isMatch;
 };
-
-export const useDeepCompareEffect = (callback, dependencies) => {
-  const valueRef = useRef();
-  useEffect(() => {
-    if (!isEqual(valueRef.current, dependencies)) {
-      valueRef.current = dependencies;
-      callback();
-    }
-  }, [callback, dependencies]);
-};
-
 
 export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerId = null, condition = true) => {
   const map = useContext(MapContext);

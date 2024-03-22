@@ -92,7 +92,7 @@ const PatrolListItem = ({
     }
 
     return null;
-  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime]);
+  }, [isPatrolActiveOrDone, isPatrolScheduled, isPatrolCancelled, patrolElapsedTime, patrolsData, scheduledStartTime, t]);
 
   const onLocationClick = useCallback((event) => {
     event.stopPropagation();

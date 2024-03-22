@@ -8,7 +8,6 @@ const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
-export const getUniqueIDsFromFeatureSets = (...featureSets) => getUniqueIDsFromFeatures(featureSets.reduce((accumulator, set) => [...accumulator, ...set.features], []));
 
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
@@ -82,13 +81,6 @@ export const filterFeatures = (f, isMatch) => {
   }
   return newF;
 };
-
-export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(...featureList
-  .reduce((accumulator, { featuresByType }) =>
-    [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
-    ], [])
-);
 
 export const getFeatureSymbolGeoJsonAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {

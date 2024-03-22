@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import SearchBar from './';
 import { render, screen } from '../test-utils';
 
-const changeMock = jest.fn((value) => {});
+const changeMock = jest.fn(() => {});
 const clearMock = jest.fn();
 
 test('rendering without crashing', () => {

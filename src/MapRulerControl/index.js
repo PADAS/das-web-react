@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, Fragment, useCallback } from 'react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';

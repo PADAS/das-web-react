@@ -8,7 +8,6 @@ import { createMapMock } from '../../__test-helpers/mocks';
 import { hideSideBar, showSideBar } from '../../ducks/side-bar';
 import LocationSelectorInput from './';
 import { mockStore } from '../../__test-helpers/MockStore';
-import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { setModalVisibilityState } from '../../ducks/modals';
 import { setIsPickingLocation } from '../../ducks/map-ui';

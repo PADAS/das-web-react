@@ -46,7 +46,7 @@ const INITIAL_STATE = {
   modals: [],
 };
 
-export default (state = INITIAL_STATE, action = {}) => {
+const modalReducer = (state = INITIAL_STATE, action = {}) => {
   const { type, payload } = action;
   if (type === ADD_MODAL) {
     return {
@@ -82,3 +82,5 @@ export default (state = INITIAL_STATE, action = {}) => {
   // if (type === )
   return state;
 };
+
+export default modalReducer;

@@ -10512,5 +10512,3 @@ export const mockClusterLeaves = [
     }
   ]
 ];
-
-export const mockClusterHashes = [1094819348, -1434717446];

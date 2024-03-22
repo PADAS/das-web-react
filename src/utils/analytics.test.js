@@ -1,5 +1,3 @@
-import { waitFor } from '@testing-library/react';
-
 import { trackEventFactory, MAP_INTERACTION_CATEGORY, REPORTS_CATEGORY } from './analytics';
 let tracker;
 

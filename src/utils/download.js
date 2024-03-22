@@ -1,7 +1,6 @@
 import axios, { CancelToken } from 'axios';
-import { createWriteStream } from 'streamsaver';
 
-import { uuid } from '../utils/string';
+import { uuid } from './string';
 const { get } = axios;
 
 export const downloadFileFromUrl = async (url, { params = {}, filename = null }, { token: cancelToken } = CancelToken.source()) => {
@@ -29,30 +28,3 @@ export const downloadFileFromUrl = async (url, { params = {}, filename = null },
 
   document.body.removeChild(document.getElementById(link.id));
 };
-
-
-export const downloadFileStreamFromUrl = async (url, params = {}, { token: cancelToken } = CancelToken.source()) => {
-  const response = await get(url, {
-    cancelToken,
-    params,
-    responseType: 'stream',
-  }).catch(e => console.log('error downloading file stream', e));
-
-  const { data, headers } = response;
-
-  const fileStream = createWriteStream(headers['x-das-download-filename']);
-  const writer = fileStream.getWriter();
-
-  if (data.pipeTo) {
-    writer.releaseLock();
-    return data.pipeTo(fileStream);
-  }
-
-  const reader = data.getReader();
-  const pump = () => reader
-    .read()
-    .then(({ value, done }) => (done ? writer.close() : writer.write(value).then(pump)));
-
-  return pump();
-};
-

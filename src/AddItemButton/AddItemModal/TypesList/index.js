@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 
 import EventTypeListItem from '../../../EventTypeListItem';
@@ -46,7 +46,9 @@ const TypesList = ({ filterText, onClickType, typesByCategory }, ref) => {
   </div>;
 };
 
-TypesList.propTypes = {
+const TypesListForwardRef = forwardRef(TypesList);
+
+TypesListForwardRef.propTypes = {
   filterText: PropTypes.string.isRequired,
   onClickType: PropTypes.func.isRequired,
   typesByCategory: PropTypes.arrayOf(PropTypes.shape({
@@ -57,4 +59,4 @@ TypesList.propTypes = {
   })).isRequired,
 };
 
-export default memo(forwardRef(TypesList));
+export default TypesListForwardRef;

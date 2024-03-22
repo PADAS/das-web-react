@@ -3,7 +3,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
 
-import { generateStorageConfig } from '../reducers/storage-config';
+import { generateStorageConfig } from './storage-config';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';

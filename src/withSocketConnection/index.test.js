@@ -1,8 +1,5 @@
 import React from 'react';
 
-const WithSocketConnectionImports = jest.requireActual('../withSocketConnection');
-const { default: WithSocketConnection } = WithSocketConnectionImports;
-
 describe('initializing the web socket', () => {
   test('binding socket events', () => {});
 });

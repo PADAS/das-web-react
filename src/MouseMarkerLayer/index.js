@@ -14,8 +14,7 @@ const layout = {
   'icon-anchor': 'bottom',
 };
 
-// eslint-disable-next-line no-unused-vars
-const MouseMarkerLayer = ({ map, location, ...rest }) => {
+const MouseMarkerLayer = ({ location }) => {
 
   const cursorPoint = useMemo(() => location?.lng ?
     point([location.lng, location.lat])

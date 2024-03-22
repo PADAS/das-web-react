@@ -595,7 +595,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     )) {
     patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
     delete patrol_points.end_location;
-  };
+  }
 
   if (!patrol_points.end_location && !patrol_points.start_location) return null;
 

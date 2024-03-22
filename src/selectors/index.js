@@ -1,18 +1,12 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
-import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect';
+import { createSelector } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
-import isEqual from 'react-fast-compare';
 import pickBy from 'lodash/pickBy';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
-
-export const createEqualitySelector = createSelectorCreator(
-  defaultMemoize,
-  isEqual,
-);
 
 const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;

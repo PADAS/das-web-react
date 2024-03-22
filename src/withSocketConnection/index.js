@@ -45,6 +45,7 @@ const WithSocketContext = (props) => {
 
       return teardown;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketIO]);
 
   return !!websocket && <SocketContext.Provider value={websocket}>

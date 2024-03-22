@@ -5,9 +5,7 @@ import { API_URL } from '../constants';
 export const MAPS_API_URL = `${API_URL}maps/`;
 
 // actions
-export const FETCH_MAPS = 'FETCH_MAPS';
 export const FETCH_MAPS_SUCCESS = 'FETCH_MAPS_SUCCESS';
-export const FETCH_MAPS_ERROR = 'FETCH_MAPS_ERROR';
 export const SET_HOME_MAP = 'SET_HOME_MAP';
 
 // action creators

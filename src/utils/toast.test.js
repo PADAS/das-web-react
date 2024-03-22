@@ -1,8 +1,6 @@
 import React from 'react';
 import * as toastLib from 'react-toastify';
 
-import { act, render } from '@testing-library/react';
-
 import { DEFAULT_TOAST_CONFIG } from '../constants';
 import { showToast } from './toast';
 import ToastBody from '../ToastBody';

@@ -8,9 +8,7 @@ import globallyResettableReducer from '../reducers/global-resettable';
 export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial`;
 
 // actions
-export const FETCH_ANALYZERS = 'FETCH_ANALYZERS';
 export const FETCH_ANALYZERS_SUCCESS = 'FETCH_ANALYZERS_SUCCESS';
-export const FETCH_ANALYZERS_ERROR = 'FETCH_ANALYZERS_ERROR';
 
 // action creator - fetches the analyzer list, and then 
 // aggregates the features in that list and displayed in a AnalyzerLayer

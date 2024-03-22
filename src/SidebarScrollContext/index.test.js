@@ -33,6 +33,7 @@ describe('SidebarScrollContext', () => {
 
       useEffect(() => {
         setScrollPosition(tab, position);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
       return <div ref={scrollRef}>

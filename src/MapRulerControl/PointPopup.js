@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState, memo } from 'react';
+import React, { useMemo, memo } from 'react';
 import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import { useTranslation } from 'react-i18next';
 
-import { calculatePopoverPlacement } from '../utils/map';
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddItemButton from '../AddItemButton';
 import Popup from '../Popup';
@@ -16,7 +15,7 @@ import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.s
 import styles from './styles.module.scss';
 
 const PointPopup = (props) => {
-  const { drawing, map, onClickFinish, pointIndex, points } = props;
+  const { drawing, onClickFinish, pointIndex, points } = props;
   const isFirstPoint = pointIndex === 0;
   const point = points[pointIndex];
   const popupOffset = [0, -4];
@@ -44,17 +43,6 @@ const PointPopup = (props) => {
 
     return calcPositiveBearing(prevPoint, point).toFixed(2);
   }, [isFirstPoint, point, pointIndex, points]);
-
-  const [popoverPlacement, setPopoverPlacement] = useState('auto');
-
-  useEffect(() => {
-    const updatePopoverPlacement = async () => {
-      const updatedPopoverPlacement = await calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
-      setPopoverPlacement(updatedPopoverPlacement);
-    };
-
-    updatePopoverPlacement();
-  }, [map, point]);
 
   if (!point) return null;
 

@@ -21,7 +21,7 @@ const INITIAL_STATE = {
   virtualDate: null,
 };
 
-export default (state = INITIAL_STATE, { type, payload }) => {
+const timeSliderReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === SET_VIRTUAL_DATE) {
     return {
       ...state,
@@ -42,3 +42,5 @@ export default (state = INITIAL_STATE, { type, payload }) => {
   }
   return state;
 };
+
+export default timeSliderReducer;

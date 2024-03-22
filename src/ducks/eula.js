@@ -43,7 +43,7 @@ const acceptEulaSuccess = payload => ({
 
 // reducers
 const INITIAL_USER_STATE = {};
-export default (state = INITIAL_USER_STATE, action = {}) => {
+const eulaReducer = (state = INITIAL_USER_STATE, action = {}) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -55,3 +55,5 @@ export default (state = INITIAL_USER_STATE, action = {}) => {
   }
   }
 };
+
+export default eulaReducer;

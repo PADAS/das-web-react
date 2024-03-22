@@ -5,9 +5,7 @@ import { API_URL } from '../constants';
 
 export const EVENT_TYPE_API_URL = `${API_URL}activity/events/eventtypes`;
 
-export const FETCH_EVENT_TYPES = 'FETCH_EVENT_TYPES';
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
-export const FETCH_EVENT_TYPES_ERROR = 'FETCH_EVENT_TYPES_ERROR';
 
 export const fetchEventTypes = () => dispatch => axios.get(EVENT_TYPE_API_URL)
   .then((response) => {

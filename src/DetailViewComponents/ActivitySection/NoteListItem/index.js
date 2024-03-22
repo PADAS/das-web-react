@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import PropTypes from 'prop-types';
@@ -27,7 +27,7 @@ const NoteListItem = ({
   onCancel,
   onDone,
   onExpand,
-}, ref = null) => {
+}, ref) => {
   const textareaRef = useRef();
   const tracker = useContext(TrackerContext);
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -175,13 +175,15 @@ const NoteListItem = ({
   </li>;
 };
 
-NoteListItem.defaultProps = {
+const NoteListItemForwardRef = forwardRef(NoteListItem);
+
+NoteListItemForwardRef.defaultProps = {
   onDelete: null,
 };
 
-NoteListItem.propTypes = {
+NoteListItemForwardRef.propTypes = {
   cardsExpanded: PropTypes.array.isRequired,
-  note: PropTypes.PropTypes.shape({
+  note: PropTypes.shape({
     id: PropTypes.string,
     text: PropTypes.string,
     updates: PropTypes.arrayOf(PropTypes.shape({
@@ -196,4 +198,4 @@ NoteListItem.propTypes = {
   onExpand: PropTypes.func.isRequired,
 };
 
-export default memo(forwardRef(NoteListItem));
+export default NoteListItemForwardRef;

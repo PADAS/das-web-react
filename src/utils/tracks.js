@@ -81,21 +81,6 @@ export const convertTrackFeatureCollectionToPoints = feature => {
   return pointFeatureCollection;
 };
 
-export const addBearingToTrackPoints = feature => ({
-  ...feature,
-  features: feature.features.map((item, index, collection) => {
-    const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
-    return {
-      ...item,
-      properties: {
-        ...item.properties,
-        bearing: measuredBearing,
-      },
-    };
-  }),
-});
-
-
 const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
 

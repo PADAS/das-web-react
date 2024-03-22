@@ -112,12 +112,6 @@ export const createNewIncidentCollection = (attributes) => createNewReportForEve
   ...attributes,
 });
 
-export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
-  ...mapEventFeatureCollection,
-  features: mapEventFeatureCollection.features
-    .filter((feature) => new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0),
-});
-
 export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (
   featureCollection,
   virtualDate,
