@@ -3,10 +3,8 @@ on:
   push:
     branches:
       - "das-2-*-*"
-      - "ERA-*"
-      - "era-*"
+      - "legacy-era-*"
       - "develop*"
-      - "eruc-*"
 
 env:
   BUILD_BRANCH: ${{ github.ref_name }}
