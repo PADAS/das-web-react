@@ -14,7 +14,7 @@ jobs:
       name: ${{ github.head_ref }}
       url: "https://${{ github.head_ref }}.dev.pamdas.org"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -22,14 +22,14 @@ jobs:
       - run: |
           npm pkg set "buildbranch"="${{ github.event.pull_request.head.sha }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: npm-config
           path: package.json
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     needs: config
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v1-stable
+    uses: ./.github/workflows/_build_docker.yml
     with:
       environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
