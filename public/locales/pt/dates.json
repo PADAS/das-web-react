@@ -1,1 +1,13 @@
-{}
+{
+  "defaultTimeLabel": "Tempo",
+  "minutesLabel": "minuto",
+  "timeUnitAbbreviations": {
+    "day": "d",
+    "hour": "h",
+    "minute": "m",
+    "month": "mês",
+    "second": "s",
+    "week": "sem",
+    "year": "anos"
+  }
+}
