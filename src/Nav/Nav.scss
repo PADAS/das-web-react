@@ -62,6 +62,11 @@
     @media (min-width: $md-layout-width-min) {
       .global-menu-button {
         margin-right: 2rem;
+        opacity: 0.9;
+        
+        &:hover {
+          opacity: 1;
+        }
       }
     }
   }

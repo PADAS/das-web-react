@@ -122,7 +122,10 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
         </div>
 
         <div className={styles.itemActionButtonContainer}>
-          <ItemActionButton>
+          <ItemActionButton
+            aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
+            title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+          >
             {isOpen
               ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${attachment.id}`} />
               : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${attachment.id}`} />}

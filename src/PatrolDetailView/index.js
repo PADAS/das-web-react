@@ -570,6 +570,7 @@ const PatrolDetailView = () => {
                 <ActivitySection
                   attachments={patrolAttachments}
                   attachmentsToAdd={attachmentsToAdd}
+                  className={!hasActivitySectionContent ? styles.hideOnPrint : ''}
                   containedReports={containedReports}
                   endTime={patrolEndTime}
                   notes={patrolNotes}
@@ -580,7 +581,6 @@ const PatrolDetailView = () => {
                   onDoneNote={onDoneNote}
                   onDeleteNote={onDeleteNote}
                   startTime={patrolStartTime}
-                  className={!hasActivitySectionContent ? styles.hideOnPrint : ''}
                 />
               </QuickLinks.Section>
 

@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
+import { useTranslation } from 'react-i18next';
 
 import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
 import { getUniqueIDsFromFeatures } from '../utils/features';
@@ -22,6 +23,8 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 const Content = (props) => {
   const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map,
     featureFilterEnabled } = props;
+
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   if (featureFilterEnabled && !featuresByType.length) return null;
 
@@ -56,6 +59,10 @@ const Content = (props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
+    triggerElementProps={{
+      label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
+      title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
+    }}
     open={collapsibleShouldBeOpen} >
     <CheckableList
       className={listStyles.list}

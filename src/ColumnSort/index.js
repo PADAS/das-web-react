@@ -104,10 +104,12 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
     </OverlayTrigger>
 
     <Button
+      aria-label={t(`sortDirectionToggleLabel.${isSortUp ? 'ascending' : 'descending'}`)}
       className={styles.sortDirection}
       data-testid="sort-direction-toggle"
       onClick={toggleSortDirection}
       size="sm"
+      title={t(`sortDirectionToggleTitle.${isSortUp ? 'ascending' : 'descending'}`)}
       variant={isSortUp ? 'primary' : 'light'}
     >
       {isSortUp ? <ArrowUp /> : <ArrowDown />}

@@ -62,6 +62,8 @@
     "copyButton": "Copy patrol link",
     "copyButtonMessage": "Link copied",
     "endPatrol": "End Patrol",
+    "label": "View Patrol Options",
+    "title": "Patrol Options",
     "printPatrolButton": "Print Patrol",
     "restorePatrol": "Restore Patrol",
     "startPatrol": "Start Patrol"

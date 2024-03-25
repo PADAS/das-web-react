@@ -65,6 +65,7 @@ const AddItemButton = ({
     </DelayedUnmount>
 
     {(eventsByCategory?.length || patrolTypes?.length) ? <button
+      aria-label={t('defaultLabel')}
       className={`${styles[`addItemButton-${variant}`]} ${className}`}
       data-testid="addItemButton"
       onClick={onClick}

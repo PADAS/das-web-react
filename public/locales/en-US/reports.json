@@ -20,6 +20,14 @@
     "eventOrderOptions": {
       "newest": "Newest to Oldest",
       "oldest": "Oldest to Newest"
+    },
+    "sortDirectionToggleLabel": {
+      "ascending": "Change order to Descending",
+      "descending": "Change order to Ascending"
+    },
+    "sortDirectionToggleTitle": {
+      "ascending": "Ascending Order",
+      "descending": "Descending Order"
     }
   },
   "errorMessages": {
@@ -32,6 +40,9 @@
     "loadingMoreReportsItem": "Loading more events...",
     "noMoreReportsItem": "No more events to display.",
     "noReportsItem": "No events to display."
+  },
+  "eventIcon": {
+    "collectionTitle": "Collection"
   },
   "eventItemContextMenu": {
     "errorToastMessage": "#{{serialNumber}} still {{state}}, something went wrong",
@@ -139,9 +150,11 @@
       "reportMenu": {
         "addToIncidentItem": "Add to Incident",
         "addToPatrolItem": "Add to Patrol",
+        "label": "View Event Options",
         "printReportItem": "Print Event Details",
         "textCopyButtonLabel": "Copy Event Link",
-        "textCopyButtonSuccessMessage": "Link copied"
+        "textCopyButtonSuccessMessage": "Link copied",
+        "title": "Event Options"
       }
     },
     "linksSection": {

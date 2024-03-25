@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -20,6 +21,8 @@ const RADIO_MESSAGE_REALTIME = 'radio_message';
 const SLEEP_DETECTION_INTERVAL = 60000;
 
 const MessageMenu = () => {
+  const { t } = useTranslation('top-bar', { keyPrefix: 'nav.messageMenu' });
+
   const { dispatch, state } = useContext(MessageContext);
 
   const subjects = useSelector(allSubjects);
@@ -44,8 +47,12 @@ const MessageMenu = () => {
     fetchMenuMessages();
   }, [dispatch, fetchMenuMessages]);
 
-  return canShowMessageMenu ? <Dropdown align="end" onToggle={() => setSelectedSubject(null)} className={styles.messageMenu}>
-    <Dropdown.Toggle>
+  return canShowMessageMenu ? <Dropdown
+      align="end"
+      className={styles.messageMenu}
+      onToggle={() => setSelectedSubject(null)}
+    >
+    <Dropdown.Toggle aria-label={t('messageMenuToggleLabel')} title={t('messageMenuToggleTitle')}>
       <ChatIcon className={styles.messageIcon} />
 
       {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}

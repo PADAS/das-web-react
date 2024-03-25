@@ -65,7 +65,7 @@ describe('AddItemButton', () => {
   test('shows the default button title', async () => {
     renderAddItemButton();
 
-    expect((await screen.findByText('Add'))).toBeDefined();
+    expect((await screen.findByText('Create'))).toBeDefined();
   });
 
   test('shows a custom button title', async () => {

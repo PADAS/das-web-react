@@ -2,6 +2,10 @@
   "clearAllButton": "Clear All",
   "layerList": {
     "analyzersTitle": "Analyzers",
+    "collapseClosedButtonLabel": "Expand",
+    "collapseClosedButtonTitle": "Collapsed",
+    "collapseOpenButtonLabel": "Collapse",
+    "collapseOpenButtonTitle": "Expanded",
     "featuresTitle": "Features",
     "subjectsTitle": "Subjects",
     "reportsTitle": "Events"

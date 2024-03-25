@@ -148,7 +148,12 @@ const LocationSelectorInput = ({
 
       <LocationIcon className={styles.icon} />
       <span data-testid="locationSelectorInput-displayValue" className={styles.displayString}>{displayString}</span>
-      {shouldShowCopyButton && <TextCopyBtn className={styles.locationCopyBtn} text={displayString} />}
+      {shouldShowCopyButton && <TextCopyBtn
+        aria-label={t('copyButtonLabel')}
+        className={styles.locationCopyBtn}
+        text={displayString}
+        title={t('copyButtonTitle')}
+      />}
     </div>
 
     <Overlay

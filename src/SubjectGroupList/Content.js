@@ -53,6 +53,8 @@ const ContentComponent = (props) => {
     addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
     groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
+
   const [loadingTracks, setTrackLoadingState] = useState(false);
   const [collapsibleShouldBeOpen, setCollapsibleOpenState] = useState(false);
 
@@ -120,6 +122,10 @@ const ContentComponent = (props) => {
     openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     trigger={<TriggerComponent {...triggerProps} />}
+    triggerElementProps={{
+      label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
+      title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
+    }}
     open={collapsibleShouldBeOpen}>
     {!!subgroups.length &&
       <CheckableList
