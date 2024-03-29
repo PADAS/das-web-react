@@ -28,7 +28,7 @@ const LOADER_SIZE = 4;
 const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { t } = useTranslation('details-view');
+  const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
@@ -72,7 +72,10 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       </div>
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
-        <ItemActionButton>
+        <ItemActionButton
+          aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
+          title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+        >
           {isOpen
             ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${report.id}`} />
             : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${report.id}`} />}

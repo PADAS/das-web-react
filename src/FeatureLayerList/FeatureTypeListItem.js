@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
+import { useTranslation } from 'react-i18next';
 
 import { openMapFeatureType, closeMapFeatureType } from '../ducks/map-ui';
 import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
@@ -22,6 +22,8 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, openMapFeatureTypeNames,
     hideFeatures, showFeatures, map, featureFilterEnabled, openMapFeatureType, closeMapFeatureType } = props;
+
+  const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   if (featureFilterEnabled && !features.length) return null;
 
@@ -60,6 +62,10 @@ const FeatureTypeListItem = (props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
+    triggerElementProps={{
+      label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
+      title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
+    }}
     onClosing={onFeatureTypeClose}
     onOpening={onFeatureTypeOpen}
     open={collapsibleShouldBeOpen} >

@@ -117,6 +117,10 @@ const FeatureLayerList = ({
         openedClassName={listStyles.opened}
         {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
         trigger={trigger}
+        triggerElementProps={{
+          label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
+          title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
+        }}
         open={collapsibleShouldBeOpen}>
         <CheckableList
           className={listStyles.list}

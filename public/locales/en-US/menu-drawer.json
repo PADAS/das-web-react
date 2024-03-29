@@ -21,6 +21,8 @@
     "alertsModal": {
       "title": "Alerts"
     },
+    "closeButtonLabel": "Close Main Menu",
+    "closeButtonTitle": "Close",
     "communityButton": "Community",
     "contactSupport": {
       "body": "How can we help you?",

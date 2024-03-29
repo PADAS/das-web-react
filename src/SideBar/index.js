@@ -39,6 +39,13 @@ import SettingsPane from './SettingsPane';
 
 import styles from './styles.module.scss';
 
+const CLOSE_BUTTON_LABEL_KEY = {
+  [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
+  [TAB_KEYS.LAYERS]: 'closeMapLayersButtonLabel',
+  [TAB_KEYS.PATROLS]: 'closePatrolFeedButtonLabel',
+  [TAB_KEYS.SETTINGS]: 'closeSettingsButtonLabel',
+};
+
 const legacyEventsURL = 'reports';
 
 const SideBar = () => {
@@ -182,25 +189,34 @@ const SideBar = () => {
           <div className={[TAB_KEYS.EVENTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
             {!!itemId
               ? <button
+                aria-label={t('backButtonLabel')}
                 className={styles.backButton}
                 type='button'
                 onClick={onClickBackFromDetailView}
+                title={t('backButtonTitle')}
                 data-testid="sideBar-backDetailViewButton"
               >
                 <ArrowLeftIcon />
               </button>
               : <AddItemButton
+                aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
                 className={styles.addReport}
                 hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
                 hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
                 showLabel={false}
+                title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
                 variant="secondary"
               />}
           </div>
 
           <h3>{t(`${currentTab}Link`)}</h3>
 
-          <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
+          <button
+            aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
+            data-testid="sideBar-closeButton"
+            onClick={handleCloseSideBar}
+            title={t('closeButtonTitle')}
+          >
             <CrossIcon />
           </button>
         </div>

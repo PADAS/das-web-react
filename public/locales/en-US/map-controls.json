@@ -1,7 +1,8 @@
 {
   "cursorGPSDisplay": {
     "gpsDisplayTooltip": "Press enter to search",
-    "titleIconSearch": "Search"
+    "titleIconSearch": "Search",
+    "toggleTitle": "Coordinate Settings"
   },
   "baseLayer": {
     "popoverButton": "Set Map Base Layer",

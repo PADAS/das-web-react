@@ -33,7 +33,7 @@ const UserMenu = ({ onLogOutClick, onProfileClick, selectedUserProfile, user, us
       {...restProps}
       onToggle={(isOpen) => mainToolbarTracker.track(`${isOpen ? 'Open' : 'Close'} User Menu`)}
       >
-      <Dropdown.Toggle data-testid="user-menu-toggle-btn">
+      <Dropdown.Toggle aria-label={t('toggleLabel')} data-testid="user-menu-toggle-btn" title={t('toggleTitle')}>
         <UserIcon className={styles.icon} />
 
         <span className={styles.username}>{displayUser.username}</span>

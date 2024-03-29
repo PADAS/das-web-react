@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../common/images/icons/arrow-down.svg';
 import { ReactComponent as ArrowUpIcon } from '../../common/images/icons/arrow-up.svg';
@@ -46,6 +47,8 @@ export const useSortedNodesWithToggleBtn = (
   defaultSortOrder = DESCENDING_SORT_ORDER,
   ButtonComponent = DefaultButtonComponent,
 ) => {
+  const { t } = useTranslation('components', { keyPrefix: 'sortedNodes' });
+
   const [sortOrder, setSortOrder] = useState(defaultSortOrder);
 
   const onClickTimeSortButton = useCallback(() => {
@@ -56,9 +59,11 @@ export const useSortedNodesWithToggleBtn = (
   }, [onSort, sortOrder]);
 
   const SortButton = (props) => <ButtonComponent
+    aria-label={t(sortOrder === DESCENDING_SORT_ORDER ? 'labelDescending' : 'labelAscending')}
     disabled={!list.length}
     sortOrder={sortOrder}
     testId='time-sort-btn'
+    title={t(sortOrder === DESCENDING_SORT_ORDER ? 'titleDescending' : 'titleAscending')}
     toggleSortFn={onClickTimeSortButton}
     {...props}
   />;

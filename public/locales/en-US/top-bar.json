@@ -13,7 +13,14 @@
     "restrictedOptionLabel": "RESTRICTED"
   },
   "nav": {
+    "hamburgerMenuLabel": "Open Main Menu",
+    "hamburgerMenuTitle": "Menu",
+    "messageMenu": {
+      "messageMenuToggleLabel": "Open Messages",
+      "messageMenuToggleTitle": "Messages"
+    },
     "navHomeMenu": {
+      "homeMenuToggleTitle": "Map Quicklinks",
       "myCurrentLocationItem": "My Current Location"
     }
   },
@@ -29,6 +36,8 @@
     "outdatedNotifications_other": "You have {{count}} unread notifications.",
     "readMore": "Read more",
     "seeAllNewsButton": "See all news >",
+    "toggleLabel": "Open EarthRanger Notifications",
+    "toggleTitle": "EarthRanger Notifications",
     "tryAgainButton": "Try again"
   },
   "profilePINModal": {
@@ -53,6 +62,8 @@
   },
   "userMenu": {
     "cookieSettingsItem": "Cookie Settings",
-    "logoutItem": "Log out"
+    "logoutItem": "Log out",
+    "toggleLabel": "Open User Settings",
+    "toggleTitle": "User Settings"
   }
 }

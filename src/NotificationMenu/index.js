@@ -176,7 +176,12 @@ const NotificationMenu = (props) => {
   }, [news, socket, t]);
 
   return <Dropdown align="end" className={styles.dropdown} onToggle={onToggle} {...props}>
-    <Dropdown.Toggle as="div" data-testid="notification-toggle" ref={toggleBtnRef}>
+    <Dropdown.Toggle
+      aria-label={t('toggleLabel')}
+      as="div"
+      data-testid="notification-toggle"
+      ref={toggleBtnRef} title={t('toggleTitle')}
+    >
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
 
       {!!unreadCount && <BadgeIcon className={styles.badge} count={unreadCount} data-testid="unread-count" />}

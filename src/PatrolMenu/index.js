@@ -106,7 +106,14 @@ const PatrolMenu = ({
     pageStyle: basePrintingStyles,
   });
 
-  return <KebabMenu align='end' className={className} ref={menuRef} {...rest}>
+  return <KebabMenu
+      aria-label={t('label')}
+      align='end'
+      className={className}
+      ref={menuRef}
+      title={t('title')}
+      {...rest}
+    >
     { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
       <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
         { canEnd ? <StopIcon /> : <PlayIcon /> }

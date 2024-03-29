@@ -2,6 +2,7 @@ import React, { memo, forwardRef, useMemo } from 'react';
 import isObject from 'lodash/isObject';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { displayEventTypes } from '../selectors/event-types';
@@ -11,6 +12,8 @@ import DasIcon from '../DasIcon';
 import styles from './styles.module.scss';
 
 const EventIcon = ({ report, ...rest }, ref) => {
+  const { t } = useTranslation('reports', { keyPrefix: 'eventIcon' });
+
   const eventTypes = useSelector(displayEventTypes);
 
   const topRatedReportAndType = useMemo(
@@ -32,10 +35,10 @@ const EventIcon = ({ report, ...rest }, ref) => {
   }, [eventTypes, report.event_type, report.is_collection, report.patrol_segments]);
 
   if (!report.is_collection) {
-    return <DasIcon iconId={iconId} type="events" {...rest} />;
+    return <DasIcon iconId={iconId} type="events" title={report.event_type} {...rest} />;
   }
 
-  return <span className={styles.wrapper} ref={ref}>
+  return <span className={styles.wrapper} ref={ref} title={t('collectionTitle')}>
     <DasIcon iconId="incident_collection" type="events" {...rest} />
 
     {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon

@@ -10,7 +10,7 @@ import { showToast } from '../utils/toast';
 
 import styles from './styles.module.scss';
 
-const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, successMessage, text }) => {
+const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, successMessage, text, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'textCopyBtn' });
 
   const onClickCopy = useCallback(async (event) => {
@@ -37,7 +37,7 @@ const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, succe
   }, [getText, permitPropagation, successMessage, t, text]);
 
   return <span className={`${styles.clipboardWrapper} ${className}`}>
-    <button data-testid="textCopyBtn" onClick={onClickCopy} type="button">
+    <button data-testid="textCopyBtn" onClick={onClickCopy} type="button" {...restProps}>
       {icon}
 
       {label && <span>{label}</span> }

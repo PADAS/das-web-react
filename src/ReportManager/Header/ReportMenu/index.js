@@ -93,7 +93,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     reportTracker.track('Click \'Add to Patrol\' button');
   };
 
-  return <KebabMenu align="end">
+  return <KebabMenu align="end" aria-label={t('header.reportMenu.label')} title={t('header.reportMenu.title')}>
     { canAddToIncident &&
       <KebabMenu.Option as="button" onClick={onStartAddToIncident}>
         <IncidentIcon />

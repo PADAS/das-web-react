@@ -19,6 +19,7 @@ const CursorGpsDisplay = () => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const { t } = useTranslation('map-controls', { keyPrefix: 'cursorGPSDisplay' });
+
   const map = useContext(MapContext);
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
@@ -91,7 +92,7 @@ const CursorGpsDisplay = () => {
       ref={dropdownRef}
       show={isOpen}
     >
-    <Dropdown.Toggle className={styles.container}>
+    <Dropdown.Toggle className={styles.container} title={t('toggleTitle')}>
       <div className={styles.searchIcon}>
         <SearchIcon title={t('titleIconSearch')} />
       </div>

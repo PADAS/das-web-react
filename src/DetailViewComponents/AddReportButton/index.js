@@ -12,10 +12,11 @@ const AddReportButton = ({ className, ...rest }) => {
   const { t } = useTranslation('details-view');
 
   return <AddItemButton
+        aria-label={t('addReportButtonLabel')}
         className={`${className} ${styles.addReportButton}`}
         hideAddPatrolTab
         iconComponent={<DocumentIcon />}
-        title={t('addReportButton')}
+        title={t('addReportButtonTitle')}
         {...rest}
     />;
 };

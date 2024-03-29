@@ -1,6 +1,7 @@
 import React, { lazy, memo, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { addModal } from '../ducks/modals';
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
@@ -44,6 +45,7 @@ const Nav = () => {
   const jumpToLocation = useJumpToLocation();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('top-bar', { keyPrefix: 'nav' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
@@ -103,7 +105,12 @@ const Nav = () => {
 
   return <nav className="primary-nav">
     <div className="left-controls">
-      <HamburgerMenuIcon className="global-menu-button" onClick={() => dispatch(showDrawer(globalMenuDrawerId))} />
+      <HamburgerMenuIcon
+        aria-label={t('hamburgerMenuLabel')}
+        className="global-menu-button"
+        onClick={() => dispatch(showDrawer(globalMenuDrawerId))}
+        title={t('hamburgerMenuTitle')}
+      />
 
       <div className="logo-wrapper">
         <EarthRangerLogo className="logo" />

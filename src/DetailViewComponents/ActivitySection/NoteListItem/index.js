@@ -127,7 +127,10 @@ const NoteListItem = ({
       </div>
 
       <div className={styles.itemActionButtonContainer}>
-        <ItemActionButton>
+        <ItemActionButton
+          aria-label={t(isOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel')}
+          title={t(isOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle')}
+        >
           {isOpen
             ? <ArrowUpSimpleIcon data-testid={`activitySection-arrowUp-${note.id || note.text}`} />
             : <ArrowDownSimpleIcon data-testid={`activitySection-arrowDown-${note.id || note.text}`} />}

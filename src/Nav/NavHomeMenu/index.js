@@ -31,7 +31,7 @@ const NavHomeMenu = function NavHomeMenu({ maps, onCurrentLocationClick, onMapSe
       className="home-select"
       onToggle={(isOpen) => mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Home Area Menu`)}
     >
-    <Dropdown.Toggle className={styles.toggle}>
+    <Dropdown.Toggle className={styles.toggle} title={t('homeMenuToggleTitle')}>
       <NavHomeItem {...selectedMap} showIcon />
 
       {isMediumLayout && <ArrowDownSmallIcon />}

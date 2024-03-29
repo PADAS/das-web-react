@@ -8,17 +8,29 @@
     "timeLabel": "Time"
   },
   "addAttachmentButton": "Attachment",
-  "addReportButton": "Event",
+  "addReportButtonLabel": "Create Event",
+  "addReportButtonTitle": "Event",
   "addNoteButton": "Note",
   "attachmentControls": {
     "addNoteTitle": "Add Note",
     "addAttachmentTitle": "Add Attachment"
   },
   "attachmentListItem": {
+    "collapseClosedButtonLabel": "Expand",
+    "collapseClosedButtonTitle": "Collapsed",
+    "collapseOpenButtonLabel": "Collapse",
+    "collapseOpenButtonTitle": "Expanded",
     "imagePreviewAlt": "{{fileName}} preview",
     "downloadButtonTooltip": "Download",
     "deleteButtonTooltip": "Delete",
     "fullViewButtonTooltip": "Full View"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "Expand",
+    "collapseClosedButtonTitle": "Collapsed",
+    "collapseOpenButtonLabel": "Collapse",
+    "collapseOpenButtonTitle": "Expanded",
+    "goToReportButtonTooltip": "Go to event"
   },
   "footer": {
     "cancelButton": "Cancel",
@@ -31,7 +43,6 @@
     "loadingMessage": "Trying to read your location...",
     "readingLocationError": "Could not read your current location: {{locationErrorMessage}}"
   },
-  "goToReportButtonTooltip": "Go to event",
   "header": {
     "historyLinkCreated": "Created",
     "historyLinkUpdated": "Updated",
@@ -47,6 +58,8 @@
     "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
   },
   "locationSelector": {
+    "copyButtonLabel": "Copy Location",
+    "copyButtonTitle": "Copy",
     "inputLabel": "Location:",
     "inputPlaceHolder": "Set location"
   },
@@ -59,6 +72,10 @@
   },
   "noteListItem": {
     "cancelEditingNoteButton": "Cancel",
+    "collapseClosedButtonLabel": "Expand",
+    "collapseClosedButtonTitle": "Collapsed",
+    "collapseOpenButtonLabel": "Collapse",
+    "collapseOpenButtonTitle": "Expanded",
     "deleteNoteButtonTooltip": "Delete",
     "doneEditingNoteButton": "Done",
     "editNoteButtonTooltip": "Edit",

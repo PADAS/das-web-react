@@ -11,7 +11,13 @@
       },
       "addReportTabTitle": "Add Event"
     },
-    "defaultTitle": "Add"
+    "defaultLabel": "Create Event or Patrol",
+    "defaultTitle": "Create"
+  },
+  "checkMark": {
+    "fullyCheckedTitle": "Visible",
+    "partiallyCheckedTitle": "Partially visible",
+    "uncheckedTitle": "Hidden"
   },
   "detectOffline": {
     "offlineToastMessage": "You are currently offline. EarthRanger may not function as expected. Please check your network connection.",
@@ -132,6 +138,17 @@
     "newVersionAvailableNotification": "A new version of EarthRanger is available. It will be loaded the next time you refresh your browser."
   },
   "sideBar": {
+    "addEventButtonLabel": "Create Event",
+    "addEventButtonTitle": "Create Event",
+    "addPatrolButtonLabel": "Create Patrol",
+    "addPatrolButtonTitle": "Create Patrol",
+    "backButtonLabel": "Go Back",
+    "backButtonTitle": "Back",
+    "closeButtonTitle": "Close",
+    "closeEventFeedButtonLabel": "Close Event Feed",
+    "closeMapLayersButtonLabel": "Close Map Layers",
+    "closePatrolFeedButtonLabel": "Close Patrol Feed",
+    "closeSettingsButtonLabel": "Close Settings",
     "layersLink": "Map Layers",
     "noItemsToDisplayInLayers": "No items to display.",
     "patrolsLink": "Patrols",
@@ -160,6 +177,12 @@
       "mapTabTitle": "Map"
     },
     "settingsLink": "Settings"
+  },
+  "sortedNodes": {
+    "labelAscending": "Change Order to Descending",
+    "labelDescending": "Change Order to Ascending",
+    "titleAscending": "Ascending Order",
+    "titleDescending": "Descending Order"
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copied to clipboard"

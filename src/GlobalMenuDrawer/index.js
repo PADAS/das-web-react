@@ -212,7 +212,7 @@ const GlobalMenuDrawer = () => {
     <div className={styles.header}>
       <EarthRangerLogo className={styles.logo} />
 
-      <button onClick={onClose}>
+      <button aria-label={t('closeButtonLabel')} onClick={onClose} title={t('closeButtonTitle')}>
         <CrossIcon />
       </button>
     </div>
