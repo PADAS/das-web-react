@@ -1,82 +1,82 @@
 {
-  "addtopatrolmodal": {
-    "title": "Adicionar à Patrulha",
-    "cancel": "Cancelar",
-    "nomorepatrols": "Não há mais patrulhas para mostrar",
-    "loading": "Carregando..."
-  },
-  "detailview": {
-    "addemptynotealert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
-    "formbuttons": {
-      "save": "Salvar",
-      "cancel": "Cancelar"
+    "addToPatrolModal": {
+        "title": "Adicionar à Patrulha",
+        "cancel": "Cancelar",
+        "noMorePatrols": "Não há mais patrulhas para mostrar",
+        "loading": "Carregando..."
     },
-    "header": {
-      "patrolschedule": "Programada para  {{scheduledStartTime}}",
-      "patrolstartbutton": "Iniciar",
-      "patrolrestorebutton": "Restaurar",
-      "uistatetitles": {
-        "active": "Ativa",
-        "cancelled": "Cancelada",
-        "done": "Finalizada",
-        "invalid": "Configuração inválida",
-        "readytostart": "Pronta para começar",
-        "scheduled": "Programada",
-        "startoverdue": "Início atrasado"
-      }
+    "detailView": {
+        "addEmptyNoteAlert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
+        "formButtons": {
+            "save": "Salvar",
+            "cancel": "Cancelar"
+        },
+        "header": {
+            "patrolSchedule": "Programada para  {{scheduledStartTime}}",
+            "patrolStartButton": "Iniciar",
+            "patrolRestoreButton": "Restaurar",
+            "uiStateTitles": {
+                "active": "Ativa",
+                "cancelled": "Cancelada",
+                "done": "Finalizada",
+                "invalid": "Configuração inválida",
+                "readyToStart": "Pronta para começar",
+                "scheduled": "Programada",
+                "startOverdue": "Início atrasado"
+            }
+        },
+        "loadingMessage": "Salvando...",
+        "planSection": {
+            "autoStartCheckboxLargeLabel": "Iniciar automaticamente a patrulha em EarthRanger no horário programado",
+            "autoStartCheckboxSmallLabel": "Iniciar automaticamente a patrulha em EarthRanger",
+            "autoEndCheckboxLargeLabel": "Finalizar automaticamente a patrulha em EarthRanger no horário programado",
+            "autoEndCheckboxSmallLabel": "Finalizar automaticamente a patrulha em EarthRanger",
+            "endDateLabel": "Data da finalização",
+            "endTimeLabel": "Hora da finalização",
+            "endLocationLargeLabel": "Localização da finalização",
+            "endLocationSmallLabel": "Localização",
+            "locationSelectorPlaceholder": "Definir localização",
+            "objectiveLabel": "Objetivo",
+            "objectivePlaceholder": "Descrever o propósito da patrulha...",
+            "startDateLabel": "Data de início:",
+            "startTimeLabel": "Hora de início:",
+            "startLocationLargeLabel": "Localização de início:",
+            "startLocationSmallLabel": "Localização",
+            "title": "Plano",
+            "trackedByLabel": "Rastreado por:",
+            "trackedByPlaceholder": "Selecionar dispositivo..."
+        },
+        "quickLinksTitles": {
+            "activity": "Atividade",
+            "history": "Histórico",
+            "plan": "Plano"
+        }
     },
-    "loadingmessage": "Salvando...",
-    "plansection": {
-      "autostartcheckboxlargelabel": "Iniciar automaticamente a patrulha em EarthRanger no horário programado",
-      "autostartcheckboxsmalllabel": "Iniciar automaticamente a patrulha em EarthRanger",
-      "autoendcheckboxlargelabel": "Finalizar automaticamente a patrulha em EarthRanger no horário programado",
-      "autoendcheckboxsmalllabel": "Finalizar automaticamente a patrulha em EarthRanger",
-      "enddatelabel": "Data da finalização",
-      "endtimelabel": "Hora da finalização",
-      "endlocationlargelabel": "Localização da finalização",
-      "endlocationsmalllabel": "Localização",
-      "locationselectorplaceholder": "Definir localização",
-      "objectivelabel": "Objetivo",
-      "objectiveplaceholder": "Descrever o propósito da patrulha...",
-      "startdatelabel": "Data de início:",
-      "starttimelabel": "Hora de início:",
-      "startlocationlargelabel": "Localização de início:",
-      "startlocationsmalllabel": "Localização",
-      "title": "Plano",
-      "trackedbylabel": "Rastreado por:",
-      "trackedbyplaceholder": "Selecionar dispositivo..."
+    "invalidDatesModal": {
+        "body": "Esta patrulha não pode ser salva. A hora de finalização de uma patrulha deve ser posterior à hora de início. Por favor, corrija a hora de início ou finalização da patrulha.",
+        "okButton": "Ok",
+        "title": "Datas de patrulha inválidas."
     },
-    "quicklinkstitles": {
-      "activity": "Atividade",
-      "history": "Histórico",
-      "plan": "Plano"
+    "patrolMenu": {
+        "cancelPatrol": "Cancelar Patrulha",
+        "copyButton": "Copiar link de patrulha",
+        "copyButtonMessage": "Link copiado",
+        "endPatrol": "Finalizar patrulha",
+        "printPatrolButton": "Imprimir patrulha",
+        "restorePatrol": "Restaurar patrulha",
+        "startPatrol": "Iniciar patrulha"
+    },
+    "patrolList": {
+        "emptyPatrolList": "Não há patrulhas para mostrar"
+    },
+    "patrolListItem": {
+        "restoreButton": "Restaurar",
+        "scheduledTitle": "Programada:",
+        "startButton": "Iniciar"
+    },
+    "trackToggleButton": {
+        "tracksPinned": "Rastros fixados",
+        "tracksOn": "Rastros ativados",
+        "tracksOff": "Rastros desativados"
     }
-  },
-  "invaliddatesmodal": {
-    "body": "Esta patrulha não pode ser salva. A hora de finalização de uma patrulha deve ser posterior à hora de início. Por favor, corrija a hora de início ou finalização da patrulha.",
-    "okbutton": "Ok",
-    "title": "Datas de patrulha inválidas."
-  },
-  "patrolmenu": {
-    "cancelpatrol": "Cancelar Patrulha",
-    "copybutton": "Copiar link de patrulha",
-    "copybuttonmessage": "Link copiado",
-    "endpatrol": "Finalizar patrulha",
-    "printpatrolbutton": "Imprimir patrulha",
-    "restorepatrol": "Restaurar patrulha",
-    "startpatrol": "Iniciar patrulha"
-  },
-  "patrollist": {
-    "emptypatrollist": "Não há patrulhas para mostrar"
-  },
-  "patrollistitem": {
-    "restorebutton": "Restaurar",
-    "scheduledtitle": "Programada:",
-    "startbutton": "Iniciar"
-  },
-  "tracktogglebutton": {
-    "trackspinned": "Rastros fixados",
-    "trackson": "Rastros ativados",
-    "tracksoff": "Rastros desativados"
-  }
 }

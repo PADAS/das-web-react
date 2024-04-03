@@ -1,31 +1,16 @@
 {
-  "calcfriendlydurationstring": {
-    "monthago": "1 mês atrás até agora",
-    "monthagountilnow": "1 mês atrás até {{date}}",
-    "someagofromnow": "De {{from}} atrás até {{until}} antes de agora",
-    "someago": "De {{from}} atrás até {{until}} atrás",
-    "untilnow": "{{date}} atrás até agora"
-  },
-  "calcsendernameformessage": {
-    "operator": "Operador"
-  },
-  "currenttimezonetitle": "Data exibida no fuso horário {{timeZone}}",
-  "displaytitleforpatrol": {
-    "unknown": "Tipo de patrulha desconhecido"
-  },
-  "filterduplicateuploadfilenames": {
-    "duplicationalert": "Falha ao adicionar o arquivo {{fileName}}: o arquivo já existe"
-  },
-  "generateerrormessageforrequest": {
-    "badgateway": "Erro no roteamento (Bad gateway). Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (502).",
-    "badrequest": "Erro na solicitação (Bad request). Por favor, entre em contato com seu administrador (400).",
-    "default": "Houve um erro em sua solicitação.",
-    "forbidden": "Solicitação negada. Por favor, entre em contato com seu administrador (403).",
-    "internalservererror": "Erro no servidor interno.  Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (500).",
-    "nocode": "Sua solicitação falhou em ser enviada. Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir.",
-    "noresponse": "Sem resposta do servidor.",
-    "requesttimeout": "A solicitação expirou. Por favor, tente novamente (408).",
-    "serviceunavailable": "O recurso solicitado não está disponível no momento. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (503).",
-    "toomanyrequests": "Limite de solicitações excedido. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (429)."
-  }
+    "calcFriendlyDurationString": {
+        "monthAgo": "1 mês atrás até agora",
+        "monthAgoUntilNow": "1 mês atrás até {{date}}",
+        "someAgoFromNow": "De {{from}} atrás até {{until}} antes de agora",
+        "someAgo": "De {{from}} atrás até {{until}} atrás",
+        "untilNow": "{{date}} atrás até agora"
+    },
+    "calcSenderNameForMessage": {
+        "operator": "Operador"
+    },
+    "currentTimeZoneTitle": "Data exibida no fuso horário {{timeZone}}",
+    "displayTitleForPatrol": {
+        "unknown": "Tipo de patrulha desconhecido"
+    }
 }

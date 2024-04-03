@@ -1,31 +1,31 @@
 {
-  "clustermembers": {
-    "all": "Selecionar tudo",
-    "reports": "Eventos",
-    "subjects": "Indivíduos rastreados"
-  },
-  "inactiveradiocontrol": {
-    "label": "Mostrar rádios inativos"
-  },
-  "mapdatazoomsimplificationcontrol": {
-    "label": "Simplificar dados do mapa no Zoom"
-  },
-  "maplockcontrol": {
-    "label": "Bloquear mapa"
-  },
-  "mapnamescontrol": {
-    "allcheckboxlabel": "Selecionar tudo",
-    "layerlabels": {
-      "subjects": "Indivíduos rastreados",
-      "stationary_subjects": "Indivíduos estacionários",
-      "reports": "Eventos",
-      "patrols": "Patrulhas"
+    "clusterMembers": {
+        "all": "Selecionar tudo",
+        "reports": "Eventos",
+        "subjects": "Indivíduos rastreados"
+    },
+    "inactiveRadioControl": {
+        "label": "Mostrar rádios inativos"
+    },
+    "mapDataZoomSimplificationControl": {
+        "label": "Simplificar dados do mapa no Zoom"
+    },
+    "mapLockControl": {
+        "label": "Bloquear mapa"
+    },
+    "mapNamesControl": {
+        "allCheckboxLabel": "Selecionar tudo",
+        "layerLabels": {
+            "subjects": "Indivíduos rastreados",
+            "stationary_subjects": "Indivíduos estacionários",
+            "reports": "Eventos",
+            "patrols": "Patrulhas"
+        }
+    },
+    "mapTrackTimepointsControl": {
+        "label": "Mostrar pontos de tempo rastreados por seguimento"
+    },
+    "userLocationMapControl": {
+        "label": "Mostrar minha localização atual"
     }
-  },
-  "maptracktimepointscontrol": {
-    "label": "Mostrar pontos de tempo rastreados por seguimento"
-  },
-  "userlocationmapcontrol": {
-    "label": "Mostrar minha localização atual"
-  }
 }

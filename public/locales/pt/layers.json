@@ -1,9 +1,8 @@
 {
-  "clearallbutton": "Limpar tudo",
-  "layerlist": {
-    "analyzertitle": "Analisadores",
-    "featurestitle": "Feições",
-    "subjectstitle": "Indivíduos rastreados",
-    "reportstitle": "Eventos"
-  }
+    "clearAllButton": "Limpar tudo",
+    "layerList": {
+        "featuresTitle": "Feições",
+        "subjectsTitle": "Indivíduos rastreados",
+        "reportsTitle": "Eventos"
+    }
 }

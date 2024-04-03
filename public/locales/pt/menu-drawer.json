@@ -1,69 +1,69 @@
 {
-  "alertsmodal": {
-    "iframebottommessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
-    "iframetitle": "Configure seus alertas EarthRanger"
-  },
-  "betatoggles": {
-    "patrolui": "Nova interface de usuário para Patrulhas.",
-    "reportnotification": "Reproduz notificações de som para novos eventos"
-  },
-  "dailyreportmodal": {
-    "dataexportmodaltitle": "Relatórios diário",
-    "todaysreportbutton": "Relatório de hoje",
-    "yesterdaysreportbutton": "Relatório de ontem"
-  },
-  "dataexportmodal": {
-    "cancelbutton": "Cancelar",
-    "exportbutton": "Exportar"
-  },
-  "globalmenudrawer": {
-    "alertsbutton": "Alertas",
-    "alertsmodal": {
-      "title": "Alertas"
+    "alertsModal": {
+        "iframeBottomMessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
+        "iframeTitle": "Configure seus alertas EarthRanger"
     },
-    "communitybutton": "Comunidade",
-    "contactsupport": {
-      "body": "Como podemos te ajudar?",
-      "subject": "Solicitação de suporte por um usuário"
+    "betaToggles": {
+        "patrolUI": "Nova interface de usuário para Patrulhas.",
+        "reportNotification": "Reproduz notificações de som para novos eventos"
     },
-    "contactsupportbutton": "Fale com o suporte",
-    "dailyreportmodal": {
-      "title": "Relatório diário"
+    "dailyReportModal": {
+        "dataExportModalTitle": "Relatórios diário",
+        "todaysReportButton": "Relatório de hoje",
+        "yesterdaysReportButton": "Relatório de ontem"
     },
-    "exportsheader": "Exportar",
-    "fieldreportsmodal": {
-      "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
-      "title": "Relatórios de campo"
+    "dataExportModal": {
+        "cancelButton": "Cancelar",
+        "exportButton": "Exportar"
     },
-    "footer": {
-      "clientversion": "Versão do cliente web: {{version}}",
-      "copyright": "©{{year}} EarthRanger",
-      "dataprivacypolicylink": "Política de privacidade de dados",
-      "eulalink": "Contrato de licença do usuário final ",
-      "serverversion": "Versão do servidor: {{version}}",
-      "websiteprivacypolicylink": "Política de privacidade da página web"
+    "globalMenuDrawer": {
+        "alertsButton": "Alertas",
+        "alertsModal": {
+            "title": "Alertas"
+        },
+        "communityButton": "Comunidade",
+        "contactSupport": {
+            "body": "Como podemos te ajudar?",
+            "subject": "Solicitação de suporte por um usuário"
+        },
+        "contactSupportButton": "Fale com o suporte",
+        "dailyReportModal": {
+            "title": "Relatório diário"
+        },
+        "exportsHeader": "Exportar",
+        "fieldReportsModal": {
+            "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
+            "title": "Relatórios de campo"
+        },
+        "footer": {
+            "clientVersion": "Versão do cliente web: {{version}}",
+            "copyright": "©{{year}} EarthRanger",
+            "dataPrivacyPolicyLink": "Política de privacidade de dados",
+            "eulaLink": "Contrato de licença do usuário final ",
+            "serverVersion": "Versão do servidor: {{version}}",
+            "websitePrivacyPolicyLink": "Política de privacidade da página web"
+        },
+        "helpCenterButton": "Central de Ajuda",
+        "masterKMLModal": {
+            "title": "KML de indivíduos rastreados"
+        },
+        "navigationButton": {
+            "mapLayers": "Camadas",
+            "patrols": "Patrulhas",
+            "reports": "Eventos",
+            "settings": "Preferências"
+        },
+        "subjectInformationModal": {
+            "title": "Resumo de indivíduos rastreados"
+        },
+        "subjectReportsModal": {
+            "title": "Observações"
+        },
+        "tableauButton": "Tableau",
+        "usersGuideButton": "Guia do usuário"
     },
-    "helpcenterbutton": "Central de Ajuda",
-    "masterkmlmodal": {
-      "title": "KML de indivíduos rastreados"
-    },
-    "navigationbutton": {
-      "maplayers": "Camadas",
-      "patrols": "Patrulhas",
-      "reports": "Eventos",
-      "settings": "Preferências"
-    },
-    "subjectinformationmodal": {
-      "title": "Resumo de indivíduos rastreados"
-    },
-    "subjectreportsmodal": {
-      "title": "Observações"
-    },
-    "tableaubutton": "Tableau",
-    "usersguidebutton": "Guia do usuário"
-  },
-  "kmlexportmodal": {
-    "dataexportmodaltitle": "Exportar archivo KML de indivíduos rastreados",
-    "includeinactivesubjectslabel": "Incluir indivíduos inativos"
-  }
+    "kmlExportModal": {
+        "dataExportModalTitle": "Exportar archivo KML de indivíduos rastreados",
+        "includeInactiveSubjectsLabel": "Incluir indivíduos inativos"
+    }
 }

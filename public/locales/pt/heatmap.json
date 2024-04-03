@@ -1,31 +1,31 @@
 {
-  "heatmaplegend": {
-    "daytimespan_one": "Mais de {{count}} dia",
-    "daytimespan_other": "Mais de {{count}} dias",
-    "pointcount_one": " {{count}} ponto",
-    "pointcount_other": " {{count}} pontos"
-  },
-  "heatmapstylecontrols": {
-    "radiuslabel": "Raio (em metros)",
-    "radiusunit": "m",
-    "sensitivityhighindicator": "Alta",
-    "sensitivitylabel": "Sensibilidade",
-    "sensitivitylowindicator": "Baixa"
-  },
-  "heatmaptogglebutton": {
-    "heatmapofflabel": "Mapa de calor desligado",
-    "heatmaponlabel": "Mapa de calor ligado"
-  },
-  "reportsheatmaplegend": {
-    "heatmaplegendtitle": "Eventos visíveis"
-  },
-  "subjectheatmaplegend": {
-    "subjectcount_one": "Indivíduo rastreado",
-    "subjectcount_other": "Indivíduos rastreados",
-    "titleelement": {
-      "pointcount_one": " {{count}} ponto",
-      "pointcount_other": " {{count}} pontos",
-      "remove": "Remover"
+    "heatmapLegend": {
+        "dayTimespan_one": "Mais de {{count}} dia",
+        "dayTimespan_other": "Mais de {{count}} dias",
+        "pointCount_one": " {{count}} ponto",
+        "pointCount_other": " {{count}} pontos"
+    },
+    "heatmapStyleControls": {
+        "radiusLabel": "Raio (em metros)",
+        "radiusUnit": "m",
+        "sensitivityHighIndicator": "Alta",
+        "sensitivityLabel": "Sensibilidade",
+        "sensitivityLowIndicator": "Baixa"
+    },
+    "heatmapToggleButton": {
+        "heatmapOffLabel": "Mapa de calor desligado",
+        "heatmapOnLabel": "Mapa de calor ligado"
+    },
+    "reportsHeatmapLegend": {
+        "heatmapLegendTitle": "Eventos visíveis"
+    },
+    "subjectHeatmapLegend": {
+        "subjectCount_one": "Indivíduo rastreado",
+        "subjectCount_other": "Indivíduos rastreados",
+        "titleElement": {
+            "pointCount_one": " {{count}} ponto",
+            "pointCount_other": " {{count}} pontos",
+            "remove": "Remover"
+        }
     }
-  }
 }

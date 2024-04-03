@@ -1,7 +1,7 @@
 {
-  "usercurrentlocationpopup": {
-    "accuracy": "Precisão de {{accuracy}} metros",
-    "header": "Sua localização atual",
-    "lastchecked": "Última verificação"
-  }
+    "userCurrentLocationPopup": {
+        "accuracy": "Precisão de {{accuracy}} metros",
+        "header": "Sua localização atual",
+        "lastChecked": "Última verificação"
+    }
 }

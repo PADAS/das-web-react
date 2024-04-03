@@ -1,28 +1,28 @@
 {
-  "subjectcontrols": {
-    "historicaldatamodaltitle": "Histórico de dados: {{subjectName}}"
-  },
-  "subjecthistoricaldatamodal": {
-    "observationrow": {
-      "nodatalabel": "Sem dados"
+    "subjectControls": {
+        "historicalDataModalTitle": "Histórico de dados: {{subjectName}}"
     },
-    "tabledateheader": "Data",
-    "tablelocationheader": "Localização"
-  },
-  "subjecthistorybutton": {
-    "label": "Histórico de dados"
-  },
-  "subjectmessagespopover": {
-    "label": "Mensagens"
-  },
-  "subjectpopup": {
-    "additionalpropsbutton": {
-      "fewer": "< menos detalhes",
-      "more": "mais detalhes >"
+    "subjectHistoricalDataModal": {
+        "observationRow": {
+            "noDataLabel": "Sem dados"
+        },
+        "tableDateHeader": "Data",
+        "tableLocationHeader": "Localização"
     },
-    "datetimesuffix": "atrás",
-    "micactivityheader": "Atividade do microfone",
-    "nohistoricaldataspan": "Sem dados históricos",
-    "subjecticonalt": "Ícone de indivíduo rastreado para {{name}}"
-  }
+    "subjectHistoryButton": {
+        "label": "Histórico de dados"
+    },
+    "subjectMessagesPopover": {
+        "label": "Mensagens"
+    },
+    "subjectPopup": {
+        "additionalPropsButton": {
+            "fewer": "< menos detalhes",
+            "more": "mais detalhes >"
+        },
+        "dateTimeSuffix": "atrás",
+        "micActivityHeader": "Atividade do microfone",
+        "noHistoricalDataSpan": "Sem dados históricos",
+        "subjectIconAlt": "Ícone de indivíduo rastreado para {{name}}"
+    }
 }

@@ -1,31 +1,31 @@
 {
-  "patroltracklegend": {
-    "multiplepatrolstitle": "{{count}} patrulhas",
-    "singlepatroltitle": "Patrulha: {{patrolDisplayTitle}}",
-    "titleelement": {
-      "coveredspan": "Percorrido",
-      "icon": "Ícone para {{title}}",
-      "lengthcovered": "{{length}} percorridos",
-      "removebutton": "Remover"
+    "patrolTrackLegend": {
+        "multiplePatrolsTitle": "{{count}} patrulhas",
+        "singlePatrolTitle": "Patrulha: {{patrolDisplayTitle}}",
+        "titleElement": {
+            "coveredSpan": "Percorrido",
+            "icon": "Ícone para {{title}}",
+            "lengthCovered": "{{length}} percorridos",
+            "removeButton": "Remover"
+        }
+    },
+    "trackLegend": {
+        "titleElement": {
+            "icon": "Ícone para {{title}}",
+            "pointCount_one": "{{count}} ponto",
+            "pointCount_other": "{{count}} pontos",
+            "pointsOverTimeSpan": "{{pointCount}} pontos em {{trackDuration}}",
+            "removeButton": "Remover"
+        }
+    },
+    "trackLength": {
+        "length": "{{length}} quilometros",
+        "title": "Duração:"
+    },
+    "trackLengthControls": {
+        "customLengthLabel": "Duração personalizada:",
+        "header": "Duração:",
+        "invalidCustomLengthAlert": "Adicione uma duração entre {{min}} e {{max}}.",
+        "matchReportFilterDateLabel": "Corresponder data \\\"de\\\" do filtro de eventos ({{reportFilterDateRangeLength}} dias)"
     }
-  },
-  "tracklegend": {
-    "titleelement": {
-      "icon": "Ícone para {{title}}",
-      "pointcount_one": "{{count}} ponto",
-      "pointcount_other": "{{count}} pontos",
-      "pointsovertimespan": "{{pointCount}} pontos em {{trackDuration}}",
-      "removebutton": "Remover"
-    }
-  },
-  "tracklength": {
-    "length": "{{length}} quilometros",
-    "title": "Duração:"
-  },
-  "tracklengthcontrols": {
-    "customlengthlabel": "Duração personalizada:",
-    "header": "Duração:",
-    "invalidcustomlengthalert": "Adicione uma duração entre {{min}} e {{max}}.",
-    "matchreportfilterdatelabel": "Corresponder data \\\"de\\\" do filtro de eventos ({{reportFilterDateRangeLength}} dias)"
-  }
 }

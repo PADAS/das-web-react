@@ -1,16 +1,16 @@
 {
-  "modalbody": {
-    "acceptancecheckboxlabel": "Eu concordo com os termos e\ncondições do Contrato de licença do usuário final (EULA) EarthRanger.",
-    "eulalink": {
-      "0": "Por favor",
-      "1": "Clique aqui e leia nosso Contrato de licença do usuário final (EULA) EarthRanger.",
-      "2": "Antes de usar o EarthRanger"
-    }
-  },
-  "modalfooter": {
-    "acceptbutton": "Aceitar",
-    "cancelbutton": "Cancelar",
-    "erroralertmessage": "Houve um problema em aceitar o Contrato de licença do usuário final (EULA). Por favor, tente novamente."
-  },
-  "modaltitle": "Você deve aceitar o usuário final\nContrato de Licença do usuário final (EULA) para\ncontinuar"
+    "modalBody": {
+        "acceptanceCheckboxLabel": "Eu concordo com os termos e\ncondições do Contrato de licença do usuário final (EULA) EarthRanger.",
+        "eulaLink": {
+            "0": "Por favor",
+            "1": "Clique aqui e leia nosso Contrato de licença do usuário final (EULA) EarthRanger.",
+            "2": "Antes de usar o EarthRanger"
+        }
+    },
+    "modalFooter": {
+        "acceptButton": "Aceitar",
+        "cancelButton": "Cancelar",
+        "errorAlertMessage": "Houve um problema em aceitar o Contrato de licença do usuário final (EULA). Por favor, tente novamente."
+    },
+    "modalTitle": "Você deve aceitar o usuário final\nContrato de Licença do usuário final (EULA) para\ncontinuar"
 }
