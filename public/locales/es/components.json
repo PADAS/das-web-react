@@ -168,6 +168,9 @@
     "popoverHeader": "Rango de fechas",
     "popoverResetButton": "Reiniciar",
     "slider": "Control de tiempo",
+    "timeSliderMapControl": {
+      "iconTitle": "Control de tiempo"
+    },
     "untilNowButton": "Ahora"
   },
   "toastBody": {

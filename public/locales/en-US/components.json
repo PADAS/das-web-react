@@ -168,6 +168,9 @@
     "popoverHeader": "Date Range",
     "popoverResetButton": "Reset",
     "slider": "Timeslider",
+    "timeSliderMapControl": {
+      "iconTitle": "Timeslider"
+    },
     "untilNowButton": "Now"
   },
   "toastBody": {

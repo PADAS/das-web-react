@@ -168,6 +168,9 @@
     "popoverHeader": "Intervalle de Dates",
     "popoverResetButton": "Réinitialiser",
     "slider": "Curseur Temporel",
+    "timeSliderMapControl": {
+      "iconTitle": "Curseur Temporel"
+    },
     "untilNowButton": "Maintenant"
   },
   "toastBody": {
