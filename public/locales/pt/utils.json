@@ -17,16 +17,16 @@
     "duplicationAlert": "Can not add {{fileName}}: file already exists"
   },
   "generateErrorMessageForRequest": {
-    "badGateway": "Bad gateway. Please try again later, and contact your administrator if this problem persists (502).",
-    "badRequest": "Bad request issued. Please contact your administrator (400).",
-    "default": "There was an error handling your request.",
-    "forbidden": "Request denied. Please contact your administrator (403).",
-    "internalServerError": "Internal server error. Please try again later, and contact your administrator if this problem persists (500).",
-    "noCode": "Your request failed to send. Please try again later, and contact your administrator if this problem persists.",
-    "noResponse": "No response from the server.",
-    "requestTimeout": "Request timed out. Please try again (408).",
-    "serviceUnavailable": "The requested resource is currently unavailable. Please try again later, and contact your administrator if this problem persists (503).",
-    "tooManyRequests": "Too many requests. Please try again later, and contact your administrator if this problem persists (429)."
+    "badGateway": "Erro no roteamento (Bad gateway). Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (502).",
+    "badRequest": "Erro na solicitação (Bad request). Por favor, entre em contato com seu administrador (400).",
+    "default": "Houve um erro em sua solicitação.",
+    "forbidden": "Solicitação negada. Por favor, entre em contato com seu administrador (403).",
+    "internalServerError": "Erro no servidor interno.  Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (500).",
+    "noCode": "Sua solicitação falhou em ser enviada. Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir.",
+    "noResponse": "Sem resposta do servidor.",
+    "requestTimeout": "A solicitação expirou. Por favor, tente novamente (408).",
+    "serviceUnavailable": "O recurso solicitado não está disponível no momento. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (503).",
+    "tooManyRequests": "Limite de solicitações excedido. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (429)."
   },
   "showFilterMismatchToastForHiddenReports": {
     "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
