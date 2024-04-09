@@ -12,5 +12,23 @@
   "currentTimeZoneTitle": "Date affichée dans le fuseau horaire de {{timeZone}}",
   "displayTitleForPatrol": {
     "unknown": "Type de patrouille inconnue"
+  },
+  "filterDuplicateUploadFilenames": {
+    "duplicationAlert": "Impossible d'ajouter {{fileName}}: le fichier existe déjà"
+  },
+  "generateErrorMessageForRequest": {
+    "badGateway": "Mauvaise passerelle. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (502).",
+    "badRequest": "Mauvaise demande émise. Veuillez contacter votre administrateur (400).",
+    "default": "Une erreur s'est produite lors du traitement de votre demande.",
+    "forbidden": "Demande refusée. Veuillez contacter votre administrateur (403).",
+    "internalServerError": "Erreur interne du serveur. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (500).",
+    "noCode": "L'envoi de votre demande a échoué. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste.",
+    "noResponse": "Le serveur ne répond pas.",
+    "requestTimeout": "La demande a expiré. Veuillez réessayer (408).",
+    "serviceUnavailable": "La ressource demandée est actuellement indisponible. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (503).",
+    "tooManyRequests": "Seuil de demandes atteint. Veuillez réessayer plus tard et contacter votre administrateur si le problème persiste (429)."
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
   }
 }

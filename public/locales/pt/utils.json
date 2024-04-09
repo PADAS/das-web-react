@@ -1,0 +1,34 @@
+{
+  "calcFriendlyDurationString": {
+    "monthAgo": "1 mês atrás até agora",
+    "monthAgoUntilNow": "1 mês atrás até {{date}}",
+    "someAgoFromNow": "De {{from}} atrás até {{until}} antes de agora",
+    "someAgo": "De {{from}} atrás até {{until}} atrás",
+    "untilNow": "{{date}} atrás até agora"
+  },
+  "calcSenderNameForMessage": {
+    "operator": "Operador"
+  },
+  "currentTimeZoneTitle": "Data exibida no fuso horário {{timeZone}}",
+  "displayTitleForPatrol": {
+    "unknown": "Tipo de patrulha desconhecido"
+  },
+  "filterDuplicateUploadFilenames": {
+    "duplicationAlert": "Can not add {{fileName}}: file already exists"
+  },
+  "generateErrorMessageForRequest": {
+    "badGateway": "Erro no roteamento (Bad gateway). Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (502).",
+    "badRequest": "Erro na solicitação (Bad request). Por favor, entre em contato com seu administrador (400).",
+    "default": "Houve um erro em sua solicitação.",
+    "forbidden": "Solicitação negada. Por favor, entre em contato com seu administrador (403).",
+    "internalServerError": "Erro no servidor interno.  Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir (500).",
+    "noCode": "Sua solicitação falhou em ser enviada. Por favor tente novamente mais tarde e entre em contato com seu administrador se o problema persistir.",
+    "noResponse": "Sem resposta do servidor.",
+    "requestTimeout": "A solicitação expirou. Por favor, tente novamente (408).",
+    "serviceUnavailable": "O recurso solicitado não está disponível no momento. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (503).",
+    "tooManyRequests": "Limite de solicitações excedido. Por favor tente novamente mais tarde e entre em contato com o administrador se o problema persistir (429)."
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" has been created but does not match the current filter"
+  }
+}

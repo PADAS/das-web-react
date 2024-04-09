@@ -1,0 +1,71 @@
+{
+    "activitySection": {
+        "collapseAllButton": "Minimizar",
+        "dateItemStartTitle": "Iniciado",
+        "dateItemEndedTitle": "Finalizado",
+        "expandAllButton": "Expandir",
+        "sectionTitle": "Atividade",
+        "timeLabel": "Hora"
+    },
+    "addAttachmentButton": "Arquivo anexo",
+    "addReportButton": "Evento",
+    "addNoteButton": "Anotação",
+    "attachmentControls": {
+        "addNoteTitle": "Adicionar anotação",
+        "addAttachmentTitle": "Anexar arquivo"
+    },
+    "attachmentListItem": {
+        "imagePreviewAlt": "{{fileName}} pré-visualização",
+        "downloadButtonTooltip": "Baixar",
+        "deleteButtonTooltip": "Apagar",
+        "fullViewButtonTooltip": "Visão geral"
+    },
+    "footer": {
+        "cancelButton": "Cancelar",
+        "saveButton": "Salvar",
+        "stateResolveButton": "Salvar e resolver",
+        "stateReopenButton": "Salvar e reabrir"
+    },
+    "geoLocator": {
+        "buttonLabel": "Usar minha localização",
+        "loadingMessage": "Tentando identificar sua localização...",
+        "readingLocationError": "Não pudemos identificar sua localização atual:  #{{locationErrorMessage}"
+    },
+    "goToReportButtonTooltip": "Ir a Evento",
+    "header": {
+        "historyLinkCreated": "Criado",
+        "historyLinkUpdated": "Atualizado",
+        "resolvedLabel": "Resolvido",
+        "sectionTitle": "Histórico"
+    },
+    "historySection": {
+        "sectionTitle": "Histórico",
+        "timeLabel": "Hora"
+    },
+    "imageModal": {
+        "errorTitle": "Erro ao carregar a imagem.",
+        "errorMessage": "Se você carregou este arquivo recentemente, espere um minuto e tente novamente."
+    },
+    "locationSelector": {
+        "inputLabel": "Localização",
+        "inputPlaceHolder": "Marcar a localização"
+    },
+    "navigationPromptModal": {
+        "cancelNavigationButtonText": "Voltar",
+        "continueNavigationNegativeButtonText": "Descartar",
+        "continueNavigationPositiveButtonText": "Salvar",
+        "description": "Há alterações não salvas. Você gostaria de voltar, descartar as alterações ou salvar e continuar?",
+        "title": "Alterações não salvas"
+    },
+    "noteListItem": {
+        "cancelEditingNoteButton": "Cancelar",
+        "deleteNoteButtonTooltip": "Apagar",
+        "doneEditingNoteButton": "Finalizar",
+        "editNoteButtonTooltip": "Editar",
+        "noteTitle": "Nova anotação"
+    },
+    "reportFormSummary": {
+        "reportTypeLabel": "Tipo de evento",
+        "reportedByLabel": "Reportado por"
+    }
+}

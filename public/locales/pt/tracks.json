@@ -1,0 +1,31 @@
+{
+    "patrolTrackLegend": {
+        "multiplePatrolsTitle": "{{count}} patrulhas",
+        "singlePatrolTitle": "Patrulha: {{patrolDisplayTitle}}",
+        "titleElement": {
+            "coveredSpan": "Percorrido",
+            "icon": "Ícone para {{title}}",
+            "lengthCovered": "{{length}} percorridos",
+            "removeButton": "Remover"
+        }
+    },
+    "trackLegend": {
+        "titleElement": {
+            "icon": "Ícone para {{title}}",
+            "pointCount_one": "{{count}} ponto",
+            "pointCount_other": "{{count}} pontos",
+            "pointsOverTimeSpan": "{{pointCount}} pontos em {{trackDuration}}",
+            "removeButton": "Remover"
+        }
+    },
+    "trackLength": {
+        "length": "{{length}} quilometros",
+        "title": "Duração:"
+    },
+    "trackLengthControls": {
+        "customLengthLabel": "Duração personalizada:",
+        "header": "Duração:",
+        "invalidCustomLengthAlert": "Adicione uma duração entre {{min}} e {{max}}.",
+        "matchReportFilterDateLabel": "Corresponder data \\\"de\\\" do filtro de eventos ({{reportFilterDateRangeLength}} dias)"
+    }
+}

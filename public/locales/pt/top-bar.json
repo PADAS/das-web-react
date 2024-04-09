@@ -1,0 +1,58 @@
+{
+    "messagesModal": {
+        "backToAllMessagesButton": "← Todas as mensajes",
+        "cancelButton": "Cancelar",
+        "messagesHeader": "Mensagens",
+        "newMessageButton": "Nova mensagem",
+        "noMessagingSubjectText": "Não é possível enviar mensagens a este indivíduo rastreado"
+    },
+    "messagingSelect": {
+        "allOptionsLabel": "Todos os indivíduos rastreados",
+        "hiddenValue": "oculto",
+        "placeholder": "Enviar mensagem a...",
+        "restrictedOptionLabel": "RESTRITO"
+    },
+    "nav": {
+        "navHomeMenu": {
+            "myCurrentLocationItem": "Minha localização atual"
+        }
+    },
+    "notificationMenu": {
+        "errorFetchingHeader": "Erro ao buscar anúncios recentes.",
+        "noNewNotificationsHeader": "Não há novas notificações no momento.",
+        "notificationItem": {
+            "confirmButton": "Confirmar",
+            "dismissButton": "Ignorar",
+            "moreInformationLink": "Mais informações"
+        },
+        "outdatedNotifications_one": "Você tem {{count}} não lidas.",
+        "outdatedNotifications_other": "Você tem {{count}} não lidas.",
+        "readMore": "Ler mais",
+        "seeAllNewsButton": "Veja todas as notícias >",
+        "tryAgainButton": "Tentar novamente"
+    },
+    "profilePINModal": {
+        "error": "PIN incorreto",
+        "title": "Digite seu PIN",
+        "userLabel": "Usuário:"
+    },
+    "systemStatus": {
+        "datasourceDefTitle": "Atividade do dispositivo",
+        "dateTimeSuffix": "Atrás",
+        "heartBeatDefTitle": "Atividade do sistema",
+        "initialRealTimeStatusTitle": "EarthRanger em tempo real",
+        "initialRealTimeStatusDetails": "Atividade",
+        "initialNetworkStatusTitle": "Conexão",
+        "networkOnlineLabel": "conectado",
+        "networkOfflineLabel": "desconectado",
+        "serverVersionLabel": "Servidor EarthRanger {{version}}",
+        "HEALTHY": "Íntegro",
+        "UNHEALTHY": "Não íntegro",
+        "UNKNOWN": "Desconhecido",
+        "WARNING": "Alerta"
+    },
+    "userMenu": {
+        "cookieSettingsItem": "Configuração de cookies",
+        "logoutItem": "Encerrar sessão"
+    }
+}

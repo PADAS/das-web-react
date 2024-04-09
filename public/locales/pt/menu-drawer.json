@@ -1,0 +1,69 @@
+{
+    "alertsModal": {
+        "iframeBottomMessage": "Cada usuário EarthRanger pode receber até 20 alertas por dia.",
+        "iframeTitle": "Configure seus alertas EarthRanger"
+    },
+    "betaToggles": {
+        "patrolUI": "Nova interface de usuário para Patrulhas.",
+        "reportNotification": "Reproduz notificações de som para novos eventos"
+    },
+    "dailyReportModal": {
+        "dataExportModalTitle": "Relatórios diário",
+        "todaysReportButton": "Relatório de hoje",
+        "yesterdaysReportButton": "Relatório de ontem"
+    },
+    "dataExportModal": {
+        "cancelButton": "Cancelar",
+        "exportButton": "Exportar"
+    },
+    "globalMenuDrawer": {
+        "alertsButton": "Alertas",
+        "alertsModal": {
+            "title": "Alertas"
+        },
+        "communityButton": "Comunidade",
+        "contactSupport": {
+            "body": "Como podemos te ajudar?",
+            "subject": "Solicitação de suporte por um usuário"
+        },
+        "contactSupportButton": "Fale com o suporte",
+        "dailyReportModal": {
+            "title": "Relatório diário"
+        },
+        "exportsHeader": "Exportar",
+        "fieldReportsModal": {
+            "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
+            "title": "Relatórios de campo"
+        },
+        "footer": {
+            "clientVersion": "Versão do cliente web: {{version}}",
+            "copyright": "©{{year}} EarthRanger",
+            "dataPrivacyPolicyLink": "Política de privacidade de dados",
+            "eulaLink": "Contrato de licença do usuário final ",
+            "serverVersion": "Versão do servidor: {{version}}",
+            "websitePrivacyPolicyLink": "Política de privacidade da página web"
+        },
+        "helpCenterButton": "Central de Ajuda",
+        "masterKMLModal": {
+            "title": "KML de indivíduos rastreados"
+        },
+        "navigationButton": {
+            "mapLayers": "Camadas",
+            "patrols": "Patrulhas",
+            "reports": "Eventos",
+            "settings": "Preferências"
+        },
+        "subjectInformationModal": {
+            "title": "Resumo de indivíduos rastreados"
+        },
+        "subjectReportsModal": {
+            "title": "Observações"
+        },
+        "tableauButton": "Tableau",
+        "usersGuideButton": "Guia do usuário"
+    },
+    "kmlExportModal": {
+        "dataExportModalTitle": "Exportar archivo KML de indivíduos rastreados",
+        "includeInactiveSubjectsLabel": "Incluir indivíduos inativos"
+    }
+}

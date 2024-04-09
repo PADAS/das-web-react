@@ -1,0 +1,36 @@
+{
+    "cursorGPSDisplay": {
+        "gpsDisplayTooltip": "Pressione Enter para buscar",
+        "titleIconSearch": "Buscar"
+    },
+    "baseLayer": {
+        "popoverButton": "Definir camada de mapa de fundo",
+        "popoverTitle": "Camadas do mapa de fundo",
+        "logoAlt": "{{logoName}} logo",
+        "defaultMapLayerName": "Mapa do terreno EarthRanger"
+    },
+    "mapDrawingTools": {
+        "addPointLabel": "Clique para adicionar um ponto. Pressione \"Enter\" ou \"Voltar\" para completar.",
+        "bearingLabel": "Direção {{bearing}}°",
+        "distanceLabel": "Distância: {{distance}}",
+        "instructionsLabel": "Clique e arraste para adicionar um ponto",
+        "popupLabel": "Clique para adicionar um ponto"
+    },
+    "mapPrintControl": {
+        "documentTitle": "Título do documento",
+        "printButtonTitle": "Imprimir mapa",
+        "printButton": "Imprimir mapa",
+        "printInstructions": "Ajuste a configuração de 'escala' ao imprimir para obter melhores resultados"
+    },
+    "mapRuler": {
+        "cancelButton": "Cancelar",
+        "closeButton": "Fechar",
+        "title": "Régua"
+    },
+    "pointPopup": {
+        "bearingLabel": "Direção:",
+        "distanceLabel": "Distância a partir do início",
+        "finishButton": "Clique aqui para finalizar"
+    },
+    "reportMapControlTitle": "Eventos"
+}

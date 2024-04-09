@@ -1,0 +1,82 @@
+{
+    "addToPatrolModal": {
+        "title": "Adicionar à Patrulha",
+        "cancel": "Cancelar",
+        "noMorePatrols": "Não há mais patrulhas para mostrar",
+        "loading": "Carregando..."
+    },
+    "detailView": {
+        "addEmptyNoteAlert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
+        "formButtons": {
+            "save": "Salvar",
+            "cancel": "Cancelar"
+        },
+        "header": {
+            "patrolSchedule": "Programada para  {{scheduledStartTime}}",
+            "patrolStartButton": "Iniciar",
+            "patrolRestoreButton": "Restaurar",
+            "uiStateTitles": {
+                "active": "Ativa",
+                "cancelled": "Cancelada",
+                "done": "Finalizada",
+                "invalid": "Configuração inválida",
+                "readyToStart": "Pronta para começar",
+                "scheduled": "Programada",
+                "startOverdue": "Início atrasado"
+            }
+        },
+        "loadingMessage": "Salvando...",
+        "planSection": {
+            "autoStartCheckboxLargeLabel": "Iniciar automaticamente a patrulha em EarthRanger no horário programado",
+            "autoStartCheckboxSmallLabel": "Iniciar automaticamente a patrulha em EarthRanger",
+            "autoEndCheckboxLargeLabel": "Finalizar automaticamente a patrulha em EarthRanger no horário programado",
+            "autoEndCheckboxSmallLabel": "Finalizar automaticamente a patrulha em EarthRanger",
+            "endDateLabel": "Data da finalização",
+            "endTimeLabel": "Hora da finalização",
+            "endLocationLargeLabel": "Localização da finalização",
+            "endLocationSmallLabel": "Localização",
+            "locationSelectorPlaceholder": "Definir localização",
+            "objectiveLabel": "Objetivo",
+            "objectivePlaceholder": "Descrever o propósito da patrulha...",
+            "startDateLabel": "Data de início:",
+            "startTimeLabel": "Hora de início:",
+            "startLocationLargeLabel": "Localização de início:",
+            "startLocationSmallLabel": "Localização",
+            "title": "Plano",
+            "trackedByLabel": "Rastreado por:",
+            "trackedByPlaceholder": "Selecionar dispositivo..."
+        },
+        "quickLinksTitles": {
+            "activity": "Atividade",
+            "history": "Histórico",
+            "plan": "Plano"
+        }
+    },
+    "invalidDatesModal": {
+        "body": "Esta patrulha não pode ser salva. A hora de finalização de uma patrulha deve ser posterior à hora de início. Por favor, corrija a hora de início ou finalização da patrulha.",
+        "okButton": "Ok",
+        "title": "Datas de patrulha inválidas."
+    },
+    "patrolMenu": {
+        "cancelPatrol": "Cancelar Patrulha",
+        "copyButton": "Copiar link de patrulha",
+        "copyButtonMessage": "Link copiado",
+        "endPatrol": "Finalizar patrulha",
+        "printPatrolButton": "Imprimir patrulha",
+        "restorePatrol": "Restaurar patrulha",
+        "startPatrol": "Iniciar patrulha"
+    },
+    "patrolList": {
+        "emptyPatrolList": "Não há patrulhas para mostrar"
+    },
+    "patrolListItem": {
+        "restoreButton": "Restaurar",
+        "scheduledTitle": "Programada:",
+        "startButton": "Iniciar"
+    },
+    "trackToggleButton": {
+        "tracksPinned": "Rastros fixados",
+        "tracksOn": "Rastros ativados",
+        "tracksOff": "Rastros desativados"
+    }
+}

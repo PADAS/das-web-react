@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timeslider-icon.svg';
 
@@ -12,6 +13,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TimeSliderMapControl = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('components', { keyPrefix: 'timeSlider.timeSliderMapControl' });
 
   const active = useSelector((state) => state.view.timeSliderState.active);
   const dateSet = useSelector((state) => !!state.view.timeSliderState.virtualDate);
@@ -25,6 +27,7 @@ const TimeSliderMapControl = () => {
   return <button className={styles.mapControl} onClick={toggleState} type="button">
     <TimeSliderIcon
       className={`${styles.icon} ${active ? styles.activeIcon : ''} ${dateSet ? styles.warningIcon : ''}`}
+      title={t('iconTitle')}
     />
   </button>;
 };
