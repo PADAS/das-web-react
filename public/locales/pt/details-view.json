@@ -8,7 +8,8 @@
         "timeLabel": "Hora"
     },
     "addAttachmentButton": "Arquivo anexo",
-    "addReportButton": "Evento",
+    "addReportButtonLabel": "Criar Evento",
+    "addReportButtonTitle": "Evento",
     "addNoteButton": "Anotação",
     "attachmentControls": {
         "addNoteTitle": "Adicionar anotação",
