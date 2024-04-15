@@ -73,11 +73,11 @@ const LocationJumpButton = ({
     : <MarkerIcon />;
 
   return isValidLocation && <button
-      className={buttonClass}
-      onClick={onJumpButtonClick}
-      title={t('title')}
-      type="button"
-      {...restProps}
+    className={buttonClass}
+    onClick={onJumpButtonClick}
+    title={t('title')}
+    type="button"
+    {...restProps}
     >
     {icon}
   </button>;
@@ -90,7 +90,7 @@ LocationJumpButton.defaultProps = {
   coordinates: null,
   isMulti: false,
   onClick: null,
-  zoom: null,
+  zoom: 14,
 };
 
 LocationJumpButton.propTypes = {
