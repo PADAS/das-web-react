@@ -78,7 +78,7 @@ const LocationJumpButton = ({
     title={t('title')}
     type="button"
     {...restProps}
-    >
+  >
     {icon}
   </button>;
 };
