@@ -2,8 +2,9 @@ name: Build das-web-react
 on:
   push:
     branches:
-      - develop
-      - 'release-**'
+      # - develop
+      # - 'release-**'
+      - ERA-9420
 
 jobs:
   config:
@@ -31,3 +32,12 @@ jobs:
       dockerfile: Dockerfile.mt
       artifact-download: true
       artifact-name: npm-config
+    
+  playwright:
+    needs: build
+    uses: ./.github/workflows/_playwright.yml
+    with:
+      playwright_image: europe-west3-docker.pkg.dev/padas-app/er-mt/playwright:master-6
+      das_image: europe-west3-docker.pkg.dev/padas-app/er-mt/das-server:develop-375
+      command: yarn run das:ui:smoke
+    secrets: inherit
