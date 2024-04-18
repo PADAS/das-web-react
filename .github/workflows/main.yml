@@ -37,7 +37,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/_playwright.yml
     with:
-      playwright_image: europe-west3-docker.pkg.dev/padas-app/er-mt/playwright:master-6
+      playwright_image: europe-west3-docker.pkg.dev/padas-app/er-mt/playwright:master-8
       das_image: europe-west3-docker.pkg.dev/padas-app/er-mt/das-server:develop-375
       das_web_image: "europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react:${{ github.head_ref || github.ref_name }}-${{ github.run_number }}"
       command: yarn run das:ui:smoke
