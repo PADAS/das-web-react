@@ -72,6 +72,24 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         env:
+          SERVICE_NAME: api_server
+          ALT_SERVER_NAMES: das
+          DB_HOST: postgres
+          DB_NAME: earthranger
+          DB_USER: postgres
+          DB_PASSWORD: fancypassword
+          DB_PORT: 5432
+          FQDN: root.dev.pamdas.org
+          REDIS_HOST: redis
+          MEMORY_STORE_HOST: redis-proxy.dev.pamdas.org
+          MEMORY_STORE_API_KEY: ${{ secrets.MEMORY_STORE_API_KEY }}
+      das_rt:
+        image: ${{ inputs.das_image }}
+        credentials:
+          username: oauth2accesstoken
+          password: ${{ needs.vars.outputs.token }}
+        env:
+          SERVICE_NAME: realtime_server
           ALT_SERVER_NAMES: das
           DB_HOST: postgres
           DB_NAME: earthranger
