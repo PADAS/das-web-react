@@ -83,6 +83,8 @@ jobs:
           REDIS_HOST: redis
           MEMORY_STORE_HOST: redis-proxy.dev.pamdas.org
           MEMORY_STORE_API_KEY: ${{ secrets.MEMORY_STORE_API_KEY }}
+          TMS_API_HOST: ${{ secrets.TMS_API_HOST }}
+          TMS_API_KEY: ${{ secrets.TMS_API_KEY }}
       das_rt:
         image: ${{ inputs.das_image }}
         credentials:
@@ -102,6 +104,8 @@ jobs:
           REDIS_HOST: redis
           MEMORY_STORE_HOST: redis-proxy.dev.pamdas.org
           MEMORY_STORE_API_KEY: ${{ secrets.MEMORY_STORE_API_KEY }}
+          TMS_API_HOST: ${{ secrets.TMS_API_HOST }}
+          TMS_API_KEY: ${{ secrets.TMS_API_KEY }}
       das_web:
         image: ${{ inputs.das_web_image}}
         credentials:
