@@ -137,3 +137,4 @@ jobs:
           USERNAME: ${{ secrets.PLAYWRIGHT_USERNAME }}
           PASSWORD: ${{ secrets.PLAYWRIGHT_PASSWORD }}
           CI: true
+
