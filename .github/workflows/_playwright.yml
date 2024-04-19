@@ -90,6 +90,8 @@ jobs:
           password: ${{ needs.vars.outputs.token }}
         env:
           SERVICE_NAME: realtime_server
+          API_HOST: das
+          API_PORT: 8000
           ALT_SERVER_NAMES: das
           DB_HOST: postgres
           DB_NAME: earthranger
