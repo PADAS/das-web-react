@@ -26,6 +26,7 @@ jobs:
       token: ${{ steps.vars.outputs.token }}
     environment: padas-app
     steps:
+      - uses: 'actions/checkout@v4'
       - name: GCP Auth
         id: auth
         uses: google-github-actions/auth@v2
@@ -33,6 +34,7 @@ jobs:
           token_format: 'access_token'
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.SERVICE_ACCOUNT }}
+          create_credentials_file: true
       - id: vars
         run: |
           echo "token=$(gcloud auth print-access-token)" >> $GITHUB_OUTPUT
