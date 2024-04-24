@@ -39,6 +39,7 @@ jobs:
   playwright:
     runs-on: ubuntu-latest
     needs: [vars]
+    environment: padas-app
     container: 
       image: ${{ inputs.playwright_image }}
       credentials:
