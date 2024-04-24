@@ -24,6 +24,7 @@ jobs:
       id-token: 'write'
     outputs:
       token: ${{ steps.vars.outputs.token }}
+      creds: ${{ steps.vars.outputs.creds }}
     environment: padas-app
     steps:
       - name: GCP Auth
@@ -36,13 +37,14 @@ jobs:
       - id: vars
         run: |
           echo "token=$(gcloud auth print-access-token)" >> $GITHUB_OUTPUT
+          echo "creds=$(cat $GOOGLE_APPLICATION_CREDENTIALS)" >> $GITHUB_OUTPUT
   playwright:
     runs-on: ubuntu-latest
     needs: [vars]
-    environment: padas-app
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+    # environment: padas-app
+    # permissions:
+    #   contents: 'read'
+    #   id-token: 'write'
     container: 
       image: ${{ inputs.playwright_image }}
       credentials:
@@ -110,6 +112,7 @@ jobs:
           MEMORY_STORE_API_KEY: ${{ secrets.MEMORY_STORE_API_KEY }}
           TMS_API_HOST: ${{ secrets.TMS_API_HOST }}
           TMS_API_KEY: ${{ secrets.TMS_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ needs.vars.outputs.creds }}
       das_web:
         image: ${{ inputs.das_web_image}}
         credentials:
@@ -131,15 +134,15 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: 'actions/checkout@v4'
-      - name: GCP Auth
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          token_format: 'access_token'
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
-          create_credentials_file: true
+      # - uses: 'actions/checkout@v4'
+      # - name: GCP Auth
+      #   id: auth
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     token_format: 'access_token'
+      #     workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+      #     service_account: ${{ vars.SERVICE_ACCOUNT }}
+      #     create_credentials_file: true
       - name: Run Tests
         run: | 
           cd /app
