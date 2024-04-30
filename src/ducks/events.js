@@ -63,7 +63,10 @@ export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
-  return userIsGeoPermissionRestricted(state?.data?.user) && !!state?.view?.userLocation?.coords;
+  const currentUser = state?.data?.selectedUserProfile?.username
+    ? state?.data?.selectedUserProfile
+    : state?.data?.user;
+  return userIsGeoPermissionRestricted(currentUser) && !!state?.view?.userLocation?.coords;
 };
 
 export const socketEventData = (payload) => (dispatch) => {
