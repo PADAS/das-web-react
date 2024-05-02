@@ -67,10 +67,11 @@ jobs:
         if: steps.validate_env.outputs.site_exists == 'true'
         run: CI=false yarn build
 
-      - name: Upload to bucket
+      - name: UploadDownload to bucket
         if: steps.validate_env.outputs.site_exists == 'true'
         run: |-
-          gsutil cp -r build/static gs://er-static/
+          gsutil -m cp -r build/static gs://er-static/
+          gsutil -m cp -r gs://er-static/api/* build/static/
 
       - name: Build docker image
         if: steps.validate_env.outputs.site_exists == 'true'
