@@ -12,7 +12,7 @@
       "save": "Sauvegarder"
     },
     "header": {
-      "patrolSchedule": "Planifiée pour {{scheduledStartTime}}",
+      "patrolSchedule": "Planifiée pour le {{scheduledStartTime}}",
       "patrolStartButton": "Début",
       "patrolRestoreButton": "Restaurer",
       "uiStateTitles": {
@@ -21,8 +21,8 @@
         "done": "Terminée",
         "invalid": "Configuration Invalide",
         "readyToStart": "Prête à Démarrer",
-        "scheduled": "Planifiée pour  ",
-        "startOverdue": "Début de la Patrouille Retardée"
+        "scheduled": "Planifiée pour le",
+        "startOverdue": "Patrouille Retardée de"
       }
     },
     "loadingMessage": "Sauvegardement...",
@@ -71,7 +71,7 @@
   },
   "patrolListItem": {
     "restoreButton": "Restaurer  ",
-    "scheduledTitle": "Planifiée pour:",
+    "scheduledTitle": "Planifiée pour le:",
     "startButton": "Commencer"
   },
   "trackToggleButton": {

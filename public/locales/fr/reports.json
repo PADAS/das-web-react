@@ -101,7 +101,7 @@
     }
   },
   "reportListItem": {
-    "dateTimeSuffix": "depuis",
+    "dateTimeSuffix": "Il y a date",
     "resolvedState": "résolu"
   },
   "reportManager": {
@@ -120,14 +120,14 @@
       },
       "dateLabel": "Date de l'Événement",
       "detailsHeader": "Détails",
-      "locationLabel": "Position de l'événement",
+      "locationLabel": "Emplacement",
       "priorityLabel": "Priorité",
       "reportedByLabel": "Complété Par",
       "stateDropdown": {
         "active": "Actif",
         "resolved": "Résolu"
       },
-      "timeLabel": "Heure de l'Événement"
+      "timeLabel": "Heure"
     },
     "header": {
       "priority": {

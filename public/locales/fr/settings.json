@@ -25,7 +25,7 @@
   "mapTrackTimepointsControl": {
     "label": "Afficher les Points Temporels du Suivi"
   },
-  "mapTerrain3DOption": "3D Map Terrain",
+  "mapTerrain3DOption": "Relief 3D",
   "userLocationMapControl": {
     "label": "Afficher votre Position Actuelle"
   }
