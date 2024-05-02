@@ -105,6 +105,7 @@ const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
+    const state = getState();
 
     cancelToken.cancel();
     cancelToken = CancelToken.source();
@@ -113,6 +114,11 @@ const fetchNamedFeedActionCreator = (name) => {
       name,
       type: FEED_FETCH_START,
     });
+
+    if (shouldAppendLocationToRequest(state)) {
+      paramString = paramString + `&location=${calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords)}`;
+    }
+
 
     return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,
