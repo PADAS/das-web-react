@@ -1,0 +1,106 @@
+{
+  "addItemButton": {
+    "addItemModal": {
+      "addPatrolTab": {
+        "searchBarPlaceholder": "Tafuta"
+      },
+      "addPatroTabTitle": "Ongeza Doria",
+      "addReportTab": {
+        "reportsSelectPlaceholder": "Ruka hadi...",
+        "searchBarPlaceholder": "Tafuta"
+      },
+      "addReportTabTitle": "Ongeza Tukio"
+    },
+    "defaultLabel": "Unda Tukio au Doria",
+    "defaultTitle": "Unda"
+  },
+  "checkMark": {
+    "fullyCheckedTitle": "Inaonekana",
+    "partiallyCheckedTitle": "Inaonekana kwa sehemu",
+    "uncheckedTitle": "Fichwa"
+  },
+  "detectOffline": {
+    "offlineToastMessage": "Uko nje ya mtandao kwa sasa. EarthRanger haiwezi kufanya kazi kama ilivyotarajiwa. Tafadhali angalia muunganisho wako wa mtandao.",
+    "reconnectionToastMessage": "Umerudi mtandaoni!"
+  },
+  "earthRangerLogo": {
+    "title": "Nembo ya EarthRanger"
+  },
+  "errorBoundary": {
+    "reloadButton": "Pakia upya"
+  },
+  "errorMessage": {
+    "defaultMessage": "Hitilafu imetokea",
+    "hideDetailsButton": "Ficha Maelezo",
+    "showDetailsButton": "Onyesha Maelezo"
+  },
+  "geoLocationWatcher": {
+    "shareLocationToastMessage": "Shiriki mahali pako pa kuona data na ruhusa za jiografia",
+    "shareLocationToastTitle": "Jifunze jinsi"
+  },
+  "gpsInput": {
+    "gpsFormats": {
+      "DDM": "Digrii, Desimali, Dakika",
+      "DEG": "Latitudo, Longitudo",
+      "DMS": "Digrii, Dakika, Sekunde",
+      "UTM": "Universal Transverse Mercator",
+      "MGRS": "Mfumo wa Marejeleo ya Gridi ya Kijeshi"
+    },
+    "defaultPlaceholder": "Mahali",
+    "inputExample": "Mfano: {{gpsFormat}}",
+    "invalidLocation": "Mahali pasipo sahihi"
+  },
+  "locationJumpButton": {
+    "title": "Ruka hadi mahali hapa"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Ghairi",
+    "popupLabel": "Bofya kuchagua mahali",
+    "selectLocationButtonLabel": "Chagua kwenye ramani",
+    "selectLocationButtonTitle": "Weka alama kwenye ramani"
+  },
+  "mapLocationSelectionOverview": {
+    "chooseLocationHeader": {
+      "patrol": "Chagua mahali pa doria",
+      "report": "Chagua mahali pa tukio"
+    },
+    "discardButton": "Tupa",
+    "discardButtonTooltip": "Ondoa alama zote",
+    "drawingReportGeometryArea": "Eneo: {{areaDisplay}}",
+    "drawingReportGeometryHeader": "Unda eneo la tukio",
+    "drawingReportGeometryPerimeter": "Perimeter: {{perimeterDisplay}}",
+    "undoButton": "Rudia",
+    "undoButtonTooltip": "Geuza kitendo chako cha mwisho"
+  },
+  "messageInput": {
+    "placeholder": "Andika ujumbe wako hapa...",
+    "sendButton": "Tuma"
+  },
+  "messageList": {
+    "defaultEmptyMessage": "Hakuna ujumbe wa kuonyesha.",
+    "groupTitle": {
+      "today": "leo",
+      "yesterday": "jana"
+    },
+    "messageSummaryList": {
+      "loadingEmptyMessage": "Inapakia ujumbe..."
+    },
+    "paramFedMessageList": {
+      "loadingEmptyMessage": "Inapakia ujumbe..."
+    },
+    "senderDetails": {
+      "radioIconTitle": "Ishara ya redio kwa {{subjectName}}"
+    }
+  },
+  "priorityPicker": {
+    "amber": "Kahawia",
+    "green": "Kijani",
+    "none": "Hakuna",
+    "red": "Nyekundu"
+  },
+  "reportedBySelect": {
+    "control": {
+      "radioIconTitle": "{{subjectName}}"
+    }
+  }
+}

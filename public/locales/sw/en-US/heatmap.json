@@ -1,0 +1,31 @@
+{
+  "heatmapLegend": {
+    "dayTimespan_one": "zaidi ya siku {{count}}",
+    "dayTimespan_other": "zaidi ya siku {{count}}",
+    "pointCount_one": "{{count}} hatua",
+    "pointCount_other": "{{count}} hatua"
+  },
+  "heatmapStyleControls": {
+    "radiusLabel": "Mzunguko (kwa mita):",
+    "radiusUnit": "m",
+    "sensitivityHighIndicator": "Ju",
+    "sensitivityLabel": "Uwiano:",
+    "sensitivityLowIndicator": "Chini"
+  },
+  "heatmapToggleButton": {
+    "heatmapOffLabel": "Mchoro mbali",
+    "heatmapOnLabel": "Mchoro kwenye"
+  },
+  "reportsHeatmapLegend": {
+    "heatmapLegendTitle": "Matukio Yanayoonekana"
+  },
+  "subjectHeatmapLegend": {
+    "subjectCount_one": "{{count}} somo",
+    "subjectCount_other": "{{count}} masomo",
+    "titleElement": {
+      "pointCount_one": "{{count}} hatua",
+      "pointCount_other": "{{count}} hatua",
+      "remove": "ondoa"
+    }
+  }
+}

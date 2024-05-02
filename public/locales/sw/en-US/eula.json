@@ -1,0 +1,16 @@
+{
+  "modalBody": {
+    "acceptanceCheckboxLabel": "Nakubali masharti na masharti ya Mkataba wa Leseni ya Mtumiaji wa EarthRanger (EULA).",
+    "eulaLink": {
+      "0": "Tafadhali ",
+      "1": "bonyeza hapa na usome EULA yetu",
+      "2": " kabla ya kutumia EarthRanger."
+    }
+  },
+  "modalFooter": {
+    "acceptButton": "Kubali",
+    "cancelButton": "Ghairi",
+    "errorAlertMessage": "Kulikuwa na tatizo katika kukubali EULA. Tafadhali jaribu tena."
+  },
+  "modalTitle": "Unapaswa kukubali Mkataba wa Leseni ya Mtumiaji wa Mwisho (EULA) ili kuendelea"
+}

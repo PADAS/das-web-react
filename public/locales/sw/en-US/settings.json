@@ -1,0 +1,32 @@
+{
+  "clusterMembers": {
+    "all": "Yote",
+    "reports": "Matukio",
+    "subjects": "Mada"
+  },
+  "inactiveRadioControl": {
+    "label": "Onyesha Redio Zisizo na Shughuli"
+  },
+  "mapDataZoomSimplificationControl": {
+    "label": "Rahisisha Data ya Ramani kwenye Kuongeza Kupunguza"
+  },
+  "mapLockControl": {
+    "label": "Funga Ramani"
+  },
+  "mapNamesControl": {
+    "allCheckboxLabel": "Yote",
+    "layerLabels": {
+      "subjects": "Mada",
+      "stationary_subjects": "Mada zisizotembea",
+      "reports": "Matukio",
+      "patrols": "Doria"
+    }
+  },
+  "mapTrackTimepointsControl": {
+    "label": "Onyesha Muda wa Vipindi vya Nyayo kwenye Ramani"
+  },
+  "mapTerrain3DOption": "Mazingira ya Ramani ya 3D",
+  "userLocationMapControl": {
+    "label": "Onyesha Mahali Yangu ya Sasa"
+  }
+}

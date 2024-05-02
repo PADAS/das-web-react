@@ -1,0 +1,94 @@
+{
+  "dateFilter": {
+    "emptyEndDateMessage": "Sasa",
+    "resetButton": "Rudisha",
+    "emptyStartDateMessage": "{{distanceInWordsDate}} iliyopita",
+    "title": "Upeo wa Tarehe"
+  },
+  "dateRangeSelector": {
+    "endDateLabel": "Hadi:",
+    "lastSevenDaysLabel": "Siku 7 zilizopita",
+    "lastThirtyDaysLabel": "Siku 30 zilizopita",
+    "lastThreeMonthsLabel": "Miezi 3 iliyopita",
+    "todayLabel": "Leo",
+    "settingsTitle": "Mipangilio",
+    "startDateLabel": "Kutoka:",
+    "yesterdayLabel": "Jana"
+  },
+  "eventsFilter": {
+    "datesButton": "Tarehe",
+    "filtersButton": "Vichujio",
+    "resetButton": "Rudisha",
+    "searchBarPlaceholder": "Tafuta Matukio..."
+  },
+  "filters": {
+    "priorityPickerLabel": "Kipaumbele",
+    "reportTypesAllLabel": "Zote",
+    "reportTypesLabel": "Aina za Matukio",
+    "reportTypesSelectionLabels": {
+      "allSelected": "Zote zilizochaguliwa",
+      "noneSelected": "Hakuna iliyochaguliwa",
+      "someSelected": "{{reportTypesCheckedCount}} kati ya {{eventTypeIDsLength}} zimechaguliwa"
+    },
+    "restAllButton": "Rudisha Zote",
+    "restButton": "Rudisha",
+    "stateLabel": "Hali",
+    "stateSelector": {
+      "active": "Tendaji",
+      "resolved": "Imetatuliwa",
+      "all": "Zote"
+    },
+    "title": "Vichujio vya Matukio"
+  },
+  "friendlyFilterString": {
+    "resultLabel": "matokeo",
+    "resultsLabel": "Matokeo",
+    "fromLabel": " kutoka ",
+    "filteredLabel": " iliyochujwa",
+    "sortingTypeLabel": ", imepangwa {{sortDirection}}",
+    "byLabel": " kwa ",
+    "eventSortOptions": {
+      "updatedAtLabel": "Tarehe ya Kusasishwa",
+      "createdAtLabel": "Tarehe ya Kuundwa",
+      "eventTimeLabel": "Tarehe ya Tukio"
+    },
+    "ascendingLabel": " kupanda"
+  },
+  "mapLayerSearchbarPlaceholder": "Tafuta Tabaka...",
+  "patrolFilters": {
+    "datesTitle": "Tarehe",
+    "dateRangePopover": {
+      "title": "Upeo wa Tarehe",
+      "resetButton": "Rudisha"
+    },
+    "filtersTitle": "Vichujio",
+    "searchbarPlaceHolder": "Tafuta Doria...",
+    "filtersPopover": {
+      "checkBoxAllOption": "Zote",
+      "title": "Vichujio vya Doria",
+      "resetAllButton": "Rudisha Zote",
+      "resetButton": "Rudisha",
+      "trackedByLabel": "Inayofuatiliwa na",
+      "statusLabel": "Hali",
+      "patrolTypeLabel": "Aina ya Doria",
+      "reportedByPlaceholder": "Chagua Kifaa...",
+      "patrolStatuses": {
+        "active": "Tendaji",
+        "done": "Imefanyika",
+        "cancelled": "Imeghairiwa"
+      }
+    }
+  },
+  "patrolFiltersSettings": {
+    "byStartDateLabel": "Chuja kwa tarehe ya kuanza",
+    "byRangeDateLabel": "Chuja kwa mizunguko ya tarehe",
+    "patrolWithinRangeTooltip": "Jumuisha doria zinazoanza ndani ya upeo wa tarehe",
+    "patrolOverlapsRangeTooltip": "Jumuisha doria ambazo upeo wa tarehe wa kuanzia hadi mwisho unafanana na upeo wa tarehe"
+  },
+  "reportTypeMultiSelect": {
+    "placeholder": "Tafuta aina",
+    "noResultsLabel": "Hakuna mechi",
+    "someResultsLabel": "Weka hizi {{resultCount}}",
+    "singleResultLabel": "Weka hii moja"
+  }
+}

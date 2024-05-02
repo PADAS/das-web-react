@@ -322,6 +322,7 @@ export const SUPPORTED_LANGUAGES = {
   es: 'Español',
   fr: 'Français',
   pt: 'Português',
+  sw: 'Swahili',
 };
 
 export const FEATURE_FLAG_LABELS = {

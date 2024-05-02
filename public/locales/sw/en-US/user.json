@@ -1,0 +1,7 @@
+{
+  "userCurrentLocationPopup": {
+    "accuracy": "Sahihi kwa umbali wa {{accuracy}} mita",
+    "header": "Mahali ulipo sasa:",
+    "lastChecked": "Iliyochunguzwa mwisho"
+  }
+}

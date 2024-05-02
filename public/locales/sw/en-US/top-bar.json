@@ -1,0 +1,69 @@
+{
+  "messagesModal": {
+    "backToAllMessagesButton": "← Ujumbe wote",
+    "cancelButton": "Ghairi",
+    "messagesHeader": "Ujumbe",
+    "newMessageButton": "Ujumbe Mpya",
+    "noMessagingSubjectText": "Huwezi kutuma ujumbe kwa mada hii."
+  },
+  "messagingSelect": {
+    "allOptionsLabel": "Zote",
+    "hiddenValue": "fichwa",
+    "placeholder": "Tuma ujumbe kwa...",
+    "restrictedOptionLabel": "ILIZUIWA"
+  },
+  "nav": {
+    "hamburgerMenuLabel": "Fungua Menyu Kuu",
+    "hamburgerMenuTitle": "Menyu",
+    "messageMenu": {
+      "messageMenuToggleLabel": "Fungua Ujumbe",
+      "messageMenuToggleTitle": "Ujumbe"
+    },
+    "navHomeMenu": {
+      "homeMenuToggleTitle": "Vifungo vya Haraka vya Ramani",
+      "myCurrentLocationItem": "Mahali Yangu ya Sasa"
+    }
+  },
+  "notificationMenu": {
+    "errorFetchingHeader": "Hitilafu katika kupata taarifa za hivi karibuni.",
+    "noNewNotificationsHeader": "Hakuna taarifa mpya kwa sasa.",
+    "notificationItem": {
+      "confirmButton": "Thibitisha",
+      "dismissButton": "Ghairi",
+      "moreInformationLink": "Maelezo zaidi"
+    },
+    "outdatedNotifications_one": "Una taarifa {{count}} isiyosomwa.",
+    "outdatedNotifications_other": "Una taarifa {{count}} zisizosomwa.",
+    "readMore": "Soma zaidi",
+    "seeAllNewsButton": "Ona habari zote >",
+    "toggleLabel": "Fungua Taarifa za EarthRanger",
+    "toggleTitle": "Taarifa za EarthRanger",
+    "tryAgainButton": "Jaribu tena"
+  },
+  "profilePINModal": {
+    "error": "PIN isiyo sahihi",
+    "title": "Ingiza PIN yako",
+    "userLabel": "Mtumiaji: "
+  },
+  "systemStatus": {
+    "datasourceDefTitle": "shughuli za kifaa",
+    "dateTimeSuffix": "iliyopita",
+    "HEALTHY": "Salama",
+    "heartBeatDefTitle": "shughuli za mfumo",
+    "initialRealTimeStatusTitle": "Hali Halisi ya EarthRanger",
+    "initialRealTimeStatusDetails": "Shughuli",
+    "initialNetworkStatusTitle": "Mtandao",
+    "networkOnlineLabel": "mtandaoni",
+    "networkOfflineLabel": "haipo mtandaoni",
+    "serverVersionLabel": "Seva ya EarthRanger {{version}}",
+    "UNHEALTHY": "Isio Salama",
+    "UNKNOWN": "Haijulikani",
+    "WARNING": "Onyo"
+  },
+  "userMenu": {
+    "cookieSettingsItem": "Mipangilio ya Kidakuzi",
+    "logoutItem": "Toka",
+    "toggleLabel": "Fungua Mipangilio ya Mtumiaji",
+    "toggleTitle": "Mipangilio ya Mtumiaji"
+  }
+}

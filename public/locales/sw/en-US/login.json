@@ -1,0 +1,10 @@
+{
+  "errorAlert": {
+    "invalidCredentialsMessage": "Maelezo yasiyo sahihi yametolewa. Tafadhali jaribu tena.",
+    "unknownErrorMessage": "Kumetokea kosa. Tafadhali jaribu tena."
+  },
+  "eulaLink": "EarthRanger EULA",
+  "loginButton": "Ingia",
+  "passwordLabel": "Nenosiri",
+  "usernameLabel": "Jina la Mtumiaji"
+}
