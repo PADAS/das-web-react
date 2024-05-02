@@ -63,7 +63,10 @@ export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
-  return userIsGeoPermissionRestricted(state?.data?.user) && !!state?.view?.userLocation?.coords;
+  const currentUser = state?.data?.selectedUserProfile?.username
+    ? state?.data?.selectedUserProfile
+    : state?.data?.user;
+  return userIsGeoPermissionRestricted(currentUser) && !!state?.view?.userLocation?.coords;
 };
 
 export const socketEventData = (payload) => (dispatch) => {
@@ -102,6 +105,7 @@ const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
+    const state = getState();
 
     cancelToken.cancel();
     cancelToken = CancelToken.source();
@@ -110,6 +114,11 @@ const fetchNamedFeedActionCreator = (name) => {
       name,
       type: FEED_FETCH_START,
     });
+
+    if (shouldAppendLocationToRequest(state)) {
+      paramString = paramString + `&location=${calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords)}`;
+    }
+
 
     return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,
