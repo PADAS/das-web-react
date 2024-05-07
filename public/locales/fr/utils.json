@@ -3,7 +3,7 @@
     "monthAgo": "Il y a 1 mois jusqu'à aujourd'hui",
     "monthAgoUntilNow": "Il y a 1 mois jusqu'à {{date}}",
     "someAgoFromNow": "Depuis {{from}} jusqu'à {{until}} ",
-    "someAgo": "Depuis {{date}} jusqu'à {{until}}",
+    "someAgo": "Depuis {{from}} jusqu'à {{until}}",
     "untilNow": "Depuis {{date}} jusqu'à aujourd'hui"
   },
   "calcSenderNameForMessage": {

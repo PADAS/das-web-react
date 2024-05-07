@@ -56,7 +56,7 @@
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
       "patrol": "Sélectionnez le positionnement de la patrouille",
-      "report": "Sélectionnez la position de l'événement"
+      "report": "Sélectionnez l’emplacement de l'événement"
     },
     "discardButton": "Annuler",
     "discardButtonTooltip": "Retirer tous les points",
@@ -152,8 +152,8 @@
       "clusterDataDescription": "Regrouper les données lorsqu'il y a plusieurs:",
       "displayHeader": "Affichage",
       "experimentalFeaturesHeader": "Fonctionnalités expérimentales",
-      "generalHeader": "Caractéristiques Générales",
-      "generalTabTitle": "Caractéristiques Générales",
+      "generalHeader": "Actualisation & Langue",
+      "generalTabTitle": "Actualisation & Langue",
       "languagesHeader": "Langues",
       "mapMarkersDescription": "Afficher les noms pour:",
       "mapMarkersHeader": "Repères",

@@ -7,7 +7,13 @@
     "popoverButton": "Définir la Carte d'Arrière Plan",
     "popoverTitle": "Cartes de Fond",
     "logoAlt": "Logo {{logoName}} ",
-    "defaultMapLayerName": "Carte EarthRanger du Relief"
+    "defaultMapLayerName": "Carte EarthRanger du Relief",
+  },
+  "earthRangerMap": {
+    "mapTitle": "Carte",
+    "navigationResetBearing": "Réinitialiser l'orientation vers le nord",
+    "navigationZoomIn": "Zoom avant",
+    "navigationZoomOut": "Zoom arrière"
   },
   "mapDrawingTools": {
     "addPointLabel": "Cliquez pour ajouter un point. Sélectionner \"entrée\" pour finaliser.",

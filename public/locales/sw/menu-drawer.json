@@ -1,0 +1,71 @@
+{
+  "alertsModal": {
+    "iframeBottomMessage": "Kila mtumiaji wa EarthRanger anaweza kupokea hadi arifa 20 kwa siku.",
+    "iframeTitle": "Sanidi arifa zako za EarthRanger"
+  },
+  "betaToggles": {
+    "patrolUI": "UI Mpya wa Fomu ya Doria",
+    "reportNotification": "Cheza Sauti kwa Matukio Mapya"
+  },
+  "dailyReportModal": {
+    "dataExportModalTitle": "Ripoti ya Kila Siku",
+    "todaysReportButton": "Ripoti ya Leo",
+    "yesterdaysReportButton": "Ripoti ya Jana"
+  },
+  "dataExportModal": {
+    "cancelButton": "Ghairi",
+    "exportButton": "Nakili"
+  },
+  "globalMenuDrawer": {
+    "alertsButton": "Arifa",
+    "alertsModal": {
+      "title": "Arifa"
+    },
+    "closeButtonLabel": "Funga Menyu Kuu",
+    "closeButtonTitle": "Funga",
+    "communityButton": "Jumuiya",
+    "contactSupport": {
+      "body": "Tunawezaje kukusaidia?",
+      "subject": "Ombi la Msaada kutoka kwa Mtumiaji"
+    },
+    "contactSupportButton": "Wasiliana na Msaada",
+    "dailyReportModal": {
+      "title": "Ripoti ya Kila Siku"
+    },
+    "exportsHeader": "Nakili",
+    "fieldReportsModal": {
+      "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
+      "title": "Matukio ya Uwanja"
+    },
+    "footer": {
+      "clientVersion": "Toleo la Wavuti: {{version}}",
+      "copyright": "©{{year}} EarthRanger",
+      "dataPrivacyPolicyLink": "Sera ya Faragha ya Data",
+      "eulaLink": "Mkataba wa Leseni ya Mtumiaji wa Mwisho",
+      "serverVersion": "Toleo la Seva: {{version}}",
+      "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
+    },
+    "helpCenterButton": "Kituo cha Msaada",
+    "masterKMLModal": {
+      "title": "KML ya Somo"
+    },
+    "navigationButton": {
+      "mapLayers": "Tabaka za Ramani",
+      "patrols": "Doria",
+      "reports": "Matukio",
+      "settings": "Mipangilio"
+    },
+    "subjectInformationModal": {
+      "title": "Muhtasari wa Somo"
+    },
+    "subjectReportsModal": {
+      "title": "Maelezo"
+    },
+    "tableauButton": "Meza",
+    "usersGuideButton": "Mwongozo wa Mtumiaji"
+  },
+  "kmlExportModal": {
+    "dataExportModalTitle": "Nakili Faili ya KML ya Somo",
+    "includeInactiveSubjectsLabel": "Jumuisha masomo yasiyo hai"
+  }
+}

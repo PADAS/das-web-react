@@ -1,0 +1,19 @@
+{
+  "analyzerConfigPopup": {
+    "analyzerTypeHeader": {
+      "environmental": "Mazingira",
+      "generic": "Jumla",
+      "geofence": "Geofence",
+      "immobility": "Kutofanya kazi",
+      "proximity": "Ukaribu",
+      "subject_proximity": "Ukaribu wa Somo",
+      "low_speed": "Kasi ya Chini"
+    }
+  },
+  "layerSelectorPopup": {
+    "searchBarPlaceholder": "Tafuta"
+  },
+  "mouseMarkerPopup": {
+    "title": "Bonyeza ramani kuweka alama."
+  }
+}

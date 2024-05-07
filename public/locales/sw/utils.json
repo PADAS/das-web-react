@@ -1,0 +1,34 @@
+{
+  "calcFriendlyDurationString": {
+    "monthAgo": "Mwezi mmoja uliopita hadi sasa",
+    "monthAgoUntilNow": "Mwezi mmoja uliopita hadi {{date}} uliopita",
+    "someAgoFromNow": "{{from}} uliopita hadi {{until}} kutoka sasa",
+    "someAgo": "{{from}} uliopita hadi {{until}} uliopita",
+    "untilNow": "{{date}} uliopita hadi sasa"
+  },
+  "calcSenderNameForMessage": {
+    "operator": "Mfanyikazi"
+  },
+  "currentTimeZoneTitle": "Tarehe inaonyeshwa kwenye eneo la muda la {{timeZone}}",
+  "displayTitleForPatrol": {
+    "unknown": "Aina isiyojulikana ya doria"
+  },
+  "filterDuplicateUploadFilenames": {
+    "duplicationAlert": "Haiwezi kuongeza {{fileName}}: faili tayari ipo"
+  },
+  "generateErrorMessageForRequest": {
+    "badGateway": "Lango baya. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (502).",
+    "badRequest": "Ombi baya limetolewa. Tafadhali wasiliana na msimamizi wako (400).",
+    "default": "Kulikuwa na hitilafu katika kushughulikia ombi lako.",
+    "forbidden": "Ombi limezuiliwa. Tafadhali wasiliana na msimamizi wako (403).",
+    "internalServerError": "Hitilafu ya seva ya ndani. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (500).",
+    "noCode": "Ombi lako lilishindwa kutumwa. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea.",
+    "noResponse": "Hakuna jibu kutoka kwa seva.",
+    "requestTimeout": "Muda wa ombi umekwisha. Tafadhali jaribu tena (408).",
+    "serviceUnavailable": "Rasilimali iliyoombwa haipatikani kwa sasa. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (503).",
+    "tooManyRequests": "Maombi mengi. Tafadhali jaribu tena baadaye, na wasiliana na msimamizi wako ikiwa tatizo hili litaendelea (429)."
+  },
+  "showFilterMismatchToastForHiddenReports": {
+    "eventCreatedDoesNotMatchFilterToast": "{{serialNumber}} \"{{displayTitle}}\" imeundwa lakini haifanani na mfuatano wa sasa"
+  }
+}

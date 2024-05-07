@@ -1,0 +1,184 @@
+{
+  "addToIncidentModal": {
+    "modalBody": {
+      "addToNewIncidentButton": "Ongeza kwenye tukio jipya",
+      "loadingItem": "Inapakia...",
+      "noMoreEventsItem": "Hakuna matukio zaidi ya kuonyesha."
+    },
+    "modalFooter": {
+      "cancelButton": "Ghairi"
+    },
+    "modalTitle": "Ongeza kwenye Tukio"
+  },
+  "columnSort": {
+    "popoverTitle": "Panga kwa:",
+    "eventSortOptions": {
+      "updatedAtLabel": "Tarehe iliyosasishwa",
+      "createdAtLabel": "Tarehe ya Kuundwa",
+      "eventTimeLabel": "Tarehe ya Tukio"
+    },
+    "eventOrderOptions": {
+      "newest": "Mpya hadi za Zamani",
+      "oldest": "Zamani hadi Mpya"
+    },
+    "sortDirectionToggleLabel": {
+      "ascending": "Badilisha mpangilio kuwa Kushuka",
+      "descending": "Badilisha mpangilio kuwa Kupanda"
+    },
+    "sortDirectionToggleTitle": {
+      "ascending": "Mpangilio wa Kupanda",
+      "descending": "Mpangilio wa Kushuka"
+    }
+  },
+  "errorMessages": {
+    "accordionHeaderButton": {
+      "closed": "Ona maelezo",
+      "open": "Ficha maelezo"
+    }
+  },
+  "eventFeed": {
+    "loadingMoreReportsItem": "Inapakia matukio zaidi...",
+    "noMoreReportsItem": "Hakuna matukio zaidi ya kuonyesha.",
+    "noReportsItem": "Hakuna matukio ya kuonyesha."
+  },
+  "eventIcon": {
+    "collectionTitle": "Ukusanyaji"
+  },
+  "eventItemContextMenu": {
+    "errorToastMessage": "#{{serialNumber}} bado {{state}}, kitu kimeenda kombo",
+    "notificationDetails": {
+      "failedReports": "ONYO: Matukio haya bado {{state}}",
+      "processedReports": {
+        "activated": "limeanzishwa",
+        "resolved": "limekamilishwa",
+        "title": "Matukio haya yanayohusiana yalikuwa pia {{newState}}:"
+      }
+    },
+    "state": {
+      "active": "inachukua hatua",
+      "resolved": "limekamilishwa"
+    },
+    "textCopyButtonItem": {
+      "label": "Nakili kiungo cha tukio",
+      "successMessage": "Kiungo kimekopwa"
+    },
+    "updatedCollectionInfoToast": {
+      "activated": "limeanzishwa",
+      "message": "Ukusanyaji #{{collectionSerialNumber}} ulikuwa {{newState}} kwa usahihi",
+      "resolved": "limekamilishwa"
+    },
+    "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+    "updateReportStateItem": {
+      "reopen": "Fungua tena",
+      "resolve": "Kamilisha"
+    }
+  },
+  "prioritySelect": {
+    "labels": {
+      "amber": "Ambari",
+      "green": "Kijani",
+      "none": "Hakuna",
+      "red": "Nyekundu"
+    },
+    "placeholder": "Chagua"
+  },
+  "reportGeometryDrawer": {
+    "cancelationConfirmationModal": {
+      "continueEditingButton": "Endelea Kuhariri",
+      "discardButton": "Tupa",
+      "modalBody": "Kufuta bila kuhifadhi kutatupa mabadiliko kwenye eneo la tukio. Je, una uhakika unataka kutupa mabadiliko?",
+      "modalTitle": "Tupa Mabadiliko"
+    },
+    "footer": {
+      "cancelButton": "Ghairi",
+      "saveButton": "Hifadhi",
+      "saveButtonTooltip": {
+        "drawing": "Majumba yaliyofungwa tu yanaweza kuhifadhiwa",
+        "invalidGeometry": "Vipande vya umbo haziwezi kuingiliana"
+      }
+    },
+    "informationModal": {
+      "addingPointsHeader": "Kuongeza pointi",
+      "addingPointsContent": "Bonyeza mahali popote kwenye ramani kuongeza pointi za eneo la tukio.",
+      "addingPointsToExistingAreaHeader": "Kuongeza pointi kwenye eneo lililopo",
+      "addingPointsToExistingAreaContent": "Kuongea juu ya sehemu ya eneo la tukio kisha bonyeza na kuvuta pointi mpya hadi mahali unapotaka.",
+      "closingAreaHeader": "Kufunga eneo",
+      "closingAreaContent": "Bonyeza pointi ya kwanza au bonyeza ‘enter’ kwenye kibodi yako kufunga umbo.",
+      "deletingPointsHeader": "Kufuta pointi",
+      "deletingPointsContent": "Bonyeza pointi unayotaka kufuta na bonyeza ‘delete’ au ‘backspace’ kwenye kibodi yako.",
+      "modalTitle": "Kuunda Eneo la Tukio",
+      "reportAreaHeader": "Eneo la Tukio",
+      "reportAreaContent": "Umbo moja lililofungwa lenye pointi 3 au zaidi na bila mstari wa kupishana. Vipimo vya eneo na umbali ni takribani, havijumuishi mabadiliko kwenye eneo na urefu."
+    }
+  },
+  "reportListItem": {
+    "dateTimeSuffix": "ilipita",
+    "resolvedState": "limekamilishwa"
+  },
+  "reportManager": {
+    "detailsSection": {
+      "areaSelectorInput": {
+        "area": "Eneo: ",
+        "deleteAreaButton": "Futa Eneo",
+        "deleteAreaButtonTitle": "Futa Eneo",
+        "displayString": "{{areaDisplayString}} eneo, {{perimeterDisplayString}} mzingo",
+        "editAreaButton": "Hariri Eneo",
+        "editAreaButtonTitle": "Weka jiometri kwenye ramani",
+        "inputPlaceholder": "Weka eneo la tukio",
+        "staticMapImageAlt": "Ramani ya tuli na jiometri",
+        "perimeter": "Mzingo: ",
+        "provenanceLabel": "Imeundwa kwenye EarthRanger {{provenance}}"
+      },
+      "dateLabel": "Tarehe ya Tukio",
+      "detailsHeader": "Maelezo",
+      "locationLabel": "Mahali pa Tukio",
+      "priorityLabel": "Kipaumbele",
+      "reportedByLabel": "Iliripotiwa Na",
+      "stateDropdown": {
+        "active": "inachukua hatua",
+        "resolved": "limekamilishwa"
+      },
+      "timeLabel": "Muda wa Tukio"
+    },
+    "header": {
+      "priority": {
+        "amber": "Ambari",
+        "green": "Kijani",
+        "none": "Hakuna",
+        "red": "Nyekundu"
+      },
+      "reportMenu": {
+        "addToIncidentItem": "Ongeza kwenye Tukio",
+        "addToPatrolItem": "Ongeza kwenye Doria",
+        "label": "Angalia Chaguzi za Tukio",
+        "printReportItem": "Chapisha Maelezo ya Tukio",
+        "textCopyButtonLabel": "Nakili Kiungo cha Tukio",
+        "textCopyButtonSuccessMessage": "Kiungo kimekopwa",
+        "title": "Chaguzi za Tukio"
+      }
+    },
+    "linksSection": {
+      "linksHeader": "Viungo"
+    },
+    "reportDetailView": {
+      "cancelButton": "Ghairi",
+      "cantAddNoteAlert": "Haiwezi kuongeza hati mpya: kuna hati tupu ambayo haijasimbwa bado",
+      "loadingMessage": "Inahifadhi...",
+      "quickLinks": {
+        "activityAnchor": "Shughuli",
+        "detailsAnchor": "Maelezo",
+        "historyAnchor": "Historia",
+        "linksAnchor": "Viungo"
+      },
+      "saveErrorMessage": "Hitilafu wakati wa kuhifadhi tukio.",
+      "saveSplitButton": {
+        "saveAndReopenItem": "Hifadhi na fungua tena",
+        "saveAndResolveItem": "Hifadhi na kamilisha",
+        "title": "Hifadhi"
+      },
+      "unknownErrorLabel": "Hitilafu isiyojulikana"
+    }
+  },
+  "unknownEventTitle": "Kichwa cha Tukio Kisichojulikana",
+  "unknownEventType": "Aina ya Tukio Isiyojulikana"
+}

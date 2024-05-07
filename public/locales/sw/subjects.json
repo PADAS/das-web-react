@@ -1,0 +1,28 @@
+{
+  "subjectControls": {
+    "historicalDataModalTitle": "Data za Zamani: {{subjectName}}"
+  },
+  "subjectHistoricalDataModal": {
+    "observationRow": {
+      "noDataLabel": "Hakuna data"
+    },
+    "tableDateHeader": "Tarehe",
+    "tableLocationHeader": "Mahali"
+  },
+  "subjectHistoryButton": {
+    "label": "Data za Zamani"
+  },
+  "subjectMessagesPopover": {
+    "label": "Ujumbe"
+  },
+  "subjectPopup": {
+    "additionalPropsButton": {
+      "fewer": "< maelezo machache",
+      "more": "maelezo zaidi >"
+    },
+    "dateTimeSuffix": "iliyopita",
+    "micActivityHeader": "Shughuli ya Mic",
+    "noHistoricalDataSpan": "Hakuna data ya zamani",
+    "subjectIconAlt": "Icon ya Mada kwa {{name}}"
+  }
+}

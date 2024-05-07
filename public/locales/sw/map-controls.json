@@ -1,0 +1,43 @@
+{
+  "cursorGPSDisplay": {
+    "gpsDisplayTooltip": "Bonyeza 'enter' kwa kutafuta",
+    "titleIconSearch": "Tafuta",
+    "toggleTitle": "Mipangilio ya Vielezo"
+  },
+  "baseLayer": {
+    "popoverButton": "Weka Tabaka la Msingi la Ramani",
+    "popoverTitle": "Tabaka za Msingi",
+    "logoAlt": "Alama ya {{logoName}}",
+    "defaultMapLayerName": "Ramani ya Ardhi ya EarthRanger"
+  },
+  "earthRangerMap": {
+    "mapTitle": "Ramani",
+    "navigationResetBearing": "Rudisha mwelekeo kaskazini",
+    "navigationZoomIn": "Punguza",
+    "navigationZoomOut": "Zidisha"
+  },
+  "mapDrawingTools": {
+    "addPointLabel": "Bonyeza ili kuongeza alama. \n Bonyeza 'enter' au 'return' kumaliza.",
+    "bearingLabel": "Mwelekeo: {{bearing}}°",
+    "distanceLabel": "Umbali: {{distance}}",
+    "instructionsLabel": "Bonyeza & buruta ili kuongeza alama",
+    "popupLabel": "Bonyeza ili kuongeza alama"
+  },
+  "mapPrintControl": {
+    "documentTitle": "Kichwa cha Hati:",
+    "printButtonTitle": "Chapisha ramani",
+    "printButton": "Chapisha ramani",
+    "printInstructions": "Badilisha mazingira ya 'kipimo' unapochapisha kwa matokeo bora"
+  },
+  "mapRuler": {
+    "cancelButton": "Ghairi",
+    "closeButton": "Funga",
+    "title": "Pima ramani"
+  },
+  "pointPopup": {
+    "bearingLabel": "Mwelekeo:",
+    "distanceLabel": "Umbali kutoka mwanzo:",
+    "finishButton": "bonyeza hapa kumaliza"
+  },
+  "reportMapControlTitle": "Matukio"
+}

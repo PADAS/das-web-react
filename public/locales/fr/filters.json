@@ -1,6 +1,6 @@
 {
   "dateFilter": {
-    "emptyEndDateMessage": "À l'heure actuelle",
+    "emptyEndDateMessage": "Maintenant",
     "resetButton": "Réinitialiser",
     "emptyStartDateMessage": "Depuis {{distanceInWordsDate}} ",
     "title": "Intervalle de Dates"
@@ -19,12 +19,12 @@
     "datesButton": "Dates",
     "filtersButton": "Filtres",
     "resetButton": "Réinitialiser",
-    "searchBarPlaceholder": "Recherche d'événement..."
+    "searchBarPlaceholder": "Recherche..."
   },
   "filters": {
     "priorityPickerLabel": "Priorité",
     "reportTypesAllLabel": "Tout sélectionner",
-    "reportTypesLabel": "Tous types d'événement",
+    "reportTypesLabel": "Tout événement",
     "reportTypesSelectionLabels": {
       "allSelected": "Tout sélectionner",
       "noneSelected": "Aucune sélection",
@@ -50,11 +50,11 @@
     "eventSortOptions": {
       "updatedAtLabel": "Date Actualisée",
       "createdAtLabel": "Date de Création",
-      "eventTimeLabel": "Date de l'Événement"
+      "eventTimeLabel": "Date"
     },
     "ascendingLabel": "croissant"
   },
-  "mapLayerSearchbarPlaceholder": "Recherche de caractéristiques...",
+  "mapLayerSearchbarPlaceholder": "Recherche...",
   "patrolFilters": {
     "datesTitle": "Dates",
     "dateRangePopover": {
@@ -62,7 +62,7 @@
       "resetButton": "Réinitialiser"
     },
     "filtersTitle": "Filtres",
-    "searchbarPlaceHolder": "Recherche de Patrouilles...",
+    "searchbarPlaceHolder": "Recherche...",
     "filtersPopover": {
       "checkBoxAllOption": "Tout Sélectionner",
       "title": "Filtres de Patrouilles",
@@ -86,7 +86,7 @@
     "patrolOverlapsRangeTooltip": "Comprend les patrouilles ayant une date de début et de fin compris dans l'intervalle de dates sélectionnée"
   },
   "reportTypeMultiSelect": {
-    "placeholder": "Recherche de types de patrouilles",
+    "placeholder": "Recherche de types",
     "noResultsLabel": "Aucune correspondance",
     "someResultsLabel": "Filtrer selon les options suivantes:",
     "singleResultLabel": "Filtrer selon l'option suivante:"

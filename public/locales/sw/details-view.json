@@ -1,0 +1,88 @@
+{
+  "activitySection": {
+    "collapseAllButton": "Ficha Yote",
+    "dateItemStartTitle": "Imeanza",
+    "dateItemEndedTitle": "Imekamilika",
+    "expandAllButton": "Fungua Yote",
+    "sectionTitle": "Shughuli",
+    "timeLabel": "Wakati"
+  },
+  "addAttachmentButton": "Kiambatisho",
+  "addReportButtonLabel": "Unda Tukio",
+  "addReportButtonTitle": "Tukio",
+  "addNoteButton": "Maelezo",
+  "attachmentControls": {
+    "addNoteTitle": "Ongeza Maelezo",
+    "addAttachmentTitle": "Ongeza Kiambatisho"
+  },
+  "attachmentListItem": {
+    "collapseClosedButtonLabel": "Fungua",
+    "collapseClosedButtonTitle": "Imefungwa",
+    "collapseOpenButtonLabel": "Funga",
+    "collapseOpenButtonTitle": "Imefunguliwa",
+    "imagePreviewAlt": "{{fileName}} muhtasari",
+    "downloadButtonTooltip": "Pakua",
+    "deleteButtonTooltip": "Futa",
+    "fullViewButtonTooltip": "Tazama Kamili"
+  },
+  "containedReportListItem": {
+    "collapseClosedButtonLabel": "Fungua",
+    "collapseClosedButtonTitle": "Imefungwa",
+    "collapseOpenButtonLabel": "Funga",
+    "collapseOpenButtonTitle": "Imefunguliwa",
+    "goToReportButtonTooltip": "Nenda kwenye tukio"
+  },
+  "footer": {
+    "cancelButton": "Ghairi",
+    "saveButton": "Hifadhi",
+    "stateResolveButton": "Hifadhi na Tatua",
+    "stateReopenButton": "Hifadhi na Fungua tena"
+  },
+  "geoLocator": {
+    "buttonLabel": "Tumia Mahali Yangu",
+    "loadingMessage": "Jaribu kusoma mahali yako...",
+    "readingLocationError": "Haiwezi kusoma mahali yako ya sasa: {{locationErrorMessage}}"
+  },
+  "header": {
+    "historyLinkCreated": "Imeundwa",
+    "historyLinkUpdated": "Imesasishwa",
+    "resolvedLabel": "imesuluhishwa",
+    "sectionTitle": "Historia"
+  },
+  "historySection": {
+    "sectionTitle": "Historia",
+    "timeLabel": "Wakati"
+  },
+  "imageModal": {
+    "errorTitle": "Kosa kwenye kupakia picha.",
+    "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena."
+  },
+  "locationSelector": {
+    "copyButtonLabel": "Nakili Mahali",
+    "copyButtonTitle": "Nakili",
+    "inputLabel": "Mahali:",
+    "inputPlaceHolder": "Weka mahali"
+  },
+  "navigationPromptModal": {
+    "cancelNavigationButtonText": "Nenda Nyuma",
+    "continueNavigationNegativeButtonText": "Tupilia Mbali",
+    "continueNavigationPositiveButtonText": "Hifadhi",
+    "description": "Kuna mabadiliko ambayo hayajahifadhiwa. Ungependa kwenda nyuma, kutupilia mbali mabadiliko, au kuokoa na kuendelea?",
+    "title": "Mabadiliko Yasiyohifadhiwa"
+  },
+  "noteListItem": {
+    "cancelEditingNoteButton": "Ghairi",
+    "collapseClosedButtonLabel": "Fungua",
+    "collapseClosedButtonTitle": "Imefungwa",
+    "collapseOpenButtonLabel": "Funga",
+    "collapseOpenButtonTitle": "Imefunguliwa",
+    "deleteNoteButtonTooltip": "Futa",
+    "doneEditingNoteButton": "Imekamilika",
+    "editNoteButtonTooltip": "Hariri",
+    "noteTitle": "Maelezo mapya: {{noteText}}"
+  },
+  "reportFormSummary": {
+    "reportTypeLabel": "Aina ya Tukio",
+    "reportedByLabel": "Imeorodheshwa na"
+  }
+}

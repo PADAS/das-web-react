@@ -1,0 +1,205 @@
+{
+  "addItemButton": {
+    "addItemModal": {
+      "addPatrolTab": {
+        "searchBarPlaceholder": "Tafuta"
+      },
+      "addPatroTabTitle": "Ongeza Doria",
+      "addReportTab": {
+        "reportsSelectPlaceholder": "Nenda kwa...",
+        "searchBarPlaceholder": "Tafuta"
+      },
+      "addReportTabTitle": "Ongeza Tukio"
+    },
+    "defaultLabel": "Unda Tukio au Doria",
+    "defaultTitle": "Unda"
+  },
+  "checkMark": {
+    "fullyCheckedTitle": "Inaonekana",
+    "partiallyCheckedTitle": "Sehemu inaonekana",
+    "uncheckedTitle": "Fichwa"
+  },
+  "detectOffline": {
+    "offlineToastMessage": "Kwa sasa hauko mtandaoni. EarthRanger inaweza isiweze kufanya kazi kama ilivyotarajiwa. Tafadhali angalia uunganisho wako wa mtandao.",
+    "reconnectionToastMessage": "Rudi mtandaoni!"
+  },
+  "earthRangerLogo": {
+    "title": "Alama ya EarthRanger"
+  },
+  "errorBoundary": {
+    "reloadButton": "Pakia tena"
+  },
+  "errorMessage": {
+    "defaultMessage": "Kumekuwa na kosa",
+    "hideDetailsButton": "Ficha Maelezo",
+    "showDetailsButton": "Angalia Maelezo"
+  },
+  "geoLocationWatcher": {
+    "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",
+    "shareLocationToastTitle": "Jifunze zaidi"
+  },
+  "gpsInput": {
+    "gpsFormats": {
+      "DDM": "Digrii, Desimali, Dakika",
+      "DEG": "Latitudo, Longitudo",
+      "DMS": "Digrii, Dakika, Sekunde",
+      "UTM": "Ukurasa wa Jumla wa Transverse",
+      "MGRS": "Mfumo wa Kijeshi wa Kumbukumbu ya Gridi"
+    },
+    "defaultPlaceholder": "Eneo",
+    "inputExample": "Mfano: {{gpsFormat}}",
+    "invalidLocation": "Eneo halali"
+  },
+  "locationJumpButton": {
+    "title": "Ruka hadi eneo hili"
+  },
+  "mapLocationPicker": {
+    "cancelButton": "Ghairi",
+    "popupLabel": "Bonyeza kuchagua eneo",
+    "selectLocationButtonLabel": "Chagua kwenye ramani",
+    "selectLocationButtonTitle": "Weka alama kwenye ramani"
+  },
+  "mapLocationSelectionOverview": {
+    "chooseLocationHeader": {
+      "patrol": "Chagua eneo la doria",
+      "report": "Chagua eneo la tukio"
+    },
+    "discardButton": "Tupa",
+    "discardButtonTooltip": "Ondoa pointi zote",
+    "drawingReportGeometryArea": "Eneo: {{areaDisplay}}",
+    "drawingReportGeometryHeader": "Unda eneo la tukio",
+    "drawingReportGeometryPerimeter": "Mzunguko: {{perimeterDisplay}}",
+    "undoButton": "Tendua",
+    "undoButtonTooltip": "Rejea hatua yako ya mwisho"
+  },
+  "messageInput": {
+    "placeholder": "Andika ujumbe wako hapa...",
+    "sendButton": "Tuma"
+  },
+  "messageList": {
+    "defaultEmptyMessage": "Hakuna ujumbe wa kuonyesha.",
+    "groupTitle": {
+      "today": "leo",
+      "yesterday": "jana"
+    },
+    "messageSummaryList": {
+      "loadingEmptyMessage": "Ujumbe unapakia..."
+    },
+    "paramFedMessageList": {
+      "loadingEmptyMessage": "Ujumbe unapakia..."
+    },
+    "senderDetails": {
+      "radioIconTitle": "Alama ya redio kwa {{subjectName}}"
+    }
+  },
+  "priorityPicker": {
+    "amber": "Ambari",
+    "green": "Kijani",
+    "none": "Hakuna",
+    "red": "Nyekundu"
+  },
+  "reportedBySelect": {
+    "control": {
+      "radioIconPlaceholder": "Nafasi ya alama ya redio kwa chagua la aliye ripoti"
+    },
+    "multiValueLabel": {
+      "radioIcon": "Alama ya redio kwa {{name}} thamani"
+    },
+    "option": {
+      "radioIcon": "Alama ya redio kwa chagua la {{name}}"
+    },
+    "placeholder": "Ripotiwa na...",
+    "restrictedOptionLabel": "ILIZUIWA",
+    "singleValue": {
+      "radioIcon": "Alama ya redio kwa {{name}} thamani"
+    }
+  },
+  "schemaFields": {
+    "addButton": {
+      "content": "Mpya",
+      "title": "Ongeza Kitu"
+    },
+    "moveDownButton": {
+      "title": "Hamisha chini"
+    },
+    "moveUpButton": {
+      "title": "Hamisha juu"
+    },
+    "removeButton": {
+      "title": "Ondoa"
+    }
+  },
+  "searchBar": {
+    "clearIconTitle": "Futa kisanduku cha utafutaji",
+    "defaultPlaceholder": "Tafuta..."
+  },
+  "serviceWorkerWatcher": {
+    "confirmNotification": "Pakia tena",
+    "newVersionAvailableNotification": "Toleo jipya la EarthRanger linapatikana. Itapakia mara ya mwisho unapochakaza tena kivinjari chako."
+  },
+  "sideBar": {
+    "addEventButtonLabel": "Unda Tukio",
+    "addEventButtonTitle": "Unda Tukio",
+    "addPatrolButtonLabel": "Unda Doria",
+    "addPatrolButtonTitle": "Unda Doria",
+    "backButtonLabel": "Nenda Nyuma",
+    "backButtonTitle": "Nyuma",
+    "closeButtonTitle": "Funga",
+    "closeEventFeedButtonLabel": "Funga Onyesha Matukio",
+    "closeMapLayersButtonLabel": "Funga Safu za Ramani",
+    "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
+    "closeSettingsButtonLabel": "Funga Mipangilio",
+    "layersLink": "Safu za Ramani",
+    "noItemsToDisplayInLayers": "Hakuna vitu vya kuonyesha.",
+    "patrolsLink": "Doria",
+    "reportsFeedTab": {
+      "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
+      "tryAgainButton": "Jaribu tena"
+    },
+    "eventsLink": "Matukio",
+    "settingsPane": {
+      "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
+      "alertsTabTitle": "Tahadhari",
+      "appRefreshDescription": "Hifadhi mipangilio yangu kwa upya wa ukurasa kwa",
+      "appRefreshHeader": "Upya wa Programu",
+      "appRefreshMapLayersLabel": "Safu za Ramani",
+      "appRefreshMapPositionAndZoomLevelLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
+      "appRefreshPatrolFiltersLabel": "Vichuja vya Doria",
+      "appRefreshReportFiltersLabel": "Vichuja vya Tukio",
+      "clusterDataDescription": "Kuweka vikundi data wakati kuna lapitiko kwa",
+      "displayHeader": "Onyesha",
+      "experimentalFeaturesHeader": "Vipengele vya Majaribio",
+      "generalHeader": "Jumla",
+      "generalTabTitle": "Jumla",
+      "languagesHeader": "Lugha",
+      "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
+      "mapMarkersHeader": "Alama za Ramani",
+      "mapTabTitle": "Ramani"
+    },
+    "settingsLink": "Mipangilio"
+  },
+  "sortedNodes": {
+    "labelAscending": "Badilisha Kwa Mpangilio wa Kushuka",
+    "labelDescending": "Badilisha Kwa Mpangilio wa Kuongezeka",
+    "titleAscending": "Mpangilio wa Kushuka",
+    "titleDescending": "Mpangilio wa Kuongezeka"
+  },
+  "textCopyBtn": {
+    "defaultToastMessage": "Imekopiwa kwenye ubao wa kunakili"
+  },
+  "timeSlider": {
+    "popoverHeader": "Upeo wa Tarehe",
+    "popoverResetButton": "Rudisha",
+    "slider": "Kishikilia Muda",
+    "timeSliderMapControl": {
+      "iconTitle": "Kishikilia Muda"
+    },
+    "untilNowButton": "Sasa"
+  },
+  "toastBody": {
+    "defaultLinkTitle": "Bonyeza hapa",
+    "defaultMessage": "Kumekuwa na kosa",
+    "hideDetailsButton": "Ficha Maelezo",
+    "showDetailsButton": "Angalia Maelezo"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "patrolTrackLegend": {
+    "multiplePatrolsTitle": "{{count}} doria",
+    "singlePatrolTitle": "Doria: {{patrolDisplayTitle}}",
+    "titleElement": {
+      "coveredSpan": " imefunikwa",
+      "icon": "Ikoni kwa {{title}}",
+      "lengthCovered": "{{length}} imefunikwa",
+      "removeButton": "ondoa"
+    }
+  },
+  "trackLegend": {
+    "multipleSubjectsTitle": "{{count}} wahusika",
+    "titleElement": {
+      "icon": "Ikoni kwa {{title}}",
+      "pointCount_one": "{{count}} alama",
+      "pointCount_other": "{{count}} alama",
+      "pointsOverTimeSpan": "{{pointCount}} alama kwa kipindi cha {{trackDuration}}",
+      "removeButton": "ondoa"
+    }
+  },
+  "trackLength": {
+    "length": "{{length}} kilomita",
+    "title": "Urefu wa Mzunguko"
+  },
+  "trackLengthControls": {
+    "customLengthLabel": "Urefu wa Kipekee",
+    "header": "Urefu wa Mzunguko:",
+    "invalidCustomLengthAlert": "Tafadhali ingiza urefu wa mzunguko kati ya {{min}} na {{max}}.",
+    "matchReportFilterDateLabel": "Kulingana na tarehe ya kichujio cha tukio \"kutoka\" ({{reportFilterDateRangeLength}} siku)"
+  }
+}

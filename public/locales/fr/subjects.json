@@ -20,7 +20,7 @@
       "fewer": "< Moins de détails",
       "more": "Plus de détails >"
     },
-    "dateTimeSuffix": "depuis",
+    "dateTimeSuffix": "Il y a date",
     "micActivityHeader": "Activité du microphone",
     "noHistoricalDataSpan": "Aucune donnée historique",
     "subjectIconAlt": "Icône de l'appareil {{name}}"

@@ -1,0 +1,84 @@
+{
+  "addToPatrolModal": {
+    "cancel": "Ghairi",
+    "loading": "Inapakia...",
+    "noMorePatrols": "Hakuna doria zaidi za kuonyesha.",
+    "title": "Ongeza kwenye Doria"
+  },
+  "detailView": {
+    "addEmptyNoteAlert": "Haiwezi kuongeza hati mpya: kuna hati tupu ambayo haijasimbwa bado",
+    "formButtons": {
+      "cancel": "Ghairi",
+      "save": "Hifadhi"
+    },
+    "header": {
+      "patrolSchedule": "Imepangwa {{scheduledStartTime}}",
+      "patrolStartButton": "Anza",
+      "patrolRestoreButton": "Rejesha",
+      "uiStateTitles": {
+        "active": "Inatekelezwa",
+        "cancelled": "Imefutwa",
+        "done": "Imekamilika",
+        "invalid": "Usanidi Batili",
+        "readyToStart": "Tayari kuanza",
+        "scheduled": "Imepangwa",
+        "startOverdue": "Kuanza Kuchelewa"
+      }
+    },
+    "loadingMessage": "Inahifadhi...",
+    "planSection": {
+      "autoStartCheckboxLargeLabel": "Anza doria moja kwa moja kwenye EarthRanger wakati huu",
+      "autoStartCheckboxSmallLabel": "Anza doria moja kwa moja kwenye EarthRanger",
+      "autoEndCheckboxLargeLabel": "Maliza doria moja kwa moja kwenye EarthRanger wakati huu",
+      "autoEndCheckboxSmallLabel": "Maliza doria moja kwa moja kwenye EarthRanger",
+      "endDateLabel": "Tarehe ya Mwisho",
+      "endTimeLabel": "Muda wa Mwisho",
+      "endLocationLargeLabel": "Mahali pa Mwisho",
+      "endLocationSmallLabel": "Mahali",
+      "locationSelectorPlaceholder": "Weka Mahali",
+      "objectiveLabel": "Lengo",
+      "objectivePlaceholder": "Eleza kusudio la doria...",
+      "startDateLabel": "Tarehe ya Kuanza",
+      "startTimeLabel": "Muda wa Kuanza",
+      "startLocationLargeLabel": "Mahali pa Kuanzia",
+      "startLocationSmallLabel": "Mahali",
+      "title": "Panga",
+      "trackedByLabel": "Kufuatilia na",
+      "trackedByPlaceholder": "Chagua Kifaa..."
+    },
+    "quickLinksTitles": {
+      "activity": "Shughuli",
+      "history": "Historia",
+      "plan": "Panga"
+    }
+  },
+  "invalidDatesModal": {
+    "body": "Doria hii haiwezi kuhifadhiwa. Muda wa mwisho wa doria lazima uwe baadaye kuliko muda wa kuanza. Tafadhali sahihisha wakati wa kuanza au wa mwisho wa doria.",
+    "okButton": "SAWA",
+    "title": "Muda wa Doria Usiofaa"
+  },
+  "patrolMenu": {
+    "cancelPatrol": "Ghairi Doria",
+    "copyButton": "Nakili kiungo cha doria",
+    "copyButtonMessage": "Kiungo kimekopwa",
+    "endPatrol": "Maliza Doria",
+    "label": "Angalia Chaguzi za Doria",
+    "title": "Chaguzi za Doria",
+    "printPatrolButton": "Chapisha Doria",
+    "restorePatrol": "Rejesha Doria",
+    "startPatrol": "Anza Doria"
+  },
+  "patrolList": {
+    "emptyPatrolList": "Hakuna doria za kuonyesha."
+  },
+  "patrolListItem": {
+    "restoreButton": "Rejesha",
+    "scheduledTitle": "Imepangwa:",
+    "startButton": "Anza"
+  },
+  "trackToggleButton": {
+    "tracksPinned": "Vidokezo vimefungwa",
+    "tracksOn": "Vidokezo vimefunguliwa",
+    "tracksOff": "Vidokezo vimezimwa"
+  }
+}
