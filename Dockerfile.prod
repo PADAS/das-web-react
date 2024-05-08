@@ -1,4 +1,4 @@
-FROM nginx:1.18.0-alpine
+FROM nginx:1.26.0-alpine
 RUN rm -R /usr/share/nginx/html
 COPY ./build/ /usr/share/nginx/html
 ADD ./prod-nginx-default.conf /etc/nginx/conf.d/default.conf
