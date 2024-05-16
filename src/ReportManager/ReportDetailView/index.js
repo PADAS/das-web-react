@@ -100,7 +100,7 @@ const generateErrorListForApiResponseDetails = (response, t) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-        []);
+      []);
   } catch (e) {
     return [{ label: t('reportDetailView.unknownErrorLabel') }];
   }
@@ -731,7 +731,7 @@ const ReportDetailView = ({
     className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
     data-testid="reportManagerContainer"
     ref={printableContentRef}
-  >
+    >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message={t('reportDetailView.loadingMessage')} />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
