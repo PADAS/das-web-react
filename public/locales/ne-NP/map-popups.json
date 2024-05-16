@@ -1,0 +1,19 @@
+{
+    "analyzerConfigPopup": {
+        "analyzerTypeHeader": {
+            "environmental": "वातावरणीय",
+            "generic": "सामान्य",
+            "geofence": "भौगोलिक बार",
+            "immobility": "गतिहिनता",
+            "proximity": "निकटता",
+            "subject_proximity": "विषयगत निकटता",
+            "low_speed": "कम गति"
+        }
+    },
+    "layerSelectorPopup": {
+        "searchBarPlaceholder": "खोज्नुहोस्"
+    },
+    "mouseMarkerPopup": {
+        "title": "चिन्ह राख्न नक्सामा क्लिक गर्नुहोस् ।"
+    }
+}

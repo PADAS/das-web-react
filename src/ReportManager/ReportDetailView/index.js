@@ -77,7 +77,7 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
   return Object.entries(reportDifferences).reduce((accumulator, [key, value]) => {
     const entries = Object.entries(value ?? {});
 
-    if (!entries.length && key === EVENT_DETAILS_KEY){
+    if (!entries.length && key === EVENT_DETAILS_KEY) {
       accumulator.push([key, { tmpValue: value }]);
     } else if (EVENT_UPDATEABLE_FIELDS.includes(key)) {
       accumulator.push([key, value]);
@@ -89,7 +89,7 @@ const calculateFormattedReportDiffs = (reportForm, originalReport) => {
 const calculateSchemaFieldsChanges = (reportField, reportSchemaProps, originalReport) => Object.entries(reportField).reduce((acc, [reportFieldKey, reportFieldValue]) => {
   const schemaDefaultValue = reportSchemaProps?.[reportFieldKey]?.default;
   const defValueHasChanged = schemaDefaultValue && reportFieldValue !== schemaDefaultValue;
-  const hasReportValue = !schemaDefaultValue && ( reportFieldValue !== null && reportFieldValue !== undefined);
+  const hasReportValue = !schemaDefaultValue && (reportFieldValue !== null && reportFieldValue !== undefined);
   const defValueWasReset = reportFieldValue === schemaDefaultValue && reportFieldValue !== originalReport.event_details[reportFieldKey];
   return defValueHasChanged || hasReportValue || defValueWasReset ? { ...acc, [reportFieldKey]: reportFieldValue } : acc;
 }, {});
@@ -100,7 +100,7 @@ const generateErrorListForApiResponseDetails = (response, t) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-      []);
+        []);
   } catch (e) {
     return [{ label: t('reportDetailView.unknownErrorLabel') }];
   }
@@ -222,7 +222,7 @@ const ReportDetailView = ({
     const { properties: schemaProps } = reportSchemas?.schema ?? {};
     const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
-      if (key === EVENT_DETAILS_KEY){
+      if (key === EVENT_DETAILS_KEY) {
         const reportFieldsChanges = calculateSchemaFieldsChanges(reportField, schemaProps, originalReport);
         return Object.entries(reportFieldsChanges).length > 0
           ? { ...accumulator, [key]: reportFieldsChanges }
@@ -441,8 +441,7 @@ const ReportDetailView = ({
 
     setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } });
 
-    reportTracker.track('Change Report Form Data');
-  }, [reportForm, reportTracker]);
+  }, [reportForm]);
 
   const onFormError = useCallback((errors) => {
     const formattedErrors = errors.map((error) => ({
@@ -463,7 +462,7 @@ const ReportDetailView = ({
     const isNew = !!note.tmpId;
     const notes = isNew ? notesToAdd : reportNotes;
     const updatedNotes = notes.map((currentNote) => {
-      if (areNotesEqual(currentNote, note)){
+      if (areNotesEqual(currentNote, note)) {
         const text = currentNote.text.trim();
         return {
           ...currentNote,
@@ -474,7 +473,7 @@ const ReportDetailView = ({
       return currentNote;
     });
 
-    if (isNew){
+    if (isNew) {
       setNotesToAdd(updatedNotes);
     } else {
       setReportForm({ ...reportForm, notes: updatedNotes });
@@ -493,7 +492,7 @@ const ReportDetailView = ({
         ? { ...currentNote, text: currentNote.originalText }
         : currentNote
     );
-    if (isNew){
+    if (isNew) {
       setNotesToAdd(updatedNotes);
     } else {
       setReportForm({ ...reportForm, notes: updatedNotes });
@@ -547,7 +546,7 @@ const ReportDetailView = ({
       filesArray
     );
 
-    if (uploadableFiles.length){
+    if (uploadableFiles.length) {
       setTimeout(() => {
         newAttachmentRef?.current?.scrollIntoView?.({ behavior: 'smooth' });
       }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
@@ -729,10 +728,10 @@ const ReportDetailView = ({
   const isReadOnly = reportSchemas?.schema?.readonly;
 
   return <div
-      className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
-      data-testid="reportManagerContainer"
-      ref={printableContentRef}
-    >
+    className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
+    data-testid="reportManagerContainer"
+    ref={printableContentRef}
+  >
     {isSaving && <LoadingOverlay className={styles.loadingOverlay} message={t('reportDetailView.loadingMessage')} />}
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />

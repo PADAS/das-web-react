@@ -1,0 +1,205 @@
+{
+    "addItemButton": {
+        "addItemModal": {
+            "addPatrolTab": {
+                "searchBarPlaceholder": "खोज्नुहोस्"
+            },
+            "addPatroTabTitle": "गस्ती थप्नुहोस्",
+            "addReportTab": {
+                "reportsSelectPlaceholder": "...मा जानुहोस्",
+                "searchBarPlaceholder": "खोज्नुहोस्"
+            },
+            "addReportTabTitle": "घटना थप्नुहोस्"
+        },
+        "defaultLabel": "घटना अथवा गस्ती सिर्जना गर्नुहोस्",
+        "defaultTitle": "सिर्जना गर्नुहोस्"
+    },
+    "checkMark": {
+        "fullyCheckedTitle": "देखिने",
+        "partiallyCheckedTitle": "आंशिक रुपमा देखिने",
+        "uncheckedTitle": "लुकाइएको"
+    },
+    "detectOffline": {
+        "offlineToastMessage": "हाल तपाईं अफलाईन हुनुहुन्छ । त्यसकारण अर्थरेन्जर अपेक्षा गरिए अनुसार नचल्न सक्छ । कृपया तपाईंको नेटवर्क जाँच गर्नुहोस् ।",
+        "reconnectionToastMessage": "पुनः अनलाईन !"
+    },
+    "earthRangerLogo": {
+        "title": "अर्थरेन्जरको लोगो"
+    },
+    "errorBoundary": {
+        "reloadButton": "फेरी लोड गर्नुहोस्"
+    },
+    "errorMessage": {
+        "defaultMessage": "केही त्रुटी भएको छ",
+        "hideDetailsButton": "विवरणहरु लुकाउनुहोस्",
+        "showDetailsButton": "विवरणहरु हेर्नुहोस्"
+    },
+    "geoLocationWatcher": {
+        "shareLocationToastMessage": "भू–अनुमतिबाट डाटा हेर्न तपाईंको लोकेसन सेयर गर्नुहोस्",
+        "shareLocationToastTitle": "कसरी भनेर जान्नुहोस्"
+    },
+    "gpsInput": {
+        "gpsFormats": {
+            "DDM": "डिग्री, दशमलव, मिनेट",
+            "DEG": "आक्षांश, देशान्तर",
+            "DMS": "डिग्री, मिनेट, सेकेन्ड",
+            "UTM": "विश्वव्यापी अनुप्रस्थ मर्केटर",
+            "MGRS": "सैन्य ग्रिड सन्दर्भ सिस्टम"
+        },
+        "defaultPlaceholder": "लोकेसन",
+        "inputExample": "उदाहरण: {{gpsFormat}}",
+        "invalidLocation": "अमान्य लोकेसन"
+    },
+    "locationJumpButton": {
+        "title": "यो स्थानमा जानुहोस्"
+    },
+    "mapLocationPicker": {
+        "cancelButton": "रद्द गर्नुहोस्",
+        "popupLabel": "क्लिक गरि स्थान छन्नुहोस्",
+        "selectLocationButtonLabel": "नक्सामा छान्नुहोस्",
+        "selectLocationButtonTitle": "नक्सामा चिन्ह राख्नुहोस्"
+    },
+    "mapLocationSelectionOverview": {
+        "chooseLocationHeader": {
+            "patrol": "गस्तीको लोकेसन छान्नुहोस्",
+            "report": "घटनाको लोकेसन छान्नुहोस्"
+        },
+        "discardButton": "खारेज गर्नुहोस्",
+        "discardButtonTooltip": "सबै बिन्दु हटाउनुहोस्",
+        "drawingReportGeometryArea": "क्षेत्र: {{areaDisplay}}",
+        "drawingReportGeometryHeader": "घटनाको क्षेत्र सिर्जना गर्नुहोस्",
+        "drawingReportGeometryPerimeter": "परिधि: {{perimeterDisplay}}",
+        "undoButton": "पूर्ववत गर्नुहोस्",
+        "undoButtonTooltip": "तपाईंको पछिल्लो कार्य उल्टाउनुहोस्"
+    },
+    "messageInput": {
+        "placeholder": "तपाईंको सन्देश यहाँ टाइप गर्नुहोस्...",
+        "sendButton": "पठाउनुहोस्"
+    },
+    "messageList": {
+        "defaultEmptyMessage": "प्रदर्शनका लागि कुनै सन्देश छैनन् ।",
+        "groupTitle": {
+            "today": "आज",
+            "yesterday": "हिजो"
+        },
+        "messageSummaryList": {
+            "loadingEmptyMessage": "सन्देशहरु लोड हुँदैछन्…"
+        },
+        "paramFedMessageList": {
+            "loadingEmptyMessage": "सन्देशहरु लोड हुँदैछन्…"
+        },
+        "senderDetails": {
+            "radioIconTitle": "{{subjectName}}का लागि रेडियो आइकन"
+        }
+    },
+    "priorityPicker": {
+        "amber": "पहेँलो",
+        "green": "हरियो",
+        "none": "कुनै हैन",
+        "red": "रातो"
+    },
+    "reportedBySelect": {
+        "control": {
+            "radioIconPlaceholder": "चयनकर्ताद्वारा रिपोर्ट गरिएकाको लागि रेडियो आइकन प्लेसहोल्डर"
+        },
+        "multiValueLabel": {
+            "radioIcon": "{{name}} मानका लागि रेडियो आइकन"
+        },
+        "option": {
+            "radioIcon": "{{name}} विकल्पका लागि रेडियो आइकन"
+        },
+        "placeholder": ".....द्वारा रिपोर्ट गरिएको",
+        "restrictedOptionLabel": "प्रतिबन्धित",
+        "singleValue": {
+            "radioIcon": "{{name}} मानका लागि रेडियो आइकन"
+        }
+    },
+    "schemaFields": {
+        "addButton": {
+            "content": "नयाँ",
+            "title": "आइटम थप्नुहोस्"
+        },
+        "moveDownButton": {
+            "title": "तल झार्नुहोस्"
+        },
+        "moveUpButton": {
+            "title": "माथि सार्नुहोस्"
+        },
+        "removeButton": {
+            "title": "हटाउनुहोस्"
+        }
+    },
+    "searchBar": {
+        "clearIconTitle": "सर्च बार खालि गर्नुहोस्",
+        "defaultPlaceholder": "खोज्नुहोस्....."
+    },
+    "serviceWorkerWatcher": {
+        "confirmNotification": "फेरी लोड गर्नुहोस्",
+        "newVersionAvailableNotification": "अर्थरेन्जरको नयाँ संस्करण उपलब्ध छ । तपाईंले अर्को पटक आफ्नो ब्राउजर रिफ्रेस गर्दा त्यो लोड हुनेछ ।"
+    },
+    "sideBar": {
+        "addEventButtonLabel": "घटना सिर्जना गर्नुहोस्",
+        "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
+        "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
+        "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
+        "backButtonLabel": "पछाडी फर्कनुहोस्",
+        "backButtonTitle": "फर्कनुहोस्",
+        "closeButtonTitle": "बन्द गर्नुहोस्",
+        "closeEventFeedButtonLabel": "घटनाको फिड बन्द गर्नुहोस्",
+        "closeMapLayersButtonLabel": "नक्साको तहहरु बन्द गर्नुहोस्",
+        "closePatrolFeedButtonLabel": "गस्तीको फिड बन्द गर्नुहोस्",
+        "closeSettingsButtonLabel": "सेटिङ बन्द गर्नुहोस्",
+        "layersLink": "नक्साका तहहरु",
+        "noItemsToDisplayInLayers": "प्रदर्शनका लागि कुनै आइटम छैनन् ।",
+        "patrolsLink": "गस्ती",
+        "reportsFeedTab": {
+            "fetchReportsErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+            "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
+        },
+        "eventsLink": "घटनाहरु",
+        "settingsPane": {
+            "alertsFrameTitle": "तपाईंको अर्थरेन्जर सतर्क सुचना मिलाउनुहोस्",
+            "alertsTabTitle": "सर्तक सुचनाहरु",
+            "appRefreshDescription": "पृष्ठ रेफ्रेसका लागि मेरो सेटिङ सुरक्षित गर्नुहोस्",
+            "appRefreshHeader": "एप रिफ्रेस गर्नुहोस्",
+            "appRefreshMapLayersLabel": "नक्साका तहहरु",
+            "appRefreshMapPositionAndZoomLevelLabel": "नक्साको स्थिति र जुम स्तर",
+            "appRefreshPatrolFiltersLabel": "गस्ती फिल्टर",
+            "appRefreshReportFiltersLabel": "घटना फिल्टर",
+            "clusterDataDescription": "ओभरल्याप हुँदाको सामुहिक डाटा",
+            "displayHeader": "प्रदर्शन गर्नुहोस्",
+            "experimentalFeaturesHeader": "प्रयोगात्मक सुविधाहरु",
+            "generalHeader": "सामान्य",
+            "generalTabTitle": "सामान्य",
+            "languagesHeader": "भाषा",
+            "mapMarkersDescription": "का लागि नक्सामा राखिएको चिन्हमा नाम देखाउनुहोस्",
+            "mapMarkersHeader": "नक्सामा राखिने चिन्ह",
+            "mapTabTitle": "नक्सा"
+        },
+        "settingsLink": "सेटिङ"
+    },
+    "sortedNodes": {
+        "labelAscending": "घट्दो क्रम अनुसार मिलाउनुहोस्",
+        "labelDescending": "बढ्दो क्रम अनुसार मिलाउनुहोस्",
+        "titleAscending": "बढ्दो क्रम",
+        "titleDescending": "घट्दो क्रम"
+    },
+    "textCopyBtn": {
+        "defaultToastMessage": "क्लिपबोर्डमा कपि गर्नुहोस्"
+    },
+    "timeSlider": {
+        "popoverHeader": "मितिको दायरा",
+        "popoverResetButton": "रिसेट गर्नुहोस्",
+        "slider": "समय स्लाइडर",
+        "timeSliderMapControl": {
+            "iconTitle": "समय स्लाइडर"
+        },
+        "untilNowButton": "अहिले"
+    },
+    "toastBody": {
+        "defaultLinkTitle": "यहाँ क्लिक गर्नुहोस्",
+        "defaultMessage": "केही त्रुटि भएको छ",
+        "hideDetailsButton": "विवरण लुकाउनुहोस्",
+        "showDetailsButton": "विवरण देखाउनुहोस्"
+    }
+}

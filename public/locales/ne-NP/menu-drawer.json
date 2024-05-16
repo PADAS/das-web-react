@@ -1,0 +1,71 @@
+{
+    "alertsModal": {
+        "iframeBottomMessage": "प्रत्येक अर्थरेन्जर प्रयोगकर्ताले प्रतिदिन २० वटा सम्म सुचना प्राप्त गर्नेछन् ।",
+        "iframeTitle": "तपाईंको अर्थरेन्जरको सुचनाको स्वरुप मिलाउनुहोस्"
+    },
+    "betaToggles": {
+        "patrolUI": "नयाँ गस्तीको UI फारम",
+        "reportNotification": "नयाँ घटनाका लागि ध्वनी बजाउनुहोस्"
+    },
+    "dailyReportModal": {
+        "dataExportModalTitle": "दैनिक रिपोर्ट",
+        "todaysReportButton": "आजको रिपोर्ट",
+        "yesterdaysReportButton": "हिजोको रिपोर्ट"
+    },
+    "dataExportModal": {
+        "cancelButton": "रद्द गर्नुहोस्",
+        "exportButton": "निर्यात गर्नुहोस्"
+    },
+    "globalMenuDrawer": {
+        "alertsButton": "सुचनाहरु",
+        "alertsModal": {
+            "title": "सुचनाहरु"
+        },
+        "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
+        "closeButtonTitle": "बन्द गर्नुहोस्",
+        "communityButton": "समाज",
+        "contactSupport": {
+            "body": "तपाईंलाई हामीले कसरी सहयोग गर्न सक्छौं ?",
+            "subject": "प्रयोगकर्ताका सहायता अनुरोध"
+        },
+        "contactSupportButton": "सहायताका लागि सम्पर्क गर्नुहोस्",
+        "dailyReportModal": {
+            "title": "दैनिक रिपोर्ट"
+        },
+        "exportsHeader": "निर्यात",
+        "fieldReportsModal": {
+            "content": "घटना ट्याबमा हाल सेट गरिएका फिल्टर मापदण्डसँग मेल खाने घटनाहरु मात्रै निर्यात घटनामा समावेश हुनेछन् ।",
+            "title": "फिल्ड रिपोर्ट"
+        },
+        "footer": {
+            "clientVersion": "वेब ग्राहक संस्करण: {{version}}",
+            "copyright": "©{{year}} अर्थरेन्जर",
+            "dataPrivacyPolicyLink": "डाटा गोपनियता नीति",
+            "eulaLink": "प्रयोगकर्ता लाईसेन्स सम्झौता",
+            "serverVersion": "सर्भर संस्करण: {{version}}",
+            "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
+        },
+        "helpCenterButton": "सहायता केन्द्र",
+        "masterKMLModal": {
+            "title": "विषय KML"
+        },
+        "navigationButton": {
+            "mapLayers": "नक्साका तहहरु",
+            "patrols": "गस्तीहरु",
+            "reports": "घटनाहरु",
+            "settings": "सेटिङ"
+        },
+        "subjectInformationModal": {
+            "title": "विषय सारांश"
+        },
+        "subjectReportsModal": {
+            "title": "टिप्पणी"
+        },
+        "tableauButton": "झांकी",
+        "usersGuideButton": "प्रयोगकर्ताका लागि गाईड"
+    },
+    "kmlExportModal": {
+        "dataExportModalTitle": "विषय KML फाइल निर्यात गर्नुहोस्",
+        "includeInactiveSubjectsLabel": "निष्क्रिय विषयहरु समावेश गर्नुहोस्"
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "clusterMembers": {
+        "all": "सबै",
+        "reports": "घटना",
+        "subjects": "विषय"
+    },
+    "inactiveRadioControl": {
+        "label": "निष्कृय रेडियो देखाउनुहोस्"
+    },
+    "mapDataZoomSimplificationControl": {
+        "label": "नक्साका डाटालाई जुममा सरलीकरण गर्नुहोस्"
+    },
+    "mapLockControl": {
+        "label": "नक्सा लक गर्नुहोस्"
+    },
+    "mapNamesControl": {
+        "allCheckboxLabel": "सबै",
+        "layerLabels": {
+            "subjects": "विषयहरु",
+            "stationary_subjects": "स्थीर विषयहरु",
+            "reports": "घटनाहरु",
+            "patrols": "गस्तीहरु"
+        }
+    },
+    "mapTrackTimepointsControl": {
+        "label": "ट्रयाकको समय देखाउनुहोस्"
+    },
+    "mapTerrain3DOption": "3D Map Terrain",
+    "userLocationMapControl": {
+        "label": "मेरो हालको लोकेसन देखाउनुहोस्"
+    }
+}
