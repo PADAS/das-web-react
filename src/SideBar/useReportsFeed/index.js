@@ -29,7 +29,7 @@ const useReportsFeed = () => {
     return isEqual(restEventFilter, INITIAL_FILTER_STATE);
   }, [eventFilter]);
   const eventParams = useRef(calcEventFilterForRequest(
-    { params: { exclude_contained: shouldExcludeContained }, format: 'object' },
+    { params: { exclude_contained: shouldExcludeContained, page_size: 25 }, format: 'object' },
     feedSort
   ));
 
@@ -61,7 +61,7 @@ const useReportsFeed = () => {
   }, [geoResrictedUserLocationCoords, loadFeedEvents]);
 
   useEffect(() => {
-    const params = {};
+    const params = { page_size: 25 };
     if (shouldExcludeContained) {
       params.exclude_contained = true;
     }
