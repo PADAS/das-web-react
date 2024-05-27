@@ -29,7 +29,7 @@ jobs:
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     needs: config
-    uses: ./.github/workflows/_build_docker.yml
+    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v2
     with:
       environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
