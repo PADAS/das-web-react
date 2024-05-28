@@ -165,4 +165,15 @@ describe('DatePicker', () => {
     expect(onChangeMock).toHaveBeenCalledTimes(1);
     expect(onChangeMock.mock.calls[0][0].toISOString()).toMatch(/^2020-02-11/);
   });
+
+  test('closes the picker when pressing escape', async () => {
+    const datePickerInput = await screen.findByTestId('datePicker-input');
+    userEvent.click(datePickerInput);
+
+    expect(onCalendarCloseMock).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(onCalendarCloseMock).toHaveBeenCalledTimes(1);
+  });
 });
