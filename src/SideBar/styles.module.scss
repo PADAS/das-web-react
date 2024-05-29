@@ -165,7 +165,6 @@
 .tabBody {
   min-height: calc(100% - 3rem) !important;
   height: calc(100% - 3rem);
-  overflow: hidden;
   position: relative;
   min-width: var(--sidebar-width);
   transition: width 0.4s ease-in-out;
@@ -197,6 +196,10 @@
     >.noItems:only-child {
       visibility: visible;
     }
+  }
+
+  [class*=tab-content] {
+    height: unset;
   }
 }
 
