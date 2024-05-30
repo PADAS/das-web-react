@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { isToday } from 'date-fns';
@@ -68,6 +68,8 @@ const DetailsSection = ({
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+
   const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
@@ -77,6 +79,13 @@ const DetailsSection = ({
     && eventTypes
     && calcGeometryTypeForReport(reportForm, eventTypes)
   , [eventTypes, reportForm]);
+
+  const onStateDropdownKeyDown = useCallback((event) => {
+    if (event.key === 'Escape') {
+      setShowStateDropdown(false);
+      event.stopPropagation();
+    }
+  }, []);
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
@@ -104,7 +113,13 @@ const DetailsSection = ({
       </div>
 
       <div>
-        <Dropdown className={`${styles.stateDropdown} ${styles[reportForm.state]}`} onSelect={onReportStateChange}>
+        <Dropdown
+          className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
+          onKeyDown={onStateDropdownKeyDown}
+          onToggle={(nextShow) => setShowStateDropdown(nextShow)}
+          show={showStateDropdown}
+          onSelect={onReportStateChange}
+        >
           <Dropdown.Toggle variant="success">
             {t(`stateDropdown.${reportState}`)}
           </Dropdown.Toggle>

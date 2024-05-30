@@ -256,6 +256,8 @@ export const SelectWidget = ({
   const containerRef = useRef(null);
   const selectRef = useRef(null);
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
+
   const SelectContainer = (props) => <div ref={containerRef}>
     <components.SelectContainer {...props} />
   </div>;
@@ -288,15 +290,28 @@ export const SelectWidget = ({
 
   const handleChange = useCallback((update) => onChange(update?.value), [onChange]);
 
-  const onMenuOpen = useCallback(() => setTimeout(() => {
-    if (selectRef.current.select.menuListRef && registry.formContext && registry.formContext.scrollContainer) {
-      scrollSelectIntoViewOnMenuOpenIfNecessary(
-        registry.formContext.scrollContainer,
-        containerRef.current,
-        selectRef.current.select.menuListRef.clientHeight
-      );
+  const onMenuOpen = useCallback(() => {
+    setMenuOpen(true);
+    setTimeout(() => {
+      if (selectRef.current.select.menuListRef && registry.formContext && registry.formContext.scrollContainer) {
+        scrollSelectIntoViewOnMenuOpenIfNecessary(
+          registry.formContext.scrollContainer,
+          containerRef.current,
+          selectRef.current.select.menuListRef.clientHeight
+        );
+      }
+    });
+  }, [registry.formContext]);
+
+  const onMenuClose = useCallback(() => {
+    setMenuOpen(false);
+  }, []);
+
+  const onKeyDown = useCallback((event) => {
+    if (event.key === 'Escape' && isMenuOpen) {
+      event.stopPropagation();
     }
-  }), [registry.formContext]);
+  }, [isMenuOpen]);
 
   return <Select
     autoFocus={autofocus}
@@ -316,6 +331,8 @@ export const SelectWidget = ({
     onBlur={onBlur}
     onChange={handleChange}
     onFocus={onFocus}
+    onKeyDown={onKeyDown}
+    onMenuClose={onMenuClose}
     onMenuOpen={onMenuOpen}
     options={enumOptions}
     ref={selectRef}

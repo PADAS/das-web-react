@@ -318,4 +318,30 @@ describe('SideBar', () => {
       expect(navigate).toHaveBeenCalledWith(`/events/${eventID}`, { replace: true });
     });
   });
+
+  test('redirects from details view to new /events URL when user presses Escape', async () => {
+    const locationMock = jest.fn((() => ({ pathname: '/events/123123', key: '2324e2', state: { comesFromLogin: true } })));
+    useLocation.mockImplementation(locationMock);
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/events');
+  });
+
+  test('redirects from details view to new /patrols URL when user presses Escape', async () => {
+    const locationMock = jest.fn((() => ({ pathname: '/patrols/123123', key: '2324e2', state: { comesFromLogin: true } })));
+    useLocation.mockImplementation(locationMock);
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/patrols');
+  });
 });

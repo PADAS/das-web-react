@@ -31,6 +31,10 @@ const TimePicker = ({
       event.target.blur();
     }
 
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+    }
+
     onKeyDown?.(event);
   }, [onKeyDown]);
 

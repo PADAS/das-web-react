@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { components } from 'react-select';
 import { FixedSizeList } from 'react-window';
 import PropTypes from 'prop-types';
@@ -152,6 +152,8 @@ const ReportedBySelect = ({
   const reporters = useSelector(reportedBy);
   const subjects = useSelector(allSubjects);
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
+
   const selections = optionsFromProps ? optionsFromProps : reporters;
 
   const recentRadios = useMemo(
@@ -197,6 +199,20 @@ const ReportedBySelect = ({
     return displayOptions;
   }, [recentRadios, selections]);
 
+  const onMenuClose = useCallback(() => {
+    setMenuOpen(false);
+  }, []);
+
+  const onMenuOpen = useCallback(() => {
+    setMenuOpen(true);
+  }, []);
+
+  const onKeyDown = useCallback((event) => {
+    if (event.key === 'Escape' && isMenuOpen) {
+      event.stopPropagation();
+    }
+  }, [isMenuOpen]);
+
   const selectStyles = {
     option(styles, { isDisabled: _isDisabled }) {
       return styles;
@@ -224,6 +240,9 @@ const ReportedBySelect = ({
     isSearchable={true}
     menuShouldScrollIntoView={false}
     onChange={onChange}
+    onKeyDown={onKeyDown}
+    onMenuClose={onMenuClose}
+    onMenuOpen={onMenuOpen}
     options={options}
     placeholder={placeholder || t('placeholder')}
     recentRadios={recentRadios}

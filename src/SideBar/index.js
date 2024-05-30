@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -62,6 +62,8 @@ const SideBar = () => {
   const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
+  const sideBarRef = useRef();
+
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
@@ -72,6 +74,10 @@ const SideBar = () => {
 
   const isSettingsViewActive = !!matchPath(`/${TAB_KEYS.SETTINGS}`, location.pathname);
 
+  const isPatrolDetailsViewActive = useMemo(() => !!matchPath(
+    `/${TAB_KEYS.PATROLS}/:id`,
+    location.pathname
+  ), [location.pathname]);
   const isReportDetailsViewActive = useMemo(() => !!matchPath(
     `/${TAB_KEYS.EVENTS}/:id`,
     location.pathname
@@ -140,7 +146,29 @@ const SideBar = () => {
     }
   }, [sidebarOpen, currentTab, socket, isReportDetailsViewActive]);
 
-  return <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
+  useEffect(() => {
+    const onKeydown = (event) => {
+      const wasEscapePressed = event.keyCode === 27;
+      const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
+      const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
+      if (wasEscapePressed && isDetailsViewActive && isSideBarFocused) {
+        navigate(`/${getCurrentTabFromURL(location.pathname)}`);
+      }
+    };
+
+    document.addEventListener('keydown', onKeydown, false);
+
+    return () => document.removeEventListener('keydown', onKeydown, false);
+  }, [isPatrolDetailsViewActive, isReportDetailsViewActive, location.pathname, navigate]);
+
+  return <aside
+      className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}
+      ref={(ref) => {
+        sideBarRef.current = ref;
+        ref?.focus();
+      }}
+      tabIndex={0}
+    >
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}

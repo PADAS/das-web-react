@@ -67,4 +67,16 @@ describe('ReportedBySelect', () => {
 
     expect(onChange).toHaveBeenCalled();
   });
+
+  it('closes the menu when pressing escape', async () => {
+    const { container } = renderWithWrapper(<ReportedBySelect />);
+
+    userEvent.click(container.querySelector('input'));
+
+    expect(await screen.findByText('Informant2')).toBeVisible();
+
+    userEvent.keyboard('{Escape}');
+
+    expect(await screen.queryByText('Informant2')).toBeNull();
+  });
 });
