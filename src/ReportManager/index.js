@@ -24,6 +24,13 @@ import styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
+const shouldFetchEventDetails = (eventId, eventStore) =>
+  !eventStore[eventId]
+  || !eventStore[eventId].event_details
+  || !eventStore[eventId].files
+  || !eventStore[eventId].notes
+  || !eventStore[eventId].updates;
+
 const ReportManager = ({ onReportBeingAdded }) => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -110,13 +117,13 @@ const ReportManager = ({ onReportBeingAdded }) => {
   }, [isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportType]);
 
   useEffect(() => {
-    if (!isNewReport) {
+    if (!isNewReport && shouldFetchEventDetails(reportId, eventStore)) {
       setIsLoadingReport(true);
       dispatch(fetchEvent(reportId))
         .then(() => setIsLoadingReport(false))
         .catch(() => navigate(`/${TAB_KEYS.EVENTS}`, { replace: true }));
     }
-  }, [dispatch, isNewReport, navigate, reportId]);
+  }, [dispatch, eventStore, isNewReport, navigate, reportId]);
 
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView

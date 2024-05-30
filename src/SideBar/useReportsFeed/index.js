@@ -28,10 +28,17 @@ const useReportsFeed = () => {
 
     return isEqual(restEventFilter, INITIAL_FILTER_STATE);
   }, [eventFilter]);
-  const eventParams = useRef(calcEventFilterForRequest(
-    { params: { exclude_contained: shouldExcludeContained, include_updates: false, page_size: 25 }, format: 'object' },
-    feedSort
-  ));
+  const eventParams = useRef(calcEventFilterForRequest({
+    params: {
+      exclude_contained: shouldExcludeContained,
+      include_details: false,
+      include_files: false,
+      include_notes: false,
+      include_updates: false,
+      page_size: 25,
+    },
+    format: 'object',
+  }, feedSort));
 
   const geoResrictedUserLocationCoords = useMemo(
     () => userIsGeoPermRestricted && userLocationCoords,
@@ -61,7 +68,13 @@ const useReportsFeed = () => {
   }, [geoResrictedUserLocationCoords, loadFeedEvents]);
 
   useEffect(() => {
-    const params = { include_updates: false, page_size: 25 };
+    const params = {
+      include_details: false,
+      include_files: false,
+      include_notes: false,
+      include_updates: false,
+      page_size: 25,
+    };
     if (shouldExcludeContained) {
       params.exclude_contained = true;
     }
