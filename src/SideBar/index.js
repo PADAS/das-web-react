@@ -161,12 +161,13 @@ const SideBar = () => {
     return () => document.removeEventListener('keydown', onKeydown, false);
   }, [isPatrolDetailsViewActive, isReportDetailsViewActive, location.pathname, navigate]);
 
+  useEffect(() => {
+    sideBarRef.current.focus();
+  }, [itemId]);
+
   return <aside
       className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}
-      ref={(ref) => {
-        sideBarRef.current = ref;
-        ref?.focus();
-      }}
+      ref={sideBarRef}
       tabIndex={0}
     >
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
