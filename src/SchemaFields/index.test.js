@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { DateTimeWidget, ExternalLinkField } from './';
+import { DateTimeWidget, ExternalLinkField, SelectWidget } from './';
 import { render, screen, within } from '../test-utils';
 
 describe('the ExternalLinkField field',  () => {

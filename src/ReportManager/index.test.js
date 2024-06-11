@@ -127,10 +127,27 @@ describe('ReportManager', () => {
     });
   });
 
-  test('fetches the event data if there is an id specified in the URL', async () => {
+  test('fetches the event data if there is an id specified in the URL and the event is not in the store', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
     useLocation.mockImplementation(useLocationMock);
 
+    renderReportManager(store);
+
+    await waitFor(() => {
+      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).toBeDefined();
+    });
+  });
+
+  test('fetches the event data if there is an id specified in the URL and the event is in the store but is missing properties', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    store.data.eventStore = {
+      123: {
+        ...eventWithPoint,
+        updates: undefined,
+      },
+    };
     renderReportManager(store);
 
     await waitFor(() => {
@@ -150,7 +167,7 @@ describe('ReportManager', () => {
     });
   });
 
-  test('does not fetch the event data if it is in the event store already', async () => {
+  test('does not fetch the event data if it is in the event store already and complete', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/123' })));
     useLocation.mockImplementation(useLocationMock);
 

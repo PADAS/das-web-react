@@ -256,6 +256,12 @@ const CustomDatePicker = ({
     onCalendarClose?.();
   }, [onCalendarClose]);
 
+  const onKeyDown = useCallback((event) => {
+    if (event.key === 'Escape' && isOpen) {
+      event.stopPropagation();
+    }
+  }, [isOpen]);
+
   const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate, language, locale), [rest?.maxDate, rest?.minDate, language, locale]);
 
   return <DatePicker
@@ -263,6 +269,7 @@ const CustomDatePicker = ({
     dateFormat={dateFormat}
     onCalendarClose={handleCalendarClose}
     onCalendarOpen={handleCalendarOpen}
+    onKeyDown={onKeyDown}
     placeholderText={placeholderText || (dateFormat).toUpperCase()}
     ref={ref}
     renderCustomHeader={CustomHeader}

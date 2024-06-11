@@ -17,11 +17,19 @@ import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
 
 import DelayedUnmount from '../DelayedUnmount';
+import LoadingOverlay from '../LoadingOverlay';
 import ReportDetailView from './ReportDetailView';
 
 import styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
+
+const shouldFetchEventDetails = (eventId, eventStore) =>
+  !eventStore[eventId]
+  || !eventStore[eventId].event_details
+  || !eventStore[eventId].files
+  || !eventStore[eventId].notes
+  || !eventStore[eventId].updates;
 
 const ReportManager = ({ onReportBeingAdded }) => {
   const dispatch = useDispatch();
@@ -90,12 +98,6 @@ const ReportManager = ({ onReportBeingAdded }) => {
   }, [onCancelAddedReport]);
 
   useEffect(() => {
-    if (isNewReport || eventStore[reportId]) {
-      setIsLoadingReport(false);
-    }
-  }, [eventStore, isNewReport, reportId]);
-
-  useEffect(() => {
     if (isNewReport) {
       if (!reportType) {
         navigate(`/${TAB_KEYS.EVENTS}`, { replace: true });
@@ -109,16 +111,18 @@ const ReportManager = ({ onReportBeingAdded }) => {
   }, [isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportType]);
 
   useEffect(() => {
-    if (!isNewReport && !eventStore[reportId]) {
+    if (!isNewReport && shouldFetchEventDetails(reportId, eventStore)) {
       setIsLoadingReport(true);
       dispatch(fetchEvent(reportId))
         .then(() => setIsLoadingReport(false))
         .catch(() => navigate(`/${TAB_KEYS.EVENTS}`, { replace: true }));
+    } else {
+      setIsLoadingReport(false);
     }
   }, [dispatch, eventStore, isNewReport, navigate, reportId]);
 
   return <TrackerContext.Provider value={reportTracker}>
-    {shouldRenderReportDetailView && <ReportDetailView
+    {shouldRenderReportDetailView ? <ReportDetailView
       formProps={navigationData?.formProps}
       isNewReport={isNewReport}
       key={reportId} // This resets component state when the id changes
@@ -126,7 +130,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
       onAddReport={onAddReport}
       reportData={reportData}
       reportId={reportId}
-    />}
+    /> : <LoadingOverlay />}
 
     <DelayedUnmount isMounted={showAddedReport}>
       <ReportDetailView

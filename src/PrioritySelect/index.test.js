@@ -42,4 +42,18 @@ describe('PrioritySelect', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(highLevel, onChangePartialArgs);
   });
+
+  it('closes the menu when pressing escape', () => {
+    renderPrioritySelect();
+
+    const list = screen.getByText(selectedPriority.display);
+    userEvent.click(list);
+
+    userEvent.keyboard('{Escape}');
+
+    REPORT_PRIORITIES.forEach(({ key }) => {
+      const currentTestId = `priority-select-${key}`;
+      expect(screen.queryByTestId(currentTestId)).toBeNull();
+    });
+  });
 });
