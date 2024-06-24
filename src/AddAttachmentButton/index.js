@@ -20,6 +20,20 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   '.pdf',
   '.xlsx',
   '.xml',
+  '.mp3',
+  '.wav',
+  '.aif',
+  '.flac',
+  '.ogg',
+  '.ogv',
+  '.pcm',
+  '.aac',
+  '.mp4',
+  '.avi',
+  '.mov',
+  '.webm',
+  '.mkv',
+  '.wmv'
 ];
 
 const AddAttachmentButton = ({ className, onAddAttachments }) => {
