@@ -4,7 +4,7 @@ This is the web interface for EarthRanger. It is built with React (whose bootstr
 ### Licensing
 This repository is open-sourced under the Apache 2.0 license. However, Mapbox GL, a required dependency, is closed-source. It is provided here in a "bring your own token" capacity; you may use and modify all EarthRanger-authored code herein, but will need to provide your own Mapbox access token, tied to your own Mapbox account.
 
-------------------
+-------------------
 
 ## Setting up for development
 To start developing within this repo, you need to have [Docker](https://www.docker.com/get-started), [Node](https://nodejs.org/), and [Yarn](https://yarnpkg.com/) installed. Once docker is up and running, `cd` into the root of this project repository and run the following command: `docker compose up --build`.
