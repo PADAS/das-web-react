@@ -1,0 +1,84 @@
+{
+    "addToPatrolModal": {
+        "cancel": "रद्द गर्नुहोस्",
+        "loading": "लोड हुँदैछ…",
+        "noMorePatrols": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
+        "title": "गस्तीमा थप्नुहोस्"
+    },
+    "detailView": {
+        "addEmptyNoteAlert": "नयाँ नोट सुरक्षित गर्न सकिएन: पुरानै नोट सुरक्षित हुन बाँकी छ",
+        "formButtons": {
+            "cancel": "रद्द गर्नुहोस्",
+            "save": "सुरक्षित गर्नुहोस्"
+        },
+        "header": {
+            "patrolSchedule": "{{scheduledStartTime}} निर्धारण गरियो",
+            "patrolStartButton": "सुरु",
+            "patrolRestoreButton": "पुर्नस्थापना",
+            "uiStateTitles": {
+                "active": "सकृय",
+                "cancelled": "रद्द गरियो",
+                "done": "भयो",
+                "invalid": "स्वरुप मिलेन",
+                "readyToStart": "सुरु गर्न तयार अवस्थामा",
+                "scheduled": "निर्धारित",
+                "startOverdue": "बाँकी रहेको काम सुरु गर्नुहोस्"
+            }
+        },
+        "loadingMessage": "सुरक्षित हुँदैछ…",
+        "planSection": {
+            "autoStartCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
+            "autoStartCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
+            "autoEndCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
+            "autoEndCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
+            "endDateLabel": "अन्तिम मिति",
+            "endTimeLabel": "अन्तिम समय",
+            "endLocationLargeLabel": "अन्तिम स्थान",
+            "endLocationSmallLabel": "स्थान",
+            "locationSelectorPlaceholder": "स्थान सेट गर्नुहोस्",
+            "objectiveLabel": "उद्देश्य",
+            "objectivePlaceholder": "गस्तीको उद्देश्य वर्णन गर्नुहोस्…",
+            "startDateLabel": "सुरु मिति",
+            "startTimeLabel": "सुरु समय",
+            "startLocationLargeLabel": "सुरुको स्थान",
+            "startLocationSmallLabel": "स्थान",
+            "title": "योजना",
+            "trackedByLabel": "द्वारा ट्रयाक गरिएको",
+            "trackedByPlaceholder": "उपकरण छान्नुहोस्…"
+        },
+        "quickLinksTitles": {
+            "activity": "गतिविधि",
+            "history": "इतिहास",
+            "plan": "योजना"
+        }
+    },
+    "invalidDatesModal": {
+        "body": "यो गस्ती सुरक्षित गर्न सकिएन । गस्तीको अन्त्य समय सुरुवाती समय भन्दा पछि हुनुपर्छ । कृपया गस्तीको सुरुवाती समय अथवा अन्त्य समय सच्याउनुहोस्",
+        "okButton": "ठीक छ",
+        "title": "गस्ती समय मिलेन"
+    },
+    "patrolMenu": {
+        "cancelPatrol": "गस्ती रद्द गर्नुहोस्",
+        "copyButton": "गस्तीको लिकं कपि गर्नुहोस्",
+        "copyButtonMessage": "लिकं कपि भयो",
+        "endPatrol": "गस्ती अन्त्य गर्नुहोस्",
+        "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
+        "title": "गस्तीका विकल्पहरु",
+        "printPatrolButton": "गस्ती प्रिन्ट गर्नुहोस्",
+        "restorePatrol": "गस्ती पुर्नस्थापना गर्नुहोस्",
+        "startPatrol": "गस्ती सुरु गर्नुहोस्"
+    },
+    "patrolList": {
+        "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"
+    },
+    "patrolListItem": {
+        "restoreButton": "पुर्नस्थापना गर्नुहोस्",
+        "scheduledTitle": "निर्धारण गरियो:",
+        "startButton": "सुरु गर्नुहोस्"
+    },
+    "trackToggleButton": {
+        "tracksPinned": "ट्रयाकहरु पिन गरियो",
+        "tracksOn": "ट्रयाक अन गर्नुहोस्",
+        "tracksOff": "ट्रयाक अफ गर्नुहोस्"
+    }
+}

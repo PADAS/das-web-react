@@ -1,0 +1,184 @@
+{
+    "addToIncidentModal": {
+        "modalBody": {
+            "addToNewIncidentButton": "नयाँ घटनामा थप्नुहोस्",
+            "loadingItem": "लोड हुँदैछ…",
+            "noMoreEventsItem": "प्रदर्शनका लागि थप कुनै घटना छैनन् ।"
+        },
+        "modalFooter": {
+            "cancelButton": "रद्द गर्नुहोस्"
+        },
+        "modalTitle": "घटनामा थप्नुहोस्"
+    },
+    "columnSort": {
+        "popoverTitle": "क्रमबद्ध गर्नुहोस्:",
+        "eventSortOptions": {
+            "updatedAtLabel": "अद्यावधिक मिति",
+            "createdAtLabel": "सिर्जना मिति",
+            "eventTimeLabel": "घटनाको मिति"
+        },
+        "eventOrderOptions": {
+            "newest": "नयाँ देखि पुरानो",
+            "oldest": "पुरानो देखि नयाँ"
+        },
+        "sortDirectionToggleLabel": {
+            "ascending": "घट्दो क्रम अनुसार मिलाउनुहोस",
+            "descending": "बढ्दो क्रम अनुसार मिलाउनुहोस"
+        },
+        "sortDirectionToggleTitle": {
+            "ascending": "बढ्दो क्रम",
+            "descending": "घट्दो क्रम"
+        }
+    },
+    "errorMessages": {
+        "accordionHeaderButton": {
+            "closed": "विवरण हेर्नुहोस्",
+            "open": "विवरण लुकाउनुहोस्"
+        }
+    },
+    "eventFeed": {
+        "loadingMoreReportsItem": "थप घटनाहरु लोड हुँदैछन्…",
+        "noMoreReportsItem": "प्रदर्शनका लागि थप कुनै घटना छैनन् ।",
+        "noReportsItem": "प्रदर्शनका लागि कुनै घटना छैनन् ।"
+    },
+    "eventIcon": {
+        "collectionTitle": "सकंलन"
+    },
+    "eventItemContextMenu": {
+        "errorToastMessage": "#{{serialNumber}} अझै {{state}}, केही समस्या उत्पन्न भएको छ",
+        "notificationDetails": {
+            "failedReports": "चेतावनीः यी घटनाहरु अझै {{state}}",
+            "processedReports": {
+                "activated": "सक्रिय बनाईयो",
+                "resolved": "समाधान गरियो",
+                "title": "यी सम्बन्धित घटनाहरु पनि {{newState}} थिएः"
+            }
+        },
+        "state": {
+            "active": "सक्रिय",
+            "resolved": "समाधान गरियो"
+        },
+        "textCopyButtonItem": {
+            "label": "घटनाको लिकं कपि गर्नुहोस्",
+            "successMessage": "लिकं कपि गरियो"
+        },
+        "updatedCollectionInfoToast": {
+            "activated": "सक्रिय बनाईयो",
+            "message": "सक्रिय बनाईयो",
+            "resolved": "संग्रह #{{collectionSerialNumber}} सफलताका साथ {{newState}} भयो"
+        },
+        "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
+        "updateReportStateItem": {
+            "reopen": "फेरी खोल्नुहोस्",
+            "resolve": "समाधान गर्नुहोस्"
+        }
+    },
+    "prioritySelect": {
+        "labels": {
+            "amber": "पहेँलो",
+            "green": "हरियो",
+            "none": "कुनै होइन",
+            "red": "रातो"
+        },
+        "placeholder": "छान्नुहोस्"
+    },
+    "reportGeometryDrawer": {
+        "cancelationConfirmationModal": {
+            "continueEditingButton": "सम्पादन जारी राख्नुहोस्",
+            "discardButton": "खारेज गर्नुहोस्",
+            "modalBody": "सुरक्षित नगरी रद्द गर्दा घटनाका क्षेत्रमा गरिएका परिवर्तन खारेज हुनेछन् । के तपाईं यी परिवर्तनहरु खारेज गर्न निश्चित हुनुहुन्छ ?",
+            "modalTitle": "परिवर्तनहरु खारेज गर्नुहोस्"
+        },
+        "footer": {
+            "cancelButton": "रद्द गर्नुहोस्",
+            "saveButton": "सुरक्षित गर्नुहोस्",
+            "saveButtonTooltip": {
+                "drawing": "बन्द आकारहरु मात्रै सुरक्षित गर्न सकिन्छ",
+                "invalidGeometry": "आकारका खण्डरु आपसमा काटिन सक्दैनन्"
+            }
+        },
+        "informationModal": {
+            "addingPointsHeader": "विन्दु थपिदैछ",
+            "addingPointsContent": "नक्सामा जहाँसुकै क्लिक गरि घटनाको क्षेत्रमा नयाँ विन्दु थप्न सक्नुहुन्छ ।",
+            "addingPointsToExistingAreaHeader": "अवस्थित क्षेत्रमा विन्दु थपिदैछ",
+            "addingPointsToExistingAreaContent": "घटना क्षेत्रको खण्डमा रहि क्लिक गरि तान्नुहोस् र चाहेको स्थानमा नयाँ विन्दु थप्नुहोस् ।",
+            "closingAreaHeader": "क्षेत्र बन्द हुँदैछ",
+            "closingAreaContent": "पहिलो विन्दुमा क्लिक गरि अथवा तपाईंको किबोर्डमा ‘enter’ थिचि आकार बन्द गर्नुहोस्",
+            "deletingPointsHeader": "विन्दुहरु हटाइँदैछ",
+            "deletingPointsContent": "तपाईंले मेट्न चाहेको बिन्दु क्लिक गर्नुहोस् र किबोर्डमा ‘delete’ अथवा ‘backspace’ थिच्नुहोस्",
+            "modalTitle": "घटना क्षेत्र सिर्जना हुँदैछ",
+            "reportAreaHeader": "घटना क्षेत्र",
+            "reportAreaContent": "तीन वा सो भन्दा बढी बिन्दु र आपसमा नकाटिने धर्का भएको एउटा बन्द आकार । क्षेत्र र दुरीको मापन औसतमा गरिएको छ, भूभाग र उचाइमा हुने परिवर्तनमा तिनको कुनै सम्बन्ध हुँदैन ।"
+        }
+    },
+    "reportListItem": {
+        "dateTimeSuffix": "अघि",
+        "resolvedState": "समाधान गरियो"
+    },
+    "reportManager": {
+        "detailsSection": {
+            "areaSelectorInput": {
+                "area": "क्षेत्र:",
+                "deleteAreaButton": "क्षेत्र मेटाउनुहोस्",
+                "deleteAreaButtonTitle": "क्षेत्र मेटाउनुहोस्",
+                "displayString": "{{areaDisplayString}} क्षेत्र, {{perimeterDisplayString}} परिधि",
+                "editAreaButton": "क्षेत्र सम्पादन गर्नुहोस्",
+                "editAreaButtonTitle": "नक्सामा ज्यामिति राख्नुहोस्",
+                "inputPlaceholder": "घटना क्षेत्र सेट गर्नुहोस्",
+                "staticMapImageAlt": "ज्यामिति सहितको स्थिर नक्सा",
+                "perimeter": "परिधि:",
+                "provenanceLabel": "अर्थरेन्जरमा बनाइएको {{provenance}}"
+            },
+            "dateLabel": "घटनाको मिति",
+            "detailsHeader": "विवरण",
+            "locationLabel": "घटनाको लोकेसन",
+            "priorityLabel": "प्राथमिकता",
+            "reportedByLabel": "द्वारा रिपार्ट गरिएको",
+            "stateDropdown": {
+                "active": "सक्रिय",
+                "resolved": "समाधान गरियो"
+            },
+            "timeLabel": "घटनाको समय"
+        },
+        "header": {
+            "priority": {
+                "amber": "पहेँलो",
+                "green": "हरियो",
+                "none": "कुनै पनि होइन",
+                "red": "रातो"
+            },
+            "reportMenu": {
+                "addToIncidentItem": "घटनामा थप्नुहोस्",
+                "addToPatrolItem": "गस्तिमा थप्नुहोस्",
+                "label": "घटनाका विकल्पहरु हेर्नुहोस्",
+                "printReportItem": "घटना प्रिन्ट गर्नुहोस्",
+                "textCopyButtonLabel": "घटनाको लिकं कपि गर्नुहोस्",
+                "textCopyButtonSuccessMessage": "लिकं कपि गरियो",
+                "title": "घटनाका विकल्पहरु"
+            }
+        },
+        "linksSection": {
+            "linksHeader": "लिकंहरु"
+        },
+        "reportDetailView": {
+            "cancelButton": "रद्द गर्नुहोस्",
+            "cantAddNoteAlert": "नयाँ नोट थप गर्न सकिएनः त्यहाँ एउटा खालि नोट सुरक्षित गर्न बाँकी छ",
+            "loadingMessage": "सुरक्षित हुँदैछ…",
+            "quickLinks": {
+                "activityAnchor": "गतिविधि",
+                "detailsAnchor": "विवरण",
+                "historyAnchor": "इतिहास",
+                "linksAnchor": "लिकं"
+            },
+            "saveErrorMessage": "घटनाहरु सुरक्षित गर्दा त्रुटि भयो ।",
+            "saveSplitButton": {
+                "saveAndReopenItem": "सुरक्षित गरि फेरी खोल्नुहोस्",
+                "saveAndResolveItem": "सुरक्षित गरि समाधान गर्नुहोस्",
+                "title": "सुरक्षित गर्नुहोस्"
+            },
+            "unknownErrorLabel": "अज्ञात त्रुटि"
+        }
+    },
+    "unknownEventTitle": "अज्ञात घटनाको शिर्षक",
+    "unknownEventType": "अज्ञात घटनाको किसिम"
+}

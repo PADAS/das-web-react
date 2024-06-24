@@ -1,0 +1,13 @@
+{
+  "defaultTimeLabel": "Time",
+  "minutesLabel": "minute",
+  "timeUnitAbbreviations": {
+    "day": "d",
+    "hour": "h",
+    "minute": "m",
+    "month": "mo",
+    "second": "s",
+    "week": "w",
+    "year": "y"
+  }
+}

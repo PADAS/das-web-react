@@ -1,0 +1,94 @@
+{
+    "dateFilter": {
+        "emptyEndDateMessage": "अहिले",
+        "resetButton": "रिसेट गर्नुहोस्",
+        "emptyStartDateMessage": "{{distanceInWordsDate}} अघि",
+        "title": "मितिको दायरा"
+    },
+    "dateRangeSelector": {
+        "endDateLabel": "सम्म:",
+        "lastSevenDaysLabel": "पछिल्लो ७ दिन",
+        "lastThirtyDaysLabel": "पछिल्लो ३० दिन",
+        "lastThreeMonthsLabel": "पछिल्लो तीन महिना",
+        "todayLabel": "आज",
+        "settingsTitle": "सेटिङ",
+        "startDateLabel": "देखि:",
+        "yesterdayLabel": "हिजो"
+    },
+    "eventsFilter": {
+        "datesButton": "मितिहरु",
+        "filtersButton": "फिल्टरहरु",
+        "resetButton": "रिसेट",
+        "searchBarPlaceholder": "घटनाहरु खोज्नुहोस्…"
+    },
+    "filters": {
+        "priorityPickerLabel": "प्राथमिकता",
+        "reportTypesAllLabel": "सबै",
+        "reportTypesLabel": "घटनाका प्रकारहरु",
+        "reportTypesSelectionLabels": {
+            "allSelected": "सबै छानियो",
+            "noneSelected": "कुनैपनि छानिएन",
+            "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} छानियो"
+        },
+        "restAllButton": "सबै रिसेट गर्नुहोस्",
+        "restButton": "रिसेट गर्नुहोस्",
+        "stateLabel": "अवस्था",
+        "stateSelector": {
+            "active": "सकृय",
+            "resolved": "समाधान गरियो",
+            "all": "सबै"
+        },
+        "title": "घटना फिल्टर"
+    },
+    "friendlyFilterString": {
+        "resultLabel": "नतिजा",
+        "resultsLabel": "नतिजाहरु",
+        "fromLabel": "देखि",
+        "filteredLabel": "फिल्टर गरियो",
+        "sortingTypeLabel": ", {{sortDirection}} क्रमबद्ध गरियो",
+        "byLabel": "द्वारा",
+        "eventSortOptions": {
+            "updatedAtLabel": "मिति अद्यावधिक गरियो",
+            "createdAtLabel": "मिति बनाईयो",
+            "eventTimeLabel": "घटनाको मिति"
+        },
+        "ascendingLabel": "बढ्दो क्रम"
+    },
+    "mapLayerSearchbarPlaceholder": "तहहरु खोज्नुहोस्…",
+    "patrolFilters": {
+        "datesTitle": "मिति",
+        "dateRangePopover": {
+            "title": "समय सिमा",
+            "resetButton": "रिसेट"
+        },
+        "filtersTitle": "फिल्टर",
+        "searchbarPlaceHolder": "गस्तीहरु खोज्नुहोस्…",
+        "filtersPopover": {
+            "checkBoxAllOption": "सबै",
+            "title": "गस्ती फिल्टर",
+            "resetAllButton": "सबै रिसेट गर्नुहोस्",
+            "resetButton": "रिसेट गर्नुहोस्",
+            "trackedByLabel": "द्वारा ट्रयाक गरिएको",
+            "statusLabel": "अवस्था",
+            "patrolTypeLabel": "गस्तीको किसिम",
+            "reportedByPlaceholder": "उपकरण छान्नुहोस्…",
+            "patrolStatuses": {
+                "active": "सकृय",
+                "done": "भयो",
+                "cancelled": "रद्द गरियो"
+            }
+        }
+    },
+    "patrolFiltersSettings": {
+        "byStartDateLabel": "सुरु मिति अनुसार फिल्टर गर्नुहोस्",
+        "byRangeDateLabel": "जेडिएका मितिका दायरा अनुसार फिल्टर गर्नुहोस्",
+        "patrolWithinRangeTooltip": "मितिको दायरा भित्रै सुरुहुने गस्ती समावेश गर्नुहोस्",
+        "patrolOverlapsRangeTooltip": "सुरु देखि अन्त्यसम्मै मितिको दायरा भित्रै पर्ने गस्तिहरु समावेश गर्नुहोस्"
+    },
+    "reportTypeMultiSelect": {
+        "placeholder": "प्रकारहरु खोज्नुहोस्",
+        "noResultsLabel": "मिल्दो केही भेटिएन",
+        "someResultsLabel": "यी सेट गर्नुहोस् {{resultCount}}",
+        "singleResultLabel": "यो सेट गर्नुहोस्"
+    }
+}

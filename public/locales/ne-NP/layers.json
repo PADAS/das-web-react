@@ -1,0 +1,14 @@
+{
+    "clearAllButton": "सबै हटाउनुहोस्",
+    "layerList": {
+        "analyzersTitle": "Analyzers",
+        "collapseClosedButtonLabel": "विस्तार गर्नुहोस्",
+        "collapseClosedButtonTitle": "बन्द भयो",
+        "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
+        "collapseOpenButtonTitle": "बिस्तार गरियो",
+        "featuresTitle": "विशेषताहरु",
+        "subjectsTitle": "विषयहरु",
+        "reportsTitle": "घटनाहरु",
+        "analyzerTitle": "विश्लेषकहरु"
+    }
+}

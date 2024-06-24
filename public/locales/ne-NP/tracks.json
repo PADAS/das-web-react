@@ -1,0 +1,32 @@
+{
+    "patrolTrackLegend": {
+        "multiplePatrolsTitle": "{{count}} गस्तीहरु",
+        "singlePatrolTitle": "गस्ती: {{patrolDisplayTitle}}",
+        "titleElement": {
+            "coveredSpan": "ढाकिएको",
+            "icon": "{{title}}को लागि आइकन",
+            "lengthCovered": "{{length}}  ढाकिएको",
+            "removeButton": "हटाउनुहोस्"
+        }
+    },
+    "trackLegend": {
+        "multipleSubjectsTitle": "{{count}} विषयहरु",
+        "titleElement": {
+            "icon": "{{title}} को लागि आइकन",
+            "pointCount_one": "{{count}} बिन्दु",
+            "pointCount_other": "{{count}} बिन्दुहरु",
+            "pointsOverTimeSpan": "{{trackDuration}}मा {{pointCount}} बिन्दुहरु",
+            "removeButton": "हटाउनुहोस्"
+        }
+    },
+    "trackLength": {
+        "length": "{{length}} किलोमिटर",
+        "title": "ट्रयाकको लम्बाइ"
+    },
+    "trackLengthControls": {
+        "customLengthLabel": "ट्रयाकको लम्बाइ अनुकुलन गर्नुहोस्",
+        "header": "ट्रयाकको लम्बाइ:",
+        "invalidCustomLengthAlert": "कृपया {{min}} देखि {{max}} सम्मको ट्रयाकको लम्बाइ राख्नुहोस ।",
+        "matchReportFilterDateLabel": "मिति \\\"from\\\" देखि ({{reportFilterDateRangeLength}} दिन) घटनाको फिल्टर मिलाउनुहोस्"
+    }
+}

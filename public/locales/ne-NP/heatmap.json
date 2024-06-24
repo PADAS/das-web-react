@@ -1,0 +1,31 @@
+{
+    "heatmapLegend": {
+        "dayTimespan_one": "{{count}} दिनभन्दा बढी",
+        "dayTimespan_other": "{{count}} दिनभन्दा बढी",
+        "pointCount_one": "{{count}} विन्दु",
+        "pointCount_other": "{{count}} विन्दुहरु"
+    },
+    "heatmapStyleControls": {
+        "radiusLabel": "अर्धव्यास (मिटरमा)",
+        "radiusUnit": "मि",
+        "sensitivityHighIndicator": "बढी",
+        "sensitivityLabel": "संवेदनशीलता",
+        "sensitivityLowIndicator": "कम"
+    },
+    "heatmapToggleButton": {
+        "heatmapOffLabel": "तापनक्सा बन्द छ",
+        "heatmapOnLabel": "तापनक्सा सक्रिय छ"
+    },
+    "reportsHeatmapLegend": {
+        "heatmapLegendTitle": "देखिने घटना"
+    },
+    "subjectHeatmapLegend": {
+        "subjectCount_one": "{{count}} विषय",
+        "subjectCount_other": "{{count}} विषयहरु",
+        "titleElement": {
+            "pointCount_one": "{{count}} बिन्दु",
+            "pointCount_other": "{{count}} बिन्दुहरु",
+            "remove": "हटाउनुहोस्"
+        }
+    }
+}

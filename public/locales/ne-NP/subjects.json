@@ -1,0 +1,28 @@
+{
+    "subjectControls": {
+        "historicalDataModalTitle": "ऐतिहासिक डाटा: {{subjectName}}"
+    },
+    "subjectHistoricalDataModal": {
+        "observationRow": {
+            "noDataLabel": "कुनै डाटा छैन"
+        },
+        "tableDateHeader": "मिति",
+        "tableLocationHeader": "स्थान"
+    },
+    "subjectHistoryButton": {
+        "label": "ऐतिहासिक डाटा"
+    },
+    "subjectMessagesPopover": {
+        "label": "सन्देश पठाउँदैछ"
+    },
+    "subjectPopup": {
+        "additionalPropsButton": {
+            "fewer": "< कम विवरण",
+            "more": "बढी विवरण >"
+        },
+        "dateTimeSuffix": "अघि",
+        "micActivityHeader": "माइक गतिविधि",
+        "noHistoricalDataSpan": "कुनै ऐतिहासिक डाटा छैन",
+        "subjectIconAlt": "{{name}}का लागि विषयगत आइकन"
+    }
+}
