@@ -36,11 +36,11 @@ jest.mock('../hooks/useNavigate', () => jest.fn());
 describe('GlobalMenuDrawer', () => {
   let addModalMock, fetchTableauDashboardMock, hideDrawerMock, navigate, store, useMatchMediaMock, useNavigateMock;
   beforeEach(() => {
-    addModalMock = jest.fn(() => () => {});
+    addModalMock = jest.fn(() => () => { });
     addModal.mockImplementation(addModalMock);
     fetchTableauDashboardMock = jest.fn(() => () => Promise.resolve({ display_url: 'tableau url ' }));
     fetchTableauDashboard.mockImplementation(fetchTableauDashboardMock);
-    hideDrawerMock = jest.fn(() => () => {});
+    hideDrawerMock = jest.fn(() => () => { });
     hideDrawer.mockImplementation(hideDrawerMock);
     useMatchMediaMock = jest.fn(() => true);
     useMatchMedia.mockImplementation(useMatchMediaMock);
@@ -59,6 +59,8 @@ describe('GlobalMenuDrawer', () => {
         user: {
           permissions: {
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+            [PERMISSION_KEYS.EVENTS_EXPORT]: [PERMISSIONS.READ],
+            [PERMISSION_KEYS.OBSERVATIONS_EXPORT]: [PERMISSIONS.READ],
           }
         },
       },
@@ -320,21 +322,40 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Daily Report');
   });
 
-  test('opens the field reports modal when clicking the Field Reports button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+  describe('exporting field reports', () => {
+    const getFieldEventsButton = () => screen.queryByText('Field Events');
 
-    expect(addModal).toHaveBeenCalledTimes(0);
+    test('does not show the Field Reports button if a user doesn\'t have export event data permissions', () => {
+      delete store.data.user.permissions[PERMISSION_KEYS.EVENTS_EXPORT];
 
-    const fieldReportsButton = await screen.findByText('Field Events');
-    userEvent.click(fieldReportsButton);
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
 
-    expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Field Events');
+      const fieldEventsButton = getFieldEventsButton();
+
+      expect(fieldEventsButton).toBeNull();
+    });
+
+    test('opens the field reports modal when clicking the Field Reports button', () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
+
+      expect(addModal).toHaveBeenCalledTimes(0);
+
+      const fieldEventsButton = getFieldEventsButton();
+      userEvent.click(fieldEventsButton);
+
+      expect(addModal).toHaveBeenCalledTimes(1);
+      expect(addModal.mock.calls[0][0].title).toBe('Field Events');
+    });
   });
+
 
   test('opens the kml export modal when clicking the Master KML button', async () => {
     render(
@@ -352,37 +373,73 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Subject KML');
   });
 
-  test('opens the subject information modal when clicking the Subject Information button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
 
-    expect(addModal).toHaveBeenCalledTimes(0);
+  describe('exporting subject information', () => {
+    const getSubjectInfoButton = () => screen.queryByText('Subject Summary');
 
-    const subjectInformationButton = await screen.findByText('Subject Summary');
-    userEvent.click(subjectInformationButton);
+    test('does not show the subject information link if a user doesn\'t have export observation data permissions', () => {
+      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS_EXPORT];
 
-    expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
+
+      const subjectInfoButton = getSubjectInfoButton();
+      expect(subjectInfoButton).toBeNull();
+    });
+
+    test('opens the subject information modal when clicking the Subject Information button', () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
+
+      expect(addModal).toHaveBeenCalledTimes(0);
+
+      const subjectInfoButton = getSubjectInfoButton();
+      userEvent.click(subjectInfoButton);
+
+      expect(addModal).toHaveBeenCalledTimes(1);
+      expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
+    });
   });
 
-  test('opens the subject reports modal when clicking the Subject Reports button', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+  describe('exporting subject reports', () => {
+    const getSubjectReportsButton = () => screen.queryByText('Observations');
 
-    expect(addModal).toHaveBeenCalledTimes(0);
+    test('does not show the subject reports link if a user doesn\'t have export observation data permissions', () => {
+      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS_EXPORT];
 
-    const subjectReportsButton = await screen.findByText('Observations');
-    userEvent.click(subjectReportsButton);
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
 
-    expect(addModal).toHaveBeenCalledTimes(1);
-    expect(addModal.mock.calls[0][0].title).toBe('Observations');
+      const subjectReportsButton = getSubjectReportsButton();
+      expect(subjectReportsButton).toBeNull();
+    });
+
+    test('opens the subject reports modal when clicking the Subject Reports button', () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <GlobalMenuDrawer />
+        </Provider>
+      );
+
+      expect(addModal).toHaveBeenCalledTimes(0);
+
+      const subjectReportsButton = getSubjectReportsButton();
+      userEvent.click(subjectReportsButton);
+
+      expect(addModal).toHaveBeenCalledTimes(1);
+      expect(addModal.mock.calls[0][0].title).toBe('Observations');
+    });
   });
+
 
   test('lists links to various privacy and data policies', async () => {
     render(
