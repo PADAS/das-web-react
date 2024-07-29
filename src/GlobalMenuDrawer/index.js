@@ -67,6 +67,8 @@ const GlobalMenuDrawer = () => {
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+  const hasObservationExportPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS_EXPORT, PERMISSIONS.READ);
+  const hasEventExportPermissions = usePermissions(PERMISSION_KEYS.EVENTS_EXPORT, PERMISSIONS.READ);
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
@@ -79,37 +81,62 @@ const GlobalMenuDrawer = () => {
   const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
 
-  const modals = useMemo(() => [
-    ...(dailyReportEnabled ? [{
-      title: t('dailyReportModal.title'),
-      content: DailyReportModal,
-      modalProps: { className: 'daily-report-modal' },
-    }] : []),
-    {
-      title: t('fieldReportsModal.title'),
-      content: DataExportModal,
-      url: 'activity/events/export',
-      paramString: calcEventFilterForRequest(),
-      children: <div>{t('fieldReportsModal.content')}</div>
-    },
-    ...(kmlExportEnabled ? [{
-      title: t('masterKMLModal.title'),
-      content: KMLExportModal,
-      url: 'subjects/kml/root',
-      modalProps: { className: 'kml-export-modal' },
-    }] : []),
-    {
-      title: t('subjectInformationModal.title'),
-      content: DataExportModal,
-      url: 'trackingmetadata/export',
-    },
-    {
-      title: t('subjectReportsModal.title'),
-      content: DataExportModal,
-      url: 'trackingdata/export',
-    },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ], [dailyReportEnabled, eventFilter, eventTypes, kmlExportEnabled, t]);
+  const modals = useMemo(() => {
+    const modals = [
+    ];
+
+    if (dailyReportEnabled) {
+      modals.push(
+        {
+          title: t('dailyReportModal.title'),
+          content: DailyReportModal,
+          modalProps: { className: 'daily-report-modal' },
+        }
+      );
+    }
+
+    if (kmlExportEnabled) {
+      modals.push(
+        {
+          title: t('masterKMLModal.title'),
+          content: KMLExportModal,
+          url: 'subjects/kml/root',
+          modalProps: { className: 'kml-export-modal' },
+        }
+      );
+    }
+
+    if (hasObservationExportPermissions) {
+      modals.push(...[
+        {
+          title: t('subjectInformationModal.title'),
+          content: DataExportModal,
+          url: 'trackingmetadata/export',
+        },
+        {
+          title: t('subjectReportsModal.title'),
+          content: DataExportModal,
+          url: 'trackingdata/export',
+        }
+      ]);
+    }
+
+    if (hasEventExportPermissions) {
+      modals.push(
+        {
+          title: t('fieldReportsModal.title'),
+          content: DataExportModal,
+          url: 'activity/events/export',
+          paramString: calcEventFilterForRequest(),
+          children: <div>{t('fieldReportsModal.content')}</div>
+        }
+      );
+    }
+
+    return modals;
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [eventFilter, hasEventExportPermissions, hasObservationExportPermissions, dailyReportEnabled, kmlExportEnabled, t]);
+
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
   const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
@@ -140,7 +167,7 @@ const GlobalMenuDrawer = () => {
       if (siteInput) {
         siteInput.value = window.location.hostname;
       }
-      const username = (selectedUserProfile?.id ? selectedUserProfile: user)?.username;
+      const username = (selectedUserProfile?.id ? selectedUserProfile : user)?.username;
       const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
 
       if (userInput) {
