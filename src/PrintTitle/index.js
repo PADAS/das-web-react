@@ -1,17 +1,18 @@
-import React, { memo } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 import styles from './styles.module.scss';
 
-const PrintTitle = (props) => {
-  const { text } = props;
-  return !!text && <h1 className={styles.title}>{text}</h1>;
+const PrintTitle = () => {
+  const printTitle = useSelector((state) => state.view.printTitle);
+  const iconSrc = useSelector(state => state.view.homeMap?.icon?.src);
+
+  if (!printTitle) return null;
+
+  return <h1 className={styles.title}>
+    <>{iconSrc ? <img src={iconSrc} alt={printTitle} /> : null}</>
+    {printTitle}
+  </h1>;
 };
 
-
-const mapStateToProps = ({ view: { printTitle } }) => ({
-  text: printTitle,
-});
-
-export default connect(mapStateToProps, null)(memo(PrintTitle));
-
+export default PrintTitle;
