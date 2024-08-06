@@ -17,12 +17,10 @@
         "exportButton": "निर्यात गर्नुहोस्"
     },
     "globalMenuDrawer": {
-        "alertsButton": "सुचनाहरु",
+        "alertsButton": "सुचना",
         "alertsModal": {
-            "title": "सुचनाहरु"
+            "title": "सुचना"
         },
-        "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
-        "closeButtonTitle": "बन्द गर्नुहोस्",
         "communityButton": "समाज",
         "contactSupport": {
             "body": "तपाईंलाई हामीले कसरी सहयोग गर्न सक्छौं ?",
@@ -62,7 +60,9 @@
             "title": "टिप्पणी"
         },
         "tableauButton": "झांकी",
-        "usersGuideButton": "प्रयोगकर्ताका लागि गाईड"
+        "usersGuideButton": "प्रयोगकर्ताका लागि गाईड",
+        "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
+        "closeButtonTitle": "बन्द गर्नुहोस्"
     },
     "kmlExportModal": {
         "dataExportModalTitle": "विषय KML फाइल निर्यात गर्नुहोस्",

@@ -16,26 +16,26 @@
         "yesterdayLabel": "हिजो"
     },
     "eventsFilter": {
-        "datesButton": "मितिहरु",
-        "filtersButton": "फिल्टरहरु",
+        "datesButton": "मिति",
+        "filtersButton": "फिल्टर",
         "resetButton": "रिसेट",
         "searchBarPlaceholder": "घटनाहरु खोज्नुहोस्…"
     },
     "filters": {
         "priorityPickerLabel": "प्राथमिकता",
         "reportTypesAllLabel": "सबै",
-        "reportTypesLabel": "घटनाका प्रकारहरु",
+        "reportTypesLabel": "घटनाका प्रकार",
         "reportTypesSelectionLabels": {
             "allSelected": "सबै छानियो",
             "noneSelected": "कुनैपनि छानिएन",
-            "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} छानियो"
+            "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} वटा छानियो"
         },
         "restAllButton": "सबै रिसेट गर्नुहोस्",
         "restButton": "रिसेट गर्नुहोस्",
         "stateLabel": "अवस्था",
         "stateSelector": {
             "active": "सकृय",
-            "resolved": "समाधान गरियो",
+            "resolved": "समाधान गरिएको",
             "all": "सबै"
         },
         "title": "घटना फिल्टर"
@@ -49,17 +49,17 @@
         "byLabel": "द्वारा",
         "eventSortOptions": {
             "updatedAtLabel": "मिति अद्यावधिक गरियो",
-            "createdAtLabel": "मिति बनाईयो",
+            "createdAtLabel": "सिर्जना गरिएको मिति",
             "eventTimeLabel": "घटनाको मिति"
         },
-        "ascendingLabel": "बढ्दो क्रम"
+        "ascendingLabel": "बढ्दो क्रम अनुसार"
     },
     "mapLayerSearchbarPlaceholder": "तहहरु खोज्नुहोस्…",
     "patrolFilters": {
         "datesTitle": "मिति",
         "dateRangePopover": {
             "title": "समय सिमा",
-            "resetButton": "रिसेट"
+            "resetButton": "रिसेट गर्नुहोस्"
         },
         "filtersTitle": "फिल्टर",
         "searchbarPlaceHolder": "गस्तीहरु खोज्नुहोस्…",
@@ -74,8 +74,8 @@
             "reportedByPlaceholder": "उपकरण छान्नुहोस्…",
             "patrolStatuses": {
                 "active": "सकृय",
-                "done": "भयो",
-                "cancelled": "रद्द गरियो"
+                "done": "सकिएको",
+                "cancelled": "रद्द गरिएको"
             }
         }
     },

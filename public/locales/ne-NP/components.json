@@ -11,13 +11,8 @@
             },
             "addReportTabTitle": "घटना थप्नुहोस्"
         },
-        "defaultLabel": "घटना अथवा गस्ती सिर्जना गर्नुहोस्",
-        "defaultTitle": "सिर्जना गर्नुहोस्"
-    },
-    "checkMark": {
-        "fullyCheckedTitle": "देखिने",
-        "partiallyCheckedTitle": "आंशिक रुपमा देखिने",
-        "uncheckedTitle": "लुकाइएको"
+        "defaultTitle": "सिर्जना गर्नुहोस्",
+        "defaultLabel": "घटना अथवा गस्ती सिर्जना गर्नुहोस्"
     },
     "detectOffline": {
         "offlineToastMessage": "हाल तपाईं अफलाईन हुनुहुन्छ । त्यसकारण अर्थरेन्जर अपेक्षा गरिए अनुसार नचल्न सक्छ । कृपया तपाईंको नेटवर्क जाँच गर्नुहोस् ।",
@@ -95,7 +90,7 @@
     "priorityPicker": {
         "amber": "पहेँलो",
         "green": "हरियो",
-        "none": "कुनै हैन",
+        "none": "कुनै होइन",
         "red": "रातो"
     },
     "reportedBySelect": {
@@ -138,17 +133,6 @@
         "newVersionAvailableNotification": "अर्थरेन्जरको नयाँ संस्करण उपलब्ध छ । तपाईंले अर्को पटक आफ्नो ब्राउजर रिफ्रेस गर्दा त्यो लोड हुनेछ ।"
     },
     "sideBar": {
-        "addEventButtonLabel": "घटना सिर्जना गर्नुहोस्",
-        "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
-        "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
-        "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
-        "backButtonLabel": "पछाडी फर्कनुहोस्",
-        "backButtonTitle": "फर्कनुहोस्",
-        "closeButtonTitle": "बन्द गर्नुहोस्",
-        "closeEventFeedButtonLabel": "घटनाको फिड बन्द गर्नुहोस्",
-        "closeMapLayersButtonLabel": "नक्साको तहहरु बन्द गर्नुहोस्",
-        "closePatrolFeedButtonLabel": "गस्तीको फिड बन्द गर्नुहोस्",
-        "closeSettingsButtonLabel": "सेटिङ बन्द गर्नुहोस्",
         "layersLink": "नक्साका तहहरु",
         "noItemsToDisplayInLayers": "प्रदर्शनका लागि कुनै आइटम छैनन् ।",
         "patrolsLink": "गस्ती",
@@ -176,16 +160,27 @@
             "mapMarkersHeader": "नक्सामा राखिने चिन्ह",
             "mapTabTitle": "नक्सा"
         },
-        "settingsLink": "सेटिङ"
-    },
-    "sortedNodes": {
-        "labelAscending": "घट्दो क्रम अनुसार मिलाउनुहोस्",
-        "labelDescending": "बढ्दो क्रम अनुसार मिलाउनुहोस्",
-        "titleAscending": "बढ्दो क्रम",
-        "titleDescending": "घट्दो क्रम"
+        "settingsLink": "सेटिङ",
+        "addEventButtonLabel": "घटना सिर्जना गर्नुहोस्",
+        "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
+        "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
+        "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
+        "backButtonLabel": "पछाडी फर्कनुहोस्",
+        "backButtonTitle": "फर्कनुहोस्",
+        "closeButtonTitle": "बन्द गर्नुहोस्",
+        "closeEventFeedButtonLabel": "घटनाको फिड बन्द गर्नुहोस्",
+        "closeMapLayersButtonLabel": "नक्साको तहहरु बन्द गर्नुहोस्",
+        "closePatrolFeedButtonLabel": "गस्तीको फिड बन्द गर्नुहोस्",
+        "closeSettingsButtonLabel": "सेटिङ बन्द गर्नुहोस्"
     },
     "textCopyBtn": {
-        "defaultToastMessage": "क्लिपबोर्डमा कपि गर्नुहोस्"
+        "defaultToastMessage": "क्लिपबोर्डमा कपि गरियो"
+    },
+    "toastBody": {
+        "defaultLinkTitle": "यहाँ क्लिक गर्नुहोस्",
+        "defaultMessage": "केही त्रुटि भएको छ",
+        "hideDetailsButton": "विवरण लुकाउनुहोस्",
+        "showDetailsButton": "विवरण देखाउनुहोस्"
     },
     "timeSlider": {
         "popoverHeader": "मितिको दायरा",
@@ -196,10 +191,15 @@
         },
         "untilNowButton": "अहिले"
     },
-    "toastBody": {
-        "defaultLinkTitle": "यहाँ क्लिक गर्नुहोस्",
-        "defaultMessage": "केही त्रुटि भएको छ",
-        "hideDetailsButton": "विवरण लुकाउनुहोस्",
-        "showDetailsButton": "विवरण देखाउनुहोस्"
+    "checkMark": {
+        "fullyCheckedTitle": "देखिने",
+        "partiallyCheckedTitle": "आंशिक रुपमा देखिने",
+        "uncheckedTitle": "नदेखिने"
+    },
+    "sortedNodes": {
+        "labelAscending": "घट्दो क्रम अनुसार मिलाउनुहोस्",
+        "labelDescending": "बढ्दो क्रम अनुसार मिलाउनुहोस्",
+        "titleAscending": "बढ्दो क्रम अनुसार",
+        "titleDescending": "घट्दो क्रम अनुसार"
     }
 }

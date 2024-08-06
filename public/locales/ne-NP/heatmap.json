@@ -13,8 +13,8 @@
         "sensitivityLowIndicator": "कम"
     },
     "heatmapToggleButton": {
-        "heatmapOffLabel": "तापनक्सा बन्द छ",
-        "heatmapOnLabel": "तापनक्सा सक्रिय छ"
+        "heatmapOffLabel": "तापनक्सा बन्द गर्नुहोस्",
+        "heatmapOnLabel": "तापनक्सा सक्रिय गर्नुहोस्"
     },
     "reportsHeatmapLegend": {
         "heatmapLegendTitle": "देखिने घटना"

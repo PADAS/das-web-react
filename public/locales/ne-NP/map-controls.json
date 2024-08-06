@@ -10,12 +10,6 @@
         "logoAlt": "{{logoName}} लोगो",
         "defaultMapLayerName": "अर्थरेन्जरको भूभाग नक्सा"
     },
-    "earthRangerMap": {
-        "mapTitle": "Map",
-        "navigationResetBearing": "Reset bearing to north",
-        "navigationZoomIn": "Zoom in",
-        "navigationZoomOut": "Zoom out"
-    },
     "mapDrawingTools": {
         "addPointLabel": "नयाँ बिन्दु थप्न क्लिक गर्नुहोस् । पुरा गर्नका लागि ‘enter’ वा ‘return’ थिच्नुहोस् ।",
         "bearingLabel": "असर: {{bearing}}°",

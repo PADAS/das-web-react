@@ -1,18 +1,18 @@
 {
     "addToPatrolModal": {
+        "title": "गस्तीमा थप्नुहोस्",
         "cancel": "रद्द गर्नुहोस्",
-        "loading": "लोड हुँदैछ…",
         "noMorePatrols": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
-        "title": "गस्तीमा थप्नुहोस्"
+        "loading": "लोड हुँदैछ…"
     },
     "detailView": {
         "addEmptyNoteAlert": "नयाँ नोट सुरक्षित गर्न सकिएन: पुरानै नोट सुरक्षित हुन बाँकी छ",
         "formButtons": {
-            "cancel": "रद्द गर्नुहोस्",
-            "save": "सुरक्षित गर्नुहोस्"
+            "save": "सुरक्षित गर्नुहोस्",
+            "cancel": "रद्द गर्नुहोस्"
         },
         "header": {
-            "patrolSchedule": "{{scheduledStartTime}} निर्धारण गरियो",
+            "patrolSchedule": "{{scheduledStartTime}} निर्धारण गरिएको",
             "patrolStartButton": "सुरु",
             "patrolRestoreButton": "पुर्नस्थापना",
             "uiStateTitles": {
@@ -31,16 +31,16 @@
             "autoStartCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती सुरु गर्नुहोस्",
             "autoEndCheckboxLargeLabel": "यसै समय अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
             "autoEndCheckboxSmallLabel": "अर्थरेन्जरमा स्वतः गस्ती अन्त्य गर्नुहोस्",
-            "endDateLabel": "अन्तिम मिति",
-            "endTimeLabel": "अन्तिम समय",
-            "endLocationLargeLabel": "अन्तिम स्थान",
+            "endDateLabel": "अन्त्य मिति",
+            "endTimeLabel": "अन्त्य समय",
+            "endLocationLargeLabel": "अन्त्य स्थान",
             "endLocationSmallLabel": "स्थान",
             "locationSelectorPlaceholder": "स्थान सेट गर्नुहोस्",
             "objectiveLabel": "उद्देश्य",
             "objectivePlaceholder": "गस्तीको उद्देश्य वर्णन गर्नुहोस्…",
             "startDateLabel": "सुरु मिति",
             "startTimeLabel": "सुरु समय",
-            "startLocationLargeLabel": "सुरुको स्थान",
+            "startLocationLargeLabel": "सुरु स्थान",
             "startLocationSmallLabel": "स्थान",
             "title": "योजना",
             "trackedByLabel": "द्वारा ट्रयाक गरिएको",
@@ -62,11 +62,11 @@
         "copyButton": "गस्तीको लिकं कपि गर्नुहोस्",
         "copyButtonMessage": "लिकं कपि भयो",
         "endPatrol": "गस्ती अन्त्य गर्नुहोस्",
-        "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
-        "title": "गस्तीका विकल्पहरु",
         "printPatrolButton": "गस्ती प्रिन्ट गर्नुहोस्",
         "restorePatrol": "गस्ती पुर्नस्थापना गर्नुहोस्",
-        "startPatrol": "गस्ती सुरु गर्नुहोस्"
+        "startPatrol": "गस्ती सुरु गर्नुहोस्",
+        "label": "गस्तीका विकल्पहरु हेर्नुहोस्",
+        "title": "गस्तीका विकल्पहरु"
     },
     "patrolList": {
         "emptyPatrolList": "प्रदर्शनीका लागि कुनै गस्ती छैन ।"

@@ -26,8 +26,8 @@
             "descending": "बढ्दो क्रम अनुसार मिलाउनुहोस"
         },
         "sortDirectionToggleTitle": {
-            "ascending": "बढ्दो क्रम",
-            "descending": "घट्दो क्रम"
+            "ascending": "बढ्दो क्रम अनुसार",
+            "descending": "घट्दो क्रम अनुसार"
         }
     },
     "errorMessages": {
@@ -41,13 +41,10 @@
         "noMoreReportsItem": "प्रदर्शनका लागि थप कुनै घटना छैनन् ।",
         "noReportsItem": "प्रदर्शनका लागि कुनै घटना छैनन् ।"
     },
-    "eventIcon": {
-        "collectionTitle": "सकंलन"
-    },
     "eventItemContextMenu": {
         "errorToastMessage": "#{{serialNumber}} अझै {{state}}, केही समस्या उत्पन्न भएको छ",
         "notificationDetails": {
-            "failedReports": "चेतावनीः यी घटनाहरु अझै {{state}}",
+            "failedReports": "चेतावनीः यी घटनाहरु अझै {{state}} छन्",
             "processedReports": {
                 "activated": "सक्रिय बनाईयो",
                 "resolved": "समाधान गरियो",
@@ -64,8 +61,8 @@
         },
         "updatedCollectionInfoToast": {
             "activated": "सक्रिय बनाईयो",
-            "message": "सक्रिय बनाईयो",
-            "resolved": "संग्रह #{{collectionSerialNumber}} सफलताका साथ {{newState}} भयो"
+            "message": "संग्रह #{{collectionSerialNumber}} सफलताका साथ {{newState}} भयो",
+            "resolved": "समाधान गरियो"
         },
         "updatedReportInfoToastMessage": "#{{reportSerialNumber}} {{newState}}",
         "updateReportStateItem": {
@@ -113,7 +110,7 @@
     },
     "reportListItem": {
         "dateTimeSuffix": "अघि",
-        "resolvedState": "समाधान गरियो"
+        "resolvedState": "समाधान गरिएको"
     },
     "reportManager": {
         "detailsSection": {
@@ -136,7 +133,7 @@
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",
             "stateDropdown": {
                 "active": "सक्रिय",
-                "resolved": "समाधान गरियो"
+                "resolved": "समाधान गरिएको"
             },
             "timeLabel": "घटनाको समय"
         },
@@ -150,10 +147,10 @@
             "reportMenu": {
                 "addToIncidentItem": "घटनामा थप्नुहोस्",
                 "addToPatrolItem": "गस्तिमा थप्नुहोस्",
-                "label": "घटनाका विकल्पहरु हेर्नुहोस्",
                 "printReportItem": "घटना प्रिन्ट गर्नुहोस्",
                 "textCopyButtonLabel": "घटनाको लिकं कपि गर्नुहोस्",
                 "textCopyButtonSuccessMessage": "लिकं कपि गरियो",
+                "label": "घटनाका विकल्पहरु हेर्नुहोस्",
                 "title": "घटनाका विकल्पहरु"
             }
         },
@@ -180,5 +177,8 @@
         }
     },
     "unknownEventTitle": "अज्ञात घटनाको शिर्षक",
-    "unknownEventType": "अज्ञात घटनाको किसिम"
+    "unknownEventType": "अज्ञात घटनाको किसिम",
+    "eventIcon": {
+        "collectionTitle": "सकंलन"
+    }
 }

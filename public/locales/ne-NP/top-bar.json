@@ -13,15 +13,15 @@
         "restrictedOptionLabel": "प्रतिबन्धित"
     },
     "nav": {
+        "navHomeMenu": {
+            "myCurrentLocationItem": "मेरो हालको लोकेसन",
+            "homeMenuToggleTitle": "नक्साको द्रुत लिकंहरु"
+        },
         "hamburgerMenuLabel": "मुख्य मेनु खोल्नुहोस्",
         "hamburgerMenuTitle": "मेनु",
         "messageMenu": {
             "messageMenuToggleLabel": "सन्देशहरु खोल्नुहोस्",
             "messageMenuToggleTitle": "सन्देशहरु"
-        },
-        "navHomeMenu": {
-            "homeMenuToggleTitle": "नक्साको द्रुत लिकंहरु",
-            "myCurrentLocationItem": "मेरो हालको लोकेसन"
         },
         "notificationMenu": {
             "toggleLabel": "अर्थरेन्जरको सुचनाहरु खोल्नुहोस्",
@@ -36,12 +36,10 @@
             "dismissButton": "खारेज गर्नुहोस्",
             "moreInformationLink": "थप जानकारी"
         },
-        "outdatedNotifications_one": "तपाईंसँग {{count}} नपढिएको सुचना छन् ।",
-        "outdatedNotifications_other": "तपाईंसँग {{count}} नपढिएको सुचना छन् ।",
+        "outdatedNotifications_one": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
+        "outdatedNotifications_other": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
         "readMore": "थप पढ्नुहोस्",
         "seeAllNewsButton": "सबै समाचार हेर्नुहोस् >",
-        "toggleLabel": "Open EarthRanger Notifications",
-        "toggleTitle": "EarthRanger Notifications",
         "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
     },
     "profilePINModal": {
@@ -52,7 +50,6 @@
     "systemStatus": {
         "datasourceDefTitle": "उपकरणको गतिविधि",
         "dateTimeSuffix": "अघि",
-        "HEALTHY": "स्वस्थ",
         "heartBeatDefTitle": "सिस्टमको गतिविधि",
         "initialRealTimeStatusTitle": "अहिलेको वास्तविक समयको अर्थरेन्जर",
         "initialRealTimeStatusDetails": "गतिविधि",
@@ -60,6 +57,7 @@
         "networkOnlineLabel": "अनलाइन",
         "networkOfflineLabel": "अफलाइन",
         "serverVersionLabel": "अर्थरेन्जर सर्भर {{version}}",
+        "HEALTHY": "स्वस्थ",
         "UNHEALTHY": "अस्वस्थ",
         "UNKNOWN": "अज्ञात",
         "WARNING": "चेतावनी"
