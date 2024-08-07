@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 const DEFAULT_OBSERVER_CONFIG = { attributes: false, childList: true, subtree: true };
 
 export const JIRA_WIDGET_IFRAME_SELECTOR = '#jsd-widget';
+export const JIRA_WIDGET_FORM_SELECTOR = 'form.help-form';
 export const JIRA_IFRAME_HELP_BUTTON_SELECTOR = '#help-button';
 
 export const selectSupportFormFieldByLabelText = (text) => {
@@ -47,9 +48,14 @@ const JiraSupportWidget = () => {
       if (supportiFrameDocument) {
         const callback = () => {
           const helpBtn = supportiFrameDocument.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
+          const form = supportiFrameDocument.querySelector(JIRA_WIDGET_FORM_SELECTOR);
 
           if (!!helpBtn && !helpBtn.hasAttribute('style')) {
             helpBtn.style = 'position: absolute; right: -9999rem';
+          }
+
+          if (!!form && !form.hasAttribute('style')) {
+            form.style = 'background: white;';
           }
         };
 
