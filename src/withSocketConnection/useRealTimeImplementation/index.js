@@ -55,7 +55,14 @@ const useRealTimeImplementation = () => {
 
     socket.on('connect', () => {
       store.dispatch({ type: SOCKET_HEALTHY_STATUS });
+      const profileId = store.getState().data.selectedUserProfile?.id;
+
       socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
+
+      if (profileId) {
+        socket.emit('profile', { profile_id: profileId });
+      }
+
       console.log('realtime: connected');
     });
     socket.on('disconnect', (msg) => {
