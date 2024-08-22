@@ -323,6 +323,7 @@ export const SUPPORTED_LANGUAGES = {
   'en-US': 'English (United States)',
   es: 'Español',
   fr: 'Français',
+  'ne-NP': 'नेपाली',
   pt: 'Português',
   sw: 'Swahili',
 };

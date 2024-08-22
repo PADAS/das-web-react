@@ -1,0 +1,37 @@
+{
+    "cursorGPSDisplay": {
+        "gpsDisplayTooltip": "खोज्नका लागि enter थिच्नुहोस",
+        "titleIconSearch": "खोज्नुहोस्",
+        "toggleTitle": "कोअर्डिनेट सेटिङ"
+    },
+    "baseLayer": {
+        "popoverButton": "नक्साको आधार तह सेट गर्नुहोस्",
+        "popoverTitle": "आधार तहहरु",
+        "logoAlt": "{{logoName}} लोगो",
+        "defaultMapLayerName": "अर्थरेन्जरको भूभाग नक्सा"
+    },
+    "mapDrawingTools": {
+        "addPointLabel": "नयाँ बिन्दु थप्न क्लिक गर्नुहोस् । पुरा गर्नका लागि ‘enter’ वा ‘return’ थिच्नुहोस् ।",
+        "bearingLabel": "असर: {{bearing}}°",
+        "distanceLabel": "दूरी: {{distance}}",
+        "instructionsLabel": "नयाँ बिन्दु थप्नका लागि क्लिक गरेर तान्नुहोस्",
+        "popupLabel": "नयाँ बिन्दु थप्नका लागि क्लिक गर्नुहोस्"
+    },
+    "mapPrintControl": {
+        "documentTitle": "डकुमेन्टको शिर्षक:",
+        "printButtonTitle": "नक्सा प्रिन्ट गर्नुहोस्",
+        "printButton": "नक्सा प्रिन्ट गर्नुहोस्",
+        "printInstructions": "प्रिन्ट गर्न उत्कृष्ट परिणामका लागि ‘मापन’ सेटिङ मिलाउनुहोस्"
+    },
+    "mapRuler": {
+        "cancelButton": "रद्द गर्नुहोस्",
+        "closeButton": "बन्द गर्नुहोस्",
+        "title": "नक्शाको मापक"
+    },
+    "pointPopup": {
+        "bearingLabel": "असर:",
+        "distanceLabel": "सुरु देखिको दुरी:",
+        "finishButton": "समाप्त गर्न यहाँ क्लिक गर्नुहोस्"
+    },
+    "reportMapControlTitle": "घटनाहरु"
+}

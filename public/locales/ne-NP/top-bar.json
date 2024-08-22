@@ -1,0 +1,71 @@
+{
+    "messagesModal": {
+        "backToAllMessagesButton": "सबै सन्देशहरु",
+        "cancelButton": "रद्द गर्नुहोस्",
+        "messagesHeader": "सन्देशहरु",
+        "newMessageButton": "नयाँ सन्देश",
+        "noMessagingSubjectText": "तपाईंले यस विषयमा सन्देश पठाउन सक्नुहुन्न ।"
+    },
+    "messagingSelect": {
+        "allOptionsLabel": "सबै",
+        "hiddenValue": "लुकेको",
+        "placeholder": "...लाई सन्देश पठाउनुहोस्",
+        "restrictedOptionLabel": "प्रतिबन्धित"
+    },
+    "nav": {
+        "navHomeMenu": {
+            "myCurrentLocationItem": "मेरो हालको लोकेसन",
+            "homeMenuToggleTitle": "नक्साको द्रुत लिकंहरु"
+        },
+        "hamburgerMenuLabel": "मुख्य मेनु खोल्नुहोस्",
+        "hamburgerMenuTitle": "मेनु",
+        "messageMenu": {
+            "messageMenuToggleLabel": "सन्देशहरु खोल्नुहोस्",
+            "messageMenuToggleTitle": "सन्देशहरु"
+        },
+        "notificationMenu": {
+            "toggleLabel": "अर्थरेन्जरको सुचनाहरु खोल्नुहोस्",
+            "toggleTitle": "अर्थरेन्जरको सुचनाहरु"
+        }
+    },
+    "notificationMenu": {
+        "errorFetchingHeader": "हालैका घोषणाहरु प्राप्त गर्दा त्रुटि भयो ।",
+        "noNewNotificationsHeader": "हालका लागि कुनै नयाँ सुचना छैन ।",
+        "notificationItem": {
+            "confirmButton": "पुष्टि गर्नुहोस्",
+            "dismissButton": "खारेज गर्नुहोस्",
+            "moreInformationLink": "थप जानकारी"
+        },
+        "outdatedNotifications_one": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
+        "outdatedNotifications_other": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
+        "readMore": "थप पढ्नुहोस्",
+        "seeAllNewsButton": "सबै समाचार हेर्नुहोस् >",
+        "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
+    },
+    "profilePINModal": {
+        "error": "गलत PIN",
+        "title": "तपाईंको PIN राख्नुहोस्",
+        "userLabel": "प्रयोगकर्ता:"
+    },
+    "systemStatus": {
+        "datasourceDefTitle": "उपकरणको गतिविधि",
+        "dateTimeSuffix": "अघि",
+        "heartBeatDefTitle": "सिस्टमको गतिविधि",
+        "initialRealTimeStatusTitle": "अहिलेको वास्तविक समयको अर्थरेन्जर",
+        "initialRealTimeStatusDetails": "गतिविधि",
+        "initialNetworkStatusTitle": "नेटवर्क",
+        "networkOnlineLabel": "अनलाइन",
+        "networkOfflineLabel": "अफलाइन",
+        "serverVersionLabel": "अर्थरेन्जर सर्भर {{version}}",
+        "HEALTHY": "स्वस्थ",
+        "UNHEALTHY": "अस्वस्थ",
+        "UNKNOWN": "अज्ञात",
+        "WARNING": "चेतावनी"
+    },
+    "userMenu": {
+        "cookieSettingsItem": "कुकी सेटिङ",
+        "logoutItem": "लग आउट",
+        "toggleLabel": "प्रयोगकर्ता सेटिङ खोल्नुहोस्",
+        "toggleTitle": "प्रयोगकर्ता सेटिङ"
+    }
+}

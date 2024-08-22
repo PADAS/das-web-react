@@ -1,0 +1,13 @@
+{
+  "defaultTimeLabel": "समय",
+  "minutesLabel": "मिनेट",
+  "timeUnitAbbreviations": {
+    "day": "दिन",
+    "hour": "घण्टा",
+    "minute": "मिनेट",
+    "month": "महिना",
+    "second": "सेकेन्ड",
+    "week": "हप्ता",
+    "year": "वर्ष"
+  }
+}

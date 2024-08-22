@@ -49,13 +49,14 @@ i18n
       ],
       backendOptions: [{
         expirationTime: 24 * 60 * 60 * 1000 * 7,
-        defaultVersion: 'v0.7',
+        defaultVersion: 'v1.0',
         versions: {
-          es: '0.7',
-          'en-US': '0.7',
-          fr: '0.7',
-          pt: '0.7',
-          sw: '0.7.1'
+          es: '1.0',
+          'en-US': '1.0',
+          fr: '1.0',
+          'ne-NP': '1.0.',
+          pt: '1.0',
+          sw: '1.0.1'
         }
       }]
     }
