@@ -258,10 +258,6 @@ export const SelectWidget = ({
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 
-  const SelectContainer = (props) => <div ref={containerRef}>
-    <components.SelectContainer {...props} />
-  </div>;
-
   const schemaInactiveEnumLowercase = useMemo(
     () => (schema.inactive_enum || []).map((inactiveOption) => inactiveOption.toLowerCase()),
     [schema]
@@ -293,11 +289,11 @@ export const SelectWidget = ({
   const onMenuOpen = useCallback(() => {
     setMenuOpen(true);
     setTimeout(() => {
-      if (selectRef.current.select.menuListRef && registry.formContext && registry.formContext.scrollContainer) {
+      if (selectRef?.current?.menuListRef && registry.formContext && registry.formContext.scrollContainer) {
         scrollSelectIntoViewOnMenuOpenIfNecessary(
           registry.formContext.scrollContainer,
           containerRef.current,
-          selectRef.current.select.menuListRef.clientHeight
+          selectRef.current.menuListRef.clientHeight
         );
       }
     });
@@ -316,7 +312,6 @@ export const SelectWidget = ({
   return <Select
     autoFocus={autofocus}
     className={`${rawErrors.length > 0 ? 'is-invalid' : ''} ${styles.selectWidget}`}
-    components={{ SelectContainer }}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
     id={id}
