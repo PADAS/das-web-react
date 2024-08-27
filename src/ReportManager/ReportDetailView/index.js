@@ -759,21 +759,33 @@ const ReportDetailView = ({
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}
             iconComponent={<PencilWritingIcon />}
+            onClick={() => reportTracker.track(
+              `Click the "Details" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
+            )}
           />
 
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.activityAnchor')}
             iconComponent={<BulletListIcon />}
+            onClick={() => reportTracker.track(
+              `Click the "Activity" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
+            )}
           />
 
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.linksAnchor')}
             iconComponent={<LinkIcon />}
+            onClick={() => reportTracker.track(
+              `Click the "Links" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
+            )}
           />
 
           <QuickLinks.Anchor
             anchorTitle={t('reportDetailView.quickLinks.historyAnchor')}
             iconComponent={<HistoryIcon />}
+            onClick={() => reportTracker.track(
+              `Click the "History" quicklink in a ${isNewReport ? 'new' : 'existing'} report`
+            )}
           />
         </QuickLinks.NavigationBar>
 

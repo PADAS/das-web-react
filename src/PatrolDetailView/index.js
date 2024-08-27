@@ -94,8 +94,6 @@ const PatrolDetailView = () => {
   const [notesToAdd, setNotesToAdd] = useState([]);
   const [showInvalidDatesModal, setShowInvalidDatesModal] = useState(false);
 
-  const patrolTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
-
   const { patrol, leader } = patrolDataSelector || {};
 
   const isNewPatrol = patrolId === 'new';
@@ -430,8 +428,8 @@ const PatrolDetailView = () => {
       });
     }, parseFloat(activitySectionStyles.cardToggleTransitionTime));
 
-    patrolTracker.track('Added Attachment');
-  }, [attachmentsToAdd, patrolAttachments, patrolTracker]);
+    patrolDetailViewTracker.track('Added Attachment');
+  }, [attachmentsToAdd, patrolAttachments]);
 
   const onAddNote = useCallback(() => {
     const userHasNewNoteEmpty = notesToAdd.some((noteToAdd) => !noteToAdd.originalText);
@@ -539,15 +537,33 @@ const PatrolDetailView = () => {
 
     <Header printableContentRef={printableContentRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
-    <TrackerContext.Provider value={patrolTracker}>
+    <TrackerContext.Provider value={patrolDetailViewTracker}>
       <div className={styles.body}>
         <QuickLinks scrollTopOffset={QUICK_LINKS_SCROLL_TOP_OFFSET}>
           <QuickLinks.NavigationBar className={styles.navigationBar}>
-            <QuickLinks.Anchor anchorTitle={t('quickLinksTitles.plan')} iconComponent={<CalendarIcon />} />
+            <QuickLinks.Anchor
+              anchorTitle={t('quickLinksTitles.plan')}
+              iconComponent={<CalendarIcon />}
+              onClick={() => patrolDetailViewTracker.track(
+                `Click the "Plan" quicklink in a ${isNewPatrol ? 'new' : 'existing'} patrol`
+              )}
+            />
 
-            <QuickLinks.Anchor anchorTitle={t('quickLinksTitles.activity')} iconComponent={<BulletListIcon />} />
+            <QuickLinks.Anchor
+              anchorTitle={t('quickLinksTitles.activity')}
+              iconComponent={<BulletListIcon />}
+              onClick={() => patrolDetailViewTracker.track(
+                `Click the "Activity" quicklink in a ${isNewPatrol ? 'new' : 'existing'} patrol`
+              )}
+            />
 
-            <QuickLinks.Anchor anchorTitle={t('quickLinksTitles.history')} iconComponent={<HistoryIcon />} />
+            <QuickLinks.Anchor
+              anchorTitle={t('quickLinksTitles.history')}
+              iconComponent={<HistoryIcon />}
+              onClick={() => patrolDetailViewTracker.track(
+                `Click the "History" quicklink in a ${isNewPatrol ? 'new' : 'existing'} patrol`
+              )}
+            />
           </QuickLinks.NavigationBar>
 
           <div className={styles.content}>

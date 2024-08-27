@@ -64,14 +64,18 @@ NavigationBar.propTypes = {
 QuickLinks.NavigationBar = NavigationBar;
 
 
-const Anchor = ({ anchorTitle, iconComponent }) => {
+const Anchor = ({ anchorTitle, onClick: onClickCallback = null, iconComponent }) => {
   const { getSectionElement, onClickAnchor } = useContext(QuickLinksContext);
 
   const sectionElement = useMemo(() => getSectionElement(anchorTitle), [anchorTitle, getSectionElement]);
 
   const isSectionOnScreen = useOnScreen(sectionElement);
 
-  const onClick = useCallback(() => onClickAnchor(anchorTitle), [onClickAnchor, anchorTitle]);
+  const onClick = useCallback((event) => {
+    onClickAnchor(anchorTitle);
+
+    onClickCallback?.(event);
+  }, [onClickAnchor, onClickCallback, anchorTitle]);
 
   return sectionElement ? <div
     className={`${styles.anchor} ${isSectionOnScreen ? 'active' : ''}`}
