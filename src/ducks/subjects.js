@@ -167,6 +167,8 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
     const { payload: { data: subjects } } = action;
 
     const newSubjects = subjects.map((subject) => {
+      if (!subject.last_position) return subject;
+
       subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
       return subject;
     });
