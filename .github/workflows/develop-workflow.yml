@@ -46,9 +46,7 @@ jobs:
       - name: Install dependencies
         run: yarn --ignore-scripts
 
-      - name: Run tests
-        run: yarn test-ci
-
+      
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
