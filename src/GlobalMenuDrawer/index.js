@@ -67,8 +67,8 @@ const GlobalMenuDrawer = () => {
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
-  const hasObservationExportPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS_EXPORT, PERMISSIONS.READ);
-  const hasEventExportPermissions = usePermissions(PERMISSION_KEYS.EVENTS_EXPORT, PERMISSIONS.READ);
+  const hasObservationExportPermissions = usePermissions(PERMISSION_KEYS.OBSERVATIONS_EXPORT, PERMISSIONS.EXPORT);
+  const hasEventExportPermissions = usePermissions(PERMISSION_KEYS.EVENTS_EXPORT, PERMISSIONS.EXPORT);
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 

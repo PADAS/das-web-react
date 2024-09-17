@@ -307,6 +307,7 @@ export const PERMISSIONS = {
   READ: 'view',
   UPDATE: 'change',
   DELETE: 'delete',
+  EXPORT: 'export',
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';

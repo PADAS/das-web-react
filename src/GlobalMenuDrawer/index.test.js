@@ -59,8 +59,8 @@ describe('GlobalMenuDrawer', () => {
         user: {
           permissions: {
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
-            [PERMISSION_KEYS.EVENTS_EXPORT]: [PERMISSIONS.READ],
-            [PERMISSION_KEYS.OBSERVATIONS_EXPORT]: [PERMISSIONS.READ],
+            [PERMISSION_KEYS.EVENTS_EXPORT]: [PERMISSIONS.EXPORT],
+            [PERMISSION_KEYS.OBSERVATIONS_EXPORT]: [PERMISSIONS.EXPORT],
           }
         },
       },
