@@ -297,8 +297,8 @@ export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
   MESSAGING: 'message',
-  OBSERVATIONS_EXPORT: 'export_observation_data',
-  EVENTS_EXPORT: 'export_event_data',
+  OBSERVATIONS: 'observation',
+  EVENTS: 'event',
 };
 
 

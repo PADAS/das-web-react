@@ -59,8 +59,8 @@ describe('GlobalMenuDrawer', () => {
         user: {
           permissions: {
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
-            [PERMISSION_KEYS.EVENTS_EXPORT]: [PERMISSIONS.EXPORT],
-            [PERMISSION_KEYS.OBSERVATIONS_EXPORT]: [PERMISSIONS.EXPORT],
+            [PERMISSION_KEYS.EVENTS]: [PERMISSIONS.EXPORT],
+            [PERMISSION_KEYS.OBSERVATIONS]: [PERMISSIONS.EXPORT],
           }
         },
       },
@@ -326,7 +326,7 @@ describe('GlobalMenuDrawer', () => {
     const getFieldEventsButton = () => screen.queryByText('Field Events');
 
     test('does not show the Field Reports button if a user doesn\'t have export event data permissions', () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.EVENTS_EXPORT];
+      delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
 
       render(
         <Provider store={mockStore(store)}>
@@ -378,7 +378,7 @@ describe('GlobalMenuDrawer', () => {
     const getSubjectInfoButton = () => screen.queryByText('Subject Summary');
 
     test('does not show the subject information link if a user doesn\'t have export observation data permissions', () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS_EXPORT];
+      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
 
       render(
         <Provider store={mockStore(store)}>
@@ -411,7 +411,7 @@ describe('GlobalMenuDrawer', () => {
     const getSubjectReportsButton = () => screen.queryByText('Observations');
 
     test('does not show the subject reports link if a user doesn\'t have export observation data permissions', () => {
-      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS_EXPORT];
+      delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
 
       render(
         <Provider store={mockStore(store)}>
