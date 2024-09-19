@@ -297,8 +297,8 @@ export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
   MESSAGING: 'message',
-  OBSERVATIONS_EXPORT: 'export_observation_data',
-  EVENTS_EXPORT: 'export_event_data',
+  OBSERVATIONS: 'observation',
+  EVENTS: 'event',
 };
 
 
@@ -307,6 +307,7 @@ export const PERMISSIONS = {
   READ: 'view',
   UPDATE: 'change',
   DELETE: 'delete',
+  EXPORT: 'export',
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
