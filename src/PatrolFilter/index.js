@@ -18,10 +18,13 @@ import FiltersPopover from './FiltersPopover';
 import FriendlyFilterString from '../FriendlyFilterString';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
+
 import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
@@ -48,12 +51,37 @@ const PatrolFilter = ({ className }) => {
     patrolFilterTracker.track('Change Search Text Filter');
   }, []);
 
-  const resetSearch = useCallback((e) => {
-    e.stopPropagation();
+  const resetSearch = useCallback((event = null) => {
+    event?.stopPropagation();
     setFilterText('');
 
     patrolFilterTracker.track('Clear Search Text Filter');
   }, []);
+
+  const resetDateRange = useCallback(() => {
+    dispatch(resetGlobalDateRange());
+
+    patrolFilterTracker.track('Click Reset Date Range Filter');
+  }, [dispatch]);
+
+  const resetFiltersPopover = useCallback(() => {
+    dispatch(updatePatrolFilter({
+      filter: {
+        tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+      },
+      status: INITIAL_FILTER_STATE.status,
+    }));
+
+    patrolFilterTracker.track('Click Reset All Filters');
+  }, [dispatch]);
+
+  const resetAllFilters = useCallback((event) => {
+    event.stopPropagation();
+    resetFiltersPopover();
+    resetDateRange();
+    resetSearch();
+  }, [resetDateRange, resetFiltersPopover, resetSearch]);
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {
@@ -141,6 +169,14 @@ const PatrolFilter = ({ className }) => {
         isFiltered={isFilterModified(patrolFilter)}
         totalFeedCount={patrols?.results?.length ?? 0}
       />
+
+      {
+          (filtersModified || dateRangeModified || !!filterText) &&
+          <Button type="button" variant='light' size='sm' onClick={resetAllFilters}>
+            <RefreshIcon title={t('resetButton')} />
+            {t('resetButton')}
+          </Button>
+      }
     </div>
   </>;
 };

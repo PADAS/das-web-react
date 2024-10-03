@@ -168,7 +168,7 @@ const ReportedBySelect = ({
 
     if (isMulti) {
       if (value.length) {
-        return value.map((item) => item.hidden
+        return value.map((item) => item?.hidden
           ? item
           : selections.find((selection) => selection.id === item.id));
       }

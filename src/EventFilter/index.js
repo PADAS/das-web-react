@@ -224,7 +224,7 @@ const EventFilter = ({
         totalFeedCount={feedEvents.count}
       />
       {
-        (filterModified || isDateRangeModified || isSortModified) &&
+        (filterModified || isDateRangeModified || isSortModified || !!filterText) &&
         <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'>
           <RefreshIcon title={t('resetButton')} />
           {t('resetButton')}
