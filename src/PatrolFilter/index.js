@@ -173,8 +173,8 @@ const PatrolFilter = ({ className }) => {
       {
           (filtersModified || dateRangeModified || !!filterText) &&
           <Button type="button" variant='light' size='sm' onClick={resetAllFilters}>
-            <RefreshIcon title={t('resetButton')} />
-            {t('resetButton')}
+            <RefreshIcon title={t('globalResetFilterButton')} />
+            {t('globalResetFilterButton')}
           </Button>
       }
     </div>
