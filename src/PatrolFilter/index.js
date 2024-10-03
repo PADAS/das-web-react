@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { caseInsensitiveCompare } from '../utils/string';
 import { getPatrolList } from '../selectors/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { isFilterModified } from '../utils/patrol-filter';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
@@ -24,7 +25,6 @@ import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
