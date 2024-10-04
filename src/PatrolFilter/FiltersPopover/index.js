@@ -127,7 +127,8 @@ const FiltersPopover = React.forwardRef(({
 
   const patrolLeaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
     || [];
-  const selectedLeaders = !!selectedLeaderIds?.length ?
+
+  const selectedLeaders = !!selectedLeaderIds?.length && !isEmpty(patrolLeaderSchema) ?
     selectedLeaderIds.map(id => patrolLeaderFilterOptions.find(leader => leader.id === id))
     : [];
 
