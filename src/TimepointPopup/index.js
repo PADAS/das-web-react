@@ -5,10 +5,21 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import AddItemButton from '../AddItemButton';
 import DateTime from '../DateTime';
+import { DAS_HOST } from '../constants';
 import GpsFormatToggle from '../GpsFormatToggle';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import styles from '../AnalyzerConfigPopup/styles.module.scss';
 
 const TimepointPopup = ({ data }) => <>
-  <h4>{data.properties.title || data.properties.name}</h4>
+  <div className={styles.gearIconWrapper}>
+    <a target="_blank" rel="noopener noreferrer" href={`${DAS_HOST}/admin/observations/observation/${data.properties.id}/change/`}>
+      <GearIcon className={styles.gearIcon} />
+    </a>
+  </div>
+
+  <h4 className={styles.timePointTitle}>
+    {data.properties.title || data.properties.name}
+  </h4>
 
   {data.properties.time && <DateTime date={data.properties.time} />}
 
@@ -17,17 +28,17 @@ const TimepointPopup = ({ data }) => <>
   <hr />
 
   <AddItemButton
-    analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
-    reportData={{
-      location: {
-        latitude: data.geometry.coordinates[1],
-        longitude: data.geometry.coordinates[0],
-      },
-      reportedById: data.properties.id,
-      time: data.properties.time,
-    }}
-    showLabel={false}
-  />
+        analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'track timepoint' }}
+        reportData={{
+            location: {
+                latitude: data.geometry.coordinates[1],
+                longitude: data.geometry.coordinates[0],
+            },
+            reportedById: data.properties.id,
+            time: data.properties.time,
+        }}
+        showLabel={false}
+    />
 </>;
 
 TimepointPopup.propTypes = {
