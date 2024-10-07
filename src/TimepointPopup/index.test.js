@@ -23,7 +23,8 @@ describe('TimepointPopup', () => {
     },
     properties: {
       id: '2f125269-a284-4ae1-8fbd-534e9dd9ea61',
-      title: 'Alexis Puentes',
+      observation_id: '43534vdr-a284-534ff-8fbd-5k3j4b453',
+      title: 'An observation point',
       name: '',
       time: '2024-09-26T18:54:54+00:00',
     },
@@ -56,7 +57,7 @@ describe('TimepointPopup', () => {
   test('shows admin link to edit observation', () => {
     renderTimepointPopUp();
 
-    expect(screen.getByRole('link')).toHaveAttribute('href', `${DAS_HOST}/admin/observations/observation/${observationData.properties.id}/change/`);
+    expect(screen.getByRole('link')).toHaveAttribute('href', `${DAS_HOST}/admin/observations/observation/${observationData.properties.observation_id}/change/`);
   });
 
 

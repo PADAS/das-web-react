@@ -12,7 +12,7 @@ import styles from '../AnalyzerConfigPopup/styles.module.scss';
 
 const TimepointPopup = ({ data }) => <>
   <div className={styles.gearIconWrapper}>
-    <a target="_blank" rel="noopener noreferrer" href={`${DAS_HOST}/admin/observations/observation/${data.properties.id}/change/`}>
+    <a target="_blank" rel="noopener noreferrer" href={`${DAS_HOST}/admin/observations/observation/${data.properties.observation_id}/change/`}>
       <GearIcon className={styles.gearIcon} />
     </a>
   </div>
@@ -48,6 +48,7 @@ TimepointPopup.propTypes = {
     }),
     properties: PropTypes.shape({
       id: PropTypes.string,
+      observation_id: PropTypes.string,
       name: PropTypes.string,
       time: PropTypes.string,
       title: PropTypes.string,
