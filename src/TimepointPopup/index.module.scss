@@ -1,0 +1,18 @@
+@import '../common/styles/vars/colors';
+
+.timePointTitle {
+  margin: 0.4rem 0;
+}
+
+.gearIconWrapper {
+  display: flex;
+  justify-content: end;
+  margin-bottom: 0.3rem;
+}
+
+.gearIcon {
+  height: 1.0rem;
+  width: 1.0rem;
+  fill: $bright-blue;
+  margin-left: .5rem;
+}

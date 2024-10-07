@@ -8,7 +8,8 @@ import DateTime from '../DateTime';
 import { DAS_HOST } from '../constants';
 import GpsFormatToggle from '../GpsFormatToggle';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
-import styles from '../AnalyzerConfigPopup/styles.module.scss';
+
+import styles from './index.module.scss';
 
 const TimepointPopup = ({ data }) => <>
   <div className={styles.gearIconWrapper}>
