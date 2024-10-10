@@ -51,20 +51,16 @@ const PatrolFilter = ({ className }) => {
     patrolFilterTracker.track('Change Search Text Filter');
   }, []);
 
-  const resetSearch = useCallback((event = null) => {
+  const resetSearch = useCallback((event) => {
     event?.stopPropagation();
     setFilterText('');
 
     patrolFilterTracker.track('Clear Search Text Filter');
   }, []);
 
-  const resetDateRange = useCallback(() => {
-    dispatch(resetGlobalDateRange());
+  const resetAllFilters = useCallback((event) => {
+    event.stopPropagation();
 
-    patrolFilterTracker.track('Click Reset Date Range Filter');
-  }, [dispatch]);
-
-  const resetFiltersPopover = useCallback(() => {
     dispatch(updatePatrolFilter({
       filter: {
         tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
@@ -72,16 +68,13 @@ const PatrolFilter = ({ className }) => {
       },
       status: INITIAL_FILTER_STATE.status,
     }));
-
     patrolFilterTracker.track('Click Reset All Filters');
-  }, [dispatch]);
 
-  const resetAllFilters = useCallback((event) => {
-    event.stopPropagation();
-    resetFiltersPopover();
-    resetDateRange();
-    resetSearch();
-  }, [resetDateRange, resetFiltersPopover, resetSearch]);
+    dispatch(resetGlobalDateRange());
+    patrolFilterTracker.track('Click Reset Date Range Filter');
+
+    resetSearch(null);
+  }, [dispatch, resetSearch]);
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {

@@ -220,4 +220,20 @@ describe('After filters being applied', () => {
     jest.useRealTimers();
   });
 
+  test('performing a search shows the reset button', async () => {
+    jest.useFakeTimers();
+    renderEventFilter();
+
+    expect(screen.queryByTestId('general-reset-btn')).toBeNull();
+
+    const searchBar = await screen.getAllByTestId('search-input')[0];
+    const searchValue = 'Chimpanzee';
+    userEvent.type(searchBar, searchValue);
+    jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);
+
+    expect(screen.queryByTestId('general-reset-btn')).toBeVisible();
+
+    jest.useRealTimers();
+  });
+
 });
