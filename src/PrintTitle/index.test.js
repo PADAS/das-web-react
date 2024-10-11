@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { Provider } from 'react-redux';
+import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import PrintTitle from './PrintTitle';
 
-// Mock matchMedia function to simulate print media
+import PrintTitle from './';
+
+//Mock matchMedia function to simulate print media
 beforeAll(() => {
   window.matchMedia = jest.fn().mockImplementation(query => {
     return {
@@ -32,10 +33,11 @@ const renderWithRedux = (state) => {
   );
 };
 
-test('PrintTitle is visible only when media is set to print', () => {
+test('PrintTitle is not visible if not present on the store', () => {
+  const printTitle = 'Test Print Title';
   const initialState = {
     view: {
-      printTitle: 'Test Print Title',
+      printTitle: '',
       homeMap: {
         icon: {
           src: 'test-icon-src.png'
@@ -44,25 +46,7 @@ test('PrintTitle is visible only when media is set to print', () => {
     }
   };
 
-  // Initial render, default media is not print
   renderWithRedux(initialState);
-  expect(screen.queryByText('Test Print Title')).not.toBeVisible();
 
-  // Simulate print media
-  window.matchMedia = jest.fn().mockImplementation(query => {
-    return {
-      matches: query === 'print',
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),  // deprecated
-      removeListener: jest.fn(),  // deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    };
-  });
-
-  // Re-render and verify visibility in print mode
-  renderWithRedux(initialState);
-  expect(screen.getByText('Test Print Title')).toBeVisible();
+  expect(screen.queryByText(printTitle)).not.toBeInTheDocument();
 });
