@@ -62,6 +62,7 @@
             "resetButton": "रिसेट गर्नुहोस्"
         },
         "filtersTitle": "फिल्टर",
+        "globalResetFilterButton": "रिसेट गर्नुहोस्",
         "searchbarPlaceHolder": "गस्तीहरु खोज्नुहोस्…",
         "filtersPopover": {
             "checkBoxAllOption": "सबै",

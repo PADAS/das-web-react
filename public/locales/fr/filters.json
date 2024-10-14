@@ -62,6 +62,7 @@
       "resetButton": "Réinitialiser"
     },
     "filtersTitle": "Filtres",
+    "globalResetFilterButton": "Réinitialiser",
     "searchbarPlaceHolder": "Recherche...",
     "filtersPopover": {
       "checkBoxAllOption": "Tout Sélectionner",
