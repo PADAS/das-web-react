@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {calcEventFilterForRequest, DEFAULT_EVENT_SORT} from '../../utils/event-filter';
+import { calcEventFilterForRequest, DEFAULT_EVENT_SORT } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
