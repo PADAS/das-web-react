@@ -4,23 +4,14 @@ import merge from 'lodash/merge';
 
 import { cleanedUpFilterObject, objectToParamString } from './query';
 import { generateMonthsAgoDate } from './datetime';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { DEFAULT_EVENT_SORT, INITIAL_FILTER_STATE, SORT_DIRECTION } from '../ducks/event-filter';
+
 import store from '../store';
-
-export const EVENT_SORT_OPTIONS = [
-  { value: 'updated_at', key: 'updatedAtLabel' },
-  { value: 'created_at', key: 'createdAtLabel' },
-  { value: 'event_time', key: 'eventTimeLabel' },
-];
-
-export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const EVENT_SORT_ORDER_OPTIONS = [
   { value: SORT_DIRECTION.down, key: 'newest' },
   { value: SORT_DIRECTION.up, key: 'oldest' },
 ];
-
-export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
 
 export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
   !isEqual(INITIAL_FILTER_STATE.state, state)
