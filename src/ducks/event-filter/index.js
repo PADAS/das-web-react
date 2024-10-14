@@ -23,6 +23,7 @@ export const INITIAL_FILTER_STATE = {
     duration: null,
     priority: [],
     reported_by: [],
+    sort: null,
   },
 };
 
