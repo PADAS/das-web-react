@@ -11,7 +11,7 @@ import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up.svg';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 import { ReactComponent as SortLines } from '../common/images/icons/sort-lines.svg';
 
-import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../ducks/event-filter';
 
 import styles from './styles.module.scss';
 
@@ -21,7 +21,7 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
   const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
 
   const [direction, selectedOption] = value;
-  const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
+  const isSortModified = !DEFAULT_EVENT_SORT.find(({ value, key }) => value === selectedOption.value && key === selectedOption.key );
 
   const onClickSortOption = useCallback((option) => {
     if (option.value !== selectedOption.value){

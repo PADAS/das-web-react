@@ -1,7 +1,7 @@
 import React from 'react';
 
 import FriendlyFilterString from '.';
-import { EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
+import { EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../ducks/event-filter';
 import { render, screen } from '../test-utils';
 
 describe('FriendlyFilterString', () => {
