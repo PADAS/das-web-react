@@ -12,7 +12,7 @@ import {
 import {
   DEFAULT_EVENT_SORT,
   EVENT_SORT_OPTIONS
-} from '../../ducks/event-filter';
+} from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
 import { MapContext } from '../../App';

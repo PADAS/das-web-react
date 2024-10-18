@@ -340,3 +340,13 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
 };
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
+
+export const EVENT_SORT_OPTIONS = [
+  { value: 'updated_at', key: 'updatedAtLabel' },
+  { value: 'created_at', key: 'createdAtLabel' },
+  { value: 'event_time', key: 'eventTimeLabel' },
+];
+
+export const SORT_DIRECTION = { up: 'up', down: 'down' };
+
+export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];

@@ -4,7 +4,8 @@ import merge from 'lodash/merge';
 
 import { cleanedUpFilterObject, objectToParamString } from './query';
 import { generateMonthsAgoDate } from './datetime';
-import { DEFAULT_EVENT_SORT, INITIAL_FILTER_STATE, SORT_DIRECTION } from '../ducks/event-filter';
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter/';
+import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import store from '../store';
 

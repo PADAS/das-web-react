@@ -11,7 +11,7 @@ import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up.svg';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 import { ReactComponent as SortLines } from '../common/images/icons/sort-lines.svg';
 
-import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../ducks/event-filter';
+import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import styles from './styles.module.scss';
 

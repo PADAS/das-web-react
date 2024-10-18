@@ -1,5 +1,5 @@
 import { calcSortParamForEventFilter, sortEventsBySortConfig } from './event-filter';
-import { SORT_DIRECTION } from '../ducks/event-filter';
+import { SORT_DIRECTION } from '../constants';
 import { events } from '../__test-helpers/fixtures/events';
 
 test('calcSortParamForEventFilter', () => {

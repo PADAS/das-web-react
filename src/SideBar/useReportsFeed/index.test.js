@@ -5,7 +5,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { waitFor } from '@testing-library/react';
 
-import { DEFAULT_EVENT_SORT } from '../../ducks/event-filter';
+import { DEFAULT_EVENT_SORT } from '../../constants';
 import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../../ducks/events';
 import { INITIAL_FILTER_STATE as INITIAL_EVENT_FILTER_STATE } from '../../ducks/event-filter';

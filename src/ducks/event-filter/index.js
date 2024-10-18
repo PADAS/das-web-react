@@ -1,18 +1,8 @@
-import { EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
+import {DEFAULT_EVENT_SORT, EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS} from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
 import globallyResettableReducer from '../../reducers/global-resettable';
-
-export const EVENT_SORT_OPTIONS = [
-  { value: 'updated_at', key: 'updatedAtLabel' },
-  { value: 'created_at', key: 'createdAtLabel' },
-  { value: 'event_time', key: 'eventTimeLabel' },
-];
-
-export const SORT_DIRECTION = { up: 'up', down: 'down' };
-
-export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
 
 const defaultDateRange = {
   lower: generateDaysAgoDate(REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS).toISOString(),
