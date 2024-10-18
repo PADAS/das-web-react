@@ -1,4 +1,4 @@
-import { EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
+import { DEFAULT_EVENT_SORT, EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
@@ -23,6 +23,7 @@ export const INITIAL_FILTER_STATE = {
     duration: null,
     priority: [],
     reported_by: [],
+    sort: DEFAULT_EVENT_SORT,
   },
 };
 

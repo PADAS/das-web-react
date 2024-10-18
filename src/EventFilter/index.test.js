@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import store from '../store';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT } from '../constants';
 import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter';
 
 import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';

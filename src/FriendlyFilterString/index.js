@@ -5,7 +5,7 @@ import pluralize from 'pluralize';
 import { useTranslation } from 'react-i18next';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
+import { SORT_DIRECTION, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS } from '../constants';
 
 const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sortConfig, totalFeedCount }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'friendlyFilterString' });

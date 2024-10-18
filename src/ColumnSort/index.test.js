@@ -2,7 +2,8 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import { EVENT_SORT_ORDER_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
+import { SORT_DIRECTION } from '../constants';
+import { EVENT_SORT_ORDER_OPTIONS } from '../utils/event-filter';
 import ColumnSort from './';
 import { render, screen } from '../test-utils';
 

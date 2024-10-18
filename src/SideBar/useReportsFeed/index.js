@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { calcEventFilterForRequest, DEFAULT_EVENT_SORT } from '../../utils/event-filter';
+import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
-import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
@@ -19,8 +19,8 @@ const useReportsFeed = () => {
   const events = useSelector((state) => getFeedEvents(state));
   const userIsGeoPermRestricted = useSelector((state) => userIsGeoPermissionRestricted(state?.data?.user));
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
+  const feedSort = eventFilter.filter.sort;
 
-  const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
   const shouldExcludeContained = useMemo(() => {
@@ -39,6 +39,16 @@ const useReportsFeed = () => {
     },
     format: 'object',
   }, feedSort));
+
+  const setFeedSort = useCallback((sort) => {
+    dispatch(updateEventFilter(
+      {
+        filter: {
+          sort
+        }
+      }
+    ));
+  }, [dispatch]);
 
   const geoResrictedUserLocationCoords = useMemo(
     () => userIsGeoPermRestricted && userLocationCoords,

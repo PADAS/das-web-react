@@ -7,10 +7,12 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
 import {
-  DEFAULT_EVENT_SORT,
-  EVENT_SORT_OPTIONS,
   EVENT_SORT_ORDER_OPTIONS,
 } from '../../utils/event-filter';
+import {
+  DEFAULT_EVENT_SORT,
+  EVENT_SORT_OPTIONS
+} from '../../constants';
 import { FEED_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import { fetchNextEventFeedPage } from '../../ducks/events';
 import { MapContext } from '../../App';
