@@ -53,4 +53,4 @@ const Select = ({ styles: customStyles, components, ...rest }, ref) => {
 
 const SelectForwardRef = forwardRef(Select);
 
-export default memo(SelectForwardRef);
+export default SelectForwardRef;

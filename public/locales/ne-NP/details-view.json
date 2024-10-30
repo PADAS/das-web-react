@@ -1,0 +1,88 @@
+{
+    "activitySection": {
+        "collapseAllButton": "सबै बन्द गर्नुहोस्",
+        "dateItemStartTitle": "सुरु भएको",
+        "dateItemEndedTitle": "समाप्त भएको",
+        "expandAllButton": "सबै बिस्तार गर्नुहोस्",
+        "sectionTitle": "गतिविधि",
+        "timeLabel": "समय"
+    },
+    "addAttachmentButton": "संलग्न गरिएका फाईल",
+    "addReportButtonTitle": "घटना",
+    "addNoteButton": "नोट",
+    "attachmentControls": {
+        "addNoteTitle": "नोट थप्नुहोस्",
+        "addAttachmentTitle": "संलग्नक थप्नुहोस्"
+    },
+    "attachmentListItem": {
+        "imagePreviewAlt": "{{filename}} पुर्वावलोकन",
+        "downloadButtonTooltip": "डाउनलोड गर्नुहोस्",
+        "deleteButtonTooltip": "मेट्नुहोस्",
+        "fullViewButtonTooltip": "पुरा हेर्नुहोस्",
+        "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
+        "collapseClosedButtonTitle": "बन्द गरिएको",
+        "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
+        "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    },
+    "footer": {
+        "cancelButton": "रद्द गर्नुहोस्",
+        "saveButton": "सुरक्षित गर्नुहोस्",
+        "stateResolveButton": "सुरक्षित गरि समाधान गर्नुहोस्",
+        "stateReopenButton": "सुरक्षित गरि फेरी खोल्नुहोस्"
+    },
+    "geoLocator": {
+        "buttonLabel": "मेरो लोकेसन प्रयोग गर्नुहोस्",
+        "loadingMessage": "तपाईंको लोकेसन पत्ता लगाउने प्रयास गर्दैछौं…",
+        "readingLocationError": "तपाईंको लोकेसन पत्ता लगाउन सकिएनः #{{locationErrorMessage}}"
+    },
+    "containedReportListItem": {
+        "goToReportButtonTooltip": "घटनामा जानुहोस्",
+        "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
+        "collapseClosedButtonTitle": "बन्द गरिएको",
+        "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
+        "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    },
+    "header": {
+        "historyLinkCreated": "सिर्जना गरिएको",
+        "historyLinkUpdated": "अद्यावधिक गरिएको",
+        "resolvedLabel": "समाधान गरिएको",
+        "sectionTitle": "इतिहास"
+    },
+    "historySection": {
+        "sectionTitle": "इतिहास",
+        "timeLabel": "समय"
+    },
+    "imageModal": {
+        "errorTitle": "फोटो लोड गर्न समस्या भइरहेको छ ।",
+        "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
+    },
+    "locationSelector": {
+        "inputLabel": "स्थान",
+        "inputPlaceHolder": "लोकेसन सेट गर्नुहोस्",
+        "copyButtonLabel": "लोकेसन कपि गर्नुहोस्",
+        "copyButtonTitle": "कपि गर्नुहोस्"
+    },
+    "navigationPromptModal": {
+        "cancelNavigationButtonText": "पछाडी जानुहोस्",
+        "continueNavigationNegativeButtonText": "खारेज गर्नुहोस्",
+        "continueNavigationPositiveButtonText": "सुरक्षित गर्नुहोस्",
+        "description": "यहाँ सुरक्षित नगरिएका परिवर्तनहरु छन् । तपाईं यी परिवर्तनहरुलाई खारेज गरि पछि जान चहानुहुन्छ वा सुरक्षित गरि अघि बढ्न चहानुहुन्छ ?",
+        "title": "सुरक्षित नगरिएका परिवर्तनहरु"
+    },
+    "noteListItem": {
+        "cancelEditingNoteButton": "रद्द गर्नुहोस्",
+        "deleteNoteButtonTooltip": "मेट्नुहोस्",
+        "doneEditingNoteButton": "भयो",
+        "editNoteButtonTooltip": "सम्पादन गर्नुहोस्",
+        "noteTitle": "नयाँ नोट",
+        "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
+        "collapseClosedButtonTitle": "बन्द गरिएको",
+        "collapseOpenButtonLabel": "बन्द गर्नुहोस्",
+        "collapseOpenButtonTitle": "बिस्तार गरिएको"
+    },
+    "reportFormSummary": {
+        "reportTypeLabel": "घटनाका प्रकार",
+        "reportedByLabel": "द्वारा रिपोर्ट गरिएको"
+    },
+    "addReportButtonLabel": "नयाँ घटना बनाउनुहोस्"
+}

@@ -10,7 +10,8 @@ import noop from 'lodash/noop';
 
 import { BREAKPOINTS } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { DEFAULT_EVENT_SORT, isFilterModified } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT } from '../constants';
+import { isFilterModified } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
@@ -224,7 +225,7 @@ const EventFilter = ({
         totalFeedCount={feedEvents.count}
       />
       {
-        (filterModified || isDateRangeModified || isSortModified) &&
+        (filterModified || isDateRangeModified || isSortModified || !!filterText) &&
         <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'>
           <RefreshIcon title={t('resetButton')} />
           {t('resetButton')}

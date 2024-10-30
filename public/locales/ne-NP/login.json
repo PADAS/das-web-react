@@ -1,0 +1,10 @@
+{
+    "errorAlert": {
+        "invalidCredentialsMessage": "“गलत प्रमाणहरु दिइयो । कृपया पुनः प्रयास गर्नुहोस् ।”",
+        "unknownErrorMessage": "“केही त्रुटी भएको छ । कृपया पुनः प्रयास गर्नुहोस् ।”"
+    },
+    "eulaLink": "अर्थरेन्जर EULA",
+    "loginButton": "लग इन",
+    "passwordLabel": "पासवर्ड",
+    "usernameLabel": "युजरनेम"
+}

@@ -62,6 +62,7 @@
       "resetButton": "Restablecer"
     },
     "filtersTitle": "Filtros",
+    "globalResetFilterButton": "Restablecer",
     "searchbarPlaceHolder": "Buscar patrullajes...",
     "filtersPopover": {
       "checkBoxAllOption": "Todos",

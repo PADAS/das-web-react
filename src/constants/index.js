@@ -297,8 +297,8 @@ export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
   MESSAGING: 'message',
-  OBSERVATIONS_EXPORT: 'export_observation_data',
-  EVENTS_EXPORT: 'export_event_data',
+  OBSERVATIONS: 'observation',
+  EVENTS: 'event',
 };
 
 
@@ -307,6 +307,7 @@ export const PERMISSIONS = {
   READ: 'view',
   UPDATE: 'change',
   DELETE: 'delete',
+  EXPORT: 'export',
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
@@ -323,6 +324,7 @@ export const SUPPORTED_LANGUAGES = {
   'en-US': 'English (United States)',
   es: 'Español',
   fr: 'Français',
+  'ne-NP': 'नेपाली',
   pt: 'Português',
   sw: 'Swahili',
 };
@@ -338,3 +340,13 @@ export const DEVELOPMENT_FEATURE_FLAGS = {
 };
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
+
+export const EVENT_SORT_OPTIONS = [
+  { value: 'updated_at', key: 'updatedAtLabel' },
+  { value: 'created_at', key: 'createdAtLabel' },
+  { value: 'event_time', key: 'eventTimeLabel' },
+];
+
+export const SORT_DIRECTION = { up: 'up', down: 'down' };
+
+export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];

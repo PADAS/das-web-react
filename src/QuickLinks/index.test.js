@@ -56,21 +56,23 @@ describe('ReportManager - QuickLinks', () => {
   });
 
   describe('QuickLinks.Anchor', () => {
-    test('triggers onClickAnchor', async () => {
-      const getSectionElement = jest.fn(() => true), onClickAnchor= jest.fn();
+    test('triggers onClickAnchor and the onClick callback if it is provided', async () => {
+      const getSectionElement = jest.fn(() => true), onClickAnchor= jest.fn(), onClick= jest.fn();
       render(
         <QuickLinksContext.Provider value={{ getSectionElement, onClickAnchor }}>
-          <QuickLinks.Anchor anchorTitle="anchor1" iconComponent={<BulletListIcon />} />
+          <QuickLinks.Anchor anchorTitle="anchor1" iconComponent={<BulletListIcon />} onClick={onClick} />
         </QuickLinksContext.Provider>
       );
 
       expect(onClickAnchor).toHaveBeenCalledTimes(0);
+      expect(onClick).toHaveBeenCalledTimes(0);
 
       const anchor = await screen.queryByTestId('quickLinks-anchor-anchor1');
       userEvent.click(anchor);
 
       expect(onClickAnchor).toHaveBeenCalledTimes(1);
       expect(onClickAnchor).toHaveBeenCalledWith('anchor1');
+      expect(onClick).toHaveBeenCalledTimes(1);
     });
   });
 

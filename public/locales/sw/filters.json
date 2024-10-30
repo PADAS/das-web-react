@@ -62,6 +62,7 @@
       "resetButton": "Rudisha"
     },
     "filtersTitle": "Vichujio",
+    "globalResetFilterButton": "Rudisha",
     "searchbarPlaceHolder": "Tafuta Doria...",
     "filtersPopover": {
       "checkBoxAllOption": "Zote",

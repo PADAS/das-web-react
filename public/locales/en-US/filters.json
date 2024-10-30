@@ -62,6 +62,7 @@
       "resetButton": "Reset"
     },
     "filtersTitle": "Filters",
+    "globalResetFilterButton": "Reset",
     "searchbarPlaceHolder": "Search Patrols...",
     "filtersPopover": {
       "checkBoxAllOption": "All",

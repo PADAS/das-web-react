@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import store from '../store';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT } from '../constants';
 import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../ducks/event-filter';
 
 import EventFilter, { UPDATE_FILTER_DEBOUNCE_TIME } from './';
@@ -216,6 +216,22 @@ describe('After filters being applied', () => {
       expect(type).toBe(UPDATE_EVENT_FILTER);
       expect(searchBar.value).toBe('');
     });
+
+    jest.useRealTimers();
+  });
+
+  test('performing a search shows the reset button', async () => {
+    jest.useFakeTimers();
+    renderEventFilter();
+
+    expect(screen.queryByTestId('general-reset-btn')).toBeNull();
+
+    const searchBar = await screen.getAllByTestId('search-input')[0];
+    const searchValue = 'Chimpanzee';
+    userEvent.type(searchBar, searchValue);
+    jest.advanceTimersByTime(UPDATE_FILTER_DEBOUNCE_TIME);
+
+    expect(screen.queryByTestId('general-reset-btn')).toBeVisible();
 
     jest.useRealTimers();
   });

@@ -62,6 +62,7 @@
             "resetButton": "Redefinir"
         },
         "filtersTitle": "Filtros",
+        "globalResetFilterButton": "Redefinir",
         "searchbarPlaceHolder": "Buscar patrulhas",
         "filtersPopover": {
             "checkBoxAllOption": "Selecionar tudo",

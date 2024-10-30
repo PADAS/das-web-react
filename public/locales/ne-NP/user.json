@@ -1,0 +1,7 @@
+{
+    "userCurrentLocationPopup": {
+        "accuracy": "{{accuracy}} मिटर आसपास सही छ",
+        "header": "तपाईंको हालको लोकेसन",
+        "lastChecked": "पछिल्लो पटक जाँच गरिएको"
+    }
+}
