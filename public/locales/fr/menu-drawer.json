@@ -4,8 +4,8 @@
     "iframeTitle": "Configurer vos alertes EarthRanger"
   },
   "betaToggles": {
-    "patrolUI": "Nouveau Format UI des Patrouilles ",
-    "reportNotification": "Notifier les Nouveaux Événements à l'aide d'un Son"
+    "newEventNotificationSound": "Notifier les Nouveaux Événements à l'aide d'un Son",
+    "newInReachMessageNotificationSound": "TODO"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Rapport Quotidien",

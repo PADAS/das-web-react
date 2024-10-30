@@ -4,8 +4,8 @@
     "iframeTitle": "Configure your EarthRanger alerts"
   },
   "betaToggles": {
-    "patrolUI": "New Patrol Form UI",
-    "reportNotification": "Play Sound For New Events"
+    "newEventNotificationSound": "Play Sound For New Events",
+    "newInReachMessageNotificationSound": "Play Sound For New InReach Messages"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",
