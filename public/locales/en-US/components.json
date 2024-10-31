@@ -184,6 +184,9 @@
     "titleAscending": "Ascending Order",
     "titleDescending": "Descending Order"
   },
+  "soundNotificationsPlayer": {
+    "alarmRadioStateToastMessage": "{{subjectName}} needs immediate attention"
+  },
   "textCopyBtn": {
     "defaultToastMessage": "Copied to clipboard"
   },

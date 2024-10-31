@@ -161,6 +161,9 @@
         },
         "settingsLink": "Preferências"
     },
+    "soundNotificationsPlayer": {
+        "alarmRadioStateToastMessage": "TODO"
+    },
     "textCopyBtn": {
         "defaultToastMessage": "Copiado para a área de transferência"
     },

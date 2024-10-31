@@ -161,6 +161,9 @@
     },
     "settingsLink": "Preferencias"
   },
+  "soundNotificationsPlayer": {
+    "alarmRadioStateToastMessage": "TODO"
+  },
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
   },

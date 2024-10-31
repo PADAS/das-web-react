@@ -4,7 +4,7 @@
     "iframeTitle": "Sanidi arifa zako za EarthRanger"
   },
   "betaToggles": {
-    "patrolUI": "UI Mpya wa Fomu ya Doria",
+    "playSoundForAlarmRadioState": "TODO",
     "reportNotification": "Cheza Sauti kwa Matukio Mapya"
   },
   "dailyReportModal": {

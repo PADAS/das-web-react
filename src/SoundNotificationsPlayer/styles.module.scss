@@ -1,0 +1,23 @@
+.alarmRadioStateToast {
+  display: flex;
+
+  .subjectLastPositionDate {
+    color: white;
+  
+    span {
+      font-size: 1rem;
+    }
+  }
+  
+  .subjectLocationJumpButton {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 0.25rem;
+    margin-left: 1rem;
+    width: 2rem;
+
+    svg {
+      filter: invert(100%) sepia(90%) saturate(1%) hue-rotate(195deg) brightness(109%) contrast(101%);
+    }
+  }
+}

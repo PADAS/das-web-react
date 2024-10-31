@@ -184,6 +184,9 @@
     "titleAscending": "Mpangilio wa Kushuka",
     "titleDescending": "Mpangilio wa Kuongezeka"
   },
+  "soundNotificationsPlayer": {
+    "alarmRadioStateToastMessage": "TODO"
+  },
   "textCopyBtn": {
     "defaultToastMessage": "Imekopiwa kwenye ubao wa kunakili"
   },

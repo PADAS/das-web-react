@@ -4,7 +4,7 @@
     "iframeTitle": "Configure sus alertas de EarthRanger"
   },
   "betaToggles": {
-    "patrolUI": "Nueva interfaz del formulario de patrullajes",
+    "playSoundForAlarmRadioState": "TODO",
     "reportNotification": "Reproducir alerta para nuevos eventos"
   },
   "dailyReportModal": {

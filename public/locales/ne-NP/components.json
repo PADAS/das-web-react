@@ -173,6 +173,9 @@
         "closePatrolFeedButtonLabel": "गस्तीको फिड बन्द गर्नुहोस्",
         "closeSettingsButtonLabel": "सेटिङ बन्द गर्नुहोस्"
     },
+    "soundNotificationsPlayer": {
+        "alarmRadioStateToastMessage": "TODO"
+    },
     "textCopyBtn": {
         "defaultToastMessage": "क्लिपबोर्डमा कपि गरियो"
     },
