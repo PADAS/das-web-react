@@ -96,7 +96,11 @@ const SoundNotificationsPlayer = () => {
               subject={subject}
             />,
             showDetailsByDefault: true,
-            toastConfig: { autoClose: false, type: toast.TYPE.ERROR },
+            toastConfig: {
+              autoClose: false,
+              className: styles.toast,
+              type: toast.TYPE.ERROR,
+            },
           });
         });
 

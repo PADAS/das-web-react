@@ -1,3 +1,9 @@
+@import '../common/styles/vars/colors';
+
+.toast {
+  background-color: $bright-red;
+}
+
 .alarmRadioStateToast {
   display: flex;
 
