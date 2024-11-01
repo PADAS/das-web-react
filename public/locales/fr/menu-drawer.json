@@ -4,7 +4,7 @@
     "iframeTitle": "Configurer vos alertes EarthRanger"
   },
   "betaToggles": {
-    "playSoundForAlarmRadioState": "TODO",
+    "playSoundForAlarmRadioState": "Jouer un son et afficher une notification lorsque l'état de la radio passe au rouge (alarme)",
     "reportNotification": "Notifier les Nouveaux Événements à l'aide d'un Son"
   },
   "dailyReportModal": {

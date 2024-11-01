@@ -165,7 +165,7 @@
     "alarmRadioStateToastMessage": "TODO"
   },
   "textCopyBtn": {
-    "defaultToastMessage": "Copié"
+    "defaultToastMessage": "{{subjectName}} a besoin d'attention immédiate"
   },
   "timeSlider": {
     "popoverHeader": "Intervalle de Dates",

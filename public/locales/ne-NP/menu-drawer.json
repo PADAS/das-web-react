@@ -4,7 +4,7 @@
         "iframeTitle": "तपाईंको अर्थरेन्जरको सुचनाको स्वरुप मिलाउनुहोस्"
     },
     "betaToggles": {
-        "playSoundForAlarmRadioState": "TODO",
+        "playSoundForAlarmRadioState": "रेडियोको अवस्था रातो (अलार्म) मा परिवर्तन हुँदा ध्वनि बजाउनुहोस् र सूचना देखाउनुहोस्",
         "reportNotification": "नयाँ घटनाका लागि ध्वनी बजाउनुहोस्"
     },
     "dailyReportModal": {
