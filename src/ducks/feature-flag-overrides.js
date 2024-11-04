@@ -22,7 +22,7 @@ export const setFlagOverrideValue = (flagName, value) => ({
 });
 
 export const FEATURE_FLAG_INPUT_LABELS = {
-  [ENABLE_NEW_IN_REACH_MESSAGE_NOTIFICATION_SOUND]: 'newInReachMessageNotificationSound',
+  [ENABLE_NEW_IN_REACH_MESSAGE_NOTIFICATION_SOUND]: 'playSoundForNewInReachMessage',
   [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: 'reportNotification',
   [ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND]: 'playSoundForAlarmRadioState',
 };
