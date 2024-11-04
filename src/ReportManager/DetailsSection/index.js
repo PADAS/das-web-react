@@ -39,6 +39,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
+import EFBForm from '../EFBForm';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -210,7 +211,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && <Form
+    {/*{!!formSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -232,13 +233,17 @@ const DetailsSection = ({
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
-    </Form>}
+    </Form>}*/}
 
-    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
+    {!!formSchema && <EFBForm schema={formSchema}
+                              onChange={onFormChange}
+                              formData={reportForm.event_details} />}
+
+    {/*{!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
-    />}
+    />}*/}
   </div>;
 };
 
