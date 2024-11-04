@@ -184,6 +184,9 @@
     "titleAscending": "Mpangilio wa Kushuka",
     "titleDescending": "Mpangilio wa Kuongezeka"
   },
+  "soundNotificationsPlayer": {
+    "alarmRadioStateToastMessage": "{{subjectName}} anahitaji uangalizi wa haraka"
+  },
   "textCopyBtn": {
     "defaultToastMessage": "Imekopiwa kwenye ubao wa kunakili"
   },

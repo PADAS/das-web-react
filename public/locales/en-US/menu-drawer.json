@@ -4,8 +4,9 @@
     "iframeTitle": "Configure your EarthRanger alerts"
   },
   "betaToggles": {
-    "newEventNotificationSound": "Play Sound For New Events",
-    "newInReachMessageNotificationSound": "Play Sound For New InReach Messages"
+    "playSoundForAlarmRadioState": "Play sound and show toast when a radio state changes to red (alarm)",
+    "playSoundForNewInReachMessage": "Play Sound For New InReach Messages",
+    "reportNotification": "Play Sound For New Events"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",

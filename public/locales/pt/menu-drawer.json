@@ -4,8 +4,9 @@
     "iframeTitle": "Configure seus alertas EarthRanger"
   },
   "betaToggles": {
-    "newEventNotificationSound": "Reproduz notificações de som para novos eventos",
-    "newInReachMessageNotificationSound": "TODO"
+    "playSoundForAlarmRadioState": "Reproduzir som e mostrar uma notificação quando o estado do rádio mudar para vermelho (alarme)",
+    "playSoundForNewInReachMessage": "TODO",
+    "reportNotification": "Reproduz notificações de som para novos eventos"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Relatórios diário",
