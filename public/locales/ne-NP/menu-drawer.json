@@ -5,7 +5,7 @@
   },
   "betaToggles": {
     "playSoundForAlarmRadioState": "रेडियोको अवस्था रातो (अलार्म) मा परिवर्तन हुँदा ध्वनि बजाउनुहोस् र सूचना देखाउनुहोस्",
-    "playSoundForNewInReachMessage": "TODO",
+    "playSoundForNewInReachMessage": "नयाँ inReach सन्देशहरूको लागि ध्वनि बजाउनुहोस्",
     "reportNotification": "नयाँ घटनाका लागि ध्वनी बजाउनुहोस्"
   },
   "dailyReportModal": {

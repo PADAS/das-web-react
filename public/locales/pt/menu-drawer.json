@@ -5,7 +5,7 @@
   },
   "betaToggles": {
     "playSoundForAlarmRadioState": "Reproduzir som e mostrar uma notificação quando o estado do rádio mudar para vermelho (alarme)",
-    "playSoundForNewInReachMessage": "TODO",
+    "playSoundForNewInReachMessage": "Reproduzir notificações de som para novas mensagens do inReach",
     "reportNotification": "Reproduz notificações de som para novos eventos"
   },
   "dailyReportModal": {
