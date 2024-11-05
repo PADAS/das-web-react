@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
-import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EFB_SCHEMA_DRAFT, EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -66,7 +66,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-
+  const isEFBSchema = formSchema?.json?.$schema === EFB_SCHEMA_DRAFT;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -211,7 +211,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {/*{!!formSchema && <Form
+    {!!formSchema && !isEFBSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -233,17 +233,19 @@ const DetailsSection = ({
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
-    </Form>}*/}
+    </Form>}
 
-    {!!formSchema && <EFBForm schema={formSchema}
-                              onChange={onFormChange}
-                              formData={reportForm.event_details} />}
+    {!!formSchema && isEFBSchema &&
+      <EFBForm schema={formSchema}
+               onChange={onFormChange}
+               formData={reportForm.event_details} />
+    }
 
-    {/*{!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
+    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
-    />}*/}
+    />}
   </div>;
 };
 

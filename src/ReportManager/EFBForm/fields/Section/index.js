@@ -31,7 +31,7 @@ const Section = ({ id }) => {
 
   return <div>
 
-    <div> {/*left column*/}
+    <div>
       {
         renderColumnSectionItems(sectionProps.leftColumn)
       }
