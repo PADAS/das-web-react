@@ -42,28 +42,26 @@ const RadioStateChangeToAlarmNotificationPlayer = ({ onPlayNotificationSound }) 
   const previousSubjectsWithAlarmRadioState = useRef(subjectsWithAlarmRadioState?.map((subject) => subject.id));
 
   useEffect(() => {
-    if (subjectsWithAlarmRadioState.length > 0) {
-      const newSubjectsWithAlarmRadioState = subjectsWithAlarmRadioState
-        .filter((subject) => !previousSubjectsWithAlarmRadioState.current.includes(subject.id));
-      const shouldNotifyAboutRadioStateChangeToAlarm = newSubjectsWithAlarmRadioState.length > 0;
-      if (shouldNotifyAboutRadioStateChangeToAlarm) {
-        onPlayNotificationSound();
+    const newSubjectsWithAlarmRadioState = subjectsWithAlarmRadioState
+      .filter((subject) => !previousSubjectsWithAlarmRadioState.current.includes(subject.id));
+    const shouldNotifyAboutRadioStateChangeToAlarm = newSubjectsWithAlarmRadioState.length > 0;
+    if (shouldNotifyAboutRadioStateChangeToAlarm) {
+      onPlayNotificationSound();
 
-        newSubjectsWithAlarmRadioState.forEach((subject) => {
-          showToast({
-            message: <AlarmRadioStateToastMessage
-              onClickJumpToLocation={() => jumpToLocation(subject.last_position.geometry.coordinates)}
-              subject={subject}
-            />,
-            showDetailsByDefault: true,
-            toastConfig: {
-              autoClose: false,
-              className: styles.toast,
-              type: toast.TYPE.ERROR,
-            },
-          });
+      newSubjectsWithAlarmRadioState.forEach((subject) => {
+        showToast({
+          message: <AlarmRadioStateToastMessage
+            onClickJumpToLocation={() => jumpToLocation(subject.last_position.geometry.coordinates)}
+            subject={subject}
+          />,
+          showDetailsByDefault: true,
+          toastConfig: {
+            autoClose: false,
+            className: styles.toast,
+            type: toast.TYPE.ERROR,
+          },
         });
-      }
+      });
     }
 
     previousSubjectsWithAlarmRadioState.current = subjectsWithAlarmRadioState.map((subject) => subject.id);
