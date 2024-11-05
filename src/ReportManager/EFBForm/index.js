@@ -24,7 +24,7 @@ const EFBForm = ({ schema, formData: initialFormData = {}, isDisabled, className
   }, [formData, onChange]);
 
   return <FormSchemaContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData}>
-    <form onSubmit={onSubmit} style={{ background: 'red', padding: '4em' }}>
+    <form onSubmit={onSubmit}>
       {
         schema?.ui?.order.map((sectionId) => (
           <Section id={sectionId} key={sectionId} />
