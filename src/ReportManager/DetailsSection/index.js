@@ -39,7 +39,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import EFBForm from '../EFBForm';
+import SchemaForm from '../SchemaForm';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -235,12 +235,14 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {/*{!!formSchema && isEFBSchema &&
-      <EFBForm schema={formSchema}
+    {!!formSchema && isEFBSchema &&
+      <SchemaForm schema={formSchema}
                onChange={onFormChange}
-               formData={reportForm.event_details} />
+               formData={reportForm.event_details}
+               ref={submitFormButtonRef}
+               onFormSubmit={onFormSubmit} />
     }
-*/}
+
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
