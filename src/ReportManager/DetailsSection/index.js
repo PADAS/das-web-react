@@ -235,12 +235,12 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && isEFBSchema &&
+    {/*{!!formSchema && isEFBSchema &&
       <EFBForm schema={formSchema}
                onChange={onFormChange}
                formData={reportForm.event_details} />
     }
-
+*/}
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"

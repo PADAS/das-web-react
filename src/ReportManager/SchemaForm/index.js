@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-import FormSchemaContextProvider from './FormSchemaContext';
+import SchemaFormContextProvider from './SchemaFormContext';
 import Section from './fields/Section';
 
-const EFBForm = ({ schema, formData: initialFormData = {}, isDisabled, className, onChange, onError }) => {
+const SchemaForm = ({ schema, formData: initialFormData = {}, isDisabled, className, onChange, onError }) => {
   const [formData, setFormData] = useState(initialFormData);
 
   const onSubmit = (e) => {
@@ -23,15 +23,15 @@ const EFBForm = ({ schema, formData: initialFormData = {}, isDisabled, className
     });
   }, [formData, onChange]);
 
-  return <FormSchemaContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData}>
+  return <SchemaFormContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData}>
     <form onSubmit={onSubmit}>
       {
-        schema?.ui?.order.map((sectionId) => (
-          <Section id={sectionId} key={sectionId} />
+        schema?.ui?.order.map((sectionName) => (
+          <Section sectionName={sectionName} key={sectionName} />
         ))
       }
     </form>
-  </FormSchemaContextProvider>;
+  </SchemaFormContextProvider>;
 };
 
-export default EFBForm;
+export default SchemaForm;
