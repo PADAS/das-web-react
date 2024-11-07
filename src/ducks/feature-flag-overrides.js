@@ -1,6 +1,8 @@
 const SET_FLAG_OVERRIDE_VALUE = 'SET_FLAG_OVERRIDE_VALUE';
 
 export const ENABLE_NEW_REPORT_NOTIFICATION_SOUND = 'ENABLE_NEW_REPORT_NOTIFICATION_SOUND';
+export const ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND =
+  'ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND';
 
 export const migrations = {
   0: (state) => {
@@ -20,10 +22,12 @@ export const setFlagOverrideValue = (flagName, value) => ({
 
 export const FEATURE_FLAG_INPUT_LABELS = {
   [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: 'reportNotification',
+  [ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND]: 'playSoundForAlarmRadioState',
 };
 
 export const INITIAL_REDUCER_STATE = {
   [ENABLE_NEW_REPORT_NOTIFICATION_SOUND]: { value: false },
+  [ENABLE_RADIO_STATE_CHANGE_TO_ALARM_NOTIFICATION_SOUND]: { value: false },
 };
 
 const reducer = (state = INITIAL_REDUCER_STATE, action = {}) => {

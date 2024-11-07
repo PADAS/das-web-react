@@ -48,9 +48,9 @@ ToastBody.defaultProps = {
 };
 
 ToastBody.propTypes = {
-  details: PropTypes.string,
+  details: PropTypes.node,
   link: PropTypes.object,
-  message: PropTypes.string,
+  message: PropTypes.node,
   showDetailsByDefault: PropTypes.bool,
 };
 
