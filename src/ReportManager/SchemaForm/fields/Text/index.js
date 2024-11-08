@@ -19,9 +19,17 @@ const Text = ({ fieldName }) => {
 
   const handleOnChange = (e) => onFieldChange(fieldName, e.currentTarget.value);
 
-  return <div>
+  console.log(textFieldDetails.defaultInput);
+
+  return <div data-testid={`schema-form-text-field-${fieldName}`}>
     <label htmlFor={fieldName}>{textFieldDetails.label}</label>
-    <input id={fieldName} value={textFieldDetails.value} type="text" defaultValue={textFieldDetails.defaultInput} placeholder={textFieldDetails.placeholder} onChange={handleOnChange}/>
+    <input id={fieldName}
+           value={textFieldDetails.value}
+           type="text"
+           defaultValue={textFieldDetails.defaultInput}
+           placeholder={textFieldDetails.placeholder}
+           onChange={handleOnChange}
+           data-testid={`schema-form-text-field-input-${fieldName}`} />
     <p>{textFieldDetails.description}</p>
     {
       textFieldDetails.error && (

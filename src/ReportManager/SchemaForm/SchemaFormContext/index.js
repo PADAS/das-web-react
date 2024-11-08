@@ -16,7 +16,7 @@ const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors
     const isRequired = isSchemaFieldRequired(schema, fieldSchema);
     const uiDetails = schema.ui.fields[fieldName];
     const formValue = formData[fieldName] ?? '';
-    const formError = formErrors[fieldName] ?? null;
+    const formError = formErrors?.[fieldName] ?? null;
 
     switch (uiDetails.type) {
     case FORM_FIELDS_TYPES.TEXT: {
