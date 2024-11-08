@@ -1,10 +1,11 @@
 import React, { createContext, useContext } from 'react';
 import { FORM_FIELDS_TYPES } from '../../../constants';
 import { textFieldDetailsFactory } from '../fields/fieldDetailsFactory';
+import { getSchemaFieldUIType, isSchemaFieldRequired } from './utils';
 
 export const SchemaFormContext = createContext(null);
 
-const SchemaFormContextProvider = ({ schema, onFieldChange, formData, children }) => {
+const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors, children }) => {
 
   const getSectionDetails = (sectionName) => schema.ui.sections[sectionName];
 
@@ -12,23 +13,24 @@ const SchemaFormContextProvider = ({ schema, onFieldChange, formData, children }
 
   const getFieldDetails = (fieldName) => {
     const fieldSchema = schema.json.properties[fieldName];
-    const isRequired = schema.json.required.includes(fieldName);
+    const isRequired = isSchemaFieldRequired(schema, fieldSchema);
     const uiDetails = schema.ui.fields[fieldName];
     const formValue = formData[fieldName] ?? '';
+    const formError = formErrors[fieldName] ?? null;
 
     switch (uiDetails.type) {
     case FORM_FIELDS_TYPES.TEXT: {
       return textFieldDetailsFactory(fieldSchema, {
         ...uiDetails,
         isRequired
-      }, formValue);
+      }, formValue, formError);
     }
 
     default: return {};
     }
   };
 
-  const getFieldUIType = (fieldName) => schema.ui.fields[fieldName].type;
+  const getFieldUIType = (fieldName) => getSchemaFieldUIType(schema, fieldName);
 
   const getSchema = () => ({ ...schema });
 

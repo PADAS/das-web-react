@@ -1,5 +1,5 @@
 
-export const textFieldDetailsFactory = ({ description, title, deprecated, default: defaultValue }, { inputType, placeholder, isRequired }, formValue) => ({
+export const textFieldDetailsFactory = ({ description, title, deprecated, default: defaultValue }, { inputType, placeholder, isRequired }, formValue, formError) => ({
   defaultInput: defaultValue,
   description,
   inputType,
@@ -8,4 +8,5 @@ export const textFieldDetailsFactory = ({ description, title, deprecated, defaul
   label: title,
   placeholder,
   value: formValue,
+  error: formError,
 });
