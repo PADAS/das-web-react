@@ -1,4 +1,6 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
+
 import { render, screen, within } from '../../test-utils';
 
 import SchemaForm from './';
@@ -92,11 +94,62 @@ describe('ReportManager - SchemaForm', () => {
     expect(inputField.placeholder).toBe('a placeholder');
   });
 
-  test('update text field when user types in it', () => {});
+  test('update text field when user types in it', async () => {
+    const onChange = jest.fn();
+    renderSchemaForm({ ...initialProps, onChange });
 
-  test('show validation error for text field on submit', () => {});
+    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+    await userEvent.type(inputField, 'A');
 
-  test('submit form with text field changes', () => {});
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({
+      formData: {
+        'this_is_a_text': 'a text valueA'
+      }
+    });
+  });
+
+  test('show validation error for text field on submit', async () => {
+
+    const onSubmit = () => console.log('form submit');
+    const schema = { ...efb };
+    schema.json.properties.this_is_a_text.default = '';
+
+    renderSchemaForm({
+      ...initialProps,
+      schema,
+      onSubmit,
+      formData: {
+        'this_is_a_text': ''
+      }
+    });
+
+    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+    await userEvent.type(inputField, '{enter}');
+
+    expect( screen.getByText('Error message') ).toBeVisible();
+  });
+
+  test('submit form with text field data', async () => {
+    const onFormSubmit = jest.fn();
+
+    renderSchemaForm({
+      ...initialProps,
+      onFormSubmit,
+    });
+
+    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+
+    await userEvent.type(inputField, '{enter}');
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    expect(onFormSubmit).toHaveBeenCalledWith({
+      formData: {
+        'this_is_a_text': 'a text value'
+      }
+    });
+
+  });
 
 
 });

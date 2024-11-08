@@ -3,7 +3,7 @@ export const textFieldDetailsFactory = ({ description, title, deprecated, defaul
   defaultInput: defaultValue,
   description,
   inputType,
-  isActive: deprecated,
+  isActive: !deprecated,
   isRequired,
   label: title,
   placeholder,

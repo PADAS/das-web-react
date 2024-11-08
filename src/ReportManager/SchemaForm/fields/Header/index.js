@@ -1,5 +1,6 @@
 import React from 'react';
-import { useFieldDetails } from '../../SchemaFormContext';
+
+import useFieldDetails from '../../useFieldDetails';
 
 const Header = ({ fieldName }) => {
   const headerDetails = useFieldDetails(fieldName);

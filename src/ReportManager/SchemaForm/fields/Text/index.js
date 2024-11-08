@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 
-import { SchemaFormContext, useFieldDetails } from '../../SchemaFormContext';
+import { SchemaFormContext } from '../../SchemaFormContext';
 import { isSchemaFieldRequired } from '../../SchemaFormContext/utils';
+import useFieldDetails from '../../useFieldDetails';
 
 const VALIDATION_ERROR_TYPES = {
   REQUIRED: 'REQUIRED'
@@ -18,8 +19,6 @@ const Text = ({ fieldName }) => {
   const textFieldDetails = useFieldDetails(fieldName);
 
   const handleOnChange = (e) => onFieldChange(fieldName, e.currentTarget.value);
-
-  console.log(textFieldDetails.defaultInput);
 
   return <div data-testid={`schema-form-text-field-${fieldName}`}>
     <label htmlFor={fieldName}>{textFieldDetails.label}</label>

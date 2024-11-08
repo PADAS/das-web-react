@@ -30,14 +30,16 @@ const SchemaForm = ({ schema, formData = {}, onFormSubmit, className, onChange }
         if (hasError){
           formErr[fieldName] = errorType;
           break; // breaking the loop for the current field to avoid handling multiple errors per field on screen
+        } else {
+          delete formErr[fieldName];
         }
       }
     }
 
     setFormErrors(formErr);
 
-    if ( Object.keys(formErr) === 0 ){
-      onFormSubmit();
+    if ( Object.keys(formErr).length === 0 ){
+      onFormSubmit({ formData });
     }
   };
 
@@ -49,7 +51,7 @@ const SchemaForm = ({ schema, formData = {}, onFormSubmit, className, onChange }
     });
   };
 
-  return <SchemaFormContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData} formError={formErrors} >
+  return <SchemaFormContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData} formErrors={formErrors} >
     <form onSubmit={handleOnSubmit} className={className}>
       {
         schema?.ui?.order.map((sectionName) => (

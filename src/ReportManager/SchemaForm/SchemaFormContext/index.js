@@ -13,7 +13,7 @@ const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors
 
   const getFieldDetails = (fieldName) => {
     const fieldSchema = schema.json.properties[fieldName];
-    const isRequired = isSchemaFieldRequired(schema, fieldSchema);
+    const isRequired = isSchemaFieldRequired(schema, fieldName);
     const uiDetails = schema.ui.fields[fieldName];
     const formValue = formData[fieldName] ?? '';
     const formError = formErrors?.[fieldName] ?? null;
@@ -32,25 +32,12 @@ const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors
 
   const getFieldUIType = (fieldName) => getSchemaFieldUIType(schema, fieldName);
 
-  const getSchema = () => ({ ...schema });
+  const isSection = (fieldName) => !!schema.ui.sections[fieldName];
+  const isField = (fieldName) => !!schema.ui.fields[fieldName];
 
-  return <SchemaFormContext.Provider value={{ getSectionDetails, getFieldDetails, getHeaderDetails, onFieldChange, getFieldUIType, getSchema }}>
+  return <SchemaFormContext.Provider value={{ getSectionDetails, getFieldDetails, getHeaderDetails, onFieldChange, getFieldUIType, isSection, isField }}>
     {children}
   </SchemaFormContext.Provider>;
-};
-
-export const useFieldDetails = (fieldName) => {
-  const { getSectionDetails, getFieldDetails, getHeaderDetails, getSchema } = useContext(SchemaFormContext);
-  const schema = getSchema();
-
-  const isSection = !!schema.ui.sections[fieldName];
-  const isField = !!schema.ui.fields[fieldName];
-
-  return isSection
-    ? getSectionDetails(fieldName)
-    : isField
-      ? getFieldDetails(fieldName)
-      : getHeaderDetails(fieldName);
 };
 
 export default SchemaFormContextProvider;
