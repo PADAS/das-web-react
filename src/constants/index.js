@@ -351,8 +351,6 @@ export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
 
-export const EFB_SCHEMA_DRAFT = 'https://json-schema.org/draft/2020-12/schema';
-
 export const FORM_FIELDS_TYPES = {
   TEXT: 'TEXT',
   HEADER: 'HEADER'

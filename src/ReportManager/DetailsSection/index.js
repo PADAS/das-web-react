@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
-import { EFB_SCHEMA_DRAFT, EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -66,7 +66,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isEFBSchema = formSchema?.json?.$schema === EFB_SCHEMA_DRAFT;
+  const isEFBSchema = false;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
