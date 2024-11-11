@@ -5,7 +5,8 @@
   },
   "betaToggles": {
     "playSoundForAlarmRadioState": "Play sound and show toast when a radio state changes to red (alarm)",
-    "reportNotification": "Play Sound For New Events"
+    "playSoundForNewInReachMessage": "Play sound for new inReach messages",
+    "reportNotification": "Play sound for new events"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",

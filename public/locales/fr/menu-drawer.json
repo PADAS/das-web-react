@@ -5,7 +5,8 @@
   },
   "betaToggles": {
     "playSoundForAlarmRadioState": "Jouer un son et afficher une notification lorsque l'état de la radio passe au rouge (alarme)",
-    "reportNotification": "Notifier les Nouveaux Événements à l'aide d'un Son"
+    "playSoundForNewInReachMessage": "Jouer un son pour les nouveaux messages inReach",
+    "reportNotification": "Notifier les nouveaux événements à l'aide d'un son"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Rapport Quotidien",

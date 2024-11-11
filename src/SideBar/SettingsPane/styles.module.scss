@@ -18,6 +18,7 @@
 
 .tab {
   padding: 1rem 1.5rem;
+  width: var(--sidebar-width);
 
   &.alertsTab {
     padding: 0;

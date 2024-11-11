@@ -32,7 +32,11 @@ describe('the BetaToggles component', () => {
   });
   test('listing overrides', async () => {
     const wrapper = await screen.findByTestId('wrapper');
-    const overrideLabels = ['Play Sound For New Events'];
+    const overrideLabels = [
+      'Play sound for new events',
+      'Play sound and show toast when a radio state changes to red (alarm)',
+      'Play sound for new inReach messages',
+    ];
 
     overrideLabels.forEach((label) => {
       expect(wrapper).toHaveTextContent(label);

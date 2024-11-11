@@ -50,12 +50,12 @@ i18n
       backendOptions: [{
         expirationTime: 24 * 60 * 60 * 1000 * 7,
         versions: {
-          es: 'v1.2',
-          'en-US': 'v1.2',
-          fr: 'v1.2',
-          'ne-NP': 'v1.2',
-          pt: 'v1.2',
-          sw: 'v1.2'
+          es: 'v1.3',
+          'en-US': 'v1.3',
+          fr: 'v1.3',
+          'ne-NP': 'v1.3',
+          pt: 'v1.3',
+          sw: 'v1.3'
         }
       }]
     }

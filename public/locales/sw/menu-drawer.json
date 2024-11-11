@@ -5,7 +5,8 @@
   },
   "betaToggles": {
     "playSoundForAlarmRadioState": "Cheza sauti na onyesha arifa wakati hali ya redio inabadilika kuwa nyekundu (kengele)",
-    "reportNotification": "Cheza Sauti kwa Matukio Mapya"
+    "playSoundForNewInReachMessage": "Cheza sauti kwa ujumbe mpya wa inReach",
+    "reportNotification": "Cheza sauti kwa matukio mapya"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Ripoti ya Kila Siku",
