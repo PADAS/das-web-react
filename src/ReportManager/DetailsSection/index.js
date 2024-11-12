@@ -40,6 +40,7 @@ import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 import SchemaForm from '../SchemaForm';
+import SchemaFormContextProvider from '../SchemaFormContext';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -66,7 +67,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isEFBSchema = false;
+  const isEFBSchema = true;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -236,11 +237,9 @@ const DetailsSection = ({
     </Form>}
 
     {!!formSchema && isEFBSchema &&
-      <SchemaForm schema={formSchema}
-               onChange={onFormChange}
-               formData={reportForm.event_details}
-               ref={submitFormButtonRef}
-               onFormSubmit={onFormSubmit} />
+      <SchemaFormContextProvider schema={formSchema} onFieldChange={onFormChange} formData={reportForm.event_details} onFormSubmit={onFormSubmit} >
+        <SchemaForm ref={submitFormButtonRef} />
+      </SchemaFormContextProvider>
     }
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader

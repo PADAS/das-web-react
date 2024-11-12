@@ -851,7 +851,7 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
-                formSchema={reportSchemas?.schema}
+                formSchema={efb}
                 formUISchema={reportSchemas?.uiSchema}
                 isCollection={isCollection}
                 loadingSchema={!!eventSchemas.loading}

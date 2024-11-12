@@ -6,7 +6,7 @@ import Section from './fields/Section';
 import styles from './styles.module.scss';
 import { FORM_FIELDS_TYPES } from '../../constants';
 import { TextFieldValidators } from './fields/Text';
-import { getSchemaFieldUIType } from './SchemaFormContext/utils';
+import { getSchemaFieldUIType, isFieldActive } from './SchemaFormContext/utils';
 
 const FormFieldValidators = {
   [FORM_FIELDS_TYPES.TEXT]: TextFieldValidators
@@ -22,16 +22,19 @@ const SchemaForm = ({ schema, formData = {}, onFormSubmit, className, onChange }
     const formErr = { ...formErrors };
 
     for (const [fieldName, fieldValue] of Object.entries(formData)) {
-      const fieldUIType = getSchemaFieldUIType(schema, fieldName);
-      const validators = FormFieldValidators[fieldUIType];
 
-      for (const [errorType, validatorFn] of Object.entries(validators)) {
-        const hasError = validatorFn(fieldValue, fieldName, schema);
-        if (hasError){
-          formErr[fieldName] = errorType;
-          break; // breaking the loop for the current field to avoid handling multiple errors per field on screen
-        } else {
-          delete formErr[fieldName];
+      if (isFieldActive(schema, fieldName)) {
+        const fieldUIType = getSchemaFieldUIType(schema, fieldName);
+        const validators = FormFieldValidators[fieldUIType];
+
+        for (const [errorType, validatorFn] of Object.entries(validators)) {
+          const hasError = validatorFn(fieldValue, fieldName, schema);
+          if (hasError){
+            formErr[fieldName] = errorType;
+            break; // breaking the loop for the current field to avoid handling multiple errors per field on screen
+          } else {
+            delete formErr[fieldName];
+          }
         }
       }
     }
@@ -51,7 +54,7 @@ const SchemaForm = ({ schema, formData = {}, onFormSubmit, className, onChange }
     });
   };
 
-  return <SchemaFormContextProvider schema={schema} onFieldChange={onFieldChange} formData={formData} formErrors={formErrors} >
+  return
     <form onSubmit={handleOnSubmit} className={className}>
       {
         schema?.ui?.order.map((sectionName) => (
@@ -59,8 +62,7 @@ const SchemaForm = ({ schema, formData = {}, onFormSubmit, className, onChange }
         ))
       }
       <button ref={ref} type="submit" className={styles.submitButton} />
-    </form>
-  </SchemaFormContextProvider>;
+    </form>;
 };
 
 const SchemaFormForwardRef = forwardRef(SchemaForm);

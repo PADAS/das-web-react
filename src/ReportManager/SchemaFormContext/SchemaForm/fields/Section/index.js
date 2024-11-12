@@ -15,15 +15,17 @@ const FORM_FIELDS = {
 };
 
 const Section = ({ sectionName }) => {
-  const { getFieldUIType } = useContext(SchemaFormContext);
+  const { getFieldUIType, isFieldActive } = useContext(SchemaFormContext);
   const sectionDetails = useFieldDetails(sectionName);
 
   const renderColumnSectionItems = (column) => column.map(({ name, type }) => {
-    const SectionItem = type === SECTION_ITEM_TYPES.FIELD
-      ? FORM_FIELDS[getFieldUIType(name)]
-      : Header;
-
-    return <SectionItem fieldName={name} key={name} />;
+    if ( type === SECTION_ITEM_TYPES.FIELD && isFieldActive(name) ){
+      const Field = FORM_FIELDS[getFieldUIType(name)];
+      return <Field fieldName={name} key={name} />;
+    } else if (type === SECTION_ITEM_TYPES.HEADER) {
+      return <Header fieldName={name} key={name} />;
+    }
+    return null;
   });
 
   return <div>
