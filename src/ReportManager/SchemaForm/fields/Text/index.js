@@ -4,6 +4,35 @@ import { SchemaFormContext } from '../../SchemaFormContext';
 import { isSchemaFieldRequired } from '../../SchemaFormContext/utils';
 import useFieldDetails from '../../useFieldDetails';
 
+const ShortTextInput = ({ textFieldDetails, fieldName, onChange }) => (
+  <input id={fieldName}
+           value={textFieldDetails.value}
+           type="text"
+           defaultValue={textFieldDetails.defaultInput}
+           placeholder={textFieldDetails.placeholder}
+           onChange={onChange}
+           data-testid={`schema-form-short-text-field-input-${fieldName}`} />
+);
+
+const LongTextInput = ({ textFieldDetails, fieldName, onChange }) => (
+  <textarea id={fieldName} value={textFieldDetails.value}
+            defaultValue={textFieldDetails.defaultInput}
+            placeholder={textFieldDetails.placeholder}
+            onChange={onChange}
+            data-testid={`schema-form-long-text-field-input-${fieldName}`}>
+  </textarea>
+);
+
+const INPUT_TYPE = {
+  SHORT: 'SHORT_TEXT',
+  LONG: 'LONG_TEXT'
+};
+
+const TEXT_INPUT_TYPE_TO_INPUT = {
+  [INPUT_TYPE.SHORT]: ShortTextInput,
+  [INPUT_TYPE.LONG]: LongTextInput,
+};
+
 const VALIDATION_ERROR_TYPES = {
   REQUIRED: 'REQUIRED'
 };
@@ -14,21 +43,25 @@ export const TextFieldValidators = {
   }
 };
 
+/*ToDo:
+* visible
+* error message for i18n
+* styling
+* coverage
+* validation for text length
+* */
+
 const Text = ({ fieldName }) => {
   const { onFieldChange } = useContext(SchemaFormContext);
   const textFieldDetails = useFieldDetails(fieldName);
+  const label = textFieldDetails.isRequired ? `${textFieldDetails.label} *` : textFieldDetails.label;
+  const TextInput = TEXT_INPUT_TYPE_TO_INPUT[textFieldDetails.inputType];
 
   const handleOnChange = (e) => onFieldChange(fieldName, e.currentTarget.value);
 
   return <div data-testid={`schema-form-text-field-${fieldName}`}>
-    <label htmlFor={fieldName}>{textFieldDetails.label}</label>
-    <input id={fieldName}
-           value={textFieldDetails.value}
-           type="text"
-           defaultValue={textFieldDetails.defaultInput}
-           placeholder={textFieldDetails.placeholder}
-           onChange={handleOnChange}
-           data-testid={`schema-form-text-field-input-${fieldName}`} />
+    <label htmlFor={fieldName}>{label}</label>
+    <TextInput textFieldDetails={textFieldDetails} fieldName={fieldName} onChange={handleOnChange} />
     <p>{textFieldDetails.description}</p>
     {
       textFieldDetails.error && (
