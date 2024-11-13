@@ -3,7 +3,7 @@ import { render, screen } from '../../../test-utils';
 
 import SchemaFormContextProvider, { SchemaFormContext } from './index';
 import userEvent from '@testing-library/user-event';
-import { FORM_FIELDS_TYPES } from '../../../constants';
+import { FORM_FIELDS_TYPES } from '../constants';
 
 describe('ReportManager - SchemaForm - SchemaFormContext', () => {
 

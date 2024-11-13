@@ -1,30 +1,29 @@
-import React, { forwardRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import Section from './fields/Section';
 
-import { FORM_FIELDS_TYPES } from '../../constants';
+import { FORM_FIELDS_TYPES } from './constants';
 import { TextFieldValidators } from './fields/Text';
 import SchemaFormContextProvider from './SchemaFormContext';
 
-import styles from './styles.module.scss';
 import { getFieldUIType, isFieldActive } from './utils';
 
 const FormFieldValidators = {
   [FORM_FIELDS_TYPES.TEXT]: TextFieldValidators
 };
 
-const SchemaForm = ({ schema, onFormChange, formData, onFormSubmit, submitButtonRef, className }) => {
+const SchemaForm = ({ schema, onFormChange, formData, onFormSubmit, renderSubmitButton, className }) => {
 
   const [formErrors, setFormErrors] = useState({});
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
 
-    const formErr = { ...formErrors };
+    const formErr = {};
 
     for (const [fieldName, fieldValue] of Object.entries(formData)) {
 
-      if (isFieldActive(fieldName)) {
+      if (isFieldActive(fieldName, schema)) {
         const fieldUIType = getFieldUIType(fieldName);
         const validators = FormFieldValidators[fieldUIType];
 
@@ -54,13 +53,9 @@ const SchemaForm = ({ schema, onFormChange, formData, onFormSubmit, submitButton
           <Section sectionName={sectionName} key={sectionName} />
         ))
       }
-      <button ref={submitButtonRef} type="submit" className={styles.submitButton} />
+      {renderSubmitButton()}
     </form>
-  </SchemaFormContextProvider>
-
-  ;
+  </SchemaFormContextProvider>;
 };
 
-const SchemaFormForwardRef = forwardRef(SchemaForm);
-
-export default SchemaFormForwardRef;
+export default SchemaForm;

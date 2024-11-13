@@ -4,13 +4,14 @@ import { SchemaFormContext } from '../';
 import { getHeaderDetails, getSectionDetails, isField, isSection } from '../../utils';
 
 const useFieldDetails = (fieldName) => {
-  const { getFieldDetails } = useContext(SchemaFormContext);
+  const { getFieldDetails, getSchema } = useContext(SchemaFormContext);
+  const schema = getSchema();
 
-  return isSection(fieldName)
-    ? getSectionDetails(fieldName)
-    : isField(fieldName)
+  return isSection(fieldName, schema)
+    ? getSectionDetails(fieldName, schema)
+    : isField(fieldName, schema)
       ? getFieldDetails(fieldName)
-      : getHeaderDetails(fieldName);
+      : getHeaderDetails(fieldName, schema);
 };
 
 export default useFieldDetails;

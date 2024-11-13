@@ -1,5 +1,5 @@
 import React, { createContext } from 'react';
-import { FORM_FIELDS_TYPES } from '../../../constants';
+import { FORM_FIELDS_TYPES } from '../constants';
 import { textFieldDetailsFactory } from '../fields/fieldDetailsFactory';
 import { isFieldRequired } from '../utils';
 
@@ -18,7 +18,7 @@ const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors,
 
   const getFieldDetails = (fieldName, schema) => {
     const fieldSchema = schema.json.properties[fieldName];
-    const isRequired = isFieldRequired(fieldName);
+    const isRequired = isFieldRequired(fieldName, schema);
     const uiDetails = schema.ui.fields[fieldName];
     const formValue = formData[fieldName] ?? '';
     const formError = formErrors?.[fieldName] ?? null;
@@ -34,6 +34,8 @@ const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors,
     default: return {};
     }
   };
+
+  const getSchema = () => ({ ...schema });
 
   const getFormData = () => {
     const initialFormFields = Object.keys(schema.json.properties).reduce((acm, currentValue) => {
@@ -54,6 +56,7 @@ const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors,
     formErrors,
     getFieldDetails,
     getFormData,
+    getSchema,
     onFieldChange
   }}>
     {children}

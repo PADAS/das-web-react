@@ -15,20 +15,21 @@ export const TextFieldValidators = {
 };
 
 const Text = ({ fieldName }) => {
-  const { onFieldChange } = useContext(SchemaFormContext);
   const textFieldDetails = useFieldDetails(fieldName);
+  const { onFieldChange } = useContext(SchemaFormContext);
 
-  const handleOnChange = (e) => onFieldChange(fieldName, e.currentTarget.value);
+  const handleOnChange = (event) => onFieldChange(fieldName, event.currentTarget.value);
 
   return <div data-testid={`schema-form-text-field-${fieldName}`}>
     <label htmlFor={fieldName}>{textFieldDetails.label}</label>
     <input id={fieldName}
-           value={textFieldDetails.value}
-           type="text"
-           defaultValue={textFieldDetails.defaultInput}
-           placeholder={textFieldDetails.placeholder}
-           onChange={handleOnChange}
-           data-testid={`schema-form-text-field-input-${fieldName}`} />
+       value={textFieldDetails.value}
+       type="text"
+       defaultValue={textFieldDetails.defaultInput}
+       placeholder={textFieldDetails.placeholder}
+       onChange={handleOnChange}
+       data-testid={`schema-form-text-field-input-${fieldName}`} />
+
     <p>{textFieldDetails.description}</p>
     {
       textFieldDetails.error && (

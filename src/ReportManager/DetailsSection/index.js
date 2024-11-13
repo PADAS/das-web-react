@@ -39,8 +39,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import SchemaForm from '../SchemaFormContext/SchemaForm';
-import SchemaFormContextProvider from '../SchemaFormContext';
+import SchemaForm from "../SchemaForm";
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -97,6 +96,10 @@ const DetailsSection = ({
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
   }, [formUISchema]);
+
+  const renderSchemaFormSubmitButton = () => (
+    <button ref={submitFormButtonRef} type="submit" className={styles.schemaFormSubmitButton} />
+  );
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -237,8 +240,12 @@ const DetailsSection = ({
     </Form>}
 
     {!!formSchema && isEFBSchema &&
-    schema={formSchema} onFormChange={onFormChange} formData={reportForm.event_details} onFormSubmit={onFormSubmit}
-        <SchemaForm ref={submitFormButtonRef} />
+      <SchemaForm
+          schema={formSchema}
+          onFormSubmit={onFormSubmit}
+          onFormChange={onFormChange}
+          formData={reportForm.event_details}
+          renderSubmitButton={renderSchemaFormSubmitButton} />
     }
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
