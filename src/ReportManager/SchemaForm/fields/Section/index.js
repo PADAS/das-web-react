@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
-import { SchemaFormContext } from '../../SchemaFormContext';
+
 import Header from '../Header';
 import Text from '../Text';
+
 import { FORM_FIELDS_TYPES } from '../../../../constants';
-import useFieldDetails from '../../useFieldDetails';
+import { SchemaFormContext } from '../../SchemaFormContext';
+import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 
 const SECTION_ITEM_TYPES = {
   HEADER: 'header',

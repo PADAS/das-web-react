@@ -39,7 +39,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import SchemaForm from '../SchemaForm';
+import SchemaForm from '../SchemaFormContext/SchemaForm';
 import SchemaFormContextProvider from '../SchemaFormContext';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
@@ -237,9 +237,8 @@ const DetailsSection = ({
     </Form>}
 
     {!!formSchema && isEFBSchema &&
-      <SchemaFormContextProvider schema={formSchema} onFieldChange={onFormChange} formData={reportForm.event_details} onFormSubmit={onFormSubmit} >
+    schema={formSchema} onFormChange={onFormChange} formData={reportForm.event_details} onFormSubmit={onFormSubmit}
         <SchemaForm ref={submitFormButtonRef} />
-      </SchemaFormContextProvider>
     }
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader

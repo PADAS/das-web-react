@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 
-import { SchemaFormContext } from '../SchemaFormContext';
+import { SchemaFormContext } from '../';
+import { getHeaderDetails, getSectionDetails, isField, isSection } from '../../utils';
 
 const useFieldDetails = (fieldName) => {
-  const { getSectionDetails, getFieldDetails, getHeaderDetails, isSection, isField } = useContext(SchemaFormContext);
+  const { getFieldDetails } = useContext(SchemaFormContext);
 
   return isSection(fieldName)
     ? getSectionDetails(fieldName)
