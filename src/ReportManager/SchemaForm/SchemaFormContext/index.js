@@ -37,25 +37,9 @@ const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors,
 
   const getSchema = () => ({ ...schema });
 
-  const getFormData = () => {
-    const initialFormFields = Object.keys(schema.json.properties).reduce((acm, currentValue) => {
-      return {
-        ...acm,
-        [currentValue]: ''
-      };
-    }, {});
-
-    console.log(initialFormFields);
-    return {
-      ...initialFormFields,
-      ...formData
-    };
-  };
-
   return <SchemaFormContext.Provider value={{
     formErrors,
     getFieldDetails,
-    getFormData,
     getSchema,
     onFieldChange
   }}>
