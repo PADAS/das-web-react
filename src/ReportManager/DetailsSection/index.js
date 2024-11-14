@@ -66,7 +66,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isEFBSchema = true;
+  const isEFBSchema = false;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);

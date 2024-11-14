@@ -1,6 +1,6 @@
 
 export const textFieldDetailsFactory = (jsonSchema, uiSchema, value, error) => ({
-  defaultInput: jsonSchema.defaultValue,
+  defaultInput: jsonSchema.default,
   description: jsonSchema.description,
   inputType: uiSchema.inputType,
   isActive: !jsonSchema.deprecated,

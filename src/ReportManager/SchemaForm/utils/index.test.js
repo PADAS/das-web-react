@@ -1,10 +1,18 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  getFieldUIType, getFormFieldComponent,
+  getHeaderDetails,
+  getSectionDetails,
+  isField,
+  isFieldActive,
+  isFieldRequired,
+  isSection
+} from './';
 
-import useFieldDetails from './';
-import SchemaFormContextProvider from '../';
+import { FORM_FIELDS_TYPES } from '../constants';
 
-describe('ReportManager - SchemaForm - useFieldDetails', () => {
+import Text from '../fields/Text';
+
+describe('ReportManager - SchemaForm - utils', () => {
 
   const schema = {
     'json': {
@@ -64,27 +72,8 @@ describe('ReportManager - SchemaForm - useFieldDetails', () => {
     }
   };
 
-  const contextProps = {
-    schema,
-    onFormChange: () => {},
-    formData: {
-      'this_is_a_text': 'a text value'
-    },
-    formErrors: {}
-  };
-
-  const wrapper = ({ children }) => (
-    <SchemaFormContextProvider {...contextProps}>
-      {children}
-    </SchemaFormContextProvider>
-  );
-
-  const renderUseFieldDetails = (fieldName) => renderHook(() => useFieldDetails(fieldName), { wrapper });
-
-  test('gets section details', () => {
-    const { result } = renderUseFieldDetails('section-_PdgePvPWyACfu9sgN_F6');
-
-    expect( result.current ).toEqual({
+  test('gets section details', async () => {
+    expect( getSectionDetails('section-_PdgePvPWyACfu9sgN_F6', schema) ).toEqual({
       'columns': 1,
       'isActive': true,
       'label': '',
@@ -102,30 +91,38 @@ describe('ReportManager - SchemaForm - useFieldDetails', () => {
     });
   });
 
-  test('gets field details', () => {
-    const { result } = renderUseFieldDetails('this_is_a_text');
-
-    expect( result.current ).toEqual({
-      defaultInput: 'initial value',
-      description: 'some good description',
-      inputType: 'SHORT_TEXT',
-      isActive: true,
-      isRequired: true,
-      label: 'This is a text',
-      placeholder: 'a placeholder',
-      value: 'a text value',
-      error: null
-    });
-  });
-
-  test('gets header details', () => {
-    const { result } = renderUseFieldDetails('header-ghqdjqGinaJMptIEJBQmO');
-
-    expect( result.current ).toEqual({
+  test('gets header details', async () => {
+    expect( getHeaderDetails('header-ghqdjqGinaJMptIEJBQmO', schema) ).toEqual({
       'label': 'A great header',
       'section': 'section-_PdgePvPWyACfu9sgN_F6',
       'size': 'LARGE'
     });
+  });
+
+  test('gets field UI type of text field', async () => {
+    expect( getFieldUIType('this_is_a_text', schema) ).toEqual(FORM_FIELDS_TYPES.TEXT);
+  });
+
+  test('checks if an item is a section', async () => {
+    expect( isSection('this_is_a_text', schema) ).toBe(false);
+    expect( isSection('section-_PdgePvPWyACfu9sgN_F6', schema) ).toBe(true);
+  });
+
+  test('checks if an item is a field', async () => {
+    expect( isField('section-_PdgePvPWyACfu9sgN_F6', schema) ).toBe(false);
+    expect( isField('this_is_a_text', schema) ).toBe(true);
+  });
+
+  test('checks if a field is required', async () => {
+    expect( isFieldRequired('this_is_a_text', schema) ).toBe(true);
+  });
+
+  test('checks if a field is active', async () => {
+    expect( isFieldActive('this_is_a_text', schema) ).toBe(true);
+  });
+
+  test('get text field component equivalent for text type ', async () => {
+    expect( getFormFieldComponent('this_is_a_text', schema) ).toBe(Text);
   });
 
 });

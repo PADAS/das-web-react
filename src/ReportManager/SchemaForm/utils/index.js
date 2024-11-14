@@ -1,8 +1,9 @@
 import { FORM_FIELDS_TYPES } from '../constants';
-import Text from '../fields/Text';
+
+import TextField from '../fields/Text';
 
 const FORM_FIELDS_COMPONENTS = {
-  [FORM_FIELDS_TYPES.TEXT]: Text
+  [FORM_FIELDS_TYPES.TEXT]: TextField
 };
 
 export const getSectionDetails = (sectionName, schema) => schema.ui.sections[sectionName];

@@ -24,7 +24,7 @@ const SchemaForm = ({ schema, onFormChange, formData, onFormSubmit, renderSubmit
     for (const [fieldName, fieldValue] of Object.entries(formData)) {
 
       if (isFieldActive(fieldName, schema)) {
-        const fieldUIType = getFieldUIType(fieldName);
+        const fieldUIType = getFieldUIType(fieldName, schema);
         const validators = FormFieldValidators[fieldUIType];
 
         for (const [errorType, validatorFn] of Object.entries(validators)) {
@@ -32,8 +32,6 @@ const SchemaForm = ({ schema, onFormChange, formData, onFormSubmit, renderSubmit
           if (hasError){
             formErr[fieldName] = errorType;
             break; // breaking the loop for the current field to avoid handling multiple errors per field on screen
-          } else {
-            delete formErr[fieldName];
           }
         }
       }
