@@ -38,8 +38,9 @@ import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
+import SchemaForm from '../SchemaForm';
+
 import styles from './styles.module.scss';
-import SchemaForm from "../SchemaForm";
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -66,7 +67,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isEFBSchema = false;
+  const isNewFormSchema = false;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -215,7 +216,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && !isEFBSchema && <Form
+    {!!formSchema && !isNewFormSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -239,7 +240,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && isEFBSchema &&
+    {!!formSchema && isNewFormSchema &&
       <SchemaForm
           schema={formSchema}
           onFormSubmit={onFormSubmit}
