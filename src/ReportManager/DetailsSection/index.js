@@ -38,6 +38,8 @@ import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
+import SchemaForm from '../SchemaForm';
+
 import styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
@@ -65,7 +67,7 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-
+  const isNewFormSchema = false;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -95,6 +97,10 @@ const DetailsSection = ({
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
   }, [formUISchema]);
+
+  const renderSchemaFormSubmitButton = () => (
+    <button ref={submitFormButtonRef} type="submit" className={styles.schemaFormSubmitButton} />
+  );
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -210,7 +216,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && <Form
+    {!!formSchema && !isNewFormSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -233,6 +239,15 @@ const DetailsSection = ({
     >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
+
+    {!!formSchema && isNewFormSchema &&
+      <SchemaForm
+          schema={formSchema}
+          onFormSubmit={onFormSubmit}
+          onFormChange={onFormChange}
+          formData={reportForm.event_details}
+          renderSubmitButton={renderSchemaFormSubmitButton} />
+    }
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
