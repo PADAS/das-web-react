@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 
 import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 import { SchemaFormContext } from '../../SchemaFormContext';
+import { isFieldRequired } from '../../utils';
 
 
 const ShortTextInput = ({ textFieldDetails, fieldName, onChange }) => (
@@ -34,17 +35,16 @@ const TEXT_INPUT_TYPE_TO_INPUT = {
 };
 
 const VALIDATION_ERROR_TYPES = {
-  REQUIRED: 'REQUIRED'
+  REQUIRED: 'required'
 };
 
 export const TextFieldValidators = {
   [VALIDATION_ERROR_TYPES.REQUIRED]: (fieldValue, fieldName, schema) => {
-    return isSchemaFieldRequired(schema, fieldName) ? !fieldValue : false;
+    return isFieldRequired(fieldName, schema) ? !fieldValue : false;
   }
 };
 
 /*ToDo:
-* visible
 * error message for i18n
 * styling
 * coverage
