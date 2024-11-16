@@ -350,8 +350,3 @@ export const EVENT_SORT_OPTIONS = [
 export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
-
-export const FORM_FIELDS_TYPES = {
-  TEXT: 'TEXT',
-  HEADER: 'HEADER'
-};

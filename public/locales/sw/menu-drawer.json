@@ -4,8 +4,9 @@
     "iframeTitle": "Sanidi arifa zako za EarthRanger"
   },
   "betaToggles": {
-    "patrolUI": "UI Mpya wa Fomu ya Doria",
-    "reportNotification": "Cheza Sauti kwa Matukio Mapya"
+    "playSoundForAlarmRadioState": "Cheza sauti na onyesha arifa wakati hali ya redio inabadilika kuwa nyekundu (kengele)",
+    "playSoundForNewInReachMessage": "Cheza sauti kwa ujumbe mpya wa inReach",
+    "reportNotification": "Cheza sauti kwa matukio mapya"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Ripoti ya Kila Siku",

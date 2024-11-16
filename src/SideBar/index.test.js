@@ -96,6 +96,7 @@ describe('SideBar', () => {
         patrols: INITIAL_PATROLS_STATE,
         patrolTypes,
         subjectGroups: [],
+        subjectStore: {},
         user: {
           permissions: {
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],

@@ -27,10 +27,10 @@ import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
 import Link from '../Link';
 import MapLayerFilter from '../MapLayerFilter';
-import NewEventNotifier from '../NewEventNotifier';
 import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
 import ReportMapControl from '../ReportMapControl';
+import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 import SubjectGroupList from '../SubjectGroupList';
 
 import PatrolsFeedTab from './PatrolsFeedTab';
@@ -179,7 +179,7 @@ const SideBar = () => {
 
         {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
 
-        <NewEventNotifier />
+        <SoundNotificationsPlayer />
 
         <span>{t('eventsLink')}</span>
       </Link>

@@ -7,7 +7,7 @@ import SchemaForm from './';
 
 describe('ReportManager - SchemaForm', () => {
 
-  const efb = {
+  const schema = {
     'json': {
       '$schema': 'https://json-schema.org/draft/2020-12/schema',
       'additionalProperties': false,
@@ -66,13 +66,14 @@ describe('ReportManager - SchemaForm', () => {
   };
 
   const initialProps = {
-    schema: efb,
+    schema,
     formData: {
       'this_is_a_text': 'a text value'
     },
     onFormSubmit: () => {},
     className: '',
-    onChange: () => {}
+    onFormChange: () => {},
+    renderSubmitButton: () => ''
   };
 
   const renderSchemaForm = (props = initialProps) => {
@@ -95,14 +96,14 @@ describe('ReportManager - SchemaForm', () => {
   });
 
   test('update text field when user types in it', async () => {
-    const onChange = jest.fn();
-    renderSchemaForm({ ...initialProps, onChange });
+    const onFormChange = jest.fn();
+    renderSchemaForm({ ...initialProps, onFormChange });
 
     const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
     await userEvent.type(inputField, 'A');
 
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange).toHaveBeenCalledWith({
+    expect(onFormChange).toHaveBeenCalledTimes(1);
+    expect(onFormChange).toHaveBeenCalledWith({
       formData: {
         'this_is_a_text': 'a text valueA'
       }
@@ -111,14 +112,12 @@ describe('ReportManager - SchemaForm', () => {
 
   test('show validation error for text field on submit', async () => {
 
-    const onSubmit = () => console.log('form submit');
-    const schema = { ...efb };
-    schema.json.properties.this_is_a_text.default = '';
+    const updateSchema = { ...schema };
+    updateSchema.json.properties.this_is_a_text.default = '';
 
     renderSchemaForm({
       ...initialProps,
-      schema,
-      onSubmit,
+      schema: updateSchema,
       formData: {
         'this_is_a_text': ''
       }

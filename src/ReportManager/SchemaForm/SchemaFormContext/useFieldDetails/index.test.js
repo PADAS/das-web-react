@@ -2,11 +2,11 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 
 import useFieldDetails from './';
-import SchemaFormContextProvider from '../SchemaFormContext';
+import SchemaFormContextProvider from '../';
 
 describe('ReportManager - SchemaForm - useFieldDetails', () => {
 
-  const efb = {
+  const schema = {
     'json': {
       '$schema': 'https://json-schema.org/draft/2020-12/schema',
       'additionalProperties': false,
@@ -65,8 +65,8 @@ describe('ReportManager - SchemaForm - useFieldDetails', () => {
   };
 
   const contextProps = {
-    schema: efb,
-    onFieldChange: () => {},
+    schema,
+    onFormChange: () => {},
     formData: {
       'this_is_a_text': 'a text value'
     },

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 
+import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 import { SchemaFormContext } from '../../SchemaFormContext';
-import { isSchemaFieldRequired } from '../../SchemaFormContext/utils';
-import useFieldDetails from '../../useFieldDetails';
+
 
 const ShortTextInput = ({ textFieldDetails, fieldName, onChange }) => (
   <input id={fieldName}
@@ -52,12 +52,12 @@ export const TextFieldValidators = {
 * */
 
 const Text = ({ fieldName }) => {
-  const { onFieldChange } = useContext(SchemaFormContext);
   const textFieldDetails = useFieldDetails(fieldName);
   const label = textFieldDetails.isRequired ? `${textFieldDetails.label} *` : textFieldDetails.label;
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[textFieldDetails.inputType];
+  const { onFieldChange } = useContext(SchemaFormContext);
 
-  const handleOnChange = (e) => onFieldChange(fieldName, e.currentTarget.value);
+  const handleOnChange = (event) => onFieldChange(fieldName, event.currentTarget.value);
 
   return <div data-testid={`schema-form-text-field-${fieldName}`}>
     <label htmlFor={fieldName}>{label}</label>

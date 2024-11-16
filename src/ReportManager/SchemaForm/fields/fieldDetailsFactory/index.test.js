@@ -3,20 +3,20 @@ import { textFieldDetailsFactory } from './index';
 describe('ReportManager - SchemaForm - fieldDetailsFactory', () => {
 
   test('builds details object of text field properly', () => {
-    const schemaDetails = {
+    const jsonSchema = {
       description: 'A hint of the field',
       title: 'Important Text',
       deprecated: true,
       default: 'initial value'
     };
-    const uiDetails = {
+    const uiSchema = {
       inputType: 'SHORT_TEXT',
       placeholder: 'Ex: some text',
       isRequired: true
     };
 
     expect(
-      textFieldDetailsFactory(schemaDetails, uiDetails, 'input value', 'REQUIRED')
+      textFieldDetailsFactory(jsonSchema, uiSchema, 'input value', 'REQUIRED')
     ).toEqual({
       defaultInput: 'initial value',
       description: 'A hint of the field',

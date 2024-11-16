@@ -161,6 +161,9 @@
         },
         "settingsLink": "Preferências"
     },
+    "soundNotificationsPlayer": {
+        "alarmRadioStateToastMessage": "{{subjectName}} precisa de atenção imediata"
+    },
     "textCopyBtn": {
         "defaultToastMessage": "Copiado para a área de transferência"
     },

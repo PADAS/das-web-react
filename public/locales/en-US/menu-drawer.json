@@ -4,8 +4,9 @@
     "iframeTitle": "Configure your EarthRanger alerts"
   },
   "betaToggles": {
-    "patrolUI": "New Patrol Form UI",
-    "reportNotification": "Play Sound For New Events"
+    "playSoundForAlarmRadioState": "Play sound and show toast when a radio state changes to red (alarm)",
+    "playSoundForNewInReachMessage": "Play sound for new inReach messages",
+    "reportNotification": "Play sound for new events"
   },
   "dailyReportModal": {
     "dataExportModalTitle": "Daily Report",

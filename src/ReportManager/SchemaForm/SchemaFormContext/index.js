@@ -1,19 +1,26 @@
-import React, { createContext, useContext } from 'react';
-import { FORM_FIELDS_TYPES } from '../../../constants';
+import React, { createContext } from 'react';
+
+import { FORM_FIELDS_TYPES } from '../constants';
 import { textFieldDetailsFactory } from '../fields/fieldDetailsFactory';
-import { getSchemaFieldUIType, isSchemaFieldRequired } from './utils';
+import { isFieldRequired } from '../utils';
+import {cloneDeep} from "lodash-es";
 
 export const SchemaFormContext = createContext(null);
 
-const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors, children }) => {
 
-  const getSectionDetails = (sectionName) => schema.ui.sections[sectionName];
+const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors, children }) => {
 
-  const getHeaderDetails = (fieldName) => schema.ui.headers[fieldName];
+  const onFieldChange = (field, value) => {
+    onFormChange({
+      formData: {
+        [field]: value
+      }
+    });
+  };
 
   const getFieldDetails = (fieldName) => {
     const fieldSchema = schema.json.properties[fieldName];
-    const isRequired = isSchemaFieldRequired(schema, fieldName);
+    const isRequired = isFieldRequired(fieldName, schema);
     const uiDetails = schema.ui.fields[fieldName];
     const formValue = formData[fieldName] ?? '';
     const formError = formErrors?.[fieldName] ?? null;
@@ -30,12 +37,14 @@ const SchemaFormContextProvider = ({ schema, onFieldChange, formData, formErrors
     }
   };
 
-  const getFieldUIType = (fieldName) => getSchemaFieldUIType(schema, fieldName);
+  const getSchema = () => cloneDeep(schema);
 
-  const isSection = (fieldName) => !!schema.ui.sections[fieldName];
-  const isField = (fieldName) => !!schema.ui.fields[fieldName];
-
-  return <SchemaFormContext.Provider value={{ getSectionDetails, getFieldDetails, getHeaderDetails, onFieldChange, getFieldUIType, isSection, isField }}>
+  return <SchemaFormContext.Provider value={{
+    formErrors,
+    getFieldDetails,
+    getSchema,
+    onFieldChange
+  }}>
     {children}
   </SchemaFormContext.Provider>;
 };
