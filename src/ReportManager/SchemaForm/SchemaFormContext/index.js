@@ -3,7 +3,7 @@ import React, { createContext } from 'react';
 import { FORM_FIELDS_TYPES } from '../constants';
 import { textFieldDetailsFactory } from '../fields/fieldDetailsFactory';
 import { isFieldRequired } from '../utils';
-import {cloneDeep} from "lodash-es";
+import { cloneDeep } from 'lodash-es';
 
 export const SchemaFormContext = createContext(null);
 
