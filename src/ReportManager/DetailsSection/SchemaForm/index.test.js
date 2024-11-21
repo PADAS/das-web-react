@@ -87,19 +87,20 @@ describe('ReportManager - SchemaForm', () => {
 
     const textFieldElement = screen.getByTestId('schema-form-text-field-this_is_a_text');
 
-    expect(within(textFieldElement).getByLabelText('This is a text')).toBeInTheDocument();
+    expect(within(textFieldElement).getByLabelText('This is a text *')).toBeInTheDocument();
     expect(within(textFieldElement).getByText('some good description')).toBeInTheDocument();
 
-    const inputField = within(textFieldElement).getByTestId('schema-form-text-field-input-this_is_a_text');
+    const inputField = within(textFieldElement).getByTestId('schema-form-short-text-field-input-this_is_a_text');
     expect(inputField.value).toBe('a text value');
     expect(inputField.placeholder).toBe('a placeholder');
+
   });
 
   test('update text field when user types in it', async () => {
     const onFormChange = jest.fn();
     renderSchemaForm({ ...initialProps, onFormChange });
 
-    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+    const inputField = screen.getByTestId('schema-form-short-text-field-input-this_is_a_text');
     await userEvent.type(inputField, 'A');
 
     expect(onFormChange).toHaveBeenCalledTimes(1);
@@ -123,7 +124,7 @@ describe('ReportManager - SchemaForm', () => {
       }
     });
 
-    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+    const inputField = screen.getByTestId('schema-form-short-text-field-input-this_is_a_text');
     await userEvent.type(inputField, '{enter}');
 
     expect( screen.getByText('Error message') ).toBeVisible();
@@ -137,7 +138,7 @@ describe('ReportManager - SchemaForm', () => {
       onFormSubmit,
     });
 
-    const inputField = screen.getByTestId('schema-form-text-field-input-this_is_a_text');
+    const inputField = screen.getByTestId('schema-form-short-text-field-input-this_is_a_text');
 
     await userEvent.type(inputField, '{enter}');
 

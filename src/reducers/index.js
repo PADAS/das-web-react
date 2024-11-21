@@ -46,6 +46,7 @@ import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
+import schemaSelectorReducer from '../ducks/schema-selector';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
@@ -124,6 +125,7 @@ const rootReducer = combineReducers({
     userLocation: userLocationReducer,
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
+    schemaSelector: schemaSelectorReducer,
     trackLength: persistReducer(trackLengthPersistenceConfig, trackDateRangeReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,

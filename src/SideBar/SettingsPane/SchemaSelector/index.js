@@ -1,20 +1,23 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+
 import schemas from './mockedSchemas';
 
 import styles from './styles.module.scss';
+import { setMockedJSONSchema } from '../../../ducks/schema-selector';
 
 /* ToDo: Delete this component and its implementations once QA process is done for EFB support in das-web-react */
-const SchemaSelector = ({ onChange }) => {
+const SchemaSelector = () => {
+  const dispatch = useDispatch();
 
-  const handleOnChange = (event) => {
-    const selectedLabel = event.target.value;
-    onChange( schemas.find( ({ label }) => label === selectedLabel)?.schema );
-  };
+  const handleOnChange = (event) => dispatch(
+    setMockedJSONSchema( schemas.find( ({ label }) => label === event.target.value)?.schema )
+  );
 
   return <>
-    <label htmlFor="schemaSelector" className={styles.label}>
-      Schema Selection
-    </label>
+    <h3 className={styles.label}>
+      Selection of Mocked EFB Schema
+    </h3>
     <select defaultValue={null} onChange={handleOnChange} className={styles.select}>
       <option value={null}>None</option>
       {

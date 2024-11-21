@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import Section from './fields/Section';
 
 import { FORM_FIELDS_TYPES } from './constants';
 import { TextFieldValidators } from './fields/Text';
 import SchemaFormContextProvider from './SchemaFormContext';
-import SchemaSelector from './SchemaSelector';
 import { getFieldUIType, isFieldActive } from './utils';
 
 const FormFieldValidators = {
   [FORM_FIELDS_TYPES.TEXT]: TextFieldValidators
 };
 
-const SchemaForm = ({ onFormChange, formData, onFormSubmit, renderSubmitButton, className }) => {
+const SchemaForm = ({ onFormChange, formData, onFormSubmit, renderSubmitButton, schema, className }) => {
 
   const [formErrors, setFormErrors] = useState({});
-  const [schema, setSchema] = useState(null);
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -45,12 +44,7 @@ const SchemaForm = ({ onFormChange, formData, onFormSubmit, renderSubmitButton, 
     }
   };
 
-  const handleOnSchemaSelectorChange = (selectedSchema) => {
-    setSchema(selectedSchema);
-  };
-
   return <SchemaFormContextProvider schema={schema} formData={formData} onFormChange={onFormChange} formErrors={formErrors} >
-    <SchemaSelector onChange={handleOnSchemaSelectorChange} />
     <form onSubmit={handleOnSubmit} className={className}>
       {
         schema?.ui?.order?.map((sectionName) => (

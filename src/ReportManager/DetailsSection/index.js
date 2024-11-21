@@ -81,6 +81,12 @@ const DetailsSection = ({
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
 
+  const mockedFormSchema = useSelector(({ view: { schemaSelector: { schema } = {} } }) => schema ?? {});
+
+  /*ToDo: use first isNewDraftSchema condition as the regular validation, the one below is used only for mocking and testing purposes */
+  //const isNewDraftSchema = formSchema?.$schema === 'https://json-schema.org/draft/2020-12/schema';
+  const isNewDraftSchema = EFB_FORM_SCHEMA_SUPPORT_ENABLED;
+
   const geometryType = useMemo(() =>
     reportForm
     && eventTypes
@@ -221,7 +227,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && <Form
+    {!!formSchema && !isNewDraftSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -245,16 +251,16 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED &&
+    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && isNewDraftSchema &&
       <SchemaForm
-          schema={formSchema}
+          schema={mockedFormSchema} /* ToDo: Once EFb support is released, replace schema prop for the actual event form schema instead of the mocked one */
           onFormSubmit={onFormSubmit}
           onFormChange={onFormChange}
           formData={reportForm.event_details}
           renderSubmitButton={renderSchemaFormSubmitButton} />
     }
 
-    {!formSchema && !reportForm.is_collection && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && loadingSchema && <ResizeSpinLoader
+    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
