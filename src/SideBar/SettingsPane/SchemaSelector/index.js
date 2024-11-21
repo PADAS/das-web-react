@@ -3,6 +3,7 @@ import schemas from './mockedSchemas';
 
 import styles from './styles.module.scss';
 
+/* ToDo: Delete this component and its implementations once QA process is done for EFB support in das-web-react */
 const SchemaSelector = ({ onChange }) => {
 
   const handleOnChange = (event) => {

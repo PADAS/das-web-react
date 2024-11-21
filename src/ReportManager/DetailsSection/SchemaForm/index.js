@@ -53,7 +53,7 @@ const SchemaForm = ({ onFormChange, formData, onFormSubmit, renderSubmitButton, 
     <SchemaSelector onChange={handleOnSchemaSelectorChange} />
     <form onSubmit={handleOnSubmit} className={className}>
       {
-        schema && schema.ui.order.map((sectionName) => (
+        schema?.ui?.order?.map((sectionName) => (
           <Section sectionName={sectionName} key={sectionName} />
         ))
       }

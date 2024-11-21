@@ -43,12 +43,13 @@ import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
-import SchemaForm from '../SchemaForm';
+import SchemaForm from './SchemaForm';
 
 import styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
+const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
 
 const DetailsSection = ({
   formSchema,
@@ -72,7 +73,6 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isNewFormSchemaSupportEnabled = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -221,7 +221,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && !isNewFormSchemaSupportEnabled && <Form
+    {!!formSchema && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -245,7 +245,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && isNewFormSchemaSupportEnabled &&
+    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED &&
       <SchemaForm
           schema={formSchema}
           onFormSubmit={onFormSubmit}
@@ -254,7 +254,7 @@ const DetailsSection = ({
           renderSubmitButton={renderSchemaFormSubmitButton} />
     }
 
-    {!formSchema && !reportForm.is_collection && !isNewFormSchemaSupportEnabled && loadingSchema && <ResizeSpinLoader
+    {!formSchema && !reportForm.is_collection && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}
