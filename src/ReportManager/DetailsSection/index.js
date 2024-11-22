@@ -41,7 +41,7 @@ import GeometryPreview from './AreaSelectorInput/GeometryPreview';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
-import SchemaForm from '../SchemaForm';
+import SchemaForm from './SchemaForm';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
@@ -75,12 +75,17 @@ const DetailsSection = ({
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  // TODO: Temporary solution to test new schemas. This should be deleted.
+  const schemaFromSchemaSelector = useSelector((state) => state.view.schemaSelector.schema);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
 
   const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
+
+  // TODO: Change to read the draft of the schema.
+  const isNewDraftSchema = EFB_FORM_SCHEMA_SUPPORT_ENABLED;
 
   const geometryType = useMemo(() =>
     reportForm
@@ -224,7 +229,7 @@ const DetailsSection = ({
       </div>
     </div>
 
-    {!!formSchema && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && <Form
+    {!!formSchema && !isNewDraftSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -248,15 +253,16 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && <SchemaForm
+    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && isNewDraftSchema && <SchemaForm
       formData={reportForm.event_details}
       onFormChange={onFormChange}
       onFormSubmit={onFormSubmit}
       renderSubmitButton={renderSchemaFormSubmitButton}
-      schema={formSchema}
+      // TODO: Inject real schema.
+      schema={schemaFromSchemaSelector}
     />}
 
-    {!formSchema && !reportForm.is_collection && !EFB_FORM_SCHEMA_SUPPORT_ENABLED && loadingSchema && <ResizeSpinLoader
+    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}

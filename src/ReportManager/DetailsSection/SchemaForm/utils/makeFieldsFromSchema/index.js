@@ -142,14 +142,14 @@ const addSectionToFieldsObject = (sectionId, fields, jsonSchema, uiSchema) => {
     type: FORM_ELEMENT_TYPES.SECTION,
   };
 
-  // Then we add its children.
+  // Then we add its active children.
   const sectionChildren = [
     ...fields[sectionId].details.leftColumn,
     ...fields[sectionId].details.rightColumn,
   ];
   sectionChildren.forEach((sectionChildId) => {
     if (uiSchema.fields[sectionChildId]) {
-      // If the child is a field, we add it and its children too.
+      // If the child is a field, we add it and its active children too.
       addFieldToFieldsObjectRecursively(
         sectionChildId,
         fields,
@@ -157,7 +157,7 @@ const addSectionToFieldsObject = (sectionId, fields, jsonSchema, uiSchema) => {
         uiSchema,
       );
     } else if (uiSchema.headers[sectionChildId]) {
-      // If its a header, add it.
+      // Headers can't be inactive so we always add them.
       addHeaderToFieldsObject(sectionChildId, fields, uiSchema);
     }
   });
