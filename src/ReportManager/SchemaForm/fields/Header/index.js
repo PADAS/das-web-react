@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
-import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
+import { SchemaFormContext } from '../../SchemaFormContext';
 
+const Header = ({ id }) => {
+  const { fields } = useContext(SchemaFormContext);
 
-const Header = ({ fieldName }) => {
-  const headerDetails = useFieldDetails(fieldName);
-  return <div>{headerDetails.label}</div>;
+  const { details } = fields[id];
+
+  return <h4>{details.label}</h4>;
 };
 
 export default Header;

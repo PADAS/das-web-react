@@ -10,6 +10,7 @@
   height: 4rem;
   position: relative;
   width: 100%;
+  z-index: 1;
 
   @media (min-width: $md-layout-width-min) {
     height: 5rem;

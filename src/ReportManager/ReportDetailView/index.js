@@ -818,6 +818,7 @@ const ReportDetailView = ({
 
             <QuickLinks.Section
               anchorTitle={t('reportDetailView.quickLinks.activityAnchor')}
+              className={styles.section}
               hidden={!shouldRenderActivitySection}
             >
               <ActivitySection
@@ -840,6 +841,7 @@ const ReportDetailView = ({
 
             <QuickLinks.Section
               anchorTitle={t('reportDetailView.quickLinks.linksAnchor')}
+              className={styles.section}
               hidden={!shouldRenderLinksSection}
             >
               <LinksSection linkedPatrols={linkedPatrols} linkedReports={linkedReports} />
@@ -849,6 +851,7 @@ const ReportDetailView = ({
 
             <QuickLinks.Section
               anchorTitle={t('reportDetailView.quickLinks.historyAnchor')}
+              className={styles.section}
               hidden={!shouldRenderHistorySection}
             >
               <HistorySection className={styles.historySection} updates={reportForm?.updates || []} />

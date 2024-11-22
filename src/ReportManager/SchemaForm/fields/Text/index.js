@@ -1,26 +1,23 @@
 import React, { useContext } from 'react';
 
-import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 import { SchemaFormContext } from '../../SchemaFormContext';
-import { isFieldRequired } from '../../utils';
 
-
-const ShortTextInput = ({ textFieldDetails, fieldName, onChange }) => (
-  <input id={fieldName}
-           value={textFieldDetails.value}
+const ShortTextInput = ({ details, id, onChange }) => (
+  <input id={id}
+           value={details.value}
            type="text"
-           defaultValue={textFieldDetails.defaultInput}
-           placeholder={textFieldDetails.placeholder}
+           defaultValue={details.defaultInput}
+           placeholder={details.placeholder}
            onChange={onChange}
-           data-testid={`schema-form-short-text-field-input-${fieldName}`} />
+           data-testid={`schema-form-short-text-field-input-${id}`} />
 );
 
-const LongTextInput = ({ textFieldDetails, fieldName, onChange }) => (
-  <textarea id={fieldName} value={textFieldDetails.value}
-            defaultValue={textFieldDetails.defaultInput}
-            placeholder={textFieldDetails.placeholder}
+const LongTextInput = ({ details, id, onChange }) => (
+  <textarea id={id} value={details.value}
+            defaultValue={details.defaultInput}
+            placeholder={details.placeholder}
             onChange={onChange}
-            data-testid={`schema-form-long-text-field-input-${fieldName}`}>
+            data-testid={`schema-form-long-text-field-input-${id}`}>
   </textarea>
 );
 
@@ -34,16 +31,6 @@ const TEXT_INPUT_TYPE_TO_INPUT = {
   [INPUT_TYPE.LONG]: LongTextInput,
 };
 
-const VALIDATION_ERROR_TYPES = {
-  REQUIRED: 'required'
-};
-
-export const TextFieldValidators = {
-  [VALIDATION_ERROR_TYPES.REQUIRED]: (fieldValue, fieldName, schema) => {
-    return isFieldRequired(fieldName, schema) ? !fieldValue : false;
-  }
-};
-
 /*ToDo:
 * error message for i18n
 * styling
@@ -51,20 +38,22 @@ export const TextFieldValidators = {
 * validation for text length
 * */
 
-const Text = ({ fieldName }) => {
-  const textFieldDetails = useFieldDetails(fieldName);
-  const label = textFieldDetails.isRequired ? `${textFieldDetails.label} *` : textFieldDetails.label;
-  const TextInput = TEXT_INPUT_TYPE_TO_INPUT[textFieldDetails.inputType];
-  const { onFieldChange } = useContext(SchemaFormContext);
+const Text = ({ id }) => {
+  const { fields, onFieldChange } = useContext(SchemaFormContext);
 
-  const handleOnChange = (event) => onFieldChange(fieldName, event.currentTarget.value);
+  const { details } = fields[id];
 
-  return <div data-testid={`schema-form-text-field-${fieldName}`}>
-    <label htmlFor={fieldName}>{label}</label>
-    <TextInput textFieldDetails={textFieldDetails} fieldName={fieldName} onChange={handleOnChange} />
-    <p>{textFieldDetails.description}</p>
+  const label = details.isRequired ? `${details.label} *` : details.label;
+  const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
+
+  const handleOnChange = (event) => onFieldChange(id, event.currentTarget.value);
+
+  return <div data-testid={`schema-form-text-field-${id}`}>
+    <label htmlFor={id}>{label}</label>
+    <TextInput details={details} id={id} onChange={handleOnChange} />
+    <p>{details.description}</p>
     {
-      textFieldDetails.error && (
+      details.error && (
         <p>Error message</p> /*ToDo: add i18n error message*/
       )
     }

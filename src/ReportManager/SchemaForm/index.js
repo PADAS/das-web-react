@@ -1,62 +1,58 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import Section from './fields/Section';
+import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 
-import { FORM_FIELDS_TYPES } from './constants';
-import { TextFieldValidators } from './fields/Text';
+import Header from './fields/Header';
 import SchemaFormContextProvider from './SchemaFormContext';
 import SchemaSelector from './SchemaSelector';
-import { getFieldUIType, isFieldActive } from './utils';
+import Section from './fields/Section';
+import Text from './fields/Text';
 
-const FormFieldValidators = {
-  [FORM_FIELDS_TYPES.TEXT]: TextFieldValidators
+export const FIELDS = {
+  [FORM_ELEMENT_TYPES.HEADER]: Header,
+  [FORM_ELEMENT_TYPES.SECTION]: Section,
+  [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
-const SchemaForm = ({ onFormChange, formData, onFormSubmit, renderSubmitButton, className }) => {
-
+const SchemaForm = ({ formData, onFormChange, onFormSubmit, renderSubmitButton, schema: _schema }) => {
   const [formErrors, setFormErrors] = useState({});
+  // TODO: This schema is temporal, we should use the one coming from the props
   const [schema, setSchema] = useState(null);
 
-  const handleOnSubmit = (e) => {
-    e.preventDefault();
+  const fields = useMemo(() => schema ? makeFieldsFromSchema(schema) : {}, [schema]);
+  console.log(fields);
 
-    const formErr = {};
+  const handleOnSubmit = (event) => {
+    event.preventDefault();
 
-    for (const [fieldName, fieldValue] of Object.entries(formData)) {
+    // TODO: Get the form errors from AJV compiling the JSON schema and validating the data
+    const newFormErrors = {};
+    setFormErrors(newFormErrors);
 
-      if (isFieldActive(fieldName, schema)) {
-        const fieldUIType = getFieldUIType(fieldName, schema);
-        const validators = FormFieldValidators[fieldUIType];
-
-        for (const [errorType, validatorFn] of Object.entries(validators)) {
-          const hasError = validatorFn(fieldValue, fieldName, schema);
-          if (hasError){
-            formErr[fieldName] = errorType;
-            break; // breaking the loop for the current field to avoid handling multiple errors per field on screen
-          }
-        }
-      }
-    }
-
-    setFormErrors(formErr);
-
-    if ( Object.keys(formErr).length === 0 ){
+    if (Object.keys(newFormErrors).length === 0) {
       onFormSubmit({ formData });
     }
   };
 
-  const handleOnSchemaSelectorChange = (selectedSchema) => {
-    setSchema(selectedSchema);
+  const renderField = (fieldId) => {
+    const { type } = fields[fieldId];
+
+    const Field = FIELDS[type];
+
+    return <Field id={fieldId} renderField={renderField} />;
   };
 
-  return <SchemaFormContextProvider schema={schema} formData={formData} onFormChange={onFormChange} formErrors={formErrors} >
-    <SchemaSelector onChange={handleOnSchemaSelectorChange} />
-    <form onSubmit={handleOnSubmit} className={className}>
-      {
-        schema && schema.ui.order.map((sectionName) => (
-          <Section sectionName={sectionName} key={sectionName} />
-        ))
-      }
+  return <SchemaFormContextProvider fields={fields} formErrors={formErrors} onFormChange={onFormChange}>
+    <SchemaSelector onChange={(selectedSchema) => setSchema(selectedSchema)} />
+
+    <form onSubmit={handleOnSubmit}>
+      {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
+        id={sectionId}
+        key={sectionId}
+        renderField={renderField}
+      />)}
+
       {renderSubmitButton()}
     </form>
   </SchemaFormContextProvider>;
