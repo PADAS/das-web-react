@@ -1,54 +1,61 @@
 const schemaWithBasicText = {
-  label: 'A really basic text field created from EFB 2025',
+  label: 'Long and short text',
   schema: {
     'json': {
       '$schema': 'https://json-schema.org/draft/2020-12/schema',
       'additionalProperties': false,
       'properties': {
-        'this_is_a_text': {
-          'default': 'initial value',
+        'short_text': {
+          'default': '',
           'deprecated': false,
-          'description': 'some good description',
-          'title': 'This is a text',
+          'description': 'This text will help you a lot in the field when you need extra information about the event.',
+          'title': 'Short text',
+          'type': 'string'
+        },
+        'long_text': {
+          'default': '',
+          'deprecated': false,
+          'description': 'Please add more information about this long text stuff',
+          'title': 'Long text',
           'type': 'string'
         }
       },
       'required': [
-        'this_is_a_text'
+        'short_text'
       ],
       'type': 'object'
     },
     'ui': {
       'fields': {
-        'this_is_a_text': {
+        'short_text': {
           'inputType': 'SHORT_TEXT',
-          'placeholder': 'a placeholder',
+          'placeholder': 'Ex. of data',
           'type': 'TEXT',
-          'parent': 'section-_PdgePvPWyACfu9sgN_F6'
+          'parent': 'section-GQi_CTfZ9ZH-CcSnr-OKa'
+        },
+        'long_text': {
+          'inputType': 'LONG_TEXT',
+          'placeholder': 'This is an example of long text',
+          'type': 'TEXT',
+          'parent': 'section-GQi_CTfZ9ZH-CcSnr-OKa'
         }
       },
-      'headers': {
-        'header-ghqdjqGinaJMptIEJBQmO': {
-          'label': 'A great header',
-          'section': 'section-_PdgePvPWyACfu9sgN_F6',
-          'size': 'LARGE'
-        }
-      },
+      'headers': {},
       'order': [
-        'section-_PdgePvPWyACfu9sgN_F6'
+        'section-GQi_CTfZ9ZH-CcSnr-OKa'
       ],
       'sections': {
-        'section-_PdgePvPWyACfu9sgN_F6': {
+        'section-GQi_CTfZ9ZH-CcSnr-OKa': {
           'columns': 1,
           'isActive': true,
           'label': '',
           'leftColumn': [
             {
-              'name': 'header-ghqdjqGinaJMptIEJBQmO',
-              'type': 'header'
+              'name': 'short_text',
+              'type': 'field'
             },
             {
-              'name': 'this_is_a_text',
+              'name': 'long_text',
               'type': 'field'
             }
           ],

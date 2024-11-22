@@ -4,23 +4,25 @@ import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 import { SchemaFormContext } from '../../SchemaFormContext';
 import { isFieldRequired } from '../../utils';
 
+import styles from './styles.module.scss';
 
-const ShortTextInput = ({ textFieldDetails, fieldName, onChange }) => (
+const ShortTextInput = ({ textFieldDetails, fieldName, onChange, className }) => (
   <input id={fieldName}
-           value={textFieldDetails.value}
            type="text"
-           defaultValue={textFieldDetails.defaultInput}
+           value={textFieldDetails.value || textFieldDetails.defaultInput}
            placeholder={textFieldDetails.placeholder}
            onChange={onChange}
-           data-testid={`schema-form-short-text-field-input-${fieldName}`} />
+           data-testid={`schema-form-short-text-field-input-${fieldName}`}
+           className={className} />
 );
 
-const LongTextInput = ({ textFieldDetails, fieldName, onChange }) => (
-  <textarea id={fieldName} value={textFieldDetails.value}
-            defaultValue={textFieldDetails.defaultInput}
+const LongTextInput = ({ textFieldDetails, fieldName, onChange, className }) => (
+  <textarea id={fieldName}
+            value={textFieldDetails.value || textFieldDetails.defaultInput}
             placeholder={textFieldDetails.placeholder}
             onChange={onChange}
-            data-testid={`schema-form-long-text-field-input-${fieldName}`}>
+            data-testid={`schema-form-long-text-field-input-${fieldName}`}
+            className={className}>
   </textarea>
 );
 
@@ -44,30 +46,35 @@ export const TextFieldValidators = {
   }
 };
 
-/*ToDo:
-* error message for i18n
-* styling
-* coverage
-* validation for text length
-* */
-
 const Text = ({ fieldName }) => {
   const textFieldDetails = useFieldDetails(fieldName);
   const label = textFieldDetails.isRequired ? `${textFieldDetails.label} *` : textFieldDetails.label;
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[textFieldDetails.inputType];
   const { onFieldChange } = useContext(SchemaFormContext);
 
+  const stylesTheme = {
+    [INPUT_TYPE.SHORT]: styles.shortText,
+    [INPUT_TYPE.LONG]: styles.longText
+  };
+
   const handleOnChange = (event) => onFieldChange(fieldName, event.currentTarget.value);
 
   return <div data-testid={`schema-form-text-field-${fieldName}`}>
-    <label htmlFor={fieldName}>{label}</label>
-    <TextInput textFieldDetails={textFieldDetails} fieldName={fieldName} onChange={handleOnChange} />
-    <p>{textFieldDetails.description}</p>
-    {
-      textFieldDetails.error && (
-        <p>Error message</p> /*ToDo: add i18n error message*/
-      )
+    <label className={styles.label} htmlFor={fieldName}>
+      {label}
+    </label>
+
+    <TextInput
+        textFieldDetails={textFieldDetails}
+        fieldName={fieldName}
+        onChange={handleOnChange}
+        className={`${styles.textInput} ${stylesTheme[textFieldDetails.inputType]}`} />
+
+    { textFieldDetails.description && <p className={styles.description}>
+      {textFieldDetails.description}
+    </p>
     }
+
   </div>;
 };
 
