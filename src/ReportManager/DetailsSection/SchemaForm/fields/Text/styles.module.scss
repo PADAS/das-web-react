@@ -1,0 +1,29 @@
+@import "src/common/styles/vars/colors";
+
+.label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: $secondary-medium-gray;
+  display: block;
+}
+
+.textInput {
+  width: 100%;
+}
+
+.shortText {
+  height: 2.5rem;
+}
+
+.longText {
+  margin-bottom: -0.4rem;
+  max-height: 10rem;
+  min-height: 2.5rem;
+}
+
+.description {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: $alt-light-gray;
+  line-height: 1rem;
+}

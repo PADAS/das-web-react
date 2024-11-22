@@ -2,41 +2,30 @@ import React, { useContext } from 'react';
 
 import { SchemaFormContext } from '../../SchemaFormContext';
 
-const ShortTextInput = ({ details, id, onChange }) => (
-  <input id={id}
-           value={details.value}
-           type="text"
-           defaultValue={details.defaultInput}
-           placeholder={details.placeholder}
-           onChange={onChange}
-           data-testid={`schema-form-short-text-field-input-${id}`} />
-);
+import styles from './styles.module.scss';
 
-const LongTextInput = ({ details, id, onChange }) => (
-  <textarea id={id} value={details.value}
-            defaultValue={details.defaultInput}
-            placeholder={details.placeholder}
-            onChange={onChange}
-            data-testid={`schema-form-long-text-field-input-${id}`}>
-  </textarea>
-);
+const INPUT_TYPE = { SHORT: 'SHORT_TEXT', LONG: 'LONG_TEXT' };
 
-const INPUT_TYPE = {
-  SHORT: 'SHORT_TEXT',
-  LONG: 'LONG_TEXT'
-};
+const ShortTextInput = ({ className, details, id, onChange }) => <input
+  className={className}
+  data-testid={`schema-form-short-text-field-input-${id}`}
+  id={id}
+  onChange={onChange}
+  placeholder={details.placeholder}
+  type="text"
+  value={details.value || details.defaultInput}
+/>;
 
-const TEXT_INPUT_TYPE_TO_INPUT = {
-  [INPUT_TYPE.SHORT]: ShortTextInput,
-  [INPUT_TYPE.LONG]: LongTextInput,
-};
+const LongTextInput = ({ className, details, id, onChange }) => <textarea
+  className={className}
+  data-testid={`schema-form-long-text-field-input-${id}`}
+  id={id}
+  onChange={onChange}
+  placeholder={details.placeholder}
+  value={details.value || details.defaultInput}
+/>;
 
-/*ToDo:
-* error message for i18n
-* styling
-* coverage
-* validation for text length
-* */
+const TEXT_INPUT_TYPE_TO_INPUT = { [INPUT_TYPE.SHORT]: ShortTextInput, [INPUT_TYPE.LONG]: LongTextInput };
 
 const Text = ({ id }) => {
   const { fields, onFieldChange } = useContext(SchemaFormContext);
@@ -46,17 +35,19 @@ const Text = ({ id }) => {
   const label = details.isRequired ? `${details.label} *` : details.label;
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
 
-  const handleOnChange = (event) => onFieldChange(id, event.currentTarget.value);
+  const stylesTheme = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
 
   return <div data-testid={`schema-form-text-field-${id}`}>
-    <label htmlFor={id}>{label}</label>
-    <TextInput details={details} id={id} onChange={handleOnChange} />
-    <p>{details.description}</p>
-    {
-      details.error && (
-        <p>Error message</p> /*ToDo: add i18n error message*/
-      )
-    }
+    <label className={styles.label} htmlFor={id}>{label}</label>
+
+    <TextInput
+      className={`${styles.textInput} ${stylesTheme[details.inputType]}`}
+      details={details}
+      id={id}
+      onChange={(event) => onFieldChange(id, event.currentTarget.value)}
+    />
+
+    {details.description && <p className={styles.description}>{details.description}</p>}
   </div>;
 };
 
