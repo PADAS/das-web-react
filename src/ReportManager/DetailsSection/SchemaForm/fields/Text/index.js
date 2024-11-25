@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 
 import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
 import { SchemaFormContext } from '../../SchemaFormContext';
-import { isFieldRequired } from '../../utils';
 
 import styles from './styles.module.scss';
 
@@ -36,14 +35,9 @@ const TEXT_INPUT_TYPE_TO_INPUT = {
   [INPUT_TYPE.LONG]: LongTextInput,
 };
 
-const VALIDATION_ERROR_TYPES = {
-  REQUIRED: 'required'
-};
-
-export const TextFieldValidators = {
-  [VALIDATION_ERROR_TYPES.REQUIRED]: (fieldValue, fieldName, schema) => {
-    return isFieldRequired(fieldName, schema) ? !fieldValue : false;
-  }
+const STYLES_THEME = {
+  [INPUT_TYPE.SHORT]: styles.shortText,
+  [INPUT_TYPE.LONG]: styles.longText
 };
 
 const Text = ({ fieldName }) => {
@@ -52,10 +46,6 @@ const Text = ({ fieldName }) => {
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[textFieldDetails.inputType];
   const { onFieldChange } = useContext(SchemaFormContext);
 
-  const stylesTheme = {
-    [INPUT_TYPE.SHORT]: styles.shortText,
-    [INPUT_TYPE.LONG]: styles.longText
-  };
 
   const handleOnChange = (event) => onFieldChange(fieldName, event.currentTarget.value);
 
@@ -68,7 +58,7 @@ const Text = ({ fieldName }) => {
         textFieldDetails={textFieldDetails}
         fieldName={fieldName}
         onChange={handleOnChange}
-        className={`${styles.textInput} ${stylesTheme[textFieldDetails.inputType]}`} />
+        className={`${styles.textInput} ${STYLES_THEME[textFieldDetails.inputType]}`} />
 
     { textFieldDetails.description && <p className={styles.description}>
       {textFieldDetails.description}

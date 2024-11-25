@@ -16,14 +16,17 @@
 }
 
 .longText {
-  margin-bottom: -0.4rem;
+  margin-bottom: -0.5rem;
   max-height: 10rem;
   min-height: 2.5rem;
+  border: 1px solid #d8d9d9;
+  padding: 0.5rem;
 }
 
 .description {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 400;
   color: $alt-light-gray;
   line-height: 1rem;
+  margin-top: 0.2rem;
 }
