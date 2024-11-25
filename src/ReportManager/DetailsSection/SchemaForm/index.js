@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
@@ -15,20 +15,13 @@ export const FIELDS = {
 };
 
 const SchemaForm = ({ formData, onFormChange, onFormSubmit, renderSubmitButton, schema }) => {
-  const [formErrors, setFormErrors] = useState({});
-
   const fields = useMemo(() => schema ? makeFieldsFromSchema(schema) : {}, [schema]);
 
   const handleOnSubmit = (event) => {
     event.preventDefault();
 
-    // TODO: Get the form errors from AJV compiling the JSON schema and validating the data.
-    const newFormErrors = {};
-    setFormErrors(newFormErrors);
-
-    if (Object.keys(newFormErrors).length === 0) {
-      onFormSubmit({ formData });
-    }
+    // TODO: Add form validation with AJV before submission and show errors.
+    onFormSubmit({ formData });
   };
 
   const renderField = (fieldId) => {
@@ -39,7 +32,7 @@ const SchemaForm = ({ formData, onFormChange, onFormSubmit, renderSubmitButton, 
     return <Field id={fieldId} key={fieldId} renderField={renderField} />;
   };
 
-  return <SchemaFormContextProvider fields={fields} formErrors={formErrors} onFormChange={onFormChange}>
+  return <SchemaFormContextProvider fields={fields} onFormChange={onFormChange}>
     <form onSubmit={handleOnSubmit}>
       {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
         id={sectionId}

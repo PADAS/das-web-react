@@ -26,6 +26,7 @@ const LongTextInput = ({ className, details, id, onChange }) => <textarea
 />;
 
 const TEXT_INPUT_TYPE_TO_INPUT = { [INPUT_TYPE.SHORT]: ShortTextInput, [INPUT_TYPE.LONG]: LongTextInput };
+const TEXT_INPUT_TYPE_STYLES = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
 
 const Text = ({ id }) => {
   const { fields, onFieldChange } = useContext(SchemaFormContext);
@@ -35,13 +36,11 @@ const Text = ({ id }) => {
   const label = details.isRequired ? `${details.label} *` : details.label;
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
 
-  const stylesTheme = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
-
   return <div data-testid={`schema-form-text-field-${id}`}>
     <label className={styles.label} htmlFor={id}>{label}</label>
 
     <TextInput
-      className={`${styles.textInput} ${stylesTheme[details.inputType]}`}
+      className={`${styles.textInput} ${TEXT_INPUT_TYPE_STYLES[details.inputType]}`}
       details={details}
       id={id}
       onChange={(event) => onFieldChange(id, event.currentTarget.value)}

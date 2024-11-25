@@ -1,3 +1,5 @@
+/*ToDo: Delete this file once mock data is no longer needed for EFB support*/
+
 import globallyResettableReducer from '../reducers/global-resettable';
 
 const SET_MOCKED_JSON_SCHEMA = 'SET_MOCKED_JSON_SCHEMA';
