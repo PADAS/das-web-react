@@ -174,8 +174,7 @@ export const makeFieldsFromSchema = (schema) => {
   };
 
   // Then we add the active sections one by one.
-  Object.keys(schema.ui.sections)
-    .filter((sectionId) => schema.ui.sections[sectionId].isActive)
+  fields[ROOT_CANVAS_ID].details.fields
     .forEach((sectionId) => addSectionToFieldsObject(sectionId, fields, schema.json, schema.ui));
 
   return fields;

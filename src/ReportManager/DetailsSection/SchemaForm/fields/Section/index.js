@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 
 import { SchemaFormContext } from '../../SchemaFormContext';
 
@@ -22,6 +23,11 @@ const Section = ({ id, renderField }) => {
       </div>}
     </div>
   </div>;
+};
+
+Section.propTypes = {
+  id: PropTypes.string.isRequired,
+  renderField: PropTypes.func.isRequired,
 };
 
 export default Section;
