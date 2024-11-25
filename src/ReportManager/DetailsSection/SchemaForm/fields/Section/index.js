@@ -13,11 +13,11 @@ const Section = ({ id, renderField }) => {
     {details.label && <h3 className={styles.header}>{details.label}</h3>}
 
     <div className={styles.columns}>
-      <div className={details.columns === 1 ? styles.fullWidthColumn : styles.halfWidthColumn}>
+      <div className={details.columns === 1 ? styles.fullWidthColumn : styles.halfWidthColumnLeft}>
         {details.leftColumn.map((fieldId) => renderField(fieldId))}
       </div>
 
-      {details.columns === 2 && <div className={styles.halfWidthColumn}>
+      {details.columns === 2 && <div className={styles.halfWidthColumnRight}>
         {details.rightColumn.map((fieldId) => renderField(fieldId))}
       </div>}
     </div>

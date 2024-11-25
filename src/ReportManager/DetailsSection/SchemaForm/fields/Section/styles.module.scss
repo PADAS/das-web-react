@@ -22,7 +22,13 @@
       width: 100%;
     }
   
-    .halfWidthColumn {
+    .halfWidthColumnLeft {
+      padding-right: 0.5rem;
+      width: 50%;
+    }
+  
+    .halfWidthColumnRight {
+      padding-left: 0.5rem;
       width: 50%;
     }
   }
