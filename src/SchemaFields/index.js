@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
-import { components } from 'react-select';
 import Form from 'react-bootstrap/Form';
 import isPlainObject from 'lodash/isPlainObject';
 import { useTranslation } from 'react-i18next';

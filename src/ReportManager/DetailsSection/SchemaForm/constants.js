@@ -1,3 +1,13 @@
+export const CHOICE_LIST_ELEMENT_CHOICE_TYPES = {
+  EXISTING_CHOICE_LIST: 'EXISTING_CHOICE_LIST',
+  MY_DATA: 'MY_DATA',
+};
+
+export const CHOICE_LIST_ELEMENT_INPUT_TYPES = {
+  DROPDOWN: 'DROPDOWN',
+  LIST: 'LIST',
+};
+
 export const DATE_TIME_ELEMENT_INPUT_TYPES = {
   DATE_TIME: 'DATE_TIME',
   DATE: 'DATE',
@@ -16,4 +26,15 @@ export const FORM_ELEMENT_TYPES = {
   TEXT: 'TEXT',
 };
 
+export const HEADER_ELEMENT_SIZES = {
+  LARGE: 'LARGE',
+  MEDIUM: 'MEDIUM',
+  SMALL: 'SMALL',
+};
+
 export const ROOT_CANVAS_ID = 'root';
+
+export const TEXT_ELEMENT_INPUT_TYPES = {
+  SHORT: 'SHORT_TEXT',
+  LONG: 'LONG_TEXT',
+};

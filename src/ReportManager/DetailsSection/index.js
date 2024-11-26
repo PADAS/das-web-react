@@ -10,12 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
-import {
-  DEVELOPMENT_FEATURE_FLAGS,
-  EVENT_FORM_STATES,
-  FEATURE_FLAG_LABELS,
-  VALID_EVENT_GEOMETRY_TYPES
-} from '../../constants';
+import { EVENT_FORM_STATES, FEATURE_FLAG_LABELS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -23,6 +18,7 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
+import { useFeatureFlag } from '../../hooks';
 
 import {
   AddButton,
@@ -45,8 +41,6 @@ import SchemaForm from './SchemaForm';
 import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
-
-const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
@@ -74,9 +68,13 @@ const DetailsSection = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
+  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
+
   const eventTypes = useSelector((state) => state.data.eventTypes);
   // TODO: Temporary solution to test new schemas. This should be deleted.
-  const schemaFromSchemaSelector = useSelector((state) => state.view.schemaSelector.schema);
+  const schemaFromSchemaSelector = useSelector(
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema : null
+  );
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
 
@@ -85,7 +83,7 @@ const DetailsSection = ({
   const reportTime = new Date(reportForm?.time);
 
   // TODO: Change to read the draft of the schema.
-  const isNewDraftSchema = EFB_FORM_SCHEMA_SUPPORT_ENABLED;
+  const isNewDraftSchema = efbFormSchemaSupportEnabled;
 
   const geometryType = useMemo(() =>
     reportForm
@@ -253,7 +251,7 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && isNewDraftSchema && <SchemaForm
+    {!!formSchema && efbFormSchemaSupportEnabled && isNewDraftSchema && <SchemaForm
       formData={reportForm.event_details}
       onFormChange={onFormChange}
       onFormSubmit={onFormSubmit}

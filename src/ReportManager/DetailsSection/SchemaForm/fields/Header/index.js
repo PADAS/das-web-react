@@ -8,7 +8,7 @@ const Header = ({ id }) => {
 
   const { details } = fields[id];
 
-  return <h4>{details.label}</h4>;
+  return <h4 data-testid={`schema-form-header-${id}`}>{details.label}</h4>;
 };
 
 Header.propTypes = { id: PropTypes.string.isRequired };

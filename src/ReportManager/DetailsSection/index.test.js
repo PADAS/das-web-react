@@ -17,32 +17,17 @@ import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
 
-let map;
-const onFormChange = jest.fn(),
-  onFormError = jest.fn(),
-  onFormSubmit = jest.fn(),
-  onReportedByChange = jest.fn(),
-  onReportDateChange = jest.fn(),
-  onReportGeometryChange = jest.fn(),
-  onReportLocationChange = jest.fn(),
-  onReportStateChange = jest.fn(),
-  onReportTimeChange = jest.fn();
-const store = {
-  data: {
-    subjectStore: {},
-    eventStore: {},
-    eventTypes,
-    patrolTypes,
-    eventSchemas,
-  },
-  view: {
-    mapLocationSelection: { isPickingLocation: false },
-    sideBar: {},
-    userPreferences: { gpsFormat: GPS_FORMATS.DEG },
-  },
-};
-
 describe('ReportManager - DetailsSection', () => {
+  const onFormChange = jest.fn(),
+    onFormError = jest.fn(),
+    onFormSubmit = jest.fn(),
+    onReportedByChange = jest.fn(),
+    onReportDateChange = jest.fn(),
+    onReportGeometryChange = jest.fn(),
+    onReportLocationChange = jest.fn(),
+    onReportStateChange = jest.fn(),
+    onReportTimeChange = jest.fn();
+
   eventSchemas.globalSchema.properties.reported_by.enum_ext[0].value = {
     id: '1234',
     name: 'Canek',
@@ -58,10 +43,28 @@ describe('ReportManager - DetailsSection', () => {
     image_url: '/static/ranger-black.svg'
   };
 
+  let map, store;
   beforeEach(() => {
     jest.useFakeTimers();
 
     map = createMapMock();
+
+    store = {
+      data: {
+        subjectStore: {},
+        eventStore: {},
+        eventTypes,
+        patrolTypes,
+        eventSchemas,
+      },
+      view: {
+        featureFlagOverrides: {},
+        mapLocationSelection: { isPickingLocation: false },
+        schemaSelector: { schema: {} },
+        sideBar: {},
+        userPreferences: { gpsFormat: GPS_FORMATS.DEG },
+      },
+    };
   });
 
   afterEach(() => {
@@ -720,4 +723,13 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportStateChange).toHaveBeenCalledTimes(1);
     expect(onReportStateChange.mock.calls[0][0]).toBe('resolved');
   });
+
+  // TODO: Add tests once we assign isNewDraftSchema from the $schema property.
+  // test('renders the form for schemas with Draft-04 or Draft-06', () => {
+
+  // });
+
+  // test('renders the form for schemas with Draft 2020-12', () => {
+
+  // });
 });
