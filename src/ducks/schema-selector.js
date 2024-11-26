@@ -15,6 +15,7 @@ const INITIAL_SCHEMA_SELECTOR_STATE = {
 
 const schemaSelectorReducer = (state, action) => {
   const { payload, type } = action;
+  debugger
   if (type === SET_MOCKED_JSON_SCHEMA) {
     return {
       schema: payload
