@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import schemas from './mockedSchemas';
 
@@ -10,16 +10,18 @@ import { setMockedJSONSchema } from '../../../ducks/schema-selector';
 const SchemaSelector = () => {
   const dispatch = useDispatch();
 
+  const mockedFormSchema = useSelector(({ view: { schemaSelector: { schema } = {} } }) => schema ?? {});
+
   const handleOnChange = (event) => dispatch(
-    setMockedJSONSchema( schemas.find( ({ label }) => label === event.target.value)?.schema )
+    setMockedJSONSchema( schemas.find( ({ label }) => label === event.target.value) )
   );
 
   return <>
     <h3 className={styles.label}>
       Selection of Mocked EFB Schema
     </h3>
-    <select defaultValue={null} onChange={handleOnChange} className={styles.select}>
-      <option value={null}>None</option>
+    <select value={mockedFormSchema.label} onChange={handleOnChange} className={styles.select}>
+      <option>None</option>
       {
         schemas.map((schemaItem) =>
           <option value={schemaItem.label} key={schemaItem.label}>
