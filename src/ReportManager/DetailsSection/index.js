@@ -251,14 +251,19 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && efbFormSchemaSupportEnabled && isNewDraftSchema && <SchemaForm
-      formData={reportForm.event_details}
-      onFormChange={onFormChange}
-      onFormSubmit={onFormSubmit}
-      renderSubmitButton={renderSchemaFormSubmitButton}
-      // TODO: Inject real schema.
-      schema={schemaFromSchemaSelector}
-    />}
+    {!!formSchema && efbFormSchemaSupportEnabled && isNewDraftSchema && <>
+      {/* TODO: Remove this label once full EFb support is released, it was added here to facilitate QA process */}
+      <label className={styles.selectedFormSchema}>Selected schema: {schemaFromSchemaSelector?.label}</label>
+
+      <SchemaForm
+        formData={reportForm.event_details}
+        onFormChange={onFormChange}
+        onFormSubmit={onFormSubmit}
+        renderSubmitButton={renderSchemaFormSubmitButton}
+        // TODO: Inject real schema.
+        schema={schemaFromSchemaSelector?.schema}
+      />
+    </>}
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
