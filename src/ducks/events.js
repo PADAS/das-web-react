@@ -11,6 +11,7 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
+import parallelPaginatedQuery from "./paralelizedPagination";
 
 export const EVENTS_API_URL = (
   process.env.REACT_APP_MOCK_EVENTS_API === 'true'
@@ -441,6 +442,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
   });
 
   let resultsToDate = [];
+
   const onEachRequest = onePageOfResults => {
     resultsToDate = [...resultsToDate, ...onePageOfResults];
     dispatch(fetchMapEventsPageSuccess(onePageOfResults));
@@ -451,7 +453,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
   });
 
 
-  return recursivePaginatedQuery(request, onEachRequest)
+  return parallelPaginatedQuery(request, { onPageFetch: onEachRequest })
     .then((finalResults) => {
       finalResults && dispatch(fetchMapEventsComplete(finalResults));
     })
