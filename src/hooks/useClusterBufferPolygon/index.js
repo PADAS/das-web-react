@@ -1,8 +1,5 @@
 import React, { useCallback, useContext, useState } from 'react';
-import buffer from '@turf/buffer';
-import concave from '@turf/concave';
-import { featureCollection } from '@turf/helpers';
-import simplify from '@turf/simplify';
+import { buffer, concave, featureCollection, simplify } from '@turf/turf';
 
 import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
 import { MapContext } from '../../App';

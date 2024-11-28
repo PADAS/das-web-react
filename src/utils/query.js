@@ -1,14 +1,9 @@
 import axios, { isCancel } from 'axios';
+import { bbox, bboxPolygon, buffer, distance, point } from '@turf/turf';
 import toString from 'lodash/toString';
 import isArrayLike from 'lodash/isArrayLike';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-
-import bbox from '@turf/bbox';
-import buffer from '@turf/buffer';
-import bboxPolygon from '@turf/bbox-polygon';
-import distance from '@turf/distance';
-import { point } from '@turf/helpers';
 
 import { waitForMapBounds } from './map';
 

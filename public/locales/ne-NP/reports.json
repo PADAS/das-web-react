@@ -131,6 +131,11 @@
             "locationLabel": "घटनाको लोकेसन",
             "priorityLabel": "प्राथमिकता",
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",
+            "schemaForm": {
+                "errors": {
+                    "required": ""
+                }
+            },
             "stateDropdown": {
                 "active": "सक्रिय",
                 "resolved": "समाधान गरिएको"

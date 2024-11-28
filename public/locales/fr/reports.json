@@ -123,6 +123,11 @@
       "locationLabel": "Emplacement",
       "priorityLabel": "Priorité",
       "reportedByLabel": "Complété Par",
+      "schemaForm": {
+        "errors": {
+          "required": ""
+        }
+      },
       "stateDropdown": {
         "active": "Actif",
         "resolved": "Résolu"

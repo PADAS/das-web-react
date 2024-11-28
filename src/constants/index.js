@@ -1,9 +1,6 @@
-import { toast } from 'react-toastify';
-
 import * as packageJson from '../../package.json';
 import layoutVariables from '../common/styles/layout.module.scss';
 
-const { POSITION: TOAST_POSITIONS } = toast;
 const { buildbranch, buildnum } = packageJson;
 
 export const {
@@ -270,8 +267,8 @@ export const GEOLOCATOR_OPTIONS = {
 
 export const DEFAULT_TOAST_CONFIG = {
   closeOnClick: false,
-  position: TOAST_POSITIONS.TOP_RIGHT,
-  type: toast.TYPE.ERROR,
+  position: 'top-right',
+  type: 'error',
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

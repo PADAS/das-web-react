@@ -1,4 +1,4 @@
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 
 import store from '../store';
 import { addImageToMapIfNecessary } from '../ducks/map-images';

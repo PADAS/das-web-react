@@ -101,7 +101,7 @@ const PatrolMenu = ({
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
   const handlePrint = useReactToPrint({
-    content: () => printableContentRef.current,
+    contentRef: printableContentRef,
     documentTitle: `${patrol.serial_number} ${patrolTitle} `,
     pageStyle: basePrintingStyles,
   });

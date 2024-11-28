@@ -1,4 +1,3 @@
-import { toast } from 'react-toastify';
 import i18next from 'i18next';
 
 import { displayTitleForEvent, eventWasRecentlyEditedByCurrentUser } from '../../utils/events';
@@ -17,7 +16,7 @@ export const showFilterMismatchToastForHiddenReports = (message) => {
 
     showToast({
       message: t('eventCreatedDoesNotMatchFilterToast', { displayTitle, serialNumber: event_data.serial_number }),
-      toastConfig: { type: toast.TYPE.INFO },
+      toastConfig: { type: 'info' },
     });
   }
 };

@@ -1,5 +1,5 @@
 import { useContext }  from 'react';
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 import { MapContext } from '../App';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';

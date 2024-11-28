@@ -1,7 +1,7 @@
 import React from 'react';
+import { point } from '@turf/turf';
 import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react-hooks';
-import { point } from '@turf/helpers';
 import { waitFor } from '@testing-library/dom';
 
 import { FEATURE_FLAG_LABELS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';

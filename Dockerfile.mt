@@ -1,12 +1,11 @@
-FROM node:14.21.0-alpine as build
+FROM node:20-alpine as build
 WORKDIR /app
 
 RUN apk add --no-cache git alpine-sdk python3
 
 COPY package.json .
 COPY yarn.lock .
-RUN yarn --ignore-scripts && \
-    npm rebuild node-sass
+RUN yarn --ignore-scripts
 
 COPY . .
 RUN ls -la && yarn build

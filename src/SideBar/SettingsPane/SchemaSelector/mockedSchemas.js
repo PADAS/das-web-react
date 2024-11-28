@@ -1,70 +1,68 @@
 const schemaWithTexts = {
   label: 'Text fields with full settings',
   schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'long_text_with_full_settings': {
-          'default': 'a default input',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector',
-          'title': 'Long text with full settings',
-          'type': 'string'
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
+        long_text_with_full_settings: {
+          default: 'a default input',
+          deprecated: false,
+          description: 'These are some instructions for the data collector',
+          title: 'Long text with full settings',
+          type: 'string',
         },
-        'short_text_with_full_settings': {
-          'default': 'a default input',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector',
-          'title': 'Short text with full settings',
-          'type': 'string'
-        }
+        short_text_with_full_settings: {
+          default: 'a default input',
+          deprecated: false,
+          description: 'These are some instructions for the data collector',
+          title: 'Short text with full settings',
+          type: 'string',
+        },
       },
-      'required': [
+      required: [
         'long_text_with_full_settings',
-        'short_text_with_full_settings'
+        'short_text_with_full_settings',
       ],
-      'type': 'object'
+      type: 'object',
     },
-    'ui': {
-      'fields': {
-        'long_text_with_full_settings': {
-          'inputType': 'LONG_TEXT',
-          'placeholder': 'This is an example!',
-          'type': 'TEXT',
-          'parent': 'section-fD44j61je2TaHktLTPwrU'
+    ui: {
+      fields: {
+        long_text_with_full_settings: {
+          inputType: 'LONG_TEXT',
+          placeholder: 'This is an example!',
+          type: 'TEXT',
+          parent: 'section-fD44j61je2TaHktLTPwrU',
         },
-        'short_text_with_full_settings': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'This is a hint',
-          'type': 'TEXT',
-          'parent': 'section-fD44j61je2TaHktLTPwrU'
-        }
+        short_text_with_full_settings: {
+          inputType: 'SHORT_TEXT',
+          placeholder: 'This is a hint',
+          type: 'TEXT',
+          parent: 'section-fD44j61je2TaHktLTPwrU',
+        },
       },
-      'headers': {},
-      'order': [
-        'section-fD44j61je2TaHktLTPwrU'
-      ],
-      'sections': {
+      headers: {},
+      order: ['section-fD44j61je2TaHktLTPwrU'],
+      sections: {
         'section-fD44j61je2TaHktLTPwrU': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
+          columns: 1,
+          isActive: true,
+          label: '',
+          leftColumn: [
             {
-              'name': 'short_text_with_full_settings',
-              'type': 'field'
+              name: 'short_text_with_full_settings',
+              type: 'field',
             },
             {
-              'name': 'long_text_with_full_settings',
-              'type': 'field'
-            }
+              name: 'long_text_with_full_settings',
+              type: 'field',
+            },
           ],
-          'rightColumn': []
-        }
-      }
-    }
-  }
+          rightColumn: [],
+        },
+      },
+    },
+  },
 };
 
 const schemaWithSections = {

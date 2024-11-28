@@ -35,7 +35,7 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
           onClose: () => {
             errorToastId.current = null;
           },
-          type: toast.TYPE.ERROR,
+          type: 'error',
         },
       });
     }

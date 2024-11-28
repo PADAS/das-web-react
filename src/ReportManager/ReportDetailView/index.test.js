@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { point } from '@turf/helpers';
+import { point } from '@turf/turf';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';

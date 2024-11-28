@@ -51,9 +51,10 @@ const DetailsSection = ({
   formValidator,
   isCollection,
   loadingSchema,
-  onFormChange,
+  onFormDataChange,
   onFormError,
   onFormSubmit,
+  onLegacyFormChange,
   onPriorityChange,
   onReportedByChange,
   onReportDateChange,
@@ -227,12 +228,13 @@ const DetailsSection = ({
       </div>
     </div>
 
+    {/* Legacy form renderer */}
     {!!formSchema && !isNewDraftSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
       formData={reportForm.event_details}
-      onChange={onFormChange}
+      onChange={onLegacyFormChange}
       onError={onFormError}
       onSubmit={onFormSubmit}
       schema={formSchema}
@@ -251,17 +253,16 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && efbFormSchemaSupportEnabled && isNewDraftSchema && <>
-      {/* TODO: Remove this label once full EFb support is released, it was added here to facilitate QA process */}
+    {/* TODO: Replace schemaFromSchemaSelector.schema for the formSchema and remove the label */}
+    {!!schemaFromSchemaSelector?.schema && efbFormSchemaSupportEnabled && isNewDraftSchema && <>
       <label className={styles.selectedFormSchema}>Selected schema: {schemaFromSchemaSelector?.label}</label>
 
       <SchemaForm
         formData={reportForm.event_details}
-        onFormChange={onFormChange}
+        onFormDataChange={onFormDataChange}
         onFormSubmit={onFormSubmit}
         renderSubmitButton={renderSchemaFormSubmitButton}
-        // TODO: Inject real schema.
-        schema={schemaFromSchemaSelector?.schema}
+        schema={schemaFromSchemaSelector.schema}
       />
     </>}
 
@@ -286,9 +287,10 @@ DetailsSectionForwardRef.propTypes = {
   formValidator: PropTypes.object.isRequired,
   isCollection: PropTypes.bool.isRequired,
   loadingSchema: PropTypes.bool.isRequired,
-  onFormChange: PropTypes.func.isRequired,
+  onFormDataChange: PropTypes.func.isRequired,
   onFormError: PropTypes.func.isRequired,
   onFormSubmit: PropTypes.func.isRequired,
+  onLegacyFormChange: PropTypes.func.isRequired,
   onPriorityChange: PropTypes.func.isRequired,
   onReportedByChange: PropTypes.func.isRequired,
   onReportDateChange: PropTypes.func.isRequired,

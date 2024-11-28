@@ -173,7 +173,7 @@ const SideBar = () => {
     <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.EVENTS ? styles.active : ''}`}
-        to={TAB_KEYS.EVENTS}
+        to={`/${TAB_KEYS.EVENTS}`}
       >
         <DocumentIcon />
 
@@ -186,7 +186,7 @@ const SideBar = () => {
 
       {showPatrols && <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.PATROLS ? styles.active : ''}`}
-        to={TAB_KEYS.PATROLS}
+        to={`/${TAB_KEYS.PATROLS}`}
       >
         <PatrolIcon />
 
@@ -195,7 +195,7 @@ const SideBar = () => {
 
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.LAYERS ? styles.active : ''}`}
-        to={TAB_KEYS.LAYERS}
+        to={`/${TAB_KEYS.LAYERS}`}
       >
         <LayersIcon />
 
@@ -204,7 +204,7 @@ const SideBar = () => {
 
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
-        to={TAB_KEYS.SETTINGS}
+        to={`/${TAB_KEYS.SETTINGS}`}
       >
         <GearIcon />
 

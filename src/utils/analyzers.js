@@ -1,6 +1,6 @@
 import { bbox, bboxPolygon, circle, centroid } from '@turf/turf';
-import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
+import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
   ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING } = LAYER_IDS;

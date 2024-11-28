@@ -2,7 +2,6 @@ import React, { memo, useCallback, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import { SpinLoader } from 'react-css-loaders';
-import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -93,7 +92,7 @@ const EventItemContextMenu = ({ children, className, report }) => {
             newState: t(`updatedCollectionInfoToast.${isActive ? 'resolved' : 'activated'}`),
           }),
           showDetailsByDefault: true,
-          toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.INFO },
+          toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'info' },
         });
       } else {
         showToast({
@@ -102,7 +101,7 @@ const EventItemContextMenu = ({ children, className, report }) => {
             newState: t(`state.${isActive ? 'resolved' : 'active'}`),
             reportSerialNumber: report.serial_number,
           }),
-          toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.INFO },
+          toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'info' },
         });
       }
     } catch (error) {
@@ -112,7 +111,7 @@ const EventItemContextMenu = ({ children, className, report }) => {
           serialNumber: report.serial_number,
           state: t(`state.${isActive ? 'active' : 'resolved'}`),
         }),
-        toastConfig: { autoClose: 4000, hideProgressBar: true, type: toast.TYPE.ERROR },
+        toastConfig: { autoClose: 4000, hideProgressBar: true, type: 'error' },
       });
     } finally {
       setIsLoading(false);

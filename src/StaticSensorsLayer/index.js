@@ -1,5 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';

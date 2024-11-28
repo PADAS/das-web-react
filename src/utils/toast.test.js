@@ -17,10 +17,6 @@ describe('#showToast', () => {
 
     jest.spyOn(toastLib, 'toast').mockImplementation(mockToastFn);
 
-    toastLib.toast.TYPE = {
-      ERROR: 'error',
-    };
-
   });
   test('showing a toast renders the ToastBody component with message, details, link, and configuration', () => {
     const toastObject = {

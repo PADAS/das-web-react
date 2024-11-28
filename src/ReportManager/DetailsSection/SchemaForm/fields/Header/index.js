@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
-import { SchemaFormContext } from '../../SchemaFormContext';
+import SchemaFormContext from '../../SchemaFormContext';
 
 const Header = ({ id }) => {
   const { fields } = useContext(SchemaFormContext);

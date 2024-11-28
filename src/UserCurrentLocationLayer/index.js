@@ -1,6 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import booleanContains from '@turf/boolean-contains';
-import { point } from '@turf/helpers';
+import { booleanContains, point } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 

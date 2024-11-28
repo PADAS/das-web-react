@@ -433,7 +433,7 @@ const ReportDetailView = ({
     reportTracker.track(`Change Report State to ${state}`);
   }, [reportForm, reportTracker]);
 
-  const onFormChange = useCallback((event) => {
+  const onLegacyFormChange = useCallback((event) => {
     const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
       ...acc,
       [formKey]: formData === undefined ? '' : formData
@@ -453,6 +453,11 @@ const ReportDetailView = ({
   }, [reportSchemas?.schema?.properties]);
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
+
+  const onFormDataChange = useCallback(
+    (formData) => setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } }),
+    [reportForm]
+  );
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -797,9 +802,10 @@ const ReportDetailView = ({
                 formUISchema={reportSchemas?.uiSchema}
                 isCollection={isCollection}
                 loadingSchema={!!eventSchemas.loading}
-                onFormChange={onFormChange}
+                onFormDataChange={onFormDataChange}
                 onFormError={onFormError}
                 onFormSubmit={onFormSubmit}
+                onLegacyFormChange={onLegacyFormChange}
                 onPriorityChange={onPriorityChange}
                 onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}

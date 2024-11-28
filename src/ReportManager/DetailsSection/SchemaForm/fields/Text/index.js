@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { SchemaFormContext } from '../../SchemaFormContext';
+import SchemaFormContext from '../../SchemaFormContext';
 
 import styles from './styles.module.scss';
 
@@ -26,13 +26,13 @@ const TEXT_INPUT_TYPE_TO_INPUT = { [INPUT_TYPE.SHORT]: ShortTextInput, [INPUT_TY
 const TEXT_INPUT_TYPE_STYLES = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
 
 const Text = ({ id }) => {
-  const { fields, formData, onFieldChange } = useContext(SchemaFormContext);
+  const { fields, fieldErrors, fieldValues, onFieldChange } = useContext(SchemaFormContext);
 
   const hasInputValueBeenChangedRef = useRef(false);
 
   const { details } = fields[id];
-  // TODO: Update with recursivity for collections.
-  const value = formData[id];
+  const error = fieldErrors[id];
+  const value = fieldValues[id];
 
   const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
   const label = details.isRequired ? `${details.label} *` : details.label;
@@ -50,17 +50,19 @@ const Text = ({ id }) => {
   }, [details.defaultInput, id, onFieldChange, value]);
 
   return <div data-testid={`schema-form-text-field-${id}`}>
-    <label className={styles.label} htmlFor={id}>{label}</label>
+    <label className={`${styles.label} ${error ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
     <TextInput
-      className={`${styles.textInput} ${TEXT_INPUT_TYPE_STYLES[details.inputType]}`}
+      className={`${styles.textInput} ${TEXT_INPUT_TYPE_STYLES[details.inputType]} ${error ? styles.error : ''}`}
       details={details}
       id={id}
       onChange={onChange}
       value={value || ''}
     />
 
-    {details.description && <p className={styles.description}>{details.description}</p>}
+    {(details.description || error) && <p className={`${styles.description} ${error ? styles.error : ''}`}>
+      {error || details.description}
+    </p>}
   </div>;
 };
 

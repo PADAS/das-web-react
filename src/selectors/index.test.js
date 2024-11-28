@@ -1,4 +1,4 @@
-import { point, polygon } from '@turf/helpers';
+import { point, polygon } from '@turf/turf';
 
 import { getMapEventFeatureCollection } from './';
 

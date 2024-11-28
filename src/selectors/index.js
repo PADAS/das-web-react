@@ -1,7 +1,6 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
 import { createSelector } from 'reselect';
-import { featureCollection } from '@turf/helpers';
-import bboxPolygon from '@turf/bbox-polygon';
+import { bboxPolygon, featureCollection } from '@turf/turf';
 import pickBy from 'lodash/pickBy';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';

@@ -33,7 +33,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
   const reportTracker = useContext(TrackerContext);
 
   const handlePrint = useReactToPrint({
-    content: () => printableContentRef.current,
+    contentRef: printableContentRef,
     documentTitle: report.id,
     pageStyle: basePrintingStyles,
   });

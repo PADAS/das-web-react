@@ -6,15 +6,13 @@ import {
   isWithinInterval,
   formatDistance,
 } from 'date-fns';
+import { bbox, booleanEqual, featureCollection, point, multiLineString } from '@turf/turf';
 import i18next from 'i18next';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import cloneDeep from 'lodash/cloneDeep';
 import isUndefined from 'lodash/isUndefined';
 import isNil from 'lodash/isNil';
-import booleanEqual from '@turf/boolean-equal';
-import bbox from '@turf/bbox';
-import { featureCollection, point, multiLineString } from '@turf/helpers';
 
 import { DAS_HOST, PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';

@@ -1,9 +1,15 @@
-import area from '@turf/area';
-import centerOfMass from '@turf/center-of-mass';
-import { convertArea, featureCollection, lineString, point, polygon } from '@turf/helpers';
-import length from '@turf/length';
-import lineSegment from '@turf/line-segment';
-import midpoint from '@turf/midpoint';
+import {
+  area,
+  centerOfMass,
+  convertArea,
+  featureCollection,
+  length,
+  lineSegment,
+  lineString,
+  midpoint,
+  point,
+  polygon,
+} from '@turf/turf';
 
 import { UNIT_LABELS } from '../utils/geometry';
 

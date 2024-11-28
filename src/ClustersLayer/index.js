@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
+import { featureCollection } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { featureCollection } from '@turf/helpers';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS, SOURCE_IDS } from '../constants';

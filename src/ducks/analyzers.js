@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { API_URL } from '../constants';
-import { featureCollection } from '@turf/helpers';
+import axios from 'axios';
 import { createGeoJSONCircle } from '../utils/analyzers';
+import { featureCollection } from '@turf/turf';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 

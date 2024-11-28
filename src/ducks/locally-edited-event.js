@@ -1,4 +1,4 @@
-import { point, polygon } from '@turf/helpers';
+import { point, polygon } from '@turf/turf';
 
 // actions
 const SET_LOCALLY_EDITED_EVENT = 'SET_LOCALLY_EDITED_EVENT';

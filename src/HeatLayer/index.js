@@ -1,5 +1,5 @@
 import { memo, useMemo, useRef } from 'react';
-import centroid from '@turf/centroid';
+import { centroid } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 

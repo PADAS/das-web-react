@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import bbox from '@turf/bbox';
-import { lineString } from '@turf/helpers';
+import { bbox, lineString } from '@turf/turf';
 import userEvent from '@testing-library/user-event';
 
 import { MapContext } from '../App';

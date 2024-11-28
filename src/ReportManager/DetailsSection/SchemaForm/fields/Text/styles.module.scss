@@ -6,22 +6,34 @@
   color: $secondary-medium-gray;
   display: block;
   margin-top: 1rem;
+
+  &.error {
+    color: $bright-red;
+  }
 }
 
 .textInput {
   width: 100%;
-}
 
-.shortText {
-  height: 2.5rem;
-}
+  &.error {
+    border-color: $bright-red;
 
-.longText {
-  margin-bottom: -0.5rem;
-  max-height: 10rem;
-  min-height: 2.5rem;
-  border: 1px solid #d8d9d9;
-  padding: 0.5rem;
+    &::placeholder {
+      color: lighten($bright-red, 33%);
+    }
+  }
+
+  &.shortText {
+    height: 2.5rem;
+  }
+  
+  &.longText {
+    margin-bottom: -0.5rem;
+    max-height: 10rem;
+    min-height: 2.5rem;
+    border: 1px solid #d8d9d9;
+    padding: 0.5rem;
+  }
 }
 
 .description {
@@ -30,4 +42,8 @@
   color: $alt-light-gray;
   line-height: 1rem;
   margin-top: 0.2rem;
+
+  &.error {
+    color: $bright-red;
+  }
 }

@@ -1,9 +1,7 @@
 import React, { useEffect, useContext, useReducer, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { featureCollection } from '@turf/helpers';
-import bboxPolygon from '@turf/bbox-polygon';
-import booleanContains from '@turf/boolean-contains';
+import { bboxPolygon, booleanContains, featureCollection } from '@turf/turf';
 
 import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 

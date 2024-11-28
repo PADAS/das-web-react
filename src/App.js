@@ -141,7 +141,7 @@ const App = (props) => {
     if (showGeoPermWarningMessage) {
       const toastId = showToast({
         message: 'Some data may only be displayed when you are near its location.',
-        toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
+        toastConfig: { type: 'info', autoClose: false, onClose() {
         } } });
 
       return () => {

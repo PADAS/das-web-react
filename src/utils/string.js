@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 export const fileNameFromPath = path => path.match(/[^\\/]+$/)[0];
 export const uuid = () => uuidv4();
