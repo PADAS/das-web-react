@@ -4,7 +4,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, SUPPORTED_LANGUAGES } from '../../constants';
+import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, FEATURE_FLAG_LABELS, SUPPORTED_LANGUAGES } from '../../constants';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
@@ -19,6 +19,7 @@ import MapDataZoomSimplificationControl from '../../MapDataZoomSimplificationCon
 import MapLockControl from '../../MapLockControl';
 import MapNamesControl from '../../MapNamesControl';
 import MapTrackTimepointsControl from '../../MapTrackTimepointsControl';
+import SchemaSelector from './SchemaSelector';
 import Select from '../../Select';
 import UserLocationMapControl from '../../UserLocationMapControl';
 
@@ -31,6 +32,9 @@ const TAB_KEYS = {
   MAP: 'map',
   ALERTS: 'alerts',
 };
+
+const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
+
 
 const SettingsPane = () => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
@@ -139,6 +143,13 @@ const SettingsPane = () => {
 
         <BetaToggles />
       </section>
+
+      { EFB_FORM_SCHEMA_SUPPORT_ENABLED &&
+        <section>
+          <SchemaSelector />
+        </section>
+      }
+
     </Tab>
 
     <Tab

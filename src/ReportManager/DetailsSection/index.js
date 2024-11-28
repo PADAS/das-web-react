@@ -10,7 +10,12 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
-import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import {
+  DEVELOPMENT_FEATURE_FLAGS,
+  EVENT_FORM_STATES,
+  FEATURE_FLAG_LABELS,
+  VALID_EVENT_GEOMETRY_TYPES
+} from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -38,12 +43,13 @@ import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker from '../../TimePicker';
 
-import SchemaForm from '../SchemaForm';
+import SchemaForm from './SchemaForm';
 
 import styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
+const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
 
 const DetailsSection = ({
   formSchema,
@@ -67,7 +73,6 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
-  const isNewFormSchema = false;
   const eventTypes = useSelector((state) => state.data.eventTypes);
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
@@ -75,6 +80,12 @@ const DetailsSection = ({
   const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
+
+  const selectedFormSchema = useSelector(({ view: { schemaSelector: { schema } = {} } }) => schema ?? {});
+
+  /*ToDo: use first isNewDraftSchema condition as the regular validation, the one below is used only for mocking and testing purposes */
+  //const isNewDraftSchema = formSchema?.$schema === 'https://json-schema.org/draft/2020-12/schema';
+  const isNewDraftSchema = EFB_FORM_SCHEMA_SUPPORT_ENABLED;
 
   const geometryType = useMemo(() =>
     reportForm
@@ -216,7 +227,7 @@ const DetailsSection = ({
         : null}
     </div>
 
-    {!!formSchema && !isNewFormSchema && <Form
+    {!!formSchema && !isNewDraftSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={formSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -240,13 +251,17 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && isNewFormSchema &&
-      <SchemaForm
-          schema={formSchema}
-          onFormSubmit={onFormSubmit}
-          onFormChange={onFormChange}
-          formData={reportForm.event_details}
-          renderSubmitButton={renderSchemaFormSubmitButton} />
+    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && isNewDraftSchema &&
+      <>
+        {/*ToDo: Remove this label once full EFb support is released, it was added here to facilitate QA process*/}
+        <label className={styles.selectedFormSchema}>Selected schema: {selectedFormSchema?.label}</label>
+        <SchemaForm
+            schema={selectedFormSchema?.schema} /* ToDo: Once EFb support is released, replace schema prop for the actual event form schema instead of the mocked one */
+            onFormSubmit={onFormSubmit}
+            onFormChange={onFormChange}
+            formData={reportForm.event_details}
+            renderSubmitButton={renderSchemaFormSubmitButton} />
+      </>
     }
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
