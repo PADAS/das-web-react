@@ -133,7 +133,7 @@
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",
             "schemaForm": {
                 "errors": {
-                    "required": ""
+                    "required": "यो आवश्यक फिल्ड हो।"
                 }
             },
             "stateDropdown": {

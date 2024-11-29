@@ -125,7 +125,7 @@
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
-          "required": ""
+          "required": "Ceci est un champ obligatoire."
         }
       },
       "stateDropdown": {

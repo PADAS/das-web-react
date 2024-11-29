@@ -125,7 +125,7 @@
             "reportedByLabel": "Reportado por",
             "schemaForm": {
                 "errors": {
-                    "required": ""
+                    "required": "Este é um campo obrigatório."
                 }
             },
             "stateDropdown": {
