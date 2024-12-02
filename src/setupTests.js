@@ -54,3 +54,5 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords = jest.fn();
   unobserve = jest.fn();
 };
+
+process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED = false;

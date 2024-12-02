@@ -1,114 +1,87 @@
-import React, { useContext } from 'react';
-import { render, screen } from '../../../test-utils';
-import userEvent from '@testing-library/user-event';
+import React, { useContext, useEffect } from 'react';
+
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID, TEXT_ELEMENT_INPUT_TYPES } from '../constants';
+import { render, screen } from '../../../../test-utils';
 
 import SchemaFormContextProvider, { SchemaFormContext } from './';
 
-describe('ReportManager - SchemaForm - SchemaFormContext', () => {
+describe('ReportManager - DetailsSection -SchemaForm - SchemaFormContext', () => {
+  const onFormChange = jest.fn();
 
-  const schema = {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'this_is_a_text': {
-          'default': 'initial value',
-          'deprecated': false,
-          'description': 'some good description',
-          'title': 'This is a text',
-          'type': 'string'
-        }
-      },
-      'required': [
-        'this_is_a_text'
-      ],
-      'type': 'object'
-    },
-    'ui': {
-      'fields': {
-        'this_is_a_text': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'a placeholder',
-          'type': 'TEXT',
-          'parent': 'section-_PdgePvPWyACfu9sgN_F6'
-        }
-      },
-      'headers': {
-        'header-ghqdjqGinaJMptIEJBQmO': {
-          'label': 'A great header',
-          'section': 'section-_PdgePvPWyACfu9sgN_F6',
-          'size': 'LARGE'
-        }
-      },
-      'order': [
-        'section-_PdgePvPWyACfu9sgN_F6'
-      ],
-      'sections': {
-        'section-_PdgePvPWyACfu9sgN_F6': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
-            {
-              'name': 'header-ghqdjqGinaJMptIEJBQmO',
-              'type': 'header'
-            },
-            {
-              'name': 'this_is_a_text',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': []
-        }
-      }
-    }
-  };
+  const renderSchemaFormContext = ({ children, ...props }) => render(<SchemaFormContextProvider
+      fields={{
+        'text-1': {
+          details: {
+            defaultInput: 'Text 1 Default Input',
+            description: 'Text 1 Description',
+            inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
+            isRequired: true,
+            label: 'Text 1 Label',
+            placeholder: 'Text 1 Placeholder',
+            value: 'text-1',
+          },
+          parentId: 'section-1',
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+        [ROOT_CANVAS_ID]: { details: { fields: ['section-1'] } },
+        'section-1': {
+          details: {
+            columns: 2,
+            label: 'Section 1 Label',
+            leftColumn: ['text-1'],
+            rightColumn: [],
+          },
+          parentId: ROOT_CANVAS_ID,
+          type: FORM_ELEMENT_TYPES.SECTION,
+        },
+      }}
+      formData={{ 'text-1': 'Text 1' }}
+      onFormChange={onFormChange}
+      {...props}
+    >
+    {children}
+  </SchemaFormContextProvider>);
 
-  const initialContextProps = {
-    schema,
-    onFormChange: () => {},
-    formData: {
-      'this_is_a_text': 'a text value'
-    },
-    formErrors: {}
-  };
+  test('provides the fields object', async () => {
+    const Component = () => {
+      const { fields } = useContext(SchemaFormContext);
 
-  const renderSchemaFormContext = (contextProps = initialContextProps, TestComponent, testComponentProps) => render(
-    <SchemaFormContextProvider {...contextProps}>
-      <TestComponent {...testComponentProps} />
-    </SchemaFormContextProvider>
-  );
-
-  test('gets text field details', async () => {
-    const onClick = jest.fn();
-
-    const Component = ({ onClick }) => {
-      const { getFieldDetails } = useContext(SchemaFormContext);
-
-      return (
-        <button onClick={() => onClick( getFieldDetails('this_is_a_text') )}>
-          button
-        </button>
-      );
+      return <div data-testid="fields">{JSON.stringify(fields)}</div>;
     };
 
-    renderSchemaFormContext(undefined, Component, { onClick });
+    renderSchemaFormContext({ children: <Component /> });
 
-    await userEvent.click(screen.getByRole('button'));
-
-    expect( onClick ).toHaveBeenCalledWith({
-      defaultInput: 'initial value',
-      description: 'some good description',
-      inputType: 'SHORT_TEXT',
-      isActive: true,
-      isRequired: true,
-      label: 'This is a text',
-      placeholder: 'a placeholder',
-      value: 'a text value',
-      error: null
-    });
+    expect(screen.getByTestId('fields')).toHaveTextContent(
+      '{"text-1":{"details":{"defaultInput":"Text 1 Default Input","description":"Text 1 Description","inputType":"SHORT_TEXT","isRequired":true,"label":"Text 1 Label","placeholder":"Text 1 Placeholder","value":"text-1"},"parentId":"section-1","type":"TEXT"},"root":{"details":{"fields":["section-1"]}},"section-1":{"details":{"columns":2,"label":"Section 1 Label","leftColumn":["text-1"],"rightColumn":[]},"parentId":"root","type":"SECTION"}}'
+    );
   });
 
-  /*ToDo: add coverage for getFieldDetails as support for new field types is added */
+  test('provides the form data object', async () => {
+    const Component = () => {
+      const { formData } = useContext(SchemaFormContext);
 
+      return <div data-testid="formData">{JSON.stringify(formData)}</div>;
+    };
+
+    renderSchemaFormContext({ children: <Component /> });
+
+    expect(screen.getByTestId('formData')).toHaveTextContent('{"text-1":"Text 1"}');
+  });
+
+  test('triggers a form change when there is a field update', async () => {
+    const Component = () => {
+      const { onFieldChange } = useContext(SchemaFormContext);
+
+      useEffect(() => {
+        onFieldChange('text-1', 'New Text 1');
+      }, [onFieldChange]);
+
+      return null;
+    };
+
+    renderSchemaFormContext({ children: <Component /> });
+
+    expect(onFormChange).toHaveBeenCalledTimes(1);
+    expect(onFormChange).toHaveBeenCalledWith({ formData: { 'text-1': 'New Text 1' } });
+  });
 });

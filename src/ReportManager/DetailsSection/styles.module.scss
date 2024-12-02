@@ -2,6 +2,13 @@
 @import '../../common/styles/vars/colors';
 @import '../../common/styles/inputs';
 
+.globalDetails {
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  border-top: 1px solid $very-light-gray-alt;
+  padding: 1.125rem;
+}
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
@@ -126,8 +133,11 @@
 }
 
 .form {
-  margin-top: 1.5rem;
-  font-size: 0.85rem;
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  border-top: 1px solid $very-light-gray-alt;
+  padding: 1.125rem;
+  margin-top: 0.5rem;
 
   &.hidden {
     display: none;

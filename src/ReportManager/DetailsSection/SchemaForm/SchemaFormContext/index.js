@@ -1,52 +1,26 @@
 import React, { createContext } from 'react';
-
-import { FORM_FIELDS_TYPES } from '../constants';
-import { textFieldDetailsFactory } from '../fields/fieldDetailsFactory';
-import { isFieldRequired } from '../utils';
-import { cloneDeep } from 'lodash-es';
+import PropTypes from 'prop-types';
 
 export const SchemaFormContext = createContext(null);
 
+const SchemaFormContextProvider = ({ children, fields, formData, onFormChange }) => {
+  const onFieldChange = (fieldId, value) => {
+    // TODO: Update with recursivity for collections.
+    const newFormData = { ...formData, [fieldId]: value };
 
-const SchemaFormContextProvider = ({ schema, onFormChange, formData, formErrors, children }) => {
-
-  const onFieldChange = (field, value) => {
-    onFormChange({
-      formData: {
-        [field]: value
-      }
-    });
+    onFormChange({ formData: newFormData });
   };
 
-  const getFieldDetails = (fieldName) => {
-    const fieldSchema = schema.json.properties[fieldName];
-    const isRequired = isFieldRequired(fieldName, schema);
-    const uiDetails = schema.ui.fields[fieldName];
-    const formValue = formData[fieldName] ?? '';
-    const formError = formErrors?.[fieldName] ?? null;
-
-    switch (uiDetails.type) {
-    case FORM_FIELDS_TYPES.TEXT: {
-      return textFieldDetailsFactory(fieldSchema, {
-        ...uiDetails,
-        isRequired
-      }, formValue, formError);
-    }
-
-    default: return {};
-    }
-  };
-
-  const getSchema = () => cloneDeep(schema);
-
-  return <SchemaFormContext.Provider value={{
-    formErrors,
-    getFieldDetails,
-    getSchema,
-    onFieldChange
-  }}>
+  return <SchemaFormContext.Provider value={{ fields, formData, onFieldChange }}>
     {children}
   </SchemaFormContext.Provider>;
+};
+
+SchemaFormContextProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+  fields: PropTypes.object.isRequired,
+  formData: PropTypes.object.isRequired,
+  onFormChange: PropTypes.func.isRequired,
 };
 
 export default SchemaFormContextProvider;

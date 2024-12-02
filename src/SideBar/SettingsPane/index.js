@@ -9,6 +9,7 @@ import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
 import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
+import { useFeatureFlag } from '../../hooks';
 import { useOptionalPersistence } from '../../reducers/storage-config';
 
 import BetaToggles from '../../GlobalMenuDrawer/BetaToggles';
@@ -33,11 +34,10 @@ const TAB_KEYS = {
   ALERTS: 'alerts',
 };
 
-const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
-
-
 const SettingsPane = () => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
+
+  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
@@ -144,11 +144,9 @@ const SettingsPane = () => {
         <BetaToggles />
       </section>
 
-      { EFB_FORM_SCHEMA_SUPPORT_ENABLED &&
-        <section>
-          <SchemaSelector />
-        </section>
-      }
+      {efbFormSchemaSupportEnabled && <section>
+        <SchemaSelector />
+      </section>}
 
     </Tab>
 

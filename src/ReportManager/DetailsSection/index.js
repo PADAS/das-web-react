@@ -10,12 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
 import { calcGeometryTypeForReport } from '../../utils/events';
-import {
-  DEVELOPMENT_FEATURE_FLAGS,
-  EVENT_FORM_STATES,
-  FEATURE_FLAG_LABELS,
-  VALID_EVENT_GEOMETRY_TYPES
-} from '../../constants';
+import { EVENT_FORM_STATES, FEATURE_FLAG_LABELS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -23,6 +18,7 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
+import { useFeatureFlag } from '../../hooks';
 
 import {
   AddButton,
@@ -41,15 +37,13 @@ import GeometryPreview from './AreaSelectorInput/GeometryPreview';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
-import TimePicker from '../../TimePicker';
-
 import SchemaForm from './SchemaForm';
+import TimePicker from '../../TimePicker';
 
 import styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
-const EFB_FORM_SCHEMA_SUPPORT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED];
 
 const DetailsSection = ({
   formSchema,
@@ -73,7 +67,14 @@ const DetailsSection = ({
 }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
+
+  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
+
   const eventTypes = useSelector((state) => state.data.eventTypes);
+  // TODO: Temporary solution to test new schemas. This should be deleted.
+  const schemaFromSchemaSelector = useSelector(
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema : null
+  );
 
   const [showStateDropdown, setShowStateDropdown] = useState(false);
 
@@ -81,11 +82,8 @@ const DetailsSection = ({
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
   const reportTime = new Date(reportForm?.time);
 
-  const selectedFormSchema = useSelector(({ view: { schemaSelector: { schema } = {} } }) => schema ?? {});
-
-  /*ToDo: use first isNewDraftSchema condition as the regular validation, the one below is used only for mocking and testing purposes */
-  //const isNewDraftSchema = formSchema?.$schema === 'https://json-schema.org/draft/2020-12/schema';
-  const isNewDraftSchema = EFB_FORM_SCHEMA_SUPPORT_ENABLED;
+  // TODO: Change to read the draft of the schema.
+  const isNewDraftSchema = efbFormSchemaSupportEnabled;
 
   const geometryType = useMemo(() =>
     reportForm
@@ -110,7 +108,7 @@ const DetailsSection = ({
   }, [formUISchema]);
 
   const renderSchemaFormSubmitButton = () => (
-    <button ref={submitFormButtonRef} type="submit" className={styles.schemaFormSubmitButton} />
+    <button className={styles.schemaFormSubmitButton} ref={submitFormButtonRef} type="submit" />
   );
 
   useEffect(() => {
@@ -122,109 +120,111 @@ const DetailsSection = ({
   }, [dispatch, reportForm]);
 
   return <div ref={ref}>
-    <div className={styles.sectionHeader}>
-      <div className={styles.title}>
-        <PencilWritingIcon />
+    <div className={styles.globalDetails}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.title}>
+          <PencilWritingIcon />
 
-        <h2>{t('detailsHeader')}</h2>
+          <h2>{t('detailsHeader')}</h2>
+        </div>
+
+        <div>
+          <Dropdown
+            className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
+            onKeyDown={onStateDropdownKeyDown}
+            onToggle={(nextShow) => setShowStateDropdown(nextShow)}
+            show={showStateDropdown}
+            onSelect={onReportStateChange}
+          >
+            <Dropdown.Toggle variant="success">
+              {t(`stateDropdown.${reportState}`)}
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className={styles.stateDropdownMenu}>
+              {Object.values(EVENT_FORM_STATES)
+                .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
+                .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
+                  {t(`stateDropdown.${eventState}`)}
+                </Dropdown.Item>)}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </div>
 
-      <div>
-        <Dropdown
-          className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
-          onKeyDown={onStateDropdownKeyDown}
-          onToggle={(nextShow) => setShowStateDropdown(nextShow)}
-          show={showStateDropdown}
-          onSelect={onReportStateChange}
-        >
-          <Dropdown.Toggle variant="success">
-            {t(`stateDropdown.${reportState}`)}
-          </Dropdown.Toggle>
+      <div className={styles.container}>
+        <div className={styles.row}>
+          {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
+            {t('reportedByLabel')}
 
-          <Dropdown.Menu className={styles.stateDropdownMenu}>
-            {Object.values(EVENT_FORM_STATES)
-              .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
-              .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
-                {t(`stateDropdown.${eventState}`)}
-              </Dropdown.Item>)}
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-    </div>
-
-    <div className={styles.container}>
-      <div className={styles.row}>
-        {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
-          {t('reportedByLabel')}
-
-          <ReportedBySelect
-            isDisabled={formSchema?.readonly}
-            onChange={onReportedByChange}
-            value={reportForm?.reported_by}
-          />
-        </label>}
-
-        <label className={styles.fieldLabel} data-testid="reportManager-prioritySelector">
-          {t('priorityLabel')}
-
-          <PrioritySelect
-            isDisabled={formSchema?.readonly}
-            onChange={onPriorityChange}
-            priority={reportForm?.priority}
-          />
-        </label>
-      </div>
-
-      {!isCollection && <div className={styles.row}>
-        <label className={styles.fieldLabel} data-testid="reportManager-reportLocationSelect">
-          {t('locationLabel')}
-
-          {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
-            ? <AreaSelectorInput
-              event={reportForm}
-              originalEvent={originalReport}
-              onGeometryChange={onReportGeometryChange}
+            <ReportedBySelect
+              isDisabled={formSchema?.readonly}
+              onChange={onReportedByChange}
+              value={reportForm?.reported_by}
             />
-            : <LocationSelectorInput
-              label={null}
-              location={reportLocation}
-              onLocationChange={onReportLocationChange}
-            />
-          }
-        </label>
+          </label>}
 
-        <div className={styles.reportDateTimeContainer}>
-          <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`} data-testid="reportManager-datePicker">
-            {t('dateLabel')}
+          <label className={styles.fieldLabel} data-testid="reportManager-prioritySelector">
+            {t('priorityLabel')}
 
-            <DatePicker
-              className={styles.datePicker}
-              disabled={formSchema?.readonly}
-              maxDate={new Date()}
-              onChange={onReportDateChange}
-              selected={reportForm?.time ? reportTime : undefined}
-            />
-          </label>
-
-          <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`} data-testid="reportManager-timePicker">
-            {t('timeLabel')}
-
-            <TimePicker
-              disabled={formSchema?.readonly}
-              maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
-              minutesInterval={15}
-              onChange={onReportTimeChange}
-              value={getHoursAndMinutesString(reportTime)}
+            <PrioritySelect
+              isDisabled={formSchema?.readonly}
+              onChange={onPriorityChange}
+              priority={reportForm?.priority}
             />
           </label>
         </div>
-      </div>}
 
-      {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON && reportForm?.geometry
-        ? <div className={styles.printableRow}>
-          <GeometryPreview className={styles.geometryPreview} event={reportForm} />
-        </div>
-        : null}
+        {!isCollection && <div className={styles.row}>
+          <label className={styles.fieldLabel} data-testid="reportManager-reportLocationSelect">
+            {t('locationLabel')}
+
+            {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
+              ? <AreaSelectorInput
+                event={reportForm}
+                originalEvent={originalReport}
+                onGeometryChange={onReportGeometryChange}
+              />
+              : <LocationSelectorInput
+                label={null}
+                location={reportLocation}
+                onLocationChange={onReportLocationChange}
+              />
+            }
+          </label>
+
+          <div className={styles.reportDateTimeContainer}>
+            <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`} data-testid="reportManager-datePicker">
+              {t('dateLabel')}
+
+              <DatePicker
+                className={styles.datePicker}
+                disabled={formSchema?.readonly}
+                maxDate={new Date()}
+                onChange={onReportDateChange}
+                selected={reportForm?.time ? reportTime : undefined}
+              />
+            </label>
+
+            <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`} data-testid="reportManager-timePicker">
+              {t('timeLabel')}
+
+              <TimePicker
+                disabled={formSchema?.readonly}
+                maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
+                minutesInterval={15}
+                onChange={onReportTimeChange}
+                value={getHoursAndMinutesString(reportTime)}
+              />
+            </label>
+          </div>
+        </div>}
+
+        {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON && reportForm?.geometry
+          ? <div className={styles.printableRow}>
+            <GeometryPreview className={styles.geometryPreview} event={reportForm} />
+          </div>
+          : null}
+      </div>
     </div>
 
     {!!formSchema && !isNewDraftSchema && <Form
@@ -251,18 +251,19 @@ const DetailsSection = ({
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {!!formSchema && EFB_FORM_SCHEMA_SUPPORT_ENABLED && isNewDraftSchema &&
-      <>
-        {/*ToDo: Remove this label once full EFb support is released, it was added here to facilitate QA process*/}
-        <label className={styles.selectedFormSchema}>Selected schema: {selectedFormSchema?.label}</label>
-        <SchemaForm
-            schema={selectedFormSchema?.schema} /* ToDo: Once EFb support is released, replace schema prop for the actual event form schema instead of the mocked one */
-            onFormSubmit={onFormSubmit}
-            onFormChange={onFormChange}
-            formData={reportForm.event_details}
-            renderSubmitButton={renderSchemaFormSubmitButton} />
-      </>
-    }
+    {!!formSchema && efbFormSchemaSupportEnabled && isNewDraftSchema && <>
+      {/* TODO: Remove this label once full EFb support is released, it was added here to facilitate QA process */}
+      <label className={styles.selectedFormSchema}>Selected schema: {schemaFromSchemaSelector?.label}</label>
+
+      <SchemaForm
+        formData={reportForm.event_details}
+        onFormChange={onFormChange}
+        onFormSubmit={onFormSubmit}
+        renderSubmitButton={renderSchemaFormSubmitButton}
+        // TODO: Inject real schema.
+        schema={schemaFromSchemaSelector?.schema}
+      />
+    </>}
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}

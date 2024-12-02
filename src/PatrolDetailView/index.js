@@ -568,7 +568,7 @@ const PatrolDetailView = () => {
 
           <div className={styles.content}>
             <QuickLinks.SectionsWrapper className={styles.sectionWrapper}>
-              <QuickLinks.Section anchorTitle={t('quickLinksTitles.plan')}>
+              <QuickLinks.Section anchorTitle={t('quickLinksTitles.plan')} className={styles.section}>
                 <PlanSection
                   onPatrolEndDateChange={onPatrolEndDateChange}
                   onPatrolEndLocationChange={onPatrolEndLocationChange}
@@ -582,7 +582,11 @@ const PatrolDetailView = () => {
 
               {shouldRenderActivitySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
-              <QuickLinks.Section anchorTitle={t('quickLinksTitles.activity')} hidden={!shouldRenderActivitySection}>
+              <QuickLinks.Section
+                anchorTitle={t('quickLinksTitles.activity')}
+                className={styles.section}
+                hidden={!shouldRenderActivitySection}
+              >
                 <ActivitySection
                   attachments={patrolAttachments}
                   attachmentsToAdd={attachmentsToAdd}
@@ -602,11 +606,12 @@ const PatrolDetailView = () => {
 
               {shouldRenderHistorySection && <div className={`${styles.sectionSeparation} ${styles.hideOnPrint}`} />}
 
-              <QuickLinks.Section anchorTitle={t('quickLinksTitles.history')} hidden={!shouldRenderHistorySection}>
-                <HistorySection
-                    updates={patrolUpdates}
-                    className={styles.hideOnPrint}
-                />
+              <QuickLinks.Section
+                anchorTitle={t('quickLinksTitles.history')}
+                className={styles.section}
+                hidden={!shouldRenderHistorySection}
+              >
+                <HistorySection className={styles.hideOnPrint} updates={patrolUpdates} />
               </QuickLinks.Section>
             </QuickLinks.SectionsWrapper>
 

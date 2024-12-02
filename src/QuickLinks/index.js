@@ -116,7 +116,7 @@ SectionsWrapper.propTypes = {
 QuickLinks.SectionsWrapper = SectionsWrapper;
 
 
-const Section = ({ anchorTitle, children, hidden }) => {
+const Section = ({ anchorTitle, className, children, hidden }) => {
   const { getSectionElement, onSectionElementChange } = useContext(QuickLinksContext);
 
   const [sectionElement, setSectionElement] = useState();
@@ -129,15 +129,19 @@ const Section = ({ anchorTitle, children, hidden }) => {
     }
   }, [anchorTitle, getSectionElement, onSectionElementChange, sectionElement]);
 
-  return !hidden ? <div data-testid={`quickLinks-section-${anchorTitle}`} ref={sectionRef}>
+  return !hidden ? <div className={className} data-testid={`quickLinks-section-${anchorTitle}`} ref={sectionRef}>
     {children}
   </div> : null;
 };
 
-Section.defaultProps = { hidden: false };
+Section.defaultProps = {
+  className: '',
+  hidden: false,
+};
 
 Section.propTypes = {
   anchorTitle: PropTypes.string.isRequired,
+  className: PropTypes.string,
   children: PropTypes.node.isRequired,
   hidden: PropTypes.bool,
 };

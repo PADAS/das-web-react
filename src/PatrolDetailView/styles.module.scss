@@ -51,10 +51,16 @@
   }
 }
 
-.sectionSeparation {
-  width: calc(100% + 2.5rem);
+.section {
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
   border-top: 1px solid $very-light-gray-alt;
-  margin: 3rem -1.125rem;
+  padding: 1.125rem;
+}
+
+.sectionSeparation {
+  height: 0.5rem;
+  width: calc(100% + 2.5rem);
 }
 
 .footer {

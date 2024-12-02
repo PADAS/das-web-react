@@ -1,39 +1,39 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 
-import Header from '../Header';
 import { SchemaFormContext } from '../../SchemaFormContext';
-import useFieldDetails from '../../SchemaFormContext/useFieldDetails';
-import { getFormFieldComponent, isFieldActive } from '../../utils';
 
-const SECTION_ITEM_TYPES = {
-  HEADER: 'header',
-  FIELD: 'field'
+import styles from './styles.module.scss';
+
+const Section = ({ id, renderField }) => {
+  const { fields } = useContext(SchemaFormContext);
+
+  const { details } = fields[id];
+
+  return <div className={styles.section} data-testid={`schema-form-section-${id}`}>
+    {details.label && <h3 className={styles.header}>{details.label}</h3>}
+
+    <div className={styles.columns}>
+      <div
+        className={details.columns === 1 ? styles.fullWidthColumn : styles.halfWidthColumnLeft}
+        data-testid={`schema-form-section-${id}-left-column`}
+      >
+        {details.leftColumn.map((fieldId) => renderField(fieldId))}
+      </div>
+
+      {details.columns === 2 && <div
+        className={styles.halfWidthColumnRight}
+        data-testid={`schema-form-section-${id}-right-column`}
+      >
+        {details.rightColumn.map((fieldId) => renderField(fieldId))}
+      </div>}
+    </div>
+  </div>;
 };
 
-const Section = ({ sectionName }) => {
-  const sectionDetails = useFieldDetails(sectionName);
-  const { getSchema } = useContext(SchemaFormContext);
-
-  const schema = getSchema();
-
-  const renderColumnSectionItems = (column) => column.map(({ name, type }) => {
-    if ( type === SECTION_ITEM_TYPES.FIELD && isFieldActive(name, schema) ){
-      const Field = getFormFieldComponent(name, schema);
-      return <Field fieldName={name} key={name} />;
-    } else if (type === SECTION_ITEM_TYPES.HEADER) {
-      return <Header fieldName={name} key={name} />;
-    }
-    return null;
-  });
-
-  return <div>
-    <div>
-      {
-        renderColumnSectionItems(sectionDetails.leftColumn)
-      }
-    </div>
-
-  </div>;
+Section.propTypes = {
+  id: PropTypes.string.isRequired,
+  renderField: PropTypes.func.isRequired,
 };
 
 export default Section;

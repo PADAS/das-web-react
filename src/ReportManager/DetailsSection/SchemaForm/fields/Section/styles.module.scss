@@ -1,0 +1,35 @@
+@import '../../../../../common/styles/vars/colors';
+
+.section {
+  background-color: white;
+  border-bottom: 1px solid $very-light-gray-alt;
+  border-top: 1px solid $very-light-gray-alt;
+  padding: 1.125rem;
+  margin-top: 0.5rem;
+
+  .header {
+    border-bottom: 2px solid #DDD;
+    color: black;
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .columns {
+    display: flex;
+
+    .fullWidthColumn {
+      width: 100%;
+    }
+  
+    .halfWidthColumnLeft {
+      padding-right: 0.5rem;
+      width: 50%;
+    }
+  
+    .halfWidthColumnRight {
+      padding-left: 0.5rem;
+      width: 50%;
+    }
+  }
+}
