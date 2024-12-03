@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID, TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 import { render, screen } from '../../../../../test-utils';
-import { SchemaFormContext } from '../../SchemaFormContext';
+import SchemaFormContext from '../../SchemaFormContext';
 
 import Text from './';
 
@@ -43,7 +43,8 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   const renderTextField = (props, context) => {
     render(<SchemaFormContext.Provider value={{
       fields,
-      formData: {},
+      fieldErrors: {},
+      fieldValues: {},
       onFieldChange,
       ...context
     }}>
@@ -55,6 +56,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     renderTextField();
 
     expect(screen.getByText('Text 1 Label')).toBeVisible();
+    expect(screen.getByLabelText('Text 1 Label')).not.toBeRequired();
   });
 
   test('shows the label for required fields', () => {
@@ -62,6 +64,73 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     renderTextField();
 
     expect(screen.getByText('Text 1 Label *')).toBeVisible();
+    expect(screen.getByLabelText('Text 1 Label *')).toBeRequired();
+  });
+
+  test('does not show an error state in the label if the value is valid', () => {
+    renderTextField();
+
+    expect(screen.getByText('Text 1 Label')).not.toHaveClass('error');
+  });
+
+  test('shows an error state in the label if the value is invalid', () => {
+    renderTextField(undefined, { fieldErrors: { 'text-1': 'Error' } });
+
+    expect(screen.getByText('Text 1 Label')).toHaveClass('error');
+  });
+
+  test('shows the field for short text inputs', () => {
+    renderTextField();
+
+    expect(screen.getByRole('textbox').tagName).toBe('INPUT');
+  });
+
+  test('shows the field for long text inputs', () => {
+    fields['text-1'].details.inputType = TEXT_ELEMENT_INPUT_TYPES.LONG;
+    renderTextField();
+
+    expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
+  });
+
+  test('does not show the description', () => {
+    fields['text-1'].details.description = '';
+    renderTextField();
+
+    expect(screen.queryByText('Text 1 Description')).toBeNull();
+    expect(screen.getByLabelText('Text 1 Label')).not.toHaveAccessibleDescription();
+  });
+
+  test('shows the description', () => {
+    renderTextField();
+
+    const description = screen.getByText('Text 1 Description');
+
+    expect(description).toBeVisible();
+    expect(description).toHaveAttribute('aria-live', 'off');
+    expect(description).not.toHaveClass('error');
+    expect(screen.getByLabelText('Text 1 Label')).toHaveAccessibleDescription('Text 1 Description');
+  });
+
+  test('shows the input without an error state when it is valid', () => {
+    renderTextField();
+
+    const textInput = screen.getByLabelText('Text 1 Label');
+
+    expect(textInput).toBeValid();
+    expect(textInput).not.toHaveAccessibleErrorMessage();
+  });
+
+  test('shows the input with an error state when it is invalid', () => {
+    renderTextField(undefined, { fieldErrors: { 'text-1': 'Error' } });
+
+    const textInput = screen.getByLabelText('Text 1 Label');
+    const description = screen.getByText('Error');
+
+    expect(textInput).toBeInvalid();
+    expect(textInput).toHaveAccessibleErrorMessage('Error');
+    expect(description).toBeVisible();
+    expect(description).toHaveAttribute('aria-live', 'assertive');
+    expect(description).toHaveClass('error');
   });
 
   test('does not change the input value automatically if there is no default input', () => {
@@ -78,7 +147,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(onFieldChange).toHaveBeenCalledWith('text-1', 'Text 1 Default Input');
   });
 
-  test('updates the form data when the user does changes to the input if it is a short text input', async () => {
+  test('updates the form data when the user does changes to the input', async () => {
     fields['text-1'].details.defaultInput = '';
     renderTextField();
 
@@ -86,47 +155,11 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith('text-1', 'X');
-  });
-
-  test('updates the form data when the user does changes to the input if it is a long text input', async () => {
-    fields['text-1'].details.inputType = TEXT_ELEMENT_INPUT_TYPES.LONG;
-    fields['text-1'].details.defaultInput = '';
-    renderTextField();
-
-    await userEvent.type(screen.getByRole('textbox'), 'X');
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('text-1', 'X');
-  });
-
-  test('shows the label', () => {
-    renderTextField();
-
-    expect(screen.getByLabelText('Text 1 Label')).toBeVisible();
   });
 
   test('shows the placeholder', () => {
     renderTextField();
 
-    expect(screen.getByRole('textbox').placeholder).toBe('Text 1 Placeholder');
-  });
-
-  test('shows the field for short text input', () => {
-    renderTextField();
-
-    expect(screen.getByRole('textbox').tagName).toBe('INPUT');
-  });
-
-  test('shows the field for long text input', () => {
-    fields['text-1'].details.inputType = TEXT_ELEMENT_INPUT_TYPES.LONG;
-    renderTextField();
-
-    expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
-  });
-
-  test('shows the description', () => {
-    renderTextField();
-
-    expect(screen.getByText('Text 1 Description')).toBeVisible();
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Text 1 Placeholder');
   });
 });

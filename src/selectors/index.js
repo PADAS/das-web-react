@@ -26,6 +26,7 @@ export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.gl
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
+export const getEventSchemas = (state) => state.data.eventSchemas;
 
 export const userLocationCanBeShown = createSelector(
   [userLocation, showUserLocation],
@@ -110,9 +111,11 @@ export const getUserCreatableEventTypesByCategory = createSelector(
   },
 );
 
-export const reportedBy = createSelector(
-  [getEventReporters],
-  reporters => reporters,
+export const getGlobalSchemaReportedBy = createSelector(
+  [getEventSchemas],
+  (eventSchemas) => eventSchemas.globalSchema
+    ? eventSchemas.globalSchema.properties.reported_by.enum_ext.map((reportedBy) => reportedBy.value)
+    : [],
 );
 
 

@@ -2,7 +2,6 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } fr
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { isToday } from 'date-fns';
-import PropTypes from 'prop-types';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -46,8 +45,8 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
 const DetailsSection = ({
-  formSchema,
-  formUISchema,
+  formSchema = null,
+  formUISchema = null,
   formValidator,
   isCollection,
   loadingSchema,
@@ -108,16 +107,10 @@ const DetailsSection = ({
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
   }, [formUISchema]);
 
-  const renderSchemaFormSubmitButton = () => (
-    <button className={styles.schemaFormSubmitButton} ref={submitFormButtonRef} type="submit" />
-  );
-
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
 
-    return () => {
-      dispatch(setMapLocationSelectionEvent(null));
-    };
+    return () => dispatch(setMapLocationSelectionEvent(null));
   }, [dispatch, reportForm]);
 
   return <div ref={ref}>
@@ -133,18 +126,25 @@ const DetailsSection = ({
           <Dropdown
             className={`${styles.stateDropdown} ${styles[reportForm.state]}`}
             onKeyDown={onStateDropdownKeyDown}
+            onSelect={onReportStateChange}
             onToggle={(nextShow) => setShowStateDropdown(nextShow)}
             show={showStateDropdown}
-            onSelect={onReportStateChange}
           >
             <Dropdown.Toggle variant="success">
               {t(`stateDropdown.${reportState}`)}
             </Dropdown.Toggle>
 
-            <Dropdown.Menu className={styles.stateDropdownMenu}>
+            <Dropdown.Menu
+              className={styles.stateDropdownMenu}
+              data-testid="reportManager-detailsSection-stateDropdownMenu"
+            >
               {Object.values(EVENT_FORM_STATES)
                 .filter((eventState) => eventState !== EVENT_FORM_STATES.NEW_LEGACY)
-                .map((eventState) => <Dropdown.Item className={styles.stateItem} eventKey={eventState} key={eventState}>
+                .map((eventState) => <Dropdown.Item
+                  className={styles.stateItem}
+                  eventKey={eventState}
+                  key={eventState}
+                >
                   {t(`stateDropdown.${eventState}`)}
                 </Dropdown.Item>)}
             </Dropdown.Menu>
@@ -154,7 +154,7 @@ const DetailsSection = ({
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && <label data-testid="reportManager-reportedBySelect" className={styles.fieldLabel}>
+          {!isCollection && <label className={styles.fieldLabel}>
             {t('reportedByLabel')}
 
             <ReportedBySelect
@@ -164,7 +164,7 @@ const DetailsSection = ({
             />
           </label>}
 
-          <label className={styles.fieldLabel} data-testid="reportManager-prioritySelector">
+          <label className={styles.fieldLabel}>
             {t('priorityLabel')}
 
             <PrioritySelect
@@ -182,8 +182,8 @@ const DetailsSection = ({
             {geometryType === VALID_EVENT_GEOMETRY_TYPES.POLYGON
               ? <AreaSelectorInput
                 event={reportForm}
-                originalEvent={originalReport}
                 onGeometryChange={onReportGeometryChange}
+                originalEvent={originalReport}
               />
               : <LocationSelectorInput
                 label={null}
@@ -194,7 +194,7 @@ const DetailsSection = ({
           </label>
 
           <div className={styles.reportDateTimeContainer}>
-            <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`} data-testid="reportManager-datePicker">
+            <label className={`${styles.fieldLabel} ${styles.datePickerLabel}`}>
               {t('dateLabel')}
 
               <DatePicker
@@ -206,7 +206,7 @@ const DetailsSection = ({
               />
             </label>
 
-            <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`} data-testid="reportManager-timePicker">
+            <label className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
               {t('timeLabel')}
 
               <TimePicker
@@ -261,7 +261,11 @@ const DetailsSection = ({
         formData={reportForm.event_details}
         onFormDataChange={onFormDataChange}
         onFormSubmit={onFormSubmit}
-        renderSubmitButton={renderSchemaFormSubmitButton}
+        renderSubmitButton={() => <button
+          className={styles.schemaFormSubmitButton}
+          ref={submitFormButtonRef}
+          type="submit"
+        />}
         schema={schemaFromSchemaSelector.schema}
       />
     </>}
@@ -274,32 +278,4 @@ const DetailsSection = ({
   </div>;
 };
 
-const DetailsSectionForwardRef = forwardRef(DetailsSection);
-
-DetailsSectionForwardRef.defaultProps = {
-  formSchema: null,
-  formUISchema: null,
-};
-
-DetailsSectionForwardRef.propTypes = {
-  formSchema: PropTypes.object,
-  formUISchema: PropTypes.object,
-  formValidator: PropTypes.object.isRequired,
-  isCollection: PropTypes.bool.isRequired,
-  loadingSchema: PropTypes.bool.isRequired,
-  onFormDataChange: PropTypes.func.isRequired,
-  onFormError: PropTypes.func.isRequired,
-  onFormSubmit: PropTypes.func.isRequired,
-  onLegacyFormChange: PropTypes.func.isRequired,
-  onPriorityChange: PropTypes.func.isRequired,
-  onReportedByChange: PropTypes.func.isRequired,
-  onReportDateChange: PropTypes.func.isRequired,
-  onReportGeometryChange: PropTypes.func.isRequired,
-  onReportLocationChange: PropTypes.func.isRequired,
-  onReportTimeChange: PropTypes.func.isRequired,
-  originalReport: PropTypes.object.isRequired,
-  reportForm: PropTypes.object.isRequired,
-  submitFormButtonRef: PropTypes.object.isRequired,
-};
-
-export default memo(DetailsSectionForwardRef);
+export default memo(forwardRef(DetailsSection));

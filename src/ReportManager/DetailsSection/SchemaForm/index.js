@@ -1,10 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import Ajv2020 from 'ajv/dist/2020';
-import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
+import useSchemaValidations from './utils/useSchemaValidations';
 
 import Header from './fields/Header';
 import SchemaFormContext from './SchemaFormContext';
@@ -17,10 +15,8 @@ export const FIELDS = {
   [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
-const ajv = new Ajv2020({ allErrors: true });
-
 const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButton, schema }) => {
-  const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm' });
+  const runValidations = useSchemaValidations(schema);
 
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -31,8 +27,6 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
 
     return { ...accumulator, [fieldId]: fieldValue };
   }, {}), [formData]);
-
-  const validate = useMemo(() => ajv.compile(schema.json), [schema.json]);
 
   const onFieldChange = useCallback((fieldId, value) => {
     // TODO: Collections will require recusivity here.
@@ -46,19 +40,10 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
   const onSubmit = (event) => {
     event.preventDefault();
 
-    const valid = validate(formData);
-    if (!valid) {
-      const fieldErrors = validate.errors.reduce((accumulator, error) => {
-        if (error.keyword === 'required') {
-          return { ...accumulator, [error.params.missingProperty]: t('errors.required') };
-        }
-
-        // TODO: Transform missing errors.
-
-        return accumulator;
-      }, {});
-
+    const fieldErrors = runValidations(formData);
+    if (fieldErrors) {
       setFieldErrors(fieldErrors);
+      document.getElementById(Object.keys(fieldErrors)[0]).focus();
     } else {
       onFormSubmit({ formData });
     }
@@ -83,14 +68,6 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
       {renderSubmitButton()}
     </form>
   </SchemaFormContext.Provider>;
-};
-
-SchemaForm.propTypes = {
-  formData: PropTypes.object.isRequired,
-  onFormDataChange: PropTypes.func.isRequired,
-  onFormSubmit: PropTypes.func.isRequired,
-  renderSubmitButton: PropTypes.func.isRequired,
-  schema: PropTypes.object.isRequired,
 };
 
 export default SchemaForm;

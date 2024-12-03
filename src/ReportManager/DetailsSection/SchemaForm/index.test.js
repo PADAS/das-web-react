@@ -6,7 +6,7 @@ import { render, screen } from '../../../test-utils';
 import SchemaForm from './';
 
 describe('ReportManager - DetailsSection - SchemaForm', () => {
-  const onFormChange = jest.fn();
+  const onFormDataChange = jest.fn();
   const onFormSubmit = jest.fn();
   const renderSubmitButton = jest.fn();
 
@@ -73,14 +73,14 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
 
   const renderSchemaForm = (props) => render(<SchemaForm
     formData={{ this_is_a_text: 'a text value' }}
-    onFormChange={onFormChange}
+    onFormDataChange={onFormDataChange}
     onFormSubmit={onFormSubmit}
     renderSubmitButton={renderSubmitButton}
     schema={schema}
     {...props}
   />);
 
-  test('renders a sections, fields and headers from the schema', () => {
+  test('renders sections, fields and headers from the schema', () => {
     renderSchemaForm();
 
     const section = screen.getByTestId('schema-form-section-section-_PdgePvPWyACfu9sgN_F6');
@@ -98,7 +98,54 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(screen.getByTestId('submit-button')).toBeVisible();
   });
 
-  test('submits the form', async () => {
+  test('shows the values of the fields', async () => {
+    renderSchemaForm();
+
+    expect(screen.getByLabelText('This is a text *')).toHaveValue('a text value');
+  });
+
+  test('changes the field values when the user interacts with them', async () => {
+    renderSchemaForm();
+
+    expect(onFormDataChange).not.toHaveBeenCalled();
+
+    await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(1);
+    expect(onFormDataChange).toHaveBeenCalledWith({ this_is_a_text: 'a text value ' });
+  });
+
+  test('shows validation errors if there are any when the user submits the form', async () => {
+    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+
+    const inputField = screen.getByLabelText('This is a text *');
+
+    expect(inputField).toBeValid();
+    expect(inputField).not.toHaveAccessibleErrorMessage();
+
+    await userEvent.type(inputField, '{enter}');
+
+    expect(onFormSubmit).not.toHaveBeenCalled();
+    expect(inputField).toBeInvalid();
+    expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
+  });
+
+  test('clears validation errors of a field when the user changes its value', async () => {
+    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+
+    const inputField = screen.getByLabelText('This is a text *');
+    await userEvent.type(inputField, '{enter}');
+
+    expect(inputField).toBeInvalid();
+    expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
+
+    await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
+
+    expect(inputField).toBeValid();
+    expect(inputField).not.toHaveAccessibleErrorMessage();
+  });
+
+  test('submits the form when there are no validation errors', async () => {
     renderSchemaForm();
 
     const inputField = screen.getByTestId(

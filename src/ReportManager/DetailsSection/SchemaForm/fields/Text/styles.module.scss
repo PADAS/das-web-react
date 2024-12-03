@@ -15,14 +15,6 @@
 .textInput {
   width: 100%;
 
-  &.error {
-    border-color: $bright-red;
-
-    &::placeholder {
-      color: lighten($bright-red, 33%);
-    }
-  }
-
   &.shortText {
     height: 2.5rem;
   }
@@ -33,6 +25,18 @@
     min-height: 2.5rem;
     border: 1px solid #d8d9d9;
     padding: 0.5rem;
+  }
+
+  &:focus {
+    border: 2px solid $bright-blue;
+  }
+
+  &[aria-invalid="true"] {
+    border-color: $bright-red;
+
+    &::placeholder {
+      color: lighten($bright-red, 33%);
+    }
   }
 }
 

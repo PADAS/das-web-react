@@ -2,7 +2,7 @@ import React from 'react';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID, TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 import { render, screen } from '../../../../../test-utils';
-import { SchemaFormContext } from '../../SchemaFormContext';
+import SchemaFormContext from '../../SchemaFormContext';
 
 import Section from './';
 
