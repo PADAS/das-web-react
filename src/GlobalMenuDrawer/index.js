@@ -54,7 +54,7 @@ export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
 export const DATA_PRIVACY_POLICY_URL = 'https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf';
 export const EULA_URL = 'https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf';
 export const HELP_CENTER_SITE_URL = 'https://support.earthranger.com/';
-export const USERS_GUIDE_SITE_URL = 'https://community.earthranger.com/t/earthranger-users-guide/60';
+export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earthranger-web';
 export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
 
 const GlobalMenuDrawer = () => {
