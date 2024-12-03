@@ -1,6 +1,6 @@
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react-hooks';
 

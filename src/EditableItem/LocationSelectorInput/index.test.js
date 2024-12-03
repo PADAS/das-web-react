@@ -13,8 +13,8 @@ import { setModalVisibilityState } from '../../ducks/modals';
 import { setIsPickingLocation } from '../../ducks/map-ui';
 import { cleanup, render, screen, waitFor } from '../../test-utils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: () => ({ pathname: '/events' }),
 }));
 

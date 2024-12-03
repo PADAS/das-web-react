@@ -5,7 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import SplitButton from 'react-bootstrap/SplitButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';

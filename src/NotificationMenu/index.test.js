@@ -1,6 +1,6 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
@@ -14,13 +14,15 @@ import { render, waitFor, waitForElementToBeRemoved, screen } from '../test-util
 import NotificationMenu from '../NotificationMenu';
 
 const server = setupServer(
-  rest.get(NEWS_API_URL, (req, res, ctx) => {
-    return res(ctx.json( { data: {
-      results: mockNewsData,
-    } }));
+  http.get(NEWS_API_URL, () => {
+    return HttpResponse.json({
+      data: {
+        results: mockNewsData,
+      }
+    });
   }),
-  rest.post(NEWS_API_URL, (req, res, ctx) => {
-    return res(ctx.status(201));
+  http.post(NEWS_API_URL, () => {
+    return HttpResponse.json(null, { status: 201 });
   })
 );
 
@@ -157,9 +159,18 @@ describe('listing news items', () => {
 
 describe('handling failed news requests', () => {
   beforeEach(async () => {
+    let secondCall = false;
     server.use(
-      rest.get(NEWS_API_URL, (req, res, ctx) => {
-        return res.once(ctx.status(500));
+      http.get(NEWS_API_URL, () => {
+        if (secondCall) {
+          return HttpResponse.json({
+            data: {
+              results: mockNewsData,
+            }
+          });
+        }
+        secondCall = true;
+        return HttpResponse.json(null, { status: 500 });
       })
     );
     render(<Provider store={store}>
@@ -224,10 +235,12 @@ describe('reminding users of unread messages', () => {
     }, []);
 
     server.use(
-      rest.get(NEWS_API_URL, (req, res, ctx) => {
-        return res.once(ctx.json( { data: {
-          results: newsItemsWithRecentMessages,
-        } }));
+      http.get(NEWS_API_URL, () => {
+        return HttpResponse.json({
+          data: {
+            results: newsItemsWithRecentMessages,
+          },
+        });
       })
     );
 

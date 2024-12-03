@@ -1,21 +1,27 @@
-import ReactGA4 from 'react-ga4';
-import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
-import { TextDecoder, TextEncoder } from 'util';
+import 'jest-webgl-canvas-mock';
+import { fetch, FormData, Headers, Response, Request } from 'undici';
+import ReactGA4 from 'react-ga4';
+import { ReadableStream, TransformStream } from 'node:stream/web';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
-Object.defineProperty(window, 'TextEncoder', {
-  writable: true,
-  value: TextEncoder
-});
-
-Object.defineProperty(window, 'TextDecoder', {
-  writable: true,
-  value: TextDecoder
-});
-
 ReactGA4.initialize('dummy', { testMode: true });
+
+Object.defineProperties(global, {
+  Blob: { value: Blob },
+  fetch: { value: fetch, writable: true },
+  File: { value: File },
+  FormData: { value: FormData },
+  Headers: { value: Headers },
+  ReadableStream: { value: ReadableStream },
+  Response: { value: Response },
+  Request: { value: Request },
+  TextDecoder: { value: TextDecoder },
+  TextEncoder: { value: TextEncoder },
+  TransformStream: { value: TransformStream },
+});
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -32,8 +38,6 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 Object.defineProperty(navigator, 'languages', { get: () => ['en-US'] });
-
-window.URL.createObjectURL = jest.fn();
 
 jest.doMock('./withSocketConnection', () => ({
   SocketContext,
@@ -54,5 +58,9 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords = jest.fn();
   unobserve = jest.fn();
 };
+
+global.BroadcastChannel = require('worker_threads').BroadcastChannel;
+
+window.URL.createObjectURL = jest.fn();
 
 process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED = false;

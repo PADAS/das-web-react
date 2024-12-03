@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router';
 
 import { SYSTEM_CONFIG_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';

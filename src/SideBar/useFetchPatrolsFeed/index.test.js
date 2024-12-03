@@ -1,7 +1,7 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react-hooks';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { waitFor } from '@testing-library/react';
 
@@ -14,7 +14,7 @@ import useFetchPatrolsFeed from '.';
 const patrolFeedResponse = { data: { results: patrols, next: null, count: patrols.length, page: 1 } };
 
 const server = setupServer(
-  rest.get(PATROLS_API_URL, (req, res, ctx) => res(ctx.json(patrolFeedResponse))),
+  http.get(PATROLS_API_URL, () => HttpResponse.json(patrolFeedResponse)),
 );
 
 beforeAll(() => server.listen());
@@ -22,24 +22,14 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('useFetchPatrolsFeed', () => {
-  let capturedRequestURLs, store;
-
-  const logRequest = (req) => {
-    capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
-  };
+  let store;
 
   beforeEach(() => {
-    capturedRequestURLs = [];
     store = { data: { patrolFilter: INITIAL_PATROL_FILTER_STATE }, view: {} };
-  });
-
-  server.events.on('request:match', (req) => {
-    logRequest(req);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    server.events.removeListener('request:match', logRequest);
   });
 
   test('returns the patrolsFetchFeed properties and methods', async () => {
@@ -53,11 +43,16 @@ describe('useFetchPatrolsFeed', () => {
 
 
   test('loads the patrols feed', async () => {
-    const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
+    const builtStore = mockStore(store);
+    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
     renderHook(() => useFetchPatrolsFeed(), { wrapper });
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find(item => item.includes(PATROLS_API_URL))).toBeDefined();
+      expect(actions).toHaveLength(2);
+      expect(actions[0].type).toBe('FETCH_PATROLS_SUCCESS');
+      expect(actions[1].type).toBe('UPDATE_PATROL_STORE');
     });
   });
 });

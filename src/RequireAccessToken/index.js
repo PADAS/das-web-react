@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router';
 
 import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';

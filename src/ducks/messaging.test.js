@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { messages } from '../__test-helpers/fixtures/messages';
@@ -17,9 +17,10 @@ describe('#fetchAllMessages', () => {
     };
 
     const server = setupServer(
-      rest.get(MESSAGING_API_URL, (req, res, ctx) => {
-        const { url } = req;
+      http.get(MESSAGING_API_URL, ({ request }) => {
+        const { url: requestUrl } = request;
 
+        const url = new URL(requestUrl);
         Object.entries(requestParams).forEach(([key, val]) => {
           expect(url.search.includes(`${key}=${val}`)).toBeTruthy();
         });
@@ -29,15 +30,15 @@ describe('#fetchAllMessages', () => {
           next: secondPageUrl,
         };
 
-        return res(ctx.json( { data }));
+        return HttpResponse.json({ data });
       }),
-      rest.get(secondPageUrl, (req, res, ctx) => {
+      http.get(secondPageUrl, () => {
         const data = {
           results: secondPageOfMessages,
           next: null,
         };
 
-        return res(ctx.json( { data }));
+        return HttpResponse.json({ data });
       })
     );
 

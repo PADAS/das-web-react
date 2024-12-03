@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 
 import AddItemButton from '../AddItemButton';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
@@ -18,8 +18,8 @@ import ReportManager from './';
 import useNavigate from '../hooks/useNavigate';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
@@ -29,14 +29,8 @@ jest.mock('../AddItemButton', () => jest.fn());
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 const server = setupServer(
-  rest.get(
-    `${EVENT_TYPE_SCHEMA_API_URL}:name`,
-    (req, res, ctx) => res(ctx.json( { data: { results: {} } }))
-  ),
-  rest.get(
-    `${EVENT_API_URL}:id`,
-    (req, res, ctx) => res(ctx.json({ data: eventWithPoint }))
-  )
+  http.get(`${EVENT_TYPE_SCHEMA_API_URL}:name`, () => HttpResponse.json( { data: { results: {} } })),
+  http.get(`${EVENT_API_URL}:id`, () => HttpResponse.json({ data: eventWithPoint }))
 );
 
 beforeAll(() => server.listen());
@@ -44,15 +38,9 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('ReportManager', () => {
-  let capturedRequestURLs;
-  const logRequest = (req) => {
-    capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
-  };
-
-  let AddItemButtonMock, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
+  let AddItemButtonMock, builtStore, navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
-    capturedRequestURLs = [];
     AddItemButtonMock = jest.fn(() => null);
     AddItemButton.mockImplementation(AddItemButtonMock);
     useLocationMock = jest.fn(() => ({ pathname: '/events/new', state: { temporalId: '1234' } }),);
@@ -83,15 +71,14 @@ describe('ReportManager', () => {
     };
   });
 
-  server.events.on('request:match', (req) => logRequest(req));
-
   afterEach(() => {
     jest.restoreAllMocks();
-    server.events.removeListener('request:match', logRequest);
   });
 
   const renderReportManager = (store) => {
-    return render(<Provider store={mockStore(store)}>
+    builtStore = mockStore(store);
+
+    return render(<Provider store={builtStore}>
       <SidebarScrollProvider>
         <ReportManager />
       </SidebarScrollProvider>
@@ -133,8 +120,10 @@ describe('ReportManager', () => {
 
     renderReportManager(store);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).toBeDefined();
+      expect(actions[0].type).toBe('UPDATE_EVENT_STORE');
     });
   });
 
@@ -150,8 +139,10 @@ describe('ReportManager', () => {
     };
     renderReportManager(store);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).toBeDefined();
+      expect(actions[0].type).toBe('UPDATE_EVENT_STORE');
     });
   });
 
@@ -162,8 +153,10 @@ describe('ReportManager', () => {
     store.data.eventStore = { 123: eventWithPoint };
     renderReportManager(store);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).not.toBeDefined();
+      expect(actions.find((action) => action.type === 'UPDATE_EVENT_STORE')).not.toBeDefined();
     });
   });
 
@@ -174,8 +167,10 @@ describe('ReportManager', () => {
     store.data.eventStore = { 123: eventWithPoint };
     renderReportManager(store);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}123`))).not.toBeDefined();
+      expect(actions.find((action) => action.type === 'UPDATE_EVENT_STORE')).not.toBeDefined();
     });
   });
 

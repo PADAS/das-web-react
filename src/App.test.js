@@ -1,7 +1,6 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 import SocketProvider from './__test-helpers/MockSocketContext';
@@ -28,41 +27,41 @@ import { ConnectedApp as App } from './App';
 const generateEmptyResponse = () => ({ data: [] });
 
 const server = setupServer(
-  rest.get(MAPS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(MAPS_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(NEWS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(NEWS_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(CURRENT_USER_API_URL, (req, res, ctx) => {
-    return res(ctx.json({ data: {} }));
+  http.get(CURRENT_USER_API_URL, () => {
+    return HttpResponse.json({ data: {} });
   }),
-  rest.get(USER_PROFILES_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(USER_PROFILES_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(STATUS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(STATUS_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(BASE_LAYER_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(BASE_LAYER_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(EVENT_TYPE_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(EVENT_TYPE_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(SUBJECT_GROUPS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(SUBJECT_GROUPS_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(FEATURESET_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(FEATURESET_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(ANALYZERS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(ANALYZERS_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(PATROL_TYPES_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(PATROL_TYPES_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
-  rest.get(EVENT_SCHEMA_API_URL, (req, res, ctx) => {
-    return res(ctx.json(generateEmptyResponse()));
+  http.get(EVENT_SCHEMA_API_URL, () => {
+    return HttpResponse.json(generateEmptyResponse());
   }),
 );
 

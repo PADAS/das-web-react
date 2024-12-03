@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
-import { useNavigate as useRouterNavigate } from 'react-router-dom';
+import { useNavigate as useRouterNavigate } from 'react-router';
 
 import { mockStore } from '../../__test-helpers/MockStore';
 import { BLOCKER_STATES, NavigationContext } from '../../NavigationContextProvider';
 import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import useNavigate from './';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(),
 }));
 

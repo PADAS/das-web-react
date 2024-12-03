@@ -58,11 +58,11 @@ describe('TimePicker', () => {
     const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
 
 
-    expect(timeOptionsListItems[0].textContent.slice(9)).toBe('(-10h)');
-    expect(timeOptionsListItems[1].textContent.slice(9)).toBe('(-9h 30m)');
-    expect(timeOptionsListItems[2].textContent.slice(9)).toBe('(-9h)');
-    expect(timeOptionsListItems[3].textContent.slice(9)).toBe('(-8h 30m)');
-    expect(timeOptionsListItems[4].textContent.slice(9)).toBe('(-8h)');
+    expect(timeOptionsListItems[0]).toHaveTextContent('-10h');
+    expect(timeOptionsListItems[1]).toHaveTextContent('-9h 30m');
+    expect(timeOptionsListItems[2]).toHaveTextContent('-9h');
+    expect(timeOptionsListItems[3]).toHaveTextContent('-8h 30m');
+    expect(timeOptionsListItems[4]).toHaveTextContent('-8h');
   });
 
   test('calls onChange and send a date with the time chosen', async () => {

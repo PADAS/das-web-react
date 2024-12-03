@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { matchPath, Route, Routes, useLocation } from 'react-router-dom';
+import { matchPath, Route, Routes, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';

@@ -6,7 +6,7 @@ import Nav from './Nav';
 import { connect, useSelector } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast, Slide } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import useNavigate from './hooks/useNavigate';

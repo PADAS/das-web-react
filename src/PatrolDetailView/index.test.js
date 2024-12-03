@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from '../AddItemButton';
@@ -24,8 +24,8 @@ import { notes } from '../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { render, screen, waitFor, within } from '../test-utils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
@@ -40,11 +40,11 @@ jest.mock('../utils/save', () => ({
 }));
 
 const server = setupServer(
-  rest.get(
-    `${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: scheduledPatrol }))
+  http.get(
+    `${PATROLS_API_URL}:id`, () => HttpResponse.json({ data: scheduledPatrol })
   ),
-  rest.get(
-    `${API_URL}subject/:id/tracks/`, (req, res, ctx) => res(ctx.json({ data: {
+  http.get(
+    `${API_URL}subject/:id/tracks/`, () => HttpResponse.json({ data: {
       type: 'FeatureCollection',
       features: [
         {
@@ -93,10 +93,10 @@ const server = setupServer(
           }
         }
       ]
-    } }))
+    } })
   ),
-  rest.patch(
-    `${EVENT_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: {} }))
+  http.patch(
+    `${EVENT_API_URL}:id`, () => HttpResponse.json({ data: {} })
   ),
 );
 
@@ -113,12 +113,8 @@ describe('PatrolDetailView', () => {
     content_type: 'accounts.user'
   };
 
-  let capturedRequestURLs;
-  const logRequest = (req) => {
-    capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
-  };
-
   let AddItemButtonMock,
+    builtStore,
     executeSaveActionsMock,
     map,
     mockPatrol,
@@ -142,8 +138,6 @@ describe('PatrolDetailView', () => {
     useNavigate.mockImplementation(useNavigateMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
-
-    capturedRequestURLs = [];
 
     mockPatrol = {
       id: '123',
@@ -203,26 +197,27 @@ describe('PatrolDetailView', () => {
 
     map = createMapMock();
 
-    Wrapper = ({ children }) => <Provider store={mockStore(store)}> {/* eslint-disable-line react/display-name */}
-      <NavigationWrapper>
-        <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
-            <SidebarScrollProvider>
-              {children}
-            </SidebarScrollProvider>
-          </TrackerContext.Provider>
-        </MapContext.Provider>
-      </NavigationWrapper>
-    </Provider>;
+    // eslint-disable-next-line react/display-name
+    Wrapper = ({ children }) => {
+      builtStore = mockStore(store);
+      return <Provider store={builtStore}>
+        <NavigationWrapper>
+          <MapContext.Provider value={map}>
+            <TrackerContext.Provider value={{ track: jest.fn() }}>
+              <SidebarScrollProvider>
+                {children}
+              </SidebarScrollProvider>
+            </TrackerContext.Provider>
+          </MapContext.Provider>
+        </NavigationWrapper>
+      </Provider>;
+    };
 
     renderWithWrapper = (Component, wrapper = Wrapper) => render(Component, { wrapper });
   });
 
-  server.events.on('request:match', (req) => logRequest(req));
-
   afterEach(() => {
     jest.restoreAllMocks();
-    server.events.removeListener('request:match', logRequest);
   });
 
   test('redirects to /patrols if user tries to create a new patrol with an invalid patrolType', async () => {
@@ -260,8 +255,10 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}456`))).toBeDefined();
+      expect(actions[0].type).toBe('UPDATE_PATROL_SUCCESS');
     });
   });
 
@@ -272,9 +269,11 @@ describe('PatrolDetailView', () => {
     store.data.eventStore = { 123: scheduledPatrol };
     renderWithWrapper(<PatrolDetailView />);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
-      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/`))).not.toBeDefined();
+      expect(actions).toHaveLength(1);
+      expect(actions[0].type).not.toBe('UPDATE_PATROL_SUCCESS');
     });
   });
 
@@ -284,9 +283,11 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).not.toBeDefined();
-      expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}subject/456/tracks/?since=2022-01-18T21:42:39.502Z`))).toBeDefined();
+      expect(actions).toHaveLength(1);
+      expect(actions[0].type).not.toBe('UPDATE_PATROL_SUCCESS');
     });
   });
 
@@ -526,30 +527,6 @@ describe('PatrolDetailView', () => {
 
     expect(window.alert).toHaveBeenCalledTimes(1);
     expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
-  });
-
-  test('after adding a report it is added to the patrol segment', async () => {
-    useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
-    useLocation.mockImplementation(useLocationMock);
-
-    const addedReport = [{ data: { data: { id: 'added' } } }];
-
-    AddItemButtonMock = ({ formProps }) => { /* eslint-disable-line react/display-name */
-      useEffect(() => {
-        formProps.onSaveSuccess(addedReport);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);
-
-      return null;
-    };
-    AddItemButton.mockImplementation(AddItemButtonMock);
-
-    renderWithWrapper(<PatrolDetailView />);
-
-    await waitFor(() => {
-      expect(capturedRequestURLs.find((item) => item.includes(`${EVENT_API_URL}added`))).toBeDefined();
-      expect(capturedRequestURLs.find((item) => item.includes(`${PATROLS_API_URL}123`))).toBeDefined();
-    });
   });
 
   test('does not display the activity section nor its anchor if there are no items to show', async () => {

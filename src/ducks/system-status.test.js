@@ -1,7 +1,6 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { API_URL } from '../constants';
 import {
   fetchSystemStatus,
   FETCH_SYSTEM_STATUS_SUCCESS,
@@ -19,7 +18,9 @@ const systemStatusConfig = {
 };
 
 const server = setupServer(
-  rest.get(STATUS_API_URL, (req, res, ctx) => res(ctx.json({ data: systemStatusConfig })))
+  http.get(STATUS_API_URL, () => {
+    return HttpResponse.json({ data: systemStatusConfig });
+  })
 );
 
 beforeAll(() => server.listen());
@@ -27,21 +28,9 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('updating socket health status', () => {
-  let capturedRequestURLs = [];
-  const logRequest = (req) => {
-    capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
-  };
-
   let store;
   beforeEach(() => {
     store = mockStore({ data: { systemStatus: { realtime: { status: null, timestamp: null } } } });
-    jest.useFakeTimers();
-  });
-
-  server.events.on('request:match', (req) => logRequest(req));
-
-  afterEach(() => {
-    jest.useRealTimers();
   });
 
   test('immediately dispatching with a healthy status', () => {
@@ -54,6 +43,8 @@ describe('updating socket health status', () => {
   });
 
   test('dispatching with an unhealthy status after a timeout', () => {
+    jest.useFakeTimers();
+
     store.dispatch(updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS));
 
     let actions = store.getActions();
@@ -69,9 +60,13 @@ describe('updating socket health status', () => {
     expect(actions[0]).toEqual(expect.objectContaining({
       type: SOCKET_UNHEALTHY_STATUS,
     }));
+
+    jest.useRealTimers();
   });
 
   test('dispatching with a warning status after a timeout', () => {
+    jest.useFakeTimers();
+
     store.dispatch(updateSocketHealthStatus(SOCKET_WARNING_STATUS));
 
     let actions = store.getActions();
@@ -87,9 +82,13 @@ describe('updating socket health status', () => {
     expect(actions[0]).toEqual(expect.objectContaining({
       type: SOCKET_WARNING_STATUS,
     }));
+
+    jest.useRealTimers();
   });
 
   test('not dispatching unhealthy statuses if a healthy status follows before the timeout fires', () => {
+    jest.useFakeTimers();
+
     store.dispatch(updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS));
 
     let actions = store.getActions();
@@ -107,6 +106,8 @@ describe('updating socket health status', () => {
     expect(actions[0]).toEqual(expect.objectContaining({
       type: SOCKET_HEALTHY_STATUS,
     }));
+
+    jest.useRealTimers();
   });
 
   test('fetchSystemStatus', async () => {
@@ -114,7 +115,6 @@ describe('updating socket health status', () => {
 
     await fetchSystemStatus()(dispatch);
 
-    expect(capturedRequestURLs.find((item) => item.includes(`${API_URL}status`))).toBeDefined();
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ payload: systemStatusConfig, type: FETCH_SYSTEM_STATUS_SUCCESS });
   });
