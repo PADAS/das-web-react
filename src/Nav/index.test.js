@@ -39,16 +39,9 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen());
-// beforeEach(() => {
-//   jest.useFakeTimers({
-//     now: new Date(),
-//     doNotFake: ['queueMicrotask'],
-//   });
-// });
 afterEach(() => {
   server.resetHandlers();
   store.dispatch(clearUserProfile());
-  // jest.useRealTimers();
 });
 afterAll(() => server.close());
 
