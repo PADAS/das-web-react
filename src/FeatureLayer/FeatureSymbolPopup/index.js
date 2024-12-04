@@ -23,7 +23,7 @@ const FeatureSymbolPopup = ({ data, id }) => {
       <GpsFormatToggle lng={coordinates[0]} lat={coordinates[1]} />
       <hr />
       <AddItemButton
-        analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'map feature popup' }}
+        analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'feature popup' }}
         formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
         reportData={{ location: { latitude: coordinates[1], longitude: coordinates[0] } }}
         showLabel={false}

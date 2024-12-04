@@ -12,6 +12,7 @@ import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 
 import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
+import { FEED_CATEGORY } from '../utils/analytics';
 import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
@@ -228,6 +229,7 @@ const SideBar = () => {
                 <ArrowLeftIcon />
               </button>
               : <AddItemButton
+                analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
                 aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
                 className={styles.addReport}
                 hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
