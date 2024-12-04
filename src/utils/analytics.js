@@ -71,17 +71,17 @@ export const trackEventFactory = (category, tracker = trackEvent) => {
  */
 
 export const setServerVersionAnalyticsDimension = (version) => {
-  ReactGA4.set({ dimension1: version });
+  ReactGA4.set({ 'user_properties': { server_version: version } });
 };
 
 export function setUserRole(role) {
-  ReactGA4.set({ dimension2: role });
+  ReactGA4.set({ 'user_properties': { user_role: role } });
 }
 
 export const setSitenameDimension = (site) => {
-  ReactGA4.set({ dimension3: site });
+  ReactGA4.set({ 'user_properties': { site_name: site } });
 };
 
 export const setClientReleaseIdentifier = () => {
-  ReactGA4.set({ dimension4: CLIENT_BUILD_VERSION });
+  ReactGA4.set({ 'user_properties': { release_identifier: CLIENT_BUILD_VERSION } });
 };
