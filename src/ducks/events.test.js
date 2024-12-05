@@ -16,7 +16,15 @@ describe('fetchMapEvents', () => {
   });
 
   test('appending a bbox parameter from the map object', async () => {
-    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve());
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: {
+        data: {
+          results: [],
+          count: 10,
+        }
+      }
+    }));
 
     await store.dispatch(fetchMapEvents(map));
 
@@ -26,8 +34,17 @@ describe('fetchMapEvents', () => {
     expect(axios.get.mock.calls[0][0].includes('bbox')).toBeTruthy();
 
   });
+
   test('appending a bbox parameter from state if the map object is unavailable', async () => {
-    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve());
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: {
+        data: {
+          results: [],
+          count: 10,
+        }
+      }
+    }));
 
     store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' } }, view: { } });
 
@@ -47,7 +64,15 @@ describe('fetchMapEvents', () => {
   test('appending parameters when passed', async () => {
     store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' } }, view: { userLocation: { coords: { longitude: 1, latitude: 2 } }, systemConfig: { geoPermissionsEnabled: true } } });
 
-    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve());
+    jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve({
+      status: 200,
+      data: {
+        data: {
+          results: [],
+          count: 10,
+        }
+      }
+    }));
 
     const PARAM_NAME = 'location';
 

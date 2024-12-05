@@ -3,7 +3,7 @@ import union from 'lodash/union';
 
 import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
+import { getBboxParamsFromMap } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
@@ -11,7 +11,7 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
-import parallelPaginatedQuery from "./paralelizedPagination";
+import parallelPaginatedQuery from '../utils/parallelPaginatedRequest';
 
 export const EVENTS_API_URL = (
   process.env.REACT_APP_MOCK_EVENTS_API === 'true'
@@ -426,7 +426,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
   if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
   const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-  const params = { bbox, page_size: 25, ...parameters, include_updates: false };
+  const params = { bbox, ...parameters, include_updates: false };
 
   if (shouldAppendLocationToRequest(state)) {
     params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
@@ -443,17 +443,14 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   let resultsToDate = [];
 
-  const onEachRequest = onePageOfResults => {
+  const onEachRequest = ({ results: onePageOfResults }) => {
     resultsToDate = [...resultsToDate, ...onePageOfResults];
     dispatch(fetchMapEventsPageSuccess(onePageOfResults));
   };
 
-  const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-    cancelToken: generateNewCancelToken(),
-  });
-
-
-  return parallelPaginatedQuery(request, { onPageFetch: onEachRequest })
+  return parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`,
+    { cancelToken: generateNewCancelToken() },
+    { onPageFetch: onEachRequest })
     .then((finalResults) => {
       finalResults && dispatch(fetchMapEventsComplete(finalResults));
     })
