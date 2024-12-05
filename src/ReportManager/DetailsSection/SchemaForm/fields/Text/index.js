@@ -1,55 +1,40 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
-import SchemaFormContext from '../../SchemaFormContext';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';
 
-const INPUT_TYPE = { SHORT: 'SHORT_TEXT', LONG: 'LONG_TEXT' };
+const ShortTextInput = (props) => <input type="text" {...props} />;
 
-const ShortTextInput = ({ id, ...restProps }) => <input
-  data-testid={`schema-form-short-text-field-input-${id}`}
-  id={id}
-  type="text"
-  {...restProps}
-/>;
+const LongTextInput = (props) => <textarea {...props} />;
 
-const LongTextInput = ({ id, ...restProps }) => <textarea
-  data-testid={`schema-form-long-text-field-input-${id}`}
-  id={id}
-  {...restProps}
-/>;
+const FIELD_INPUTS = {
+  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: ShortTextInput,
+  [TEXT_ELEMENT_INPUT_TYPES.LONG]: LongTextInput,
+};
+const FIELD_STYLES = {
+  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: styles.shortText,
+  [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longText,
+};
 
-const TEXT_INPUT_TYPE_TO_INPUT = { [INPUT_TYPE.SHORT]: ShortTextInput, [INPUT_TYPE.LONG]: LongTextInput };
-const TEXT_INPUT_TYPE_STYLES = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
+const Text = ({ details, error, id, onFieldChange, value }) => {
+  const shouldSetDefaultInputRef = useRef(!value && details.defaultInput);
 
-const Text = ({ id }) => {
-  const { fields, fieldErrors, fieldValues, onFieldChange } = useContext(SchemaFormContext);
-
-  const hasInputValueBeenChangedRef = useRef(false);
-
-  const { details } = fields[id];
-  const error = fieldErrors[id];
-  const value = fieldValues[id];
-
-  const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
+  const TextInput = FIELD_INPUTS[details.inputType];
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
 
-  const onChange = (event) => {
-    onFieldChange(id, event.currentTarget.value);
-
-    hasInputValueBeenChangedRef.current = true;
-  };
-
   useEffect(() => {
-    if (!value && !hasInputValueBeenChangedRef.current && details.defaultInput) {
+    if (shouldSetDefaultInputRef.current) {
       onFieldChange(id, details.defaultInput);
+
+      shouldSetDefaultInputRef.current = false;
     }
   }, [details.defaultInput, id, onFieldChange, value]);
 
-  return <div data-testid={`schema-form-text-field-${id}`}>
+  return <div data-testid={`schema-form-text-field-${id}`} className={styles.text}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
     <TextInput
@@ -57,9 +42,9 @@ const Text = ({ id }) => {
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-invalid={hasError}
       aria-required={details.isRequired}
-      className={`${styles.textInput} ${TEXT_INPUT_TYPE_STYLES[details.inputType]}`}
+      className={`${styles.textInput} ${FIELD_STYLES[details.inputType]}`}
       id={id}
-      onChange={onChange}
+      onChange={(event) => onFieldChange(id, event.currentTarget.value)}
       placeholder={details.placeholder}
       value={value || ''}
     />
@@ -74,4 +59,4 @@ const Text = ({ id }) => {
   </div>;
 };
 
-export default Text;
+export default memo(Text);

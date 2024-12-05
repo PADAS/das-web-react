@@ -254,21 +254,17 @@ const DetailsSection = ({
     </Form>}
 
     {/* TODO: Replace schemaFromSchemaSelector.schema for the formSchema and remove the label */}
-    {!!schemaFromSchemaSelector?.schema && efbFormSchemaSupportEnabled && isNewDraftSchema && <>
-      <label className={styles.selectedFormSchema}>Selected schema: {schemaFromSchemaSelector?.label}</label>
-
-      <SchemaForm
-        formData={reportForm.event_details}
-        onFormDataChange={onFormDataChange}
-        onFormSubmit={onFormSubmit}
-        renderSubmitButton={() => <button
-          className={styles.schemaFormSubmitButton}
-          ref={submitFormButtonRef}
-          type="submit"
-        />}
-        schema={schemaFromSchemaSelector.schema}
-      />
-    </>}
+    {!!schemaFromSchemaSelector?.schema && efbFormSchemaSupportEnabled && isNewDraftSchema && <SchemaForm
+      formData={reportForm.event_details}
+      onFormDataChange={onFormDataChange}
+      onFormSubmit={onFormSubmit}
+      renderSubmitButton={() => <button
+        className={styles.schemaFormSubmitButton}
+        ref={submitFormButtonRef}
+        type="submit"
+      />}
+      schema={schemaFromSchemaSelector.schema}
+    />}
 
     {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}

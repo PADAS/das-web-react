@@ -112,7 +112,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
 
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith({ this_is_a_text: 'a text value ' });
+    expect(onFormDataChange).toHaveBeenCalledWith('this_is_a_text', 'a text value ');
   });
 
   test('shows validation errors if there are any when the user submits the form', async () => {
@@ -148,10 +148,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('submits the form when there are no validation errors', async () => {
     renderSchemaForm();
 
-    const inputField = screen.getByTestId(
-      'schema-form-short-text-field-input-this_is_a_text'
-    );
-
+    const inputField = screen.getByLabelText('This is a text *');
     await userEvent.type(inputField, '{enter}');
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);

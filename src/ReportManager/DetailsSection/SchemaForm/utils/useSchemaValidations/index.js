@@ -10,9 +10,7 @@ const useSchemaValidations = (schema) => {
   const validate = useMemo(() => ajv.compile(schema.json), [schema.json]);
 
   const runValidations = useCallback((formData) => {
-    const valid = validate(formData);
-
-    if (!valid) {
+    if (!validate(formData)) {
       const fieldErrors = validate.errors.reduce((accumulator, error) => {
         if (error.keyword === 'required') {
           return { ...accumulator, [error.params.missingProperty]: t('required') };

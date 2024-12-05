@@ -5,7 +5,6 @@ import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
 import useSchemaValidations from './utils/useSchemaValidations';
 
 import Header from './fields/Header';
-import SchemaFormContext from './SchemaFormContext';
 import Section from './fields/Section';
 import Text from './fields/Text';
 
@@ -22,20 +21,17 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
 
   const fields = useMemo(() => makeFieldsFromSchema(schema), [schema]);
 
-  const fieldValues = useMemo(() => Object.entries(formData).reduce((accumulator, [fieldId, fieldValue]) => {
-    // TODO: Collections will require recusivity here.
-
-    return { ...accumulator, [fieldId]: fieldValue };
-  }, {}), [formData]);
+  // TODO: Collections will require recusivity here.
+  const fieldValues = useMemo(() => Object.entries(formData).reduce((accumulator, [fieldId, fieldValue]) => ({
+    ...accumulator,
+    [fieldId]: fieldValue,
+  }), {}), [formData]);
 
   const onFieldChange = useCallback((fieldId, value) => {
-    // TODO: Collections will require recusivity here.
     // If the value is empty, set it as undefined so AJV validation returns errors for required fields.
-    const newFormData = { ...formData, [fieldId]: value || undefined };
-
-    onFormDataChange(newFormData);
+    onFormDataChange(fieldId, value || undefined);
     setFieldErrors((fieldErrors) => ({ ...fieldErrors, [fieldId]: undefined }));
-  }, [formData, onFormDataChange]);
+  }, [onFormDataChange]);
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -43,7 +39,9 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
     const fieldErrors = runValidations(formData);
     if (fieldErrors) {
       setFieldErrors(fieldErrors);
-      document.getElementById(Object.keys(fieldErrors)[0]).focus();
+
+      const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
+      document.getElementById(idOfFirstErroneousField).focus();
     } else {
       onFormSubmit({ formData });
     }
@@ -54,20 +52,29 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
 
     const Field = FIELDS[type];
 
-    return <Field id={fieldId} key={fieldId} renderField={renderField} />;
+    if (type === FORM_ELEMENT_TYPES.HEADER) {
+      return <Field details={fields[fieldId].details} id={fieldId} />;
+    }
+    // Collections will require a condition here to pass down renderField as prop
+    return <Field
+      details={fields[fieldId].details}
+      error={fieldErrors[fieldId]}
+      id={fieldId}
+      onFieldChange={onFieldChange}
+      value={fieldValues[fieldId]}
+    />;
   };
 
-  return <SchemaFormContext.Provider value={{ fields, fieldErrors, fieldValues, onFieldChange }}>
-    <form onSubmit={onSubmit}>
-      {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
-        id={sectionId}
-        key={sectionId}
-        renderField={renderField}
-      />)}
+  return <form onSubmit={onSubmit}>
+    {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
+      details={fields[sectionId].details}
+      id={sectionId}
+      key={sectionId}
+      renderField={renderField}
+    />)}
 
-      {renderSubmitButton()}
-    </form>
-  </SchemaFormContext.Provider>;
+    {renderSubmitButton()}
+  </form>;
 };
 
 export default SchemaForm;

@@ -1,13 +1,5 @@
-import React, { useContext } from 'react';
+import React, { memo } from 'react';
 
-import SchemaFormContext from '../../SchemaFormContext';
+const Header = ({ details, id }) => <h4 data-testid={`schema-form-header-${id}`}>{details.label}</h4>;
 
-const Header = ({ id }) => {
-  const { fields } = useContext(SchemaFormContext);
-
-  const { details } = fields[id];
-
-  return <h4 data-testid={`schema-form-header-${id}`}>{details.label}</h4>;
-};
-
-export default Header;
+export default memo(Header);

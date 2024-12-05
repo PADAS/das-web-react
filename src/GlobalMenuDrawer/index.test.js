@@ -303,7 +303,7 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(usersGuideButton);
 
     expect(global.open).toHaveBeenCalledTimes(1);
-    expect(global.open).toHaveBeenCalledWith('https://community.earthranger.com/t/earthranger-users-guide/60', '_blank', 'noopener,noreferrer');
+    expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/en_US/earthranger-web', '_blank', 'noopener,noreferrer');
   });
 
   test('opens the daily report modal when clicking the Daily Report button', async () => {

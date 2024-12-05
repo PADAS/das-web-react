@@ -454,10 +454,14 @@ const ReportDetailView = ({
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
-  const onFormDataChange = useCallback(
-    (formData) => setReportForm({ ...reportForm, event_details: { ...reportForm.event_details, ...formData } }),
-    [reportForm]
-  );
+  // TODO: Collections will require recusivity here.
+  const onFormDataChange = useCallback((fieldId, value) => setReportForm((reportForm) => ({
+    ...reportForm,
+    event_details: {
+      ...reportForm.event_details,
+      [fieldId]: value,
+    }
+  })), []);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));

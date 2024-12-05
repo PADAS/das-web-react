@@ -1,56 +1,35 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID, TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 import { render, screen } from '../../../../../test-utils';
-import SchemaFormContext from '../../SchemaFormContext';
 
 import Text from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   const onFieldChange = jest.fn();
 
-  let fields;
+  let details;
   beforeEach(() => {
-    fields = {
-      'text-1': {
-        details: {
-          defaultInput: 'Text 1 Default Input',
-          description: 'Text 1 Description',
-          inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
-          isRequired: false,
-          label: 'Text 1 Label',
-          placeholder: 'Text 1 Placeholder',
-          value: 'text-1',
-        },
-        parentId: 'section-1',
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-      [ROOT_CANVAS_ID]: { details: { fields: ['section-1'] } },
-      'section-1': {
-        details: {
-          columns: 2,
-          label: 'Section 1 Label',
-          leftColumn: ['text-1'],
-          rightColumn: [],
-        },
-        parentId: ROOT_CANVAS_ID,
-        type: FORM_ELEMENT_TYPES.SECTION,
-      },
+    details = {
+      defaultInput: 'Text 1 Default Input',
+      description: 'Text 1 Description',
+      inputType: TEXT_ELEMENT_INPUT_TYPES.SHORT,
+      isRequired: false,
+      label: 'Text 1 Label',
+      placeholder: 'Text 1 Placeholder',
+      value: 'text-1',
     };
   });
 
-  const renderTextField = (props, context) => {
-    render(<SchemaFormContext.Provider value={{
-      fields,
-      fieldErrors: {},
-      fieldValues: {},
-      onFieldChange,
-      ...context
-    }}>
-      <Text id="text-1" {...props} />
-    </SchemaFormContext.Provider>);
-  };
+  const renderTextField = (props) => render(<Text
+    details={details}
+    error={undefined}
+    id="text-1"
+    onFieldChange={onFieldChange}
+    value={undefined}
+    {...props}
+  />);
 
   test('shows the label for non required fields', () => {
     renderTextField();
@@ -60,7 +39,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows the label for required fields', () => {
-    fields['text-1'].details.isRequired = true;
+    details.isRequired = true;
     renderTextField();
 
     expect(screen.getByText('Text 1 Label *')).toBeVisible();
@@ -74,7 +53,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows an error state in the label if the value is invalid', () => {
-    renderTextField(undefined, { fieldErrors: { 'text-1': 'Error' } });
+    renderTextField({ error: 'Error' });
 
     expect(screen.getByText('Text 1 Label')).toHaveClass('error');
   });
@@ -86,14 +65,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows the field for long text inputs', () => {
-    fields['text-1'].details.inputType = TEXT_ELEMENT_INPUT_TYPES.LONG;
+    details.inputType = TEXT_ELEMENT_INPUT_TYPES.LONG;
     renderTextField();
 
     expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
   });
 
   test('does not show the description', () => {
-    fields['text-1'].details.description = '';
+    details.description = '';
     renderTextField();
 
     expect(screen.queryByText('Text 1 Description')).toBeNull();
@@ -121,7 +100,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows the input with an error state when it is invalid', () => {
-    renderTextField(undefined, { fieldErrors: { 'text-1': 'Error' } });
+    renderTextField({ error: 'Error' });
 
     const textInput = screen.getByLabelText('Text 1 Label');
     const description = screen.getByText('Error');
@@ -134,7 +113,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('does not change the input value automatically if there is no default input', () => {
-    fields['text-1'].details.defaultInput = '';
+    details.defaultInput = '';
     renderTextField();
 
     expect(onFieldChange).not.toHaveBeenCalled();
@@ -148,7 +127,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('updates the form data when the user does changes to the input', async () => {
-    fields['text-1'].details.defaultInput = '';
+    details.defaultInput = '';
     renderTextField();
 
     await userEvent.type(screen.getByRole('textbox'), 'X');
