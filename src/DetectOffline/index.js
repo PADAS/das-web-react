@@ -38,14 +38,14 @@ const DetectOffline = () => {
           onClose: () => {
             toastId.current = null;
           },
-          type: toast.TYPE.ERROR,
+          type: 'error',
           ...DEFAULT_TOAST_CONFIG,
         });
       }, 2000);
     } else if (toastId.current) {
       toast.update(toastId.current, {
         render: t('reconnectionToastMessage'),
-        type: toast.TYPE.SUCCESS,
+        type: 'success',
       });
 
       setTimeout(() => {

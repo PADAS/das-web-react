@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -59,14 +59,9 @@ describe('fetchMapEvents', () => {
   });
   test('handling 403 Forbidden errors for geo-permission-restricted users', () => {
     const server = setupServer(
-      rest.get(EVENTS_API_URL, (req, res, ctx) => {
-        return res(
-          ctx.status(403),
-          ctx.json({
-            errorMessage: 'Geo-permissions required to access this data',
-          }),
-        );
-      })
+      http.get(EVENTS_API_URL, () => HttpResponse.json({
+        errorMessage: 'Geo-permissions required to access this data',
+      }, { status: 403 }))
     );
 
     server.listen();

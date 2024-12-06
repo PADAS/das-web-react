@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { useLocation as useRouterLocation } from 'react-router-dom';
+import { useLocation as useRouterLocation } from 'react-router';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
 import useJumpToLocation from './';
 import { useMatchMedia } from '../';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
 }));
 

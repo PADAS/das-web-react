@@ -1,8 +1,6 @@
+import { bearing, explode, featureCollection } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
-import explode from '@turf/explode';
-import bearing from '@turf/bearing';
-import { featureCollection }  from '@turf/helpers';
 import {
   subDays,
   startOfDay,

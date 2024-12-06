@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -58,7 +57,7 @@ const RadioStateChangeToAlarmNotificationPlayer = ({ onPlayNotificationSound }) 
           toastConfig: {
             autoClose: false,
             className: styles.toast,
-            type: toast.TYPE.ERROR,
+            type: 'error',
           },
         });
       });

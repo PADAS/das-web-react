@@ -1,8 +1,7 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { http, HttpResponse } from 'msw';
 import merge from 'lodash/merge';
-
-import { rest } from 'msw';
+import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
 import * as patrolDuckExports from '../ducks/patrols';
@@ -27,11 +26,11 @@ const mockPatrolApiResponse = {
 };
 
 const server = setupServer(
-  rest.get(PATROLS_API_URL, (req, res, ctx) => {
-    return res(ctx.json( { data: mockPatrolApiResponse }));
+  http.get(PATROLS_API_URL, () => {
+    return HttpResponse.json({ data: mockPatrolApiResponse });
   }),
-  rest.post(PATROLS_API_URL, (req, res, ctx) => {
-    return res(ctx.status(201));
+  http.post(PATROLS_API_URL, () => {
+    return HttpResponse.json(null, { status: 201 });
   })
 );
 
@@ -117,10 +116,12 @@ describe('the "add to patrol" modal within a report form', () => {
 
   test('showing an empty message if no items are present', async () => {
     server.use(
-      rest.get(PATROLS_API_URL, (req, res, ctx) => {
-        return res.once(ctx.json( { data: {
-          results: [],
-        } }));
+      http.get(PATROLS_API_URL, () => {
+        return HttpResponse.json({
+          data: {
+            results: [],
+          }
+        });
       })
     );
 

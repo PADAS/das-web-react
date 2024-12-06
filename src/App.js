@@ -6,7 +6,7 @@ import Nav from './Nav';
 import { connect, useSelector } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast, Slide } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import useNavigate from './hooks/useNavigate';
@@ -141,7 +141,7 @@ const App = (props) => {
     if (showGeoPermWarningMessage) {
       const toastId = showToast({
         message: 'Some data may only be displayed when you are near its location.',
-        toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
+        toastConfig: { type: 'info', autoClose: false, onClose() {
         } } });
 
       return () => {

@@ -1,6 +1,6 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -21,51 +21,27 @@ const generateResponse = (data = []) => ({ data });
 const anotherPinProfile = userWithoutEula;
 
 const server = setupServer(
-  rest.get(`${USER_API_URL}/:userId`, (req, res, ctx) => {
-    const { userId } = req.params;
+  http.get(`${USER_API_URL}/:userId`, ({ params }) => {
+    const { userId } = params;
     const userMatch = userList.find(user => user.id === userId);
 
-    return res(
-      ctx.json(
-        generateResponse(userMatch)
-      )
-    );
+    return HttpResponse.json(generateResponse(userMatch));
   }),
-  rest.get(CURRENT_USER_API_URL, (req, res, ctx) => {
-    return res(
-      ctx.json(
-        generateResponse(
-          userWithPin,
-        )
-      )
-    );
+  http.get(CURRENT_USER_API_URL, () => {
+    return HttpResponse.json(generateResponse(userWithPin));
   }),
-  rest.get(USER_PROFILES_API_URL, (req, res, ctx) => {
-    return res(
-      ctx.json(
-        generateResponse(
-          userList.filter(user => user.id !== userWithPin.id)
-        ),
-      )
-    );
+  http.get(USER_PROFILES_API_URL, () => {
+    return HttpResponse.json(generateResponse(userList.filter(user => user.id !== userWithPin.id)));
   }),
-  rest.get(NEWS_API_URL, (req, res, ctx) => {
-    return res(
-      ctx.json(
-        generateResponse(),
-      )
-    );
+  http.get(NEWS_API_URL, () => {
+    return HttpResponse.json(generateResponse());
   }),
 );
 
 beforeAll(() => server.listen());
-beforeEach(() => {
-  jest.useFakeTimers();
-});
 afterEach(() => {
   server.resetHandlers();
   store.dispatch(clearUserProfile());
-  jest.useRealTimers();
 });
 afterAll(() => server.close());
 
@@ -93,10 +69,8 @@ describe('the Nav component', () => {
 
   test('navigates to login if can not fetch the current user', async () => {
     server.use(
-      rest.get(CURRENT_USER_API_URL, (req, res, ctx) => {
-        return res.once(
-          ctx.status(403
-          ));
+      http.get(CURRENT_USER_API_URL, () => {
+        return HttpResponse.json(null, { status: 403 });
       })
     );
 
@@ -135,6 +109,7 @@ describe('the Nav component', () => {
 
     });
     test('selecting a non-PIN-protected profile', async () => {
+      jest.useFakeTimers();
       const nonPinProfileLink = await screen.getByRole('button', {
         name: userWithoutPin.username,
       });
@@ -148,9 +123,13 @@ describe('the Nav component', () => {
       jest.advanceTimersByTime(500);
 
       expect(reloadMock).toHaveBeenCalled();
+
+      jest.useRealTimers();
     });
 
     test('selecting a PIN-protected profile', async () => {
+      jest.useFakeTimers();
+
       let pinInputs, state;
       const profileProtectedLink = await screen.getByRole('button', {
         name: anotherPinProfile.username,
@@ -178,9 +157,13 @@ describe('the Nav component', () => {
       jest.advanceTimersByTime(500);
 
       expect(reloadMock).toHaveBeenCalled();
+
+      jest.useRealTimers();
     });
 
     test('does not redirect until the profile is persisted', async () => {
+      jest.useFakeTimers();
+
       window.localStorage.removeItem('persist:userProfile');
       const nonPinProfileLink = await screen.getByRole('button', {
         name: userWithoutPin.username,
@@ -200,6 +183,8 @@ describe('the Nav component', () => {
       jest.advanceTimersByTime(500);
 
       expect(reloadMock).toHaveBeenCalled();
+
+      jest.useRealTimers();
     });
   });
 });

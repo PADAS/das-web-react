@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate as useRouterNavigate } from 'react-router-dom';
+import { useNavigate as useRouterNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
 import { showSideBar } from '../../ducks/side-bar';

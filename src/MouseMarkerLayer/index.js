@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { point } from '@turf/helpers';
+import { point } from '@turf/turf';
 
 import { SYMBOL_ICON_SIZE_EXPRESSION, LAYER_IDS, SOURCE_IDS } from '../constants';
 import { useMapLayer, useMapSource } from '../hooks';

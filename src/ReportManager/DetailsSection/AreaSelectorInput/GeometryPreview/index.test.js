@@ -109,7 +109,7 @@ describe('GeometryPreview', () => {
       </Provider>
     );
 
-    expect((await screen.findByText('6666984.03km²'))).toBeDefined();
+    expect((await screen.findByText('6652090.33km²'))).toBeDefined();
     expect((await screen.findByText('13269.71km'))).toBeDefined();
   });
 

@@ -1,9 +1,9 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
-import { rest } from 'msw';
-import { ToastContainer } from 'react-toastify';
 import { setupServer } from 'msw/node';
+import { ToastContainer } from 'react-toastify';
+import userEvent from '@testing-library/user-event';
 
 import EventItemContextMenu from './index';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -12,10 +12,18 @@ import { report } from '../__test-helpers/fixtures/reports';
 import { EVENT_API_URL } from '../ducks/events';
 
 const server = setupServer(
-  rest.patch(`${EVENT_API_URL}:eventId`, (req, res, ctx) =>
-    res(req.params.eventId !== 'undefined' ? ctx.json({ data: [] }) : ctx.status(400))),
-  rest.patch(`${EVENT_API_URL}:eventId/state`, (req, res, ctx) =>
-    res(req.params.eventId !== 'undefined' ? ctx.json({ data: [] }) : ctx.status(400))),
+  http.patch(`${EVENT_API_URL}:eventId`, ({ params }) => {
+    if (params.eventId !== 'undefined') {
+      return HttpResponse.json({ data: [] });
+    }
+    return HttpResponse.json(null, { status: 400 });
+  }),
+  http.patch(`${EVENT_API_URL}:eventId/state`, ({ params }) => {
+    if (params.eventId !== 'undefined') {
+      return HttpResponse.json({ data: [] });
+    }
+    return HttpResponse.json(null, { status: 400 });
+  }),
 );
 
 beforeAll(() => server.listen());

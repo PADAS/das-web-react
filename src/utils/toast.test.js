@@ -1,27 +1,16 @@
 import React from 'react';
-import * as toastLib from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import { DEFAULT_TOAST_CONFIG } from '../constants';
 import { showToast } from './toast';
 import ToastBody from '../ToastBody';
 
+jest.mock('react-toastify', () => ({
+  ...jest.requireActual('react-toastify'),
+  toast: jest.fn(),
+}));
 
 describe('#showToast', () => {
-  let toastSpy;
-
-  beforeEach(() => {
-    toastSpy = jest.fn();
-    const mockToastFn = function () {
-      return toastSpy;
-    };
-
-    jest.spyOn(toastLib, 'toast').mockImplementation(mockToastFn);
-
-    toastLib.toast.TYPE = {
-      ERROR: 'error',
-    };
-
-  });
   test('showing a toast renders the ToastBody component with message, details, link, and configuration', () => {
     const toastObject = {
       message: 'yes',
@@ -34,10 +23,9 @@ describe('#showToast', () => {
 
     showToast(toastObject);
 
-    expect(toastLib.toast).toHaveBeenCalled();
-    expect(toastLib.toast.mock.calls[0]).toEqual(
+    expect(toast).toHaveBeenCalled();
+    expect(toast.mock.calls[0]).toEqual(
       [<ToastBody {...toastObject} />, { ...DEFAULT_TOAST_CONFIG }], /* eslint-disable-line */
     );
-
   });
 });

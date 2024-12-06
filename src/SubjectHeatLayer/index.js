@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { trimmedHeatmapTrackData } from '../selectors/tracks';

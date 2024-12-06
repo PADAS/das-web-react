@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { LngLatBounds } from 'mapbox-gl';
-import { useLocation as useRouterLocation } from 'react-router-dom';
+import { useLocation as useRouterLocation } from 'react-router';
 
 import { BREAKPOINTS } from '../../constants';
 import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigation';

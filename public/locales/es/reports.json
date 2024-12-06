@@ -123,6 +123,11 @@
       "locationLabel": "Ubicación del evento",
       "priorityLabel": "Prioridad",
       "reportedByLabel": "Reportado por",
+      "schemaForm": {
+        "errors": {
+          "required": "Este campo es obligatorio."
+        }
+      },
       "stateDropdown": {
         "active": "activo",
         "resolved": "resuelto"

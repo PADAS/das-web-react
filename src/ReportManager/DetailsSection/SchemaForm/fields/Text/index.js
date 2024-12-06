@@ -1,69 +1,62 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useEffect, useRef } from 'react';
 
-import { SchemaFormContext } from '../../SchemaFormContext';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';
 
-const INPUT_TYPE = { SHORT: 'SHORT_TEXT', LONG: 'LONG_TEXT' };
+const ShortTextInput = (props) => <input type="text" {...props} />;
 
-const ShortTextInput = ({ details, id, ...restProps }) => <input
-  data-testid={`schema-form-short-text-field-input-${id}`}
-  id={id}
-  placeholder={details.placeholder}
-  type="text"
-  {...restProps}
-/>;
+const LongTextInput = (props) => <textarea {...props} />;
 
-const LongTextInput = ({ details, id, ...restProps }) => <textarea
-  data-testid={`schema-form-long-text-field-input-${id}`}
-  id={id}
-  placeholder={details.placeholder}
-  {...restProps}
-/>;
+const FIELD_INPUTS = {
+  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: ShortTextInput,
+  [TEXT_ELEMENT_INPUT_TYPES.LONG]: LongTextInput,
+};
+const FIELD_STYLES = {
+  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: styles.shortText,
+  [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longText,
+};
 
-const TEXT_INPUT_TYPE_TO_INPUT = { [INPUT_TYPE.SHORT]: ShortTextInput, [INPUT_TYPE.LONG]: LongTextInput };
-const TEXT_INPUT_TYPE_STYLES = { [INPUT_TYPE.SHORT]: styles.shortText, [INPUT_TYPE.LONG]: styles.longText };
+const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
+  const shouldAutofillDefaultInputRef = useRef(autofillDefaultInput && details.defaultInput);
 
-const Text = ({ id }) => {
-  const { fields, formData, onFieldChange } = useContext(SchemaFormContext);
+  const TextInput = FIELD_INPUTS[details.inputType];
 
-  const hasInputValueBeenChangedRef = useRef(false);
-
-  const { details } = fields[id];
-  // TODO: Update with recursivity for collections.
-  const value = formData[id];
-
-  const TextInput = TEXT_INPUT_TYPE_TO_INPUT[details.inputType];
+  const hasError = !!error;
+  const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
 
-  const onChange = (event) => {
-    onFieldChange(id, event.currentTarget.value);
-
-    hasInputValueBeenChangedRef.current = true;
-  };
-
   useEffect(() => {
-    if (!value && !hasInputValueBeenChangedRef.current && details.defaultInput) {
+    if (shouldAutofillDefaultInputRef.current) {
       onFieldChange(id, details.defaultInput);
+
+      shouldAutofillDefaultInputRef.current = false;
     }
   }, [details.defaultInput, id, onFieldChange, value]);
 
-  return <div data-testid={`schema-form-text-field-${id}`}>
-    <label className={styles.label} htmlFor={id}>{label}</label>
+  return <div data-testid={`schema-form-text-field-${id}`} className={styles.text}>
+    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
     <TextInput
-      className={`${styles.textInput} ${TEXT_INPUT_TYPE_STYLES[details.inputType]}`}
-      details={details}
+      aria-describedby={hasDescription ? `${id}-description`: undefined}
+      aria-errormessage={hasError ? `${id}-description` : undefined}
+      aria-invalid={hasError}
+      aria-required={details.isRequired}
+      className={`${styles.textInput} ${FIELD_STYLES[details.inputType]}`}
       id={id}
-      onChange={onChange}
-      value={value || ''}
+      onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
+      placeholder={details.placeholder}
+      value={value}
     />
 
-    {details.description && <p className={styles.description}>{details.description}</p>}
+    {(hasDescription || hasError) && <p
+      aria-live={hasError ? 'assertive' : 'off'}
+      className={`${styles.description} ${hasError ? styles.error : ''}`}
+      id={`${id}-description`}
+    >
+      {error || details.description}
+    </p>}
   </div>;
 };
 
-Text.propTypes = { id: PropTypes.string.isRequired };
-
-export default Text;
+export default memo(Text);

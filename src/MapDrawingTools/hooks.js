@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef } from 'react';
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import throttle from 'lodash/throttle';
 

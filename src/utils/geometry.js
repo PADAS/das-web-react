@@ -1,10 +1,6 @@
 
+import { area, convertArea, convertLength, kinks, length, polygon } from '@turf/turf';
 import isEqual from 'react-fast-compare';
-
-import { convertArea, convertLength, polygon } from '@turf/helpers';
-import kinks from '@turf/kinks';
-import area from '@turf/area';
-import length from '@turf/length';
 
 import { truncateFloatingNumber } from './math';
 

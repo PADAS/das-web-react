@@ -1,7 +1,7 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react-hooks';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { waitFor } from '@testing-library/react';
 
@@ -15,8 +15,8 @@ import useReportsFeed from '.';
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
 const server = setupServer(
-  rest.get(EVENTS_API_URL, (req, res, ctx) => res(ctx.json(eventFeedResponse))),
-  rest.get(`${EVENT_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: eventWithPoint }))),
+  http.get(EVENTS_API_URL, () => HttpResponse.json(eventFeedResponse)),
+  http.get(`${EVENT_API_URL}:id`, () => HttpResponse.json({ data: eventWithPoint })),
 );
 
 beforeAll(() => server.listen());
@@ -24,14 +24,9 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('useReportsFeed', () => {
-  let capturedRequestURLs, store;
-
-  const logRequest = (req) => {
-    capturedRequestURLs = [...capturedRequestURLs, req.url.toString()];
-  };
+  let store;
 
   beforeEach(() => {
-    capturedRequestURLs = [];
     store = {
       data: {
         eventFilter: INITIAL_EVENT_FILTER_STATE,
@@ -56,13 +51,8 @@ describe('useReportsFeed', () => {
     };
   });
 
-  server.events.on('request:match', (req) => {
-    logRequest(req);
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
-    server.events.removeListener('request:match', logRequest);
   });
 
   test('returns the reportsFetchFeed properties and methods', async () => {
@@ -80,22 +70,33 @@ describe('useReportsFeed', () => {
   });
 
   test('loads the reports feed for georestricted users', async () => {
-    const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
+    const builtStore = mockStore(store);
+    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
     renderHook(() => useReportsFeed(), { wrapper });
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toContain('location=65.7%2C50.3');
+      expect(actions).toHaveLength(3);
+      expect(actions[0].type).toBe('FEED_FETCH_START');
+      expect(actions[1].type).toBe('UPDATE_EVENT_STORE');
+      expect(actions[2].type).toBe('FEED_FETCH_SUCCESS');
     });
   });
 
   test('loads the reports feed normally', async () => {
     store.data.user.permissions = [];
-    const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
+    const builtStore = mockStore(store);
+    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
     renderHook(() => useReportsFeed(), { wrapper });
 
+    const actions = builtStore.getActions();
+
     await waitFor(() => {
-      expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).toBeDefined();
-      expect(capturedRequestURLs.find(item => item.includes(EVENTS_API_URL))).not.toContain('location');
+      expect(actions).toHaveLength(3);
+      expect(actions[0].type).toBe('FEED_FETCH_START');
+      expect(actions[1].type).toBe('UPDATE_EVENT_STORE');
+      expect(actions[2].type).toBe('FEED_FETCH_SUCCESS');
     });
   });
 });

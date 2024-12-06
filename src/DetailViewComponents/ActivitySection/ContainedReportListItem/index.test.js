@@ -1,6 +1,6 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
@@ -14,14 +14,8 @@ import { report } from '../../../__test-helpers/fixtures/reports';
 import ContainedReportListItem from '.';
 
 const server = setupServer(
-  rest.get(
-    `${EVENT_API_URL}:eventId`,
-    (req, res, ctx) => res(ctx.json( { data: { ...report } }))
-  ),
-  rest.get(
-    `${EVENT_TYPE_SCHEMA_API_URL}:name`,
-    (req, res, ctx) => res(ctx.json( { data: { results: {} } }))
-  )
+  http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.json( { data: { ...report } })),
+  http.get(`${EVENT_TYPE_SCHEMA_API_URL}:name`, () => HttpResponse.json( { data: { results: {} } }))
 );
 
 beforeAll(() => server.listen());

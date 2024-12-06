@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useReducer, useState } from 'react';
-import bbox from '@turf/bbox';
+import { bbox } from '@turf/turf';
 import isEqual from 'react-fast-compare';
 import { useDispatch, useSelector } from 'react-redux';
 

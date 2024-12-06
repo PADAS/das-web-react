@@ -1,9 +1,7 @@
 import React, { memo, useMemo } from 'react';
-import bbox from '@turf/bbox';
+import { bbox, rewind, simplify } from '@turf/turf';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import rewind from '@turf/rewind';
-import simplify from '@turf/simplify';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 

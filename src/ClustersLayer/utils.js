@@ -1,5 +1,4 @@
-import centroid from '@turf/centroid';
-import { featureCollection } from '@turf/helpers';
+import { centroid, featureCollection } from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';

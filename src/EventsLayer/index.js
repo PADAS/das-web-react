@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { featureCollection } from '@turf/helpers';
+import { featureCollection } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 

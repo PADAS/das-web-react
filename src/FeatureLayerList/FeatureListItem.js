@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import center from '@turf/center';
-import { feature } from '@turf/helpers';
+import { center, feature } from '@turf/turf';
 
 import { showFeatures } from '../ducks/map-layer-filter';
 import { showPopup } from '../ducks/popup';

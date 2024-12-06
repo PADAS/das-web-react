@@ -1,6 +1,6 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
 import { activePatrol } from '../../../__test-helpers/fixtures/patrols';
@@ -20,9 +20,9 @@ const store = {
 jest.mock('../../../store', () => mockStore(store));
 
 const server = setupServer(
-  rest.get(
+  http.get(
     TRACKS_API_URL(activePatrol.patrol_segments[0].leader.id),
-    (req, res, ctx) => res(ctx.json({ data: { features: {} } }))
+    () => HttpResponse.json({ data: { features: {} } })
   )
 );
 

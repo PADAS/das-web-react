@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 20
 
       - name: "Configure python"
         uses: actions/setup-python@v5
@@ -58,10 +58,6 @@ jobs:
           export SITE=${GITHUB_REF#refs/heads/}
           if [[ ${SITE} =~ das-2-*-* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
           if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
-
-      - name: Rebuild Node SASS
-        if: steps.validate_env.outputs.site_exists == 'true'
-        run: npm rebuild node-sass
 
       - name: Yarn build
         if: steps.validate_env.outputs.site_exists == 'true'

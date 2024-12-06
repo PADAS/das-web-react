@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
-import length from '@turf/length';
+import { length } from '@turf/turf';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';

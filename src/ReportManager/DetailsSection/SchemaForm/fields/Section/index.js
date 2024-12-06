@@ -1,39 +1,28 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-
-import { SchemaFormContext } from '../../SchemaFormContext';
+import React, { memo } from 'react';
 
 import styles from './styles.module.scss';
 
-const Section = ({ id, renderField }) => {
-  const { fields } = useContext(SchemaFormContext);
+const Section = ({ details, id, renderField }) => <div
+    className={styles.section}
+    data-testid={`schema-form-section-${id}`}
+  >
+  {details.label && <h3 className={styles.header}>{details.label}</h3>}
 
-  const { details } = fields[id];
-
-  return <div className={styles.section} data-testid={`schema-form-section-${id}`}>
-    {details.label && <h3 className={styles.header}>{details.label}</h3>}
-
-    <div className={styles.columns}>
-      <div
-        className={details.columns === 1 ? styles.fullWidthColumn : styles.halfWidthColumnLeft}
-        data-testid={`schema-form-section-${id}-left-column`}
-      >
-        {details.leftColumn.map((fieldId) => renderField(fieldId))}
-      </div>
-
-      {details.columns === 2 && <div
-        className={styles.halfWidthColumnRight}
-        data-testid={`schema-form-section-${id}-right-column`}
-      >
-        {details.rightColumn.map((fieldId) => renderField(fieldId))}
-      </div>}
+  <div className={styles.columns}>
+    <div
+      className={`${styles.column} ${details.columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}
+      data-testid={`schema-form-section-${id}-left-column`}
+    >
+      {details.leftColumn.map((fieldId) => renderField(fieldId))}
     </div>
-  </div>;
-};
 
-Section.propTypes = {
-  id: PropTypes.string.isRequired,
-  renderField: PropTypes.func.isRequired,
-};
+    {details.columns === 2 && <div
+      className={`${styles.column} ${styles.halfWidthRight}`}
+      data-testid={`schema-form-section-${id}-right-column`}
+    >
+      {details.rightColumn.map((fieldId) => renderField(fieldId))}
+    </div>}
+  </div>
+</div>;
 
-export default Section;
+export default memo(Section);

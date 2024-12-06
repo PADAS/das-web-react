@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 
 import {
   EVENT_REPORT_CATEGORY,

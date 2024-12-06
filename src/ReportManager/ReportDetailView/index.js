@@ -5,7 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 import SplitButton from 'react-bootstrap/SplitButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
@@ -433,7 +433,7 @@ const ReportDetailView = ({
     reportTracker.track(`Change Report State to ${state}`);
   }, [reportForm, reportTracker]);
 
-  const onFormChange = useCallback((event) => {
+  const onLegacyFormChange = useCallback((event) => {
     const formData = Object.entries(event.formData).reduce((acc, [formKey, formData]) => ({
       ...acc,
       [formKey]: formData === undefined ? '' : formData
@@ -453,6 +453,11 @@ const ReportDetailView = ({
   }, [reportSchemas?.schema?.properties]);
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
+
+  const onFormDataChange = useCallback((formData) => setReportForm((reportForm) => ({
+    ...reportForm,
+    event_details: formData,
+  })), []);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -796,10 +801,12 @@ const ReportDetailView = ({
                 formSchema={reportSchemas?.schema}
                 formUISchema={reportSchemas?.uiSchema}
                 isCollection={isCollection}
+                isNewEvent={isNewReport}
                 loadingSchema={!!eventSchemas.loading}
-                onFormChange={onFormChange}
+                onFormDataChange={onFormDataChange}
                 onFormError={onFormError}
                 onFormSubmit={onFormSubmit}
+                onLegacyFormChange={onLegacyFormChange}
                 onPriorityChange={onPriorityChange}
                 onReportDateChange={onReportDateChange}
                 onReportedByChange={onReportedByChange}

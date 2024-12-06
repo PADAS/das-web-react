@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';

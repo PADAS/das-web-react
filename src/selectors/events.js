@@ -1,10 +1,8 @@
+import { centerOfMass, featureCollection } from '@turf/turf';
 import { createSelector } from 'reselect';
 
 import { getEventFilterDateRange, getMapEventFeatureCollection, getTimeSliderState } from './';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../constants';
-
-import centerOfMass from '@turf/center-of-mass';
-import { featureCollection } from '@turf/helpers';
 
 import { addDistanceFromVirtualDatePropertyToEventFeatureCollection } from '../utils/events';
 

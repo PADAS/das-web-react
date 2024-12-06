@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { MemoryRouter } from 'react-router-dom';
-import { point } from '@turf/helpers';
+import { http, HttpResponse } from 'msw';
+import { MemoryRouter } from 'react-router';
+import { point } from '@turf/turf';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
@@ -31,8 +31,8 @@ import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
 jest.mock('../../AddItemButton', () => jest.fn());
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => () => null, /* eslint-disable-line react/display-name */
 }));
 
@@ -63,7 +63,7 @@ jest.mock('../../utils/save', () => ({
 }));
 
 const server = setupServer(
-  rest.get(`${PATROLS_API_URL}:id`, (req, res, ctx) => res(ctx.json({ data: { data: activePatrol } }))),
+  http.get(`${PATROLS_API_URL}:id`, () => HttpResponse.json({ data: { data: activePatrol } })),
 );
 
 beforeAll(() => server.listen());

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import length from '@turf/length';
+import { length } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';

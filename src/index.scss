@@ -44,7 +44,7 @@ h6 {
   color: #fff;
 }
 
-$toastify-mq: only screen and (min-width: 481px); // using pixel values here, which is gross, but so we can have alignment with the media query boundaries from Toastify.
+$toastify-mq: "only screen and (min-width: 481px)"; // using pixel values here, which is gross, but so we can have alignment with the media query boundaries from Toastify.
 
 @media #{$toastify-mq} {
   .Toastify__toast-container {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
@@ -23,8 +23,8 @@ import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../App';
 import { report } from '../__test-helpers/fixtures/reports';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
 }));
 jest.mock('../ducks/patrols', () => ({
@@ -37,11 +37,11 @@ jest.mock('../hooks/useNavigate', () => jest.fn());
 const eventFeedResponse = { data: { results: events, next: null, count: events.length, page: 1 } };
 
 const server = setupServer(
-  rest.get(EVENTS_API_URL, (req, res, ctx) => {
-    return res(ctx.json(eventFeedResponse));
+  http.get(EVENTS_API_URL, () => {
+    return HttpResponse.json(eventFeedResponse);
   }),
-  rest.get(`${EVENT_API_URL}:id`, (req, res, ctx) => {
-    return res(ctx.json({ data: eventWithPoint }));
+  http.get(`${EVENT_API_URL}:id`, () => {
+    return HttpResponse.json({ data: eventWithPoint });
   }),
 );
 

@@ -134,6 +134,11 @@
       "locationLabel": "Mahali pa Tukio",
       "priorityLabel": "Kipaumbele",
       "reportedByLabel": "Iliripotiwa Na",
+      "schemaForm": {
+        "errors": {
+          "required": "Hili ni shamba la lazima."
+        }
+      },
       "stateDropdown": {
         "active": "inachukua hatua",
         "resolved": "limekamilishwa"

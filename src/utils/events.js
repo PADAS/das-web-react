@@ -1,10 +1,8 @@
 import axios from 'axios';
-import center from '@turf/center';
-import centerOfMass from '@turf/center-of-mass';
+import { center, centerOfMass, featureCollection } from '@turf/turf';
 import { customizeValidator } from '@rjsf/validator-ajv6';
-import { featureCollection } from '@turf/helpers';
 import isObject from 'lodash/isObject';
-import metaSchemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
+import metaSchemaDraft04 from 'ajv-draft-04/dist/refs/json-schema-draft-04.json';
 
 import { addNoteToEvent, createEvent, EVENT_API_URL, updateEvent, uploadEventFile } from '../ducks/events';
 import { calcTopRatedReportAndTypeForCollection } from './event-types';

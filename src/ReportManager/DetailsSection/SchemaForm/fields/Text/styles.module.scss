@@ -1,33 +1,55 @@
-@import "src/common/styles/vars/colors";
+@use "sass:color";
 
-.label {
-  font-size: 1rem;
-  font-weight: 500;
-  color: $secondary-medium-gray;
-  display: block;
-  margin-top: 1rem;
-}
+@use "../../../../../common/styles/vars/colors";
 
-.textInput {
-  width: 100%;
-}
+.text {
+  .label {
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.125rem;
 
-.shortText {
-  height: 2.5rem;
-}
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
 
-.longText {
-  margin-bottom: -0.5rem;
-  max-height: 10rem;
-  min-height: 2.5rem;
-  border: 1px solid #d8d9d9;
-  padding: 0.5rem;
-}
+  .textInput {
+    width: 100%;
 
-.description {
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: $alt-light-gray;
-  line-height: 1rem;
-  margin-top: 0.2rem;
+    &.shortText {
+      height: 2.5rem;
+    }
+    
+    &.longText {
+      border: 1px solid #d8d9d9;
+      margin-bottom: -0.5rem;
+      max-height: 10rem;
+      min-height: 2.5rem;
+      padding: 0.5rem;
+    }
+
+    &:focus {
+      border: 2px solid colors.$bright-blue;
+    }
+
+    &[aria-invalid="true"] {
+      border-color: colors.$bright-red;
+
+      &::placeholder {
+        color: color.adjust(colors.$bright-red, $lightness: 33%);
+      }
+    }
+  }
+
+  .description {
+    color: colors.$alt-light-gray;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0.125rem 0 0;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
 }

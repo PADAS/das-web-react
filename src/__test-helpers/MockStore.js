@@ -1,8 +1,8 @@
 import configureMockStore from 'redux-mock-store';
-import ReduxPromise from 'redux-promise';
-import ReduxThunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise';
+import { thunk } from 'redux-thunk';
 
-const middlewares = [ReduxPromise, ReduxThunk];
+const middlewares = [thunk, promiseMiddleware];
 
 jest.mock('redux-persist', () => {
   const real = jest.requireActual('redux-persist');

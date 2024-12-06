@@ -1,6 +1,6 @@
+import { centerOfMass, featureCollection } from '@turf/turf';
+
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from './events';
-import centerOfMass from '@turf/center-of-mass';
-import { featureCollection } from '@turf/helpers';
 
 describe('#getMapEventFeatureCollectionByTypeWithVirtualDate', () => {
   const polygonFeature = {

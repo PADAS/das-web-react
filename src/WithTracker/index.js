@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactGA4 from 'react-ga4';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 const withTracker = (WrappedComponent, title) => {
   const trackPage = (page) => {

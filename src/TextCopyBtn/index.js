@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
@@ -28,7 +27,7 @@ const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, succe
           className: styles.toast,
           closeButton: <CloseIcon className={styles.closeIcon} />,
           hideProgressBar: true,
-          type: toast.TYPE.INFO,
+          type: 'info',
         }
       });
     } catch (error) {

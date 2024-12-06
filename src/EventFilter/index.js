@@ -17,7 +17,7 @@ import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../u
 import { caseInsensitiveCompare } from '../utils/string';
 import { useMatchMedia } from '../hooks';
 
-import { reportedBy } from '../selectors';
+import { getGlobalSchemaReportedBy } from '../selectors';
 
 import SearchBar from '../SearchBar';
 import FriendlyFilterString from '../FriendlyFilterString';
@@ -240,7 +240,7 @@ const mapStateToProps = (state) =>
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
     feedEvents: state.data.feedEvents,
-    reporters: reportedBy(state),
+    reporters: getGlobalSchemaReportedBy(state),
   });
 
 export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));

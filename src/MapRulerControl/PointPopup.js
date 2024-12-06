@@ -1,6 +1,5 @@
 import React, { useMemo, memo } from 'react';
-import length from '@turf/length';
-import { lineString } from '@turf/helpers';
+import { length, lineString } from '@turf/turf';
 import { useTranslation } from 'react-i18next';
 
 import GpsFormatToggle from '../GpsFormatToggle';

@@ -1,6 +1,6 @@
 import React, { lazy, memo, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addModal } from '../ducks/modals';

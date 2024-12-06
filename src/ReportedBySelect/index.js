@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { allSubjects } from '../selectors/subjects';
 import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
-import { reportedBy } from '../selectors';
+import { getGlobalSchemaReportedBy } from '../selectors';
 
 import TimeAgo from '../TimeAgo';
 import Select from '../Select';
@@ -149,7 +149,7 @@ const ReportedBySelect = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect' });
 
-  const reporters = useSelector(reportedBy);
+  const reporters = useSelector(getGlobalSchemaReportedBy);
   const subjects = useSelector(allSubjects);
 
   const [isMenuOpen, setMenuOpen] = useState(false);

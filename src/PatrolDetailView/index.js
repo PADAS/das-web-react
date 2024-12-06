@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';

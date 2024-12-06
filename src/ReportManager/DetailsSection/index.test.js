@@ -5,22 +5,24 @@ import userEvent from '@testing-library/user-event';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
-import { GPS_FORMATS } from '../../utils/location';
 import { formValidator } from '../../utils/events';
+import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
-import MapDrawingToolsContextProvider, { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
+import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
-import { render, screen, waitFor, within } from '../../test-utils';
+import { render, screen, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
 
 describe('ReportManager - DetailsSection', () => {
-  const onFormChange = jest.fn(),
+  const onFormDataChange = jest.fn(),
     onFormError = jest.fn(),
     onFormSubmit = jest.fn(),
+    onLegacyFormChange = jest.fn(),
+    onPriorityChange = jest.fn(),
     onReportedByChange = jest.fn(),
     onReportDateChange = jest.fn(),
     onReportGeometryChange = jest.fn(),
@@ -37,17 +39,13 @@ describe('ReportManager - DetailsSection', () => {
     image_url: '/static/ranger-black.svg'
   };
 
-  const reportedBy = {
-    id: '1234',
-    name: 'Canek',
-    image_url: '/static/ranger-black.svg'
-  };
-
-  let map, store;
+  let map, store, submitFormButtonRef;
   beforeEach(() => {
     jest.useFakeTimers();
 
     map = createMapMock();
+
+    submitFormButtonRef = { current: {} };
 
     store = {
       data: {
@@ -71,154 +69,26 @@ describe('ReportManager - DetailsSection', () => {
     jest.restoreAllMocks();
   });
 
-  test('shows the reported by field empty for reports without tracking subject', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection={false}
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
-
-    const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-
-    expect(() => within(reportedBySelect).getByTestId('select-single-value')).toThrow();
-    expect(within(reportedBySelect).queryByText('Reported by...')).toBeDefined();
-  });
-
-  test('shows the name of the tracking subject in reported by for saved reports', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection={false}
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={{ ...report, reported_by: reportedBy }}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
-
-    const reportedBySelect = await screen.getByTestId('reportManager-reportedBySelect');
-    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
-
-    await waitFor(async () => {
-      expect(within(reportedBySelect).queryByText('Reported by...')).toBeNull();
-      expect(selectionImage).toHaveAttribute('src', 'https://localhost//static/ranger-black.svg');
-      expect((await within(reportedBySelect).findByText('Canek'))).toBeDefined();
-    });
-  });
-
-  test('does not show the reported by field if report is collection', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
-
-    expect((await screen.queryByTestId('reportManager-reportedBySelect'))).toBeNull();
-  });
-
-  test('triggers the onReportedByChange callback when the user selects a subject', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection={false}
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={{ ...report, reported_by: reportedBy }}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
-
-    const selectionImage = await screen.getByAltText('Radio icon for Canek value');
-    userEvent.click(selectionImage);
-
-    expect(onReportedByChange).toHaveBeenCalledTimes(0);
-
-    const reporterOption = await screen.getByAltText('Radio icon for Canek option');
-    userEvent.click(reporterOption);
-
-    expect(onReportedByChange).toHaveBeenCalledTimes(1);
-    expect(onReportedByChange.mock.calls[0][0].id).toBe('1234');
-  });
-
-  test('shows the location selector if the geometry type of the report is point', async () => {
-    report.location = null;
-
-    store.data.eventTypes = eventTypes.map((eventType) => {
-      if (eventType.value === report.event_type) {
-        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POINT };
-      }
-      return eventType;
-    });
-
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
+  const renderDetailsSection = (
+    props = null,
+    mockedStore = mockStore(store),
+    mapDrawingToolsContextValue = null
+  ) => render(
+    <Provider store={mockedStore}>
+      <MapContext.Provider value={map}>
+        <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
           <DetailsSection
             formSchema={eventSchemas.accident_rep.base.schema}
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
+            formValidator={formValidator}
             isCollection={false}
+            isNewEvent={false}
             loadingSchema={false}
-            onFormChange={onFormChange}
+            onFormDataChange={onFormDataChange}
             onFormError={onFormError}
             onFormSubmit={onFormSubmit}
+            onLegacyFormChange={onLegacyFormChange}
+            onPriorityChange={onPriorityChange}
             onReportedByChange={onReportedByChange}
             onReportDateChange={onReportDateChange}
             onReportGeometryChange={onReportGeometryChange}
@@ -227,81 +97,180 @@ describe('ReportManager - DetailsSection', () => {
             onReportTimeChange={onReportTimeChange}
             originalReport={report}
             reportForm={report}
-            formValidator={formValidator}
+            submitFormButtonRef={submitFormButtonRef}
+            {...props}
           />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
+        </MapDrawingToolsContext.Provider>
+      </MapContext.Provider>
+    </Provider>
+  );
 
-    expect((await screen.findByText('Set location'))).toBeDefined();
+  test('opens and closes the state dropdown when clicking the toggle button', async () => {
+    renderDetailsSection();
+
+    expect(screen.queryByTestId('reportManager-detailsSection-stateDropdownMenu')).toBeNull();
+
+    const stateDropdownToggleButton = screen.getByText('active');
+    userEvent.click(stateDropdownToggleButton);
+    const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
+
+    expect(stateDropdownMenu).toHaveClass('show');
+
+    userEvent.click(stateDropdownToggleButton);
+
+    expect(stateDropdownMenu).not.toHaveClass('show');
   });
 
-  test('does not show the location selector if report is collection', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
+  test('closes the state dropdown when pressing escape', async () => {
+    renderDetailsSection();
 
-    expect((await screen.queryByText('Set location'))).toBeNull();
+    const stateDropdownToggleButton = screen.getByText('active');
+    userEvent.click(stateDropdownToggleButton);
+    const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
+
+    expect(stateDropdownMenu).toHaveClass('show');
+
+    userEvent.keyboard('{Escape}');
+
+    expect(stateDropdownMenu).not.toHaveClass('show');
   });
 
-  test('triggers the onReportLocationChange callback when the user chooses a location in map', async () => {
+  test('lists the valid event states when opening the state dropdown', async () => {
+    renderDetailsSection();
+
+    const stateDropdownToggleButton = screen.getByText('active');
+    userEvent.click(stateDropdownToggleButton);
+    const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
+    const stateDropdownItems = within(stateDropdownMenu).getAllByRole('button');
+
+    expect(stateDropdownItems).toHaveLength(2);
+    expect(stateDropdownItems[0]).toHaveTextContent('active');
+    expect(stateDropdownItems[1]).toHaveTextContent('resolved');
+  });
+
+  test('changes the state of the event when selecting an item from the state dropdown', async () => {
+    renderDetailsSection();
+
+    userEvent.click(screen.getByText('active'));
+    const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
+
+    expect(onReportStateChange).toHaveBeenCalledTimes(0);
+    expect(stateDropdownMenu).toHaveClass('show');
+
+    userEvent.click(screen.getByText('resolved'));
+
+    expect(onReportStateChange).toHaveBeenCalledTimes(1);
+    expect(onReportStateChange.mock.calls[0][0]).toBe('resolved');
+    expect(stateDropdownMenu).not.toHaveClass('show');
+  });
+
+  test('does not show the reported by select if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Reported By')).toBeNull();
+  });
+
+  test('shows the reported by select if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Reported By')).toBeVisible();
+  });
+
+  test('does not disable the reported by select if the schema is not readonly', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Reported By')).not.toBeDisabled();
+  });
+
+  test('changes the reporter of the event when selecting an item from the reported by select', async () => {
+    renderDetailsSection();
+
+    userEvent.click(screen.getByText('Reported By...'));
+
+    expect(onReportedByChange).toHaveBeenCalledTimes(0);
+
+    userEvent.click(screen.getByText('Canek'));
+
+    expect(onReportedByChange).toHaveBeenCalledTimes(1);
+    expect(onReportedByChange).toHaveBeenCalledWith({
+      id: '1234',
+      image_url: '/static/ranger-black.svg',
+      is_active: true,
+      name: 'Canek',
+      subject_subtype: 'ranger',
+      subject_type: 'person',
+    }, {
+      action: 'select-option',
+      name: undefined,
+      option: undefined,
+    });
+  });
+
+  test('changes the priority of the event when selecting an item from priority select', async () => {
+    renderDetailsSection();
+
+    userEvent.click(screen.getByText('Red'));
+
+    expect(onPriorityChange).toHaveBeenCalledTimes(0);
+
+    userEvent.click(screen.getByText('Green'));
+
+    expect(onPriorityChange).toHaveBeenCalledTimes(1);
+    expect(onPriorityChange).toHaveBeenCalledWith(
+      { display: 'Green', key: 'green', value: 100 },
+      { action: 'select-option', name: undefined, option: undefined }
+    );
+  });
+
+  test('does not show the location selector if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
+
+    expect(screen.queryByText('Event Location')).toBeNull();
+  });
+
+  test('shows the location selector if the event is not a collection', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByText('Event Location')).toBeVisible();
+  });
+
+  test('shows the area selector input if the geometry type of the event is polygon', async () => {
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
-        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POINT };
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
       }
       return eventType;
     });
+    renderDetailsSection();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <MapDrawingToolsContextProvider>
-            <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
-              isCollection={false}
-              loadingSchema={false}
-              onFormChange={onFormChange}
-              onFormError={onFormError}
-              onFormSubmit={onFormSubmit}
-              onReportedByChange={onReportedByChange}
-              onReportDateChange={onReportDateChange}
-              onReportGeometryChange={onReportGeometryChange}
-              onReportLocationChange={onReportLocationChange}
-              onReportStateChange={onReportStateChange}
-              onReportTimeChange={onReportTimeChange}
-              originalReport={report}
-              reportForm={report}
-              formValidator={formValidator}
-            />
-          </MapDrawingToolsContextProvider>
-        </MapContext.Provider>
-      </Provider>
-    );
+    expect(screen.getByText('Set event area')).toBeVisible();
+    expect(screen.queryByTestId('set-location-button')).toBeNull();
+  });
 
-    const setLocationButton = await screen.findByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+  test('changes the geometry of the event when selecting an area from the area selector input', async () => {
+    store.data.eventTypes = eventTypes.map((eventType) => {
+      if (eventType.value === report.event_type) {
+        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
+      }
+      return eventType;
+    });
+    renderDetailsSection(undefined, undefined, { mapDrawingData: {}, setMapDrawingData: jest.fn() });
+
+    expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the location selector input if the geometry type of the event is polygon', async () => {
+    renderDetailsSection();
+
+    expect(screen.getByTestId('set-location-button')).toBeVisible();
+    expect(screen.queryByText('Set event area')).toBeNull();
+  });
+
+  test('changes the location of the event when selecting a location from the location selector input', async () => {
+    renderDetailsSection();
+
+    userEvent.click(screen.getByTestId('set-location-button'));
+    userEvent.click(screen.getByTitle('Place marker on map'));
 
     expect(onReportLocationChange).toHaveBeenCalledTimes(0);
 
@@ -311,354 +280,106 @@ describe('ReportManager - DetailsSection', () => {
     expect(onReportLocationChange).toHaveBeenCalledWith([88, 55]);
   });
 
-  test('shows the area selector if the geometry type of the report is polygon', async () => {
-    store.data.eventTypes = eventTypes.map((eventType) => {
-      if (eventType.value === report.event_type) {
-        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
-      }
-      return eventType;
-    });
+  test('does not show the date picker if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
 
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <DetailsSection
-            formSchema={eventSchemas.accident_rep.base.schema}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            isCollection={false}
-            loadingSchema={false}
-            onFormChange={onFormChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            onReportStateChange={onReportStateChange}
-            onReportTimeChange={onReportTimeChange}
-            originalReport={report}
-            reportForm={report}
-            formValidator={formValidator}
-          />
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
-
-    expect((await screen.findByText('Set event area'))).toBeDefined();
+    expect(screen.queryByText('Event Date')).toBeNull();
   });
 
-  test('triggers the onReportGeometryChange callback when redux state suggests a geometry selection', async () => {
-    store.data.eventTypes = eventTypes.map((eventType) => {
-      if (eventType.value === report.event_type) {
-        return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
-      }
-      return eventType;
-    });
+  test('shows the date picker if the event is not a collection', async () => {
+    renderDetailsSection();
 
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
-          <DetailsSection
-            formSchema={eventSchemas.accident_rep.base.schema}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            isCollection={false}
-            loadingSchema={false}
-            onFormChange={onFormChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            onReportStateChange={onReportStateChange}
-            onReportTimeChange={onReportTimeChange}
-            originalReport={report}
-            reportForm={report}
-            formValidator={formValidator}
-          />
-        </MapDrawingToolsContext.Provider>
-      </Provider>
-    );
-
-    expect(onReportGeometryChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Event Date')).toBeVisible();
   });
 
-  test('does not show the date selector if report is collection', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
+  test('changes the date of the event when selecting an option from the date picker', async () => {
+    renderDetailsSection();
 
-    expect((await screen.queryByTestId('datePicker-input'))).toBeNull();
-  });
-
-  test('triggers the onReportDateChange callback when the user selects a date', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <MapDrawingToolsContextProvider>
-            <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
-              isCollection={false}
-              loadingSchema={false}
-              onFormChange={onFormChange}
-              onFormError={onFormError}
-              onFormSubmit={onFormSubmit}
-              onReportedByChange={onReportedByChange}
-              onReportDateChange={onReportDateChange}
-              onReportGeometryChange={onReportGeometryChange}
-              onReportLocationChange={onReportLocationChange}
-              onReportStateChange={onReportStateChange}
-              onReportTimeChange={onReportTimeChange}
-              originalReport={report}
-              reportForm={report}
-              formValidator={formValidator}
-            />
-          </MapDrawingToolsContextProvider>
-        </MapContext.Provider>
-      </Provider>
-    );
-
-    const datePickerInput = await screen.findByTestId('datePicker-input');
-    userEvent.click(datePickerInput);
+    userEvent.click(screen.getByTestId('datePicker-input'));
 
     expect(onReportDateChange).toHaveBeenCalledTimes(0);
 
-    const options = await screen.findAllByRole('option');
-    userEvent.click(options[16]);
+    const datePickerOptions = await screen.findAllByRole('option');
+    userEvent.click(datePickerOptions[16]);
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
   });
 
-  test('does not show the time selector if report is collection', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          formSchema={eventSchemas.accident_rep.base.schema}
-          formUISchema={eventSchemas.accident_rep.base.uiSchema}
-          isCollection
-          loadingSchema={false}
-          onFormChange={onFormChange}
-          onFormError={onFormError}
-          onFormSubmit={onFormSubmit}
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
+  test('does not show the time picker if the event is a collection', async () => {
+    renderDetailsSection({ isCollection: true });
 
-    expect((await screen.queryByTestId('time-input'))).toBeNull();
+    expect(screen.queryByText('Event Time')).toBeNull();
   });
 
-  test('triggers the onReportTimeChange callback when the user selects a time', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <MapDrawingToolsContextProvider>
-            <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
-              isCollection={false}
-              loadingSchema={false}
-              onFormChange={onFormChange}
-              onFormError={onFormError}
-              onFormSubmit={onFormSubmit}
-              onReportedByChange={onReportedByChange}
-              onReportDateChange={onReportDateChange}
-              onReportGeometryChange={onReportGeometryChange}
-              onReportLocationChange={onReportLocationChange}
-              onReportStateChange={onReportStateChange}
-              onReportTimeChange={onReportTimeChange}
-              originalReport={report}
-              reportForm={report}
-              formValidator={formValidator}
-            />
-          </MapDrawingToolsContextProvider>
-        </MapContext.Provider>
-      </Provider>
-    );
+  test('shows the time picker if the event is not a collection', async () => {
+    renderDetailsSection();
 
-    const timeInput = await screen.findByTestId('time-input');
-    userEvent.click(timeInput);
+    expect(screen.getByText('Event Time')).toBeVisible();
+  });
 
-    const optionsList = await screen.findByTestId('timePicker-OptionsList');
-    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+  test('changes the time of the event when selecting an option from the time picker', async () => {
+    renderDetailsSection();
+
+    userEvent.click(screen.getByTestId('time-input'));
 
     expect(onReportTimeChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(timeOptionsListItems[2]);
+    const timePickerOptionsList = screen.getByTestId('timePicker-OptionsList');
+    const timePickerItems = within(timePickerOptionsList).getAllByRole('listitem');
+    userEvent.click(timePickerItems[2]);
 
     expect(onReportTimeChange).toHaveBeenCalledTimes(1);
   });
 
   test('does not show the printable row with the geometry preview if report does not have a geometry', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <MapDrawingToolsContextProvider>
-            <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
-              isCollection={false}
-              loadingSchema={false}
-              onFormChange={onFormChange}
-              onFormError={onFormError}
-              onFormSubmit={onFormSubmit}
-              onReportedByChange={onReportedByChange}
-              onReportDateChange={onReportDateChange}
-              onReportGeometryChange={onReportGeometryChange}
-              onReportLocationChange={onReportLocationChange}
-              onReportStateChange={onReportStateChange}
-              onReportTimeChange={onReportTimeChange}
-              originalReport={report}
-              reportForm={report}
-              formValidator={formValidator}
-            />
-          </MapDrawingToolsContextProvider>
-        </MapContext.Provider>
-      </Provider>
-    );
+    renderDetailsSection();
 
-    expect((await screen.queryByAltText('Static map with geometry'))).toBeNull();
+    expect(screen.queryByAltText('Static map with geometry')).toBeNull();
   });
 
   test('shows the printable row with the geometry preview if report has a geometry', async () => {
-    report.geometry = {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [6.657425, 9.301125],
-            [-40.668725, 5.047775],
-            [5.0602, -13.74975],
-            [6.657425, 9.301125],
-          ]
-        ]
-      },
-    };
-
     store.data.eventTypes = eventTypes.map((eventType) => {
       if (eventType.value === report.event_type) {
         return { ...eventType, geometry_type: VALID_EVENT_GEOMETRY_TYPES.POLYGON };
       }
       return eventType;
     });
+    renderDetailsSection({
+      reportForm: {
+        ...report,
+        geometry: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [6.657425, 9.301125],
+                [-40.668725, 5.047775],
+                [5.0602, -13.74975],
+                [6.657425, 9.301125],
+              ]
+            ]
+          },
+        },
+      },
+    });
 
-    render(
-      <Provider store={mockStore(store)}>
-        <MapContext.Provider value={map}>
-          <MapDrawingToolsContextProvider>
-            <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
-              isCollection={false}
-              loadingSchema={false}
-              onFormChange={onFormChange}
-              onFormError={onFormError}
-              onFormSubmit={onFormSubmit}
-              onReportedByChange={onReportedByChange}
-              onReportDateChange={onReportDateChange}
-              onReportGeometryChange={onReportGeometryChange}
-              onReportLocationChange={onReportLocationChange}
-              onReportStateChange={onReportStateChange}
-              onReportTimeChange={onReportTimeChange}
-              originalReport={report}
-              reportForm={report}
-              formValidator={formValidator}
-            />
-          </MapDrawingToolsContextProvider>
-        </MapContext.Provider>
-      </Provider>
-    );
-
-    expect((await screen.findByAltText('Static map with geometry'))).toBeDefined();
+    expect(screen.getByAltText('Static map with geometry')).toBeVisible();
   });
 
-  test('triggers the onFormChange callback when user does a change to a form field', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
-          <DetailsSection
-            formSchema={eventSchemas.accident_rep.base.schema}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            isCollection={false}
-            loadingSchema={false}
-            onFormChange={onFormChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            originalReport={report}
-            reportForm={report}
-            formValidator={formValidator}
-          />
-        </MapDrawingToolsContext.Provider>
-      </Provider>
-    );
+  test('changes the event form when changing the value of an input for legacy schemas', async () => {
+    renderDetailsSection();
 
-    expect(onFormChange).toHaveBeenCalledTimes(0);
+    expect(onLegacyFormChange).toHaveBeenCalledTimes(0);
 
-    const typeOfAccidentField = await screen.findByLabelText('Type of accident');
-    userEvent.type(typeOfAccidentField, 'Truck crash');
+    userEvent.type(screen.getByLabelText('Type of accident'), 'Truck crash');
 
-    expect(onFormChange).toHaveBeenCalled();
+    expect(onLegacyFormChange).toHaveBeenCalled();
   });
 
-  test('triggers the onFormSubmit callback when clicking the submit button', async () => {
-    const submitFormButtonRef = {};
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
-          <DetailsSection
-            formSchema={eventSchemas.accident_rep.base.schema}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            isCollection={false}
-            loadingSchema={false}
-            onFormChange={onFormChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            originalReport={report}
-            reportForm={report}
-            submitFormButtonRef={submitFormButtonRef}
-            formValidator={formValidator}
-          />
-        </MapDrawingToolsContext.Provider>
-      </Provider>
-    );
+  test('submits the form for legacy schemas', async () => {
+    renderDetailsSection();
 
     expect(onFormSubmit).toHaveBeenCalledTimes(0);
 
@@ -667,69 +388,11 @@ describe('ReportManager - DetailsSection', () => {
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the loader while the schema has not loaded', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContext.Provider value={{ mapDrawingData: {}, setMapDrawingData: jest.fn() }}>
-          <DetailsSection
-            formSchema={null}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            loadingSchema
-            onFormChange={onFormChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            originalReport={report}
-            reportForm={report}
-            formValidator={formValidator}
-          />
-        </MapDrawingToolsContext.Provider>
-      </Provider>
-    );
+  test('shows a loader while the schema loads', async () => {
+    renderDetailsSection({ formSchema: null, loadingSchema: true });
 
-    expect((await screen.findByTestId('reportManager-detailsSection-loader'))).toBeDefined();
+    expect(screen.getByTestId('reportManager-detailsSection-loader')).toBeVisible();
   });
 
-  test('triggers the onReportStateChange callback when user selects a new state', async () => {
-    store.data.eventTypes = eventTypes;
-
-    render(
-      <Provider store={mockStore(store)}>
-        <DetailsSection
-          onReportedByChange={onReportedByChange}
-          onReportDateChange={onReportDateChange}
-          onReportGeometryChange={onReportGeometryChange}
-          onReportLocationChange={onReportLocationChange}
-          onReportStateChange={onReportStateChange}
-          onReportTimeChange={onReportTimeChange}
-          originalReport={report}
-          reportForm={report}
-          formValidator={formValidator}
-        />
-      </Provider>
-    );
-
-    const stateDropdown = await screen.findByText('active');
-    userEvent.click(stateDropdown);
-
-    expect(onReportStateChange).toHaveBeenCalledTimes(0);
-
-    const resolvedItem = await screen.findByText('resolved');
-    userEvent.click(resolvedItem);
-
-    expect(onReportStateChange).toHaveBeenCalledTimes(1);
-    expect(onReportStateChange.mock.calls[0][0]).toBe('resolved');
-  });
-
-  // TODO: Add tests once we assign isNewDraftSchema from the $schema property.
-  // test('renders the form for schemas with Draft-04 or Draft-06', () => {
-
-  // });
-
-  // test('renders the form for schemas with Draft 2020-12', () => {
-
-  // });
+  // TODO: Add tests for new schemas once we stop using the feature flag
 });

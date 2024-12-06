@@ -1,11 +1,10 @@
+import { bearing } from '@turf/turf';
 import Dms from 'geodesy/dms';
 import Utm, { LatLon as LatLon_Utm } from 'geodesy/utm';
 import Mgrs, { LatLon as Latlon_Utm_Mgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
-import bearing from '@turf/bearing';
 
 const LNG_LAT_DECIMAL_PRECISION = 6;
-
 
 export const GPS_FORMATS = {
   DEG: 'DEG',
