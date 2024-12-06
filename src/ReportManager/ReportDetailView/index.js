@@ -454,13 +454,9 @@ const ReportDetailView = ({
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
-  // TODO: Collections will require recusivity here.
-  const onFormDataChange = useCallback((fieldId, value) => setReportForm((reportForm) => ({
+  const onFormDataChange = useCallback((formData) => setReportForm((reportForm) => ({
     ...reportForm,
-    event_details: {
-      ...reportForm.event_details,
-      [fieldId]: value,
-    }
+    event_details: formData,
   })), []);
 
   const onDeleteAttachment = useCallback((attachment) => {
@@ -805,6 +801,7 @@ const ReportDetailView = ({
                 formSchema={reportSchemas?.schema}
                 formUISchema={reportSchemas?.uiSchema}
                 isCollection={isCollection}
+                isNewEvent={isNewReport}
                 loadingSchema={!!eventSchemas.loading}
                 onFormDataChange={onFormDataChange}
                 onFormError={onFormError}

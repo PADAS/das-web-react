@@ -17,8 +17,8 @@ const FIELD_STYLES = {
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longText,
 };
 
-const Text = ({ details, error, id, onFieldChange, value }) => {
-  const shouldSetDefaultInputRef = useRef(!value && details.defaultInput);
+const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
+  const shouldAutofillDefaultInputRef = useRef(autofillDefaultInput && details.defaultInput);
 
   const TextInput = FIELD_INPUTS[details.inputType];
 
@@ -27,10 +27,10 @@ const Text = ({ details, error, id, onFieldChange, value }) => {
   const label = details.isRequired ? `${details.label} *` : details.label;
 
   useEffect(() => {
-    if (shouldSetDefaultInputRef.current) {
+    if (shouldAutofillDefaultInputRef.current) {
       onFieldChange(id, details.defaultInput);
 
-      shouldSetDefaultInputRef.current = false;
+      shouldAutofillDefaultInputRef.current = false;
     }
   }, [details.defaultInput, id, onFieldChange, value]);
 
@@ -44,9 +44,9 @@ const Text = ({ details, error, id, onFieldChange, value }) => {
       aria-required={details.isRequired}
       className={`${styles.textInput} ${FIELD_STYLES[details.inputType]}`}
       id={id}
-      onChange={(event) => onFieldChange(id, event.currentTarget.value)}
+      onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
       placeholder={details.placeholder}
-      value={value || ''}
+      value={value}
     />
 
     {(hasDescription || hasError) && <p

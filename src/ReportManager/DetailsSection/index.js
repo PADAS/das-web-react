@@ -49,6 +49,7 @@ const DetailsSection = ({
   formUISchema = null,
   formValidator,
   isCollection,
+  isNewEvent,
   loadingSchema,
   onFormDataChange,
   onFormError,
@@ -255,7 +256,8 @@ const DetailsSection = ({
 
     {/* TODO: Replace schemaFromSchemaSelector.schema for the formSchema and remove the label */}
     {!!schemaFromSchemaSelector?.schema && efbFormSchemaSupportEnabled && isNewDraftSchema && <SchemaForm
-      formData={reportForm.event_details}
+      autofillDefaultInputs={isNewEvent}
+      initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
       renderSubmitButton={() => <button

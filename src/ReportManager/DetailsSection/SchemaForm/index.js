@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
@@ -14,10 +14,20 @@ export const FIELDS = {
   [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
-const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButton, schema }) => {
+const SchemaForm = ({
+  autofillDefaultInputs,
+  initialFormData,
+  onFormDataChange,
+  onFormSubmit,
+  renderSubmitButton,
+  schema,
+}) => {
   const runValidations = useSchemaValidations(schema);
 
+  const shouldSendFormDataChangeRef = useRef(false);
+
   const [fieldErrors, setFieldErrors] = useState({});
+  const [formData, setFormData] = useState(initialFormData);
 
   const fields = useMemo(() => makeFieldsFromSchema(schema), [schema]);
 
@@ -28,10 +38,12 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
   }), {}), [formData]);
 
   const onFieldChange = useCallback((fieldId, value) => {
-    // If the value is empty, set it as undefined so AJV validation returns errors for required fields.
-    onFormDataChange(fieldId, value || undefined);
+    // TODO: Collections will require recusivity here.
+    setFormData((formData) => ({ ...formData, [fieldId]: value }));
     setFieldErrors((fieldErrors) => ({ ...fieldErrors, [fieldId]: undefined }));
-  }, [onFormDataChange]);
+
+    shouldSendFormDataChangeRef.current = true;
+  }, []);
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -43,7 +55,7 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
       document.getElementById(idOfFirstErroneousField).focus();
     } else {
-      onFormSubmit({ formData });
+      onFormSubmit();
     }
   };
 
@@ -57,6 +69,7 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
     }
     // Collections will require a condition here to pass down renderField as prop
     return <Field
+      autofillDefaultInput={autofillDefaultInputs}
       details={fields[fieldId].details}
       error={fieldErrors[fieldId]}
       id={fieldId}
@@ -64,6 +77,14 @@ const SchemaForm = ({ formData, onFormDataChange, onFormSubmit, renderSubmitButt
       value={fieldValues[fieldId]}
     />;
   };
+
+  useEffect(() => {
+    if (shouldSendFormDataChangeRef.current) {
+      onFormDataChange(formData);
+
+      shouldSendFormDataChangeRef.current = false;
+    }
+  }, [formData, onFormDataChange]);
 
   return <form onSubmit={onSubmit}>
     {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section

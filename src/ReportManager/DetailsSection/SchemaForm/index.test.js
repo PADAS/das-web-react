@@ -72,7 +72,8 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   });
 
   const renderSchemaForm = (props) => render(<SchemaForm
-    formData={{ this_is_a_text: 'a text value' }}
+    autofillDefaultInputs={false}
+    initialFormData={{ this_is_a_text: 'a text value' }}
     onFormDataChange={onFormDataChange}
     onFormSubmit={onFormSubmit}
     renderSubmitButton={renderSubmitButton}
@@ -107,16 +108,20 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   test('changes the field values when the user interacts with them', async () => {
     renderSchemaForm();
 
+    const inputField = screen.getByLabelText('This is a text *');
+
+    expect(inputField).toHaveValue('a text value');
     expect(onFormDataChange).not.toHaveBeenCalled();
 
     await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
 
+    expect(inputField).toHaveValue('a text value ');
     expect(onFormDataChange).toHaveBeenCalledTimes(1);
-    expect(onFormDataChange).toHaveBeenCalledWith('this_is_a_text', 'a text value ');
+    expect(onFormDataChange).toHaveBeenCalledWith({ this_is_a_text: 'a text value ' });
   });
 
   test('shows validation errors if there are any when the user submits the form', async () => {
-    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+    renderSchemaForm({ initialFormData: { this_is_a_text: undefined } });
 
     const inputField = screen.getByLabelText('This is a text *');
 
@@ -131,7 +136,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
   });
 
   test('clears validation errors of a field when the user changes its value', async () => {
-    renderSchemaForm({ formData: { this_is_a_text: undefined } });
+    renderSchemaForm({ initialFormData: { this_is_a_text: undefined } });
 
     const inputField = screen.getByLabelText('This is a text *');
     await userEvent.type(inputField, '{enter}');
@@ -139,7 +144,7 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     expect(inputField).toBeInvalid();
     expect(inputField).toHaveAccessibleErrorMessage('This is a required field.');
 
-    await userEvent.type(screen.getByLabelText('This is a text *'), ' ');
+    await userEvent.type(screen.getByLabelText('This is a text *'), 'a');
 
     expect(inputField).toBeValid();
     expect(inputField).not.toHaveAccessibleErrorMessage();
@@ -152,10 +157,5 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     await userEvent.type(inputField, '{enter}');
 
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
-    expect(onFormSubmit).toHaveBeenCalledWith({
-      formData: {
-        this_is_a_text: 'a text value',
-      },
-    });
   });
 });

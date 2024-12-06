@@ -23,6 +23,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   const renderTextField = (props) => render(<Text
+    autofillDefaultInput={false}
     details={details}
     error={undefined}
     id="text-1"
@@ -31,14 +32,34 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     {...props}
   />);
 
-  test('shows the label for non required fields', () => {
+  test('sets the default value when mounting the input if the autofill default input flag is on', () => {
+    renderTextField({ autofillDefaultInput: true });
+
+    expect(onFieldChange).toHaveBeenCalledTimes(1);
+    expect(onFieldChange).toHaveBeenCalledWith('text-1', 'Text 1 Default Input');
+  });
+
+  test('does not change the input value automatically if there is no default input', () => {
+    details.defaultInput = '';
+    renderTextField({ autofillDefaultInput: true });
+
+    expect(onFieldChange).not.toHaveBeenCalled();
+  });
+
+  test('does not change the input value automatically if the autofill default input flag is off', () => {
+    renderTextField();
+
+    expect(onFieldChange).not.toHaveBeenCalled();
+  });
+
+  test('shows a non required text field', () => {
     renderTextField();
 
     expect(screen.getByText('Text 1 Label')).toBeVisible();
     expect(screen.getByLabelText('Text 1 Label')).not.toBeRequired();
   });
 
-  test('shows the label for required fields', () => {
+  test('shows a required text field', () => {
     details.isRequired = true;
     renderTextField();
 
@@ -90,7 +111,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(screen.getByLabelText('Text 1 Label')).toHaveAccessibleDescription('Text 1 Description');
   });
 
-  test('shows the input without an error state when it is valid', () => {
+  test('shows a valid input when there are errors', () => {
     renderTextField();
 
     const textInput = screen.getByLabelText('Text 1 Label');
@@ -99,7 +120,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(textInput).not.toHaveAccessibleErrorMessage();
   });
 
-  test('shows the input with an error state when it is invalid', () => {
+  test('shows an invalid input when there are errors', () => {
     renderTextField({ error: 'Error' });
 
     const textInput = screen.getByLabelText('Text 1 Label');
@@ -110,20 +131,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(description).toBeVisible();
     expect(description).toHaveAttribute('aria-live', 'assertive');
     expect(description).toHaveClass('error');
-  });
-
-  test('does not change the input value automatically if there is no default input', () => {
-    details.defaultInput = '';
-    renderTextField();
-
-    expect(onFieldChange).not.toHaveBeenCalled();
-  });
-
-  test('sets the default value when mounting the input', () => {
-    renderTextField();
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('text-1', 'Text 1 Default Input');
   });
 
   test('updates the form data when the user does changes to the input', async () => {

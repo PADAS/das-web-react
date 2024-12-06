@@ -82,6 +82,7 @@ describe('ReportManager - DetailsSection', () => {
             formUISchema={eventSchemas.accident_rep.base.uiSchema}
             formValidator={formValidator}
             isCollection={false}
+            isNewEvent={false}
             loadingSchema={false}
             onFormDataChange={onFormDataChange}
             onFormError={onFormError}
