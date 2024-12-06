@@ -295,7 +295,7 @@ describe('#useMemoCompare', () => {
 
 describe('#useFeatureFlag', () => {
   let wrapper, store;
-  const knownProperty = 'I18N_ENABLED';
+  const knownProperty = 'EFB_FORM_SCHEMA_SUPPORT_ENABLED';
 
   beforeEach(() => {
     store = mockStore({
