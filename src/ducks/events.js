@@ -120,6 +120,8 @@ const fetchNamedFeedActionCreator = (name) => {
       paramString = paramString + `&location=${calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords)}`;
     }
 
+    debugger
+
 
     return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,

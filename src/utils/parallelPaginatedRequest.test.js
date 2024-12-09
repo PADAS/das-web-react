@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import parallelPaginatedRequest from './';
-import { EVENTS_API_URL } from '../events';
+import parallelPaginatedRequest from './parallelPaginatedRequest';
+import { EVENTS_API_URL } from '../ducks/events';
 
 describe('parallelPaginatedRequest', () => {
 

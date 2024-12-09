@@ -83,7 +83,7 @@ const useReportsFeed = () => {
       include_files: false,
       include_notes: false,
       include_updates: false,
-      page_size: 25,
+      page_size: 50,
     };
     if (shouldExcludeContained) {
       params.exclude_contained = true;
