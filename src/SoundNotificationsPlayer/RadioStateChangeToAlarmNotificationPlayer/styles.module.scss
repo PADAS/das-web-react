@@ -1,15 +1,9 @@
 @import '../../common/styles/vars/colors';
 
-.toast {
-  background-color: $bright-red;
-}
-
 .alarmRadioStateToast {
   display: flex;
 
   .subjectLastPositionDate {
-    color: white;
-  
     span {
       font-size: 1rem;
     }

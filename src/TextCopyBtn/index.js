@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
-import { ReactComponent as CloseIcon } from '../common/images/icons/cross.svg';
 
 import { showToast } from '../utils/toast';
 
@@ -24,8 +23,6 @@ const TextCopyBtn = ({ className, getText, icon, label, permitPropagation, succe
         message: successMessage || t('defaultToastMessage'),
         toastConfig: {
           autoClose: 2000,
-          className: styles.toast,
-          closeButton: <CloseIcon className={styles.closeIcon} />,
           hideProgressBar: true,
           type: 'info',
         }
