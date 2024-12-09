@@ -12,6 +12,8 @@ import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filte
 import { objectToParamString } from '../../utils/query';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 
+const EVENT_FEED_PAGE_SIZE = 50;
+
 const useReportsFeed = () => {
   const dispatch = useDispatch();
 
@@ -35,7 +37,7 @@ const useReportsFeed = () => {
       include_files: false,
       include_notes: false,
       include_updates: false,
-      page_size: 50,
+      page_size: EVENT_FEED_PAGE_SIZE,
     },
     format: 'object',
   }, feedSort));
@@ -83,7 +85,7 @@ const useReportsFeed = () => {
       include_files: false,
       include_notes: false,
       include_updates: false,
-      page_size: 50,
+      page_size: EVENT_FEED_PAGE_SIZE,
     };
     if (shouldExcludeContained) {
       params.exclude_contained = true;

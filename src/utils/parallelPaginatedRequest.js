@@ -17,11 +17,11 @@ async function fetchPage(apiUrl, requestConfig, page, pageSize, maxRetries) {
       data = response.data.data;
       break;
     } catch (error) {
-      console.log(`Error fetching page ${page} (attempt ${attempt}):`, error.message);
+      console.error(`Error fetching page ${page} (attempt ${attempt}):`, error.message);
     }
   }
 
-  if (attempt >= maxRetries) { // just logging in error, this place can be used to trigger a callback on maxRetries exhausted per page
+  if (data === null) { // just logging in error, this place can be used to trigger a callback on maxRetries exhausted per page
     console.error(`Failed to fetch page ${page} after ${maxRetries} attempts.`);
   }
 
@@ -39,35 +39,37 @@ async function parallelPaginatedRequest(apiUrl, requestConfig = {}, { itemsPerPa
   onPageFetch?.(firstPageData);
 
   const totalItems = firstPageData.count;
-  let allItems = [...firstPageData.results];
-  const pagesToFetch = Array.from({ length: Math.ceil(totalItems / itemsPerPage) - 1 }, (_, i) => i + 2); // Exclude page 1
-  const activeFetches = new Set();
+  let requestResults = [...firstPageData.results];
+  const pagesToFetch = Math.ceil(totalItems / itemsPerPage) - 1;
+
+  // Exclude page 1, producing an array on integer from page 2 to last page to fetch [2, 3, 4, ...]
+  const arrayPagesToFetch = Array.from({ length: pagesToFetch }, (_, i) => i + 2);
+  const requestsPool = new Set();
 
   const processPage = async (page) => {
-    const data = await fetchPage(apiUrl, requestConfig, page, itemsPerPage, maxRetries);
-    if (!!data) {
-      onPageFetch?.(data);
-      allItems = allItems.concat(data.results);
+    const response = await fetchPage(apiUrl, requestConfig, page, itemsPerPage, maxRetries);
+    if (!!response) {
+      onPageFetch?.(response);
+      requestResults = requestResults.concat(response.results);
     }
   };
 
-  for (const page of pagesToFetch) {
-    while (activeFetches.size >= concurrencyLimit) {
-      await Promise.race([...activeFetches]);
+  for (const page of arrayPagesToFetch) {
+
+    if (requestsPool.size >= concurrencyLimit) {
+      await Promise.race([...requestsPool]);
       console.log('Wait for any fetch to complete.');
     }
 
     const fetchPromise = processPage(page)
-      .then(() => console.log(`Page ${page} completed.`))
-      .catch(error => console.error(`Page ${page} failed after retries:`, error))
-      .finally(() => activeFetches.delete(fetchPromise));
+      .finally(() => requestsPool.delete(fetchPromise));
 
-    activeFetches.add(fetchPromise);
+    requestsPool.add(fetchPromise);
   }
 
-  await Promise.all([...activeFetches]);
+  await Promise.all([...requestsPool]);
 
-  return allItems;
+  return requestResults;
 }
 
 export default parallelPaginatedRequest;

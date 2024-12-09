@@ -443,14 +443,14 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   let resultsToDate = [];
 
-  const onEachRequest = ({ results: onePageOfResults }) => {
+  const onPageFetch = ({ results: onePageOfResults }) => {
     resultsToDate = [...resultsToDate, ...onePageOfResults];
     dispatch(fetchMapEventsPageSuccess(onePageOfResults));
   };
 
   return parallelPaginatedQuery(`${EVENTS_API_URL}?${eventFilterParamString}`,
     { cancelToken: generateNewCancelToken() },
-    { onPageFetch: onEachRequest })
+    { onPageFetch })
     .then((finalResults) => {
       finalResults && dispatch(fetchMapEventsComplete(finalResults));
     })
