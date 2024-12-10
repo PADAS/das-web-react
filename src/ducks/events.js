@@ -459,7 +459,7 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
       if (isCancel(error)) {
         dispatch(fetchMapEventsComplete([]));
-      } else {
+      } else if (resultsToDate.length > 0){
         dispatch(fetchMapEventsComplete(resultsToDate));
       }
 
