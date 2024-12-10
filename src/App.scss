@@ -17,6 +17,10 @@ div.Toastify__toast {
   }
 }
 
+.Toastify__toast-container {
+  width: unset;
+}
+
 .Toastify__toast-container--top-right {
   right: 0.5rem;
   top: 6.5rem;
