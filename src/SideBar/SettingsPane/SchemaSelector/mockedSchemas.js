@@ -1,3 +1,72 @@
+const schemaWithNumerics = {
+  label: 'Schema with numerics',
+  schema: {
+    'json': {
+      '$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'additionalProperties': false,
+      'properties': {
+        'non_required_numeric_field_with_range_of_1-10': {
+          'default': 6,
+          'deprecated': false,
+          'description': 'These are some cool instructions',
+          'maximum': 10,
+          'minimum': 1,
+          'title': 'Non required numeric field with range of 1-10',
+          'type': 'number'
+        },
+        'required_field_no_range_with_default_input': {
+          'default': 98,
+          'deprecated': false,
+          'description': 'The great detailed description',
+          'title': 'Required field no range with default input',
+          'type': 'number'
+        }
+      },
+      'required': [
+        'required_field_no_range_with_default_input'
+      ],
+      'type': 'object'
+    },
+    'ui': {
+      'fields': {
+        'non_required_numeric_field_with_range_of_1-10': {
+          'placeholder': 'A placeholder',
+          'type': 'NUMERIC',
+          'parent': 'section-14u-3Ve0rWKLO6LCH1ux1'
+        },
+        'required_field_no_range_with_default_input': {
+          'placeholder': 'A hint',
+          'type': 'NUMERIC',
+          'parent': 'section-14u-3Ve0rWKLO6LCH1ux1'
+        }
+      },
+      'headers': {},
+      'order': [
+        'section-14u-3Ve0rWKLO6LCH1ux1'
+      ],
+      'sections': {
+        'section-14u-3Ve0rWKLO6LCH1ux1': {
+          'columns': 1,
+          'isActive': true,
+          'label': '',
+          'leftColumn': [
+            {
+              'name': 'non_required_numeric_field_with_range_of_1-10',
+              'type': 'field'
+            },
+            {
+              'name': 'required_field_no_range_with_default_input',
+              'type': 'field'
+            }
+          ],
+          'rightColumn': []
+        }
+      }
+    }
+  }
+};
+
+
 const schemaWithTexts = {
   label: 'Text fields with full settings',
   schema: {
@@ -218,6 +287,6 @@ const schemaWithSections = {
   },
 };
 
-const schemas = [schemaWithTexts, schemaWithSections];
+const schemas = [schemaWithTexts, schemaWithSections, schemaWithNumerics];
 
 export default schemas;

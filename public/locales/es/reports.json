@@ -125,7 +125,8 @@
       "reportedByLabel": "Reportado por",
       "schemaForm": {
         "errors": {
-          "required": "Este campo es obligatorio."
+          "required": "Este campo es obligatorio.",
+          "outOfRange": "El valor del campo está fuera de rango."
         }
       },
       "stateDropdown": {

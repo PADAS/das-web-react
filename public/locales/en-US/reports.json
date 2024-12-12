@@ -136,7 +136,8 @@
       "reportedByLabel": "Reported By",
       "schemaForm": {
         "errors": {
-          "required": "This is a required field."
+          "required": "This is a required field.",
+          "outOfRange": "Field value is out of range."
         }
       },
       "stateDropdown": {

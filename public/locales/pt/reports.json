@@ -125,7 +125,8 @@
             "reportedByLabel": "Reportado por",
             "schemaForm": {
                 "errors": {
-                    "required": "Este é um campo obrigatório."
+                    "required": "Este é um campo obrigatório.",
+                    "outOfRange": "O valor do campo está fora do intervalo."
                 }
             },
             "stateDropdown": {

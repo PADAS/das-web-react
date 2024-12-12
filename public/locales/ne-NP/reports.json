@@ -133,7 +133,8 @@
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",
             "schemaForm": {
                 "errors": {
-                    "required": "यो आवश्यक फिल्ड हो।"
+                    "required": "यो आवश्यक फिल्ड हो।",
+                    "outOfRange": "क्षेत्र मान दायरा बाहिर छ।"
                 }
             },
             "stateDropdown": {

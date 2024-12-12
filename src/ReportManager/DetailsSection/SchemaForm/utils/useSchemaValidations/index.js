@@ -16,6 +16,11 @@ const useSchemaValidations = (schema) => {
           return { ...accumulator, [error.params.missingProperty]: t('required') };
         }
 
+        if (error.keyword === 'minimum' || error.keyword === 'maximum' ) {
+          const [, fieldName] = error?.instancePath?.split('/');
+          return { ...accumulator, [fieldName]: t('outOfRange') };
+        }
+
         // TODO: Transform missing errors.
 
         return accumulator;

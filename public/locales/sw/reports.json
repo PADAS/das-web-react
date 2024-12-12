@@ -136,7 +136,8 @@
       "reportedByLabel": "Iliripotiwa Na",
       "schemaForm": {
         "errors": {
-          "required": "Hili ni shamba la lazima."
+          "required": "Hili ni shamba la lazima.",
+          "outOfRange": "Thamani ya sehemu iko nje ya safu."
         }
       },
       "stateDropdown": {

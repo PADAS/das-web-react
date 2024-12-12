@@ -125,7 +125,8 @@
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
-          "required": "Ceci est un champ obligatoire."
+          "required": "Ceci est un champ obligatoire.",
+          "outOfRange": "La valeur du champ est hors plage."
         }
       },
       "stateDropdown": {
