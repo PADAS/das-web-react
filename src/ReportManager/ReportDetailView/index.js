@@ -821,7 +821,7 @@ const ReportDetailView = ({
                 formValidator={formValidator}
               />
               <div>
-                <NumericInput />
+                <NumericInput onChange={(value) => console.log(value)} />
               </div>
             </QuickLinks.Section>
 
