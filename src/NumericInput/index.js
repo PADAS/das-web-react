@@ -13,45 +13,65 @@ const isFloat = (value) => value.includes('.');
 const parseStringValueToNumber = (value) => isFloat(value) ? parseFloat(value) : parseInt(value);
 
 const getNumberPrecision = (value) => {
-  if (!isFloat(value)){
+  const stringValue = value.toString();
+  if (!isFloat(stringValue)){
     return 0;
   }
-  const [, floatDigits] = value.split('.');
+  const [, floatDigits] = stringValue.split('.');
   return floatDigits.length;
 };
 
+const augmentValue = (value, min, max) => {
+  if (value === null){
+    return min ?? 0;
+  }
 
-const NumericInput = ({ id, onChange, value = '', setValue, min, max, ...otherProps }) => {
 
-  const augmentValue = () => setValue(currentValue => {
-    if (!currentValue){
-      return min?.toString() ?? '0';
-    }
-    const valueNumber = parseStringValueToNumber(currentValue);
-    const newValue = valueNumber + 1;
-    return (newValue > max ? valueNumber : newValue).toFixed( getNumberPrecision(currentValue) );
-  });
+  const newValue = value + 1;
+  const precision = getNumberPrecision(value);
+  const newestValue = max && newValue > max ? value : newValue;
+  const fixedValue = newestValue.toFixed(precision);
 
-  const reduceValue = () => setValue(currentValue => {
-    if (!currentValue){
-      return min?.toString() ?? '0';
-    }
-    const valueNumber = parseStringValueToNumber(currentValue);
-    const newValue = valueNumber - 1;
-    return (newValue < min ? valueNumber : newValue).toFixed( getNumberPrecision(currentValue) );
-  });
+  const newValueNumber = parseStringValueToNumber(fixedValue);
+  return newValueNumber;
+};
+
+const reduceValue = (value, min) => {
+  if (value === null){
+    return min ?? 0;
+  }
+  const newValue = value - 1;
+
+  const precision = getNumberPrecision(value);
+  const newestValue = min && newValue < min ? value : newValue;
+  const fixedValue = newestValue.toFixed(precision);
+
+  const newValueNumber = parseStringValueToNumber(fixedValue);
+
+  return newValueNumber;
+};
+
+
+const NumericInput = ({ id, value = null, setValue, min = null, max = null, ...otherProps }) => {
+
+  const onUpArrowClick = () => {
+    const newValue = augmentValue(value, min, max);
+    setValue(newValue);
+  };
+
+  const onDownArrowClick = () => setValue(reduceValue(value, min));
 
   const handleOnKeyDown = (event) => {
     const acceptedKeys = ['Backspace', 'ArrowRight', 'ArrowLeft', 'Shift'];
     if (
       !isNumber(event.key)
-        && ( '.' !== event.key || value.includes('.') )
+        && ( '.' !== event.key ||  !value?.toString().includes('.'))
         && !acceptedKeys.includes(event.key)
     ){
       if (event.key === 'ArrowUp'){
-        augmentValue();
+        onUpArrowClick();
       } else if (event.key === 'ArrowDown'){
-        reduceValue();
+        onDownArrowClick();
       }
 
       event.preventDefault();
@@ -61,7 +81,10 @@ const NumericInput = ({ id, onChange, value = '', setValue, min, max, ...otherPr
 
   const handleOnChange = (event) => {
     const validInput = event.currentTarget.value.replace(/[^0-9|.]/g, '');
-    setValue( !!validInput ? validInput : null );
+    const parsedNumber = parseStringValueToNumber(validInput);
+
+    const newValue = isNaN(parsedNumber) ? null  : parsedNumber;
+    setValue( newValue );
   };
 
   return <div className={styles.numericInput}>
@@ -70,13 +93,13 @@ const NumericInput = ({ id, onChange, value = '', setValue, min, max, ...otherPr
              inputMode="numeric"
              onKeyDown={handleOnKeyDown}
              onChange={handleOnChange}
-             value={value}
+             value={value ?? ''}
              {...otherProps} />
     <div className={styles.controls}>
-      <button onClick={augmentValue}>
+      <button onClick={onUpArrowClick} type='button'>
         <ArrowUpSimpleIcon />
       </button>
-      <button onClick={reduceValue}>
+      <button onClick={onDownArrowClick} type='button'>
         <ArrowDownSimpleIcon />
       </button>
     </div>

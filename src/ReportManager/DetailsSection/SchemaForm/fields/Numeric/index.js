@@ -22,8 +22,9 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
     <NumericInput
-        max={details.maxInput}
-        min={details.minInput}
+        max={!details.maxInput ? null : details.maxInput}
+        min={!details.minInput ? null : details.minInput }
+        value={value === '' ? null : value}
         id={id}
         aria-describedby={hasDescription ? `${id}-description`: undefined}
         aria-errormessage={hasError ? `${id}-description` : undefined}
@@ -31,8 +32,10 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
         aria-required={details.isRequired}
         className={styles.numInput}
         placeholder={details.placeholder}
-        value={value}
-        setValue={(number) => onFieldChange(id, number || undefined)}
+        setValue={(number) => {
+
+          onFieldChange(id, number ?? undefined);
+        }}
     />
 
     {(hasDescription || hasError) && <p
