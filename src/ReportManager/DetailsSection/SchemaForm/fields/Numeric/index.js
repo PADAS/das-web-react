@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, memo } from 'react';
 
 import styles from './styles.module.scss';
+import NumericInput from '../../../../../NumericInput';
 
 const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
   const hasError = !!error;
@@ -20,20 +21,19 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
   return <div data-testid={`schema-form-numeric-field-${id}`} className={styles.numeric}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
-    <input aria-describedby={hasDescription ? `${id}-description`: undefined}
-           aria-errormessage={hasError ? `${id}-description` : undefined}
-           aria-invalid={hasError}
-           aria-required={details.isRequired}
-           className={styles.numInput}
-           id={id}
-           onChange={(event) => onFieldChange(id, parseInt(event.currentTarget.value) || undefined)}
-           placeholder={details.placeholder}
-           value={value}
-           max={details.maxInput}
-           min={details.minInput}
-           type="text"
-           inputMode="numeric"
-           pattern="[0-9]*" />
+    <NumericInput
+        max={details.maxInput}
+        min={details.minInput}
+        id={id}
+        aria-describedby={hasDescription ? `${id}-description`: undefined}
+        aria-errormessage={hasError ? `${id}-description` : undefined}
+        aria-invalid={hasError}
+        aria-required={details.isRequired}
+        className={styles.numInput}
+        placeholder={details.placeholder}
+        value={value}
+        setValue={(number) => onFieldChange(id, number || undefined)}
+    />
 
     {(hasDescription || hasError) && <p
             aria-live={hasError ? 'assertive' : 'off'}

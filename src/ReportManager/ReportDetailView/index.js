@@ -54,7 +54,6 @@ import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
 import styles from './styles.module.scss';
-import NumericInput from "../../NumericInput";
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -820,9 +819,6 @@ const ReportDetailView = ({
                 submitFormButtonRef={submitFormButtonRef}
                 formValidator={formValidator}
               />
-              <div>
-                <NumericInput onChange={(value) => console.log(value)} />
-              </div>
             </QuickLinks.Section>
 
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}
