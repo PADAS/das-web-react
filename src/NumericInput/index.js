@@ -59,7 +59,7 @@ const NumericInput = ({ id, onChange, value = '', setValue, min, max, ...otherPr
     }
   };
 
-  const handleOnChange = (event) => {c
+  const handleOnChange = (event) => {
     const validInput = event.currentTarget.value.replace(/[^0-9|.]/g, '');
     setValue( !!validInput ? validInput : null );
   };
