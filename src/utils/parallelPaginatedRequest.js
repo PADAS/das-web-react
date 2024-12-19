@@ -21,10 +21,6 @@ async function fetchPage(apiUrl, requestConfig, page, pageSize, maxRetries) {
     }
   }
 
-  if (data === null) { // just logging in error, this place can be used to trigger a callback on maxRetries exhausted per page
-    console.error(`Failed to fetch page ${page} after ${maxRetries} attempts.`);
-  }
-
   return data;
 }
 
@@ -57,8 +53,7 @@ async function parallelPaginatedRequest(apiUrl, requestConfig = {}, { itemsPerPa
   for (const page of arrayPagesToFetch) {
 
     if (requestsPool.size >= concurrencyLimit) {
-      await Promise.race([...requestsPool]);
-      console.log('Wait for any fetch to complete.');
+      await Promise.race(requestsPool);
     }
 
     const fetchPromise = processPage(page)
@@ -67,7 +62,7 @@ async function parallelPaginatedRequest(apiUrl, requestConfig = {}, { itemsPerPa
     requestsPool.add(fetchPromise);
   }
 
-  await Promise.all([...requestsPool]);
+  await Promise.all(requestsPool);
 
   return requestResults;
 }
