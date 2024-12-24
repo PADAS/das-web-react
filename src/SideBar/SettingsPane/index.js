@@ -4,7 +4,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, FEATURE_FLAG_LABELS, SUPPORTED_LANGUAGES } from '../../constants';
+import { DAS_HOST, FEATURE_FLAG_LABELS, SUPPORTED_LANGUAGES } from '../../constants';
 import { EVENT_FILTER_STORAGE_KEY } from '../../ducks/event-filter';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../ducks/map-position';
@@ -48,8 +48,6 @@ const SettingsPane = () => {
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
   const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY);
-
-  const isI18nActive = DEVELOPMENT_FEATURE_FLAGS.I18N_ENABLED;
 
   const languageOptions = Object.entries(SUPPORTED_LANGUAGES)
     .reduce((accumulator, [value, label]) => [...accumulator, { label, value }], []);
@@ -127,7 +125,7 @@ const SettingsPane = () => {
         </ul>
       </section>
 
-      {isI18nActive ? <section>
+      <section>
         <h3>{t('languagesHeader')}</h3>
 
         <Select
@@ -136,7 +134,7 @@ const SettingsPane = () => {
           options={languageOptions}
           value={languageValue}
         />
-      </section> : null}
+      </section>
 
       <section>
         <h3>{t('experimentalFeaturesHeader')}</h3>
