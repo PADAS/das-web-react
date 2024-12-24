@@ -1,0 +1,9 @@
+@use "../common/styles/vars/colors";
+
+.dateTimePicker {
+  display: flex;
+
+  .datePicker {
+    margin-right: 0.5rem;
+  }
+}

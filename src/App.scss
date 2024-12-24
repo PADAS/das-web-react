@@ -3,7 +3,6 @@
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
-@import './common/styles/datepicker';
 
 *,
 *::before,
@@ -279,10 +278,6 @@ aside {
       margin-top: 0.25rem;
     }
   }
-}
-
-.react-datepicker {
-  @include customDatepicker;
 }
 
 .maplock {

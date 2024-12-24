@@ -1,302 +1,252 @@
-import React, { createRef, forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import { getMonth, getYear } from 'date-fns';
-import PropTypes from 'prop-types';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
-import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
-import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-right.svg';
-import { getCurrentLocale } from '../utils/datetime';
 
-import 'react-datepicker/dist/react-datepicker.css';
+import {
+  EMPTY_DATE_VALUE,
+  getDayWithinValidRange,
+  getMonthWithinValidRange,
+  getYearWithinValidRange,
+  isMonthInputComplete,
+  isSecondDayDigitPossible,
+  isSecondMonthDigitPossible,
+  isValidDayInput,
+  isValidMonthInput,
+  isValidYearInput,
+  isYearInputComplete,
+  shouldCompleteFirstDayDigitWithZero,
+  shouldCompleteFirstMonthDigitWithZero,
+} from './utils';
+
+import CalendarPopper from './CalendarPopper';
+
 import styles from './styles.module.scss';
 
-const CustomTimePicker = (({ value: initialValue, onChange: notifyTimeChange }) => {
-  const [time, setTime] = useState(initialValue);
+const DatePicker = ({
+  className = '',
+  dateSeparator = '/',
+  disabled = false,
+  max = '',
+  min = '',
+  name = '',
+  onBlur = null,
+  onChange,
+  onFocus = null,
+  reactDatePickerProps = {},
+  readOnly = false,
+  required = false,
+  value,
+  ...otherProps
+}, ref) => {
+  const { t } = useTranslation('components', { keyPrefix: 'datePicker' });
 
-  useEffect(() => {
-    setTime(initialValue);
-  }, [initialValue]);
+  const innerRef = useRef();
+  const dayInputRef = useRef();
+  const monthInputRef = useRef();
+  const yearInputRef = useRef();
 
-  const onTimeChange = useCallback(({ target: { value } }) => {
-    setTime(value);
-    notifyTimeChange(value);
-  }, [notifyTimeChange]);
+  useImperativeHandle(ref, () => innerRef.current);
 
-  return <input value={time} onChange={onTimeChange} type='time' />;
-});
+  const [isFocused, setIsFocused] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-CustomTimePicker.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-};
+  // Value is expected to come as a string in format yyyy-MM-dd so we break it down to its parts.
+  const [year = '', month = '', day = ''] = value.split('-');
 
-const renderCustomHeader = (maxDate, minDate, currentLang, currentLocale) => {
-  const CustomHeader = ({
-    changeMonth,
-    changeYear,
-    date,
-    decreaseMonth,
-    decreaseYear,
-    increaseMonth,
-    increaseYear,
-    nextMonthButtonDisabled,
-    nextYearButtonDisabled,
-    prevMonthButtonDisabled,
-    prevYearButtonDisabled,
-  }) => {
-    const monthYearPickerRef = createRef();
-
-    const CustomMonthYearPickerHeader = ({
-      date,
-      decreaseYear,
-      increaseYear,
-      nextYearButtonDisabled,
-      prevYearButtonDisabled,
-    }) => <div className={styles.header}>
-      <button disabled={prevYearButtonDisabled} onClick={decreaseYear} type="button">
-        <ChevronLeft/>
-      </button>
-
-      <div className={`${styles.headerTitle} ${styles.customMonthYearPickerHeaderTitle}`}>
-        {getYear(date)}
-      </div>
-
-      <button disabled={nextYearButtonDisabled} onClick={increaseYear} type="button">
-        <ChevronRight/>
-      </button>
-    </div>;
-
-    const CustomMonthYearPickerInput = <div
-        className={styles.headerTitle}
-        data-testid="datePicker-monthYearPicker-input"
-      >
-      {`${date.toLocaleString(currentLang, { month: 'short' })} ${getYear(date)}`}
-
-      <div className={styles.triangle} />
-    </div>;
-
-    const onChangeDate = (date) => {
-      changeMonth(getMonth(date));
-      changeYear(getYear(date));
-    };
-
-    const onInputClick = () => {
-      if (monthYearPickerRef.current.isCalendarOpen()) {
-        monthYearPickerRef.current.setOpen(false);
-      }
-    };
-
-    return <div className={styles.header}>
-      <button
-        type="button"
-        data-testid="datePicker-decreaseYear"
-        disabled={prevYearButtonDisabled}
-        onClick={decreaseYear}
-      >
-        <ChevronLeft/>
-        <ChevronLeft/>
-      </button>
-
-      <button
-        type="button"
-        data-testid="datePicker-decreaseMonth"
-        disabled={prevMonthButtonDisabled}
-        onClick={decreaseMonth}
-      >
-        <ChevronLeft/>
-      </button>
-
-      <DatePicker
-        customInput={CustomMonthYearPickerInput}
-        dateFormat="yyyy"
-        maxDate={maxDate}
-        minDate={minDate}
-        onChange={onChangeDate}
-        onInputClick={onInputClick}
-        popperPlacement="bottom"
-        ref={monthYearPickerRef}
-        renderCustomHeader={CustomMonthYearPickerHeader}
-        selected={date}
-        showMonthYearPicker
-        showPopperArrow={false}
-        locale={currentLocale}
-      />
-
-      <button
-        data-testid="datePicker-increaseMonth"
-        disabled={nextMonthButtonDisabled}
-        onClick={increaseMonth}
-        type="button"
-      >
-        <ChevronRight/>
-      </button>
-
-      <button
-        data-testid="datePicker-increaseYear"
-        disabled={nextYearButtonDisabled}
-        onClick={increaseYear}
-        type="button"
-      >
-        <ChevronRight/>
-        <ChevronRight/>
-      </button>
-    </div>;
+  // Since our picker is a group of inputs, we handle the blurring from the wrapper but make sure to not call it when
+  // changing focus within the inner inputs.
+  const onWrapperBlur = (event) => {
+    if (!innerRef.current.contains(event.relatedTarget)) {
+      onBlur?.(event);
+      setIsFocused(false);
+    }
   };
 
-  return CustomHeader;
-};
-
-
-const CustomInput = ({ className, disabled, isPopperOpen, onKeyDown, onPaste, onChange, dateFormat, ...rest }, ref) => {
-  const inputRef = useRef();
-  const pressedKeyRef = useRef();
-  const wasPastedRef = useRef(false);
-
-
-  const sanitizeInputValue = useCallback((value) =>
-    value ? value.replaceAll(new RegExp('[^0-9/+\\s:-]', 'g'), '').trim() : '', []);
-
-  const handleChange = useCallback((event) => {
-    const value = sanitizeInputValue(event.target.value);
-    const userPressedBackspace = pressedKeyRef.current === 'Backspace';
-    const formatIncludesHyphen = dateFormat.includes('-');
-    const dateSeparator = formatIncludesHyphen ? '-' : '/';
-
-    const checkYear = new RegExp('^[0-9]{4}$');
-    const checkYearAndMonth = new RegExp(`^[0-9]{4}${dateSeparator}[0-9]{2}$`);
-    const checkDate = new RegExp(`^[0-9]{4}${dateSeparator}[0-9]{2}${dateSeparator}[0-9]{2}$`);
-    const wasNewValuePasted = wasPastedRef.current;
-
-    let newValue = formatIncludesHyphen ? value.replaceAll('/', dateSeparator) : value.replaceAll(dateSeparator, '/');
-    const newValueHasOnlyNumbers = /^[0-9]*$/.test(newValue);
-    if (wasNewValuePasted && newValueHasOnlyNumbers && newValue.length > 6) {
-      newValue =`${newValue.substring(0, 4)}${dateSeparator}${newValue.substring(4, 6)}${dateSeparator}${newValue.substring(6)}`;
+  // Similarly, we handle the focus callback.
+  const onWrapperFocus = (event) => {
+    if (event.target === innerRef.current) {
+      yearInputRef.current.focus();
+    } else if (!isFocused) {
+      onFocus?.(event);
+      setIsFocused(true);
     }
+  };
 
-    const newValueContainsValidYearText = checkYear.test(newValue);
-    const containsValidYearAndMonth = checkYearAndMonth.test(newValue);
-    if (!userPressedBackspace && (newValueContainsValidYearText || containsValidYearAndMonth)) {
-      newValue = `${newValue}${dateSeparator}`;
+  const onYearChange = (newYear) => {
+    const yearWithinValidRange = getYearWithinValidRange(newYear, max, min);
+    const monthWithinValidRange = getMonthWithinValidRange(month, yearWithinValidRange, max, min);
+    const dayWithinValidRange = getDayWithinValidRange(day, monthWithinValidRange, yearWithinValidRange, max, min);
+
+    onChange(`${yearWithinValidRange}-${monthWithinValidRange}-${dayWithinValidRange}`);
+  };
+
+  const onYearInputChange = (event) => {
+    const newYear = event.target.value;
+    if (isValidYearInput(newYear) || newYear === '') {
+      onYearChange(newYear);
     }
+  };
 
-    const containsValidDate = checkDate.test(newValue) && newValue.length === 10;
-    if (containsValidDate && !userPressedBackspace && dateFormat.includes(':')){
-      newValue = `${newValue} 00:00`;
+  const onYearInputKeyDown = (event) => {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+
+      monthInputRef.current.focus();
     }
+  };
 
-    event.target.value = newValue;
-    onChange(event);
+  const onMonthChange = (newMonth) => {
+    const monthWithinValidRange = getMonthWithinValidRange(newMonth, year, max, min);
+    const dayWithinValidRange = getDayWithinValidRange(day, monthWithinValidRange, year, max, min);
 
-    pressedKeyRef.current = undefined;
-    wasPastedRef.current = false;
-  }, [dateFormat, onChange, sanitizeInputValue]);
+    onChange(`${year}-${monthWithinValidRange}-${dayWithinValidRange}`);
+  };
 
-  const handleKeyDown = useCallback((event) => {
-    pressedKeyRef.current = event.key;
+  const onMonthInputChange = (event) => {
+    const newMonth = event.target.value;
+    if (!isSecondMonthDigitPossible(newMonth)) {
+      // Autofill the first digit when the user enters a number that can't have a digit after it to be a valid month.
+      onMonthChange(`0${newMonth}`);
+    } else if (isValidMonthInput(newMonth) || newMonth === '') {
+      onMonthChange(newMonth);
+    }
+  };
 
-    onKeyDown?.(event);
-  }, [onKeyDown]);
+  const onMonthInputKeyDown = (event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
 
-  const handlePaste = useCallback((event) => {
-    wasPastedRef.current = true;
+      yearInputRef.current.focus();
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
 
-    onPaste?.(event);
-  }, [onPaste]);
+      dayInputRef.current.focus();
+    }
+  };
 
-  const onWrapperClick = useCallback(() => inputRef.current.focus(), []);
+  const onDayChange = (newDay) => {
+    const dayWithinValidRange = getDayWithinValidRange(newDay, month, year, max, min);
+
+    onChange(`${year}-${month}-${dayWithinValidRange}`);
+  };
+
+  const onDayInputChange = (event) => {
+    const newDay = event.target.value;
+    if (!isSecondDayDigitPossible(newDay)) {
+      // Autofill the first digit when the user enters a number that can't have a digit after it to be a valid day.
+      onDayChange(`0${newDay}`);
+    } else if (isValidDayInput(newDay) || newDay === '') {
+      onDayChange(newDay);
+    }
+  };
+
+  const onDayInputKeyDown = (event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+
+      monthInputRef.current.focus();
+    }
+  };
+
+  useEffect(() => {
+    if (document.activeElement === yearInputRef.current && isYearInputComplete(year)) {
+      monthInputRef.current.focus();
+    }
+  }, [year]);
+
+  useEffect(() => {
+    if (document.activeElement === monthInputRef.current && isMonthInputComplete(month)) {
+      dayInputRef.current.focus();
+    }
+  }, [month]);
 
   return <div
-      className={`${styles.inputWrapper} ${disabled ? styles.disabled : ''} ${className}`}
-      onClick={onWrapperClick}
-      ref={ref}
+      className={`${styles.datePicker} ${disabled ? styles.disabled : ''} ${className}`}
+      onBlur={onWrapperBlur}
+      onFocus={onWrapperFocus}
+      ref={innerRef}
+      role="group"
+      tabIndex={disabled ? -1 : 0}
+      {...otherProps}
     >
-    <CalendarIcon/>
+    <CalendarIcon className={styles.calendarIcon} />
 
     <input
-      className={styles.input}
+      aria-label={t('yearInputLabel')}
+      className={styles.yearInput}
       disabled={disabled}
-      data-testid="datePicker-input"
-      onKeyDown={handleKeyDown}
-      onPaste={handlePaste}
-      ref={inputRef}
+      inputMode="numeric"
+      onChange={onYearInputChange}
+      onFocus={(event) => event.target.select()}
+      onKeyDown={onYearInputKeyDown}
+      pattern="[0-9]{0,4}"
+      placeholder={t('yearInputPlaceholder')}
+      readOnly={readOnly}
+      ref={yearInputRef}
+      required={required}
       type="text"
-      onChange={handleChange}
-      maxLength={dateFormat.length}
-      {...rest}
+      value={year}
     />
 
-    <div className={`${styles.triangle} ${isPopperOpen ? styles.open : ''}`} />
+    <span className={styles.dateSeparator}>{dateSeparator}</span>
+
+    <input
+      aria-label={t('monthInputLabel')}
+      className={styles.monthInput}
+      disabled={disabled}
+      inputMode="numeric"
+      onBlur={() => shouldCompleteFirstMonthDigitWithZero(month) && onMonthChange(`0${month}`)}
+      onChange={onMonthInputChange}
+      onFocus={(event) => event.target.select()}
+      onKeyDown={onMonthInputKeyDown}
+      pattern="[0-9]{0,2}"
+      placeholder={t('monthInputPlaceholder')}
+      readOnly={readOnly}
+      ref={monthInputRef}
+      required={required}
+      type="text"
+      value={month}
+    />
+
+    <span className={styles.dateSeparator}>{dateSeparator}</span>
+
+    <input
+      aria-label={t('dayInputLabel')}
+      className={styles.dayInput}
+      disabled={disabled}
+      inputMode="numeric"
+      onBlur={() => shouldCompleteFirstDayDigitWithZero(day) && onDayChange(`0${day}`)}
+      onChange={onDayInputChange}
+      onFocus={(event) => event.target.select()}
+      onKeyDown={onDayInputKeyDown}
+      pattern="[0-9]{0,2}"
+      placeholder={t('dayInputPlaceholder')}
+      readOnly={readOnly}
+      ref={dayInputRef}
+      required={required}
+      type="text"
+      value={day}
+    />
+
+    <CalendarPopper
+      dateFormat="yyyy/MM/dd"
+      disabled={disabled}
+      isOpen={isCalendarOpen}
+      maxDate={max ? parseISO(max) : undefined}
+      minDate={min ? parseISO(min) : undefined}
+      onChange={onChange}
+      readOnly={readOnly}
+      setIsOpen={setIsCalendarOpen}
+      value={value}
+      {...reactDatePickerProps}
+    />
+
+    <input name={name} type="hidden" value={value} />
   </div>;
 };
 
-const CustomInputForwardRef = forwardRef(CustomInput);
+export { EMPTY_DATE_VALUE };
 
-
-const CustomDatePicker = ({
-  dateFormat,
-  onCalendarClose,
-  onCalendarOpen,
-  placeholderText,
-  showTimeInput,
-  ...rest
-}, ref) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { t, i18n: { language } } = useTranslation('dates');
-  const locale = getCurrentLocale();
-
-  const handleCalendarOpen = useCallback(() => {
-    setIsOpen(true);
-    onCalendarOpen?.();
-  }, [onCalendarOpen]);
-
-  const handleCalendarClose = useCallback(() => {
-    setIsOpen(false);
-    onCalendarClose?.();
-  }, [onCalendarClose]);
-
-  const onKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isOpen) {
-      event.stopPropagation();
-    }
-  }, [isOpen]);
-
-  const CustomHeader = useMemo(() => renderCustomHeader(rest?.maxDate, rest?.minDate, language, locale), [rest?.maxDate, rest?.minDate, language, locale]);
-
-  return <DatePicker
-    customInput={<CustomInputForwardRef isPopperOpen={isOpen} dateFormat={dateFormat} />}
-    dateFormat={dateFormat}
-    onCalendarClose={handleCalendarClose}
-    onCalendarOpen={handleCalendarOpen}
-    onKeyDown={onKeyDown}
-    placeholderText={placeholderText || (dateFormat).toUpperCase()}
-    ref={ref}
-    renderCustomHeader={CustomHeader}
-    showPopperArrow={false}
-    timeInputLabel={t('defaultTimeLabel')}
-    showTimeInput={showTimeInput}
-    customTimeInput={showTimeInput ? <CustomTimePicker/> : null}
-    fixedHeight
-    locale={locale}
-    {...rest}
-  />;
-};
-
-const CustomDatePickerForwardRef = forwardRef(CustomDatePicker);
-
-CustomDatePickerForwardRef.defaultProps = {
-  dateFormat: 'yyyy/MM/dd',
-  onCalendarClose: null,
-  onCalendarOpen: null,
-  placeholderText: null,
-};
-
-CustomDatePickerForwardRef.propTypes = {
-  dateFormat: PropTypes.string,
-  onCalendarClose: PropTypes.func,
-  onCalendarOpen: PropTypes.func,
-  placeholderText: PropTypes.string,
-};
-
-export default memo(CustomDatePickerForwardRef);
+export default memo(forwardRef(DatePicker));

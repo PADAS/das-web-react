@@ -1,0 +1,104 @@
+@use '../../common/styles/inputs';
+@use '../../common/styles/vars/colors';
+
+.calendar {
+  @include inputs.boxShadow;
+  border: none;
+  font-weight: 400;
+
+  [class*=react-datepicker__header] {
+    background: white;
+    border: none;
+    padding: 0;
+  }
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  height: 1rem;
+  outline: none;
+  padding: 0;
+  width: 0.5rem;
+
+  &:focus {
+    .caret {
+      border-top-color: colors.$bright-blue;
+    }
+  }
+
+  .caret {
+    @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+
+    &.open {
+      transform: rotate(180deg);
+    }
+
+    @media print {
+      display: none;
+    }
+  }
+}
+
+.day {
+  &:focus:not([aria-disabled=true]) {
+    outline: colors.$bright-blue auto 1px;
+  }
+
+  &:hover:not([aria-disabled=true]) {
+    background-color: colors.$blue-highlight;
+    color: black;
+  }
+
+  &[aria-disabled=true] {
+    pointer-events: none;
+  }
+
+  &[aria-selected=true] {
+    background-color: colors.$bright-blue;
+    color: white;
+  }
+
+  &[class*=--keyboard-selected] {
+    background-color: colors.$blue-highlight;
+  }
+
+  &[class*=--outside-month] {
+    color: colors.$secondary-medium-light-gray;
+  }
+
+  &[class*=--in-selecting-range]:not([aria-selected=true]) {
+    background-color: colors.$blue-highlight;
+    color: black;
+  }
+    
+  &[class*=--in-selecting-range], &[class*=--in-range] {
+    &[class*=-range-end] {
+      border-radius: 0 0.5rem 0.5rem 0;
+    }
+
+    &[class*=-range-start] {
+      border-radius: 0.5rem 0 0 0.5rem;
+    }
+
+    &[class*=--keyboard-selected] {
+      color: black;
+    }
+
+    &[class*=--outside-month][aria-selected=true]:not(:hover) {
+      color: white;
+    }
+  }
+}
+
+.popper {
+  z-index: 9999;
+}
+
+.wrapper {
+  display: block;
+
+  [class*=react-datepicker__input-container] {
+    display: flex;
+  }
+}

@@ -1,9 +1,9 @@
-import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
+import { AM_PERIOD, getMinutesDifference, isValidTime, PM_PERIOD } from '../utils';
 import {
   durationHumanizer,
   getHoursAndMinutesString,
@@ -13,170 +13,227 @@ import {
 
 import styles from './styles.module.scss';
 
-const SECONDS = 60;
-const HOURS = 24;
-const MILLISECONDS = 60000;
-
-
-const buildTimeDurationHumanizer = (translate) => {
-  const abbreviations = {
-    y: () => translate('year'),
-    mo: () => translate('month'),
-    w: () => translate('week'),
-    d: () => translate('day'),
-    h: () => translate('hour'),
-    m: () => translate('minute'),
-    s: () => translate('second'),
-  };
-
-  const TIME_CONFIG = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT(abbreviations);
-  TIME_CONFIG.units = ['h', 'm'];
-  return durationHumanizer(TIME_CONFIG);
-};
-
-const getMinutesDiff = (startDate, endDate) => Math.round(
-  Math.abs(endDate.getTime() - startDate.getTime()) / MILLISECONDS
-);
+const MINUTES_IN_AN_HOUR = 60;
+const HOURS_IN_A_DAY = 24;
 
 const OptionsPopover = ({
   className,
-  isTimeBelowMax,
-  minTime,
+  internationalizedTimePeriods,
+  max,
+  menuButtonRef,
+  min,
   minutesInterval,
   onChange,
-  showDurationFromMinTime,
+  onClose,
+  showDurationFromMin,
+  style,
+  target,
   value,
-  ...rest
+  ...otherProps
 }, ref) => {
-  const defaultTimeRef = useRef();
-
-  const initialDate = useMemo(() => {
-    const date = new Date();
-    date.setHours(0, 0, 0);
-
-    return date;
-  }, []);
-
-  const initialTimeString = useMemo(() => getHoursAndMinutesString(initialDate), [initialDate]);
   const { t } = useTranslation('dates', { keyPrefix: 'timeUnitAbbreviations' });
 
-  const [defaultHour, defaultMinutes] = useMemo(
-    () => (value ?? initialTimeString).split(':'),
-    [initialTimeString, value]
-  );
+  const listRef = useRef();
 
-  const optionsToDisplay = useMemo(() => Math.floor ((SECONDS / minutesInterval) * HOURS), [minutesInterval]);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(-1);
 
-  const currentValueDate = useMemo(() => {
-    const date = new Date();
-    date.setHours(defaultHour, defaultMinutes, 0);
-
-    return date;
-  }, [defaultHour, defaultMinutes]);
-
-  const getHumanizedTimeDuration = useMemo(() => buildTimeDurationHumanizer(t), [t]);
-
-  const options = useMemo(() => {
+  const [options, indexOfOptionClosestToInputTime] = useMemo(() => {
     const options = [];
-    let accumulatedMinutes = 0;
-    let diffMinutes = Number.MAX_VALUE;
-    let nearestHourIndex = -1;
-    let arrayIndex = 0;
 
-    while (options.length < optionsToDisplay) {
-      const dateWithAccumulation = addMinutes(initialDate, accumulatedMinutes);
-      const timeValue = getHoursAndMinutesString(dateWithAccumulation);
-      const timeDisplay = getUserLocaleTime(dateWithAccumulation);
-      const currentMinutesDiff = getMinutesDiff(dateWithAccumulation, currentValueDate);
+    const abbreviatedTimeConfig = HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT({
+      h: () => t('hour'),
+      m: () => t('minute'),
+    });
+    abbreviatedTimeConfig.units = ['h', 'm'];
+    const timeHumanizer = durationHumanizer(abbreviatedTimeConfig);
 
-      if (currentMinutesDiff > 0 && currentMinutesDiff < diffMinutes){
-        diffMinutes = currentMinutesDiff;
-        nearestHourIndex = arrayIndex;
+    const amountOfIntervalsInADay = Math.floor((MINUTES_IN_AN_HOUR / minutesInterval) * HOURS_IN_A_DAY);
+
+    const midnight = new Date();
+    midnight.setHours(0, 0, 0);
+
+    const inputTimeValue = isValidTime(value) ? value : '00:00';
+    const [inputHourValue, inputMinuteValue] = inputTimeValue.split(':');
+    const dateWithInputTimeValue = new Date();
+    dateWithInputTimeValue.setHours(inputHourValue, inputMinuteValue, 0);
+
+    let closestMinutesDifferenceToInputTime = Number.MAX_VALUE;
+    let currentOptionIndex = 0;
+    let indexOfOptionClosestToInputTime = -1;
+    // Iterate the amount of times the desired interval fits in a whole day.
+    while (currentOptionIndex < amountOfIntervalsInADay) {
+      // First we calculate the time value of the current option.
+      const currentOptionMinutesSinceMidnight = currentOptionIndex * minutesInterval;
+      const dateWithCurrentOptionTime = addMinutes(midnight, currentOptionMinutesSinceMidnight);
+      const currentOptionValue = getHoursAndMinutesString(dateWithCurrentOptionTime);
+
+      // If the current option time is outside the min and max boundaries, we don't add it.
+      const isOptionValueWithinAllowedTimeRange = (!max || max >= currentOptionValue)
+        && (!min || min <= currentOptionValue);
+      if (isOptionValueWithinAllowedTimeRange) {
+        // Calculate the display of the current option from its time based on the locale.
+        const currentOptionDisplay = getUserLocaleTime(dateWithCurrentOptionTime)
+          .replace('AM', internationalizedTimePeriods[AM_PERIOD])
+          .replace('PM', internationalizedTimePeriods[PM_PERIOD]);
+
+        // Update the index of the option closes to the current input value.
+        const currentOptionMinutesDifferenceToInputTime = getMinutesDifference(
+          dateWithCurrentOptionTime,
+          dateWithInputTimeValue
+        );
+        if (currentOptionMinutesDifferenceToInputTime >= 0
+          && currentOptionMinutesDifferenceToInputTime < closestMinutesDifferenceToInputTime){
+          closestMinutesDifferenceToInputTime = currentOptionMinutesDifferenceToInputTime;
+          indexOfOptionClosestToInputTime = currentOptionIndex;
+        }
+
+        // Finally, add the humanized duration from the minimum allowed value if it was requested.
+        let currentOptionDurationFromMin = null;
+        if (showDurationFromMin) {
+          const [minHour, minMinute] = min.split(':');
+          const dateWithMinTime = new Date();
+          dateWithMinTime.setHours(minHour, minMinute, '00');
+
+          const isCurrentOptionTimeOverMinTime = dateWithCurrentOptionTime > dateWithMinTime;
+          const correctiveMilisecondsForDuration = isCurrentOptionTimeOverMinTime ? 59999 : 0;
+          const currentOptionMillisecondsFromMin = differenceInMilliseconds(
+            dateWithCurrentOptionTime,
+            dateWithMinTime
+          );
+
+          const humanizedDuration = timeHumanizer(currentOptionMillisecondsFromMin + correctiveMilisecondsForDuration);
+          const sign = isCurrentOptionTimeOverMinTime || humanizedDuration === '0m' ? '' : '-';
+          currentOptionDurationFromMin = `${sign}${humanizedDuration}`;
+        }
+
+        options.push({
+          display: currentOptionDisplay,
+          durationFromMin: currentOptionDurationFromMin,
+          value: currentOptionValue,
+        });
       }
 
-      let duration = null;
-      if (showDurationFromMinTime) {
-        const minTimeParts = minTime.split(':');
-        const minTimeDate = new Date();
-        minTimeDate.setHours(minTimeParts[0], minTimeParts[1], '00');
-
-        const isDateOverMinTimeDate =  dateWithAccumulation > minTimeDate;
-        const correctiveMilisecondsForDuration = isDateOverMinTimeDate ? 59999 : 0;
-        const millisecondsFromMinTime = differenceInMilliseconds(dateWithAccumulation, minTimeDate);
-        const humanizedDuration = getHumanizedTimeDuration(millisecondsFromMinTime + correctiveMilisecondsForDuration);
-        const sign = isDateOverMinTimeDate || humanizedDuration === '0m' ? '' : '-';
-
-        duration = ` (${sign}${humanizedDuration})`;
-      }
-
-      options.push({
-        disabled: !isTimeBelowMax(timeValue) || (minTime && minTime > timeValue),
-        display: timeDisplay,
-        duration,
-        value: timeValue
-      });
-
-      accumulatedMinutes += minutesInterval;
-      arrayIndex++;
+      currentOptionIndex += 1;
     }
 
-    if ( nearestHourIndex > -1 ){
-      options[nearestHourIndex].ref = defaultTimeRef;
-    }
-
-    return options;
+    return [options, indexOfOptionClosestToInputTime];
   }, [
-    optionsToDisplay,
-    initialDate,
-    currentValueDate,
-    isTimeBelowMax,
-    minTime,
-    showDurationFromMinTime,
+    internationalizedTimePeriods,
+    max,
+    min,
     minutesInterval,
-    getHumanizedTimeDuration
+    showDurationFromMin,
+    t,
+    value,
   ]);
 
-  useEffect(() => {
-    if (defaultTimeRef?.current){
-      defaultTimeRef.current?.scrollIntoView?.();
+  const onItemSelection = (time) => {
+    onChange(time);
+    onClose();
+  };
+
+  const onListKeyDown = (event) => {
+    switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+
+      setSelectedOptionIndex((selectedOptionIndex) => (selectedOptionIndex < (options.length - 1)
+        ? selectedOptionIndex + 1
+        : 0));
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+
+      setSelectedOptionIndex((selectedOptionIndex) => (selectedOptionIndex > 0
+        ? selectedOptionIndex - 1
+        : options.length - 1));
+      break;
+
+    case 'Enter':
+    case ' ':
+      event.preventDefault();
+
+      if (selectedOptionIndex) {
+        onItemSelection(options[selectedOptionIndex].value);
+      }
+      break;
+
+    case 'Escape':
+      event.preventDefault();
+      event.stopPropagation();
+
+      onClose();
+      break;
+
+    default:
+      break;
     }
+  };
+
+  const getOnOptionClick = (option) => (event) => {
+    event.stopPropagation();
+
+    onItemSelection(option.value);
+  };
+
+  // Set the focus to the list on mount so keyboard navigation is enabled.
+  useEffect(() => {
+    listRef.current.focus();
   }, []);
 
-  return <Popover className={`${className} ${styles.asw}`} ref={ref} {...rest}>
-    <ul data-testid="timePicker-OptionsList">
-      {options.map((option) => <li
-        className={option.disabled ? styles.disabled : ''}
-        key={option.value}
-        onClick={() => !option.disabled && onChange(option.value)}
-        onMouseDown={(event) => option.disabled && event.preventDefault()}
-        ref={option.ref}
+  useEffect(() => {
+    setSelectedOptionIndex(indexOfOptionClosestToInputTime);
+  }, [indexOfOptionClosestToInputTime]);
+
+  useEffect(() => {
+    const selectedOption = options[selectedOptionIndex];
+    if (selectedOption) {
+      document.getElementById(selectedOption.value).scrollIntoView();
+    }
+  }, [options, selectedOptionIndex]);
+
+  useEffect(() => {
+    const onMouseDown = (event) => !listRef.current.contains(event.target)
+      && !menuButtonRef.current.contains(event.target)
+      && onClose();
+
+    document.addEventListener('mousedown', onMouseDown);
+
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [menuButtonRef, onClose]);
+
+  return <Popover
+      className={`${className} ${styles.optionsPopover}`}
+      id="timePicker-menuPopover"
+      ref={ref}
+      role="presentation"
+      style={{ ...style, width: target.current?.offsetWidth }}
+      {...otherProps}
+    >
+    <ul
+      aria-activedescendant={options[selectedOptionIndex]?.value}
+      className={styles.list}
+      data-testid="timePicker-OptionsList"
+      onKeyDown={onListKeyDown}
+      ref={listRef}
+      role="listbox"
+      tabIndex="0"
+    >
+      {options.map((option, index) => <li
+          aria-selected={selectedOptionIndex === index}
+          className={`${styles.option} ${selectedOptionIndex === index ? styles.selected : ''}`}
+          id={option.value}
+          key={option.value}
+          onClick={getOnOptionClick(option)}
+          role="option"
         >
         <span>{option.display}</span>
 
-        {option.duration && <span>{option.duration}</span>}
+        {option.durationFromMin && <span className={styles.duration}>{option.durationFromMin}</span>}
       </li>)}
     </ul>
   </Popover>;
 };
 
-const OptionsPopoverForwardRef = forwardRef(OptionsPopover);
-
-OptionsPopoverForwardRef.defaultProps = {
-  className: '',
-  minTime: '',
-  minutesInterval: 30,
-  showDurationFromMinTime: false,
-  value: '',
-};
-
-OptionsPopoverForwardRef.propTypes = {
-  className: PropTypes.string,
-  isTimeBelowMax: PropTypes.func.isRequired,
-  minTime: PropTypes.string,
-  minutesInterval: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
-  showDurationFromMinTime: PropTypes.bool,
-  value: PropTypes.string,
-};
-
-export default OptionsPopoverForwardRef;
+export default forwardRef(OptionsPopover);

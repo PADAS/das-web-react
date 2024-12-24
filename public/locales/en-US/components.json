@@ -19,6 +19,24 @@
     "partiallyCheckedTitle": "Partially visible",
     "uncheckedTitle": "Hidden"
   },
+  "datePicker": {
+    "calendarPopper": {
+      "menuButtonLabel": "Open calendar",
+      "monthPicker": {
+        "previousMonthButtonLabel": "Previous month",
+        "previousYearButtonLabel": "Previous year",
+        "nextMonthButtonLabel": "Next month",
+        "nextYearButtonLabel": "Next year",
+        "inputButtonLabel": "Open month picker"
+      }
+    },
+    "dayInputLabel": "Day",
+    "dayInputPlaceholder": "dd",
+    "monthInputLabel": "Month",
+    "monthInputPlaceholder": "mm",
+    "yearInputLabel": "Year",
+    "yearInputPlaceholder": "yyyy"
+  },
   "detectOffline": {
     "offlineToastMessage": "You are currently offline. EarthRanger may not function as expected. Please check your network connection.",
     "reconnectionToastMessage": "Back online!"
@@ -189,6 +207,12 @@
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copied to clipboard"
+  },
+  "timePicker": {
+    "hourInputLabel": "Hour",
+    "menuButtonLabel": "Open time options",
+    "minuteInputLabel": "Minute",
+    "periodInputLabel": "Time period"
   },
   "timeSlider": {
     "popoverHeader": "Date Range",

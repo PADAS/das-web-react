@@ -409,23 +409,11 @@ const ReportDetailView = ({
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
 
-  const onReportDateChange = useCallback((date) => {
+  const onReportDateChange = useCallback((date = null) => {
     const now = new Date();
 
-    setReportForm({ ...reportForm, time: date > now ? now : date });
-
-    reportTracker.track('Change Report Date');
-  }, [reportForm, reportTracker]);
-
-  const onReportTimeChange = useCallback((time) => {
-    const newTimeParts = time.split(':');
-    const updatedDateTime = new Date(reportForm.time);
-    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
-
-    setReportForm({ ...reportForm, time: updatedDateTime });
-
-    reportTracker.track('Change Report Time');
-  }, [reportForm, reportTracker]);
+    setReportForm({ ...reportForm, time: date && date > now ? now : date });
+  }, [reportForm]);
 
   const onReportStateChange = useCallback((state) => {
     setReportForm({ ...reportForm, state });
@@ -813,7 +801,6 @@ const ReportDetailView = ({
                 onReportGeometryChange={onReportGeometryChange}
                 onReportLocationChange={onReportLocationChange}
                 onReportStateChange={onReportStateChange}
-                onReportTimeChange={onReportTimeChange}
                 originalReport={originalReport}
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}

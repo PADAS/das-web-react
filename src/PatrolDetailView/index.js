@@ -185,7 +185,7 @@ const PatrolDetailView = () => {
 
     const endDate = displayEndTimeForPatrol(patrolForm);
     const startDate = displayStartTimeForPatrol(patrolForm);
-    if (endDate && startDate > endDate) {
+    if (!startDate || (endDate && startDate > endDate)) {
       return setShowInvalidDatesModal(true);
     }
 

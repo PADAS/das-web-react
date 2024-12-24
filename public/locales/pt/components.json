@@ -13,6 +13,24 @@
         },
         "defaultTitle": "Adicionar"
     },
+    "datePicker": {
+        "calendarPopper": {
+            "menuButtonLabel": "Abrir calendário",
+            "monthPicker": {
+                "previousMonthButtonLabel": "Mês anterior",
+                "previousYearButtonLabel": "Ano anterior",
+                "nextMonthButtonLabel": "Próximo mês",
+                "nextYearButtonLabel": "Próximo ano",
+                "inputButtonLabel": "Abrir seletor de mês"
+            }
+        },
+        "dayInputLabel": "Dia",
+        "dayInputPlaceholder": "dd",
+        "monthInputLabel": "Mês",
+        "monthInputPlaceholder": "mm",
+        "yearInputLabel": "Ano",
+        "yearInputPlaceholder": "aaaa"
+    },
     "detectOffline": {
         "offlineToastMessage": "Você está desconectado. EarthRanger pode não funcionar conforme esperado. Por favor, verifique sua conexão.",
         "reconnectionToastMessage": "Conectado novamente!"
@@ -172,6 +190,12 @@
         "defaultMessage": "Ocorreu um erro",
         "hideDetailsButton": "Ocultar detalhes",
         "showDetailsButton": "Mostrar detalhes"
+    },
+    "timePicker": {
+        "hourInputLabel": "Hora",
+        "menuButtonLabel": "Abrir opções de horário",
+        "minuteInputLabel": "Minuto",
+        "periodInputLabel": "Parte do dia"
     },
     "timeSlider": {
         "popoverHeader": "Intervalo de datas",

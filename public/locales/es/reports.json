@@ -125,7 +125,10 @@
       "reportedByLabel": "Reportado por",
       "schemaForm": {
         "errors": {
-          "required": "Este campo es obligatorio."
+          "dateFormat": "Formato de fecha inválido o fecha no válida. Verifica el día, mes y año.",
+          "dateTimeFormat": "Formato de fecha y hora inválido o fecha no válida. Verifica el día, mes y año.",
+          "required": "Este campo es obligatorio.",
+          "timeFormat": "Formato de hora inválido."
         }
       },
       "stateDropdown": {

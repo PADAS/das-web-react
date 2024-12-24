@@ -21,7 +21,7 @@ export const STANDARD_DATE_FORMAT = 'dd MMM YY HH:mm';
 
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
-export const getCurrentLocale = () => dateLocales[i18next.language];
+export const getCurrentLocale = (i18nLanguage = i18next.language) => dateLocales[i18nLanguage];
 
 export const format = (date, format) => formatDate(date, format, {
   locale: getCurrentLocale(),
@@ -140,3 +140,15 @@ export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(
 );
 
 export const isGreaterThan = (date1, date2) => date1.getTime() > date2.getTime();
+
+export const getTimezoneOffsetString = () => {
+  const offsetMinutes = new Date().getTimezoneOffset();
+  const absoluteMinutes = Math.abs(offsetMinutes);
+
+  const sign = offsetMinutes > 0 ? '-' : '+';
+  const hours = String(Math.floor(absoluteMinutes / 60)).padStart(2, '0');
+  const minutes = String(absoluteMinutes % 60).padStart(2, '0');
+  return `${sign}${hours}:${minutes}`;
+};
+
+export const formatDateToLocalISO = (date) => format(date, 'yyyy-MM-dd\'T\'HH:mm');

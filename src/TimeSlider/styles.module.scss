@@ -340,10 +340,6 @@ $contrast: 25%;
 .popoverBody {
   padding: 1rem 0 0;
   overflow: visible;
-
-  [class*=label] {
-    width: 48%;
-  }
 }
 
 .activeIcon {

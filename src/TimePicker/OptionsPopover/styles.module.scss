@@ -1,39 +1,39 @@
-@import '../../common/styles/inputs';
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/inputs';
+@use '../../common/styles/vars/colors';
 
-.asw {
+.optionsPopover {
+  @include inputs.boxShadow;
   border: none !important;
   border-radius: 0.25rem !important;
   font-size: 1rem !important;
-  max-height: 10rem;
+  max-height: 12rem;
   min-width: 6rem;
   overflow-y: scroll;
-  text-align: center !important;
-  @include boxShadow;
 
-  ul {
-    margin-bottom: 0rem;
+  .list {
+    margin: 0;
+    outline: none;
 
-    li {
-      margin: 0.25rem 0;
+    .option {
+      display: flex;
+      flex-direction: column;
+      line-height: 1rem;
+      padding: 0.5rem 0.5rem;
 
       &:hover {
-        @include dropdown-options-hover;
+        @include inputs.dropdown-options-hover;
       }
 
-      &.disabled {
-        background-color: unset;
-        cursor: not-allowed;
-        opacity: 0.6;
+      &.selected {
+        background-color: colors.$blue-highlight;
+        scroll-margin: 2rem;
       }
-    
-      > span:not(:first-child){
-        color: $secondary-medium-light-gray;
+
+      .duration {
+        color: colors.$secondary-medium-light-gray;
+        font-size: 0.875rem;
+        margin-top: 0.125rem;
       }
     }
-  }
-
-  [class*=popover-arrow] { 
-    display: none;
   }
 }
