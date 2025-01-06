@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
@@ -6,11 +6,13 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/ar
 import styles from './styles.module.scss';
 
 
-const isNumber = value => !isNaN( parseInt(value) );
+const isNumber = key => !isNaN( parseInt(key) );
+
+const parseStringValueToNumber = (value) => {
+  return isFloat(value) ? parseFloat(value) : parseInt(value);
+};
 
 const isFloat = (value) => value.includes('.');
-
-const parseStringValueToNumber = (value) => isFloat(value) ? parseFloat(value) : parseInt(value);
 
 const getNumberPrecision = (value) => {
   const stringValue = value.toString();
@@ -22,70 +24,72 @@ const getNumberPrecision = (value) => {
 };
 
 const augmentValue = (value, min, max) => {
-  if (value === null){
-    return min ?? 0;
+  if (value === ''){
+    return min?.toString() ?? '0';
   }
 
+  const numberValue = parseStringValueToNumber(value);
+  const newValue = numberValue + 1;
+  const precision = getNumberPrecision(numberValue);
+  const newestValue = max && newValue > max ? numberValue : newValue;
 
-  const newValue = value + 1;
-  const precision = getNumberPrecision(value);
-  const newestValue = max && newValue > max ? value : newValue;
-  const fixedValue = newestValue.toFixed(precision);
-
-  const newValueNumber = parseStringValueToNumber(fixedValue);
-  return newValueNumber;
+  return newestValue.toFixed(precision);
 };
 
 const reduceValue = (value, min) => {
-  if (value === null){
-    return min ?? 0;
+  if (value === ''){
+    return min?.toString() ?? '0';
   }
-  const newValue = value - 1;
 
-  const precision = getNumberPrecision(value);
-  const newestValue = min && newValue < min ? value : newValue;
-  const fixedValue = newestValue.toFixed(precision);
+  const numberValue = parseStringValueToNumber(value);
+  const newValue = numberValue - 1;
+  const precision = getNumberPrecision(numberValue);
+  const newestValue = min && newValue < min ? numberValue : newValue;
 
-  const newValueNumber = parseStringValueToNumber(fixedValue);
-
-  return newValueNumber;
+  return newestValue.toFixed(precision);
 };
 
 
-const NumericInput = ({ id, value = null, setValue, min = null, max = null, ...otherProps }) => {
+const NumericInput = ({ id, value: formSchemaValue = null, setValue: setFormSchemaValue, min = null, max = null, ...otherProps }) => {
 
-  const onUpArrowClick = () => {
-    const newValue = augmentValue(value, min, max);
-    setValue(newValue);
-  };
+  const [value, setValue] = useState(formSchemaValue === null ? '' : formSchemaValue.toString() );
+
+  const onUpArrowClick = () => setValue(augmentValue(value, min, max));
 
   const onDownArrowClick = () => setValue(reduceValue(value, min));
 
   const handleOnKeyDown = (event) => {
-    const acceptedKeys = ['Backspace', 'ArrowRight', 'ArrowLeft', 'Shift'];
-    if (
-      !isNumber(event.key)
-        && ( '.' !== event.key ||  !value?.toString().includes('.'))
-        && !acceptedKeys.includes(event.key)
-    ){
+    const acceptedKeys = ['Backspace', 'ArrowRight', 'ArrowLeft', 'Shift', '.'];
+    const hasPointAlready = event.key === '.' && value.split('.').length > 1;
+    const notValidKey = !isNumber(event.key) && !acceptedKeys.includes(event.key);
+    const shouldBlockPropagation = notValidKey || hasPointAlready;
+
+    if (notValidKey){
       if (event.key === 'ArrowUp'){
         onUpArrowClick();
       } else if (event.key === 'ArrowDown'){
         onDownArrowClick();
       }
+    }
 
+    if (shouldBlockPropagation){
       event.preventDefault();
       event.stopPropagation();
     }
   };
 
-  const handleOnChange = (event) => {
-    const validInput = event.currentTarget.value.replace(/[^0-9|.]/g, '');
-    const parsedNumber = parseStringValueToNumber(validInput);
+  const handleOnChange = ({ currentTarget: { value } }) => {
+    const validInput = value.replace(/[^0-9|.]/g, ''); // 9, 9., 9.1
 
-    const newValue = isNaN(parsedNumber) ? null  : parsedNumber;
-    setValue( newValue );
+    setValue(validInput);
   };
+
+  /*  useEffect(() => {
+    const isValidFloat =
+    setFormSchemaValue();
+
+  }, [value]);*/
+
 
   return <div className={styles.numericInput}>
     <input id={id}
