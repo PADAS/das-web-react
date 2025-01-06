@@ -98,6 +98,7 @@ const DateTimePicker = ({
       readOnly={readOnly}
       required={required}
       {...timePickerProps}
+      className={`${styles.timePicker} ${timePickerProps.className || ''}`}
       onChange={(time) => onChange(`${dateValue}T${time}`)}
       value={`${hourValue}:${minuteValue}`}
     />
