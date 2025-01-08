@@ -8,7 +8,10 @@ async function fetchPage(apiUrl, requestConfig, page, pageSize, maxRetries) {
     attempt++;
 
     try {
-      const response = await axios.get(`${apiUrl}&page=${page}&page_size=${pageSize}`, requestConfig);
+      const response = await axios.get(`${apiUrl}&page=${page}&page_size=${pageSize}`, {
+        ...requestConfig,
+        timeout: 7500
+      });
 
       if (response.status !== 200) {
         throw new Error(`HTTP error ${response.status}`);
