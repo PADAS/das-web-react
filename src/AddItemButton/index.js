@@ -45,7 +45,7 @@ const AddItemButton = ({
 
     trackEvent(
       analyticsMetadata.category,
-      `Click 'Add Report' button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
+      `Click 'Add Report'${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
     );
   }, [analyticsMetadata.category, analyticsMetadata.location]);
 

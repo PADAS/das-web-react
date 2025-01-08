@@ -605,7 +605,11 @@ const Map = ({
   return <EarthRangerMap
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
     controls={<>
-      <AddItemButton className="general-add-button" showLabel={false} variant="secondary" />
+      <AddItemButton
+        analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'map controls' }}
+        className="general-add-button"
+        showLabel={false} variant="secondary"
+      />
       <MapBaseLayerControl />
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />
