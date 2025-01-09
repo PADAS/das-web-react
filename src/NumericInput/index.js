@@ -79,16 +79,14 @@ const NumericInput = ({ id, value: formSchemaValue = null, setValue: setFormSche
   };
 
   const handleOnChange = ({ currentTarget: { value } }) => {
-    const validInput = value.replace(/[^0-9|.]/g, ''); // 9, 9., 9.1
-
-    setValue(validInput);
+    setValue(value.replace(/[^0-9|.]/g, ''));
   };
 
-  /*  useEffect(() => {
-    const isValidFloat =
-    setFormSchemaValue();
-
-  }, [value]);*/
+  useEffect(() => {
+    if (isNumber(value)){
+      setFormSchemaValue( parseStringValueToNumber(value) );
+    }
+  }, [setFormSchemaValue, value]);
 
 
   return <div className={styles.numericInput}>
@@ -97,7 +95,7 @@ const NumericInput = ({ id, value: formSchemaValue = null, setValue: setFormSche
              inputMode="numeric"
              onKeyDown={handleOnKeyDown}
              onChange={handleOnChange}
-             value={value ?? ''}
+             value={value}
              {...otherProps} />
     <div className={styles.controls}>
       <button onClick={onUpArrowClick} type='button'>

@@ -36,14 +36,13 @@ describe('NumericInput', () => {
   });
 
   test('enters valid float', async () => {
-    const setValue = jest.fn((value) => {
-    });
+    const setValue = jest.fn();
     renderNumericInput({ ...initialProps, value: '', setValue });
 
     const numberInput = screen.getByRole('textbox');
     await userEvent.type( numberInput, '1.5');
 
-    await expect(setValue).toHaveBeenCalledWith('1.5');
+    await expect(setValue).toHaveBeenCalledWith(1.5);
   });
 
   test('augment number using keyboard up arrow', () => {
