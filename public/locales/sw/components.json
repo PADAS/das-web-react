@@ -210,8 +210,8 @@
   },
   "timePicker": {
     "hourInputLabel": "Saa",
-    "menuButtonLabel": "Fungua chaguo za muda",
     "minuteInputLabel": "Dakika",
+    "optionsPopoverButtonLabel": "Fungua chaguo za muda",
     "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {

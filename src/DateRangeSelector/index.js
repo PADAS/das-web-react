@@ -148,7 +148,7 @@ const DateRangeSelector = ({
               },
             }}
             max={formatDateToLocalISO(hasEndMaxDate ? endMaxDate : maxDate)}
-            min={formatDateToLocalISO(startDate)}
+            min={formatDateToLocalISO(startDate || new Date('2000-01-01'))}
             onChange={onEndDateTimePickerChange}
             required={requireEnd}
             value={endDateTime}

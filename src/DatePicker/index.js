@@ -9,6 +9,7 @@ import {
   getDayWithinValidRange,
   getMonthWithinValidRange,
   getYearWithinValidRange,
+  isDayInputComplete,
   isMonthInputComplete,
   isSecondDayDigitPossible,
   isSecondMonthDigitPossible,
@@ -42,35 +43,40 @@ const DatePicker = ({
 }, ref) => {
   const { t } = useTranslation('components', { keyPrefix: 'datePicker' });
 
-  const innerRef = useRef();
   const dayInputRef = useRef();
+  const innerRef = useRef();
+  // We use a ref to track the focus state to avoid calling onFocus several times when the user changes focus between
+  // the inner elements of the wrapper.
+  const isFocusedRef = useRef(false);
   const monthInputRef = useRef();
   const yearInputRef = useRef();
+  const shouldAutofillMonthOnBlurRef = useRef(true);
 
   useImperativeHandle(ref, () => innerRef.current);
 
-  const [isFocused, setIsFocused] = useState(false);
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-
   // Value is expected to come as a string in format yyyy-MM-dd so we break it down to its parts.
   const [year = '', month = '', day = ''] = value.split('-');
+
+  const [isCalendarPopperOpen, setIsCalendarPopperOpen] = useState(false);
 
   // Since our picker is a group of inputs, we handle the blurring from the wrapper but make sure to not call it when
   // changing focus within the inner inputs.
   const onWrapperBlur = (event) => {
     if (!innerRef.current.contains(event.relatedTarget)) {
       onBlur?.(event);
-      setIsFocused(false);
+      isFocusedRef.current = false;
     }
   };
 
-  // Similarly, we handle the focus callback.
+  // Like the blur, we handle the focus callback from the wrapper.
   const onWrapperFocus = (event) => {
     if (event.target === innerRef.current) {
+      // We forward the initial focusing to the year input.
       yearInputRef.current.focus();
-    } else if (!isFocused) {
+    } else if (!isFocusedRef.current) {
+      // Once an inner element has the focus, we trigger onFocus and update the state.
       onFocus?.(event);
-      setIsFocused(true);
+      isFocusedRef.current = true;
     }
   };
 
@@ -83,18 +89,59 @@ const DatePicker = ({
   };
 
   const onYearInputChange = (event) => {
-    const newYear = event.target.value;
-    if (isValidYearInput(newYear) || newYear === '') {
+    let newYear = null;
+    if (isValidYearInput(event.target.value) || event.target.value === '') {
+      newYear = event.target.value;
+    }
+
+    if (newYear !== null) {
       onYearChange(newYear);
+
+      // Automatically move the focus to the month input if the user finished typing a valid year.
+      if (isYearInputComplete(newYear)) {
+        monthInputRef.current.focus();
+      }
     }
   };
 
+  // Keyboard navigation for the year input.
   const onYearInputKeyDown = (event) => {
-    if (event.key === 'ArrowRight') {
+    switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+
+      // Decrease the year when the user presses the down arrow.
+      if (isValidYearInput(year) && parseInt(year) > 0) {
+        const yearMinusOne = (parseInt(year) - 1).toString().padStart(4, '0');
+        onYearChange(yearMinusOne);
+      }
+      break;
+
+    case 'ArrowLeft':
+      event.preventDefault();
+
+      yearInputRef.current.select();
+      break;
+
+    case 'ArrowRight':
       event.preventDefault();
 
       monthInputRef.current.focus();
-    }
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+
+      // Increase the year when the user presses the up arrow.
+      if (isValidYearInput(year) && parseInt(year) < 9999) {
+        const yearPlusOne = (parseInt(year) + 1).toString().padStart(4, '0');
+        onYearChange(yearPlusOne);
+      }
+      break;
+
+    default:
+      break;
+    };
   };
 
   const onMonthChange = (newMonth) => {
@@ -104,25 +151,77 @@ const DatePicker = ({
     onChange(`${year}-${monthWithinValidRange}-${dayWithinValidRange}`);
   };
 
+  const onMonthInputBlur = () => {
+    // If the month input is blurred and the user left a single digit we autofill the first one with a zero, unless we
+    // moved the focus programatically after the user typed a valid month.
+    if (shouldAutofillMonthOnBlurRef.current && shouldCompleteFirstMonthDigitWithZero(month)) {
+      onMonthChange(`0${month}`);
+    }
+
+    shouldAutofillMonthOnBlurRef.current = true;
+  };
+
   const onMonthInputChange = (event) => {
-    const newMonth = event.target.value;
-    if (!isSecondMonthDigitPossible(newMonth)) {
-      // Autofill the first digit when the user enters a number that can't have a digit after it to be a valid month.
-      onMonthChange(`0${newMonth}`);
-    } else if (isValidMonthInput(newMonth) || newMonth === '') {
+    let newMonth = null;
+    if (!isSecondMonthDigitPossible(event.target.value)) {
+      // Autofill the first digit with a zero if the user typed a number above 1.
+      newMonth = `0${event.target.value}`;
+    } else if (isValidMonthInput(event.target.value) || event.target.value === '') {
+      newMonth = event.target.value;
+    }
+
+    if (newMonth !== null) {
       onMonthChange(newMonth);
+
+      // Automatically move the focus to the day if the user finished typing a valid month.
+      if (isMonthInputComplete(newMonth)) {
+        shouldAutofillMonthOnBlurRef.current = false;
+        dayInputRef.current.focus();
+      }
     }
   };
 
+  // Keyboard navigation for the month input.
   const onMonthInputKeyDown = (event) => {
-    if (event.key === 'ArrowLeft') {
+    switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+
+      // Decrease the month when the user presses the down arrow.
+      if (month === '' || parseInt(month) === 1) {
+        onMonthChange('12');
+      } else if (isValidMonthInput(month)) {
+        const monthMinusOne = (parseInt(month) - 1).toString().padStart(2, '0');
+        onMonthChange(monthMinusOne);
+      }
+      break;
+
+    case 'ArrowLeft':
       event.preventDefault();
 
       yearInputRef.current.focus();
-    } else if (event.key === 'ArrowRight') {
+      break;
+
+    case 'ArrowRight':
       event.preventDefault();
 
       dayInputRef.current.focus();
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+
+      // Increase the month when the user presses the up arrow.
+      if (month === '' || month === '12') {
+        onMonthChange('01');
+      } else if (isValidMonthInput(month)) {
+        const monthPlusOne = (parseInt(month) + 1).toString().padStart(2, '0');
+        onMonthChange(monthPlusOne);
+      }
+      break;
+
+    default:
+      break;
     }
   };
 
@@ -133,34 +232,79 @@ const DatePicker = ({
   };
 
   const onDayInputChange = (event) => {
-    const newDay = event.target.value;
-    if (!isSecondDayDigitPossible(newDay)) {
+    let newDay = null;
+    if (!isSecondDayDigitPossible(event.target.value)) {
       // Autofill the first digit when the user enters a number that can't have a digit after it to be a valid day.
-      onDayChange(`0${newDay}`);
-    } else if (isValidDayInput(newDay) || newDay === '') {
+      newDay = `0${event.target.value}`;
+    } else if (isValidDayInput(event.target.value) || event.target.value === '') {
+      newDay = event.target.value;
+    }
+
+    if (newDay !== null) {
       onDayChange(newDay);
     }
   };
 
   const onDayInputKeyDown = (event) => {
-    if (event.key === 'ArrowLeft') {
+    switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+
+      // Decrease the day when the user presses the down arrow.
+      if (day === '' || parseInt(day) === 1) {
+        onDayChange('31');
+      } else if (isValidDayInput(day)) {
+        const dayMinusOne = (parseInt(day) - 1).toString().padStart(2, '0');
+        onDayChange(dayMinusOne);
+      }
+      break;
+
+    case 'ArrowLeft':
       event.preventDefault();
 
       monthInputRef.current.focus();
+      break;
+
+    case 'ArrowRight':
+      event.preventDefault();
+
+      dayInputRef.current.select();
+      break;
+
+    case 'ArrowUp':
+      event.preventDefault();
+
+      // Increase the day when the user presses the up arrow.
+      if (day === '' || day === '31') {
+        onDayChange('01');
+      } else if (isValidDayInput(day)) {
+        const dayPlusOne = (parseInt(day) + 1).toString().padStart(2, '0');
+        onDayChange(dayPlusOne);
+      }
+      break;
+
+    default:
+      break;
     }
   };
 
   useEffect(() => {
     if (document.activeElement === yearInputRef.current && isYearInputComplete(year)) {
-      monthInputRef.current.focus();
+      yearInputRef.current.select();
     }
   }, [year]);
 
   useEffect(() => {
     if (document.activeElement === monthInputRef.current && isMonthInputComplete(month)) {
-      dayInputRef.current.focus();
+      monthInputRef.current.select();
     }
   }, [month]);
+
+  useEffect(() => {
+    if (document.activeElement === dayInputRef.current && isDayInputComplete(day)) {
+      dayInputRef.current.select();
+    }
+  }, [day]);
 
   return <div
       className={`${styles.datePicker} ${disabled ? styles.disabled : ''} ${className}`}
@@ -197,7 +341,7 @@ const DatePicker = ({
       className={styles.monthInput}
       disabled={disabled}
       inputMode="numeric"
-      onBlur={() => shouldCompleteFirstMonthDigitWithZero(month) && onMonthChange(`0${month}`)}
+      onBlur={onMonthInputBlur}
       onChange={onMonthInputChange}
       onFocus={(event) => event.target.select()}
       onKeyDown={onMonthInputKeyDown}
@@ -231,19 +375,18 @@ const DatePicker = ({
     />
 
     <CalendarPopper
-      dateFormat="yyyy/MM/dd"
       disabled={disabled}
-      isOpen={isCalendarOpen}
+      isOpen={isCalendarPopperOpen}
       maxDate={max ? parseISO(max) : undefined}
       minDate={min ? parseISO(min) : undefined}
       onChange={onChange}
       readOnly={readOnly}
-      setIsOpen={setIsCalendarOpen}
+      setIsOpen={setIsCalendarPopperOpen}
       value={value}
       {...reactDatePickerProps}
     />
 
-    <input name={name} type="hidden" value={value} />
+    <input data-testid="datePicker-input" name={name} type="hidden" value={value} />
   </div>;
 };
 

@@ -202,6 +202,7 @@ const PlanSection = ({
           >
             {t('startDateLabel')}
             <DatePicker
+              data-testid="patrolDetailView-planSection-startDatePicker"
               onChange={handleStartDateChange}
               reactDatePickerProps={{ endDate: displayEndDate, selectsStart: true, startDate: displayStartDate }}
               value={startDate}
@@ -211,6 +212,7 @@ const PlanSection = ({
           <label data-testid="patrolDetailView-startTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             {t('startTimeLabel')}
             <TimePicker
+              data-testid="patrolDetailView-planSection-startTimePicker"
               minutesInterval={15}
               onChange={handleStartTimeChange}
               value={startTime}
@@ -248,6 +250,7 @@ const PlanSection = ({
           >
             {t('endDateLabel')}
             <DatePicker
+              data-testid="patrolDetailView-planSection-endDatePicker"
               min={startDate}
               onChange={handleEndDateChange}
               reactDatePickerProps={{
@@ -262,7 +265,8 @@ const PlanSection = ({
           <label data-testid="patrolDetailView-endTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             {t('endTimeLabel')}
             <TimePicker
-              disabled={!endDate}
+              data-testid="patrolDetailView-planSection-endTimePicker"
+              disabled={!isValid(parseISO(endDate))}
               min={endDayIsSameAsStart ? getHoursAndMinutesString(displayStartDate) : undefined}
               minutesInterval={15}
               onChange={handleEndTimeChange}

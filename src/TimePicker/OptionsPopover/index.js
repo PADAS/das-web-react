@@ -20,11 +20,11 @@ const OptionsPopover = ({
   className,
   internationalizedTimePeriods,
   max,
-  menuButtonRef,
   min,
   minutesInterval,
   onChange,
   onClose,
+  optionsPopoverButtonRef,
   showDurationFromMin,
   style,
   target,
@@ -35,6 +35,7 @@ const OptionsPopover = ({
 
   const listRef = useRef();
 
+  // State variable to track which option is currently selected by the keyboard navigation.
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(-1);
 
   const [options, indexOfOptionClosestToInputTime] = useMemo(() => {
@@ -132,6 +133,7 @@ const OptionsPopover = ({
     onClose();
   };
 
+  // Keyboard navigation for the list.
   const onListKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
@@ -189,23 +191,23 @@ const OptionsPopover = ({
   useEffect(() => {
     const selectedOption = options[selectedOptionIndex];
     if (selectedOption) {
-      document.getElementById(selectedOption.value).scrollIntoView();
+      document.getElementById(selectedOption.value).scrollIntoView?.();
     }
   }, [options, selectedOptionIndex]);
 
   useEffect(() => {
     const onMouseDown = (event) => !listRef.current.contains(event.target)
-      && !menuButtonRef.current.contains(event.target)
+      && !optionsPopoverButtonRef.current.contains(event.target)
       && onClose();
 
     document.addEventListener('mousedown', onMouseDown);
 
     return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [menuButtonRef, onClose]);
+  }, [onClose, optionsPopoverButtonRef]);
 
   return <Popover
       className={`${className} ${styles.optionsPopover}`}
-      id="timePicker-menuPopover"
+      id="timePicker-optionsPopover"
       ref={ref}
       role="presentation"
       style={{ ...style, width: target.current?.offsetWidth }}

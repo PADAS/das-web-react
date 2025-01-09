@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
 import Form from 'react-bootstrap/Form';
+import { format, isValid, parseISO } from 'date-fns';
 import isPlainObject from 'lodash/isPlainObject';
 import { useTranslation } from 'react-i18next';
 
@@ -345,21 +346,31 @@ export const DateTimeWidget = ({
   readonly,
   required,
   schema,
-}) => <>
-  <label htmlFor={id}>{schema.title}{required ? '*' : ''}</label>
+}) => {
+  let timeZoneCorrectedData = formData;
+  if (formData) {
+    const parsedDateTimeValue = parseISO(formData);
+    if (isValid(parsedDateTimeValue)) {
+      timeZoneCorrectedData = format(parsedDateTimeValue, 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
+    }
+  }
 
-  <DateTimePicker
-    autofocus={autofocus}
-    disabled={disabled}
-    onBlur={onBlur}
-    onChange={(newDateTime) => onChange(`${newDateTime}:00${getTimezoneOffsetString()}`)}
-    onFocus={onFocus}
-    readOnly={readonly}
-    required={required}
-    // Slice out the seconds and the time offset.
-    value={formData ? formData.slice(0, -9) : EMPTY_DATE_TIME_VALUE}
-  />
-</>;
+  return <>
+    <label htmlFor={id}>{schema.title}{required ? '*' : ''}</label>
+
+    <DateTimePicker
+      autofocus={autofocus}
+      disabled={disabled}
+      onBlur={onBlur}
+      onChange={(newDateTime) => onChange(`${newDateTime}:00${getTimezoneOffsetString()}`)}
+      onFocus={onFocus}
+      readOnly={readonly}
+      required={required}
+      // Slice out the seconds and the time offset.
+      value={timeZoneCorrectedData ? timeZoneCorrectedData.slice(0, -9) : EMPTY_DATE_TIME_VALUE}
+    />
+  </>;
+};
 
 const selectValue = (value, selected, all) => {
   const at = all.indexOf(value);

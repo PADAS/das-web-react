@@ -210,8 +210,8 @@
   },
   "timePicker": {
     "hourInputLabel": "Hour",
-    "menuButtonLabel": "Open time options",
     "minuteInputLabel": "Minute",
+    "optionsPopoverButtonLabel": "Open time options",
     "periodInputLabel": "Time period"
   },
   "timeSlider": {

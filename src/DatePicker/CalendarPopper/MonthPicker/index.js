@@ -63,7 +63,11 @@ const Header = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'datePicker.calendarPopper.monthPicker' });
 
-  return <div className={styles.header} onKeyDown={onKeyDown}>
+  return <div
+      className={styles.header}
+      data-testid="datePicker-calendarPopper-monthPicker-header"
+      onKeyDown={onKeyDown}
+    >
     <button
       aria-label={t('previousYearButtonLabel')}
       className={styles.chevronButton}

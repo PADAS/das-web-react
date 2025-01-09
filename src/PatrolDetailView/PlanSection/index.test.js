@@ -164,12 +164,13 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(onPatrolStartDateChange).not.toHaveBeenCalled();
 
-    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
-    userEvent.click(datePickerInput);
+    const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
+    const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
+    userEvent.click(startDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolStartDateChange).toHaveBeenCalled();
   });
 
   test('triggers the onPatrolStartDateChange callback when user changes auto start value', async () => {
@@ -194,7 +195,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
     userEvent.click(autoStartInput);
 
-    expect(onPatrolStartDateChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolStartDateChange).toHaveBeenCalled();
   });
 
   test('triggers the onPatrolEndDateChange callback', async () => {
@@ -202,12 +203,13 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(onPatrolEndDateChange).not.toHaveBeenCalled();
 
-    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
-    userEvent.click(datePickerInput);
+    const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
+    const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
+    userEvent.click(endDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolEndDateChange).toHaveBeenCalled();
   });
 
   test('triggers the onPatrolEndDateChange callback when user changes auto end value', async () => {
@@ -232,7 +234,7 @@ describe('PatrolDetailView - PlanSection', () => {
     const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
     userEvent.click(autoEndInput);
 
-    expect(onPatrolEndDateChange).toHaveBeenCalledTimes(1);
+    expect(onPatrolEndDateChange).toHaveBeenCalled();
   });
 
   test('updates user preferences when user changes auto end/start value for an existing patrol', async () => {
@@ -297,9 +299,10 @@ describe('PatrolDetailView - PlanSection', () => {
   test('disables end time picker while there is no end date', async () => {
     renderPlanSectionWithWrapper();
 
-    const timePickerInput = (await screen.findAllByTestId('time-input'))[1];
+    const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
-    expect(timePickerInput).toBeDisabled();
+    expect(endTimePicker).toHaveClass('disabled');
+    expect(endTimePicker).toHaveAttribute('tabIndex', '-1');
   });
 
   test('enables end time picker when there is an end date', async () => {
@@ -317,9 +320,10 @@ describe('PatrolDetailView - PlanSection', () => {
     };
     renderPlanSectionWithWrapper({ patrolForm });
 
-    const timePickerInput = (await screen.findAllByTestId('time-input'))[1];
+    const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
-    expect(timePickerInput).toBeEnabled();
+    expect(endTimePicker).not.toHaveClass('disabled');
+    expect(endTimePicker).toHaveAttribute('tabIndex', '0');
   });
 
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {

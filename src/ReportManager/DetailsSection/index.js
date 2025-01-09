@@ -237,6 +237,7 @@ const DetailsSection = ({
 
               <DatePicker
                 className={styles.datePicker}
+                data-testid="reportManager-detailsSection-datePicker"
                 disabled={formSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
                 onChange={onDatePickerChange}
@@ -248,6 +249,7 @@ const DetailsSection = ({
               {t('timeLabel')}
 
               <TimePicker
+                data-testid="reportManager-detailsSection-timePicker"
                 disabled={formSchema?.readonly}
                 max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}

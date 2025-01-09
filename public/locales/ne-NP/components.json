@@ -205,8 +205,8 @@
     },
     "timePicker": {
         "hourInputLabel": "घण्टा",
-        "menuButtonLabel": "समय विकल्प खोल्नुहोस्",
         "minuteInputLabel": "मिनेट",
+        "optionsPopoverButtonLabel": "समय विकल्प खोल्नुहोस्",
         "periodInputLabel": "दिनको भाग"
     },
     "timeSlider": {

@@ -187,8 +187,8 @@
   },
   "timePicker": {
     "hourInputLabel": "Hora",
-    "menuButtonLabel": "Abrir opciones de tiempo",
     "minuteInputLabel": "Minuto",
+    "optionsPopoverButtonLabel": "Abrir opciones de tiempo",
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {

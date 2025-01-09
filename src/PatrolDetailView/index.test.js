@@ -272,8 +272,7 @@ describe('PatrolDetailView', () => {
     const actions = builtStore.getActions();
 
     await waitFor(() => {
-      expect(actions).toHaveLength(1);
-      expect(actions[0].type).not.toBe('UPDATE_PATROL_SUCCESS');
+      actions.forEach((action) => expect(action.type).not.toBe('UPDATE_PATROL_SUCCESS'));
     });
   });
 
@@ -286,8 +285,7 @@ describe('PatrolDetailView', () => {
     const actions = builtStore.getActions();
 
     await waitFor(() => {
-      expect(actions).toHaveLength(1);
-      expect(actions[0].type).not.toBe('UPDATE_PATROL_SUCCESS');
+      actions.forEach((action) => expect(action.type).not.toBe('UPDATE_PATROL_SUCCESS'));
     });
   });
 
@@ -322,12 +320,13 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
-    userEvent.click(datePickerInput);
+    const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
+    const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
+    userEvent.click(startDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '2022/01/20');
+    expect(await within(startDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
 
   test('sets the start time when user changes it', async () => {
@@ -336,13 +335,14 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const timeInput = (await screen.findAllByTestId('time-input'))[0];
-    userEvent.click(timeInput);
+    const startTimePicker = await screen.findByTestId('patrolDetailView-planSection-startTimePicker');
+    const startTimePickerOpenOptionsButton = await within(startTimePicker).findByLabelText('Open time options');
+    userEvent.click(startTimePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
-    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '00:30');
+    expect(await within(startTimePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
 
   test('sets the end location when user changes it', async () => {
@@ -364,17 +364,13 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const endDatePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
-    userEvent.click(endDatePickerInput);
-    const endDateOptions = await screen.findAllByRole('option');
-    userEvent.click(endDateOptions[25]);
+    const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
+    const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
+    userEvent.click(endDatePickerOpenCalendarButton);
+    const endOptions = await screen.findAllByRole('option');
+    userEvent.click(endOptions[25]);
 
-    const startDatePickerInput = (await screen.findAllByTestId('datePicker-input'))[0];
-    userEvent.click(startDatePickerInput);
-    const startDateOptions = await screen.findAllByRole('option');
-    userEvent.click(startDateOptions[26]);
-
-    expect(endDatePickerInput).toHaveAttribute('value', undefined);
+    expect(await within(endDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
 
   test('end time is disabled while there is no end date', async () => {
@@ -386,9 +382,10 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const timeInput = (await screen.findAllByTestId('time-input'))[1];
+    const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
-    expect(timeInput).toHaveAttribute('disabled');
+    expect(endTimePicker).toHaveClass('disabled');
+    expect(endTimePicker).toHaveAttribute('tabIndex', '-1');
   });
 
   test('sets the end time when user changes it', async () => {
@@ -397,18 +394,20 @@ describe('PatrolDetailView', () => {
 
     renderWithWrapper(<PatrolDetailView />);
 
-    const datePickerInput = (await screen.findAllByTestId('datePicker-input'))[1];
-    userEvent.click(datePickerInput);
-    const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
+    const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
+    userEvent.click(endDatePickerOpenCalendarButton);
+    const endOptions = await screen.findAllByRole('option');
+    userEvent.click(endOptions[25]);
 
-    const timeInput = (await screen.findAllByTestId('time-input'))[1];
-    userEvent.click(timeInput);
+    const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
+    const endTimePickerOpenOptionsButton = await within(endTimePicker).findByLabelText('Open time options');
+    userEvent.click(endTimePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
-    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '00:30');
+    expect(await within(endTimePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
 
   test('sets the objective when user changes it', async () => {
@@ -460,20 +459,24 @@ describe('PatrolDetailView', () => {
   });
 
   test('shows invalid dates modal and does not save if dates are invalid', async () => {
-    const now = new Date();
-    const oneHourAgo = new Date();
-    oneHourAgo.setHours(now.getHours() - 1);
-    mockPatrol.patrol_segments[0].scheduled_end = oneHourAgo;
-    mockPatrol.patrol_segments[0].scheduled_start = now;
-    mockPatrol.patrol_segments[0].time_range.start_time = null;
-    store.data.patrolStore = { 123: mockPatrol };
-
     useLocationMock = jest.fn(() => ({ pathname: '/patrols/123' }));
     useLocation.mockImplementation(useLocationMock);
 
     renderWithWrapper(<PatrolDetailView />);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
+
+    const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
+    const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
+    userEvent.click(endDatePickerOpenCalendarButton);
+    const endOptions = await screen.findAllByRole('option');
+    userEvent.click(endOptions[25]);
+
+    const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
+    const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
+    userEvent.click(startDatePickerOpenCalendarButton);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[26]);
 
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);

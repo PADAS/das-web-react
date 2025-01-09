@@ -14,7 +14,7 @@
   padding: 0.25rem 0.5rem;
   width: 7rem;
 
-  &:focus-within {
+  &:focus-within:not(.disabled) {
     border: 2px solid colors.$bright-blue;
   }
 
@@ -27,7 +27,7 @@
       }
     }
 
-    .menuButton {
+    .optionsPopoverButton {
       .caret {
         border-top-color: colors.$bright-red;
       }
@@ -92,7 +92,7 @@
     text-align: center;
   }
 
-  .menuButton {
+  .optionsPopoverButton {
     background: none;
     border: none;
     height: 1rem;

@@ -81,7 +81,7 @@ const getRenderCustomHeader = (maxDate, minDate, onKeyDown) => ({
 />;
 
 const CalendarPopper = ({
-  dateFormat,
+  dateFormat = 'yyyy/MM/dd',
   disabled,
   isOpen,
   maxDate,

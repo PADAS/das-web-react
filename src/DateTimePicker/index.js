@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 
 import DatePicker, { EMPTY_DATE_VALUE } from '../DatePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../TimePicker';
@@ -25,10 +25,9 @@ const DateTimePicker = ({
 }, ref) => {
   const datePickerRef = useRef();
   const innerRef = useRef();
+  const isFocusedRef = useRef(false);
 
   useImperativeHandle(ref, () => innerRef.current);
-
-  const [isFocused, setIsFocused] = useState(false);
 
   // Value is expected to come as a string in format yyyy-MM-ddTHH:mm so we break it down to its parts.
   const [dateValue, timeValue] = value.split('T');
@@ -55,7 +54,7 @@ const DateTimePicker = ({
   const onWrapperBlur = (event) => {
     if (!innerRef.current.contains(event.relatedTarget)) {
       onBlur?.(event);
-      setIsFocused(false);
+      isFocusedRef.current = false;
     }
   };
 
@@ -63,9 +62,9 @@ const DateTimePicker = ({
   const onWrapperFocus = (event) => {
     if (event.target === innerRef.current) {
       datePickerRef.current.focus();
-    } else if (!isFocused) {
+    } else if (!isFocusedRef.current) {
       onFocus?.(event);
-      setIsFocused(true);
+      isFocusedRef.current = true;
     }
   };
 
@@ -103,7 +102,7 @@ const DateTimePicker = ({
       value={`${hourValue}:${minuteValue}`}
     />
 
-    <input name={name} type="hidden" value={value} />
+    <input data-testid="dateTimePicker-input" name={name} type="hidden" value={value} />
   </div>;
 };
 

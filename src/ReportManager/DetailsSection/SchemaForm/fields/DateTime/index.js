@@ -1,4 +1,5 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
+import { format, isValid, parseISO } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../constants';
 import { getTimezoneOffsetString } from '../../../../../utils/datetime';
@@ -64,13 +65,41 @@ const INPUTS = {
 };
 
 const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
+  const [hasTimezoneBeenCorrected, setHasTimezoneBeenCorrected] = useState(false);
+
   const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
 
-  return <div className={styles.dateTime} data-testid={`schema-form-date-time-field-${id}`}>
+  // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
+  // before rendering it.
+  useEffect(() => {
+    if (!hasTimezoneBeenCorrected && value) {
+      if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME) {
+        const parsedDateTimeValue = parseISO(value);
+        if (isValid(parsedDateTimeValue)) {
+          onFieldChange(id, format(parsedDateTimeValue, 'yyyy-MM-dd\'T\'HH:mm:ssXXX'));
+        }
+      }
+
+      if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.TIME) {
+        // We add a dummy date just to make it a valid ISO date
+        const parsedTimeValue = parseISO(`2000-01-01T${value}`);
+        if (isValid(parsedTimeValue)) {
+          onFieldChange(id, format(parsedTimeValue, 'HH:mm:ssXXX'));
+        }
+      }
+    }
+
+    setHasTimezoneBeenCorrected(true);
+  }, [details.inputType, hasTimezoneBeenCorrected, id, onFieldChange, value]);
+
+  return hasTimezoneBeenCorrected ? <div
+      className={styles.dateTime}
+      data-testid={`schema-form-date-time-field-${id}`}
+    >
     <label className={`${styles.label} ${hasError ? styles.error : ''}`}>
       {label}
 
@@ -79,6 +108,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
         aria-errormessage={hasError ? `${id}-description` : undefined}
         aria-invalid={hasError}
         aria-required={details.isRequired}
+        data-testid={`schemaForm-field-dateTime-${id}`}
         id={id}
         onChange={(value) => onFieldChange(id, value)}
         value={value}
@@ -92,7 +122,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
     >
       {error || details.description}
     </p>}
-  </div>;
+  </div> : null;
 };
 
 export default memo(DateTime);

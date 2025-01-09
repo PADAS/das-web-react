@@ -14,7 +14,7 @@
   padding: 0.25rem 0.5rem;
   width: 10rem;
 
-  &:focus-within {
+  &:focus-within:not(.disabled) {
     border: 2px solid colors.$bright-blue;
   }
 
