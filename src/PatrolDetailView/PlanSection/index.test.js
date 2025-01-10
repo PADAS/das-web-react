@@ -302,7 +302,6 @@ describe('PatrolDetailView - PlanSection', () => {
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
     expect(endTimePicker).toHaveClass('disabled');
-    expect(endTimePicker).toHaveAttribute('tabIndex', '-1');
   });
 
   test('enables end time picker when there is an end date', async () => {
@@ -323,7 +322,6 @@ describe('PatrolDetailView - PlanSection', () => {
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
     expect(endTimePicker).not.toHaveClass('disabled');
-    expect(endTimePicker).toHaveAttribute('tabIndex', '0');
   });
 
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {

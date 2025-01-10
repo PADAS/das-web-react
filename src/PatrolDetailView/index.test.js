@@ -385,7 +385,6 @@ describe('PatrolDetailView', () => {
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
 
     expect(endTimePicker).toHaveClass('disabled');
-    expect(endTimePicker).toHaveAttribute('tabIndex', '-1');
   });
 
   test('sets the end time when user changes it', async () => {

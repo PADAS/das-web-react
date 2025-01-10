@@ -41,7 +41,6 @@ describe('TimePicker', () => {
     const timePicker = screen.getByTestId('timePicker');
 
     expect(timePicker).not.toHaveClass('disabled');
-    expect(timePicker).toHaveAttribute('tabIndex', '0');
     expect(screen.getByLabelText('Hour')).not.toBeDisabled();
     expect(screen.getByLabelText('Minute')).not.toBeDisabled();
     expect(screen.getByLabelText('Time period')).not.toBeDisabled();
@@ -54,7 +53,6 @@ describe('TimePicker', () => {
     const timePicker = screen.getByTestId('timePicker');
 
     expect(timePicker).toHaveClass('disabled');
-    expect(timePicker).toHaveAttribute('tabIndex', '-1');
     expect(screen.getByLabelText('Hour')).toBeDisabled();
     expect(screen.getByLabelText('Minute')).toBeDisabled();
     expect(screen.getByLabelText('Time period')).toBeDisabled();
@@ -85,22 +83,14 @@ describe('TimePicker', () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
-  test('forwards the focusing to the hour input when the user sets the focus to the time picker', () => {
-    renderTimePicker();
-
-    userEvent.click(screen.getByTestId('timePicker'));
-
-    expect(screen.getByLabelText('Hour')).toHaveFocus();
-  });
-
-  test('focuses the time picker', () => {
+  test('focuses the time picker when focusing one of the inner elements', () => {
     const onFocus = jest.fn();
 
     renderTimePicker({ onFocus });
 
     expect(onFocus).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('timePicker'));
+    userEvent.click(screen.getByLabelText('Hour'));
 
     expect(onFocus).toHaveBeenCalledTimes(1);
   });

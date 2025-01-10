@@ -45,9 +45,6 @@ const DatePicker = ({
 
   const dayInputRef = useRef();
   const innerRef = useRef();
-  // We use a ref to track the focus state to avoid calling onFocus several times when the user changes focus between
-  // the inner elements of the wrapper.
-  const isFocusedRef = useRef(false);
   const monthInputRef = useRef();
   const yearInputRef = useRef();
   const shouldAutofillMonthOnBlurRef = useRef(true);
@@ -58,27 +55,6 @@ const DatePicker = ({
   const [year = '', month = '', day = ''] = value.split('-');
 
   const [isCalendarPopperOpen, setIsCalendarPopperOpen] = useState(false);
-
-  // Since our picker is a group of inputs, we handle the blurring from the wrapper but make sure to not call it when
-  // changing focus within the inner inputs.
-  const onWrapperBlur = (event) => {
-    if (!innerRef.current.contains(event.relatedTarget)) {
-      onBlur?.(event);
-      isFocusedRef.current = false;
-    }
-  };
-
-  // Like the blur, we handle the focus callback from the wrapper.
-  const onWrapperFocus = (event) => {
-    if (event.target === innerRef.current) {
-      // We forward the initial focusing to the year input.
-      yearInputRef.current.focus();
-    } else if (!isFocusedRef.current) {
-      // Once an inner element has the focus, we trigger onFocus and update the state.
-      onFocus?.(event);
-      isFocusedRef.current = true;
-    }
-  };
 
   const onYearChange = (newYear) => {
     const yearWithinValidRange = getYearWithinValidRange(newYear, max, min);
@@ -308,11 +284,12 @@ const DatePicker = ({
 
   return <div
       className={`${styles.datePicker} ${disabled ? styles.disabled : ''} ${className}`}
-      onBlur={onWrapperBlur}
-      onFocus={onWrapperFocus}
+      // Since our picker is a group of inputs, we handle the blur and focus from the wrapper but make sure to not call
+      // the methods if we are just changing focus within the inner inputs.
+      onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
+      onFocus={(event) => !innerRef.current.contains(event.relatedTarget) && onFocus?.(event)}
       ref={innerRef}
       role="group"
-      tabIndex={disabled ? -1 : 0}
       {...otherProps}
     >
     <CalendarIcon className={styles.calendarIcon} />

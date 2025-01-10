@@ -25,7 +25,6 @@ const DateTimePicker = ({
 }, ref) => {
   const datePickerRef = useRef();
   const innerRef = useRef();
-  const isFocusedRef = useRef(false);
 
   useImperativeHandle(ref, () => innerRef.current);
 
@@ -49,32 +48,14 @@ const DateTimePicker = ({
     minTime = `${minHour}:${minMinute}`;
   }
 
-  // Since our picker is a group of inputs, we handle the blurring from the wrapper but make sure to not call it when
-  // changing focus within the inner inputs.
-  const onWrapperBlur = (event) => {
-    if (!innerRef.current.contains(event.relatedTarget)) {
-      onBlur?.(event);
-      isFocusedRef.current = false;
-    }
-  };
-
-  // Similarly, we handle the focus callback.
-  const onWrapperFocus = (event) => {
-    if (event.target === innerRef.current) {
-      datePickerRef.current.focus();
-    } else if (!isFocusedRef.current) {
-      onFocus?.(event);
-      isFocusedRef.current = true;
-    }
-  };
-
   return <div
       className={`${styles.dateTimePicker} ${className}`}
-      onBlur={onWrapperBlur}
-      onFocus={onWrapperFocus}
+      // Since our picker is a group of inputs, we handle the blur and focus from the wrapper but make sure to not call
+      // the methods if we are just changing focus within the inner inputs.
+      onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
+      onFocus={(event) => !innerRef.current.contains(event.relatedTarget) && onFocus?.(event)}
       ref={innerRef}
       role="group"
-      tabIndex={disabled ? -1 : 0}
       {...otherProps}
     >
     <DatePicker

@@ -53,9 +53,6 @@ const TimePicker = ({
 
   const hourInputRef = useRef();
   const innerRef = useRef();
-  // We use a ref to track the focus state to avoid calling onFocus several times when the user changes focus between
-  // the inner elements of the wrapper.
-  const isFocusedRef = useRef(false);
   const minuteInputRef = useRef();
   const optionsPopoverButtonRef = useRef();
   const periodInputRef = useRef();
@@ -91,12 +88,9 @@ const TimePicker = ({
     onChange(`${hourIn24Format}:${minute}`);
   };
 
-  // Since our picker is a group of inputs, we handle the blurring from the wrapper but make sure to not call onBlur
-  // when changing focus within the inner inputs.
   const onWrapperBlur = (event) => {
     if (!innerRef.current.contains(event.relatedTarget)) {
       onBlur?.(event);
-      isFocusedRef.current = false;
 
       // If we are using 12 hour format, we validate the time range on blur because the way the period affects the hour
       // is tricky to validate while the user changes the inputs.
@@ -112,18 +106,6 @@ const TimePicker = ({
           onTransformTo24HourAndChange(hourWithinValidRange, minuteWithinValidRange, periodWithinValidRange);
         }
       }
-    }
-  };
-
-  // Like the blur, we handle the focus callback from the wrapper.
-  const onWrapperFocus = (event) => {
-    if (event.target === innerRef.current) {
-      // We forward the initial focusing to the hour input.
-      hourInputRef.current.focus();
-    } else if (!isFocusedRef.current) {
-      // Once an inner element has the focus, we trigger onFocus and update the state.
-      onFocus?.(event);
-      isFocusedRef.current = true;
     }
   };
 
@@ -401,11 +383,12 @@ const TimePicker = ({
 
   return <div
       className={`${styles.timePicker} ${use12HourFormat ? styles.twelveHourFormat : ''} ${disabled ? styles.disabled : ''} ${className}`}
+      // Since our picker is a group of inputs, we handle the blur and focus from the wrapper but make sure to not call
+      // the methods if we are just changing focus within the inner inputs.
       onBlur={onWrapperBlur}
-      onFocus={onWrapperFocus}
+      onFocus={(event) => !innerRef.current.contains(event.relatedTarget) && onFocus?.(event)}
       ref={innerRef}
       role="group"
-      tabIndex={disabled ? -1 : 0}
       {...otherProps}
     >
     <ClockIcon className={styles.clockIcon} />

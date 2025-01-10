@@ -51,7 +51,6 @@ describe('DatePicker', () => {
     const datePicker = screen.getByTestId('datePicker');
 
     expect(datePicker).not.toHaveClass('disabled');
-    expect(datePicker).toHaveAttribute('tabIndex', '0');
     expect(screen.getByLabelText('Year')).not.toBeDisabled();
     expect(screen.getByLabelText('Month')).not.toBeDisabled();
     expect(screen.getByLabelText('Day')).not.toBeDisabled();
@@ -64,7 +63,6 @@ describe('DatePicker', () => {
     const datePicker = screen.getByTestId('datePicker');
 
     expect(datePicker).toHaveClass('disabled');
-    expect(datePicker).toHaveAttribute('tabIndex', '-1');
     expect(screen.getByLabelText('Year')).toBeDisabled();
     expect(screen.getByLabelText('Month')).toBeDisabled();
     expect(screen.getByLabelText('Day')).toBeDisabled();
@@ -95,22 +93,14 @@ describe('DatePicker', () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
-  test('forwards the focusing to the year input when the user sets the focus to the date picker', () => {
-    renderDatePicker();
-
-    userEvent.click(screen.getByTestId('datePicker'));
-
-    expect(screen.getByLabelText('Year')).toHaveFocus();
-  });
-
-  test('focuses the date picker', () => {
+  test('focuses the date picker when focusing one of the inner elements', () => {
     const onFocus = jest.fn();
 
     renderDatePicker({ onFocus });
 
     expect(onFocus).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('datePicker'));
+    userEvent.click(screen.getByLabelText('Year'));
 
     expect(onFocus).toHaveBeenCalledTimes(1);
   });

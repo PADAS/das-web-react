@@ -46,7 +46,6 @@ describe('DateTimePicker', () => {
     const dateTimePicker = screen.getByTestId('dateTimePicker');
 
     expect(dateTimePicker).not.toHaveClass('disabled');
-    expect(dateTimePicker).toHaveAttribute('tabIndex', '0');
     expect(screen.getByTestId('datePicker')).not.toHaveClass('disabled');
     expect(screen.getByTestId('timePicker')).not.toHaveClass('disabled');
   });
@@ -58,9 +57,6 @@ describe('DateTimePicker', () => {
       timePickerProps: { 'data-testid': 'timePicker' },
     });
 
-    const dateTimePicker = screen.getByTestId('dateTimePicker');
-
-    expect(dateTimePicker).toHaveAttribute('tabIndex', '-1');
     expect(screen.getByTestId('datePicker')).toHaveClass('disabled');
     expect(screen.getByTestId('timePicker')).toHaveClass('disabled');
   });
@@ -89,22 +85,14 @@ describe('DateTimePicker', () => {
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
-  test('forwards the focusing to the year input of the date picker when the user sets the focus to the date time picker', () => {
-    renderDateTimePicker({ datePickerProps: { 'data-testid': 'datePicker' } });
-
-    userEvent.click(screen.getByTestId('dateTimePicker'));
-
-    expect(screen.getByLabelText('Year')).toHaveFocus();
-  });
-
-  test('focuses the date time picker', () => {
+  test('focuses the date time picker when focusing one of the inner elements', () => {
     const onFocus = jest.fn();
 
     renderDateTimePicker({ onFocus });
 
     expect(onFocus).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('dateTimePicker'));
+    userEvent.click(screen.getByLabelText('Year'));
 
     expect(onFocus).toHaveBeenCalledTimes(1);
   });
