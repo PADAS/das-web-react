@@ -51,8 +51,8 @@ ref) => {
   };
 
   /** This method help us by avoiding the user to type more than one decimal symbol
-      it also removes existing extra symbols when copying/pasting directly into the input
-      it takes the first occurrence of a valid symbol as the one preferred  by the user */
+  it also removes existing extra symbols when copying/pasting directly into the input
+  it takes the first occurrence of a valid symbol as the one preferred  by the user */
   const sanitizeExtraDecimalSymbols = (value) => {
     const commaSymbolFirstOccurrence = value.indexOf(DECIMAL_COMMA_SYMBOL);
     const pointSymbolFirstOccurrence = value.indexOf(DECIMAL_POINT_SYMBOL);
@@ -82,13 +82,13 @@ ref) => {
     // ToDo: validate max and min
     if ( min && parseFloat(filteredValue) < min ) {
       // ToDo: define behavior
-      console.log(filteredValue, ' es menor que min: ', min);
+      console.log(filteredValue, ' is lower than min: ', min);
       return;
     }
 
     if ( max && parseFloat(filteredValue) > max ) {
       // ToDo: define behavior
-      console.log(filteredValue, ' es mayor que max: ', max);
+      console.log(filteredValue, ' is greater than max: ', max);
       return;
     }
 
