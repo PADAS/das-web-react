@@ -1,18 +1,23 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
+import { fireEvent } from '@testing-library/react';
+
 import { render, screen } from '../test-utils';
 
 import NumericInput from './';
-import userEvent from '@testing-library/user-event';
-import { fireEvent } from '@testing-library/react';
 
 describe('NumericInput', () => {
 
   const initialProps = {
     id: 'aNumber',
-    setValue: () => {},
-    value: '10',
+    onChange: () => {},
+    value: 10,
     min: 1,
-    max: 12
+    max: 12,
+    required: false,
+    disabled: false,
+    readOnly: false,
+    inputClassName: ''
   };
 
   const renderNumericInput = (props = initialProps) => render(
@@ -26,28 +31,28 @@ describe('NumericInput', () => {
   });
 
   test('enters valid digit', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: null, setValue });
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: null, onChange });
 
     const numberInput = screen.getByRole('textbox');
     await userEvent.type( numberInput, '10');
 
-    expect(setValue).toHaveBeenCalledWith(10);
+    expect(onChange).toHaveBeenCalledWith(10);
   });
 
   test('enters valid float', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '', setValue });
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '', onChange });
 
     const numberInput = screen.getByRole('textbox');
     await userEvent.type( numberInput, '1.5');
 
-    await expect(setValue).toHaveBeenCalledWith(1.5);
+    await expect(onChange).toHaveBeenCalledWith(1.5);
   });
 
-  test('augment number using keyboard up arrow', () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '9', setValue });
+  test('increase number using keyboard up arrow', () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '9', onChange });
 
     const numberInput = screen.getByRole('textbox');
 
@@ -56,12 +61,12 @@ describe('NumericInput', () => {
       code: 'ArrowUp'
     });
 
-    expect(setValue).toHaveBeenCalledWith(10);
+    expect(onChange).toHaveBeenCalledWith(10);
   });
 
-  test('decrease number using keyboard down arrow', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '9', setValue });
+  test('decrement number using keyboard down arrow', async () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '9', onChange });
 
     const numberInput = screen.getByRole('textbox');
 
@@ -70,51 +75,63 @@ describe('NumericInput', () => {
       code: 'ArrowDown'
     });
 
-    expect(setValue).toHaveBeenCalledWith(8);
+    expect(onChange).toHaveBeenCalledWith(8);
   });
 
-  test('augment number using up button', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '9', setValue });
+  test('increase number using up button', async () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '9', onChange });
 
     const [upArrowButton] = screen.getAllByRole('button');
 
     await userEvent.click(upArrowButton);
 
-    expect(setValue).toHaveBeenCalledWith(10);
+    expect(onChange).toHaveBeenCalledWith(10);
   });
 
-  test('decrease number using up button', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '9', setValue });
+  test('decrement number using down button', async () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '9', onChange });
 
     const [, downArrowButton] = screen.getAllByRole('button');
 
     await userEvent.click(downArrowButton);
 
-    expect(setValue).toHaveBeenCalledWith(8);
+    expect(onChange).toHaveBeenCalledWith(8);
   });
 
   test('prevent to typing letters', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, setValue });
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, onChange });
 
     const numberInput = screen.getByRole('textbox');
     await userEvent.type( numberInput, 'AG');
 
-    expect(setValue).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  test('allow typing only one decimal symbol', async () => {
-    const setValue = jest.fn();
-    renderNumericInput({ ...initialProps, value: '1', setValue });
+  test('allow typing only one decimal point symbol', async () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '1', onChange });
 
     const numberInput = screen.getByRole('textbox');
     await userEvent.type( numberInput, '.0');
     await userEvent.type( numberInput, '.');
 
-    expect(setValue).toHaveBeenCalledTimes(3);
-    expect(setValue).toHaveBeenCalledWith(1.0);
+    expect(onChange).toHaveBeenCalledTimes(3);
+    expect(onChange).toHaveBeenCalledWith(1.0);
+  });
+
+  test('allow typing only one decimal comma symbol', async () => {
+    const onChange = jest.fn();
+    renderNumericInput({ ...initialProps, value: '1', onChange });
+
+    const numberInput = screen.getByRole('textbox');
+    await userEvent.type( numberInput, ',0');
+    await userEvent.type( numberInput, ',');
+
+    expect(onChange).toHaveBeenCalledTimes(3);
+    expect(onChange).toHaveBeenCalledWith(1.0);
   });
 
 });

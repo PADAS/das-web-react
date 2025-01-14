@@ -92,6 +92,11 @@
     "none": "N/A",
     "red": "Roja"
   },
+  "numericInput": {
+    "numericInputLabel": "Campo numérico",
+    "incrementValueNumericInputButton": "Botón para aumentar el valor numérico",
+    "decrementValueNumericInputButton": "Botón para reducir el valor numérico"
+  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Ícono del radio para el selector de reportado por"

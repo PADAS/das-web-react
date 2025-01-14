@@ -80,14 +80,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     expect(screen.getByText('Numeric field label')).toHaveClass('error');
   });
 
-  test('shows the field for numerico inputs', () => {
+  test('shows the field for numeric inputs', () => {
     renderNumericField();
     const input = screen.getByRole('textbox');
 
     expect(input.tagName).toBe('INPUT');
     expect(input.type).toBe('text');
     expect(input.inputMode).toBe('numeric');
-    expect(input.pattern).toBe('[0-9]*');
   });
 
   test('does not show the description', () => {

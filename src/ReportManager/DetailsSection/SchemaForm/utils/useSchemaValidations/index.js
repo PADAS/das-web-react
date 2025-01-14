@@ -17,8 +17,8 @@ const useSchemaValidations = (schema) => {
         }
 
         if (error.keyword === 'minimum' || error.keyword === 'maximum' ) {
-          const [, fieldName] = error?.instancePath?.split('/');
-          return { ...accumulator, [fieldName]: t('outOfRange') };
+          const fieldId = error.instancePath.split('/').pop();
+          return { ...accumulator, [fieldId]: t('outOfRange') };
         }
 
         // TODO: Transform missing errors.

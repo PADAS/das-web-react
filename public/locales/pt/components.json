@@ -92,6 +92,11 @@
         "none": "Nenhum",
         "red": "Vermelho"
     },
+    "numericInput": {
+        "numericInputLabel": "Campo numérico",
+        "incrementValueNumericInputButton": "Botão de incrementar valor numérico",
+        "decrementValueNumericInputButton": "Botão Diminuir valor numérico"
+    },
     "reportedBySelect": {
         "control": {
             "radioIconPlaceholder": "Espaço reservado para ícone de rádio para \"reportado por\""

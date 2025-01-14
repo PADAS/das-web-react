@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, memo } from 'react';
 
-import styles from './styles.module.scss';
 import NumericInput from '../../../../../NumericInput';
+
+import styles from './styles.module.scss';
 
 const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
   const hasError = !!error;
@@ -19,21 +20,22 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
   }, [details.defaultInput, id, onFieldChange, value]);
 
   return <div data-testid={`schema-form-numeric-field-${id}`} className={styles.numeric}>
-    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
+    <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>
+      {label}
+    </label>
 
     <NumericInput
-        max={!details.maxInput ? null : details.maxInput}
-        min={!details.minInput ? null : details.minInput }
-        value={value === '' ? null : value}
+        max={details.maxInput ?? null}
+        min={details.minInput ?? null}
+        value={value}
         id={id}
         aria-describedby={hasDescription ? `${id}-description`: undefined}
         aria-errormessage={hasError ? `${id}-description` : undefined}
         aria-invalid={hasError}
         aria-required={details.isRequired}
-        className={styles.numInput}
+        inputClassName={styles.numInput}
         placeholder={details.placeholder}
-        setValue={(number) => {
-
+        onChange={(number) => {
           onFieldChange(id, number ?? undefined);
         }}
     />

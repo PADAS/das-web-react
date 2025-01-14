@@ -92,6 +92,11 @@
     "none": "Aucune",
     "red": "Rouge"
   },
+  "numericInput": {
+    "numericInputLabel": "Champ numérique",
+    "incrementValueNumericInputButton": "Bouton d'incrémentation de la valeur numérique",
+    "decrementValueNumericInputButton": "Bouton de décrémentation de la valeur numérique"
+  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Icône de radio pour  la saisie \"complétée par\""

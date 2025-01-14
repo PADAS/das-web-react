@@ -1,111 +1,147 @@
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
 
+import {
+  DECIMAL_COMMA_SIGN,
+  DECIMAL_POINT_SIGN,
+  decrementValue,
+  eraseNonNumberChars,
+  getDecimalSignPriority,
+  incrementValue,
+  isNumber,
+  parseStringValueToNumber,
+  removeExtraDecimalSign
+} from './utils';
+
 import styles from './styles.module.scss';
+import { useTranslation } from 'react-i18next';
 
+const NumericInput = ({
+  id,
+  value: formSchemaValue = '',
+  onChange,
+  required = false,
+  disabled = false,
+  readOnly = false,
+  min = null,
+  max = null,
+  inputClassName = '',
+  ...otherProps
+},
+ref) => {
 
-const isNumber = key => !isNaN( parseInt(key) );
-
-const parseStringValueToNumber = (value) => {
-  return isFloat(value) ? parseFloat(value) : parseInt(value);
-};
-
-const isFloat = (value) => value.includes('.');
-
-const getNumberPrecision = (value) => {
-  const stringValue = value.toString();
-  if (!isFloat(stringValue)){
-    return 0;
-  }
-  const [, floatDigits] = stringValue.split('.');
-  return floatDigits.length;
-};
-
-const augmentValue = (value, min, max) => {
-  if (value === ''){
-    return min?.toString() ?? '0';
-  }
-
-  const numberValue = parseStringValueToNumber(value);
-  const newValue = numberValue + 1;
-  const precision = getNumberPrecision(numberValue);
-  const newestValue = max && newValue > max ? numberValue : newValue;
-
-  return newestValue.toFixed(precision);
-};
-
-const reduceValue = (value, min) => {
-  if (value === ''){
-    return min?.toString() ?? '0';
-  }
-
-  const numberValue = parseStringValueToNumber(value);
-  const newValue = numberValue - 1;
-  const precision = getNumberPrecision(numberValue);
-  const newestValue = min && newValue < min ? numberValue : newValue;
-
-  return newestValue.toFixed(precision);
-};
-
-
-const NumericInput = ({ id, value: formSchemaValue = null, setValue: setFormSchemaValue, min = null, max = null, ...otherProps }) => {
-
-  const [value, setValue] = useState(formSchemaValue === null ? '' : formSchemaValue.toString() );
-
-  const onUpArrowClick = () => setValue(augmentValue(value, min, max));
-
-  const onDownArrowClick = () => setValue(reduceValue(value, min));
+  const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
+  const [value, setValue] = useState( `${formSchemaValue}` );
 
   const handleOnKeyDown = (event) => {
-    const acceptedKeys = ['Backspace', 'ArrowRight', 'ArrowLeft', 'Shift', '.'];
-    const hasPointAlready = event.key === '.' && value.split('.').length > 1;
-    const notValidKey = !isNumber(event.key) && !acceptedKeys.includes(event.key);
-    const shouldBlockPropagation = notValidKey || hasPointAlready;
-
-    if (notValidKey){
-      if (event.key === 'ArrowUp'){
-        onUpArrowClick();
-      } else if (event.key === 'ArrowDown'){
-        onDownArrowClick();
-      }
-    }
-
-    if (shouldBlockPropagation){
+    switch (event.key){
+    case 'ArrowUp':
       event.preventDefault();
-      event.stopPropagation();
+      setValue( incrementValue(value, min, max) );
+      break;
+    case 'ArrowDown':
+      event.preventDefault();
+      setValue( decrementValue(value, min) );
+      break;
+    default:
+      break;
     }
+  };
+
+  const filterDecimalSigns = (value) => {
+    const commaSignFirstOccurrence = value.indexOf(DECIMAL_COMMA_SIGN);
+    const pointSignFirstOccurrence = value.indexOf(DECIMAL_POINT_SIGN);
+    const hasCommaSign = commaSignFirstOccurrence > -1;
+    const hasPointSign = pointSignFirstOccurrence > -1;
+
+    if ( hasPointSign && !hasCommaSign){
+      return removeExtraDecimalSign(value, DECIMAL_POINT_SIGN, DECIMAL_COMMA_SIGN);
+    }
+
+    if ( hasCommaSign && !hasPointSign){
+      return removeExtraDecimalSign(value, DECIMAL_COMMA_SIGN, DECIMAL_POINT_SIGN);
+    }
+
+    if ( hasPointSign && hasCommaSign) {
+      const [firstPrioritySign, secondPrioritySign] = getDecimalSignPriority(value);
+      return removeExtraDecimalSign(value, firstPrioritySign, secondPrioritySign);
+    }
+
+    return value;
   };
 
   const handleOnChange = ({ currentTarget: { value } }) => {
-    setValue(value.replace(/[^0-9|.]/g, ''));
+    const newValue = eraseNonNumberChars(value);
+    const filteredValue = filterDecimalSigns(newValue);
+
+    // ToDo: validate max and min
+    if ( min && parseFloat(filteredValue) < min ) {
+      // ToDo: define behavior
+      console.log(filteredValue, ' es menor que min: ', min);
+      return;
+    }
+
+    if ( max && parseFloat(filteredValue) > max ) {
+      // ToDo: define behavior
+      console.log(filteredValue, ' es mayor que max: ', max);
+      return;
+    }
+
+    setValue(filteredValue);
   };
 
   useEffect(() => {
-    if (isNumber(value)){
-      setFormSchemaValue( parseStringValueToNumber(value) );
+    if (value !== ''){
+      onChange(
+        isNumber(value)
+          ? parseStringValueToNumber(value)
+          : null
+      );
     }
-  }, [setFormSchemaValue, value]);
+  }, [value]);
 
 
   return <div className={styles.numericInput}>
     <input id={id}
+           className={inputClassName}
              type="text"
              inputMode="numeric"
              onKeyDown={handleOnKeyDown}
              onChange={handleOnChange}
              value={value}
+             disabled={disabled}
+             readOnly={readOnly}
+             aria-label={t('numericInputLabel')}
+             ref={ref}
              {...otherProps} />
-    <div className={styles.controls}>
-      <button onClick={onUpArrowClick} type='button'>
-        <ArrowUpSimpleIcon />
-      </button>
-      <button onClick={onDownArrowClick} type='button'>
-        <ArrowDownSimpleIcon />
-      </button>
-    </div>
+
+    {
+      !readOnly && (
+      <div className={styles.controls}>
+        <button disabled={disabled}
+                      onClick={() => setValue( incrementValue(value, min, max) )}
+                      type='button'
+
+                      aria-label={t('incrementValueNumericInputButton')}
+                      aria-controls={id}
+              >
+          <ArrowUpSimpleIcon />
+        </button>
+        <button disabled={disabled} onClick={() => setValue( decrementValue(value, min) )}
+                      type='button'
+                      aria-label={t('decrementValueNumericInputButton')}
+                      aria-controls={id}
+              >
+          <ArrowDownSimpleIcon />
+        </button>
+      </div>
+        )
+    }
   </div>;
 };
 
-export default NumericInput;
+const NumericInputWithRef = forwardRef(NumericInput);
+
+export default NumericInputWithRef;

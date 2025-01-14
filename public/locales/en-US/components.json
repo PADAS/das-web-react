@@ -92,6 +92,11 @@
       "radioIconTitle": "Radio icon for {{subjectName}}"
     }
   },
+  "numericInput": {
+    "numericInputLabel": "Numeric field",
+    "incrementValueNumericInputButton": "Increment numeric value button",
+    "decrementValueNumericInputButton": "Decrement numeric value button"
+  },
   "priorityPicker": {
     "amber": "Amber",
     "green": "Green",

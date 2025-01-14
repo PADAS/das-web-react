@@ -92,6 +92,11 @@
       "radioIconTitle": "Alama ya redio kwa {{subjectName}}"
     }
   },
+  "numericInput": {
+    "numericInputLabel": "Sehemu ya nambari",
+    "incrementValueNumericInputButton": "Kitufe cha kuongeza thamani ya nambari",
+    "decrementValueNumericInputButton": "Kitufe cha kupunguza thamani ya nambari"
+  },
   "priorityPicker": {
     "amber": "Ambari",
     "green": "Kijani",
