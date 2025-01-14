@@ -155,7 +155,7 @@ const DetailsSection = ({
 
       <div className={styles.container}>
         <div className={styles.row}>
-          {!isCollection && <label className={styles.fieldLabel}>
+          {!isCollection && <label className={styles.fieldLabel} data-testid="reportManager-reportedBySelect">
             {t('reportedByLabel')}
 
             <ReportedBySelect

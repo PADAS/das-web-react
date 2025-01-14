@@ -43,7 +43,7 @@ const AddPatrolTab = ({ onHideModal }) => {
 
     trackEvent(
       analyticsMetadata.category,
-      `Click Add '${patrolType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
+      `Click Add Patrol${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
     );
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, navigate, onAddPatrol, onHideModal, patrolData]);
 

@@ -19,7 +19,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
     <hr />
 
     <AddItemButton
-      analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'dropped marker on map' }}
+      analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'marker on map' }}
       formProps={{ onSaveError: onComplete, onSaveSuccess: onComplete }}
       reportData={{
         location: {

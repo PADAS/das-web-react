@@ -50,7 +50,7 @@ const AddReportTab = ({ onHideModal }) => {
 
     trackEvent(
       analyticsMetadata.category,
-      `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
+      `Click Add Report${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`
     );
   }, [
     analyticsMetadata.category,
