@@ -14,6 +14,24 @@
         "defaultTitle": "सिर्जना गर्नुहोस्",
         "defaultLabel": "घटना अथवा गस्ती सिर्जना गर्नुहोस्"
     },
+    "datePicker": {
+        "calendarPopper": {
+            "menuButtonLabel": "क्यालेन्डर खोल्नुहोस्",
+            "monthPicker": {
+                "previousMonthButtonLabel": "अघिल्लो महिना",
+                "previousYearButtonLabel": "अघिल्लो वर्ष",
+                "nextMonthButtonLabel": "अर्को महिना",
+                "nextYearButtonLabel": "अर्को वर्ष",
+                "inputButtonLabel": "महिना चयनकर्ता खोल्नुहोस्"
+            }
+        },
+        "dayInputLabel": "दिन",
+        "dayInputPlaceholder": "dd",
+        "monthInputLabel": "महिना",
+        "monthInputPlaceholder": "mm",
+        "yearInputLabel": "वर्ष",
+        "yearInputPlaceholder": "yyyy"
+    },
     "detectOffline": {
         "offlineToastMessage": "हाल तपाईं अफलाईन हुनुहुन्छ । त्यसकारण अर्थरेन्जर अपेक्षा गरिए अनुसार नचल्न सक्छ । कृपया तपाईंको नेटवर्क जाँच गर्नुहोस् ।",
         "reconnectionToastMessage": "पुनः अनलाईन !"
@@ -184,6 +202,12 @@
         "defaultMessage": "केही त्रुटि भएको छ",
         "hideDetailsButton": "विवरण लुकाउनुहोस्",
         "showDetailsButton": "विवरण देखाउनुहोस्"
+    },
+    "timePicker": {
+        "hourInputLabel": "घण्टा",
+        "minuteInputLabel": "मिनेट",
+        "optionsPopoverButtonLabel": "समय विकल्प खोल्नुहोस्",
+        "periodInputLabel": "दिनको भाग"
     },
     "timeSlider": {
         "popoverHeader": "मितिको दायरा",

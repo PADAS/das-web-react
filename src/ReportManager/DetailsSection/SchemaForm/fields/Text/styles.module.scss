@@ -14,14 +14,14 @@
     }
   }
 
-  .textInput {
+  .input {
     width: 100%;
 
-    &.shortText {
+    &.shortInput {
       height: 2.5rem;
     }
     
-    &.longText {
+    &.longInput {
       border: 1px solid #d8d9d9;
       margin-bottom: -0.5rem;
       max-height: 10rem;

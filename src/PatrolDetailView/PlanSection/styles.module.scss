@@ -71,23 +71,12 @@
     }
   }
 
-  &.datePickerLabel {
-    flex: 1;
-    width: 0;
-  }
-
   &.timePickerLabel {
-    flex: 1;
     margin-left: 0.5rem;
-    width: 0;
   }
 
   [class*=locationSelectionLabel] {
     width: 100%;
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    width: 50%;
   }
 }
 

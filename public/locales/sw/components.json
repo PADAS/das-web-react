@@ -19,6 +19,24 @@
     "partiallyCheckedTitle": "Sehemu inaonekana",
     "uncheckedTitle": "Fichwa"
   },
+  "datePicker": {
+    "calendarPopper": {
+      "menuButtonLabel": "Fungua kalenda",
+      "monthPicker": {
+        "previousMonthButtonLabel": "Mwezi uliopita",
+        "previousYearButtonLabel": "Mwaka uliopita",
+        "nextMonthButtonLabel": "Mwezi ujao",
+        "nextYearButtonLabel": "Mwaka ujao",
+        "inputButtonLabel": "Fungua kionyesha mwezi"
+      }
+    },
+    "dayInputLabel": "Siku",
+    "dayInputPlaceholder": "dd",
+    "monthInputLabel": "Mwezi",
+    "monthInputPlaceholder": "mm",
+    "yearInputLabel": "Mwaka",
+    "yearInputPlaceholder": "yyyy"
+  },
   "detectOffline": {
     "offlineToastMessage": "Kwa sasa hauko mtandaoni. EarthRanger inaweza isiweze kufanya kazi kama ilivyotarajiwa. Tafadhali angalia uunganisho wako wa mtandao.",
     "reconnectionToastMessage": "Rudi mtandaoni!"
@@ -189,6 +207,12 @@
   },
   "textCopyBtn": {
     "defaultToastMessage": "Imekopiwa kwenye ubao wa kunakili"
+  },
+  "timePicker": {
+    "hourInputLabel": "Saa",
+    "minuteInputLabel": "Dakika",
+    "optionsPopoverButtonLabel": "Fungua chaguo za muda",
+    "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {
     "popoverHeader": "Upeo wa Tarehe",

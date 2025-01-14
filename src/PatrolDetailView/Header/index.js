@@ -113,7 +113,7 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} type='events' iconId={patrolIconId}  />
+      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type='events' iconId={patrolIconId}  />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>

@@ -8,19 +8,19 @@ const ShortTextInput = (props) => <input type="text" {...props} />;
 
 const LongTextInput = (props) => <textarea {...props} />;
 
-const FIELD_INPUTS = {
+const INPUTS = {
   [TEXT_ELEMENT_INPUT_TYPES.SHORT]: ShortTextInput,
   [TEXT_ELEMENT_INPUT_TYPES.LONG]: LongTextInput,
 };
-const FIELD_STYLES = {
-  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: styles.shortText,
-  [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longText,
+const STYLES = {
+  [TEXT_ELEMENT_INPUT_TYPES.SHORT]: styles.shortInput,
+  [TEXT_ELEMENT_INPUT_TYPES.LONG]: styles.longInput,
 };
 
 const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
   const shouldAutofillDefaultInputRef = useRef(autofillDefaultInput && details.defaultInput);
 
-  const TextInput = FIELD_INPUTS[details.inputType];
+  const Input = INPUTS[details.inputType];
 
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
@@ -34,15 +34,15 @@ const Text = ({ autofillDefaultInput, details, error, id, onFieldChange, value =
     }
   }, [details.defaultInput, id, onFieldChange, value]);
 
-  return <div data-testid={`schema-form-text-field-${id}`} className={styles.text}>
+  return <div className={styles.text} data-testid={`schema-form-text-field-${id}`}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
 
-    <TextInput
+    <Input
       aria-describedby={hasDescription ? `${id}-description`: undefined}
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-invalid={hasError}
       aria-required={details.isRequired}
-      className={`${styles.textInput} ${FIELD_STYLES[details.inputType]}`}
+      className={`${styles.input} ${STYLES[details.inputType]}`}
       id={id}
       onChange={(event) => onFieldChange(id, event.currentTarget.value || undefined)}
       placeholder={details.placeholder}

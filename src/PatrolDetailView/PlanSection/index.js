@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
-import { isFuture } from 'date-fns';
+import { format, isFuture, isValid, parseISO } from 'date-fns';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -14,15 +14,15 @@ import {
   displayStartTimeForPatrol
 } from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
-import { getHoursAndMinutesString } from '../../utils/datetime';
+import { getHoursAndMinutesString, getTimezoneOffsetString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
-import DatePicker from '../../DatePicker';
+import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import ReportedBySelect from '../../ReportedBySelect';
-import TimePicker from '../../TimePicker';
+import TimePicker, { isValidTime } from '../../TimePicker';
 
 import styles from './styles.module.scss';
 import { getPatrolLeadersWithLocation } from '../../selectors/patrols';
@@ -49,10 +49,15 @@ const PlanSection = ({
   const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!actualEndTime);
   const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!actualStartTime);
   const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
-  const endDate = displayEndTimeForPatrol(patrolForm);
-  const startDate = displayStartTimeForPatrol(patrolForm);
-  const endDayIsSameAsStart = endDate && startDate?.toDateString() === endDate?.toDateString();
+  const displayEndDate = displayEndTimeForPatrol(patrolForm);
+  const displayStartDate = displayStartTimeForPatrol(patrolForm);
+  const endDayIsSameAsStart = displayEndDate && displayStartDate?.toDateString() === displayEndDate?.toDateString();
   const { t } = useTranslation('patrols', { keyPrefix: 'detailView.planSection' });
+
+  const [endDate, setEndDate] = useState(displayEndDate ? format(displayEndDate, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
+  const [endTime, setEndTime] = useState(getHoursAndMinutesString(displayEndDate));
+  const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
+  const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
 
   const startLocation = useMemo(() => {
     const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
@@ -67,28 +72,54 @@ const PlanSection = ({
   }, [patrolForm.patrol_segments]);
 
   const handleEndDateChange = useCallback((date) => {
-    onPatrolEndDateChange(date, shouldScheduleDate(date, isAutoEnd));
-  }, [isAutoEnd, onPatrolEndDateChange]);
+    setEndDate(date);
+
+    let dateISO = `${date}T`;
+    dateISO += isValidTime(endTime) ? endTime : '00:00';
+    dateISO += `:00${getTimezoneOffsetString()}`;
+
+    const parsedDate = parseISO(dateISO);
+    if (isValid(parsedDate)) {
+      onPatrolEndDateChange(parsedDate, shouldScheduleDate(parsedDate, isAutoEnd));
+    } else {
+      onPatrolEndDateChange(undefined);
+    }
+  }, [endTime, isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartDateChange = useCallback((date) => {
-    onPatrolStartDateChange(date, shouldScheduleDate(date, isAutoStart));
-  }, [isAutoStart, onPatrolStartDateChange]);
+    setStartDate(date);
+
+    let dateISO = `${date}T`;
+    dateISO += isValidTime(startTime) ? startTime : '00:00';
+    dateISO += `:00${getTimezoneOffsetString()}`;
+
+    const parsedDate = parseISO(dateISO);
+    if (isValid(parsedDate)) {
+      onPatrolStartDateChange(parsedDate, shouldScheduleDate(parsedDate, isAutoStart));
+    } else {
+      onPatrolStartDateChange(undefined);
+    }
+  }, [isAutoStart, onPatrolStartDateChange, startTime]);
 
   const handleEndTimeChange = useCallback((endTime) => {
+    setEndTime(endTime);
+
     const newEndTimeParts = endTime.split(':');
-    const updatedEndDateTime = endDate ? new Date(endDate) : new Date();
+    const updatedEndDateTime = displayEndDate ? new Date(displayEndDate) : new Date();
     updatedEndDateTime.setHours(newEndTimeParts[0], newEndTimeParts[1], '00');
 
     onPatrolEndDateChange(updatedEndDateTime, shouldScheduleDate(updatedEndDateTime, isAutoEnd));
-  }, [endDate, isAutoEnd, onPatrolEndDateChange]);
+  }, [displayEndDate, isAutoEnd, onPatrolEndDateChange]);
 
   const handleStartTimeChange = useCallback((startTime) => {
+    setStartTime(startTime);
+
     const newStartTimeParts = startTime.split(':');
-    const updatedStartDateTime = startDate ? new Date(startDate) : new Date();
+    const updatedStartDateTime = displayStartDate ? new Date(displayStartDate) : new Date();
     updatedStartDateTime.setHours(newStartTimeParts[0], newStartTimeParts[1], '00');
 
     onPatrolStartDateChange(updatedStartDateTime, shouldScheduleDate(updatedStartDateTime, isAutoStart));
-  }, [isAutoStart, onPatrolStartDateChange, startDate]);
+  }, [displayStartDate, isAutoStart, onPatrolStartDateChange]);
 
   const handleAutoEndChange = useCallback(() => {
     const newIsAutoEnd = !isAutoEnd;
@@ -97,8 +128,8 @@ const PlanSection = ({
       dispatch(updateUserPreferences({ autoEndPatrols: newIsAutoEnd }));
     }
     setIsAutoEnd(newIsAutoEnd);
-    onPatrolEndDateChange(endDate, shouldScheduleDate(endDate, newIsAutoEnd));
-  }, [isAutoEnd, onPatrolEndDateChange, endDate, isNewPatrol, dispatch]);
+    onPatrolEndDateChange(displayEndDate, shouldScheduleDate(displayEndDate, newIsAutoEnd));
+  }, [displayEndDate, isAutoEnd, onPatrolEndDateChange, isNewPatrol, dispatch]);
 
   const handleAutoStartChange = useCallback(() => {
     const newIsAutoStart = !isAutoStart;
@@ -107,8 +138,8 @@ const PlanSection = ({
       dispatch(updateUserPreferences({ autoStartPatrols: newIsAutoStart }));
     }
     setIsAutoStart(newIsAutoStart);
-    onPatrolStartDateChange(startDate, shouldScheduleDate(startDate, newIsAutoStart));
-  }, [dispatch, isAutoStart, isNewPatrol, onPatrolStartDateChange, startDate]);
+    onPatrolStartDateChange(displayStartDate, shouldScheduleDate(displayStartDate, newIsAutoStart));
+  }, [dispatch, displayStartDate, isAutoStart, isNewPatrol, onPatrolStartDateChange]);
 
   useEffect(() => {
     if (!patrolLeaders) {
@@ -167,23 +198,24 @@ const PlanSection = ({
         <div className={styles.dateTimeContainer}>
           <label
             data-testid="patrolDetailView-startDatePicker"
-            className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
+            className={styles.fieldLabel}
           >
             {t('startDateLabel')}
             <DatePicker
+              data-testid="patrolDetailView-planSection-startDatePicker"
               onChange={handleStartDateChange}
-              selected={startDate ?? new Date()}
-              selectsStart
-              startDate={startDate}
+              reactDatePickerProps={{ endDate: displayEndDate, selectsStart: true, startDate: displayStartDate }}
+              value={startDate}
             />
           </label>
 
           <label data-testid="patrolDetailView-startTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             {t('startTimeLabel')}
             <TimePicker
+              data-testid="patrolDetailView-planSection-startTimePicker"
               minutesInterval={15}
               onChange={handleStartTimeChange}
-              value={getHoursAndMinutesString(startDate)}
+              value={startTime}
             />
           </label>
         </div>
@@ -202,7 +234,7 @@ const PlanSection = ({
       <label className={styles.autoFieldCheckbox}>
         <input
           checked={isAutoStart}
-          disabled={!startDate || !isFuture(startDate)}
+          disabled={!displayStartDate || !isFuture(displayStartDate)}
           onChange={handleAutoStartChange}
           type="checkbox"
           data-testid="patrol-is-auto-start"
@@ -218,24 +250,28 @@ const PlanSection = ({
           >
             {t('endDateLabel')}
             <DatePicker
-              endDate={endDate}
-              minDate={startDate}
+              data-testid="patrolDetailView-planSection-endDatePicker"
+              min={startDate}
               onChange={handleEndDateChange}
-              selected={endDate}
-              selectsEnd
-              startDate={startDate}
+              reactDatePickerProps={{
+                endDate: displayEndDate,
+                selectsEnd: true,
+                startDate: displayStartDate,
+              }}
+              value={endDate}
             />
           </label>
 
           <label data-testid="patrolDetailView-endTimePicker" className={`${styles.fieldLabel} ${styles.timePickerLabel}`}>
             {t('endTimeLabel')}
             <TimePicker
-              disabled={!endDate}
-              minTime={endDayIsSameAsStart ? getHoursAndMinutesString(startDate) : null}
+              data-testid="patrolDetailView-planSection-endTimePicker"
+              disabled={!isValid(parseISO(endDate))}
+              min={endDayIsSameAsStart ? getHoursAndMinutesString(displayStartDate) : undefined}
               minutesInterval={15}
               onChange={handleEndTimeChange}
-              showDurationFromMinTime={endDayIsSameAsStart}
-              value={getHoursAndMinutesString(endDate)}
+              showDurationFromMin={endDayIsSameAsStart}
+              value={endTime}
             />
           </label>
         </div>

@@ -1,7 +1,7 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
-import { isToday } from 'date-fns';
+import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
+import { TrackerContext } from '../../utils/analytics';
 import { useFeatureFlag } from '../../hooks';
 
 import {
@@ -31,13 +32,13 @@ import {
   RemoveButton,
 } from '../../SchemaFields';
 import AreaSelectorInput from './AreaSelectorInput';
-import DatePicker from '../../DatePicker';
+import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
 import GeometryPreview from './AreaSelectorInput/GeometryPreview';
 import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
-import TimePicker from '../../TimePicker';
+import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
 import styles from './styles.module.scss';
 
@@ -61,7 +62,6 @@ const DetailsSection = ({
   onReportGeometryChange,
   onReportLocationChange,
   onReportStateChange,
-  onReportTimeChange,
   originalReport,
   reportForm,
   submitFormButtonRef,
@@ -77,11 +77,16 @@ const DetailsSection = ({
     (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema : null
   );
 
+  const reportTracker = useContext(TrackerContext);
+
+  const reportTime = reportForm?.time ? new Date(reportForm.time) : null;
+
   const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [date, setDate] = useState(reportTime ? format(reportTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
+  const [time, setTime] = useState(reportTime ? getHoursAndMinutesString(reportTime) : EMPTY_TIME_VALUE);
 
   const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
-  const reportTime = new Date(reportForm?.time);
 
   // TODO: Change to read the draft of the schema.
   const isNewDraftSchema = efbFormSchemaSupportEnabled;
@@ -98,6 +103,38 @@ const DetailsSection = ({
       event.stopPropagation();
     }
   }, []);
+
+  const onDatePickerChange = (newDate) => {
+    setDate(newDate);
+
+    const parsedDate = parseISO(newDate);
+    if (isValidDate(parsedDate)) {
+      if (isValidTime(time)) {
+        const [hour, minute] = time.split(':');
+        parsedDate.setHours(hour, minute, '00');
+      }
+      onReportDateChange(parsedDate);
+    } else {
+      onReportDateChange(undefined);
+    }
+
+    reportTracker.track('Change Report Date');
+  };
+
+  const onTimePickerChange = (newTime) => {
+    setTime(newTime);
+
+    const parsedDate = parseISO(date);
+    if (isValidDate(parsedDate)) {
+      if (isValidTime(newTime)) {
+        const [newHour, newMinute] = newTime.split(':');
+        parsedDate.setHours(newHour, newMinute, '00');
+      }
+      onReportDateChange(parsedDate);
+    }
+
+    reportTracker.track('Change Report Time');
+  };
 
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
@@ -200,10 +237,11 @@ const DetailsSection = ({
 
               <DatePicker
                 className={styles.datePicker}
+                data-testid="reportManager-detailsSection-datePicker"
                 disabled={formSchema?.readonly}
-                maxDate={new Date()}
-                onChange={onReportDateChange}
-                selected={reportForm?.time ? reportTime : undefined}
+                max={format(new Date(), 'yyyy-MM-dd')}
+                onChange={onDatePickerChange}
+                value={date}
               />
             </label>
 
@@ -211,11 +249,12 @@ const DetailsSection = ({
               {t('timeLabel')}
 
               <TimePicker
+                data-testid="reportManager-detailsSection-timePicker"
                 disabled={formSchema?.readonly}
-                maxTime={isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
+                max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}
-                onChange={onReportTimeChange}
-                value={getHoursAndMinutesString(reportTime)}
+                onChange={onTimePickerChange}
+                value={time}
               />
             </label>
           </div>

@@ -1,0 +1,112 @@
+@use '../../../common/styles/inputs';
+@use '../../../common/styles/vars/colors';
+
+.monthPicker {
+  border-bottom: 1px solid colors.$light-gray;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.25rem 0.5rem;
+
+  .calendar {
+    @include inputs.boxShadow;
+    border: none;
+    font-weight: 400;
+  
+    [class*=react-datepicker__header] {
+      background: white;
+      border: none;
+      padding: 0;
+    }
+
+    [class*=__month-text] {
+      padding: 0.25rem 1rem;
+      width: unset;
+
+      &:hover:not([aria-disabled=true]) {
+        background-color: colors.$blue-highlight;
+        color: black;
+      }
+
+      &[aria-disabled=true] {
+        pointer-events: none;
+      }
+    
+      &[aria-selected=true] {
+        background-color: colors.$bright-blue;
+        color: white;
+      }
+
+      &[class*=--keyboard-selected] {
+        background-color: colors.$blue-highlight;
+        color: black;
+      }
+    }
+  }
+
+  .header {
+    border-bottom: 1px solid colors.$light-gray;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.25rem;
+
+    .year {
+      margin: 0;
+    }
+  }
+
+  .chevronButton {
+    background-color: white;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-light-gray;
+    flex: 1;
+    margin: 0 0.125rem;
+    outline: none;
+    padding: 0;
+
+    &:disabled {
+      color: colors.$secondary-light-gray;
+      pointer-events: none;
+    }
+
+    &:focus {
+      outline: 1px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: colors.$blue-highlight;
+    }
+  }
+
+  .inputButton {
+    align-items: center;
+    background-color: white;
+    border: none;
+    border-radius: 0.25rem;
+    display: flex;
+    font-size: 0.875rem;
+    outline: none;
+    padding: 0.25rem 0.5rem;
+
+    &:focus {
+      outline: 1px solid colors.$bright-blue;
+    }
+
+    &:hover {
+      background-color: colors.$blue-highlight;
+
+      .caret {
+        border-top-color: colors.$bright-blue;
+      }
+    }
+
+    .caret {
+      @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+      margin-left: 0.5rem;
+
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}

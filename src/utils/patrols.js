@@ -463,10 +463,12 @@ export const calcPatrolState = (patrol) => {
     const now = new Date();
     const nextHour = now.setHours(now.getHours() + 1);
     const patrolStartDate = displayStartTimeForPatrol(patrol);
-    const happensTheNextHour = isWithinInterval(patrolStartDate, now, nextHour);
-    const isPatrolInOverdueDelta = patrolStartDate.getTime() < now.getTime();
+    if (patrolStartDate) {
+      const happensTheNextHour = isWithinInterval(patrolStartDate, now, nextHour);
+      const isPatrolInOverdueDelta = patrolStartDate.getTime() < now.getTime();
 
-    return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
+      return happensTheNextHour || isPatrolInOverdueDelta ? READY_TO_START : SCHEDULED;
+    }
   }
   return INVALID;
 };

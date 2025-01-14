@@ -13,6 +13,24 @@
     },
     "defaultTitle": "Crear"
   },
+  "datePicker": {
+    "calendarPopper": {
+      "menuButtonLabel": "Abrir calendario",
+      "monthPicker": {
+        "previousMonthButtonLabel": "Mes anterior",
+        "previousYearButtonLabel": "Año anterior",
+        "nextMonthButtonLabel": "Mes siguiente",
+        "nextYearButtonLabel": "Año siguiente",
+        "inputButtonLabel": "Abrir selector de mes"
+      }
+    },
+    "dayInputLabel": "Día",
+    "dayInputPlaceholder": "dd",
+    "monthInputLabel": "Mes",
+    "monthInputPlaceholder": "mm",
+    "yearInputLabel": "Año",
+    "yearInputPlaceholder": "aaaa"
+  },
   "detectOffline": {
     "offlineToastMessage": "ER está desconectado y podría no funcionar correctamente. Por favor, revise su conexión.",
     "reconnectionToastMessage": "¡En línea!"
@@ -166,6 +184,12 @@
   },
   "textCopyBtn": {
     "defaultToastMessage": "Copiado al portapapeles"
+  },
+  "timePicker": {
+    "hourInputLabel": "Hora",
+    "minuteInputLabel": "Minuto",
+    "optionsPopoverButtonLabel": "Abrir opciones de tiempo",
+    "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
     "popoverHeader": "Rango de fechas",

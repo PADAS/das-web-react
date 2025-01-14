@@ -4,11 +4,13 @@ import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import DateTime from './fields/DateTime';
 import Header from './fields/Header';
 import Section from './fields/Section';
 import Text from './fields/Text';
 
 export const FIELDS = {
+  [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
   [FORM_ELEMENT_TYPES.HEADER]: Header,
   [FORM_ELEMENT_TYPES.SECTION]: Section,
   [FORM_ELEMENT_TYPES.TEXT]: Text,
@@ -65,7 +67,7 @@ const SchemaForm = ({
     const Field = FIELDS[type];
 
     if (type === FORM_ELEMENT_TYPES.HEADER) {
-      return <Field details={fields[fieldId].details} id={fieldId} />;
+      return <Field details={fields[fieldId].details} id={fieldId} key={fieldId} />;
     }
     // Collections will require a condition here to pass down renderField as prop
     return <Field
@@ -73,6 +75,7 @@ const SchemaForm = ({
       details={fields[fieldId].details}
       error={fieldErrors[fieldId]}
       id={fieldId}
+      key={fieldId}
       onFieldChange={onFieldChange}
       value={fieldValues[fieldId]}
     />;

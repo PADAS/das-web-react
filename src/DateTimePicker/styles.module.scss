@@ -1,0 +1,49 @@
+@use "sass:color";
+
+@use "../common/styles/vars/colors";
+
+.dateTimePicker {
+  display: flex;
+
+  &[aria-invalid="true"] {
+    .datePicker {
+      border-color: colors.$bright-red;
+
+      > svg {
+        color: colors.$bright-red;
+      }
+
+      > [class*=react-datepicker-wrapper] [class*=caret] {
+        border-top-color: colors.$bright-red;
+      }
+
+      ::placeholder {
+        color: color.adjust(colors.$bright-red, $lightness: 33%);
+      }
+    }
+
+    .timePicker {
+      border-color: colors.$bright-red;
+  
+      svg {
+        > g {
+          stroke: colors.$bright-red;
+        }
+      }
+  
+      .menuButton {
+        .caret {
+          border-top-color: colors.$bright-red;
+        }
+      }
+  
+      ::placeholder {
+        color: color.adjust(colors.$bright-red, $lightness: 33%);
+      }
+    }
+  }
+
+  .datePicker {
+    margin-right: 0.5rem;
+  }
+}

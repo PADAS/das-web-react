@@ -1,18 +1,22 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import { endOfDay, subSeconds } from 'date-fns';
+import { isValid, parseISO, subSeconds } from 'date-fns';
 
-import DatePicker from '../DatePicker';
+import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
 import FilterSettingsControl from '../FilterSettingsControl';
 
 import styles from './styles.module.scss';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
-import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
+import {
+  formatDateToLocalISO,
+  generateMonthsAgoDate,
+  generateDaysAgoDate,
+  generateWeeksAgoDate,
+} from '../utils/datetime';
 
 import DateRangeSelectionString from './DateRangeSelectionString';
 
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import { useTranslation } from 'react-i18next';
 
 const DateRangeSelector = ({
@@ -33,7 +37,6 @@ const DateRangeSelector = ({
   endDateNullMessage,
   className,
   popoverClassName,
-  children,
   placement,
   filterSettings,
   endDateLabelClass = '',
@@ -49,12 +52,15 @@ const DateRangeSelector = ({
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
-  const endDateDayClicked = useRef(false);
   const settingsButtonRef = useRef(null);
   const popoverRef = useRef(null);
   const containerRef = useRef(null);
 
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
+  const [endDateTime, setEndDateTime] = useState(endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE);
+  const [startDateTime, setStartDateTime] = useState(startDate
+    ? formatDateToLocalISO(startDate)
+    : EMPTY_DATE_TIME_VALUE);
 
   const hideFilterSettings = () => {
     if (filterSettingsOpen) setFilterSettingsPopoverState(false);
@@ -67,17 +73,39 @@ const DateRangeSelector = ({
 
   const hasEndMaxDate = typeof endMaxDate !== 'undefined';
 
-  const handleEndDateChange = (val) => {
-    if (endDateDayClicked.current) {
-      endDateDayClicked.current = false;
-      return onEndDateChange(endOfDay(val));
+  const onStartDateTimePickerChange = (dateTime) => {
+    setStartDateTime(dateTime);
+
+    const parsedDateTime = parseISO(dateTime);
+    if (isValid(parsedDateTime)) {
+      onStartDateChange(parsedDateTime);
     }
-    return onEndDateChange(val);
   };
 
-  const handleEndDateDayClick = () => {
-    endDateDayClicked.current = true;
+  const onEndDateTimePickerChange = (dateTime) => {
+    setEndDateTime(dateTime);
+
+    const parsedDateTime = parseISO(dateTime);
+    if (isValid(parsedDateTime)) {
+      onEndDateChange(parsedDateTime);
+    }
   };
+
+  const onDateRangePresetButtonClick = (lower, upper, label) => {
+    onClickDateRangePreset({ lower, upper }, label);
+
+    if (!upper) {
+      setEndDateTime(EMPTY_DATE_TIME_VALUE);
+    }
+  };
+
+  useEffect(() => {
+    setStartDateTime(startDate ? formatDateToLocalISO(startDate) : EMPTY_DATE_TIME_VALUE);
+  }, [startDate]);
+
+  useEffect(() => {
+    setEndDateTime(endDate ? formatDateToLocalISO(endDate) : EMPTY_DATE_TIME_VALUE);
+  }, [endDate]);
 
   return <div className={className || '' } ref={containerRef}>
     <div  className={styles.currentSelectedRange}>
@@ -92,78 +120,76 @@ const DateRangeSelector = ({
       <label data-testid='dateRangeSelector-startLabel' className={`${styles.label} ${startDateLabelClass}`}>
         {startDateLabel && <span>{startDateLabel}</span>}
         <span onClick={hideFilterSettings}>
-          {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DatePicker
-            {...DATEPICKER_DEFAULT_CONFIG}
-            className={styles.dateInput}
-            maxDate={endDate || maxDate}
-            onChange={onStartDateChange}
-            popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
-            popperPlacement={placement}
+          <DateTimePicker
+            datePickerProps={{
+              reactDatePickerProps: {
+                popperClassName: popoverClassName || '',
+                popperPlacement: placement,
+              },
+            }}
+            max={formatDateToLocalISO(endDate || maxDate)}
+            min={formatDateToLocalISO(new Date('2000-01-01'))}
+            onChange={onStartDateTimePickerChange}
             required
-            selected={startDate}
-            showTimeInput
-            {...rest}
+            value={startDateTime}
           />
+          {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
         </span>
       </label>
-      <span className={styles.dateRangeArrow}>⇨</span>
-      {children}
+
       <label data-testid='dateRangeSelector-endLabel' className={`${styles.label} ${endDateLabelClass}`}>
         {endDateLabel && <span>{endDateLabel}</span>}
         <span onClick={hideFilterSettings}>
-          {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DatePicker
-            {...DATEPICKER_DEFAULT_CONFIG}
-            className={styles.dateInput}
-            maxDate={hasEndMaxDate ? endMaxDate : maxDate}
-            minDate={startDate}
-            onChange={handleEndDateChange}
-            onClickDay={handleEndDateDayClick}
-            placement={placement}
-            popperClassName={`${styles.datePopover} ${popoverClassName || ''}`}
+          <DateTimePicker
+            datePickerProps={{
+              reactDatePickerProps: {
+                popperClassName: popoverClassName || '',
+                popperPlacement: placement,
+              },
+            }}
+            max={formatDateToLocalISO(hasEndMaxDate ? endMaxDate : maxDate)}
+            min={formatDateToLocalISO(startDate || new Date('2000-01-01'))}
+            onChange={onEndDateTimePickerChange}
             required={requireEnd}
-            selected={endDate}
-            showTimeInput
-            {...rest}
+            value={endDateTime}
           />
+          {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
         </span>
       </label>
     </div>
 
     {showPresets && <div className={styles.presets}>
-      <Button variant='link' onClick={() => onClickDateRangePreset({
-        lower: generateDaysAgoDate(0),
-        upper: null,
-      }, 'today')}>
+      <Button onClick={() => onDateRangePresetButtonClick(generateDaysAgoDate(0), null, 'today')} variant="link">
         {t('todayLabel')}
       </Button>
 
-      <Button variant='link' data-testid='yesterday-btn' onClick={() => onClickDateRangePreset({
-        lower: generateDaysAgoDate(1),
-        upper: subSeconds(generateDaysAgoDate(0), 1),
-      }, 'yesterday')}>
+      <Button
+        data-testid="yesterday-btn"
+        onClick={() => onDateRangePresetButtonClick(
+          generateDaysAgoDate(1),
+          subSeconds(generateDaysAgoDate(0), 1),
+          'yesterday'
+        )}
+        variant="link"
+      >
         {t('yesterdayLabel')}
       </Button>
 
-      <Button variant='link' onClick={() => onClickDateRangePreset({
-        lower: generateWeeksAgoDate(1),
-        upper: null,
-      }, 'last week')}>
+      <Button onClick={() => onDateRangePresetButtonClick(generateWeeksAgoDate(1), null, 'last week')} variant="link">
         {t('lastSevenDaysLabel')}
       </Button>
 
-      <Button variant='link' onClick={() => onClickDateRangePreset({
-        lower: generateDaysAgoDate(30),
-        upper: null,
-      }, 'last 30 days')}>
+      <Button
+        onClick={() => onDateRangePresetButtonClick(generateDaysAgoDate(30), null, 'last 30 days')}
+        variant="link"
+      >
         {t('lastThirtyDaysLabel')}
       </Button>
 
-      <Button variant='link' onClick={() => onClickDateRangePreset({
-        lower: generateMonthsAgoDate(3),
-        upper: null,
-      }, 'last three months')}>
+      <Button
+        onClick={() => onDateRangePresetButtonClick(generateMonthsAgoDate(3), null, 'last three months')}
+        variant="link"
+      >
         {t('lastThreeMonthsLabel')}
       </Button>
     </div>}

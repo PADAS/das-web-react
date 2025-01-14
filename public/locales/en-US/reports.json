@@ -136,7 +136,10 @@
       "reportedByLabel": "Reported By",
       "schemaForm": {
         "errors": {
-          "required": "This is a required field."
+          "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
+          "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
+          "required": "This is a required field.",
+          "timeFormat": "Invalid time format."
         }
       },
       "stateDropdown": {

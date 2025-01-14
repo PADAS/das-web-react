@@ -1,8 +1,8 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 import { render, screen } from '../../../../../test-utils';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import Text from './';
 
@@ -111,7 +111,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
     expect(screen.getByLabelText('Text 1 Label')).toHaveAccessibleDescription('Text 1 Description');
   });
 
-  test('shows a valid input when there are errors', () => {
+  test('shows a valid input when there are no errors', () => {
     renderTextField();
 
     const textInput = screen.getByLabelText('Text 1 Label');

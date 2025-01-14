@@ -136,7 +136,10 @@
       "reportedByLabel": "Iliripotiwa Na",
       "schemaForm": {
         "errors": {
-          "required": "Hili ni shamba la lazima."
+          "dateFormat": "Muundo wa tarehe haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
+          "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
+          "required": "Hili ni shamba la lazima.",
+          "timeFormat": "Muundo wa muda haukubaliwi."
         }
       },
       "stateDropdown": {

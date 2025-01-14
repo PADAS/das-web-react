@@ -125,7 +125,10 @@
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
-          "required": "Ceci est un champ obligatoire."
+          "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
+          "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
+          "required": "Ceci est un champ obligatoire.",
+          "timeFormat": "Format d'heure invalide."
         }
       },
       "stateDropdown": {
