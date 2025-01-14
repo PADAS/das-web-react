@@ -290,6 +290,9 @@ const TimePicker = ({
 
   // Keyboard navigation for the period input.
   const onPeriodInputKeyDown = (event) => {
+    const amPeriodInitial = internationalizedTimePeriods[AM_PERIOD][0];
+    const  pmPeriodInitial = internationalizedTimePeriods[PM_PERIOD][0];
+
     switch (event.key) {
     case 'ArrowLeft':
       event.preventDefault();
@@ -313,8 +316,8 @@ const TimePicker = ({
       event.target.select();
       break;
 
-    case internationalizedTimePeriods[AM_PERIOD][0].toLocaleLowerCase():
-    case internationalizedTimePeriods[AM_PERIOD][0].toLocaleUpperCase():
+    case amPeriodInitial.toLocaleLowerCase():
+    case amPeriodInitial.toLocaleUpperCase():
       event.preventDefault();
 
       // If the user types the first localized character of the AM period we trigger a change.
@@ -322,8 +325,8 @@ const TimePicker = ({
       onTransformTo24HourAndChange(hour, minute, AM_PERIOD);
       break;
 
-    case internationalizedTimePeriods[PM_PERIOD][0].toLocaleLowerCase():
-    case internationalizedTimePeriods[PM_PERIOD][0].toLocaleUpperCase():
+    case pmPeriodInitial.toLocaleLowerCase():
+    case pmPeriodInitial.toLocaleUpperCase():
       event.preventDefault();
 
       // Same for PM period.

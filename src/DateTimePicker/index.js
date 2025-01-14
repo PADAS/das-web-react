@@ -1,5 +1,7 @@
 import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 
+import { getMaxDateAndTime, getMinDateAndTime } from './utils';
+
 import DatePicker, { EMPTY_DATE_VALUE } from '../DatePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../TimePicker';
 
@@ -32,21 +34,8 @@ const DateTimePicker = ({
   const [dateValue, timeValue] = value.split('T');
   const [hourValue = '', minuteValue = ''] = timeValue.split(':');
 
-  const [maxDate, maxTimeWithOffset] = max.split('T');
-  // We only apply a max time if there is a max date and the current value date matches it.
-  let maxTime;
-  if (maxDate && dateValue === maxDate) {
-    const [maxHour = '', maxMinute = ''] = maxTimeWithOffset.split(':');
-    maxTime = `${maxHour}:${maxMinute}`;
-  }
-
-  const [minDate, minTimeWithOffset] = min.split('T');
-  // Same for min time.
-  let minTime;
-  if (minDate && dateValue === minDate) {
-    const [minHour = '', minMinute = ''] = minTimeWithOffset.split(':');
-    minTime = `${minHour}:${minMinute}`;
-  }
+  const [maxDate, maxTime] = getMaxDateAndTime(max, value);
+  const [minDate, minTime] = getMinDateAndTime(min, value);
 
   return <div
       className={`${styles.dateTimePicker} ${className}`}
