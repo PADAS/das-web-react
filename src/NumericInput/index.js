@@ -1,22 +1,22 @@
 import React, { forwardRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
 
 import {
-  DECIMAL_COMMA_SIGN,
-  DECIMAL_POINT_SIGN,
+  DECIMAL_COMMA_SYMBOL,
+  DECIMAL_POINT_SYMBOL,
   decrementValue,
-  eraseNonNumberChars,
-  getDecimalSignPriority,
+  eraseNonValidChars,
+  getDecimalSymbolOccurrences,
   incrementValue,
   isNumber,
   parseStringValueToNumber,
-  removeExtraDecimalSign
+  removeExtraDecimalSymbol
 } from './utils';
 
 import styles from './styles.module.scss';
-import { useTranslation } from 'react-i18next';
 
 const NumericInput = ({
   id,
@@ -50,31 +50,34 @@ ref) => {
     }
   };
 
-  const filterDecimalSigns = (value) => {
-    const commaSignFirstOccurrence = value.indexOf(DECIMAL_COMMA_SIGN);
-    const pointSignFirstOccurrence = value.indexOf(DECIMAL_POINT_SIGN);
-    const hasCommaSign = commaSignFirstOccurrence > -1;
-    const hasPointSign = pointSignFirstOccurrence > -1;
+  /** This method help us by avoiding the user to type more than one decimal symbol
+      it also removes existing extra symbols when copying/pasting directly into the input
+      it takes the first occurrence of a valid symbol as the one preferred  by the user */
+  const sanitizeExtraDecimalSymbols = (value) => {
+    const commaSymbolFirstOccurrence = value.indexOf(DECIMAL_COMMA_SYMBOL);
+    const pointSymbolFirstOccurrence = value.indexOf(DECIMAL_POINT_SYMBOL);
+    const hasCommaSymbol = commaSymbolFirstOccurrence > -1;
+    const hasPointSymbol = pointSymbolFirstOccurrence > -1;
 
-    if ( hasPointSign && !hasCommaSign){
-      return removeExtraDecimalSign(value, DECIMAL_POINT_SIGN, DECIMAL_COMMA_SIGN);
+    if ( hasPointSymbol && !hasCommaSymbol){
+      return removeExtraDecimalSymbol(value, DECIMAL_POINT_SYMBOL, DECIMAL_COMMA_SYMBOL);
     }
 
-    if ( hasCommaSign && !hasPointSign){
-      return removeExtraDecimalSign(value, DECIMAL_COMMA_SIGN, DECIMAL_POINT_SIGN);
+    if ( hasCommaSymbol && !hasPointSymbol){
+      return removeExtraDecimalSymbol(value, DECIMAL_COMMA_SYMBOL, DECIMAL_POINT_SYMBOL);
     }
 
-    if ( hasPointSign && hasCommaSign) {
-      const [firstPrioritySign, secondPrioritySign] = getDecimalSignPriority(value);
-      return removeExtraDecimalSign(value, firstPrioritySign, secondPrioritySign);
+    if ( hasPointSymbol && hasCommaSymbol) {
+      const [firstOccurrenceDecimalSymbol, secondOccurrenceDecimalSymbol] = getDecimalSymbolOccurrences(value);
+      return removeExtraDecimalSymbol(value, firstOccurrenceDecimalSymbol, secondOccurrenceDecimalSymbol);
     }
 
     return value;
   };
 
   const handleOnChange = ({ currentTarget: { value } }) => {
-    const newValue = eraseNonNumberChars(value);
-    const filteredValue = filterDecimalSigns(newValue);
+    const newValue = eraseNonValidChars(value);
+    const filteredValue = sanitizeExtraDecimalSymbols(newValue);
 
     // ToDo: validate max and min
     if ( min && parseFloat(filteredValue) < min ) {
@@ -106,34 +109,31 @@ ref) => {
   return <div className={styles.numericInput}>
     <input id={id}
            className={inputClassName}
-             type="text"
-             inputMode="numeric"
-             onKeyDown={handleOnKeyDown}
-             onChange={handleOnChange}
-             value={value}
-             disabled={disabled}
-             readOnly={readOnly}
-             aria-label={t('numericInputLabel')}
-             ref={ref}
-             {...otherProps} />
-
+           type="text"
+           inputMode="numeric"
+           onKeyDown={handleOnKeyDown}
+           onChange={handleOnChange}
+           value={value}
+           disabled={disabled}
+           readOnly={readOnly}
+           aria-label={t('numericInputLabel')}
+           ref={ref}
+           {...otherProps} />
     {
       !readOnly && (
       <div className={styles.controls}>
         <button disabled={disabled}
-                      onClick={() => setValue( incrementValue(value, min, max) )}
-                      type='button'
-
-                      aria-label={t('incrementValueNumericInputButton')}
-                      aria-controls={id}
-              >
+                onClick={() => setValue( incrementValue(value, min, max) )}
+                type='button'
+                aria-label={t('incrementValueNumericInputButton')}
+                aria-controls={id}>
           <ArrowUpSimpleIcon />
         </button>
-        <button disabled={disabled} onClick={() => setValue( decrementValue(value, min) )}
-                      type='button'
-                      aria-label={t('decrementValueNumericInputButton')}
-                      aria-controls={id}
-              >
+        <button disabled={disabled}
+                onClick={() => setValue( decrementValue(value, min) )}
+                type='button'
+                aria-label={t('decrementValueNumericInputButton')}
+                aria-controls={id}>
           <ArrowDownSimpleIcon />
         </button>
       </div>
