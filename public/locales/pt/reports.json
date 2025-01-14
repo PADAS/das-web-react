@@ -125,6 +125,9 @@
             "reportedByLabel": "Reportado por",
             "schemaForm": {
                 "errors": {
+                    "dateFormat": "Formato de data inválido ou data inválida. Verifique o dia, mês e ano.",
+                    "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
+                    "timeFormat": "Formato de hora inválido.",
                     "required": "Este é um campo obrigatório.",
                     "outOfRange": "O valor do campo está fora do intervalo."
                 }

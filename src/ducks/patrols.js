@@ -1,4 +1,4 @@
-import axios, { CancelToken } from 'axios';
+import axios, { CancelToken, isCancel } from 'axios';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
@@ -121,13 +121,12 @@ export const fetchPatrols = () => (dispatch) => {
 
     })
     .catch((error) => {
-      const isCancelation = !!error.__CANCEL__;
       console.warn('error fetching patrols', error);
       dispatch({
         type: FETCH_PATROLS_ERROR,
         payload: error,
       });
-      if (!isCancelation) {
+      if (!isCancel(error)) {
         return new Error(error);
       }
     });

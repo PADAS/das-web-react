@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import addFormats from 'ajv-formats';
 import Ajv2020 from 'ajv/dist/2020';
 import { useTranslation } from 'react-i18next';
 
@@ -12,8 +13,23 @@ const useSchemaValidations = (schema) => {
   const runValidations = useCallback((formData) => {
     if (!validate(formData)) {
       const fieldErrors = validate.errors.reduce((accumulator, error) => {
+        if (error.keyword === 'format') {
+          if (error.params.format === 'date') {
+            const fieldId = error.instancePath.split('/').pop();
+            return { ...accumulator, [fieldId]: t('dateFormat') };
+          }
+          if (error.params.format === 'date-time') {
+            const fieldId = error.instancePath.split('/').pop();
+            return { ...accumulator, [fieldId]: t('dateTimeFormat') };
+          }
+          if (error.params.format === 'time') {
+            const fieldId = error.instancePath.split('/').pop();
+            return { ...accumulator, [fieldId]: t('timeFormat') };
+          }
+        }
         if (error.keyword === 'required') {
-          return { ...accumulator, [error.params.missingProperty]: t('required') };
+          const fieldId = error.params.missingProperty;
+          return { ...accumulator, [fieldId]: t('required') };
         }
 
         if (error.keyword === 'minimum' || error.keyword === 'maximum' ) {

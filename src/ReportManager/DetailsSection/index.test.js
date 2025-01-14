@@ -13,6 +13,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { render, screen, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
+import { TrackerContext } from '../../utils/analytics';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
@@ -27,8 +28,7 @@ describe('ReportManager - DetailsSection', () => {
     onReportDateChange = jest.fn(),
     onReportGeometryChange = jest.fn(),
     onReportLocationChange = jest.fn(),
-    onReportStateChange = jest.fn(),
-    onReportTimeChange = jest.fn();
+    onReportStateChange = jest.fn();
 
   eventSchemas.globalSchema.properties.reported_by.enum_ext[0].value = {
     id: '1234',
@@ -77,29 +77,30 @@ describe('ReportManager - DetailsSection', () => {
     <Provider store={mockedStore}>
       <MapContext.Provider value={map}>
         <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
-          <DetailsSection
-            formSchema={eventSchemas.accident_rep.base.schema}
-            formUISchema={eventSchemas.accident_rep.base.uiSchema}
-            formValidator={formValidator}
-            isCollection={false}
-            isNewEvent={false}
-            loadingSchema={false}
-            onFormDataChange={onFormDataChange}
-            onFormError={onFormError}
-            onFormSubmit={onFormSubmit}
-            onLegacyFormChange={onLegacyFormChange}
-            onPriorityChange={onPriorityChange}
-            onReportedByChange={onReportedByChange}
-            onReportDateChange={onReportDateChange}
-            onReportGeometryChange={onReportGeometryChange}
-            onReportLocationChange={onReportLocationChange}
-            onReportStateChange={onReportStateChange}
-            onReportTimeChange={onReportTimeChange}
-            originalReport={report}
-            reportForm={report}
-            submitFormButtonRef={submitFormButtonRef}
-            {...props}
-          />
+          <TrackerContext.Provider value={{ track: jest.fn() }}>
+            <DetailsSection
+              formSchema={eventSchemas.accident_rep.base.schema}
+              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              formValidator={formValidator}
+              isCollection={false}
+              isNewEvent={false}
+              loadingSchema={false}
+              onFormDataChange={onFormDataChange}
+              onFormError={onFormError}
+              onFormSubmit={onFormSubmit}
+              onLegacyFormChange={onLegacyFormChange}
+              onPriorityChange={onPriorityChange}
+              onReportedByChange={onReportedByChange}
+              onReportDateChange={onReportDateChange}
+              onReportGeometryChange={onReportGeometryChange}
+              onReportLocationChange={onReportLocationChange}
+              onReportStateChange={onReportStateChange}
+              originalReport={report}
+              reportForm={report}
+              submitFormButtonRef={submitFormButtonRef}
+              {...props}
+            />
+          </TrackerContext.Provider>
         </MapDrawingToolsContext.Provider>
       </MapContext.Provider>
     </Provider>
@@ -297,10 +298,13 @@ describe('ReportManager - DetailsSection', () => {
 
     userEvent.click(screen.getByTestId('datePicker-input'));
 
-    expect(onReportDateChange).toHaveBeenCalledTimes(0);
+    expect(onReportDateChange).not.toHaveBeenCalled();
 
-    const datePickerOptions = await screen.findAllByRole('option');
-    userEvent.click(datePickerOptions[16]);
+    const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
+    const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
+    userEvent.click(datePickerOpenCalendarButton);
+    const options = await screen.findAllByRole('option');
+    userEvent.click(options[16]);
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
@@ -321,15 +325,16 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the time of the event when selecting an option from the time picker', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByTestId('time-input'));
+    expect(onReportDateChange).toHaveBeenCalledTimes(0);
 
-    expect(onReportTimeChange).toHaveBeenCalledTimes(0);
+    const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
+    const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
+    userEvent.click(timePickerOpenOptionsButton);
+    const optionsList = await screen.findByTestId('timePicker-OptionsList');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('option');
+    userEvent.click(timeOptionsListItems[2]);
 
-    const timePickerOptionsList = screen.getByTestId('timePicker-OptionsList');
-    const timePickerItems = within(timePickerOptionsList).getAllByRole('listitem');
-    userEvent.click(timePickerItems[2]);
-
-    expect(onReportTimeChange).toHaveBeenCalledTimes(1);
+    expect(onReportDateChange).toHaveBeenCalled();
   });
 
   test('does not show the printable row with the geometry preview if report does not have a geometry', async () => {

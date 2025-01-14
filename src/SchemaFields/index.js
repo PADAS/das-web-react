@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { canExpand, getInputProps, getTemplate, getUiOptions } from '@rjsf/utils';
 import Form from 'react-bootstrap/Form';
+import { format, isValid, parseISO } from 'date-fns';
 import isPlainObject from 'lodash/isPlainObject';
 import { useTranslation } from 'react-i18next';
 
@@ -13,12 +14,11 @@ import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
-import { getHoursAndMinutesString } from '../utils/datetime';
+import { getTimezoneOffsetString } from '../utils/datetime';
 import { uuid } from '../utils/string';
 
-import DatePicker from '../DatePicker';
+import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
 import Select from '../Select';
-import TimePicker from '../TimePicker';
 
 import styles from './styles.module.scss';
 
@@ -347,48 +347,28 @@ export const DateTimeWidget = ({
   required,
   schema,
 }) => {
-  const date = useMemo(() => formData ? new Date(formData) : undefined, [formData]);
-
-  const handleDateChange = useCallback((newDate) => onChange(newDate ? newDate.toISOString() : newDate), [onChange]);
-
-  const handleTimeChange = useCallback((newTime) => {
-    const newTimeParts = newTime.split(':');
-    const updatedDateTime = date ? new Date(date) : new Date();
-    updatedDateTime.setHours(newTimeParts[0], newTimeParts[1], '00');
-
-    onChange(updatedDateTime.toISOString());
-  }, [date, onChange]);
+  let timeZoneCorrectedData = formData;
+  if (formData) {
+    const parsedDateTimeValue = parseISO(formData);
+    if (isValid(parsedDateTimeValue)) {
+      timeZoneCorrectedData = format(parsedDateTimeValue, 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
+    }
+  }
 
   return <>
     <label htmlFor={id}>{schema.title}{required ? '*' : ''}</label>
 
-    <div className={styles.dateTimeWidget}>
-      <div className={styles.datePicker}>
-        <DatePicker
-          autoFocus={autofocus}
-          disabled={disabled}
-          id={id}
-          maxDate={new Date((new Date().getFullYear() + 15).toString())}
-          minDate={null}
-          onBlur={onBlur}
-          onChange={handleDateChange}
-          onFocus={onFocus}
-          readOnly={readonly}
-          required={required}
-          selected={date}
-        />
-      </div>
-
-      <TimePicker
-        className={styles.timePicker}
-        disabled={disabled}
-        minutesInterval={15}
-        onChange={handleTimeChange}
-        readOnly={readonly}
-        required={required}
-        value={getHoursAndMinutesString(date) || '00:00'}
-      />
-    </div>
+    <DateTimePicker
+      autofocus={autofocus}
+      disabled={disabled}
+      onBlur={onBlur}
+      onChange={(newDateTime) => onChange(`${newDateTime}:00${getTimezoneOffsetString()}`)}
+      onFocus={onFocus}
+      readOnly={readonly}
+      required={required}
+      // Slice out the seconds and the time offset.
+      value={timeZoneCorrectedData ? timeZoneCorrectedData.slice(0, -9) : EMPTY_DATE_TIME_VALUE}
+    />
   </>;
 };
 

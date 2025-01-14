@@ -95,4 +95,91 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
 
     expect(runValidations(formData)).toEqual({ this_is_a_text: 'This is a required field.' });
   });
+
+  it('returns the date format validation error', () => {
+    schema.json.properties.this_is_a_date_time = {
+      deprecated: false,
+      description: 'some good description',
+      format: 'date',
+      title: 'This is a date',
+      type: 'string',
+    };
+    schema.ui.fields.this_is_a_date_time = {
+      type: 'DATE_TIME',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'this_is_a_date_time',
+        type: 'field',
+      },
+    ];
+    const formData = { this_is_a_date_time: 'invalid' };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      this_is_a_date_time: 'Invalid date format or invalid date. Double-check the day, month and year.',
+    });
+  });
+
+  it('returns the date-time format validation error', () => {
+    schema.json.properties.this_is_a_date_time = {
+      deprecated: false,
+      description: 'some good description',
+      format: 'date-time',
+      title: 'This is a date-time',
+      type: 'string',
+    };
+    schema.ui.fields.this_is_a_date_time = {
+      type: 'DATE_TIME',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'this_is_a_date_time',
+        type: 'field',
+      },
+    ];
+    const formData = { this_is_a_date_time: 'invalid' };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      this_is_a_date_time: 'Invalid date & time format or invalid date. Double-check the day, month and year.',
+    });
+  });
+
+  it('returns the time format validation error', () => {
+    schema.json.properties.this_is_a_date_time = {
+      deprecated: false,
+      description: 'some good description',
+      format: 'time',
+      title: 'This is a time',
+      type: 'string',
+    };
+    schema.ui.fields.this_is_a_date_time = {
+      type: 'DATE_TIME',
+      parent: 'section-_PdgePvPWyACfu9sgN_F6',
+    };
+    schema.ui.sections['section-_PdgePvPWyACfu9sgN_F6'].leftColumn = [
+      {
+        name: 'this_is_a_date_time',
+        type: 'field',
+      },
+    ];
+    const formData = { this_is_a_date_time: 'invalid' };
+
+    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+
+    const runValidations = result.current;
+
+    expect(runValidations(formData)).toEqual({
+      this_is_a_date_time: 'Invalid time format.',
+    });
+  });
 });

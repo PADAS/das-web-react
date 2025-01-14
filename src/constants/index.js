@@ -254,11 +254,6 @@ export const REPORT_PRIORITIES = [
   REPORT_PRIORITY_NONE
 ];
 
-export const DATEPICKER_DEFAULT_CONFIG = {
-  dateFormat: 'yyyy-MM-dd HH:mm',
-  minDate: new Date('2000-01-01'),
-};
-
 export const GEOLOCATOR_OPTIONS = {
   enableHighAccuracy: true,
   maximumAge: 0,

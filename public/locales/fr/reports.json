@@ -125,6 +125,9 @@
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
+          "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
+          "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
+          "timeFormat": "Format d'heure invalide.",
           "required": "Ceci est un champ obligatoire.",
           "outOfRange": "La valeur du champ est hors plage."
         }

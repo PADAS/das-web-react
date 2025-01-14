@@ -250,12 +250,13 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    const datePickerInput = await screen.findByTestId('datePicker-input');
-    userEvent.click(datePickerInput);
+    const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
+    const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
+    userEvent.click(datePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
     userEvent.click(options[25]);
 
-    expect(datePickerInput).toHaveAttribute('value', '2022/12/22');
+    expect(await within(datePicker).findByTestId('datePicker-input')).toHaveValue('2022-12-22');
   });
 
   test('sets the time when user changes it', async () => {
@@ -263,13 +264,14 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    const timeInput = await screen.findByTestId('time-input');
-    userEvent.click(timeInput);
+    const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
+    const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
+    userEvent.click(timePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
-    const timeOptionsListItems = await within(optionsList).findAllByRole('listitem');
+    const timeOptionsListItems = await within(optionsList).findAllByRole('option');
     userEvent.click(timeOptionsListItems[2]);
 
-    expect(timeInput).toHaveAttribute('value', '00:30');
+    expect(await within(timePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
 
   test('updates the JSON form schema when user does a change', async () => {
@@ -840,7 +842,7 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.tab();
 
 
-    const saveButtonGroup = await screen.findByRole('group');
+    const saveButtonGroup = (await screen.findAllByRole('group'))[2];
     expect(saveButtonGroup).toHaveTextContent('Save');
 
     const saveBtnDropdownToggle = saveButtonGroup.querySelector('.dropdown-toggle');
