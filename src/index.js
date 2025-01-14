@@ -36,7 +36,11 @@ const AppWithTracker = withTracker(App, 'EarthRanger');
 const EulaPageWithTracker = withTracker(EulaPage, 'EULA');
 const LoginWithTracker = withTracker(Login, 'Login');
 
-ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' });
+ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, {
+  gaOptions: { debug_mode: process.env.NODE_ENV === 'development' },
+  gtagOptions: { debug_mode: process.env.NODE_ENV === 'development' },
+  testMode: process.env.NODE_ENV === 'test'
+});
 
 setClientReleaseIdentifier();
 

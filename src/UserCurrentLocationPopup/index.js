@@ -31,7 +31,7 @@ const UserCurrentLocationPopup = ({ data, id }) => {
     <hr />
 
     <AddItemButton
-      analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'current user location' }}
+      analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'user location' }}
       formProps={{ onSaveError: onComplete, onSaveSuccess: onComplete }}
       reportData={{
         location: {
