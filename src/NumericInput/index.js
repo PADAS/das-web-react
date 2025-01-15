@@ -1,19 +1,19 @@
-import React, { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
 
 import {
-  DECIMAL_COMMA_SYMBOL,
-  DECIMAL_POINT_SYMBOL,
+  DECIMAL_COMMA_SYMBOL, DECIMAL_POINT_SYMBOL,
   decrementValue,
   eraseNonNumericValidChars,
   getDecimalSymbolOccurrences,
   incrementValue,
   isNumber,
+  parseAndLocalizeNumber,
   parseStringValueToNumber,
-  removeExtraDecimalSymbol, sanitizeExtraDecimalSymbols
+  sanitizeExtraDecimalSymbols
 } from './utils';
 
 import styles from './styles.module.scss';
@@ -25,89 +25,97 @@ const NumericInput = ({
   required = false,
   disabled = false,
   readOnly = false,
-  min = null,
-  max = null,
+  placeholder,
+  inputAriaProps,
+  min = '',
+  max = '',
   inputClassName = '',
   ...otherProps
 },
 ref) => {
 
+  const [decimalSymbol, setDecimalSymbol] = useState(null);
   const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
-  const [value, setValue] = useState( `${formSchemaValue}` );
+
+  let value = parseAndLocalizeNumber(formSchemaValue, decimalSymbol);
+
+  const handleOnValueChange = (newValue) => {
+    onChange(
+      isNumber(newValue)
+        ? parseStringValueToNumber(newValue)
+        : null
+    );
+  };
 
   const handleOnKeyDown = (event) => {
     switch (event.key){
     case 'ArrowUp':
       event.preventDefault();
-      setValue( incrementValue(value, min, max) );
+      handleOnValueChange( incrementValue(value, min, max) );
       break;
     case 'ArrowDown':
       event.preventDefault();
-      setValue( decrementValue(value, min) );
+      handleOnValueChange( decrementValue(value, min) );
       break;
     default:
       break;
     }
   };
 
-  const handleOnChange = ({ currentTarget: { value } }) => {
-    const newValue = eraseNonNumericValidChars(value);
-    const filteredValue = sanitizeExtraDecimalSymbols(newValue);
-
-    // ToDo: validate max and min
-    if ( min && parseFloat(filteredValue) < min ) {
-      // ToDo: define behavior
-      console.log(filteredValue, ' is lower than min: ', min);
-      return;
+  const handleOnBlur = () => {
+    if (decimalSymbol && value.endsWith(decimalSymbol)){
+      handleOnValueChange(value.slice(0, -1));
+      setDecimalSymbol(null);
     }
-
-    if ( max && parseFloat(filteredValue) > max ) {
-      // ToDo: define behavior
-      console.log(filteredValue, ' is greater than max: ', max);
-      return;
-    }
-
-    setValue(filteredValue);
   };
 
-  useEffect(() => {
-    if (value !== ''){
-      onChange(
-        isNumber(value)
-          ? parseStringValueToNumber(value)
-          : null
-      );
+  const handleOnChange = ({ currentTarget: { value: eventValue } }) => {
+    const newValue = eraseNonNumericValidChars(eventValue);
+    const filteredValue = sanitizeExtraDecimalSymbols(newValue);
+
+    setDecimalSymbol(
+      filteredValue.includes(DECIMAL_COMMA_SYMBOL) || filteredValue.includes(DECIMAL_POINT_SYMBOL)
+        ? getDecimalSymbolOccurrences(filteredValue)[0]
+        : null
+    );
+
+    if ( (min && parseFloat(filteredValue) < min) || (max && parseFloat(filteredValue) > max) ) {
+      return;
     }
-  }, [value]);
+
+    handleOnValueChange(filteredValue);
+  };
 
 
-  return <div className={styles.numericInput}>
+  return <div className={styles.numericInput} role='group' {...otherProps}>
     <input id={id}
            className={inputClassName}
            type="text"
            inputMode="numeric"
            onKeyDown={handleOnKeyDown}
            onChange={handleOnChange}
+           onBlur={handleOnBlur}
            value={value}
            disabled={disabled}
            readOnly={readOnly}
+           placeholder={placeholder}
            aria-label={t('numericInputLabel')}
-           ref={ref}
-           {...otherProps} />
+           {...inputAriaProps}
+           ref={ref} />
     {
       !readOnly && (
       <div className={styles.controls}>
         <button disabled={disabled}
-                onClick={() => setValue( incrementValue(value, min, max) )}
+                onClick={() => handleOnValueChange( incrementValue(value, min, max) )}
                 type='button'
-                aria-label={t('incrementValueNumericInputButton')}
+                aria-label={t('incrementValueNumericInputButtonLabel')}
                 aria-controls={id}>
           <ArrowUpSimpleIcon />
         </button>
         <button disabled={disabled}
-                onClick={() => setValue( decrementValue(value, min) )}
+                onClick={() => handleOnValueChange( decrementValue(value, min) )}
                 type='button'
-                aria-label={t('decrementValueNumericInputButton')}
+                aria-label={t('decrementValueNumericInputButtonLabel')}
                 aria-controls={id}>
           <ArrowDownSimpleIcon />
         </button>

@@ -112,8 +112,8 @@
   },
   "numericInput": {
     "numericInputLabel": "Champ numérique",
-    "incrementValueNumericInputButton": "Bouton d'incrémentation de la valeur numérique",
-    "decrementValueNumericInputButton": "Bouton de décrémentation de la valeur numérique"
+    "incrementValueNumericInputButtonLabel": "Bouton d'incrémentation de la valeur numérique",
+    "decrementValueNumericInputButtonLabel": "Bouton de décrémentation de la valeur numérique"
   },
   "reportedBySelect": {
     "control": {

@@ -6,7 +6,10 @@ import {
   incrementValue,
   isFloat,
   isNumber,
-  parseStringValueToNumber, removeExtraDecimalSymbol, sanitizeExtraDecimalSymbols
+  parseAndLocalizeNumber,
+  parseStringValueToNumber,
+  removeExtraDecimalSymbol,
+  sanitizeExtraDecimalSymbols
 } from './index';
 
 describe('NumericInput - utils', () => {
@@ -166,5 +169,18 @@ describe('NumericInput - utils', () => {
   test('sanitize a string value removing invalid chars and formatting based on first decimal symbol found ', () => {
     expect( sanitizeExtraDecimalSymbols('32,.,.06,.8') ).toBe('32,068');
   });
+
+  test('parse number to string and localize it based on user preference symbol', () => {
+    expect( parseAndLocalizeNumber(32.5, ',') ).toBe('32,5');
+  });
+
+  test('parse empty number to string based on user preference symbol', () => {
+    expect( parseAndLocalizeNumber(null, ',') ).toBe('');
+  });
+
+  test('parse non float number to string', () => {
+    expect( parseAndLocalizeNumber(10, null) ).toBe('10');
+  });
+
 
 });

@@ -1,3 +1,5 @@
+import news from '../../__test-helpers/fixtures/news';
+
 export const DECIMAL_POINT_SYMBOL = '.';
 export const DECIMAL_COMMA_SYMBOL = ',';
 
@@ -43,32 +45,32 @@ export const getNumberPrecision = (value) => {
 
 export const incrementValue = (value, min, max) => {
   if (value === ''){
-    return min?.toString() ?? '0';
+    return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue + 1;
-  const precision = getNumberPrecision(value);
   const newestValue = max && newValue > max ? numberValue : newValue;
-  const fixedNumberWithPrecision = newestValue.toFixed(precision);
-  const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
 
-  return fixedNumberWithPrecision.replace(secondSymbolOccurrence, firstSymbolOccurrence);
+  const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
+  const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
+
+  return newStringValue.replace(secondSymbolOccurrence, firstSymbolOccurrence);
 };
 
 export const decrementValue = (value, min) => {
   if (value === ''){
-    return min?.toString() ?? '0';
+    return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue - 1;
-  const precision = getNumberPrecision(value);
   const newestValue = min && newValue < min ? numberValue : newValue;
-  const fixedNumberWithPrecision = newestValue.toFixed(precision);
-  const [firstOccurrenceDecimalSymbol, secondOccurrenceDecimalSymbol] = getDecimalSymbolOccurrences(value);
 
-  return fixedNumberWithPrecision.replace(secondOccurrenceDecimalSymbol, firstOccurrenceDecimalSymbol);
+  const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
+  const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
+
+  return newStringValue.replace(secondSymbolOccurrence, firstSymbolOccurrence);
 };
 
 export const eraseNonNumericValidChars = (value) => value.replace(/[^0-9|.,]/g, '');
@@ -110,5 +112,24 @@ export const sanitizeExtraDecimalSymbols = (value) => {
   }
 
   return value;
+};
+
+export const parseAndLocalizeNumber = (number, decimalSymbol) => {
+  if (number === null || number === undefined){
+    return '';
+  }
+  const unFormattedStringNumber = number.toString();
+  const isNumberFloat = isFloat(unFormattedStringNumber);
+
+  if (!isNumberFloat && decimalSymbol === null){
+    return unFormattedStringNumber;
+  }
+
+  if (!isNumberFloat && decimalSymbol){
+    return `${unFormattedStringNumber}${decimalSymbol}`;
+  }
+
+  const symbolToReplace = decimalSymbol === DECIMAL_COMMA_SYMBOL ? DECIMAL_POINT_SYMBOL : DECIMAL_COMMA_SYMBOL;
+  return unFormattedStringNumber.replace(symbolToReplace, decimalSymbol);
 };
 

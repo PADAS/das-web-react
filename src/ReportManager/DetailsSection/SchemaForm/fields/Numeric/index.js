@@ -29,10 +29,12 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
         min={details.minInput ?? null}
         value={value}
         id={id}
-        aria-describedby={hasDescription ? `${id}-description`: undefined}
-        aria-errormessage={hasError ? `${id}-description` : undefined}
-        aria-invalid={hasError}
-        aria-required={details.isRequired}
+        inputAriaProps={{
+          'aria-describedby': hasDescription ? `${id}-description`: undefined,
+          'aria-errormessage': hasError ? `${id}-description` : undefined,
+          'aria-invalid': hasError,
+          'aria-required': details.isRequired
+        }}
         inputClassName={styles.numInput}
         placeholder={details.placeholder}
         onChange={(number) => {

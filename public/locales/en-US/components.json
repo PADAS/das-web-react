@@ -112,8 +112,8 @@
   },
   "numericInput": {
     "numericInputLabel": "Numeric field",
-    "incrementValueNumericInputButton": "Increment numeric value button",
-    "decrementValueNumericInputButton": "Decrement numeric value button"
+    "incrementValueNumericInputButtonLabel": "Increment numeric value button",
+    "decrementValueNumericInputButtonLabel": "Decrement numeric value button"
   },
   "priorityPicker": {
     "amber": "Amber",

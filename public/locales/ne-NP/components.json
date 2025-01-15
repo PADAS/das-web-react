@@ -113,8 +113,8 @@
     },
     "numericInput": {
         "numericInputLabel": "संख्यात्मक क्षेत्र",
-        "incrementValueNumericInputButton": "संख्यात्मक मान वृद्धि बटन",
-        "decrementValueNumericInputButton": "संख्यात्मक मान घटाउने बटन"
+        "incrementValueNumericInputButtonLabel": "संख्यात्मक मान वृद्धि बटन",
+        "decrementValueNumericInputButtonLabel": "संख्यात्मक मान घटाउने बटन"
     },
     "reportedBySelect": {
         "control": {

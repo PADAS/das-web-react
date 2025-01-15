@@ -30,14 +30,58 @@ describe('NumericInput', () => {
     expect( screen.getByRole('textbox').value ).toBe('10');
   });
 
+  test('display proper disabled input', () => {
+    renderNumericInput({ ...initialProps, disabled: true });
+
+    const [upButton, downButton] = screen.getAllByRole('button');
+
+    expect( screen.getByRole('textbox').disabled ).toBe(true);
+    expect( upButton.disabled ).toBe(true);
+    expect( downButton.disabled ).toBe(true);
+  });
+
+  test('display proper readOnly input', () => {
+    renderNumericInput({ ...initialProps, readOnly: true });
+
+    const [upButton, downButton] = screen.queryAllByRole('button');
+
+    expect( screen.getByRole('textbox').readOnly ).toBe(true);
+    expect(upButton).not.toBeDefined();
+    expect(downButton).not.toBeDefined();
+  });
+
+  test('block typing if input is disabled', async () => {
+    const onChange = jest.fn();
+
+    renderNumericInput({ ...initialProps, disabled: true, onChange });
+
+    const numberInput = screen.getByRole('textbox');
+    await userEvent.type( numberInput, '1');
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('block arrow buttons if input is disabled', async () => {
+    const onChange = jest.fn();
+
+    renderNumericInput({ ...initialProps, disabled: true, onChange });
+
+    const [upButton, downButton] = screen.getAllByRole('button');
+
+    await userEvent.click( upButton);
+    await userEvent.click( downButton);
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('enters valid digit', async () => {
     const onChange = jest.fn();
     renderNumericInput({ ...initialProps, value: null, onChange });
 
     const numberInput = screen.getByRole('textbox');
-    await userEvent.type( numberInput, '10');
+    await userEvent.type( numberInput, '1');
 
-    expect(onChange).toHaveBeenCalledWith(10);
+    expect(onChange).toHaveBeenCalledWith(1);
   });
 
   test('enters valid float', async () => {
@@ -45,9 +89,11 @@ describe('NumericInput', () => {
     renderNumericInput({ ...initialProps, value: '', onChange });
 
     const numberInput = screen.getByRole('textbox');
-    await userEvent.type( numberInput, '1.5');
+    fireEvent.change(numberInput, {
+      target: { value: '1.5' },
+    });
 
-    await expect(onChange).toHaveBeenCalledWith(1.5);
+    expect(onChange).toHaveBeenCalledWith(1.5);
   });
 
   test('increase number using keyboard up arrow', () => {
@@ -102,12 +148,12 @@ describe('NumericInput', () => {
 
   test('prevent to typing letters', async () => {
     const onChange = jest.fn();
-    renderNumericInput({ ...initialProps, onChange });
+    renderNumericInput({ ...initialProps, value: '', onChange });
 
     const numberInput = screen.getByRole('textbox');
-    await userEvent.type( numberInput, 'AG');
+    await userEvent.type( numberInput, 'A');
 
-    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(null);
   });
 
   test('allow typing only one decimal point symbol', async () => {

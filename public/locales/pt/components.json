@@ -112,8 +112,8 @@
     },
     "numericInput": {
         "numericInputLabel": "Campo numérico",
-        "incrementValueNumericInputButton": "Botão de incrementar valor numérico",
-        "decrementValueNumericInputButton": "Botão Diminuir valor numérico"
+        "incrementValueNumericInputButtonLabel": "Botão de incrementar valor numérico",
+        "decrementValueNumericInputButtonLabel": "Botão Diminuir valor numérico"
     },
     "reportedBySelect": {
         "control": {
