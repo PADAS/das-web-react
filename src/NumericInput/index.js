@@ -29,7 +29,7 @@ const NumericInput = ({
   placeholder = '',
   required = false,
   readOnly = false,
-  value: formSchemaValue = '',
+  value = '',
   ...otherProps
 },
 ref) => {
@@ -38,7 +38,7 @@ ref) => {
   const [isNegative, setIsNegative] = useState(false);
   const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
 
-  let value = parseAndLocalizeNumber(formSchemaValue, decimalSymbol, isNegative);
+  let stringifiedNumber = parseAndLocalizeNumber(value, decimalSymbol, isNegative);
 
   const handleOnValueChange = (newValue) => {
     onChange(
@@ -52,11 +52,11 @@ ref) => {
     switch (event.key){
     case 'ArrowUp':
       event.preventDefault();
-      handleOnValueChange( incrementValue(value, min, max) );
+      handleOnValueChange( incrementValue(stringifiedNumber, min, max) );
       break;
     case 'ArrowDown':
       event.preventDefault();
-      handleOnValueChange( decrementValue(value, min) );
+      handleOnValueChange( decrementValue(stringifiedNumber, min) );
       break;
     default:
       break;
@@ -64,8 +64,8 @@ ref) => {
   };
 
   const handleOnBlur = () => {
-    if (decimalSymbol && value.endsWith(decimalSymbol)){
-      handleOnValueChange(value.slice(0, -1));
+    if (decimalSymbol && stringifiedNumber.endsWith(decimalSymbol)){
+      handleOnValueChange(stringifiedNumber.slice(0, -1));
       setDecimalSymbol(null);
     }
   };
@@ -96,7 +96,7 @@ ref) => {
            onKeyDown={handleOnKeyDown}
            onChange={handleOnChange}
            onBlur={handleOnBlur}
-           value={value}
+           value={stringifiedNumber}
            disabled={disabled}
            readOnly={readOnly}
            placeholder={placeholder}
@@ -108,14 +108,14 @@ ref) => {
       !readOnly && (
       <div className={styles.controls}>
         <button disabled={disabled}
-                onClick={() => handleOnValueChange( incrementValue(value, min, max) )}
+                onClick={() => handleOnValueChange( incrementValue(stringifiedNumber, min, max) )}
                 type='button'
                 aria-label={t('incrementValueNumericInputButtonLabel')}
                 aria-controls={id}>
           <ArrowUpSimpleIcon />
         </button>
         <button disabled={disabled}
-                onClick={() => handleOnValueChange( decrementValue(value, min) )}
+                onClick={() => handleOnValueChange( decrementValue(stringifiedNumber, min) )}
                 type='button'
                 aria-label={t('decrementValueNumericInputButtonLabel')}
                 aria-controls={id}>
