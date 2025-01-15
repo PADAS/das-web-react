@@ -8,12 +8,12 @@ import {
   DECIMAL_COMMA_SYMBOL,
   DECIMAL_POINT_SYMBOL,
   decrementValue,
-  eraseNonValidChars,
+  eraseNonNumericValidChars,
   getDecimalSymbolOccurrences,
   incrementValue,
   isNumber,
   parseStringValueToNumber,
-  removeExtraDecimalSymbol
+  removeExtraDecimalSymbol, sanitizeExtraDecimalSymbols
 } from './utils';
 
 import styles from './styles.module.scss';
@@ -50,33 +50,8 @@ ref) => {
     }
   };
 
-  /** This method help us by avoiding the user to type more than one decimal symbol
-  it also removes existing extra symbols when copying/pasting directly into the input
-  it takes the first occurrence of a valid symbol as the one preferred  by the user */
-  const sanitizeExtraDecimalSymbols = (value) => {
-    const commaSymbolFirstOccurrence = value.indexOf(DECIMAL_COMMA_SYMBOL);
-    const pointSymbolFirstOccurrence = value.indexOf(DECIMAL_POINT_SYMBOL);
-    const hasCommaSymbol = commaSymbolFirstOccurrence > -1;
-    const hasPointSymbol = pointSymbolFirstOccurrence > -1;
-
-    if ( hasPointSymbol && !hasCommaSymbol){
-      return removeExtraDecimalSymbol(value, DECIMAL_POINT_SYMBOL, DECIMAL_COMMA_SYMBOL);
-    }
-
-    if ( hasCommaSymbol && !hasPointSymbol){
-      return removeExtraDecimalSymbol(value, DECIMAL_COMMA_SYMBOL, DECIMAL_POINT_SYMBOL);
-    }
-
-    if ( hasPointSymbol && hasCommaSymbol) {
-      const [firstOccurrenceDecimalSymbol, secondOccurrenceDecimalSymbol] = getDecimalSymbolOccurrences(value);
-      return removeExtraDecimalSymbol(value, firstOccurrenceDecimalSymbol, secondOccurrenceDecimalSymbol);
-    }
-
-    return value;
-  };
-
   const handleOnChange = ({ currentTarget: { value } }) => {
-    const newValue = eraseNonValidChars(value);
+    const newValue = eraseNonNumericValidChars(value);
     const filteredValue = sanitizeExtraDecimalSymbols(newValue);
 
     // ToDo: validate max and min

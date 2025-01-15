@@ -53,14 +53,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
     expect(onFieldChange).not.toHaveBeenCalled();
   });
 
-  test('shows a non required text field', () => {
+  test('shows a non required numeric field', () => {
     renderNumericField();
 
     expect(screen.getByText('Numeric field label')).toBeVisible();
     expect(screen.getByLabelText('Numeric field label')).not.toBeRequired();
   });
 
-  test('shows a required text field', () => {
+  test('shows a required numeric field', () => {
     details.isRequired = true;
     renderNumericField();
 
