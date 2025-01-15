@@ -40,6 +40,12 @@ describe('NumericInput', () => {
     expect( downButton.disabled ).toBe(true);
   });
 
+  test('display proper required input', () => {
+    renderNumericInput({ ...initialProps, required: true });
+
+    expect( screen.getByRole('textbox').required ).toBe(true);
+  });
+
   test('display proper readOnly input', () => {
     renderNumericInput({ ...initialProps, readOnly: true });
 

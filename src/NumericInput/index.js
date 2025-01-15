@@ -9,35 +9,36 @@ import {
   decrementValue,
   eraseNonNumericValidChars,
   getDecimalSymbolOccurrences,
-  incrementValue,
+  incrementValue, isNegativeNumber,
   isNumber,
   parseAndLocalizeNumber,
   parseStringValueToNumber,
-  sanitizeExtraDecimalSymbols
+  sanitizeExtraDecimalSymbols, sanitizeNegativeSymbols
 } from './utils';
 
 import styles from './styles.module.scss';
 
 const NumericInput = ({
-  id,
-  value: formSchemaValue = '',
-  onChange,
-  required = false,
   disabled = false,
-  readOnly = false,
-  placeholder,
+  id,
   inputAriaProps,
-  min = '',
-  max = '',
   inputClassName = '',
+  max = '',
+  min = '',
+  onChange,
+  placeholder,
+  required = false,
+  readOnly = false,
+  value: formSchemaValue = '',
   ...otherProps
 },
 ref) => {
 
   const [decimalSymbol, setDecimalSymbol] = useState(null);
+  const [isNegative, setIsNegative] = useState(false);
   const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
 
-  let value = parseAndLocalizeNumber(formSchemaValue, decimalSymbol);
+  let value = parseAndLocalizeNumber(formSchemaValue, decimalSymbol, isNegative);
 
   const handleOnValueChange = (newValue) => {
     onChange(
@@ -72,18 +73,21 @@ ref) => {
   const handleOnChange = ({ currentTarget: { value: eventValue } }) => {
     const newValue = eraseNonNumericValidChars(eventValue);
     const filteredValue = sanitizeExtraDecimalSymbols(newValue);
+    const validInput = sanitizeNegativeSymbols(filteredValue);
 
     setDecimalSymbol(
-      filteredValue.includes(DECIMAL_COMMA_SYMBOL) || filteredValue.includes(DECIMAL_POINT_SYMBOL)
-        ? getDecimalSymbolOccurrences(filteredValue)[0]
+      validInput.includes(DECIMAL_COMMA_SYMBOL) || validInput.includes(DECIMAL_POINT_SYMBOL)
+        ? getDecimalSymbolOccurrences(validInput)[0]
         : null
     );
 
-    if ( (min && parseFloat(filteredValue) < min) || (max && parseFloat(filteredValue) > max) ) {
+    setIsNegative(isNegativeNumber(validInput));
+
+    if ( (min && parseFloat(validInput) < min) || (max && parseFloat(validInput) > max) ) {
       return;
     }
 
-    handleOnValueChange(filteredValue);
+    handleOnValueChange(validInput);
   };
 
 
@@ -99,6 +103,7 @@ ref) => {
            disabled={disabled}
            readOnly={readOnly}
            placeholder={placeholder}
+           required={required}
            aria-label={t('numericInputLabel')}
            {...inputAriaProps}
            ref={ref} />

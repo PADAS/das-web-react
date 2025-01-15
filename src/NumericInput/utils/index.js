@@ -1,7 +1,6 @@
-import news from '../../__test-helpers/fixtures/news';
-
 export const DECIMAL_POINT_SYMBOL = '.';
 export const DECIMAL_COMMA_SYMBOL = ',';
+export const NEGATIVE_SYMBOL = '-';
 
 
 export const parseStringValueToNumber = (value) => {
@@ -73,7 +72,7 @@ export const decrementValue = (value, min) => {
   return newStringValue.replace(secondSymbolOccurrence, firstSymbolOccurrence);
 };
 
-export const eraseNonNumericValidChars = (value) => value.replace(/[^0-9|.,]/g, '');
+export const eraseNonNumericValidChars = (value) => value.replace(/[^0-9|.,-]/g, '');
 
 export const removeExtraDecimalSymbol = (value, decimalSymbol, invalidDecimalSymbol) => {
   const decimalSymbolFirstOccurrence = value.indexOf(decimalSymbol);
@@ -114,12 +113,23 @@ export const sanitizeExtraDecimalSymbols = (value) => {
   return value;
 };
 
-export const parseAndLocalizeNumber = (number, decimalSymbol) => {
-  if (number === null || number === undefined){
+export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative) => {
+  const isInValidNumber = number === null || number === undefined || number === '';
+
+  if (isInValidNumber && !isNegative){
     return '';
   }
-  const unFormattedStringNumber = number.toString();
+
+  if (isInValidNumber && isNegative){
+    return '-';
+  }
+
+  const unFormattedStringNumber = number?.toString();
   const isNumberFloat = isFloat(unFormattedStringNumber);
+
+  if (isNegative ){
+
+  }
 
   if (!isNumberFloat && decimalSymbol === null){
     return unFormattedStringNumber;
@@ -131,5 +141,14 @@ export const parseAndLocalizeNumber = (number, decimalSymbol) => {
 
   const symbolToReplace = decimalSymbol === DECIMAL_COMMA_SYMBOL ? DECIMAL_POINT_SYMBOL : DECIMAL_COMMA_SYMBOL;
   return unFormattedStringNumber.replace(symbolToReplace, decimalSymbol);
+};
+
+export const isNegativeNumber = (value) => value.startsWith(NEGATIVE_SYMBOL);
+
+export const sanitizeNegativeSymbols = (value) => {
+  const isNegative = isNegativeNumber(value);
+  const newValue = value.replaceAll(NEGATIVE_SYMBOL, '');
+
+  return isNegative ? `${NEGATIVE_SYMBOL}${newValue}` : newValue;
 };
 
