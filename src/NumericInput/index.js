@@ -5,15 +5,15 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arro
 import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/arrow-down-simple.svg';
 
 import {
-  DECIMAL_COMMA_SYMBOL, DECIMAL_POINT_SYMBOL,
   decrementValue,
   eraseNonNumericValidChars,
   getDecimalSymbolOccurrences,
-  incrementValue, isNegativeNumber,
+  incrementValue, isFloat, isNegativeNumber,
   isNumber,
   parseAndLocalizeNumber,
   parseStringValueToNumber,
-  sanitizeExtraDecimalSymbols, sanitizeNegativeSymbols
+  sanitizeDecimalSymbols,
+  sanitizeNegativeSymbols
 } from './utils';
 
 import styles from './styles.module.scss';
@@ -71,21 +71,18 @@ ref) => {
   };
 
   const handleOnChange = ({ currentTarget: { value: eventValue } }) => {
-    const newValue = eraseNonNumericValidChars(eventValue);
-    const filteredValue = sanitizeExtraDecimalSymbols(newValue);
-    const validInput = sanitizeNegativeSymbols(filteredValue);
-
-    setDecimalSymbol(
-      validInput.includes(DECIMAL_COMMA_SYMBOL) || validInput.includes(DECIMAL_POINT_SYMBOL)
-        ? getDecimalSymbolOccurrences(validInput)[0]
-        : null
+    const validInput = sanitizeNegativeSymbols(
+      sanitizeDecimalSymbols(
+        eraseNonNumericValidChars(eventValue)
+      )
     );
-
-    setIsNegative(isNegativeNumber(validInput));
 
     if ( (min && parseFloat(validInput) < min) || (max && parseFloat(validInput) > max) ) {
       return;
     }
+
+    setDecimalSymbol(isFloat(validInput) ? getDecimalSymbolOccurrences(validInput)[0] : null);
+    setIsNegative(isNegativeNumber(validInput));
 
     handleOnValueChange(validInput);
   };

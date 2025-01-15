@@ -91,7 +91,7 @@ export const removeExtraDecimalSymbol = (value, decimalSymbol, invalidDecimalSym
 /** This method help us by avoiding the user to type more than one decimal symbol
  it also removes existing extra symbols when copying/pasting directly into the input
  it takes the first occurrence of a valid symbol as the one preferred  by the user */
-export const sanitizeExtraDecimalSymbols = (value) => {
+export const sanitizeDecimalSymbols = (value) => {
   const commaSymbolFirstOccurrence = value.indexOf(DECIMAL_COMMA_SYMBOL);
   const pointSymbolFirstOccurrence = value.indexOf(DECIMAL_POINT_SYMBOL);
   const hasCommaSymbol = commaSymbolFirstOccurrence > -1;

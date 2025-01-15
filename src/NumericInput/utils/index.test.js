@@ -9,7 +9,7 @@ import {
   parseAndLocalizeNumber,
   parseStringValueToNumber,
   removeExtraDecimalSymbol,
-  sanitizeExtraDecimalSymbols
+  sanitizeDecimalSymbols
 } from './index';
 
 describe('NumericInput - utils', () => {
@@ -167,7 +167,7 @@ describe('NumericInput - utils', () => {
   });
 
   test('sanitize a string value removing invalid chars and formatting based on first decimal symbol found ', () => {
-    expect( sanitizeExtraDecimalSymbols('32,.,.06,.8') ).toBe('32,068');
+    expect( sanitizeDecimalSymbols('32,.,.06,.8') ).toBe('32,068');
   });
 
   test('parse number to string and localize it based on user preference symbol', () => {
