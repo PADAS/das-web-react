@@ -127,10 +127,6 @@ export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative) => {
   const unFormattedStringNumber = number?.toString();
   const isNumberFloat = isFloat(unFormattedStringNumber);
 
-  if (isNegative ){
-
-  }
-
   if (!isNumberFloat && decimalSymbol === null){
     return unFormattedStringNumber;
   }
