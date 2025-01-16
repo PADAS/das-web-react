@@ -1,5 +1,5 @@
 import { setupServer } from 'msw/node';
-import {http, HttpResponse} from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import parallelPaginatedRequest from './parallelPaginatedRequest';
 import { EVENTS_API_URL } from '../ducks/events';
