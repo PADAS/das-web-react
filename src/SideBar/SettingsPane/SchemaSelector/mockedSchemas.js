@@ -922,6 +922,7 @@ const largeContentHeaders = {
   }
 };
 
+
 const headerAndSections = {
   label: 'Headers and Sections',
   schema: {
@@ -1069,6 +1070,7 @@ const headerAndSections = {
     }
   }
 };
+
 
 const schemas = [schemaWithTexts, schemaWithSections, schemaWithBasicText, schemaWithDateTimes, headers, headersWithFields, stackedHeaders, largeContentHeaders, headerAndSections];
 
