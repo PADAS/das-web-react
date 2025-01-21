@@ -503,6 +503,166 @@ const schemaWithDateTimes = {
   },
 };
 
-const schemas = [schemaWithTexts, schemaWithSections, schemaWithBasicText, schemaWithDateTimes];
+const simpleChoiceList = {
+  label: 'Simple ChoiceList',
+  schema: {
+    'json': {
+      '$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'additionalProperties': false,
+      'properties': {
+        'a_choice_list': {
+          'deprecated': false,
+          'description': 'A really good description',
+          'title': 'a choice list',
+          'type': 'array',
+          'uniqueItems': true,
+          'items': {
+            'type': 'string',
+            'anyOf': [
+              //'$ref': 'https://rfb-era-master-102819134094.us-central1.run.app/schemas/existing/contactrep_patrolactivity.json'
+              {
+                id: '7f86d95a-9be8-4089-9c4b-36ad9cd5eca5',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'aware',
+                display: 'Aware',
+                ordernum: 10,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: '8766eba2-723a-45f5-848f-531d023922bd',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'unaware',
+                display: 'Unaware',
+                ordernum: 20,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: '07fd81bc-dcaf-43f6-b179-c6ac96f15070',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'ambushed',
+                display: 'Ambushed',
+                ordernum: 30,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: 'eaab9dd4-c278-4df1-9e33-3d3843fc9aea',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'patrolling',
+                display: 'Patrolling',
+                ordernum: 40,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: 'fcece7d8-c7d9-439e-a619-d4c78e06fcac',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'incamp',
+                display: 'In Camp',
+                ordernum: 50,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: '82df38ed-93a3-403a-bda9-3547a51fa519',
+                model: 'activity.event',
+                field: 'contactrep_patrolactivity',
+                value: 'other',
+                display: 'Other',
+                ordernum: 60,
+                icon: null,
+                is_active: true,
+              },
+              //'$ref': 'https://rfb-era-master-102819134094.us-central1.run.app/schemas/existing/spoorrep_type.json'
+              {
+                id: '3f617359-4804-4f4c-b4a8-da0442a170c2',
+                model: 'activity.event',
+                field: 'spoorrep_type',
+                value: 'footprint',
+                display: 'Footprint',
+                ordernum: 10,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: '7321b7fc-7040-4d0d-be1a-c78f7a74a603',
+                model: 'activity.event',
+                field: 'spoorrep_type',
+                value: 'motorbike',
+                display: 'Motorbike',
+                ordernum: 20,
+                icon: null,
+                is_active: true,
+              },
+              {
+                id: 'eb1dbea6-926a-4999-b11f-0dc61e0e05b2',
+                model: 'activity.event',
+                field: 'spoorrep_type',
+                value: 'vehilce',
+                display: 'Vehicle',
+                ordernum: 30,
+                icon: null,
+                is_active: true,
+              },
+            ]
+          }
+        }
+      },
+      'required': [
+        'a_choice_list'
+      ],
+      'type': 'object'
+    },
+    'ui': {
+      'fields': {
+        'a_choice_list': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [
+              'contactrep_patrolactivity',
+              'spoorrep_type'
+            ],
+            'featureCategories': [],
+            'myDataType': '',
+            'subjectGroups': [],
+            'subjectSubtypes': [],
+            'type': 'EXISTING_CHOICE_LIST'
+          },
+          'inputType': 'DROPDOWN',
+          'placeholder': 'some placeholder',
+          'type': 'CHOICE_LIST',
+          'parent': 'section-ZAS1G03jWBcxtX9807PP_'
+        }
+      },
+      'headers': {},
+      'order': [
+        'section-ZAS1G03jWBcxtX9807PP_'
+      ],
+      'sections': {
+        'section-ZAS1G03jWBcxtX9807PP_': {
+          'columns': 1,
+          'isActive': true,
+          'label': '',
+          'leftColumn': [
+            {
+              'name': 'a_choice_list',
+              'type': 'field'
+            }
+          ],
+          'rightColumn': []
+        }
+      }
+    }
+  }
+};
+
+const schemas = [schemaWithTexts, schemaWithSections, schemaWithBasicText, schemaWithDateTimes, simpleChoiceList];
 
 export default schemas;

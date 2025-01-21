@@ -1,0 +1,55 @@
+@use "sass:color";
+@use "../../../../../common/styles/vars/colors";
+
+
+.dropdownWrapper {
+  width: 100%;
+  color: colors.$secondary-medium-gray;
+  font-size: 1rem;
+  margin-bottom: 0.125rem;
+}
+
+.optionLabel {
+  color: colors.$off-black;
+}
+
+.description {
+  color: colors.$alt-light-gray;
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0.125rem 0 0;
+}
+
+/* react-select overrides */
+.multiValue {
+  background: colors.$semi-light-gray !important;
+  border-radius: 0.625rem !important;
+  padding: 0 0.0625rem;
+}
+
+.multiValueRemove{
+  &:hover {
+    background: unset !important;
+    color: colors.$medium-light-gray !important;
+  }
+}
+
+.dropdownError {
+  border: 1px solid colors.$bright-red !important;
+}
+
+.error {
+  color: colors.$bright-red !important;
+}
+
+.separatorError {
+  background-color: colors.$bright-red !important;
+}
+
+.caretError {
+  > div {
+    > div {
+      border-top: 0.3rem solid colors.$bright-red !important;
+    }
+  }
+}

@@ -4,12 +4,14 @@ import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import ChoiceList from './fields/ChoiceList';
 import DateTime from './fields/DateTime';
 import Header from './fields/Header';
 import Section from './fields/Section';
 import Text from './fields/Text';
 
 export const FIELDS = {
+  [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
   [FORM_ELEMENT_TYPES.HEADER]: Header,
   [FORM_ELEMENT_TYPES.SECTION]: Section,
@@ -51,7 +53,7 @@ const SchemaForm = ({
     event.preventDefault();
 
     const fieldErrors = runValidations(formData);
-    if (fieldErrors) {
+    if (Object.values(fieldErrors).length > 0) {
       setFieldErrors(fieldErrors);
 
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];

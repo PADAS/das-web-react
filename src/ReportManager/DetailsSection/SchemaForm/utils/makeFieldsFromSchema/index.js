@@ -38,7 +38,10 @@ const addFieldToFieldsObjectRecursively = (
       uiSchema.fields[fieldId].allowableFileTypes;
   } else if (fields[fieldId].type === FORM_ELEMENT_TYPES.CHOICE_LIST) {
     fields[fieldId].details.inputType = uiSchema.fields[fieldId].inputType;
-    fields[fieldId].details.choices = uiSchema.fields[fieldId].choices;
+    fields[fieldId].details.choices = {
+      ...uiSchema.fields[fieldId].choices,
+      options: uiSchema.fields[fieldId].items.anyOf
+    };
     fields[fieldId].details.description =
       jsonSubschema.properties[fieldId].description;
     fields[fieldId].details.hint = uiSchema.fields[fieldId].placeholder;
