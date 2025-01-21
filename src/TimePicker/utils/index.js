@@ -5,14 +5,6 @@ export const EMPTY_TIME_VALUE = ':';
 export const AM_PERIOD = 'AM';
 export const PM_PERIOD = 'PM';
 
-export const shouldUse12HourFormat = (locale) => {
-  const dateTimeFormatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
-  const dateTimeOptions = dateTimeFormatter.resolvedOptions();
-
-  // Hour cycles where 12 hour format should be used.
-  return dateTimeOptions.hourCycle === 'h12' || dateTimeOptions.hourCycle === 'h11';
-};
-
 export const transform12To24HourFormat = (hourIn12Format, period) => {
   if (!hourIn12Format) {
     return '';

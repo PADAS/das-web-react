@@ -138,8 +138,35 @@
         "errors": {
           "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
           "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
+          "defaultFormat": "Invalid format.",
+          "maxItems_one": "This collection must have at most {{count}} item.",
+          "maxItems_other": "This collection must have at most {{count}} items.",
+          "minItems_one": "This collection must have at least {{count}} item.",
+          "minItems_other": "This collection must have at least {{count}} items.",
           "required": "This is a required field.",
           "timeFormat": "Invalid time format."
+        },
+        "fields": {
+          "collection": {
+            "addButtonLabel": "Add {{itemName}}",
+            "defaultAddButton": "Add",
+            "headerLabel": {
+              "closed": "Open the {{collectionLabel}} list",
+              "open": "Close the {{collectionLabel}} list"
+            },
+            "item": {
+              "editButton": "Edit {{itemTitle}}",
+              "formModal": {
+                "cancelButton": "Cancel",
+                "deleteButton": "Delete {{itemTitle}}",
+                "doneButton": "Done"
+              },
+              "headerLabel": {
+                "closed": "Open the {{itemTitle}} form preview",
+                "open": "Close the {{itemTitle}} form preview"
+              }
+            }
+          }
         }
       },
       "stateDropdown": {

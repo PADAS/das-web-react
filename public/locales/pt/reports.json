@@ -127,8 +127,35 @@
                 "errors": {
                     "dateFormat": "Formato de data inválido ou data inválida. Verifique o dia, mês e ano.",
                     "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
+                    "defaultFormat": "Formato inválido.",
+                    "maxItems_one": "Esta coleção deve ter no máximo {{count}} item.",
+                    "maxItems_other": "Esta coleção deve ter no máximo {{count}} itens.",
+                    "minItems_one": "Esta coleção deve ter pelo menos {{count}} item.",
+                    "minItems_other": "Esta coleção deve ter pelo menos {{count}} itens.",
                     "required": "Este é um campo obrigatório.",
                     "timeFormat": "Formato de hora inválido."
+                },
+                "fields": {
+                  "collection": {
+                    "addButtonLabel": "Adicionar {{itemName}}",
+                    "defaultAddButton": "Adicionar",
+                    "headerLabel": {
+                      "closed": "Abrir a lista de {{collectionLabel}}",
+                      "open": "Fechar a lista de {{collectionLabel}}"
+                    },
+                    "item": {
+                      "editButton": "Editar {{itemTitle}}",
+                      "formModal": {
+                            "cancelButton": "Cancelar",
+                            "deleteButton": "Excluir {{itemTitle}}",
+                            "doneButton": "Concluído"
+                        },
+                      "headerLabel": {
+                        "closed": "Abrir a visualização do formulário {{itemTitle}}",
+                        "open": "Fechar a visualização do formulário {{itemTitle}}"
+                      }
+                    }
+                  }
                 }
             },
             "stateDropdown": {

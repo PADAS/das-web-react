@@ -60,11 +60,11 @@ const addFieldToFieldsObjectRecursively = (
       .filter((collectionChildId) => !itemsJSONSubschema.properties[collectionChildId].deprecated);
     fields[fieldId].details.maxItems =
       jsonSubschema.properties[fieldId].maxItems === undefined
-        ? ''
+        ? null
         : jsonSubschema.properties[fieldId].maxItems;
     fields[fieldId].details.minItems =
       jsonSubschema.properties[fieldId].minItems === undefined
-        ? ''
+        ? null
         : jsonSubschema.properties[fieldId].minItems;
     fields[fieldId].details.rightColumn = uiSchema.fields[fieldId].rightColumn
       .filter((collectionChildId) => !itemsJSONSubschema.properties[collectionChildId].deprecated);

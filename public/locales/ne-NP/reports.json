@@ -135,8 +135,35 @@
                 "errors": {
                     "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
                     "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
+                    "defaultFormat": "अमान्य ढाँचा।",
+                    "maxItems_one": "यो सङ्कलनमा धेरैमा {{count}} वस्तु मात्र हुन सक्छ।",
+                    "maxItems_other": "यो सङ्कलनमा धेरैमा {{count}} वस्तुहरू मात्र हुन सक्छन्।",
+                    "minItems_one": "यो सङ्कलनमा कम्तीमा {{count}} वस्तु हुनुपर्छ।",
+                    "minItems_other": "यो सङ्कलनमा कम्तीमा {{count}} वस्तुहरू हुनुपर्छ।",
                     "required": "यो आवश्यक फिल्ड हो।",
                     "timeFormat": "अमान्य समय ढांचा।"
+                },
+                "fields": {
+                  "collection": {
+                    "addButtonLabel": "{{itemName}} थप्नुहोस्",
+                    "defaultAddButton": "थप्नुहोस्",
+                    "headerLabel": {
+                      "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
+                      "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
+                    },
+                    "item": {
+                      "editButton": "{{itemTitle}} सम्पादन गर्नुहोस्",
+                      "formModal": {
+                            "cancelButton": "रद्द गर्नुहोस्",
+                            "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
+                            "doneButton": "सम्पन्न"
+                        },
+                      "headerLabel": {
+                        "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
+                        "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
+                      }
+                    }
+                  }
                 }
             },
             "stateDropdown": {

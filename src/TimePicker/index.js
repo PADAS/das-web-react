@@ -21,10 +21,10 @@ import {
   PM_PERIOD,
   shouldCompleteFirstHourDigitWithZero,
   shouldCompleteFirstMinuteDigitWithZero,
-  shouldUse12HourFormat,
   transform12To24HourFormat,
   transform24To12HourFormat,
 } from './utils';
+import { shouldUse12HourFormat } from '../utils/datetime';
 
 import OptionsPopover from './OptionsPopover';
 
@@ -438,6 +438,8 @@ const TimePicker = ({
       aria-label={t('periodInputLabel')}
       className={styles.periodInput}
       disabled={disabled}
+      // We are handling changes through the key down, but we need this to suppress a React warning.
+      onChange={() => {}}
       onClick={(event) => event.target.select()}
       onFocus={(event) => event.target.select()}
       onKeyDown={onPeriodInputKeyDown}
@@ -461,7 +463,7 @@ const TimePicker = ({
       <div className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} role="img" />
     </button>
 
-    <Overlay target={innerRef} show={isOptionsPopoverOpen} placement="bottom-end">
+    <Overlay placement="bottom-end" show={isOptionsPopoverOpen} target={innerRef}>
       <OptionsPopover
         internationalizedTimePeriods={internationalizedTimePeriods}
         max={max}

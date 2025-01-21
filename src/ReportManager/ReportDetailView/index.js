@@ -442,10 +442,14 @@ const ReportDetailView = ({
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
-  const onFormDataChange = useCallback((formData) => setReportForm((reportForm) => ({
-    ...reportForm,
-    event_details: formData,
-  })), []);
+  const onFormDataChange = useCallback((formData) => {
+    console.log('called');
+    console.log(formData);
+    setReportForm((reportForm) => ({
+      ...reportForm,
+      event_details: formData,
+    }));
+  }, []);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));

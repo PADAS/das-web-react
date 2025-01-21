@@ -6,6 +6,26 @@ import { useTranslation } from 'react-i18next';
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 
+const insertErrorRecursively = (fieldId, message, errorPath, errors) => {
+  if (errorPath.length === 0) {
+    // If there is no path, the error should be inserted in this errors object.
+    errors[fieldId] = { message };
+  } else {
+    // If there is a path, we extract the collection id and the index, then inject the error recursively in the errors
+    // object of that specific item.
+    const parentCollectionId = errorPath[0];
+    const itemIndex = errorPath[1];
+    errors[parentCollectionId] = {
+      ...errors[parentCollectionId] || {},
+      [itemIndex]: {
+        ...errors[parentCollectionId]?.[itemIndex] || {},
+      },
+    };
+
+    insertErrorRecursively(fieldId, message, errorPath.slice(2), errors[parentCollectionId][itemIndex]);
+  }
+};
+
 const useSchemaValidations = (schema) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.errors' });
 
@@ -13,30 +33,64 @@ const useSchemaValidations = (schema) => {
 
   const runValidations = useCallback((formData) => {
     if (!validate(formData)) {
-      const fieldErrors = validate.errors.reduce((accumulator, error) => {
-        if (error.keyword === 'format') {
-          if (error.params.format === 'date') {
-            const fieldId = error.instancePath.split('/').pop();
-            return { ...accumulator, [fieldId]: t('dateFormat') };
-          }
-          if (error.params.format === 'date-time') {
-            const fieldId = error.instancePath.split('/').pop();
-            return { ...accumulator, [fieldId]: t('dateTimeFormat') };
-          }
-          if (error.params.format === 'time') {
-            const fieldId = error.instancePath.split('/').pop();
-            return { ...accumulator, [fieldId]: t('timeFormat') };
-          }
-        }
-        if (error.keyword === 'required') {
-          const fieldId = error.params.missingProperty;
-          return { ...accumulator, [fieldId]: t('required') };
+      // If the validation returned errors we iterate them.
+      return validate.errors.reduce((accumulator, error) => {
+        // First we calculate the error path, the field id and the message. The error path tells us if the erroneus
+        // field is nested in a collection and in which of its items.
+        let errorPath;
+        let fieldId;
+        let message;
+        switch (error.keyword) {
+        case 'format':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+
+          switch (error.params.format) {
+          case 'date':
+            message = t('dateFormat');
+            break;
+
+          case 'date-time':
+            message = t('dateTimeFormat');
+            break;
+
+          case 'time':
+            message = t('timeFormat');
+            break;
+
+          default:
+            message = t('defaultFormat');
+          };
+          break;
+
+        case 'maxItems':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+          message = t('maxItems', { count: error.params.limit  });
+          break;
+
+        case 'minItems':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+          message = t('minItems', { count: error.params.limit  });
+          break;
+
+        case 'required':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = error.params.missingProperty;
+          message = t('required');
+          break;
+
+        default:
+          return accumulator;
         }
 
-        return accumulator;
+        // Then, we insert the error in the accumulated errors structure.
+        const errors = structuredClone(accumulator);
+        insertErrorRecursively(fieldId, message, errorPath, errors);
+
+        return errors;
       }, {});
-
-      return fieldErrors;
     }
     return null;
   }, [t, validate]);

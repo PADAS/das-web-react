@@ -120,7 +120,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
       className={`${styles.description} ${hasError ? styles.error : ''}`}
       id={`${id}-description`}
     >
-      {error || details.description}
+      {error?.message || details.description}
     </p>}
   </div> : null;
 };
