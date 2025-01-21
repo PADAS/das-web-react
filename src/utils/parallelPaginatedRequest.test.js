@@ -1,5 +1,5 @@
 import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import parallelPaginatedRequest from './parallelPaginatedRequest';
 import { EVENTS_API_URL } from '../ducks/events';
@@ -14,14 +14,14 @@ const calculateMockResponseResults = (itemsPerPage) => {
 };
 
 const server = setupServer(
-  rest.get(EVENTS_API_URL, (req, res, ctx) => {
-    return res(ctx.json( {
+  http.get(EVENTS_API_URL, () => {
+    return HttpResponse.json({
       status: 200,
       data: {
         results: calculateMockResponseResults(150),
         count: 200,
       }
-    }));
+    });
   }),
 );
 
@@ -57,16 +57,14 @@ describe('parallelPaginatedRequest', () => {
     const results = calculateMockResponseResults(300);
 
     server.use(
-      rest.get(EVENTS_API_URL, (req, res, ctx) => {
-        return res(
-          ctx.json( {
-            status: 200,
-            data: {
-              results,
-              count: 1200,
-            }
-          })
-        );
+      http.get(EVENTS_API_URL, () => {
+        return HttpResponse.json({
+          status: 200,
+          data: {
+            results,
+            count: 1200,
+          }
+        });
       })
     );
 
@@ -87,7 +85,6 @@ describe('parallelPaginatedRequest', () => {
     try {
       await parallelPaginatedRequest(`${EVENTS_API_URL}/notAPage?`);
     } catch (e){
-      console.log(e.message);
       expect(e.message).toBe('Failed to fetch the first page. Aborting.');
     }
   });
