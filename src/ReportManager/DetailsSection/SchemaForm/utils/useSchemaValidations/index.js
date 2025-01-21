@@ -34,7 +34,13 @@ const useSchemaValidations = (schema) => {
 
         if (error.keyword === 'minimum' || error.keyword === 'maximum' ) {
           const fieldId = error.instancePath.split('/').pop();
-          return { ...accumulator, [fieldId]: t('outOfRange') };
+          const fieldProps = schema.json.properties[fieldId];
+          return {
+            ...accumulator,
+            [fieldId]: t(`outOfRange.${error.keyword}`, {
+              [error.keyword]: fieldProps[error.keyword]
+            })
+          };
         }
 
         // TODO: Transform missing errors.

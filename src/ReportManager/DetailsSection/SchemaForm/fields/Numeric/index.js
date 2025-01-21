@@ -35,6 +35,7 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
           'aria-invalid': hasError,
           'aria-required': details.isRequired
         }}
+        blockOutOfRangeValues={false}
         inputClassName={styles.numInput}
         placeholder={details.placeholder}
         onChange={(number) => {

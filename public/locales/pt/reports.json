@@ -129,7 +129,10 @@
                     "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
                     "timeFormat": "Formato de hora inválido.",
                     "required": "Este é um campo obrigatório.",
-                    "outOfRange": "O valor do campo está fora do intervalo."
+                    "outOfRange": {
+                        "minimum": "Este valor deve ser maior ou igual a {{minimum}}",
+                        "maximum": "Este valor deve ser menor ou igual ao {{maximum}}"
+                    }
                 }
             },
             "stateDropdown": {

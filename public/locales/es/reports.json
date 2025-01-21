@@ -125,11 +125,14 @@
       "reportedByLabel": "Reportado por",
       "schemaForm": {
         "errors": {
-          "outOfRange": "El valor del campo está fuera de rango.",
           "dateFormat": "Formato de fecha inválido o fecha no válida. Verifica el día, mes y año.",
           "dateTimeFormat": "Formato de fecha y hora inválido o fecha no válida. Verifica el día, mes y año.",
           "required": "Este campo es obligatorio.",
-          "timeFormat": "Formato de hora inválido."
+          "timeFormat": "Formato de hora inválido.",
+          "outOfRange": {
+            "minimum": "Este valor debería ser mayor o igual a {{minimum}}",
+            "maximum": "Este valor debería ser menor o igual a  {{maximum}}"
+          }
         }
       },
       "stateDropdown": {

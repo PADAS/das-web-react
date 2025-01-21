@@ -32,24 +32,28 @@ export const getDecimalSymbolOccurrences = (value) => {
   return [firstSymbolOccurrence, secondSymbolOccurrence];
 };
 
+export const getFloatDigits = (value) => {
+  const [firstSymbolOccurrence] = getDecimalSymbolOccurrences(value);
+  const [, floatDigits] = value.split(firstSymbolOccurrence);
+  return floatDigits;
+};
+
 export const getNumberPrecision = (value) => {
   const stringValue = value.toString();
   if (!isFloat(stringValue)){
     return 0;
   }
-  const [firstSymbolOccurrence] = getDecimalSymbolOccurrences(value);
-  const [, floatDigits] = stringValue.split(firstSymbolOccurrence);
-  return floatDigits.length;
+  return getFloatDigits(value).length;
 };
 
-export const incrementValue = (value, min, max) => {
+export const incrementValue = (value, min, max, blockOutOfRangeValues = true) => {
   if (value === ''){
     return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue + 1;
-  const newestValue = max && newValue > max ? numberValue : newValue;
+  const newestValue = blockOutOfRangeValues && max && newValue > max ? numberValue : newValue;
 
   const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
   const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
@@ -57,14 +61,14 @@ export const incrementValue = (value, min, max) => {
   return newStringValue.replace(secondSymbolOccurrence, firstSymbolOccurrence);
 };
 
-export const decrementValue = (value, min) => {
+export const decrementValue = (value, min, blockOutOfRangeValues = true) => {
   if (value === ''){
     return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue - 1;
-  const newestValue = min && newValue < min ? numberValue : newValue;
+  const newestValue = blockOutOfRangeValues && min && newValue < min ? numberValue : newValue;
 
   const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
   const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
@@ -113,7 +117,7 @@ export const sanitizeDecimalSymbols = (value) => {
   return value;
 };
 
-export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative) => {
+export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlainDecimal) => {
   const isInValidNumber = number === null || number === undefined || number === '';
 
   if (isInValidNumber && !isNegative){
@@ -132,7 +136,8 @@ export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative) => {
   }
 
   if (!isNumberFloat && decimalSymbol){
-    return `${unFormattedStringNumber}${decimalSymbol}`;
+    const fixedDecimals = isPlainDecimal ? '0' : '';
+    return `${unFormattedStringNumber}${decimalSymbol}${fixedDecimals}`;
   }
 
   const symbolToReplace = decimalSymbol === DECIMAL_COMMA_SYMBOL ? DECIMAL_POINT_SYMBOL : DECIMAL_COMMA_SYMBOL;

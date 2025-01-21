@@ -7,7 +7,7 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/ar
 import {
   decrementValue,
   eraseNonNumericValidChars,
-  getDecimalSymbolOccurrences,
+  getDecimalSymbolOccurrences, getFloatDigits, getNumberPrecision,
   incrementValue, isFloat, isNegativeNumber,
   isNumber,
   parseAndLocalizeNumber,
@@ -29,6 +29,7 @@ const NumericInput = ({
   placeholder = '',
   required = false,
   readOnly = false,
+  blockOutOfRangeValues = true,
   value = '',
   ...otherProps
 },
@@ -36,9 +37,11 @@ ref) => {
 
   const [decimalSymbol, setDecimalSymbol] = useState(null);
   const [isNegative, setIsNegative] = useState(false);
+  const [isPlainDecimal, setIsPlainDecimal] = useState(false);
+
   const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
 
-  let stringifiedNumber = parseAndLocalizeNumber(value, decimalSymbol, isNegative);
+  let stringifiedNumber = parseAndLocalizeNumber(value, decimalSymbol, isNegative, isPlainDecimal);
 
   const handleOnValueChange = (newValue) => {
     onChange(
@@ -52,11 +55,11 @@ ref) => {
     switch (event.key){
     case 'ArrowUp':
       event.preventDefault();
-      handleOnValueChange( incrementValue(stringifiedNumber, min, max) );
+      handleOnValueChange( incrementValue(stringifiedNumber, min, max, blockOutOfRangeValues) );
       break;
     case 'ArrowDown':
       event.preventDefault();
-      handleOnValueChange( decrementValue(stringifiedNumber, min) );
+      handleOnValueChange( decrementValue(stringifiedNumber, min, blockOutOfRangeValues) );
       break;
     default:
       break;
@@ -77,12 +80,13 @@ ref) => {
       )
     );
 
-    if ( (min && parseFloat(validInput) < min) || (max && parseFloat(validInput) > max) ) {
+    if ( blockOutOfRangeValues && ( (min && parseFloat(validInput) < min) || (max && parseFloat(validInput) > max) ) ) {
       return;
     }
 
     setDecimalSymbol(isFloat(validInput) ? getDecimalSymbolOccurrences(validInput)[0] : null);
     setIsNegative(isNegativeNumber(validInput));
+    setIsPlainDecimal( isFloat(validInput) && getNumberPrecision(validInput) === 1 && getFloatDigits(validInput) === '0' );
 
     handleOnValueChange(validInput);
   };

@@ -140,7 +140,10 @@
           "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "timeFormat": "Muundo wa muda haukubaliwi.",
           "required": "Hili ni shamba la lazima.",
-          "outOfRange": "Thamani ya sehemu iko nje ya safu."
+          "outOfRange": {
+            "minimum": "Thamani hii inapaswa kuwa kubwa au sawa kuliko {{minimum}}",
+            "maximum": "Thamani hii inapaswa kuwa chini au sawa kuliko {{maximum}}"
+          }
         }
       },
       "stateDropdown": {
