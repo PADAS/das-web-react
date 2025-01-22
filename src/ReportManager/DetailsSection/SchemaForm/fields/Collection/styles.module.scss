@@ -5,12 +5,10 @@
 .collection {
   .header {
     border-radius: 0.25rem;
-    cursor: pointer;
-    outline: none;
     width: 100%;
 
     &.error {
-      .chevron {
+      .chevronButton {
         color: colors.$bright-red;
       }
   
@@ -19,12 +17,22 @@
       }
     }
 
-    &:focus {
-      border: 1px solid colors.$bright-blue;
-    }
+    .chevronButton {
+      background: none;
+      border: none;
+      border-radius: 0.1875rem;
+      color: colors.$secondary-medium-gray;
+      margin-right: 0.5rem;
+      outline: none;
 
-    .chevron {
-      margin: 0 0.75rem;
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+
+      &:focus-visible {
+        border: 2px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
     }
 
     .label {

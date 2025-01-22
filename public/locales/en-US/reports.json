@@ -150,7 +150,7 @@
           "collection": {
             "addButtonLabel": "Add {{itemName}}",
             "defaultAddButton": "Add",
-            "headerLabel": {
+            "chevronButtonLabel": {
               "closed": "Open the {{collectionLabel}} list",
               "open": "Close the {{collectionLabel}} list"
             },
@@ -161,7 +161,7 @@
                 "deleteButton": "Delete {{itemTitle}}",
                 "doneButton": "Done"
               },
-              "headerLabel": {
+              "chevronButtonLabel": {
                 "closed": "Open the {{itemTitle}} form preview",
                 "open": "Close the {{itemTitle}} form preview"
               }

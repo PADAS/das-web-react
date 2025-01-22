@@ -35,15 +35,6 @@ const Collection = ({
 
   const hasError = !!error;
 
-  // Keyboard navigation for the collection header.
-  const onHeaderKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-
-      setIsOpen(!isOpen);
-    }
-  };
-
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     let updatedError = { ...error };
     if (itemError) {
@@ -103,19 +94,17 @@ const Collection = ({
 
   return (
     <div className={styles.collection} data-testid={`schema-form-collection-${id}`} id={id}>
-      <div
-        aria-controls={`collectionList-${id}`}
-        aria-expanded={isOpen}
-        aria-label={t(`headerLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
-        className={`${styles.header} ${hasError ? styles.error : '' }`}
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={onHeaderKeyDown}
-        role="button"
-        tabIndex={0}
-      >
-        {isOpen
-          ? <ArrowUpSimpleIcon className={styles.chevron} />
-          : <ArrowDownSimpleIcon className={styles.chevron} />}
+      <div className={`${styles.header} ${hasError ? styles.error : '' }`}>
+        <button
+          aria-controls={`collectionList-${id}`}
+          aria-expanded={isOpen}
+          aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
+          className={styles.chevronButton}
+          onClick={() => setIsOpen(!isOpen)}
+          type="button"
+        >
+          {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+        </button>
 
         <label className={styles.label} htmlFor={id}>
           {details.label} - {value.length}

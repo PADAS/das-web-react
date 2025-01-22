@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as PencilIcon } from '../../../../../../common/images/icons/pencil.svg';
 
 import { getHumanizedValue } from './utils';
@@ -43,22 +45,12 @@ const Item = ({
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
   const formDataBeforeEditingRef = useRef(null);
-  const headerRef = useRef();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const hasError = !!errors;
   const title = getTitle(formData, identifier, name, index, fields, i18n.language);
-
-  // Keyboard navigation for the item header.
-  const onHeaderKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-
-      setIsOpen(!isOpen);
-    }
-  };
 
   const onEditButtonClick = (event) => {
     event.stopPropagation();
@@ -94,10 +86,6 @@ const Item = ({
   };
 
   useEffect(() => {
-    headerRef.current.focus();
-  }, []);
-
-  useEffect(() => {
     if (isFormModalOpen) {
       formDataBeforeEditingRef.current = structuredClone(formData);
       errorsBeforeEditingRef.current = structuredClone(errors);
@@ -106,28 +94,30 @@ const Item = ({
   }, [isFormModalOpen]);
 
   return <li className={`${styles.item} ${isOpen ? styles.open : ''} ${hasError ? styles.error : ''}`}>
-    <div
-      aria-controls={`collectionForm-${title}`}
-      aria-expanded={isOpen}
-      aria-label={t(`headerLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
-      className={styles.header}
-      onClick={() => setIsOpen(!isOpen)}
-      onKeyDown={onHeaderKeyDown}
-      ref={headerRef}
-      role="button"
-      tabIndex={0}
-    >
+    <div className={styles.header}>
       <p className={styles.title}>{title}</p>
 
-      <button
-        aria-label={t('editButton', { itemTitle: title })}
-        className={styles.editButton}
-        onClick={onEditButtonClick}
-        onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
-        type="button"
-      >
-        <PencilIcon />
-      </button>
+      <div>
+        <button
+          aria-label={t('editButton', { itemTitle: title })}
+          className={styles.editButton}
+          onClick={onEditButtonClick}
+          type="button"
+        >
+          <PencilIcon />
+        </button>
+
+        <button
+          aria-controls={`collectionForm-${title}`}
+          aria-expanded={isOpen}
+          aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+          className={styles.chevronButton}
+          onClick={() => setIsOpen(!isOpen)}
+          type="button"
+        >
+          {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+        </button>
+      </div>
     </div>
 
     <Collapse in={isOpen}>

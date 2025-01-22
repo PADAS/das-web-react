@@ -14,14 +14,14 @@ $itemExpansionTransitionTime: 300ms;
       border-color: colors.$bright-red;
       margin-bottom: 1px;
 
-      &:focus {
-        outline: 1px solid colors.$bright-red;
-      }
-
       .title {
         color: colors.$bright-red;
       }
       
+      .chevronButton {
+        color: colors.$bright-red;
+      }
+
       .editButton {
         color: colors.$bright-red;
       }
@@ -58,12 +58,26 @@ $itemExpansionTransitionTime: 300ms;
     padding: 0.25rem 1rem;
     width: 100%;
 
-    &:focus {
-      outline: 1px solid colors.$bright-blue;
-    }
-
     .title {
       margin: 0;
+    }
+
+    .chevronButton {
+      background: none;
+      border: none;
+      border-radius: 0.1875rem;
+      color: colors.$secondary-medium-gray;
+      margin-right: 0.5rem;
+      outline: none;
+
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+
+      &:focus-visible {
+        border: 2px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
     }
 
     .editButton {
@@ -71,6 +85,7 @@ $itemExpansionTransitionTime: 300ms;
       border: none;
       border-radius: 0.1875rem;
       color: colors.$secondary-medium-gray;
+      margin-right: 0.5rem;
       outline: none;
 
       &:hover {

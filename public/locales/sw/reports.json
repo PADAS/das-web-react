@@ -150,7 +150,7 @@
           "collection": {
             "addButtonLabel": "Ongeza {{itemName}}",
             "defaultAddButton": "Ongeza",
-            "headerLabel": {
+            "chevronButtonLabel": {
               "closed": "Fungua orodha ya {{collectionLabel}}",
               "open": "Funga orodha ya {{collectionLabel}}"
             },
@@ -161,7 +161,7 @@
                 "deleteButton": "Futa {{itemTitle}}",
                 "doneButton": "Imekamilika"
               },
-              "headerLabel": {
+              "chevronButtonLabel": {
                 "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
                 "open": "Funga muhtasari wa fomu ya {{itemTitle}}"
               }

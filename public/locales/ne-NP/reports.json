@@ -147,7 +147,7 @@
                   "collection": {
                     "addButtonLabel": "{{itemName}} थप्नुहोस्",
                     "defaultAddButton": "थप्नुहोस्",
-                    "headerLabel": {
+                    "chevronButtonLabel": {
                       "closed": "{{collectionLabel}} सूची खोल्नुहोस्",
                       "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
                     },
@@ -158,7 +158,7 @@
                             "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
                             "doneButton": "सम्पन्न"
                         },
-                      "headerLabel": {
+                      "chevronButtonLabel": {
                         "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
                         "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"
                       }

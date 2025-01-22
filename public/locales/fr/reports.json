@@ -139,7 +139,7 @@
           "collection": {
             "addButtonLabel": "Ajouter {{itemName}}",
             "defaultAddButton": "Ajouter",
-            "headerLabel": {
+            "chevronButtonLabel": {
               "closed": "Ouvrir la liste de {{collectionLabel}}",
               "open": "Fermer la liste de {{collectionLabel}}"
             },
@@ -150,7 +150,7 @@
                 "deleteButton": "Supprimer {{itemTitle}}",
                 "doneButton": "Terminé"
               },
-              "headerLabel": {
+              "chevronButtonLabel": {
                 "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
                 "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
               }
