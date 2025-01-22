@@ -530,98 +530,70 @@ const simpleChoiceList = {
           'items': {
             'type': 'string',
             'anyOf': [
-              //'$ref': 'https://rfb-era-master-102819134094.us-central1.run.app/schemas/existing/contactrep_patrolactivity.json'
               {
-                id: '7f86d95a-9be8-4089-9c4b-36ad9cd5eca5',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'aware',
-                display: 'Aware',
-                ordernum: 10,
-                icon: null,
-                is_active: true,
+                'const': '048fdcef-f599-4205-8b44-1536d46645aa',
+                'title': 'DumboAlfonso'
               },
               {
-                id: '8766eba2-723a-45f5-848f-531d023922bd',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'unaware',
-                display: 'Unaware',
-                ordernum: 20,
-                icon: null,
-                is_active: true,
+                'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
+                'title': 'EarthRanger System'
               },
               {
-                id: '07fd81bc-dcaf-43f6-b179-c6ac96f15070',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'ambushed',
-                display: 'Ambushed',
-                ordernum: 30,
-                icon: null,
-                is_active: true,
+                'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
+                'title': 'frank'
               },
               {
-                id: 'eaab9dd4-c278-4df1-9e33-3d3843fc9aea',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'patrolling',
-                display: 'Patrolling',
-                ordernum: 40,
-                icon: null,
-                is_active: true,
+                'const': '17e67b22-0e4a-4fcb-aeee-903b51a7a2e0',
+                'title': 'Desert Bighorn Sheep'
               },
               {
-                id: 'fcece7d8-c7d9-439e-a619-d4c78e06fcac',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'incamp',
-                display: 'In Camp',
-                ordernum: 50,
-                icon: null,
-                is_active: true,
+                'const': '1f32688b-26ea-4648-a995-d5f9bca326e7',
+                'title': 'test_alan'
               },
               {
-                id: '82df38ed-93a3-403a-bda9-3547a51fa519',
-                model: 'activity.event',
-                field: 'contactrep_patrolactivity',
-                value: 'other',
-                display: 'Other',
-                ordernum: 60,
-                icon: null,
-                is_active: true,
-              },
-              //'$ref': 'https://rfb-era-master-102819134094.us-central1.run.app/schemas/existing/spoorrep_type.json'
-              {
-                id: '3f617359-4804-4f4c-b4a8-da0442a170c2',
-                model: 'activity.event',
-                field: 'spoorrep_type',
-                value: 'footprint',
-                display: 'Footprint',
-                ordernum: 10,
-                icon: null,
-                is_active: true,
+                'const': '200cca41-3303-4b63-a835-4bea40afcc95',
+                'title': 'Pronghorn'
               },
               {
-                id: '7321b7fc-7040-4d0d-be1a-c78f7a74a603',
-                model: 'activity.event',
-                field: 'spoorrep_type',
-                value: 'motorbike',
-                display: 'Motorbike',
-                ordernum: 20,
-                icon: null,
-                is_active: true,
+                'const': '223ab492-0ea7-4ff2-b8b8-cb6504c943b6',
+                'title': 'Ranger Cruz'
               },
               {
-                id: 'eb1dbea6-926a-4999-b11f-0dc61e0e05b2',
-                model: 'activity.event',
-                field: 'spoorrep_type',
-                value: 'vehilce',
-                display: 'Vehicle',
-                ordernum: 30,
-                icon: null,
-                is_active: true,
+                'const': '25567b9a-500f-427c-8a87-59f5e41f858b',
+                'title': 'Rabbit'
               },
+              {
+                'const': '2b7286bf-1734-490b-87c2-ee4206805b47',
+                'title': 'ERA-10171'
+              },
+              {
+                'const': '2db50099-8d3b-4f29-ab04-fd42f01d4267',
+                'title': 'Ludwig'
+              },
+              {
+                'const': '3492ef65-0519-4b28-9294-a5c55f619696',
+                'title': 'Testosteron'
+              },
+              {
+                'const': '35ed3fdd-ba65-4201-9a8a-05775249d534',
+                'title': 'alan radio'
+              },
+              {
+                'const': '37906bc2-5323-40d9-8be3-10700af31d26',
+                'title': 'Alfonso Hernandez'
+              },
+              {
+                'const': '382860ff-d848-426e-b1f0-43cbfaaf9a12',
+                'title': 'GFW Webhook'
+              },
+              {
+                'const': '3b8c7f7d-526e-46a7-8e0d-cf042ab32027',
+                'title': 'pw_source'
+              },
+              {
+                'const': '3bc7c8df-3461-47f2-8196-7b0a45405a13',
+                'title': 'Subject X'
+              }
             ]
           }
         }

@@ -23,7 +23,6 @@ const Option = ({ data, ...restProps }) => {
 
 
 const Dropdown = ({ details, onChange, value, id, hasError, ...otherProps }) => {
-  console.log(value);
   const options = [{
     label: 'An option',
     value: 44,
