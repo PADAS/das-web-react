@@ -1,140 +1,3 @@
-const schemaWithBasicText = {
-  label: 'Long and short text configs',
-  schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'required_short_text': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Required short text',
-          'type': 'string'
-        },
-        'required_long_text': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Required long text',
-          'type': 'string'
-        },
-        'short_text_with_a_hint': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Short text with a hint',
-          'type': 'string'
-        },
-        'long_text_with_a_hint': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Long text with a hint',
-          'type': 'string'
-        },
-        'short_text_with_description': {
-          'default': '',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector',
-          'title': 'Short text with description',
-          'type': 'string'
-        },
-        'long_text_with_description': {
-          'default': '',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector, these are some instructions for the data collector',
-          'title': 'Long text with description',
-          'type': 'string'
-        }
-      },
-      'required': [
-        'required_short_text',
-        'required_long_text'
-      ],
-      'type': 'object'
-    },
-    'ui': {
-      'fields': {
-        'required_short_text': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'required_long_text': {
-          'inputType': 'LONG_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'short_text_with_a_hint': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'This is a hint',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'long_text_with_a_hint': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'This is an example of data',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'short_text_with_description': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'long_text_with_description': {
-          'inputType': 'LONG_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        }
-      },
-      'headers': {},
-      'order': [
-        'section-qTr7if4PZeQ2tOD5HKTfI'
-      ],
-      'sections': {
-        'section-qTr7if4PZeQ2tOD5HKTfI': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
-            {
-              'name': 'required_short_text',
-              'type': 'field'
-            },
-            {
-              'name': 'required_long_text',
-              'type': 'field'
-            },
-            {
-              'name': 'short_text_with_a_hint',
-              'type': 'field'
-            },
-            {
-              'name': 'long_text_with_a_hint',
-              'type': 'field'
-            },
-            {
-              'name': 'short_text_with_description',
-              'type': 'field'
-            },
-            {
-              'name': 'long_text_with_description',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': []
-        }
-      }
-    }
-  }
-};
-
 const schemaWithTexts = {
   label: 'Text fields with full settings',
   schema: {
@@ -503,6 +366,154 @@ const schemaWithDateTimes = {
   },
 };
 
+const headerAndSections = {
+  label: 'Headers and Sections',
+  schema: {
+    'json': {
+      '$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'additionalProperties': false,
+      'properties': {
+        'a_field': {
+          'default': '',
+          'deprecated': false,
+          'description': '',
+          'title': 'a field',
+          'type': 'string'
+        },
+        'text_field': {
+          'default': '',
+          'deprecated': false,
+          'description': '',
+          'title': 'text field',
+          'type': 'string'
+        },
+        'some_data': {
+          'default': '',
+          'deprecated': false,
+          'description': '',
+          'title': 'Some data',
+          'type': 'string'
+        },
+        'other_stuff': {
+          'default': '',
+          'deprecated': false,
+          'description': '',
+          'title': 'other stuff',
+          'type': 'string'
+        }
+      },
+      'required': [],
+      'type': 'object'
+    },
+    'ui': {
+      'fields': {
+        'a_field': {
+          'inputType': 'SHORT_TEXT',
+          'placeholder': '',
+          'type': 'TEXT',
+          'parent': 'section-DrHl1yQyzRraCzm-V276C'
+        },
+        'text_field': {
+          'inputType': 'SHORT_TEXT',
+          'placeholder': '',
+          'type': 'TEXT',
+          'parent': 'section-DrHl1yQyzRraCzm-V276C'
+        },
+        'some_data': {
+          'inputType': 'SHORT_TEXT',
+          'placeholder': '',
+          'type': 'TEXT',
+          'parent': 'section-GzhQrd4U8_4Y-Z0QgDNze'
+        },
+        'other_stuff': {
+          'inputType': 'SHORT_TEXT',
+          'placeholder': '',
+          'type': 'TEXT',
+          'parent': 'section-GzhQrd4U8_4Y-Z0QgDNze'
+        }
+      },
+      'headers': {
+        'header-OYa0RpQenymtu66pnTLmc': {
+          'label': 'This is a medium header: just for validation purposes',
+          'section': 'section-DrHl1yQyzRraCzm-V276C',
+          'size': 'MEDIUM'
+        },
+        'header-fKIQXwpSEDHqsPP71kT0F': {
+          'label': 'This a large header: just for validation purposes',
+          'section': 'section-DrHl1yQyzRraCzm-V276C',
+          'size': 'LARGE'
+        },
+        'header--MGpFINYNGajDlzQbdOKg': {
+          'label': 'This is a medium header: just for validation purposes',
+          'section': 'section-GzhQrd4U8_4Y-Z0QgDNze',
+          'size': 'MEDIUM'
+        },
+        'header-rqLceS3fjpeGkW2URQh75': {
+          'label': 'This is a medium small: just for validation purposes',
+          'section': 'section-GzhQrd4U8_4Y-Z0QgDNze',
+          'size': 'SMALL'
+        }
+      },
+      'order': [
+        'section-DrHl1yQyzRraCzm-V276C',
+        'section-GzhQrd4U8_4Y-Z0QgDNze'
+      ],
+      'sections': {
+        'section-GzhQrd4U8_4Y-Z0QgDNze': {
+          'columns': 2,
+          'isActive': true,
+          'label': 'Medium and small headers',
+          'leftColumn': [
+            {
+              'name': 'header--MGpFINYNGajDlzQbdOKg',
+              'type': 'header'
+            },
+            {
+              'name': 'some_data',
+              'type': 'field'
+            }
+          ],
+          'rightColumn': [
+            {
+              'name': 'header-rqLceS3fjpeGkW2URQh75',
+              'type': 'header'
+            },
+            {
+              'name': 'other_stuff',
+              'type': 'field'
+            }
+          ]
+        },
+        'section-DrHl1yQyzRraCzm-V276C': {
+          'columns': 2,
+          'isActive': true,
+          'label': 'Large and Medium headers',
+          'leftColumn': [
+            {
+              'name': 'header-fKIQXwpSEDHqsPP71kT0F',
+              'type': 'header'
+            },
+            {
+              'name': 'text_field',
+              'type': 'field'
+            }
+          ],
+          'rightColumn': [
+            {
+              'type': 'header',
+              'name': 'header-OYa0RpQenymtu66pnTLmc'
+            },
+            {
+              'name': 'a_field',
+              'type': 'field'
+            }
+          ]
+        }
+      }
+    }
+  }
+};
+
 const simpleChoiceList = {
   label: 'Simple ChoiceList',
   schema: {
@@ -663,6 +674,6 @@ const simpleChoiceList = {
   }
 };
 
-const schemas = [schemaWithTexts, schemaWithSections, schemaWithBasicText, schemaWithDateTimes, simpleChoiceList];
+const schemas = [schemaWithTexts, schemaWithSections, schemaWithDateTimes, headerAndSections, simpleChoiceList];
 
 export default schemas;
