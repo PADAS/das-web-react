@@ -141,8 +141,8 @@
           "timeFormat": "Muundo wa muda haukubaliwi.",
           "required": "Hili ni shamba la lazima.",
           "outOfRange": {
-            "minimum": "Thamani hii inapaswa kuwa kubwa au sawa kuliko {{minimum}}",
-            "maximum": "Thamani hii inapaswa kuwa chini au sawa kuliko {{maximum}}"
+            "minimum": "Thamani hii inapaswa kuwa kubwa kuliko au sawa na {{minimum}}",
+            "maximum": "Thamani hii inapaswa kuwa chini ya au sawa na {{maximum}}"
           }
         }
       },

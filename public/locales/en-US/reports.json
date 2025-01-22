@@ -141,8 +141,8 @@
           "required": "This is a required field.",
           "timeFormat": "Invalid time format.",
           "outOfRange": {
-            "minimum": "This value should be greater or equal than {{minimum}}",
-            "maximum": "This value should be lower or equal than {{maximum}}"
+            "minimum": "This value should be greater than or equal to {{minimum}}",
+            "maximum": "This value should be less than or equal to {{maximum}}"
           }
         }
       },

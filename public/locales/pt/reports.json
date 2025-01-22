@@ -131,7 +131,7 @@
                     "required": "Este é um campo obrigatório.",
                     "outOfRange": {
                         "minimum": "Este valor deve ser maior ou igual a {{minimum}}",
-                        "maximum": "Este valor deve ser menor ou igual ao {{maximum}}"
+                        "maximum": "Este valor deve ser menor ou igual a {{maximum}}"
                     }
                 }
             },

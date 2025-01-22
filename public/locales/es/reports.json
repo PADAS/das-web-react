@@ -130,8 +130,8 @@
           "required": "Este campo es obligatorio.",
           "timeFormat": "Formato de hora inválido.",
           "outOfRange": {
-            "minimum": "Este valor debería ser mayor o igual a {{minimum}}",
-            "maximum": "Este valor debería ser menor o igual a  {{maximum}}"
+            "minimum": "Este valor debe ser mayor o igual a {{minimum}}",
+            "maximum": "Este valor debe ser menor o igual a {{maximum}}"
           }
         }
       },
