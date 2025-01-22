@@ -142,6 +142,7 @@ const CalendarPopper = ({
     open={isOpen}
     popperClassName={styles.popper}
     popperPlacement="bottom"
+    popperProps={{ strategy: 'fixed' }}
     ref={innerRef}
     renderCustomHeader={getRenderCustomHeader(maxDate, minDate, onKeyDown)}
     selected={selected}

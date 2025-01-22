@@ -439,11 +439,45 @@ const collections = {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       additionalProperties: false,
       properties: {
-        root_level_text_field: {
+        reason_of_arrest: {
           default: '',
           deprecated: false,
           description: '',
-          title: 'Root level text field',
+          title: 'Reason of arrest',
+          type: 'string',
+        },
+        informants: {
+          deprecated: false,
+          items: {
+            additionalProperties: false,
+            properties: {
+              informant_date: {
+                deprecated: false,
+                description: 'When was the information provided',
+                format: 'date',
+                title: 'Date',
+                type: 'string',
+              },
+              informant_name: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Name',
+                type: 'string',
+              },
+            },
+            required: ['informant_name'],
+            type: 'object',
+          },
+          title: 'Informants',
+          type: 'array',
+          unevaluatedItems: false,
+        },
+        extra_information: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Extra information',
           type: 'string',
         },
         suspects: {
@@ -454,27 +488,20 @@ const collections = {
               suspect_id: {
                 default: '',
                 deprecated: false,
-                description: '',
-                title: 'Suspect id',
+                description: 'Any kind of identification',
+                title: 'Id',
                 type: 'string',
               },
-              suspect_name: {
-                default: '',
-                deprecated: false,
-                description: 'Name of the Suspect',
-                title: 'Suspect Name',
-                type: 'string',
-              },
-              court_dates: {
+              suspect_court_date: {
                 deprecated: false,
                 items: {
                   additionalProperties: false,
                   properties: {
-                    date: {
+                    suspect_court_date_date: {
                       deprecated: false,
                       description: '',
-                      format: 'date',
-                      title: 'Date',
+                      format: 'date-time',
+                      title: 'Court Date',
                       type: 'string',
                     },
                     witnesses: {
@@ -482,7 +509,7 @@ const collections = {
                       items: {
                         additionalProperties: false,
                         properties: {
-                          name: {
+                          suspect_court_date_witness_name: {
                             default: '',
                             deprecated: false,
                             description: '',
@@ -490,7 +517,7 @@ const collections = {
                             type: 'string',
                           },
                         },
-                        required: [],
+                        required: ['suspect_court_date_witness_name'],
                         type: 'object',
                       },
                       title: 'Witnesses',
@@ -498,40 +525,98 @@ const collections = {
                       unevaluatedItems: false,
                     },
                   },
-                  required: ['date'],
+                  required: ['suspect_court_date_date'],
                   type: 'object',
                 },
-                title: 'Court Dates',
+                title: 'Court Date',
                 type: 'array',
                 unevaluatedItems: false,
+              },
+              suspect_name: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Name',
+                type: 'string',
               },
             },
             required: ['suspect_name'],
             type: 'object',
           },
-          maxItems: 5,
+          maxItems: 10,
           minItems: 2,
           title: 'Suspects',
           type: 'array',
           unevaluatedItems: false,
         },
+        estimated_number_of_people_involved_with_the_crime: {
+          default: '',
+          deprecated: false,
+          description: 'Number of people involved',
+          title: 'Estimated number of people involved with the crime',
+          type: 'string',
+        },
       },
-      required: [],
+      required: ['estimated_number_of_people_involved_with_the_crime'],
       type: 'object',
     },
     ui: {
       fields: {
-        root_level_text_field: {
-          inputType: 'SHORT_TEXT',
+        reason_of_arrest: {
+          inputType: 'LONG_TEXT',
           placeholder: '',
           type: 'TEXT',
-          parent: 'section-3FvW-xb785bmSLfTAT1cY',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
+        },
+        informants: {
+          buttonText: 'Informant',
+          columns: 1,
+          itemIdentifier: 'informant_name',
+          itemName: 'Informant',
+          leftColumn: ['informant_name', 'informant_date'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'section--Bg8EmlyyR6TODpwxT0bX',
+        },
+        extra_information: {
+          inputType: 'LONG_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-pPpQScPshpxwWztpaxx8i',
+        },
+        suspects: {
+          buttonText: 'Suspect',
+          columns: 2,
+          itemIdentifier: 'suspect_name',
+          itemName: 'Suspect',
+          leftColumn: ['suspect_name', 'suspect_court_date'],
+          rightColumn: ['suspect_id'],
+          type: 'COLLECTION',
+          parent: 'section-pPpQScPshpxwWztpaxx8i',
         },
         suspect_id: {
           inputType: 'SHORT_TEXT',
-          placeholder: 'ID',
+          placeholder: '',
           type: 'TEXT',
           parent: 'suspects',
+        },
+        suspect_court_date: {
+          buttonText: 'Court Date',
+          columns: 2,
+          itemIdentifier: 'suspect_court_date_date',
+          itemName: 'Court Date',
+          leftColumn: ['suspect_court_date_date'],
+          rightColumn: ['witnesses'],
+          type: 'COLLECTION',
+          parent: 'suspects',
+        },
+        informant_date: {
+          type: 'DATE_TIME',
+          parent: 'informants',
+        },
+        suspect_court_date_date: {
+          type: 'DATE_TIME',
+          parent: 'suspect_court_date',
         },
         suspect_name: {
           inputType: 'SHORT_TEXT',
@@ -539,65 +624,87 @@ const collections = {
           type: 'TEXT',
           parent: 'suspects',
         },
-        date: {
-          type: 'DATE_TIME',
-          parent: 'court_dates',
+        estimated_number_of_people_involved_with_the_crime: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '1',
+          type: 'TEXT',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
         },
-        court_dates: {
-          buttonText: 'Court Date',
-          columns: 2,
-          itemIdentifier: 'date',
-          itemName: 'Court Date',
-          leftColumn: ['date'],
-          rightColumn: ['witnesses'],
-          type: 'COLLECTION',
-          parent: 'suspects',
-        },
-        name: {
+        informant_name: {
           inputType: 'SHORT_TEXT',
           placeholder: '',
           type: 'TEXT',
-          parent: 'witnesses',
+          parent: 'informants',
         },
         witnesses: {
           buttonText: 'Witness',
           columns: 1,
-          itemIdentifier: 'name',
+          itemIdentifier: 'suspect_court_date_witness_name',
           itemName: 'Witness',
-          leftColumn: ['name'],
+          leftColumn: ['suspect_court_date_witness_name'],
           rightColumn: [],
           type: 'COLLECTION',
-          parent: 'court_dates',
+          parent: 'suspect_court_date',
         },
-        suspects: {
-          buttonText: 'Suspect',
-          columns: 2,
-          itemIdentifier: 'suspect_name',
-          itemName: 'Suspect',
-          leftColumn: ['suspect_name', 'court_dates'],
-          rightColumn: ['suspect_id'],
-          type: 'COLLECTION',
-          parent: 'section-3FvW-xb785bmSLfTAT1cY',
+        suspect_court_date_witness_name: {
+          inputType: 'SHORT_TEXT',
+          placeholder: 'Jane Doe',
+          type: 'TEXT',
+          parent: 'witnesses',
         },
       },
       headers: {},
-      order: ['section-3FvW-xb785bmSLfTAT1cY'],
+      order: [
+        'section-lVgxKRYviEMeJfWNtWz72',
+        'section--Bg8EmlyyR6TODpwxT0bX',
+        'section-pPpQScPshpxwWztpaxx8i',
+      ],
       sections: {
-        'section-3FvW-xb785bmSLfTAT1cY': {
-          columns: 1,
+        'section-lVgxKRYviEMeJfWNtWz72': {
+          columns: 2,
           isActive: true,
           label: '',
           leftColumn: [
             {
+              name: 'reason_of_arrest',
               type: 'field',
-              name: 'root_level_text_field',
             },
+          ],
+          rightColumn: [
+            {
+              name: 'estimated_number_of_people_involved_with_the_crime',
+              type: 'field',
+            },
+          ],
+        },
+        'section--Bg8EmlyyR6TODpwxT0bX': {
+          columns: 1,
+          isActive: true,
+          label: 'Arrest Intel',
+          leftColumn: [
+            {
+              name: 'informants',
+              type: 'field',
+            },
+          ],
+          rightColumn: [],
+        },
+        'section-pPpQScPshpxwWztpaxx8i': {
+          columns: 2,
+          isActive: true,
+          label: 'Suspects',
+          leftColumn: [
             {
               name: 'suspects',
               type: 'field',
             },
           ],
-          rightColumn: [],
+          rightColumn: [
+            {
+              name: 'extra_information',
+              type: 'field',
+            },
+          ],
         },
       },
     },
