@@ -1,5 +1,4 @@
-import {getCurrentLocale} from "../../utils/datetime";
-import i18next from "i18next";
+import i18next from 'i18next';
 
 export const DECIMAL_POINT_SYMBOL = '.';
 export const DECIMAL_COMMA_SYMBOL = ',';
@@ -120,7 +119,7 @@ export const sanitizeDecimalSymbols = (value) => {
   return value;
 };
 
-export const getDefaultLocalizedDecimalSymbol = () => {
+const getDefaultLocalizedDecimalSymbol = () => {
   return 1.1.toLocaleString(i18next.language).substring(1, 2);
 };
 
