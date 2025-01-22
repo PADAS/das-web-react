@@ -1,3 +1,6 @@
+import {getCurrentLocale} from "../../utils/datetime";
+import i18next from "i18next";
+
 export const DECIMAL_POINT_SYMBOL = '.';
 export const DECIMAL_COMMA_SYMBOL = ',';
 export const NEGATIVE_SYMBOL = '-';
@@ -46,14 +49,14 @@ export const getNumberPrecision = (value) => {
   return getFloatDigits(value).length;
 };
 
-export const incrementValue = (value, min, max, blockOutOfRangeValues = true) => {
+export const incrementValue = (value, min, max) => {
   if (value === ''){
     return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue + 1;
-  const newestValue = blockOutOfRangeValues && max && newValue > max ? numberValue : newValue;
+  const newestValue = max && newValue > max ? numberValue : newValue;
 
   const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
   const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
@@ -61,14 +64,14 @@ export const incrementValue = (value, min, max, blockOutOfRangeValues = true) =>
   return newStringValue.replace(secondSymbolOccurrence, firstSymbolOccurrence);
 };
 
-export const decrementValue = (value, min, blockOutOfRangeValues = true) => {
+export const decrementValue = (value, min) => {
   if (value === ''){
     return min ? min.toString() : '0';
   }
 
   const numberValue = parseStringValueToNumber(value);
   const newValue = numberValue - 1;
-  const newestValue = blockOutOfRangeValues && min && newValue < min ? numberValue : newValue;
+  const newestValue = min && newValue < min ? numberValue : newValue;
 
   const [firstSymbolOccurrence, secondSymbolOccurrence] = getDecimalSymbolOccurrences(value);
   const newStringValue = newestValue.toFixed( getNumberPrecision(value) );
@@ -117,6 +120,10 @@ export const sanitizeDecimalSymbols = (value) => {
   return value;
 };
 
+export const getDefaultLocalizedDecimalSymbol = () => {
+  return 1.1.toLocaleString(i18next.language).substring(1, 2);
+};
+
 export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlainDecimal) => {
   const isInValidNumber = number === null || number === undefined || number === '';
 
@@ -138,6 +145,10 @@ export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlai
   if (!isNumberFloat && decimalSymbol){
     const fixedDecimals = isPlainDecimal ? '0' : '';
     return `${unFormattedStringNumber}${decimalSymbol}${fixedDecimals}`;
+  }
+
+  if (isNumberFloat && decimalSymbol === null){
+    return unFormattedStringNumber.replace('.', getDefaultLocalizedDecimalSymbol());
   }
 
   const symbolToReplace = decimalSymbol === DECIMAL_COMMA_SYMBOL ? DECIMAL_POINT_SYMBOL : DECIMAL_COMMA_SYMBOL;

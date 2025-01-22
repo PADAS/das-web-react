@@ -7,8 +7,12 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/ar
 import {
   decrementValue,
   eraseNonNumericValidChars,
-  getDecimalSymbolOccurrences, getFloatDigits, getNumberPrecision,
-  incrementValue, isFloat, isNegativeNumber,
+  getDecimalSymbolOccurrences,
+  getFloatDigits,
+  getNumberPrecision,
+  incrementValue,
+  isFloat,
+  isNegativeNumber,
   isNumber,
   parseAndLocalizeNumber,
   parseStringValueToNumber,
@@ -55,11 +59,11 @@ ref) => {
     switch (event.key){
     case 'ArrowUp':
       event.preventDefault();
-      handleOnValueChange( incrementValue(stringifiedNumber, min, max, blockOutOfRangeValues) );
+      handleOnValueChange( incrementValue(stringifiedNumber, min, max) );
       break;
     case 'ArrowDown':
       event.preventDefault();
-      handleOnValueChange( decrementValue(stringifiedNumber, min, blockOutOfRangeValues) );
+      handleOnValueChange( decrementValue(stringifiedNumber, min) );
       break;
     default:
       break;
@@ -80,7 +84,7 @@ ref) => {
       )
     );
 
-    if ( blockOutOfRangeValues && ( (min && parseFloat(validInput) < min) || (max && parseFloat(validInput) > max) ) ) {
+    if ( blockOutOfRangeValues && ( max && parseFloat(validInput) > max ) ) {
       return;
     }
 

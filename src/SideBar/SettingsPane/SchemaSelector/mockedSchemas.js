@@ -8,9 +8,9 @@ const schemaWithNumerics = {
         'non_required_numeric_field_with_range_of_1-10': {
           'deprecated': false,
           'description': 'These are some cool instructions',
-          'maximum': 10,
-          'minimum': 1,
-          'title': 'Non required numeric field with range of 1-10',
+          'maximum': 20,
+          'minimum': 10,
+          'title': 'Non required numeric field with range of 10-20',
           'type': 'number'
         },
         'required_field_no_range_with_default_input': {
