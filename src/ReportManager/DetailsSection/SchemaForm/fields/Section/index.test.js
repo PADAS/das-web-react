@@ -5,6 +5,8 @@ import { render, screen } from '../../../../../test-utils';
 import Section from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () => {
+  const onFieldChange = jest.fn();
+  const onFieldErrorsChange = jest.fn();
   const renderField = jest.fn();
 
   let details;
@@ -19,7 +21,11 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
 
   const renderSectionField = (props) => render(<Section
     details={details}
+    fieldErrors={{}}
+    formData={{}}
     id="section-1"
+    onFieldChange={onFieldChange}
+    onFieldErrorsChange={onFieldErrorsChange}
     renderField={renderField}
     {...props}
   />);
@@ -73,6 +79,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     renderSectionField();
 
     expect(renderField).toHaveBeenCalledTimes(1);
-    expect(renderField).toHaveBeenCalledWith('text-1');
+    expect(renderField.mock.calls[0][0]).toBe('text-1');
   });
 });

@@ -93,7 +93,11 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
 
     const runValidations = result.current;
 
-    expect(runValidations(formData)).toEqual({ this_is_a_text: 'This is a required field.' });
+    expect(runValidations(formData)).toEqual({
+      this_is_a_text: {
+        message: 'This is a required field.',
+      },
+    });
   });
 
   it('returns the date format validation error', () => {
@@ -121,7 +125,9 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     const runValidations = result.current;
 
     expect(runValidations(formData)).toEqual({
-      this_is_a_date_time: 'Invalid date format or invalid date. Double-check the day, month and year.',
+      this_is_a_date_time: {
+        message: 'Invalid date format or invalid date. Double-check the day, month and year.',
+      },
     });
   });
 
@@ -150,7 +156,9 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     const runValidations = result.current;
 
     expect(runValidations(formData)).toEqual({
-      this_is_a_date_time: 'Invalid date & time format or invalid date. Double-check the day, month and year.',
+      this_is_a_date_time: {
+        message: 'Invalid date & time format or invalid date. Double-check the day, month and year.',
+      }
     });
   });
 
@@ -179,7 +187,9 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useSchemaValidat
     const runValidations = result.current;
 
     expect(runValidations(formData)).toEqual({
-      this_is_a_date_time: 'Invalid time format.',
+      this_is_a_date_time: {
+        message: 'Invalid time format.',
+      },
     });
   });
 });
