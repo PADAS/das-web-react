@@ -40,7 +40,7 @@ const addFieldToFieldsObjectRecursively = (
     fields[fieldId].details.inputType = uiSchema.fields[fieldId].inputType;
     fields[fieldId].details.choices = {
       ...uiSchema.fields[fieldId].choices,
-      options: uiSchema.fields[fieldId].items.anyOf
+      options: jsonSubschema.properties[fieldId].items.anyOf
     };
     fields[fieldId].details.description =
       jsonSubschema.properties[fieldId].description;

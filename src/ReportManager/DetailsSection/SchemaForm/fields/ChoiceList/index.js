@@ -1,11 +1,10 @@
-import React from 'react';
-import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
-
-import Select from '../../../../../Select';
+import React, { useMemo } from 'react';
 import { components as SelectComponent } from 'react-select';
 
-import styles from './styles.module.scss';
+import Select from '../../../../../Select';
+import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
+import styles from './styles.module.scss';
 
 const Option = ({ data, ...restProps }) => {
   return <div>
@@ -18,23 +17,15 @@ const Option = ({ data, ...restProps }) => {
       </span>
     </SelectComponent.Option>
   </div>;
-
 };
 
 
 const Dropdown = ({ details, onChange, value, id, hasError, ...otherProps }) => {
-  const options = [{
-    label: 'An option',
-    value: 44,
-  },
-  {
-    label: 'Another option',
-    value: 23,
-  },
-  {
-    label: 'Extra option',
-    value: 33,
-  }];
+
+  const options = useMemo(() => details.choices.options.map((option) => ({
+    value: option.const,
+    label: option.title
+  })), [details.choices.options]);
 
   return <div {...otherProps}>
     <Select
@@ -64,15 +55,13 @@ const INPUTS = {
 };
 
 /* ToDO:
-* - There is an error with items prop $ref which tries to get the items from a ref of EFB env and not being able to solve it
-* - check how to fetch options
 * - check dropdown state like readonly, disabled, etc
-* - i18n for dropdown state
+* - i18n for dropdown state: No options
 * - how the value is going to be stored?
+* - autofill
 * */
 const ChoiceList = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
   const Input = INPUTS[details.inputType];
-
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
