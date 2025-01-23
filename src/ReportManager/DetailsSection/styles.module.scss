@@ -113,12 +113,14 @@
   }
 
   &.datePickerLabel {
-    width: unset;
+    flex: 5;
+    width: 0;
   }
 
   &.timePickerLabel {
-    margin-left: 0.5rem;
-    width: unset;
+    margin-left: 0.25rem;
+    flex: 4;
+    width: 0;
   }
 
   [class*=locationSelectionLabel] {
