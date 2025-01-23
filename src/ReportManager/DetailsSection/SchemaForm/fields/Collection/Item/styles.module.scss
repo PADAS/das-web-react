@@ -1,3 +1,5 @@
+@use "sass:color";
+
 @use "../../../../../../common/styles/vars/colors";
 
 $itemExpansionTransitionTime: 300ms;
@@ -17,12 +19,8 @@ $itemExpansionTransitionTime: 300ms;
       .title {
         color: colors.$bright-red;
       }
-      
-      .chevronButton {
-        color: colors.$bright-red;
-      }
 
-      .editButton {
+      .actionButton {
         color: colors.$bright-red;
       }
     }
@@ -55,46 +53,40 @@ $itemExpansionTransitionTime: 300ms;
     display: flex;
     height: 2.5rem;
     justify-content: space-between;
-    padding: 0.25rem 1rem;
+    padding: 0.25rem 0.75rem;
     width: 100%;
 
     .title {
       margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
     }
 
-    .chevronButton {
-      background: none;
-      border: none;
-      border-radius: 0.1875rem;
-      color: colors.$secondary-medium-gray;
-      margin-right: 0.5rem;
-      outline: none;
+    .actionButtons {
+      display: flex;
 
-      &:hover {
-        background: colors.$light-gray-background;
-      }
+      .actionButton {
+        background: none;
+        border: none;
+        border-radius: 0.1875rem;
+        color: colors.$secondary-medium-gray;
+        margin-right: 0.25rem;
+        outline: none;
 
-      &:focus-visible {
-        border: 2px solid colors.$bright-blue;
-        color: colors.$bright-blue;
-      }
-    }
+        &:last-child {
+          margin-right: 0;
+        }
 
-    .editButton {
-      background: none;
-      border: none;
-      border-radius: 0.1875rem;
-      color: colors.$secondary-medium-gray;
-      margin-right: 0.5rem;
-      outline: none;
+        &:hover {
+          background: colors.$light-gray-background;
+        }
 
-      &:hover {
-        background: colors.$light-gray-background;
-      }
-
-      &:focus-visible {
-        border: 2px solid colors.$bright-blue;
-        color: colors.$bright-blue;
+        &:focus-visible {
+          border: 2px solid colors.$bright-blue;
+          color: colors.$bright-blue;
+        }
       }
     }
   }

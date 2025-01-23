@@ -146,7 +146,8 @@
                     },
                     "item": {
                       "collectionHumanizedValue": "{{collectionLength}} itens",
-                      "editButton": "Editar {{itemTitle}}",
+                      "deleteButtonLabel": "Excluir {{itemTitle}}",
+                      "editButtonLabel": "Editar {{itemTitle}}",
                       "formModal": {
                             "cancelButton": "Cancelar",
                             "deleteButton": "Excluir {{itemTitle}}",

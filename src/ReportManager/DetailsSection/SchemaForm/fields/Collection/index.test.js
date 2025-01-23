@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen } from '../../../../../test-utils';
+import { render, screen, within } from '../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../constants';
 
 import Collection from './';
@@ -156,14 +156,26 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     );
   });
 
-  test('changes the collection value when an item is deleted and removes the collection error message and the errors from the deleted item', () => {
+  test('changes the collection value when an item is deleted from the item header and removes the collection error message and the errors from the deleted item', () => {
     renderCollectionField({ error: { 0: { 'field-1': { message: 'Error' } }, message: 'Error' }, value: [{}, {}] });
-
-    userEvent.click(screen.getByLabelText('Edit Item - 1'));
 
     expect(onFieldChange).not.toHaveBeenCalled();
 
     userEvent.click(screen.getByLabelText('Delete Item - 1'));
+
+    expect(onFieldChange).toHaveBeenCalledTimes(1);
+    expect(onFieldChange).toHaveBeenCalledWith('collection-1', [{}], undefined);
+  });
+
+  test('changes the collection value when an item is deleted from the modal and removes the collection error message and the errors from the deleted item', () => {
+    renderCollectionField({ error: { 0: { 'field-1': { message: 'Error' } }, message: 'Error' }, value: [{}, {}] });
+
+    userEvent.click(screen.getByLabelText('Edit Item - 1'));
+    const formModal = screen.getByRole('dialog');
+
+    expect(onFieldChange).not.toHaveBeenCalled();
+
+    userEvent.click(within(formModal).getByLabelText('Delete Item - 1'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith('collection-1', [{}], undefined);
@@ -182,10 +194,25 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.getByText('Add')).toBeVisible();
   });
 
-  test('changes the collection value when an item is added and removes its error message', () => {
-    renderCollectionField({ error: { 0: { 'field-1': { message: 'Error' } }, message: 'Error' }, value: [{}, {}] });
+  test('disables the add button if there is a max items constraint and it was reached', () => {
+    details.maxItems = 3;
+    renderCollectionField({ value: [{}, {}, {}] });
+
+    expect(screen.getByText('Add button text')).toBeDisabled();
+  });
+
+  test('does not disable the add button if there is a max items constraint and it has not been reached', () => {
+    details.maxItems = 3;
+    renderCollectionField({ value: [{}, {}] });
+
+    expect(screen.getByText('Add button text')).toBeEnabled();
+  });
+
+  test('opens the form modal and changes the collection value when an item is added and removes its error message', () => {
+    const { rerender } = renderCollectionField({ error: { 0: { 'field-1': { message: 'Error' } }, message: 'Error' }, value: [{}, {}] });
 
     expect(onFieldChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).toBeNull();
 
     userEvent.click(screen.getByText('Add button text'));
 
@@ -195,5 +222,31 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       [{}, {}, {}],
       { 0: { 'field-1': { message: 'Error' } } }
     );
+
+    rerender(<Collection
+      breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+      details={details}
+      error={{ 0: { 'field-1': { message: 'Error' } } }}
+      fields={{
+        'field-1': {
+          details: {
+            label: 'Field 1',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+        'field-2': {
+          details: {
+            label: 'Field 2',
+          },
+          type: FORM_ELEMENT_TYPES.TEXT,
+        },
+      }}
+      id="collection-1"
+      onFieldChange={onFieldChange}
+      renderField={renderField}
+      value={[{}, {}, {}]}
+    />);
+
+    expect(screen.getByRole('dialog')).toBeVisible();
   });
 });

@@ -3,6 +3,10 @@
 @use "../../../../../../../common/styles/vars/colors";
 @use '../../../../../../../common/styles/inputs';
 
+.noBackground {
+  background: none !important;
+}
+
 .header {
   background-color: white;
   flex-direction: column;
@@ -27,7 +31,7 @@
 }
 
 .body {
-  min-height: 30vh;
+  height: 40vh;
 
   .columns {
     display: flex;

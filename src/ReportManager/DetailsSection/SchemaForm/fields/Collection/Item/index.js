@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as PencilIcon } from '../../../../../../common/images/icons/pencil.svg';
+import { ReactComponent as TrashCanIcon } from '../../../../../../common/images/icons/trash-can.svg';
 
 import { getHumanizedValue } from './utils';
 
@@ -34,6 +35,7 @@ const Item = ({
   name,
   onChange,
   onDelete,
+  openModalAutomatically = false,
   renderField,
   rightColumn,
 }) => {
@@ -47,7 +49,7 @@ const Item = ({
   const formDataBeforeEditingRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(openModalAutomatically);
 
   const hasError = !!errors;
   const title = getTitle(formData, identifier, name, index, fields, i18n.language, t);
@@ -98,13 +100,24 @@ const Item = ({
       data-testid="schema-form-collection-item"
     >
     <div className={styles.header}>
-      <p className={styles.title}>{title}</p>
+      <p className={styles.title} title={title}>{title}</p>
 
-      <div>
+      <div className={styles.actionButtons}>
         <button
-          aria-label={t('editButton', { itemTitle: title })}
-          className={styles.editButton}
+          aria-label={t('deleteButtonLabel', { itemTitle: title } )}
+          className={styles.actionButton}
+          onClick={onDelete}
+          title={t('deleteButtonLabel', { itemTitle: title } )}
+          type="button"
+        >
+          <TrashCanIcon />
+        </button>
+
+        <button
+          aria-label={t('editButtonLabel', { itemTitle: title })}
+          className={styles.actionButton}
           onClick={onEditButtonClick}
+          title={t('editButtonLabel', { itemTitle: title })}
           type="button"
         >
           <PencilIcon />
@@ -114,8 +127,9 @@ const Item = ({
           aria-controls={`collectionForm-${title}`}
           aria-expanded={isOpen}
           aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
-          className={styles.chevronButton}
+          className={styles.actionButton}
           onClick={() => setIsOpen(!isOpen)}
+          title={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           type="button"
         >
           {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
@@ -140,6 +154,7 @@ const Item = ({
       formData={formData}
       errors={errors}
       isOpen={isFormModalOpen}
+      itemName={name}
       leftColumn={leftColumn}
       onCancel={onFormModalCancel}
       onDeleteItem={onDeleteItem}

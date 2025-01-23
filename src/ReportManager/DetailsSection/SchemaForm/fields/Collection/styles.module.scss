@@ -4,7 +4,12 @@
 
 .collection {
   .header {
+    align-items: center;
     border-radius: 0.25rem;
+    display: flex;
+    height: 2.5rem;
+    justify-content: space-between;
+    padding-right: 0.25rem;
     width: 100%;
 
     &.error {

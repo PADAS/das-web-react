@@ -46,6 +46,7 @@ const Input = forwardRef(({
       ref={ref}
       type="button"
       {...otherProps}
+      title={t('inputButtonLabel')}
     >
     {`${date.toLocaleString(i18n.language, { month: 'short' })} ${getYear(date)}`}
 
@@ -73,6 +74,7 @@ const Header = ({
       className={styles.chevronButton}
       disabled={prevYearButtonDisabled}
       onClick={decreaseYear}
+      title={t('previousYearButtonLabel')}
       type="button"
     >
       <ChevronLeft />
@@ -85,6 +87,7 @@ const Header = ({
       className={styles.chevronButton}
       disabled={nextYearButtonDisabled}
       onClick={increaseYear}
+      title={t('nextYearButtonLabel')}
       type="button"
     >
       <ChevronRight />
@@ -154,6 +157,7 @@ const MonthPicker = ({
       className={styles.chevronButton}
       disabled={prevYearButtonDisabled}
       onClick={decreaseYear}
+title={t('previousYearButtonLabel')}
       type="button"
     >
       <ChevronLeft />
@@ -165,6 +169,7 @@ const MonthPicker = ({
       className={styles.chevronButton}
       disabled={prevMonthButtonDisabled}
       onClick={decreaseMonth}
+      title={t('previousMonthButtonLabel')}
       type="button"
     >
       <ChevronLeft />
@@ -199,6 +204,7 @@ const MonthPicker = ({
       className={styles.chevronButton}
       disabled={nextMonthButtonDisabled}
       onClick={increaseMonth}
+      title={t('nextMonthButtonLabel')}
       type="button"
     >
       <ChevronRight />
@@ -209,6 +215,7 @@ const MonthPicker = ({
       className={styles.chevronButton}
       disabled={nextYearButtonDisabled}
       onClick={increaseYear}
+      title={t('nextYearButtonLabel')}
       type="button"
     >
       <ChevronRight />

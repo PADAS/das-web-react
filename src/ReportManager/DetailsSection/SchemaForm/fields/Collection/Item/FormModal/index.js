@@ -13,6 +13,7 @@ const FormModal = ({
   errors,
   formData,
   isOpen,
+  itemName,
   leftColumn,
   onCancel,
   onDeleteItem,
@@ -26,9 +27,22 @@ const FormModal = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.item.formModal',
   });
 
-  return <Modal aria-labelledby="formModal-title" backdrop="static" centered keyboard={false} scrollable show={isOpen}>
+  // If there are breadcrumbs, we know that we are in a nested modal (nested collection) so we disable modal animations
+  // and remove the background opacity.
+  const isNestedModal = breadcrumbs.length > 0;
+
+  return <Modal
+      animation={!isNestedModal}
+      aria-labelledby="formModal-title"
+      backdrop={false}
+      centered
+      className={isNestedModal ? styles.noBackground : ''}
+      keyboard={false}
+      scrollable
+      show={isOpen}
+    >
     <Modal.Header className={styles.header}>
-      {breadcrumbs.length > 0 && <Breadcrumb as="div" listProps={{ className: styles.list }}>
+      <Breadcrumb as="div" listProps={{ className: styles.list }}>
         {breadcrumbs.map((breadcrumb) => <Breadcrumb.Item
           className={styles.breadcrumb}
           key={breadcrumb.id}
@@ -38,9 +52,9 @@ const FormModal = ({
         </Breadcrumb.Item>)}
 
         <Breadcrumb.Item className={`${styles.breadcrumb} ${styles.current}`} linkAs="span">{title}</Breadcrumb.Item>
-      </Breadcrumb>}
+      </Breadcrumb>
 
-      <Modal.Title className={styles.title} id="formModal-title">{title}</Modal.Title>
+      <Modal.Title className={styles.title} id="formModal-title">{itemName}</Modal.Title>
     </Modal.Header>
 
     <Modal.Body className={styles.body}>
@@ -78,6 +92,7 @@ const FormModal = ({
         aria-label={t('deleteButton', { itemTitle: title } )}
         className={styles.deleteButton}
         onClick={onDeleteItem}
+        title={t('deleteButton', { itemTitle: title } )}
         type="button"
       >
         <TrashCanIcon />

@@ -45,6 +45,7 @@ const Input = forwardRef(({
       ref={ref}
       type="button"
       {...otherProps}
+      title={t('menuButtonLabel')}
     >
     <div className={`${styles.caret} ${isOpen ? styles.open : ''}`} role="img" />
   </button>;

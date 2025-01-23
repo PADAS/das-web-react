@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor } from '../../../../../../test-utils';
+import { render, screen, waitFor, within } from '../../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../../constants';
 
 import Item from './';
@@ -36,6 +36,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     name="Collection 1"
     onChange={onChange}
     onDelete={onDelete}
+    openModalAutomatically={false}
     renderField={renderField}
     rightColumn={[]}
     {...props}
@@ -102,6 +103,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
 
     expect(chevronButton).toHaveAttribute('aria-expanded', 'false');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('open');
+  });
+
+  test('opens the form modal automatically', () => {
+    renderItem({ openModalAutomatically: true });
+
+    expect(screen.getByRole('dialog')).toBeVisible();
   });
 
   test('opens the form modal when user clicks the edit button', () => {
@@ -183,6 +190,16 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     });
   });
 
+  test('deletes the item when the user clicks the trash button in the header', async () => {
+    renderItem();
+
+    expect(onDelete).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Delete Value 1'));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
   test('deletes the item and closes the form modal when the user clicks the trash button in the modal', async () => {
     renderItem();
 
@@ -193,7 +210,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     expect(onDelete).not.toHaveBeenCalled();
     expect(formModal).toBeVisible();
 
-    userEvent.click(screen.getByLabelText('Delete Value 1'));
+    userEvent.click(within(formModal).getByLabelText('Delete Value 1'));
 
     expect(onDelete).toHaveBeenCalledTimes(1);
     await waitFor(() => {

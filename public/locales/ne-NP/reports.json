@@ -154,7 +154,8 @@
                     },
                     "item": {
                       "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
-                      "editButton": "{{itemTitle}} सम्पादन गर्नुहोस्",
+                      "deleteButtonLabel": "{{itemTitle}} मेट्नुहोस्",
+                      "editButtonLabel": "{{itemTitle}} सम्पादन गर्नुहोस्",
                       "formModal": {
                             "cancelButton": "रद्द गर्नुहोस्",
                             "deleteButton": "{{itemTitle}} मेटाउनुहोस्",

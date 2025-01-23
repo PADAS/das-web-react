@@ -458,6 +458,7 @@ const TimePicker = ({
       disabled={disabled || readOnly}
       onClick={() => isOptionsPopoverOpen ? onCloseOptionsPopover() : setIsOptionsPopoverOpen(true)}
       ref={optionsPopoverButtonRef}
+      title={t('optionsPopoverButtonLabel')}
       type="button"
     >
       <div className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} role="img" />

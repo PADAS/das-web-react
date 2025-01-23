@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
@@ -27,6 +27,8 @@ const Collection = ({
   value = [],
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
+
+  const temporalIdentifierOfLastAddedItemRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(true);
   // React requires rendered arrays to have a unique key, but there's nothing we can use for the collection items so we
@@ -91,7 +93,10 @@ const Collection = ({
     }
 
     onFieldChange(id, [...value, {}], updatedError);
-    setTemporalIdentifiers([...temporalIdentifiers, uuid()]);
+
+    const temporalIdentifier = uuid();
+    setTemporalIdentifiers([...temporalIdentifiers, temporalIdentifier]);
+    temporalIdentifierOfLastAddedItemRef.current = temporalIdentifier;
   };
 
   return <div
@@ -105,20 +110,21 @@ const Collection = ({
       className={`${styles.header} ${hasError || doesChildrenHaveErrors ? styles.error : '' }`}
       data-testid={`schema-form-collection-header-${id}`}
     >
+      <label className={styles.label} htmlFor={id}>
+        {details.label} - {value.length}
+      </label>
+
       <button
         aria-controls={`collectionList-${id}`}
         aria-expanded={isOpen}
         aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
         className={styles.chevronButton}
         onClick={() => setIsOpen(!isOpen)}
+        title={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
         type="button"
       >
         {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
       </button>
-
-      <label className={styles.label} htmlFor={id}>
-        {details.label} - {value.length}
-      </label>
     </div>
 
     <Collapse in={isOpen}>
@@ -139,6 +145,7 @@ const Collection = ({
               name={details.itemName}
               onChange={onItemChange(index)}
               onDelete={onItemDelete(index)}
+              openModalAutomatically={temporalIdentifierOfLastAddedItemRef.current === temporalIdentifiers[index]}
               renderField={renderField}
               rightColumn={details.rightColumn}
             />)}
@@ -149,6 +156,7 @@ const Collection = ({
           className={styles.addButton}
           disabled={details.maxItems === null ? false : value.length >= details.maxItems}
           onClick={onAddButtonClick}
+          title={t('addButtonLabel', { itemName: details.itemName })}
           type="button"
         >
           <AddButtonIcon className={styles.icon} />

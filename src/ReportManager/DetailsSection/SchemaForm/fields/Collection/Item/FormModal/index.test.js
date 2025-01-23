@@ -29,19 +29,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     {...props}
   />);
 
-  test('shows the breadcrumb if we are in a second level collection', () => {
+  test('shows the breadcrumbs', () => {
     renderFormModal();
 
     const breadcrumbs = screen.getByLabelText('breadcrumb');
 
     expect(breadcrumbs).toBeVisible();
     expect(breadcrumbs).toHaveTextContent('Item 1Item 2Item 3');
-  });
-
-  test('does not show the breadcrumb if we are in a first level collection', () => {
-    renderFormModal({ breadcrumbs: [] });
-
-    expect(screen.queryByLabelText('breadcrumb')).toBeNull();
   });
 
   test('shows the left column when it is the only column', () => {

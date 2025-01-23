@@ -157,7 +157,8 @@
             },
             "item": {
               "collectionHumanizedValue": "{{collectionLength}} vitu",
-              "editButton": "Hariri {{itemTitle}}",
+              "deleteButtonLabel": "Futa {{itemTitle}}",
+              "editButtonLabel": "Hariri {{itemTitle}}",
               "formModal": {
                 "cancelButton": "Ghairi",
                 "deleteButton": "Futa {{itemTitle}}",
