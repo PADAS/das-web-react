@@ -5,7 +5,7 @@ import { shouldUse12HourFormat } from '../../../../../../../utils/datetime';
 
 // Utility to calculate a human readable version of the field values. For example, render a date-time like
 // 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
-export const getHumanizedValue = (field, value, defaultHumanizedValue, language) => {
+export const getHumanizedValue = (field, value, defaultHumanizedValue, language, t) => {
   if (!value) {
     return defaultHumanizedValue;
   }
@@ -14,7 +14,7 @@ export const getHumanizedValue = (field, value, defaultHumanizedValue, language)
 
   switch (field.type) {
   case FORM_ELEMENT_TYPES.COLLECTION:
-    return `${value.length} items`;
+    return t('collectionHumanizedValue', { collectionLength: value.length });
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     if (field.details.multiple) {

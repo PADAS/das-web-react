@@ -61,7 +61,7 @@ global.IntersectionObserver = class IntersectionObserver {
 
 global.BroadcastChannel = require('worker_threads').BroadcastChannel;
 
-global.structuredClone = (value) => JSON.parse(JSON.stringify(value));
+global.structuredClone = (value) => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 
 window.URL.createObjectURL = jest.fn();
 

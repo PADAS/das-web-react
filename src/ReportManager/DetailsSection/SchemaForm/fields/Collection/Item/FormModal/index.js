@@ -31,8 +31,8 @@ const FormModal = ({
       {breadcrumbs.length > 0 && <Breadcrumb as="div" listProps={{ className: styles.list }}>
         {breadcrumbs.map((breadcrumb) => <Breadcrumb.Item
           className={styles.breadcrumb}
-          linkAs="span"
           key={breadcrumb.id}
+          linkAs="span"
         >
           {breadcrumb.display}
         </Breadcrumb.Item>)}
@@ -45,7 +45,10 @@ const FormModal = ({
 
     <Modal.Body className={styles.body}>
       <div className={styles.columns}>
-        <div className={`${styles.column} ${columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}>
+        <div
+          className={`${styles.column} ${columns === 1 ? styles.fullWidth : styles.halfWidthLeft}`}
+          data-testid="schema-form-collection-form-modal-left-column"
+        >
           {leftColumn.map((fieldId) => renderField(
             fieldId,
             formData[fieldId],
@@ -55,7 +58,10 @@ const FormModal = ({
           ))}
         </div>
 
-        {columns === 2 && <div className={`${styles.column} ${styles.halfWidthRight}`}>
+        {columns === 2 && <div
+          className={`${styles.column} ${styles.halfWidthRight}`}
+          data-testid="schema-form-collection-form-modal-right-column"
+        >
           {rightColumn.map((fieldId) => renderField(
             fieldId,
             formData[fieldId],

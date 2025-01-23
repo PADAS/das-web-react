@@ -33,10 +33,12 @@ const Collection = ({
   // handle an array of temporal identifiers with uuids for each item.
   const [temporalIdentifiers, setTemporalIdentifiers] = useState(value.map(() => uuid()));
 
-  const hasError = !!error;
+  const hasError = !!error?.message;
+  const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     let updatedError = { ...error };
+    delete updatedError.message;
     if (itemError) {
       // If the changed item has an error, we set it in the updated error object by the item index.
       updatedError[itemIndex] = itemError;
@@ -92,65 +94,72 @@ const Collection = ({
     setTemporalIdentifiers([...temporalIdentifiers, uuid()]);
   };
 
-  return (
-    <div className={styles.collection} data-testid={`schema-form-collection-${id}`} id={id}>
-      <div className={`${styles.header} ${hasError ? styles.error : '' }`}>
+  return <div
+      aria-errormessage={hasError ? `${id}-description` : undefined}
+      aria-invalid={hasError}
+      className={styles.collection}
+      data-testid={`schema-form-collection-${id}`}
+      id={id}
+    >
+    <div
+      className={`${styles.header} ${hasError || doesChildrenHaveErrors ? styles.error : '' }`}
+      data-testid={`schema-form-collection-header-${id}`}
+    >
+      <button
+        aria-controls={`collectionList-${id}`}
+        aria-expanded={isOpen}
+        aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
+        className={styles.chevronButton}
+        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+      >
+        {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+      </button>
+
+      <label className={styles.label} htmlFor={id}>
+        {details.label} - {value.length}
+      </label>
+    </div>
+
+    <Collapse in={isOpen}>
+      <div className={styles.collapse} id={`collectionList-${id}`}>
+        {value.length === 0
+          ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
+          : <ul aria-live="polite">
+            {value.map((itemValues, index) => <Item
+              breadcrumbs={breadcrumbs}
+              columns={details.columns}
+              errors={error?.[index]}
+              fields={fields}
+              formData={itemValues}
+              identifier={details.itemIdentifier}
+              index={index}
+              key={temporalIdentifiers[index]}
+              leftColumn={details.leftColumn}
+              name={details.itemName}
+              onChange={onItemChange(index)}
+              onDelete={onItemDelete(index)}
+              renderField={renderField}
+              rightColumn={details.rightColumn}
+            />)}
+          </ul>}
+
         <button
-          aria-controls={`collectionList-${id}`}
-          aria-expanded={isOpen}
-          aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { collectionLabel: details.label })}
-          className={styles.chevronButton}
-          onClick={() => setIsOpen(!isOpen)}
+          aria-label={t('addButtonLabel', { itemName: details.itemName })}
+          className={styles.addButton}
+          disabled={details.maxItems === null ? false : value.length >= details.maxItems}
+          onClick={onAddButtonClick}
           type="button"
         >
-          {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+          <AddButtonIcon className={styles.icon} />
+
+          {details.buttonText || t('defaultAddButton')}
         </button>
-
-        <label className={styles.label} htmlFor={id}>
-          {details.label} - {value.length}
-        </label>
       </div>
+    </Collapse>
 
-      <Collapse in={isOpen}>
-        <div id={`collectionList-${id}`} className={styles.collapse}>
-          {value.length === 0
-            ? <div className={styles.emptyState} />
-            : <ul aria-live="polite">
-              {value.map((itemValues, index) => <Item
-                breadcrumbs={breadcrumbs}
-                columns={details.columns}
-                errors={error?.[index]}
-                fields={fields}
-                formData={itemValues}
-                identifier={details.itemIdentifier}
-                index={index}
-                key={temporalIdentifiers[index]}
-                leftColumn={details.leftColumn}
-                name={details.itemName}
-                onChange={onItemChange(index)}
-                onDelete={onItemDelete(index)}
-                renderField={renderField}
-                rightColumn={details.rightColumn}
-              />)}
-            </ul>}
-
-          <button
-            aria-label={t('addButtonLabel', { itemName: details.itemName })}
-            className={styles.addButton}
-            disabled={details.maxItems === null ? false : value.length >= details.maxItems}
-            onClick={onAddButtonClick}
-            type="button"
-          >
-            <AddButtonIcon className={styles.icon} />
-
-            {details.buttonText || t('defaultAddButton')}
-          </button>
-        </div>
-      </Collapse>
-
-      {error?.message && <p aria-live="assertive" className={styles.description}>{error.message}</p>}
-    </div>
-  );
+    {hasError && <p aria-live="assertive" className={styles.description} id={`${id}-description`}>{error.message}</p>}
+  </div>;
 };
 
 export default memo(Collection);

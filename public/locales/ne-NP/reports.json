@@ -133,6 +133,7 @@
             "reportedByLabel": "द्वारा रिपार्ट गरिएको",
             "schemaForm": {
                 "errors": {
+                    "collectionItems": "यस संग्रहका केही वस्तुहरूमा तिनीहरूको आन्तरिक फारमहरूमा त्रुटिहरू छन्।",
                     "dateFormat": "अमान्य मिति ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
                     "dateTimeFormat": "अमान्य मिति र समय ढांचा वा अमान्य मिति। दिन, महिना र वर्षको पुन: जाँच गर्नुहोस्।",
                     "defaultFormat": "अमान्य ढाँचा।",
@@ -152,11 +153,15 @@
                       "open": "{{collectionLabel}} सूची बन्द गर्नुहोस्"
                     },
                     "item": {
+                      "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
                       "editButton": "{{itemTitle}} सम्पादन गर्नुहोस्",
                       "formModal": {
                             "cancelButton": "रद्द गर्नुहोस्",
                             "deleteButton": "{{itemTitle}} मेटाउनुहोस्",
                             "doneButton": "सम्पन्न"
+                        },
+                        "formPreview": {
+                            "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
                         },
                       "chevronButtonLabel": {
                         "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",

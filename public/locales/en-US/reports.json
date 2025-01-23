@@ -136,6 +136,7 @@
       "reportedByLabel": "Reported By",
       "schemaForm": {
         "errors": {
+          "collectionItems": "Some items of this collection have errors in their inner forms.",
           "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
           "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
           "defaultFormat": "Invalid format.",
@@ -155,11 +156,15 @@
               "open": "Close the {{collectionLabel}} list"
             },
             "item": {
+              "collectionHumanizedValue": "{{collectionLength}} items",
               "editButton": "Edit {{itemTitle}}",
               "formModal": {
                 "cancelButton": "Cancel",
                 "deleteButton": "Delete {{itemTitle}}",
                 "doneButton": "Done"
+              },
+              "formPreview": {
+                "collectionHumanizedValue": "{{collectionLength}} items"
               },
               "chevronButtonLabel": {
                 "closed": "Open the {{itemTitle}} form preview",

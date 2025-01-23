@@ -136,6 +136,7 @@
       "reportedByLabel": "Iliripotiwa Na",
       "schemaForm": {
         "errors": {
+          "collectionItems": "Baadhi ya vitu vya mkusanyiko huu vina makosa katika fomu zao za ndani.",
           "dateFormat": "Muundo wa tarehe haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "dateTimeFormat": "Muundo wa tarehe na muda haukubaliwi au tarehe isiyo sahihi. Angalia tena siku, mwezi na mwaka.",
           "defaultFormat": "Muundo si sahihi.",
@@ -155,11 +156,15 @@
               "open": "Funga orodha ya {{collectionLabel}}"
             },
             "item": {
+              "collectionHumanizedValue": "{{collectionLength}} vitu",
               "editButton": "Hariri {{itemTitle}}",
               "formModal": {
                 "cancelButton": "Ghairi",
                 "deleteButton": "Futa {{itemTitle}}",
                 "doneButton": "Imekamilika"
+              },
+              "formPreview": {
+                  "collectionHumanizedValue": "{{collectionLength}} vitu"
               },
               "chevronButtonLabel": {
                 "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",

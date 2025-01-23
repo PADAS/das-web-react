@@ -13,13 +13,13 @@ import FormPreview from './FormPreview';
 
 import styles from './styles.module.scss';
 
-const getTitle = (formData, identifier, name, index, fields, language) => {
+const getTitle = (formData, identifier, name, index, fields, language, t) => {
   const defaultTitle = `${name} - ${index + 1}`;
 
   if (!identifier || !formData[identifier]) {
     return defaultTitle;
   }
-  return getHumanizedValue(fields[identifier], formData[identifier], defaultTitle, language);
+  return getHumanizedValue(fields[identifier], formData[identifier], defaultTitle, language, t);
 };
 
 const Item = ({
@@ -50,7 +50,7 @@ const Item = ({
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const hasError = !!errors;
-  const title = getTitle(formData, identifier, name, index, fields, i18n.language);
+  const title = getTitle(formData, identifier, name, index, fields, i18n.language, t);
 
   const onEditButtonClick = (event) => {
     event.stopPropagation();
@@ -93,7 +93,10 @@ const Item = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFormModalOpen]);
 
-  return <li className={`${styles.item} ${isOpen ? styles.open : ''} ${hasError ? styles.error : ''}`}>
+  return <li
+      className={`${styles.item} ${isOpen ? styles.open : ''} ${hasError ? styles.error : ''}`}
+      data-testid="schema-form-collection-item"
+    >
     <div className={styles.header}>
       <p className={styles.title}>{title}</p>
 

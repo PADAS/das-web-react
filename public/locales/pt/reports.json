@@ -125,6 +125,7 @@
             "reportedByLabel": "Reportado por",
             "schemaForm": {
                 "errors": {
+                    "collectionItems": "Alguns itens desta coleção têm erros nos seus formulários internos.",
                     "dateFormat": "Formato de data inválido ou data inválida. Verifique o dia, mês e ano.",
                     "dateTimeFormat": "Formato de data e hora inválido ou data inválida. Verifique o dia, mês e ano.",
                     "defaultFormat": "Formato inválido.",
@@ -144,11 +145,15 @@
                       "open": "Fechar a lista de {{collectionLabel}}"
                     },
                     "item": {
+                      "collectionHumanizedValue": "{{collectionLength}} itens",
                       "editButton": "Editar {{itemTitle}}",
                       "formModal": {
                             "cancelButton": "Cancelar",
                             "deleteButton": "Excluir {{itemTitle}}",
                             "doneButton": "Concluído"
+                        },
+                        "formPreview": {
+                            "collectionHumanizedValue": "{{collectionLength}} itens"
                         },
                       "chevronButtonLabel": {
                         "closed": "Abrir a visualização do formulário {{itemTitle}}",

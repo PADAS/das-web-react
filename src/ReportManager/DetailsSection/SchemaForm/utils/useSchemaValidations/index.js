@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 
-const insertErrorRecursively = (fieldId, message, errorPath, errors) => {
+const insertErrorRecursively = (fieldId, message, errorPath, errors, t) => {
   if (errorPath.length === 0) {
     // If there is no path, the error should be inserted in this errors object.
     errors[fieldId] = { message };
@@ -22,7 +22,11 @@ const insertErrorRecursively = (fieldId, message, errorPath, errors) => {
       },
     };
 
-    insertErrorRecursively(fieldId, message, errorPath.slice(2), errors[parentCollectionId][itemIndex]);
+    errors[parentCollectionId].message = errors[parentCollectionId].message
+      ? `${errors[parentCollectionId].message} ${t('collectionItems')}`
+      : t('collectionItems');
+
+    insertErrorRecursively(fieldId, message, errorPath.slice(2), errors[parentCollectionId][itemIndex], t);
   }
 };
 
@@ -87,7 +91,7 @@ const useSchemaValidations = (schema) => {
 
         // Then, we insert the error in the accumulated errors structure.
         const errors = structuredClone(accumulator);
-        insertErrorRecursively(fieldId, message, errorPath, errors);
+        insertErrorRecursively(fieldId, message, errorPath, errors, t);
 
         return errors;
       }, {});
