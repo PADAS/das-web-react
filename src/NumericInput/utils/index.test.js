@@ -14,6 +14,15 @@ import {
 
 describe('NumericInput - utils', () => {
 
+  const baseNumberConfig = {
+    amountOfZeros: 0,
+    amountOfZerosAfterLastPositiveNumber: 0,
+    decimalSymbol: null,
+    endsWithZero: false,
+    isNegative: false,
+    isPlainDecimal: false
+  };
+
   test('parse string value to number when its an integer', () => {
     expect( parseStringValueToNumber('10') ).toBe(10);
   });
@@ -171,15 +180,15 @@ describe('NumericInput - utils', () => {
   });
 
   test('parse number to string and localize it based on user preference symbol', () => {
-    expect( parseAndLocalizeNumber(32.5, ',') ).toBe('32,5');
+    expect( parseAndLocalizeNumber(32.5, { ...baseNumberConfig, decimalSymbol: ',' }) ).toBe('32,5');
   });
 
   test('parse empty number to string based on user preference symbol', () => {
-    expect( parseAndLocalizeNumber(null, ',') ).toBe('');
+    expect( parseAndLocalizeNumber(null, { ...baseNumberConfig, decimalSymbol: ',' }) ).toBe('');
   });
 
   test('parse non float number to string', () => {
-    expect( parseAndLocalizeNumber(10, null) ).toBe('10');
+    expect( parseAndLocalizeNumber(10, baseNumberConfig) ).toBe('10');
   });
 
 

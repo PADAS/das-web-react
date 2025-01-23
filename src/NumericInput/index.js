@@ -6,10 +6,9 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../common/images/icons/ar
 
 import {
   decrementValue,
-  eraseNonNumericValidChars,
+  eraseNonNumericValidChars, getAmountOfZerosAfterLastPositiveNumber,
   getDecimalSymbolOccurrences,
   getFloatDigits,
-  getNumberPrecision,
   incrementValue,
   isFloat,
   isNegativeNumber,
@@ -38,14 +37,18 @@ const NumericInput = ({
   ...otherProps
 },
 ref) => {
-
-  const [decimalSymbol, setDecimalSymbol] = useState(null);
-  const [isNegative, setIsNegative] = useState(false);
-  const [isPlainDecimal, setIsPlainDecimal] = useState(false);
+  const [numberConfig, setNumberConfig] = useState({
+    amountOfZeros: 0,
+    amountOfZerosAfterLastPositiveNumber: 0,
+    decimalSymbol: null,
+    endsWithZero: false,
+    isNegative: false,
+    isPlainDecimal: false
+  });
 
   const { t } = useTranslation('components', { keyPrefix: 'numericInput' });
 
-  let stringifiedNumber = parseAndLocalizeNumber(value, decimalSymbol, isNegative, isPlainDecimal);
+  let stringifiedNumber = parseAndLocalizeNumber(value, numberConfig);
 
   const handleOnValueChange = (newValue) => {
     onChange(
@@ -71,9 +74,12 @@ ref) => {
   };
 
   const handleOnBlur = () => {
-    if (decimalSymbol && stringifiedNumber.endsWith(decimalSymbol)){
+    if (numberConfig.decimalSymbol && stringifiedNumber.endsWith(numberConfig.decimalSymbol)){
       handleOnValueChange(stringifiedNumber.slice(0, -1));
-      setDecimalSymbol(null);
+      setNumberConfig({
+        ...numberConfig,
+        decimalSymbol: null
+      });
     }
   };
 
@@ -88,9 +94,21 @@ ref) => {
       return;
     }
 
-    setDecimalSymbol(isFloat(validInput) ? getDecimalSymbolOccurrences(validInput)[0] : null);
-    setIsNegative(isNegativeNumber(validInput));
-    setIsPlainDecimal( isFloat(validInput) && getNumberPrecision(validInput) === 1 && getFloatDigits(validInput) === '0' );
+    const decimalDigits = getFloatDigits(validInput) ?? '';
+    const decimalsArray = decimalDigits.split('');
+    const areAllZeros = decimalsArray.length > 0 && decimalsArray.every((decimal) => {
+      return decimal === '0';
+    });
+    const endsWithZero = decimalDigits.endsWith('0');
+
+    setNumberConfig({
+      amountOfZeros: decimalsArray.length,
+      amountOfZerosAfterLastPositiveNumber: endsWithZero ? getAmountOfZerosAfterLastPositiveNumber(decimalDigits) : 0,
+      decimalSymbol: isFloat(validInput) ? getDecimalSymbolOccurrences(validInput)[0] : null,
+      endsWithZero,
+      isNegative: isNegativeNumber(validInput),
+      isPlainDecimal: isFloat(validInput) && areAllZeros
+    });
 
     handleOnValueChange(validInput);
   };

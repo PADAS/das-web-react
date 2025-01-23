@@ -123,8 +123,24 @@ const getDefaultLocalizedDecimalSymbol = () => {
   return 1.1.toLocaleString(i18next.language).substring(1, 2);
 };
 
-export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlainDecimal) => {
+const generateFixedZeros = (amountOfZeros) => {
+  const zeros = Array.from({
+    length: amountOfZeros
+  }, () => '0');
+
+  return zeros.join('');
+};
+
+export const parseAndLocalizeNumber = (number, numberConfig) => {
   const isInValidNumber = number === null || number === undefined || number === '';
+  const {
+    isNegative,
+    decimalSymbol,
+    isPlainDecimal,
+    amountOfZeros,
+    endsWithZero,
+    amountOfZerosAfterLastPositiveNumber
+  } = numberConfig;
 
   if (isInValidNumber && !isNegative){
     return '';
@@ -142,8 +158,15 @@ export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlai
   }
 
   if (!isNumberFloat && decimalSymbol){
-    const fixedDecimals = isPlainDecimal ? '0' : '';
+    const fixedDecimals = isPlainDecimal ? generateFixedZeros(amountOfZeros) : '';
     return `${unFormattedStringNumber}${decimalSymbol}${fixedDecimals}`;
+  }
+
+  if (isNumberFloat && decimalSymbol && endsWithZero && amountOfZerosAfterLastPositiveNumber > 0 ){
+    const fixedZeros = generateFixedZeros(amountOfZerosAfterLastPositiveNumber);
+    const decimals = getFloatDigits(unFormattedStringNumber);
+    const [integerPart] = unFormattedStringNumber.split(decimalSymbol);
+    return `${integerPart}${decimalSymbol}${decimals}${fixedZeros}`;
   }
 
   if (isNumberFloat && decimalSymbol === null){
@@ -155,6 +178,22 @@ export const parseAndLocalizeNumber = (number, decimalSymbol, isNegative, isPlai
 };
 
 export const isNegativeNumber = (value) => value.startsWith(NEGATIVE_SYMBOL);
+
+export const getAmountOfZerosAfterLastPositiveNumber = (decimalDigits) => {
+  const reversedDigits = decimalDigits.split('').reverse();
+  let amountOfZerosAfterLastPositiveNumber = 0;
+
+  for (let i = 0; i < reversedDigits.length; i++) {
+    const digit = reversedDigits[i];
+    if (digit === '0'){
+      amountOfZerosAfterLastPositiveNumber++;
+    } else {
+      break;
+    }
+  }
+
+  return amountOfZerosAfterLastPositiveNumber;
+};
 
 export const sanitizeNegativeSymbols = (value) => {
   const isNegative = isNegativeNumber(value);
