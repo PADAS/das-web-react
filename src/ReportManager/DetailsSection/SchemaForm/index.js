@@ -6,6 +6,7 @@ import useSchemaValidations from './utils/useSchemaValidations';
 
 import DateTime from './fields/DateTime';
 import Header from './fields/Header';
+import Numeric from './fields/Numeric';
 import Section from './fields/Section';
 import Text from './fields/Text';
 
@@ -14,6 +15,7 @@ export const FIELDS = {
   [FORM_ELEMENT_TYPES.HEADER]: Header,
   [FORM_ELEMENT_TYPES.SECTION]: Section,
   [FORM_ELEMENT_TYPES.TEXT]: Text,
+  [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
 };
 
 const SchemaForm = ({
@@ -33,14 +35,14 @@ const SchemaForm = ({
 
   const fields = useMemo(() => makeFieldsFromSchema(schema), [schema]);
 
-  // TODO: Collections will require recusivity here.
+  // TODO: Collections will require recursivity here.
   const fieldValues = useMemo(() => Object.entries(formData).reduce((accumulator, [fieldId, fieldValue]) => ({
     ...accumulator,
     [fieldId]: fieldValue,
   }), {}), [formData]);
 
   const onFieldChange = useCallback((fieldId, value) => {
-    // TODO: Collections will require recusivity here.
+    // TODO: Collections will require recursivity here.
     setFormData((formData) => ({ ...formData, [fieldId]: value }));
     setFieldErrors((fieldErrors) => ({ ...fieldErrors, [fieldId]: undefined }));
 

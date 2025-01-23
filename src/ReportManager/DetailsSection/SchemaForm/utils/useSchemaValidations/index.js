@@ -4,7 +4,6 @@ import Ajv2020 from 'ajv/dist/2020';
 import { useTranslation } from 'react-i18next';
 
 const ajv = new Ajv2020({ allErrors: true });
-addFormats(ajv);
 
 const useSchemaValidations = (schema) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.errors' });
@@ -32,6 +31,19 @@ const useSchemaValidations = (schema) => {
           const fieldId = error.params.missingProperty;
           return { ...accumulator, [fieldId]: t('required') };
         }
+
+        if (error.keyword === 'minimum' || error.keyword === 'maximum' ) {
+          const fieldId = error.instancePath.split('/').pop();
+          const fieldProps = schema.json.properties[fieldId];
+          return {
+            ...accumulator,
+            [fieldId]: t(`outOfRange.${error.keyword}`, {
+              [error.keyword]: fieldProps[error.keyword]
+            })
+          };
+        }
+
+        // TODO: Transform missing errors.
 
         return accumulator;
       }, {});
