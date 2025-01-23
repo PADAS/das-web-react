@@ -606,7 +606,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
         details: {
           defaultInput: 5,
           description: 'Numeric 1 Description',
-          hint: 'Numeric 1 Hint',
+          placeholder: 'Numeric 1 Hint',
           isRequired: true,
           label: 'Numeric 1 Label',
           maxInput: 10,

@@ -67,6 +67,18 @@ const useSchemaValidations = (schema) => {
           };
           break;
 
+        case 'minimum':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+          message = t('minimum', { minimum: schema.json.properties[fieldId].minimum });
+          break;
+
+        case 'maximum':
+          errorPath = error.instancePath.split('/').slice(1);
+          fieldId = errorPath.pop();
+          message = t('maximum', { maximum: schema.json.properties[fieldId].maximum });
+          break;
+
         case 'maxItems':
           errorPath = error.instancePath.split('/').slice(1);
           fieldId = errorPath.pop();

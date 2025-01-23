@@ -432,6 +432,88 @@ const dateTimes = {
   },
 };
 
+const numerics = {
+  label: 'Example for numerics',
+  schema: {
+    'json': {
+      '$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'additionalProperties': false,
+      'properties': {
+        'non_required_numeric_field_with_range_of_1-10': {
+          'deprecated': false,
+          'description': 'These are some cool instructions',
+          'maximum': 20,
+          'minimum': 10,
+          'title': 'Non required numeric field with range of 10-20',
+          'type': 'number'
+        },
+        'required_field_no_range_with_default_input': {
+          'default': 150,
+          'deprecated': false,
+          'description': 'The great detailed description',
+          'title': 'Required field no range with default input',
+          'type': 'number'
+        },
+        'an_inactive_numeric_field': {
+          'deprecated': true,
+          'description': 'Some really good description',
+          'title': 'An inactive numeric field',
+          'type': 'number'
+        }
+      },
+      'required': [
+        'required_field_no_range_with_default_input'
+      ],
+      'type': 'object'
+    },
+    'ui': {
+      'fields': {
+        'non_required_numeric_field_with_range_of_1-10': {
+          'placeholder': 'A placeholder',
+          'type': 'NUMERIC',
+          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
+        },
+        'required_field_no_range_with_default_input': {
+          'placeholder': 'A hint',
+          'type': 'NUMERIC',
+          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
+        },
+        'an_inactive_numeric_field': {
+          'placeholder': 'placeholder',
+          'type': 'NUMERIC',
+          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
+        }
+      },
+      'headers': {},
+      'order': [
+        'section-mwp2-jUjK6ZxAD9XmIzfX'
+      ],
+      'sections': {
+        'section-mwp2-jUjK6ZxAD9XmIzfX': {
+          'columns': 1,
+          'isActive': true,
+          'label': '',
+          'leftColumn': [
+            {
+              'name': 'non_required_numeric_field_with_range_of_1-10',
+              'type': 'field'
+            },
+            {
+              'name': 'required_field_no_range_with_default_input',
+              'type': 'field'
+            },
+            {
+              'name': 'an_inactive_numeric_field',
+              'type': 'field'
+            }
+          ],
+          'rightColumn': []
+        }
+      }
+    }
+  }
+};
+
 const collections = {
   label: 'Example for collections',
   schema: {
@@ -712,423 +794,7 @@ const collections = {
 };
 
 const headers = {
-  label: 'Simple headers',
-  schema: {
-    json: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
-      properties: {
-        'text-aBDY50baUvOiMyw0fNXU5': {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: '',
-          type: 'string',
-        },
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          deprecated: false,
-          description: '',
-          format: 'date-time',
-          title: '',
-          type: 'string',
-        },
-        'text-aR951nn9CnCaw9T00rDZj': {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: '',
-          type: 'string',
-        },
-      },
-      required: [],
-      type: 'object',
-    },
-    ui: {
-      fields: {
-        'text-aBDY50baUvOiMyw0fNXU5': {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          type: 'DATE_TIME',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        'text-aR951nn9CnCaw9T00rDZj': {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-      },
-      headers: {
-        'header-OVarYS-eY1i5bgsFCbvYy': {
-          label: 'Large Header',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'LARGE',
-        },
-        'header-KpCMq_yHg4ZsI3mRAnPxE': {
-          label: 'Medium header',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'MEDIUM',
-        },
-        'header-yvSXeaiZN8mRUzMLjx2qC': {
-          label: 'Small header',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'SMALL',
-        },
-      },
-      order: ['section-GzqNlGGzSe4TOZTYnUvpA'],
-      sections: {
-        'section-GzqNlGGzSe4TOZTYnUvpA': {
-          columns: 1,
-          isActive: true,
-          label: '',
-          leftColumn: [
-            {
-              name: 'header-OVarYS-eY1i5bgsFCbvYy',
-              type: 'header',
-            },
-            {
-              name: 'text-aBDY50baUvOiMyw0fNXU5',
-              type: 'field',
-            },
-            {
-              name: 'header-KpCMq_yHg4ZsI3mRAnPxE',
-              type: 'header',
-            },
-            {
-              name: 'date_time-FzW1yB0pPa4QIhbpckaRi',
-              type: 'field',
-            },
-            {
-              name: 'header-yvSXeaiZN8mRUzMLjx2qC',
-              type: 'header',
-            },
-            {
-              name: 'text-aR951nn9CnCaw9T00rDZj',
-              type: 'field',
-            },
-          ],
-          rightColumn: [],
-        },
-      },
-    },
-  },
-};
-
-const headersWithFields = {
-  label: 'Headers with fields',
-  schema: {
-    json: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
-      properties: {
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          deprecated: false,
-          description: '',
-          format: 'date-time',
-          title: '',
-          type: 'string',
-        },
-        'text-aR951nn9CnCaw9T00rDZj': {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: '',
-          type: 'string',
-        },
-        a_text_field: {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: 'a text field',
-          type: 'string',
-        },
-      },
-      required: [],
-      type: 'object',
-    },
-    ui: {
-      fields: {
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          type: 'DATE_TIME',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        'text-aR951nn9CnCaw9T00rDZj': {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        a_text_field: {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-      },
-      headers: {
-        'header-OVarYS-eY1i5bgsFCbvYy': {
-          label: 'This is a large header',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'LARGE',
-        },
-        'header-KpCMq_yHg4ZsI3mRAnPxE': {
-          label: 'Medium header: some other explanation',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'MEDIUM',
-        },
-        'header-yvSXeaiZN8mRUzMLjx2qC': {
-          label: 'Small header with little instructions',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'SMALL',
-        },
-      },
-      order: ['section-GzqNlGGzSe4TOZTYnUvpA'],
-      sections: {
-        'section-GzqNlGGzSe4TOZTYnUvpA': {
-          columns: 1,
-          isActive: true,
-          label: '',
-          leftColumn: [
-            {
-              name: 'header-OVarYS-eY1i5bgsFCbvYy',
-              type: 'header',
-            },
-            {
-              name: 'a_text_field',
-              type: 'field',
-            },
-            {
-              name: 'header-KpCMq_yHg4ZsI3mRAnPxE',
-              type: 'header',
-            },
-            {
-              name: 'date_time-FzW1yB0pPa4QIhbpckaRi',
-              type: 'field',
-            },
-            {
-              name: 'header-yvSXeaiZN8mRUzMLjx2qC',
-              type: 'header',
-            },
-            {
-              name: 'text-aR951nn9CnCaw9T00rDZj',
-              type: 'field',
-            },
-          ],
-          rightColumn: [],
-        },
-      },
-    },
-  },
-};
-
-const stackedHeaders = {
-  label: 'Combine headers sizes with fields',
-  schema: {
-    json: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
-      properties: {
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          deprecated: false,
-          description: '',
-          format: 'date-time',
-          title: '',
-          type: 'string',
-        },
-        a_text_field: {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: 'a text field',
-          type: 'string',
-        },
-      },
-      required: [],
-      type: 'object',
-    },
-    ui: {
-      fields: {
-        'date_time-FzW1yB0pPa4QIhbpckaRi': {
-          type: 'DATE_TIME',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        a_text_field: {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-      },
-      headers: {
-        'header-OVarYS-eY1i5bgsFCbvYy': {
-          label: 'This is a large header',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'LARGE',
-        },
-        'header-KpCMq_yHg4ZsI3mRAnPxE': {
-          label:
-            'Medium header used a second set of instructions for data collectors',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'MEDIUM',
-        },
-        'header-yvSXeaiZN8mRUzMLjx2qC': {
-          label:
-            'Small header: maybe this one could be used for more field-specific instructions',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'SMALL',
-        },
-      },
-      order: ['section-GzqNlGGzSe4TOZTYnUvpA'],
-      sections: {
-        'section-GzqNlGGzSe4TOZTYnUvpA': {
-          columns: 1,
-          isActive: true,
-          label: '',
-          leftColumn: [
-            {
-              name: 'header-OVarYS-eY1i5bgsFCbvYy',
-              type: 'header',
-            },
-            {
-              name: 'header-KpCMq_yHg4ZsI3mRAnPxE',
-              type: 'header',
-            },
-            {
-              name: 'a_text_field',
-              type: 'field',
-            },
-            {
-              name: 'header-yvSXeaiZN8mRUzMLjx2qC',
-              type: 'header',
-            },
-            {
-              name: 'date_time-FzW1yB0pPa4QIhbpckaRi',
-              type: 'field',
-            },
-          ],
-          rightColumn: [],
-        },
-      },
-    },
-  },
-};
-
-const largeContentHeaders = {
-  label: 'Large content headers',
-  schema: {
-    json: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
-      properties: {
-        a_text_field: {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: 'a text field',
-          type: 'string',
-        },
-        a_date: {
-          deprecated: false,
-          description: '',
-          format: 'date-time',
-          title: 'A date',
-          type: 'string',
-        },
-        a_field: {
-          default: '',
-          deprecated: false,
-          description: '',
-          title: 'A field',
-          type: 'string',
-        },
-      },
-      required: [],
-      type: 'object',
-    },
-    ui: {
-      fields: {
-        a_text_field: {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        a_date: {
-          type: 'DATE_TIME',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-        a_field: {
-          inputType: 'SHORT_TEXT',
-          placeholder: '',
-          type: 'TEXT',
-          parent: 'section-GzqNlGGzSe4TOZTYnUvpA',
-        },
-      },
-      headers: {
-        'header-OVarYS-eY1i5bgsFCbvYy': {
-          label:
-            'Large Header: Movies ipsum I don’t know, and I would rather not guess. Your time will come. You will face the same Evil, and you will defeat it. Do you remember the taste of strawberries? Home is behind, the world ahead, and there are many paths to tread through shadows to the edge of night, until the stars are all alight. Let him not vow to walk in the dark, who has not seen the nightfall. It came to me. It’s mine, my own, my love, my precious. Not all those who wander are lost.',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'LARGE',
-        },
-        'header-KpCMq_yHg4ZsI3mRAnPxE': {
-          label:
-            'Medium Header: Gandalf, my old friend, this will be a night to remember. It is a strange fate that we should suffer so much fear and doubt over so small a thing, such a little thing. Books ought to have good endings. How would this do? ‘And they all settled down and lived together happily ever after.\' If more of us valued food and cheer and song above hoarded gold, it would be a merrier world. And to that, I hold. I would rather share one lifetime with you than face all the ages of this world alone. Home is behind, the world ahead, and there are many paths to tread through shadows to the edge of night, until the stars are all alight. But do not despise the lore that has come down from distant years; for oft, it may chance that old wives keep in memory word of things that once were needful for the wise to know. Death is just another path, one that we all must take.',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'MEDIUM',
-        },
-        'header-yvSXeaiZN8mRUzMLjx2qC': {
-          label:
-            'Small Header: I thought up an ending for my book: ‘And he lived happily ever after, unto the end of his days.\' That’s no moon. It’s a space station. Books ought to have good endings. How would this do? ‘And they all settled down and lived together happily ever after.\' Snow’s all right on a fine morning, but I like to be in bed when it’s falling. It’s like in the great stories, my Frodo. The ones that really mattered… and sometimes you didn’t want to know the end, because how could the end be happy? But, in the end, it’s only a passing thing, this shadow. Even darkness must pass. I’m coming, Mr. Frodo. There’s some good in this world, Mr. Frodo… and it’s worth fighting for. It came to me. It’s mine, my own, my love, my precious.\n\nDo you remember the taste of strawberries? When in doubt, follow your nose. I can’t carry it for you, but I can carry you. You step into the Road, and if you don’t keep your feet, there is no knowing where you might be swept off to. I don’t know, and I would rather not guess. When in doubt, follow your nose. You step into the Road, and if you don’t keep your feet, there is no knowing where you might be swept off to. When you look at the dark side, careful you must be… for the dark side looks back.',
-          section: 'section-GzqNlGGzSe4TOZTYnUvpA',
-          size: 'SMALL',
-        },
-      },
-      order: ['section-GzqNlGGzSe4TOZTYnUvpA'],
-      sections: {
-        'section-GzqNlGGzSe4TOZTYnUvpA': {
-          columns: 1,
-          isActive: true,
-          label: '',
-          leftColumn: [
-            {
-              name: 'header-OVarYS-eY1i5bgsFCbvYy',
-              type: 'header',
-            },
-            {
-              name: 'a_text_field',
-              type: 'field',
-            },
-            {
-              name: 'header-KpCMq_yHg4ZsI3mRAnPxE',
-              type: 'header',
-            },
-            {
-              name: 'a_date',
-              type: 'field',
-            },
-            {
-              name: 'header-yvSXeaiZN8mRUzMLjx2qC',
-              type: 'header',
-            },
-            {
-              name: 'a_field',
-              type: 'field',
-            },
-          ],
-          rightColumn: [],
-        },
-      },
-    },
-  },
-};
-
-const headerAndSections = {
-  label: 'Headers and Sections',
+  label: 'Example for headers',
   schema: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1276,12 +942,9 @@ const schemas = [
   texts,
   sections,
   dateTimes,
-  collections,
   headers,
-  headersWithFields,
-  stackedHeaders,
-  largeContentHeaders,
-  headerAndSections,
+  numerics,
+  collections,
 ];
 
 export default schemas;
