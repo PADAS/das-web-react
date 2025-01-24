@@ -15,7 +15,7 @@ import FormPreview from './FormPreview';
 import styles from './styles.module.scss';
 
 const getTitle = (formData, identifier, name, index, fields, language, t) => {
-  const defaultTitle = `${name} - ${index + 1}`;
+  const defaultTitle = `${name} ${index + 1}`;
 
   if (!identifier || !formData[identifier]) {
     return defaultTitle;

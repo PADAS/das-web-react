@@ -9,6 +9,14 @@ $itemExpansionTransitionTime: 300ms;
 
   &.open {
     margin: 1rem 0;
+
+    .header {
+      height: unset;
+
+      .title {
+        white-space: normal;
+      }
+    }
   }
 
   &.error {

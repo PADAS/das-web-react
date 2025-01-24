@@ -57,13 +57,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
   test('sets a default title with the collection name and its index if there is no identifier', () => {
     renderItem({ identifier: undefined });
 
-    expect(screen.getByText('Collection 1 - 2')).toBeVisible();
+    expect(screen.getByText('Collection 1 2')).toBeVisible();
   });
 
   test('sets a default title with the collection name and its index if the identifier field does not have a value', () => {
     renderItem({ formData: { 'field-1': '', 'field-2': 'Value 2' } });
 
-    expect(screen.getByText('Collection 1 - 2')).toBeVisible();
+    expect(screen.getByText('Collection 1 2')).toBeVisible();
   });
 
   test('sets the identifier field value as the title', () => {

@@ -157,7 +157,7 @@ const MonthPicker = ({
       className={styles.chevronButton}
       disabled={prevYearButtonDisabled}
       onClick={decreaseYear}
-title={t('previousYearButtonLabel')}
+      title={t('previousYearButtonLabel')}
       type="button"
     >
       <ChevronLeft />

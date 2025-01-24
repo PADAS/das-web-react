@@ -19,7 +19,8 @@
       font-size: 0.75rem;
 
       &.current {
-        color: colors.$bright-blue;
+        color: colors.$off-black;
+        font-weight: 500;
       }
     }
   }

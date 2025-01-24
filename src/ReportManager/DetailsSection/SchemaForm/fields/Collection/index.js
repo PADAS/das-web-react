@@ -101,6 +101,7 @@ const Collection = ({
 
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
+      aria-labelledby={`${id}-label`}
       aria-invalid={hasError}
       className={styles.collection}
       data-testid={`schema-form-collection-${id}`}
@@ -110,8 +111,8 @@ const Collection = ({
       className={`${styles.header} ${hasError || doesChildrenHaveErrors ? styles.error : '' }`}
       data-testid={`schema-form-collection-header-${id}`}
     >
-      <label className={styles.label} htmlFor={id}>
-        {details.label} - {value.length}
+      <label className={styles.label} id={`${id}-label`}>
+        {`${details.label} (${value.length})`}
       </label>
 
       <button

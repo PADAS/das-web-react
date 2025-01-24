@@ -91,6 +91,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.getByTestId('schema-form-collection-header-collection-1')).toHaveClass('error');
   });
 
+  test('sets the collection label with the number of items it continas', () => {
+    renderCollectionField({ value: [{}, {}] });
+
+    expect(screen.getByLabelText('Collection 1 Label (2)')).toBeVisible();
+  });
+
   test('closes the collection list when the user clicks the chevron', () => {
     renderCollectionField();
 
@@ -142,7 +148,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       value: [{}, {}],
     });
 
-    userEvent.click(screen.getByLabelText('Edit Item - 1'));
+    userEvent.click(screen.getByLabelText('Edit Item 1'));
 
     expect(onFieldChange).not.toHaveBeenCalled();
 
@@ -161,7 +167,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(onFieldChange).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Delete Item - 1'));
+    userEvent.click(screen.getByLabelText('Delete Item 1'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith('collection-1', [{}], undefined);
@@ -170,12 +176,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
   test('changes the collection value when an item is deleted from the modal and removes the collection error message and the errors from the deleted item', () => {
     renderCollectionField({ error: { 0: { 'field-1': { message: 'Error' } }, message: 'Error' }, value: [{}, {}] });
 
-    userEvent.click(screen.getByLabelText('Edit Item - 1'));
+    userEvent.click(screen.getByLabelText('Edit Item 1'));
     const formModal = screen.getByRole('dialog');
 
     expect(onFieldChange).not.toHaveBeenCalled();
 
-    userEvent.click(within(formModal).getByLabelText('Delete Item - 1'));
+    userEvent.click(within(formModal).getByLabelText('Delete Item 1'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith('collection-1', [{}], undefined);
