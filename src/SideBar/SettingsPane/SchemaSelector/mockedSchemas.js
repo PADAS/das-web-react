@@ -435,83 +435,79 @@ const dateTimes = {
 const numerics = {
   label: 'Example for numerics',
   schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
         'non_required_numeric_field_with_range_of_1-10': {
-          'deprecated': false,
-          'description': 'These are some cool instructions',
-          'maximum': 20,
-          'minimum': 10,
-          'title': 'Non required numeric field with range of 10-20',
-          'type': 'number'
+          deprecated: false,
+          description: 'These are some cool instructions',
+          maximum: 20,
+          minimum: 10,
+          title: 'Non required numeric field with range of 10-20',
+          type: 'number',
         },
-        'required_field_no_range_with_default_input': {
-          'default': 150,
-          'deprecated': false,
-          'description': 'The great detailed description',
-          'title': 'Required field no range with default input',
-          'type': 'number'
+        required_field_no_range_with_default_input: {
+          default: 150,
+          deprecated: false,
+          description: 'The great detailed description',
+          title: 'Required field no range with default input',
+          type: 'number',
         },
-        'an_inactive_numeric_field': {
-          'deprecated': true,
-          'description': 'Some really good description',
-          'title': 'An inactive numeric field',
-          'type': 'number'
-        }
+        an_inactive_numeric_field: {
+          deprecated: true,
+          description: 'Some really good description',
+          title: 'An inactive numeric field',
+          type: 'number',
+        },
       },
-      'required': [
-        'required_field_no_range_with_default_input'
-      ],
-      'type': 'object'
+      required: ['required_field_no_range_with_default_input'],
+      type: 'object',
     },
-    'ui': {
-      'fields': {
+    ui: {
+      fields: {
         'non_required_numeric_field_with_range_of_1-10': {
-          'placeholder': 'A placeholder',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
+          placeholder: 'A placeholder',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
         },
-        'required_field_no_range_with_default_input': {
-          'placeholder': 'A hint',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
+        required_field_no_range_with_default_input: {
+          placeholder: 'A hint',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
         },
-        'an_inactive_numeric_field': {
-          'placeholder': 'placeholder',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
-        }
+        an_inactive_numeric_field: {
+          placeholder: 'placeholder',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
+        },
       },
-      'headers': {},
-      'order': [
-        'section-mwp2-jUjK6ZxAD9XmIzfX'
-      ],
-      'sections': {
+      headers: {},
+      order: ['section-mwp2-jUjK6ZxAD9XmIzfX'],
+      sections: {
         'section-mwp2-jUjK6ZxAD9XmIzfX': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
+          columns: 1,
+          isActive: true,
+          label: '',
+          leftColumn: [
             {
-              'name': 'non_required_numeric_field_with_range_of_1-10',
-              'type': 'field'
+              name: 'non_required_numeric_field_with_range_of_1-10',
+              type: 'field',
             },
             {
-              'name': 'required_field_no_range_with_default_input',
-              'type': 'field'
+              name: 'required_field_no_range_with_default_input',
+              type: 'field',
             },
             {
-              'name': 'an_inactive_numeric_field',
-              'type': 'field'
-            }
+              name: 'an_inactive_numeric_field',
+              type: 'field',
+            },
           ],
-          'rightColumn': []
-        }
-      }
-    }
-  }
+          rightColumn: [],
+        },
+      },
+    },
+  },
 };
 
 const collections = {
@@ -638,6 +634,26 @@ const collections = {
           title: 'Estimated number of people involved with the crime',
           type: 'string',
         },
+        inactive_collection: {
+          deprecated: false,
+          items: {
+            additionalProperties: false,
+            properties: {
+              another_text_field: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Another Text Field',
+                type: 'string',
+              },
+            },
+            required: [],
+            type: 'object',
+          },
+          title: 'Inactive collection',
+          type: 'array',
+          unevaluatedItems: false,
+        },
       },
       required: ['estimated_number_of_people_involved_with_the_crime'],
       type: 'object',
@@ -734,6 +750,22 @@ const collections = {
           type: 'TEXT',
           parent: 'witnesses',
         },
+        another_text_field: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'inactive_collection',
+        },
+        inactive_collection: {
+          buttonText: '',
+          columns: 1,
+          itemIdentifier: 'another_text_field',
+          itemName: 'Inactive',
+          leftColumn: ['another_text_field'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
+        }
       },
       headers: {},
       order: [
@@ -749,6 +781,10 @@ const collections = {
           leftColumn: [
             {
               name: 'reason_of_arrest',
+              type: 'field',
+            },
+            {
+              name: 'inactive_collection',
               type: 'field',
             },
           ],
@@ -938,13 +974,6 @@ const headers = {
   },
 };
 
-const schemas = [
-  texts,
-  sections,
-  dateTimes,
-  headers,
-  numerics,
-  collections,
-];
+const schemas = [texts, sections, dateTimes, headers, numerics, collections];
 
 export default schemas;

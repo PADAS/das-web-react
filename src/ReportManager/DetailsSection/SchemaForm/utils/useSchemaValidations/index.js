@@ -22,9 +22,9 @@ const insertErrorRecursively = (fieldId, message, errorPath, errors, t) => {
       },
     };
 
-    errors[parentCollectionId].message = errors[parentCollectionId].message
-      ? `${errors[parentCollectionId].message} ${t('collectionItems')}`
-      : t('collectionItems');
+    if (!errors[parentCollectionId].message) {
+      errors[parentCollectionId].message = t('collectionItems');
+    }
 
     insertErrorRecursively(fieldId, message, errorPath.slice(2), errors[parentCollectionId][itemIndex], t);
   }
@@ -70,13 +70,13 @@ const useSchemaValidations = (schema) => {
         case 'minimum':
           errorPath = error.instancePath.split('/').slice(1);
           fieldId = errorPath.pop();
-          message = t('minimum', { minimum: schema.json.properties[fieldId].minimum });
+          message = t('minimum', { minimum: error.params.limit });
           break;
 
         case 'maximum':
           errorPath = error.instancePath.split('/').slice(1);
           fieldId = errorPath.pop();
-          message = t('maximum', { maximum: schema.json.properties[fieldId].maximum });
+          message = t('maximum', { maximum: error.params.limit });
           break;
 
         case 'maxItems':
