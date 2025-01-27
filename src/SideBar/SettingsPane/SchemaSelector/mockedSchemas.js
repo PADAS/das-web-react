@@ -596,7 +596,7 @@ const headerAndSections = {
   }
 };
 
-const choices = [
+export const choicesOptions = [
   {
     'const': '048fdcef-f599-4205-8b44-1536d46645aa',
     'title': 'DumboAlfonso'
@@ -681,7 +681,7 @@ const choiceLists = {
             'type': 'string',
             'anyOf': [
               {
-                'oneOf': choices
+                'oneOf': choicesOptions
               }
             ]
           }
@@ -693,7 +693,7 @@ const choiceLists = {
           'type': 'string',
           'anyOf': [
             {
-              'oneOf': choices
+              'oneOf': choicesOptions
             }
           ]
         },

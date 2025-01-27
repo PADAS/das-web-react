@@ -8,6 +8,7 @@ import {
   ROOT_CANVAS_ID,
   TEXT_ELEMENT_INPUT_TYPES,
 } from '../../constants';
+import {choicesOptions} from "../../../../../SideBar/SettingsPane/SchemaSelector/mockedSchemas";
 
 describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSchema', () => {
   it('creates section fields from the schema', () => {
@@ -157,7 +158,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
               type: 'string',
               anyOf: [
                 {
-                  $ref: 'http://localhost/schemas/existing/snarerep_status.json',
+                  oneOf: choicesOptions,
                 },
               ],
             },
@@ -237,15 +238,6 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
     expect(makeFieldsFromSchema(schema)).toEqual({
       'choice-list-1': {
         details: {
-          choices: {
-            eventTypeCategories: [],
-            existingChoiceList: ['snarerep_status'],
-            featureCategories: [],
-            myDataType: '',
-            subjectGroups: [],
-            subjectSubtypes: [],
-            type: CHOICE_LIST_ELEMENT_CHOICE_TYPES.EXISTING_CHOICE_LIST,
-          },
           description: 'Choice List 1 Description',
           hint: 'Choice List 1 Hint',
           inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN,
@@ -253,6 +245,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
           label: 'Choice List 1 Label',
           multiple: true,
           value: 'choice-list-1',
+          options: choicesOptions
         },
         parentId: 'section-1',
         type: FORM_ELEMENT_TYPES.CHOICE_LIST,
@@ -779,8 +772,8 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
                     type: 'string',
                     anyOf: [
                       {
-                        $ref: 'http://localhost/schemas/existing/snarerep_status.json',
-                      },
+                        oneOf: choicesOptions
+                      }
                     ],
                   },
                 },
@@ -915,21 +908,13 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
       },
       'choice-list-1': {
         details: {
-          choices: {
-            eventTypeCategories: [],
-            existingChoiceList: ['snarerep_status'],
-            featureCategories: [],
-            myDataType: '',
-            subjectGroups: [],
-            subjectSubtypes: [],
-            type: 'EXISTING_CHOICE_LIST',
-          },
           description: 'Choice List 1 Description',
           hint: 'Choice List 1 Hint',
           inputType: 'DROPDOWN',
           isRequired: true,
           label: 'Choice List 1 Label',
           multiple: true,
+          options: choicesOptions,
           value: 'choice-list-1',
         },
         parentId: 'collection-1',

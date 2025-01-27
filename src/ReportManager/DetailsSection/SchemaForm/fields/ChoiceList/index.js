@@ -91,7 +91,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           aria-invalid={hasError}
           hasError={hasError}
           aria-required={details.isRequired}
-          data-testid={`schemaForm-field-choiceList-${id}`}
           id={id}
           onChange={(newValue) => {
               onFieldChange(id, newValue);

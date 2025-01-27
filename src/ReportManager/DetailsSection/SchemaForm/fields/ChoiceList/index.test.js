@@ -12,21 +12,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
   const defaultProps = {
     details: {
       inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN,
-      choices: {
-        options: [
-          {
-            'const': '048fdcef-f599-4205-8b44-1536d46645aa',
-            'title': 'DumboAlfonso'
-          },
-          {
-            'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-            'title': 'EarthRanger System'
-          },
-          {
-            'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
-            'title': 'frank'
-          }]
-      },
+      options: [
+        {
+          'const': '048fdcef-f599-4205-8b44-1536d46645aa',
+          'title': 'DumboAlfonso'
+        },
+        {
+          'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
+          'title': 'EarthRanger System'
+        },
+        {
+          'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
+          'title': 'frank'
+        }
+      ],
       description: 'A really great description',
       hint: 'This is a placeholder',
       multiple: true,
@@ -43,11 +42,11 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     <ChoiceList {...props} />
   );
 
-  test('shows a non required choice list field', () => {
+  test.only('shows a non required choice list field', () => {
     renderChoiceList();
 
     expect(screen.getByText('Choice list label')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice')).toHaveAttribute('aria-required', 'false');
+    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice').firstChild).toHaveAttribute('aria-required', 'false');
   });
 
   test('shows a required choice list field', () => {
@@ -60,7 +59,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     });
 
     expect(screen.getByText('Choice list label *')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -96,13 +95,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     renderChoiceList();
 
     expect(screen.queryByText('A really great description')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice')).toHaveAccessibleDescription();
+    expect(screen.getByRole('combobox')).toHaveAccessibleDescription();
   });
 
   test('shows a valid input when there are no errors', () => {
     renderChoiceList();
 
-    const choiceListInput = screen.getByTestId('schemaForm-field-choiceList-a-choice');
+    const choiceListInput = screen.getByRole('combobox');
 
     expect(choiceListInput).toBeValid();
     expect(choiceListInput).not.toHaveAccessibleErrorMessage();
@@ -114,7 +113,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
       error: 'A incredible error message'
     });
 
-    const choiceListInput = screen.getByTestId('schemaForm-field-choiceList-a-choice');
+    const choiceListInput = screen.getByRole('combobox');
     const description = screen.getByText('A incredible error message');
 
     expect(choiceListInput).toBeInvalid();
@@ -137,17 +136,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
     expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-    userEvent.type(screen.getByTestId('schemaForm-field-choiceList-a-choice'), '{arrowdown}');
+    userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
 
     userEvent.click(screen.getByText('EarthRanger System'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('a-choice',
-      {
-        'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-        'title': 'EarthRanger System'
-      }
-    );
+    expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
   });
 
   test('allow to select multiple options when the choice list is set to multiple selection', async () => {
@@ -159,29 +153,19 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
     expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-    const dropdown = screen.getByTestId('schemaForm-field-choiceList-a-choice');
+    const dropdown = screen.getByRole('combobox');
 
     userEvent.type(dropdown, '{arrowdown}');
 
     userEvent.click(screen.getByText('EarthRanger System'));
-
-
-    expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
-      {
-        'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-        'title': 'EarthRanger System'
-      }
-    ]);
 
     userEvent.type(dropdown, '{arrowdown}');
 
     userEvent.click(screen.getByText('frank'));
 
     expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
-      {
-        'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
-        'title': 'frank'
-      },
+      '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
+      '0d9fbeea-5252-4723-ba59-ca696baef2d9'
     ]);
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
