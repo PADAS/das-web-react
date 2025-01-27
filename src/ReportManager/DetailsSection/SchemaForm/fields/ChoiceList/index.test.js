@@ -124,10 +124,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     expect(description).toHaveClass('error');
   });
 
-  test('updates the form data when the user does changes to the input', async () => {
+  test('allow to select single option when the choice list is set to single selection', async () => {
     const onFieldChange = jest.fn();
     renderChoiceList({
       ...defaultProps,
+      details: {
+        ...defaultProps.details,
+        multiple: false
+      },
       onFieldChange
     });
 
@@ -138,11 +142,49 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     userEvent.click(screen.getByText('EarthRanger System'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
+    expect(onFieldChange).toHaveBeenCalledWith('a-choice',
+      {
+        'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
+        'title': 'EarthRanger System'
+      }
+    );
+  });
+
+  test('allow to select multiple options when the choice list is set to multiple selection', async () => {
+    const onFieldChange = jest.fn();
+    renderChoiceList({
+      ...defaultProps,
+      onFieldChange
+    });
+
+    expect(onFieldChange).toHaveBeenCalledTimes(0);
+
+    const dropdown = screen.getByTestId('schemaForm-field-choiceList-a-choice');
+
+    userEvent.type(dropdown, '{arrowdown}');
+
+    userEvent.click(screen.getByText('EarthRanger System'));
+
+
     expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
       {
         'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
         'title': 'EarthRanger System'
       }
     ]);
+
+    userEvent.type(dropdown, '{arrowdown}');
+
+    userEvent.click(screen.getByText('frank'));
+
+    expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+      {
+        'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
+        'title': 'frank'
+      },
+    ]);
+
+    expect(onFieldChange).toHaveBeenCalledTimes(2);
   });
+
 });

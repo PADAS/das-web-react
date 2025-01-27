@@ -77,8 +77,8 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           aria-required={details.isRequired}
           data-testid={`schemaForm-field-choiceList-${id}`}
           id={id}
-          onChange={(value) => {
-            onFieldChange(id, value);
+          onChange={(newValue) => {
+              onFieldChange(id, newValue);
           }}
           value={value}
           details={details} />
