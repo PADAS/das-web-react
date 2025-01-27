@@ -139,7 +139,11 @@
           "dateFormat": "Invalid date format or invalid date. Double-check the day, month and year.",
           "dateTimeFormat": "Invalid date & time format or invalid date. Double-check the day, month and year.",
           "required": "This is a required field.",
-          "timeFormat": "Invalid time format."
+          "timeFormat": "Invalid time format.",
+          "outOfRange": {
+            "minimum": "This value should be greater than or equal to {{minimum}}",
+            "maximum": "This value should be less than or equal to {{maximum}}"
+          }
         }
       },
       "stateDropdown": {

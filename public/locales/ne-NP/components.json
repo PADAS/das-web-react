@@ -114,6 +114,11 @@
         "none": "कुनै होइन",
         "red": "रातो"
     },
+    "numericInput": {
+        "numericInputLabel": "संख्यात्मक क्षेत्र",
+        "incrementValueNumericInputButtonLabel": "संख्यात्मक मान वृद्धि बटन",
+        "decrementValueNumericInputButtonLabel": "संख्यात्मक मान घटाउने बटन"
+    },
     "reportedBySelect": {
         "control": {
             "radioIconPlaceholder": "चयनकर्ताद्वारा रिपोर्ट गरिएकाको लागि रेडियो आइकन प्लेसहोल्डर"

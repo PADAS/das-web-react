@@ -107,7 +107,7 @@ const addFieldToFieldsObjectRecursively = (
         : jsonSubschema.properties[fieldId].default;
     fields[fieldId].details.description =
       jsonSubschema.properties[fieldId].description;
-    fields[fieldId].details.hint = uiSchema.fields[fieldId].placeholder;
+    fields[fieldId].details.placeholder = uiSchema.fields[fieldId].placeholder;
     fields[fieldId].details.maxInput =
       jsonSubschema.properties[fieldId].maximum === undefined
         ? ''
