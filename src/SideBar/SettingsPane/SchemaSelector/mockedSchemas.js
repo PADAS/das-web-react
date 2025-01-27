@@ -635,7 +635,7 @@ const collections = {
           type: 'string',
         },
         inactive_collection: {
-          deprecated: false,
+          deprecated: true,
           items: {
             additionalProperties: false,
             properties: {
