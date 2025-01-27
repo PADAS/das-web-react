@@ -15,7 +15,9 @@
         "defaultLabel": "घटना अथवा गस्ती सिर्जना गर्नुहोस्"
     },
     "choiceList": {
-        "noData": "प्रदर्शन गर्न कुनै विकल्प छैन"
+        "select": {
+            "noOptionsMessage": "प्रदर्शन गर्न कुनै विकल्प छैन"
+        }
     },
     "datePicker": {
         "calendarPopper": {

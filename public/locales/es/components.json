@@ -14,7 +14,9 @@
     "defaultTitle": "Crear"
   },
   "choiceList": {
-    "noData": "No hay opciones para mostrar"
+    "select": {
+      "noOptionsMessage": "No hay opciones para mostrar"
+    }
   },
   "datePicker": {
     "calendarPopper": {

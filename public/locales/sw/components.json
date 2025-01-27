@@ -20,7 +20,9 @@
     "uncheckedTitle": "Fichwa"
   },
   "choiceList": {
-    "noData": "Hakuna chaguo za kuonyesha"
+    "select": {
+      "noOptionsMessage": "Hakuna chaguo za kuonyesha"
+    }
   },
   "datePicker": {
     "calendarPopper": {

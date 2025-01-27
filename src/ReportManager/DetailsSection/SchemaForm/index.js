@@ -55,7 +55,7 @@ const SchemaForm = ({
     event.preventDefault();
 
     const fieldErrors = runValidations(formData);
-    if (Object.values(fieldErrors).length > 0) {
+    if (fieldErrors) {
       setFieldErrors(fieldErrors);
 
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];

@@ -7,6 +7,11 @@
   color: colors.$secondary-medium-gray;
   font-size: 1rem;
   margin-bottom: 0.125rem;
+
+  p {
+    font-weight: 500;
+    margin: 0;
+  }
 }
 
 .optionLabel {
@@ -23,15 +28,18 @@
 /* react-select overrides */
 .multiValue {
   background: colors.$semi-light-gray !important;
-  border-radius: 0.625rem !important;
+  border-radius: 1rem !important;
   padding: 0 0.0625rem;
+  font-weight: normal;
 }
 
 .multiValueRemove{
-  &:hover {
-    background: unset !important;
-    color: colors.$medium-light-gray !important;
-  }
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50% !important;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.2rem;
+  margin-right: 0.2rem;
 }
 
 .dropdownError {
@@ -42,8 +50,8 @@
   color: colors.$bright-red !important;
 }
 
-.separatorError {
-  background-color: colors.$bright-red !important;
+.separator {
+  display: none !important;
 }
 
 .caretError {
@@ -52,4 +60,14 @@
       border-top: 0.3rem solid colors.$bright-red !important;
     }
   }
+}
+
+.singleOption {
+  margin-left: 1rem;
+}
+
+.checkMark{
+  width: 0.8rem;
+  margin-right: 0.2rem;
+  color: colors.$light-blue;
 }

@@ -1,41 +1,57 @@
 import React from 'react';
 import { components as SelectComponent } from 'react-select';
 import { useTranslation } from 'react-i18next';
+import ReactSelect from 'react-select';
 
-import Select from '../../../../../Select';
+import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
+
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';
 
-const Option = ({ data, ...restProps }) => {
-  return <div>
-    <SelectComponent.Option
-            data={data}
-            {...restProps}
-        >
-      <span className={styles.optionLabel}>
-        {data.title}
-      </span>
-    </SelectComponent.Option>
-  </div>;
-};
+const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
+  <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>
+    {
+      isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
+    }
+    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}>
+      {data.title}
+    </span>
+  </SelectComponent.Option>
+</div>;
 
 
 const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
 
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
-  const getOptionLabel = (option) => option.title;
-  const getOptionValue = (option) => option.const;
 
-  return <div {...otherProps}>
-    <Select
+  const selectedValue = details.multiple && Array.isArray(value) ? value : details.options.find((item) => item.const === value);
+
+  const getOptionLabel = (option) => {
+    return option.title ?? details.options.find((item) => item.const === option).title;
+  };
+
+  const getOptionValue = (option) => {
+    return option.const ?? option;
+  };
+
+  const handleOnChange = (newValue) => {
+    const isValueArray = Array.isArray(newValue);
+    if ( ( isValueArray && newValue.length === 0 ) || !newValue){
+      return onChange(undefined);
+    }
+    const returnedValue = isValueArray ? newValue.map((item) => item.const ?? item) : newValue.const;
+    return onChange( returnedValue );
+  };
+
+  return <ReactSelect
       isClearable={true}
       id={id}
-      value={value}
+      value={selectedValue}
       isMulti={details.multiple}
       isSearchable={true}
-      onChange={onChange}
-      options={details.choices.options}
+      onChange={handleOnChange}
+      options={details.options}
       getOptionLabel={getOptionLabel}
       getOptionValue={getOptionValue}
       placeholder={details.hint}
@@ -45,13 +61,13 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherPr
           multiValue: () => styles.multiValue,
           multiValueRemove: () => styles.multiValueRemove,
           placeholder: () => hasError && styles.error,
-          indicatorSeparator: () => hasError && styles.separatorError,
+          indicatorSeparator: () => styles.separator,
           indicatorsContainer: () => hasError && styles.caretError,
       }}
       isDisabled={disabled}
-      noOptionsMessage={() => t('noData')}
-    />
-  </div>;
+      noOptionsMessage={() => t('select.noOptionsMessage')}
+      {...otherProps}
+    />;
 };
 
 const INPUTS = {
@@ -67,7 +83,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
 
   return <div>
     <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
-      {label}
+      <p>{label}</p>
 
       <Input
           aria-describedby={hasDescription ? `${id}-description`: undefined}

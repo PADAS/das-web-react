@@ -14,7 +14,9 @@
     "defaultTitle": "Ajouter"
   },
   "choiceList": {
-    "noData": "Aucune option à afficher"
+    "select": {
+      "noOptionsMessage": "Aucune option à afficher"
+    }
   },
   "datePicker": {
     "calendarPopper": {

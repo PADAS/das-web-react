@@ -20,7 +20,9 @@
     "uncheckedTitle": "Hidden"
   },
   "choiceList": {
-    "noData": "No options to display"
+    "select": {
+      "noOptionsMessage": "No options to display"
+    }
   },
   "datePicker": {
     "calendarPopper": {
