@@ -13,6 +13,9 @@
     },
     "defaultTitle": "Crear"
   },
+  "choiceList": {
+    "noData": "No hay opciones para mostrar"
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Abrir calendario",

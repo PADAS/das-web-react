@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { components as SelectComponent } from 'react-select';
+import { useTranslation } from 'react-i18next';
 
 import Select from '../../../../../Select';
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
@@ -13,19 +14,18 @@ const Option = ({ data, ...restProps }) => {
             {...restProps}
         >
       <span className={styles.optionLabel}>
-        {data.label}
+        {data.title}
       </span>
     </SelectComponent.Option>
   </div>;
 };
 
 
-const Dropdown = ({ details, onChange, value, id, hasError, ...otherProps }) => {
+const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
 
-  const options = useMemo(() => details.choices.options.map((option) => ({
-    value: option.const,
-    label: option.title
-  })), [details.choices.options]);
+  const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
+  const getOptionLabel = (option) => option.title;
+  const getOptionValue = (option) => option.const;
 
   return <div {...otherProps}>
     <Select
@@ -35,7 +35,9 @@ const Dropdown = ({ details, onChange, value, id, hasError, ...otherProps }) => 
       isMulti={details.multiple}
       isSearchable={true}
       onChange={onChange}
-      options={options}
+      options={details.choices.options}
+      getOptionLabel={getOptionLabel}
+      getOptionValue={getOptionValue}
       placeholder={details.hint}
         components={{ Option }}
         classNames={{
@@ -46,7 +48,9 @@ const Dropdown = ({ details, onChange, value, id, hasError, ...otherProps }) => 
           indicatorSeparator: () => hasError && styles.separatorError,
           indicatorsContainer: () => hasError && styles.caretError,
       }}
-      />
+      isDisabled={disabled}
+      noOptionsMessage={() => t('noData')}
+    />
   </div>;
 };
 
@@ -54,13 +58,8 @@ const INPUTS = {
   [CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN]: Dropdown
 };
 
-/* ToDO:
-* - check dropdown state like readonly, disabled, etc
-* - i18n for dropdown state: No options
-* - how the value is going to be stored?
-* - autofill
-* */
-const ChoiceList = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
+const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
+
   const Input = INPUTS[details.inputType];
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
@@ -76,10 +75,10 @@ const ChoiceList = ({ autofillDefaultInput, details, error, id, onFieldChange, v
           aria-invalid={hasError}
           hasError={hasError}
           aria-required={details.isRequired}
-          data-testid={`schemaForm-field-dateTime-${id}`}
+          data-testid={`schemaForm-field-choiceList-${id}`}
           id={id}
           onChange={(value) => {
-            onFieldChange(id, value?.length > 0 ? value : undefined);
+            onFieldChange(id, value);
           }}
           value={value}
           details={details} />

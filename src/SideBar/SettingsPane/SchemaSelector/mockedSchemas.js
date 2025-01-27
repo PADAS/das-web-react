@@ -514,17 +514,17 @@ const headerAndSections = {
   }
 };
 
-const simpleChoiceList = {
-  label: 'Simple ChoiceList',
+const choiceLists = {
+  label: 'Dropdown choice list',
   schema: {
     'json': {
       '$schema': 'https://json-schema.org/draft/2020-12/schema',
       'additionalProperties': false,
       'properties': {
-        'a_choice_list': {
+        'this_is_a_required_multi-choice_list': {
           'deprecated': false,
-          'description': 'A really good description',
-          'title': 'a choice list',
+          'description': 'This is a really great description',
+          'title': 'This is a required multi-choice list',
           'type': 'array',
           'uniqueItems': true,
           'items': {
@@ -596,46 +596,142 @@ const simpleChoiceList = {
               }
             ]
           }
+        },
+        'this_is_a_non_required_single-choice_list': {
+          'deprecated': false,
+          'description': 'This is a description',
+          'title': 'This is a non required single-choice list',
+          items: {
+            'type': 'string',
+            'anyOf': [
+              {
+                'const': '048fdcef-f599-4205-8b44-1536d46645aa',
+                'title': 'DumboAlfonso'
+              },
+              {
+                'const': '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
+                'title': 'EarthRanger System'
+              },
+              {
+                'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
+                'title': 'frank'
+              },
+              {
+                'const': '17e67b22-0e4a-4fcb-aeee-903b51a7a2e0',
+                'title': 'Desert Bighorn Sheep'
+              },
+              {
+                'const': '1f32688b-26ea-4648-a995-d5f9bca326e7',
+                'title': 'test_alan'
+              },
+              {
+                'const': '200cca41-3303-4b63-a835-4bea40afcc95',
+                'title': 'Pronghorn'
+              },
+              {
+                'const': '223ab492-0ea7-4ff2-b8b8-cb6504c943b6',
+                'title': 'Ranger Cruz'
+              },
+              {
+                'const': '25567b9a-500f-427c-8a87-59f5e41f858b',
+                'title': 'Rabbit'
+              },
+              {
+                'const': '2b7286bf-1734-490b-87c2-ee4206805b47',
+                'title': 'ERA-10171'
+              },
+              {
+                'const': '2db50099-8d3b-4f29-ab04-fd42f01d4267',
+                'title': 'Ludwig'
+              },
+              {
+                'const': '3492ef65-0519-4b28-9294-a5c55f619696',
+                'title': 'Testosteron'
+              },
+              {
+                'const': '35ed3fdd-ba65-4201-9a8a-05775249d534',
+                'title': 'alan radio'
+              },
+              {
+                'const': '37906bc2-5323-40d9-8be3-10700af31d26',
+                'title': 'Alfonso Hernandez'
+              },
+              {
+                'const': '382860ff-d848-426e-b1f0-43cbfaaf9a12',
+                'title': 'GFW Webhook'
+              },
+              {
+                'const': '3b8c7f7d-526e-46a7-8e0d-cf042ab32027',
+                'title': 'pw_source'
+              },
+              {
+                'const': '3bc7c8df-3461-47f2-8196-7b0a45405a13',
+                'title': 'Subject X'
+              }
+            ]
+          }
         }
       },
       'required': [
-        'a_choice_list'
+        'this_is_a_required_multi-choice_list'
       ],
       'type': 'object'
     },
     'ui': {
       'fields': {
-        'a_choice_list': {
+        'this_is_a_required_multi-choice_list': {
           'choices': {
             'eventTypeCategories': [],
-            'existingChoiceList': [
-              'contactrep_patrolactivity',
-              'spoorrep_type'
-            ],
+            'existingChoiceList': [],
             'featureCategories': [],
-            'myDataType': '',
-            'subjectGroups': [],
+            'myDataType': 'SUBJECTS_FROM_SUBJECT_GROUP',
+            'subjectGroups': [
+              '5bf8761c-0c87-4756-8282-23fa11d72433',
+              'ddb99202-1373-4c6c-b15f-e71d21cb2b26'
+            ],
             'subjectSubtypes': [],
-            'type': 'EXISTING_CHOICE_LIST'
+            'type': 'MY_DATA'
           },
           'inputType': 'DROPDOWN',
-          'placeholder': 'some placeholder',
+          'placeholder': 'This is a hint',
           'type': 'CHOICE_LIST',
-          'parent': 'section-ZAS1G03jWBcxtX9807PP_'
+          'parent': 'section-mw8HZfvqZ4W0ht40Mxq5S'
+        },
+        'this_is_a_non_required_single-choice_list': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [],
+            'featureCategories': [],
+            'myDataType': 'SUBJECTS_FROM_SUBJECT_GROUP',
+            'subjectGroups': [
+              'ddb99202-1373-4c6c-b15f-e71d21cb2b26',
+              '5bf8761c-0c87-4756-8282-23fa11d72433'
+            ],
+            'subjectSubtypes': [],
+            'type': 'MY_DATA'
+          },
+          'inputType': 'DROPDOWN',
+          'placeholder': 'A great hint',
+          'type': 'CHOICE_LIST',
+          'parent': 'section-mw8HZfvqZ4W0ht40Mxq5S'
         }
       },
       'headers': {},
       'order': [
-        'section-ZAS1G03jWBcxtX9807PP_'
+        'section-mw8HZfvqZ4W0ht40Mxq5S'
       ],
       'sections': {
-        'section-ZAS1G03jWBcxtX9807PP_': {
+        'section-mw8HZfvqZ4W0ht40Mxq5S': {
           'columns': 1,
           'isActive': true,
           'label': '',
           'leftColumn': [
             {
-              'name': 'a_choice_list',
+              'name': 'this_is_a_required_multi-choice_list',
+              'type': 'field'
+            },
+            {
+              'name': 'this_is_a_non_required_single-choice_list',
               'type': 'field'
             }
           ],
@@ -646,6 +742,7 @@ const simpleChoiceList = {
   }
 };
 
-const schemas = [schemaWithTexts, schemaWithSections, schemaWithDateTimes, headerAndSections, simpleChoiceList];
+
+const schemas = [schemaWithTexts, schemaWithSections, schemaWithDateTimes, headerAndSections, choiceLists];
 
 export default schemas;

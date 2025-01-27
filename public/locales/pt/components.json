@@ -13,6 +13,9 @@
         },
         "defaultTitle": "Adicionar"
     },
+    "choiceList": {
+        "noData": "Não há opções para exibir"
+    },
     "datePicker": {
         "calendarPopper": {
             "menuButtonLabel": "Abrir calendário",
