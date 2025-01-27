@@ -1,280 +1,126 @@
-const schemaWithNumerics = {
-  label: 'Schema with numerics',
-  schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'non_required_numeric_field_with_range_of_1-10': {
-          'deprecated': false,
-          'description': 'These are some cool instructions',
-          'maximum': 20,
-          'minimum': 10,
-          'title': 'Non required numeric field with range of 10-20',
-          'type': 'number'
-        },
-        'required_field_no_range_with_default_input': {
-          'default': 150,
-          'deprecated': false,
-          'description': 'The great detailed description',
-          'title': 'Required field no range with default input',
-          'type': 'number'
-        },
-        'an_inactive_numeric_field': {
-          'deprecated': true,
-          'description': 'Some really good description',
-          'title': 'An inactive numeric field',
-          'type': 'number'
-        }
-      },
-      'required': [
-        'required_field_no_range_with_default_input'
-      ],
-      'type': 'object'
-    },
-    'ui': {
-      'fields': {
-        'non_required_numeric_field_with_range_of_1-10': {
-          'placeholder': 'A placeholder',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
-        },
-        'required_field_no_range_with_default_input': {
-          'placeholder': 'A hint',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
-        },
-        'an_inactive_numeric_field': {
-          'placeholder': 'placeholder',
-          'type': 'NUMERIC',
-          'parent': 'section-mwp2-jUjK6ZxAD9XmIzfX'
-        }
-      },
-      'headers': {},
-      'order': [
-        'section-mwp2-jUjK6ZxAD9XmIzfX'
-      ],
-      'sections': {
-        'section-mwp2-jUjK6ZxAD9XmIzfX': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
-            {
-              'name': 'non_required_numeric_field_with_range_of_1-10',
-              'type': 'field'
-            },
-            {
-              'name': 'required_field_no_range_with_default_input',
-              'type': 'field'
-            },
-            {
-              'name': 'an_inactive_numeric_field',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': []
-        }
-      }
-    }
-  }
-};
-
-
-const schemaWithBasicText = {
-  label: 'Long and short text configs',
-  schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'required_short_text': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Required short text',
-          'type': 'string'
-        },
-        'required_long_text': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Required long text',
-          'type': 'string'
-        },
-        'short_text_with_a_hint': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Short text with a hint',
-          'type': 'string'
-        },
-        'long_text_with_a_hint': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Long text with a hint',
-          'type': 'string'
-        },
-        'short_text_with_description': {
-          'default': '',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector',
-          'title': 'Short text with description',
-          'type': 'string'
-        },
-        'long_text_with_description': {
-          'default': '',
-          'deprecated': false,
-          'description': 'These are some instructions for the data collector, these are some instructions for the data collector',
-          'title': 'Long text with description',
-          'type': 'string'
-        }
-      },
-      'required': [
-        'required_short_text',
-        'required_long_text'
-      ],
-      'type': 'object'
-    },
-    'ui': {
-      'fields': {
-        'required_short_text': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'required_long_text': {
-          'inputType': 'LONG_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'short_text_with_a_hint': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'This is a hint',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'long_text_with_a_hint': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': 'This is an example of data',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'short_text_with_description': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        },
-        'long_text_with_description': {
-          'inputType': 'LONG_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-qTr7if4PZeQ2tOD5HKTfI'
-        }
-      },
-      'headers': {},
-      'order': [
-        'section-qTr7if4PZeQ2tOD5HKTfI'
-      ],
-      'sections': {
-        'section-qTr7if4PZeQ2tOD5HKTfI': {
-          'columns': 1,
-          'isActive': true,
-          'label': '',
-          'leftColumn': [
-            {
-              'name': 'required_short_text',
-              'type': 'field'
-            },
-            {
-              'name': 'required_long_text',
-              'type': 'field'
-            },
-            {
-              'name': 'short_text_with_a_hint',
-              'type': 'field'
-            },
-            {
-              'name': 'long_text_with_a_hint',
-              'type': 'field'
-            },
-            {
-              'name': 'short_text_with_description',
-              'type': 'field'
-            },
-            {
-              'name': 'long_text_with_description',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': []
-        }
-      }
-    }
-  }
-};
-
-const schemaWithTexts = {
-  label: 'Text fields with full settings',
+const texts = {
+  label: 'Example for text fields',
   schema: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       additionalProperties: false,
       properties: {
-        long_text_with_full_settings: {
-          default: 'a default input',
+        required_short_text: {
+          default: '',
           deprecated: false,
-          description: 'These are some instructions for the data collector',
-          title: 'Long text with full settings',
+          description: '',
+          title: 'Required short text',
           type: 'string',
         },
-        short_text_with_full_settings: {
-          default: 'a default input',
+        required_long_text: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Required long text',
+          type: 'string',
+        },
+        short_text_with_a_hint: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Short text with a hint',
+          type: 'string',
+        },
+        long_text_with_a_hint: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Long text with a hint',
+          type: 'string',
+        },
+        short_text_with_description: {
+          default: '',
           deprecated: false,
           description: 'These are some instructions for the data collector',
-          title: 'Short text with full settings',
+          title: 'Short text with description',
+          type: 'string',
+        },
+        long_text_with_description: {
+          default: '',
+          deprecated: false,
+          description:
+            'These are some instructions for the data collector, these are some instructions for the data collector',
+          title: 'Long text with description',
           type: 'string',
         },
       },
-      required: [
-        'long_text_with_full_settings',
-        'short_text_with_full_settings',
-      ],
+      required: ['required_short_text', 'required_long_text'],
       type: 'object',
     },
     ui: {
       fields: {
-        long_text_with_full_settings: {
-          inputType: 'LONG_TEXT',
-          placeholder: 'This is an example!',
+        required_short_text: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
           type: 'TEXT',
-          parent: 'section-fD44j61je2TaHktLTPwrU',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
         },
-        short_text_with_full_settings: {
+        required_long_text: {
+          inputType: 'LONG_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
+        },
+        short_text_with_a_hint: {
           inputType: 'SHORT_TEXT',
           placeholder: 'This is a hint',
           type: 'TEXT',
-          parent: 'section-fD44j61je2TaHktLTPwrU',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
+        },
+        long_text_with_a_hint: {
+          inputType: 'SHORT_TEXT',
+          placeholder: 'This is an example of data',
+          type: 'TEXT',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
+        },
+        short_text_with_description: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
+        },
+        long_text_with_description: {
+          inputType: 'LONG_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-qTr7if4PZeQ2tOD5HKTfI',
         },
       },
       headers: {},
-      order: ['section-fD44j61je2TaHktLTPwrU'],
+      order: ['section-qTr7if4PZeQ2tOD5HKTfI'],
       sections: {
-        'section-fD44j61je2TaHktLTPwrU': {
+        'section-qTr7if4PZeQ2tOD5HKTfI': {
           columns: 1,
           isActive: true,
           label: '',
           leftColumn: [
             {
-              name: 'short_text_with_full_settings',
+              name: 'required_short_text',
               type: 'field',
             },
             {
-              name: 'long_text_with_full_settings',
+              name: 'required_long_text',
+              type: 'field',
+            },
+            {
+              name: 'short_text_with_a_hint',
+              type: 'field',
+            },
+            {
+              name: 'long_text_with_a_hint',
+              type: 'field',
+            },
+            {
+              name: 'short_text_with_description',
+              type: 'field',
+            },
+            {
+              name: 'long_text_with_description',
               type: 'field',
             },
           ],
@@ -285,8 +131,8 @@ const schemaWithTexts = {
   },
 };
 
-const schemaWithSections = {
-  label: 'Sections',
+const sections = {
+  label: 'Example for sections',
   schema: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -438,8 +284,8 @@ const schemaWithSections = {
   },
 };
 
-const schemaWithDateTimes = {
-  label: 'Date Times',
+const dateTimes = {
+  label: 'Example for date-times',
   schema: {
     json: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -586,155 +432,548 @@ const schemaWithDateTimes = {
   },
 };
 
-const headerAndSections = {
-  label: 'Headers and Sections',
+const numerics = {
+  label: 'Example for numerics',
   schema: {
-    'json': {
-      '$schema': 'https://json-schema.org/draft/2020-12/schema',
-      'additionalProperties': false,
-      'properties': {
-        'a_field': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'a field',
-          'type': 'string'
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
+        'non_required_numeric_field_with_range_of_1-10': {
+          deprecated: false,
+          description: 'These are some cool instructions',
+          maximum: 20,
+          minimum: 10,
+          title: 'Non required numeric field with range of 10-20',
+          type: 'number',
         },
-        'text_field': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'text field',
-          'type': 'string'
+        required_field_no_range_with_default_input: {
+          default: 150,
+          deprecated: false,
+          description: 'The great detailed description',
+          title: 'Required field no range with default input',
+          type: 'number',
         },
-        'some_data': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'Some data',
-          'type': 'string'
+        an_inactive_numeric_field: {
+          deprecated: true,
+          description: 'Some really good description',
+          title: 'An inactive numeric field',
+          type: 'number',
         },
-        'other_stuff': {
-          'default': '',
-          'deprecated': false,
-          'description': '',
-          'title': 'other stuff',
-          'type': 'string'
-        }
       },
-      'required': [],
-      'type': 'object'
+      required: ['required_field_no_range_with_default_input'],
+      type: 'object',
     },
-    'ui': {
-      'fields': {
-        'a_field': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-DrHl1yQyzRraCzm-V276C'
+    ui: {
+      fields: {
+        'non_required_numeric_field_with_range_of_1-10': {
+          placeholder: 'A placeholder',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
         },
-        'text_field': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-DrHl1yQyzRraCzm-V276C'
+        required_field_no_range_with_default_input: {
+          placeholder: 'A hint',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
         },
-        'some_data': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-GzhQrd4U8_4Y-Z0QgDNze'
+        an_inactive_numeric_field: {
+          placeholder: 'placeholder',
+          type: 'NUMERIC',
+          parent: 'section-mwp2-jUjK6ZxAD9XmIzfX',
         },
-        'other_stuff': {
-          'inputType': 'SHORT_TEXT',
-          'placeholder': '',
-          'type': 'TEXT',
-          'parent': 'section-GzhQrd4U8_4Y-Z0QgDNze'
-        }
       },
-      'headers': {
-        'header-OYa0RpQenymtu66pnTLmc': {
-          'label': 'This is a medium header: just for validation purposes',
-          'section': 'section-DrHl1yQyzRraCzm-V276C',
-          'size': 'MEDIUM'
+      headers: {},
+      order: ['section-mwp2-jUjK6ZxAD9XmIzfX'],
+      sections: {
+        'section-mwp2-jUjK6ZxAD9XmIzfX': {
+          columns: 1,
+          isActive: true,
+          label: '',
+          leftColumn: [
+            {
+              name: 'non_required_numeric_field_with_range_of_1-10',
+              type: 'field',
+            },
+            {
+              name: 'required_field_no_range_with_default_input',
+              type: 'field',
+            },
+            {
+              name: 'an_inactive_numeric_field',
+              type: 'field',
+            },
+          ],
+          rightColumn: [],
         },
-        'header-fKIQXwpSEDHqsPP71kT0F': {
-          'label': 'This a large header: just for validation purposes',
-          'section': 'section-DrHl1yQyzRraCzm-V276C',
-          'size': 'LARGE'
-        },
-        'header--MGpFINYNGajDlzQbdOKg': {
-          'label': 'This is a medium header: just for validation purposes',
-          'section': 'section-GzhQrd4U8_4Y-Z0QgDNze',
-          'size': 'MEDIUM'
-        },
-        'header-rqLceS3fjpeGkW2URQh75': {
-          'label': 'This is a medium small: just for validation purposes',
-          'section': 'section-GzhQrd4U8_4Y-Z0QgDNze',
-          'size': 'SMALL'
-        }
       },
-      'order': [
-        'section-DrHl1yQyzRraCzm-V276C',
-        'section-GzhQrd4U8_4Y-Z0QgDNze'
-      ],
-      'sections': {
-        'section-GzhQrd4U8_4Y-Z0QgDNze': {
-          'columns': 2,
-          'isActive': true,
-          'label': 'Medium and small headers',
-          'leftColumn': [
-            {
-              'name': 'header--MGpFINYNGajDlzQbdOKg',
-              'type': 'header'
-            },
-            {
-              'name': 'some_data',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': [
-            {
-              'name': 'header-rqLceS3fjpeGkW2URQh75',
-              'type': 'header'
-            },
-            {
-              'name': 'other_stuff',
-              'type': 'field'
-            }
-          ]
-        },
-        'section-DrHl1yQyzRraCzm-V276C': {
-          'columns': 2,
-          'isActive': true,
-          'label': 'Large and Medium headers',
-          'leftColumn': [
-            {
-              'name': 'header-fKIQXwpSEDHqsPP71kT0F',
-              'type': 'header'
-            },
-            {
-              'name': 'text_field',
-              'type': 'field'
-            }
-          ],
-          'rightColumn': [
-            {
-              'type': 'header',
-              'name': 'header-OYa0RpQenymtu66pnTLmc'
-            },
-            {
-              'name': 'a_field',
-              'type': 'field'
-            }
-          ]
-        }
-      }
-    }
-  }
+    },
+  },
 };
 
+const collections = {
+  label: 'Example for collections',
+  schema: {
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
+        reason_of_arrest: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Reason of arrest',
+          type: 'string',
+        },
+        informants: {
+          deprecated: false,
+          items: {
+            additionalProperties: false,
+            properties: {
+              informant_date: {
+                deprecated: false,
+                description: 'When was the information provided',
+                format: 'date',
+                title: 'Date',
+                type: 'string',
+              },
+              informant_name: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Name',
+                type: 'string',
+              },
+            },
+            required: ['informant_name'],
+            type: 'object',
+          },
+          title: 'Informants',
+          type: 'array',
+          unevaluatedItems: false,
+        },
+        extra_information: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Extra information',
+          type: 'string',
+        },
+        suspects: {
+          deprecated: false,
+          items: {
+            additionalProperties: false,
+            properties: {
+              suspect_id: {
+                default: '',
+                deprecated: false,
+                description: 'Any kind of identification',
+                title: 'Id',
+                type: 'string',
+              },
+              suspect_court_date: {
+                deprecated: false,
+                items: {
+                  additionalProperties: false,
+                  properties: {
+                    suspect_court_date_date: {
+                      deprecated: false,
+                      description: '',
+                      format: 'date-time',
+                      title: 'Court Date',
+                      type: 'string',
+                    },
+                    witnesses: {
+                      deprecated: false,
+                      items: {
+                        additionalProperties: false,
+                        properties: {
+                          suspect_court_date_witness_name: {
+                            default: '',
+                            deprecated: false,
+                            description: '',
+                            title: 'Name',
+                            type: 'string',
+                          },
+                        },
+                        required: ['suspect_court_date_witness_name'],
+                        type: 'object',
+                      },
+                      title: 'Witnesses',
+                      type: 'array',
+                      unevaluatedItems: false,
+                    },
+                  },
+                  required: ['suspect_court_date_date'],
+                  type: 'object',
+                },
+                title: 'Court Date',
+                type: 'array',
+                unevaluatedItems: false,
+              },
+              suspect_name: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Name',
+                type: 'string',
+              },
+            },
+            required: ['suspect_name'],
+            type: 'object',
+          },
+          maxItems: 10,
+          minItems: 2,
+          title: 'Suspects',
+          type: 'array',
+          unevaluatedItems: false,
+        },
+        estimated_number_of_people_involved_with_the_crime: {
+          default: '',
+          deprecated: false,
+          description: 'Number of people involved',
+          title: 'Estimated number of people involved with the crime',
+          type: 'string',
+        },
+        inactive_collection: {
+          deprecated: true,
+          items: {
+            additionalProperties: false,
+            properties: {
+              another_text_field: {
+                default: '',
+                deprecated: false,
+                description: '',
+                title: 'Another Text Field',
+                type: 'string',
+              },
+            },
+            required: [],
+            type: 'object',
+          },
+          title: 'Inactive collection',
+          type: 'array',
+          unevaluatedItems: false,
+        },
+      },
+      required: ['estimated_number_of_people_involved_with_the_crime'],
+      type: 'object',
+    },
+    ui: {
+      fields: {
+        reason_of_arrest: {
+          inputType: 'LONG_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
+        },
+        informants: {
+          buttonText: 'Informant',
+          columns: 1,
+          itemIdentifier: 'informant_name',
+          itemName: 'Informant',
+          leftColumn: ['informant_name', 'informant_date'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'section--Bg8EmlyyR6TODpwxT0bX',
+        },
+        extra_information: {
+          inputType: 'LONG_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-pPpQScPshpxwWztpaxx8i',
+        },
+        suspects: {
+          buttonText: 'Suspect',
+          columns: 2,
+          itemIdentifier: 'suspect_name',
+          itemName: 'Suspect',
+          leftColumn: ['suspect_name', 'suspect_court_date'],
+          rightColumn: ['suspect_id'],
+          type: 'COLLECTION',
+          parent: 'section-pPpQScPshpxwWztpaxx8i',
+        },
+        suspect_id: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'suspects',
+        },
+        suspect_court_date: {
+          buttonText: 'Court Date',
+          columns: 2,
+          itemIdentifier: 'suspect_court_date_date',
+          itemName: 'Court Date',
+          leftColumn: ['suspect_court_date_date'],
+          rightColumn: ['witnesses'],
+          type: 'COLLECTION',
+          parent: 'suspects',
+        },
+        informant_date: {
+          type: 'DATE_TIME',
+          parent: 'informants',
+        },
+        suspect_court_date_date: {
+          type: 'DATE_TIME',
+          parent: 'suspect_court_date',
+        },
+        suspect_name: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'suspects',
+        },
+        estimated_number_of_people_involved_with_the_crime: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '1',
+          type: 'TEXT',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
+        },
+        informant_name: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'informants',
+        },
+        witnesses: {
+          buttonText: 'Witness',
+          columns: 1,
+          itemIdentifier: 'suspect_court_date_witness_name',
+          itemName: 'Witness',
+          leftColumn: ['suspect_court_date_witness_name'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'suspect_court_date',
+        },
+        suspect_court_date_witness_name: {
+          inputType: 'SHORT_TEXT',
+          placeholder: 'Jane Doe',
+          type: 'TEXT',
+          parent: 'witnesses',
+        },
+        another_text_field: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'inactive_collection',
+        },
+        inactive_collection: {
+          buttonText: '',
+          columns: 1,
+          itemIdentifier: 'another_text_field',
+          itemName: 'Inactive',
+          leftColumn: ['another_text_field'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'section-lVgxKRYviEMeJfWNtWz72',
+        }
+      },
+      headers: {},
+      order: [
+        'section-lVgxKRYviEMeJfWNtWz72',
+        'section--Bg8EmlyyR6TODpwxT0bX',
+        'section-pPpQScPshpxwWztpaxx8i',
+      ],
+      sections: {
+        'section-lVgxKRYviEMeJfWNtWz72': {
+          columns: 2,
+          isActive: true,
+          label: '',
+          leftColumn: [
+            {
+              name: 'reason_of_arrest',
+              type: 'field',
+            },
+            {
+              name: 'inactive_collection',
+              type: 'field',
+            },
+          ],
+          rightColumn: [
+            {
+              name: 'estimated_number_of_people_involved_with_the_crime',
+              type: 'field',
+            },
+          ],
+        },
+        'section--Bg8EmlyyR6TODpwxT0bX': {
+          columns: 1,
+          isActive: true,
+          label: 'Arrest Intel',
+          leftColumn: [
+            {
+              name: 'informants',
+              type: 'field',
+            },
+          ],
+          rightColumn: [],
+        },
+        'section-pPpQScPshpxwWztpaxx8i': {
+          columns: 2,
+          isActive: true,
+          label: 'Suspects',
+          leftColumn: [
+            {
+              name: 'suspects',
+              type: 'field',
+            },
+          ],
+          rightColumn: [
+            {
+              name: 'extra_information',
+              type: 'field',
+            },
+          ],
+        },
+      },
+    },
+  },
+};
 
-const schemas = [schemaWithTexts, schemaWithSections, schemaWithBasicText, schemaWithDateTimes, headerAndSections, schemaWithNumerics];
+const headers = {
+  label: 'Example for headers',
+  schema: {
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
+        a_field: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'a field',
+          type: 'string',
+        },
+        text_field: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'text field',
+          type: 'string',
+        },
+        some_data: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'Some data',
+          type: 'string',
+        },
+        other_stuff: {
+          default: '',
+          deprecated: false,
+          description: '',
+          title: 'other stuff',
+          type: 'string',
+        },
+      },
+      required: [],
+      type: 'object',
+    },
+    ui: {
+      fields: {
+        a_field: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-DrHl1yQyzRraCzm-V276C',
+        },
+        text_field: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-DrHl1yQyzRraCzm-V276C',
+        },
+        some_data: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-GzhQrd4U8_4Y-Z0QgDNze',
+        },
+        other_stuff: {
+          inputType: 'SHORT_TEXT',
+          placeholder: '',
+          type: 'TEXT',
+          parent: 'section-GzhQrd4U8_4Y-Z0QgDNze',
+        },
+      },
+      headers: {
+        'header-OYa0RpQenymtu66pnTLmc': {
+          label: 'This is a medium header: just for validation purposes',
+          section: 'section-DrHl1yQyzRraCzm-V276C',
+          size: 'MEDIUM',
+        },
+        'header-fKIQXwpSEDHqsPP71kT0F': {
+          label: 'This a large header: just for validation purposes',
+          section: 'section-DrHl1yQyzRraCzm-V276C',
+          size: 'LARGE',
+        },
+        'header--MGpFINYNGajDlzQbdOKg': {
+          label: 'This is a medium header: just for validation purposes',
+          section: 'section-GzhQrd4U8_4Y-Z0QgDNze',
+          size: 'MEDIUM',
+        },
+        'header-rqLceS3fjpeGkW2URQh75': {
+          label: 'This is a medium small: just for validation purposes',
+          section: 'section-GzhQrd4U8_4Y-Z0QgDNze',
+          size: 'SMALL',
+        },
+      },
+      order: ['section-DrHl1yQyzRraCzm-V276C', 'section-GzhQrd4U8_4Y-Z0QgDNze'],
+      sections: {
+        'section-GzhQrd4U8_4Y-Z0QgDNze': {
+          columns: 2,
+          isActive: true,
+          label: 'Medium and small headers',
+          leftColumn: [
+            {
+              name: 'header--MGpFINYNGajDlzQbdOKg',
+              type: 'header',
+            },
+            {
+              name: 'some_data',
+              type: 'field',
+            },
+          ],
+          rightColumn: [
+            {
+              name: 'header-rqLceS3fjpeGkW2URQh75',
+              type: 'header',
+            },
+            {
+              name: 'other_stuff',
+              type: 'field',
+            },
+          ],
+        },
+        'section-DrHl1yQyzRraCzm-V276C': {
+          columns: 2,
+          isActive: true,
+          label: 'Large and Medium headers',
+          leftColumn: [
+            {
+              name: 'header-fKIQXwpSEDHqsPP71kT0F',
+              type: 'header',
+            },
+            {
+              name: 'text_field',
+              type: 'field',
+            },
+          ],
+          rightColumn: [
+            {
+              type: 'header',
+              name: 'header-OYa0RpQenymtu66pnTLmc',
+            },
+            {
+              name: 'a_field',
+              type: 'field',
+            },
+          ],
+        },
+      },
+    },
+  },
+};
+
+const schemas = [texts, sections, dateTimes, headers, numerics, collections];
 
 export default schemas;

@@ -2,12 +2,12 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
-import { shouldUse12HourFormat } from './utils';
+import { shouldUse12HourFormat } from '../utils/datetime';
 
 import TimePicker, { EMPTY_TIME_VALUE } from '.';
 
-jest.mock('./utils', () => ({
-  ...jest.requireActual('./utils'),
+jest.mock('../utils/datetime', () => ({
+  ...jest.requireActual('../utils/datetime'),
   shouldUse12HourFormat: jest.fn(),
 }));
 

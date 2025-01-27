@@ -55,7 +55,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
   });
 
   test('shows an error state in the label if the value is invalid', () => {
-    renderDateTimeField({ error: 'Error' });
+    renderDateTimeField({ error: { message: 'Error' } });
 
     expect(screen.getByText('Date Time 1 Label')).toHaveClass('error');
   });
@@ -109,7 +109,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
   });
 
   test('shows an invalid input when there are errors', () => {
-    renderDateTimeField({ error: 'Error' });
+    renderDateTimeField({ error: { message: 'Error' } });
 
     const dateTimeInput = screen.getByTestId('schemaForm-field-dateTime-date-time-1');
     const description = screen.getByText('Error');

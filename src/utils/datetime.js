@@ -152,3 +152,11 @@ export const getTimezoneOffsetString = () => {
 };
 
 export const formatDateToLocalISO = (date) => format(date, 'yyyy-MM-dd\'T\'HH:mm');
+
+export const shouldUse12HourFormat = (locale) => {
+  const dateTimeFormatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+  const dateTimeOptions = dateTimeFormatter.resolvedOptions();
+
+  // Hour cycles where 12 hour format should be used.
+  return dateTimeOptions.hourCycle === 'h12' || dateTimeOptions.hourCycle === 'h11';
+};

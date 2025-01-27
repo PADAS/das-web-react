@@ -75,7 +75,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
   });
 
   test('shows an error state in the label if the value is invalid', () => {
-    renderNumericField({ error: 'Error' });
+    renderNumericField({ error: { message: 'Error' } });
 
     expect(screen.getByText('Numeric field label')).toHaveClass('error');
   });
@@ -118,7 +118,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Numeric', () =>
   });
 
   test('shows an invalid input when there are errors', () => {
-    renderNumericField({ error: 'Error' });
+    renderNumericField({ error: { message: 'Error' } });
 
     const textInput = screen.getByLabelText('Numeric field label');
     const description = screen.getByText('Error');

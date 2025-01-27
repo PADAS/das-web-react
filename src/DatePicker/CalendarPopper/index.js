@@ -45,6 +45,7 @@ const Input = forwardRef(({
       ref={ref}
       type="button"
       {...otherProps}
+      title={t('menuButtonLabel')}
     >
     <div className={`${styles.caret} ${isOpen ? styles.open : ''}`} role="img" />
   </button>;
@@ -142,6 +143,7 @@ const CalendarPopper = ({
     open={isOpen}
     popperClassName={styles.popper}
     popperPlacement="bottom"
+    popperProps={{ strategy: 'fixed' }}
     ref={innerRef}
     renderCustomHeader={getRenderCustomHeader(maxDate, minDate, onKeyDown)}
     selected={selected}
