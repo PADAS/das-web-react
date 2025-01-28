@@ -74,7 +74,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows an error state in the label if the value is invalid', () => {
-    renderTextField({ error: 'Error' });
+    renderTextField({ error: { message: 'Error' } });
 
     expect(screen.getByText('Text 1 Label')).toHaveClass('error');
   });
@@ -121,7 +121,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Text', () => {
   });
 
   test('shows an invalid input when there are errors', () => {
-    renderTextField({ error: 'Error' });
+    renderTextField({ error: { message: 'Error' } });
 
     const textInput = screen.getByLabelText('Text 1 Label');
     const description = screen.getByText('Error');

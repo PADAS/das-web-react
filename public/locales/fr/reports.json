@@ -125,13 +125,44 @@
       "reportedByLabel": "Complété Par",
       "schemaForm": {
         "errors": {
+          "collectionItems": "Certains éléments de cette collection contiennent des erreurs dans leurs formulaires internes.",
           "dateFormat": "Format de date invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
           "dateTimeFormat": "Format de date et heure invalide ou date invalide. Vérifiez le jour, le mois et l'année.",
-          "timeFormat": "Format d'heure invalide.",
+          "defaultFormat": "Format invalide.",
+          "maximum": "Cette valeur doit être inférieure ou égale à {{maximum}}.",
+          "maxItems_one": "Cette collection doit contenir au maximum {{count}} élément.",
+          "maxItems_other": "Cette collection doit contenir au maximum {{count}} éléments.",
+          "minimum": "Cette valeur doit être supérieure ou égale à {{minimum}}.",
+          "minItems_one": "Cette collection doit contenir au moins {{count}} élément.",
+          "minItems_other": "Cette collection doit contenir au moins {{count}} éléments.",
           "required": "Ceci est un champ obligatoire.",
-          "outOfRange": {
-            "minimum": "Cette valeur doit être supérieure ou égale à {{minimum}}",
-            "maximum": "Cette valeur doit être inférieure ou égale à {{maximum}}"
+          "timeFormat": "Format d'heure invalide."
+        },
+        "fields": {
+          "collection": {
+            "addButtonLabel": "Ajouter {{itemName}}",
+            "defaultAddButton": "Ajouter",
+            "chevronButtonLabel": {
+              "closed": "Ouvrir la liste de {{collectionLabel}}",
+              "open": "Fermer la liste de {{collectionLabel}}"
+            },
+            "item": {
+              "collectionHumanizedValue": "{{collectionLength}} éléments",
+              "deleteButtonLabel": "Supprimer {{itemTitle}}",
+              "editButtonLabel": "Modifier {{itemTitle}}",
+              "formModal": {
+                "cancelButton": "Annuler",
+                "deleteButton": "Supprimer {{itemTitle}}",
+                "doneButton": "Terminé"
+              },
+              "formPreview": {
+                "collectionHumanizedValue": "{{collectionLength}} éléments"
+              },
+              "chevronButtonLabel": {
+                "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
+                "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
+              }
+            }
           }
         }
       },

@@ -48,7 +48,7 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
             className={`${styles.description} ${hasError ? styles.error : ''}`}
             id={`${id}-description`}
         >
-        {error || details.description}
+        {error?.message || details.description}
     </p>}
 
   </div>;

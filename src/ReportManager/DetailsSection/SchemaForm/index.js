@@ -4,6 +4,7 @@ import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
 import useSchemaValidations from './utils/useSchemaValidations';
 
+import Collection from './fields/Collection';
 import ChoiceList from './fields/ChoiceList';
 import DateTime from './fields/DateTime';
 import Header from './fields/Header';
@@ -14,7 +15,6 @@ import Text from './fields/Text';
 export const FIELDS = {
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
-  [FORM_ELEMENT_TYPES.HEADER]: Header,
   [FORM_ELEMENT_TYPES.SECTION]: Section,
   [FORM_ELEMENT_TYPES.TEXT]: Text,
   [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
@@ -30,6 +30,8 @@ const SchemaForm = ({
 }) => {
   const runValidations = useSchemaValidations(schema);
 
+  // This ref works as a flag to trigger a useEffect and call onFormDataChange asynchronously when there are changes in
+  // the form data, so we can keep the onSectionFieldChange dependency array empty.
   const shouldSendFormDataChangeRef = useRef(false);
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -37,16 +39,8 @@ const SchemaForm = ({
 
   const fields = useMemo(() => makeFieldsFromSchema(schema), [schema]);
 
-  // TODO: Collections will require recursivity here.
-  const fieldValues = useMemo(() => Object.entries(formData).reduce((accumulator, [fieldId, fieldValue]) => ({
-    ...accumulator,
-    [fieldId]: fieldValue,
-  }), {}), [formData]);
-
-  const onFieldChange = useCallback((fieldId, value) => {
-    // TODO: Collections will require recursivity here.
+  const onSectionFieldChange = useCallback((fieldId, value) => {
     setFormData((formData) => ({ ...formData, [fieldId]: value }));
-    setFieldErrors((fieldErrors) => ({ ...fieldErrors, [fieldId]: undefined }));
 
     shouldSendFormDataChangeRef.current = true;
   }, []);
@@ -58,31 +52,47 @@ const SchemaForm = ({
     if (fieldErrors) {
       setFieldErrors(fieldErrors);
 
+      // If there are validation errors we focus the first erroneous field if it is visible (it may be inside a
+      // collecion).
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
-      document.getElementById(idOfFirstErroneousField).focus();
+      document.getElementById(idOfFirstErroneousField)?.focus();
     } else {
       onFormSubmit();
     }
   };
 
-  const renderField = (fieldId) => {
-    const { type } = fields[fieldId];
+  // This method is designed to render fields inside sections and collections. In order to support recursion we let the
+  // parents handle the propagation of values, change callbacks, errors, breadcrumbs (only for collections), etc...
+  const renderField = (id, value, onChange, error, breadcrumbs = []) => {
+    switch (fields[id].type) {
+    case FORM_ELEMENT_TYPES.HEADER:
+      return <Header details={fields[id].details} id={id} key={id} />;
 
-    const Field = FIELDS[type];
+    case FORM_ELEMENT_TYPES.COLLECTION:
+      return <Collection
+        breadcrumbs={breadcrumbs}
+        details={fields[id].details}
+        error={error}
+        fields={fields}
+        id={id}
+        key={id}
+        onFieldChange={onChange}
+        renderField={renderField}
+        value={value}
+      />;
 
-    if (type === FORM_ELEMENT_TYPES.HEADER) {
-      return <Field details={fields[fieldId].details} id={fieldId} key={fieldId} />;
+    default:
+      const Field = FIELDS[fields[id].type];
+      return <Field
+        autofillDefaultInput={autofillDefaultInputs}
+        details={fields[id].details}
+        error={error}
+        id={id}
+        key={id}
+        onFieldChange={onChange}
+        value={value}
+      />;
     }
-    // Collections will require a condition here to pass down renderField as prop
-    return <Field
-      autofillDefaultInput={autofillDefaultInputs}
-      details={fields[fieldId].details}
-      error={fieldErrors[fieldId]}
-      id={fieldId}
-      key={fieldId}
-      onFieldChange={onFieldChange}
-      value={fieldValues[fieldId]}
-    />;
   };
 
   useEffect(() => {
@@ -96,8 +106,12 @@ const SchemaForm = ({
   return <form onSubmit={onSubmit}>
     {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
       details={fields[sectionId].details}
+      fieldErrors={fieldErrors}
+      formData={formData}
       id={sectionId}
       key={sectionId}
+      onFieldChange={onSectionFieldChange}
+      onFieldErrorsChange={(newFieldErrors) => setFieldErrors(newFieldErrors)}
       renderField={renderField}
     />)}
 

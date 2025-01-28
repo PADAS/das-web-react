@@ -24,6 +24,26 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
             title: 'This is a text',
             type: 'string',
           },
+          this_is_a_collection: {
+            deprecated: false,
+            items: {
+              additionalProperties: false,
+              properties: {
+                collection_text: {
+                  default: '',
+                  deprecated: false,
+                  description: '',
+                  title: 'Collection text',
+                  type: 'string',
+                },
+              },
+              required: [],
+              type: 'object',
+            },
+            title: 'This is a collection',
+            type: 'array',
+            unevaluatedItems: false,
+          },
         },
         required: ['this_is_a_text'],
         type: 'object',
@@ -35,6 +55,21 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
             placeholder: 'a placeholder',
             type: 'TEXT',
             parent: 'section-_PdgePvPWyACfu9sgN_F6',
+          },
+          this_is_a_collection: {
+            buttonText: 'a button text',
+            columns: 1,
+            itemIdentifier: 'collection_text',
+            leftColumn: ['collection_text'],
+            parent: 'section-_PdgePvPWyACfu9sgN_F6',
+            rightColumn: [],
+            type: 'COLLECTION',
+          },
+          collection_text: {
+            inputType: 'SHORT_TEXT',
+            placeholder: '',
+            type: 'TEXT',
+            parent: 'this_is_a_collection',
           },
         },
         headers: {
@@ -59,6 +94,10 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
                 name: 'this_is_a_text',
                 type: 'field',
               },
+              {
+                name: 'this_is_a_collection',
+                type: 'field',
+              },
             ],
             rightColumn: [],
           },
@@ -81,15 +120,17 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
     {...props}
   />);
 
-  test('renders sections, fields and headers from the schema', () => {
+  test('renders sections, fields, collections and headers from the schema', () => {
     renderSchemaForm();
 
     const section = screen.getByTestId('schema-form-section-section-_PdgePvPWyACfu9sgN_F6');
     const textField = screen.getByTestId('schema-form-text-field-this_is_a_text');
+    const collectionField = screen.getByTestId('schema-form-collection-this_is_a_collection');
     const header = screen.getByTestId('schema-form-header-header-ghqdjqGinaJMptIEJBQmO');
 
     expect(section).toBeVisible();
     expect(textField).toBeVisible();
+    expect(collectionField).toBeVisible();
     expect(header).toBeVisible();
   });
 

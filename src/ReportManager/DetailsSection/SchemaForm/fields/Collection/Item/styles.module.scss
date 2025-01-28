@@ -1,0 +1,101 @@
+@use "sass:color";
+
+@use "../../../../../../common/styles/vars/colors";
+
+$itemExpansionTransitionTime: 300ms;
+
+.item {
+  transition: margin $itemExpansionTransitionTime;
+
+  &.open {
+    margin: 1rem 0;
+
+    .header {
+      height: unset;
+
+      .title {
+        white-space: normal;
+      }
+    }
+  }
+
+  &.error {
+    .header {
+      border-color: colors.$bright-red;
+      margin-bottom: 1px;
+
+      .title {
+        color: colors.$bright-red;
+      }
+
+      .actionButton {
+        color: colors.$bright-red;
+      }
+    }
+  }
+
+  &:not(.open) {
+    &:last-child {
+      .header {
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+      }
+    }
+
+    &:not(:first-child) {
+      margin-top: -1px;
+
+      .header {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+    }
+  }
+
+  .header {
+    align-items: center;
+    background: white;
+    border: 1px solid colors.$light-gray-border;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+    display: flex;
+    height: 2.5rem;
+    justify-content: space-between;
+    padding: 0.25rem 0.75rem;
+    width: 100%;
+
+    .title {
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .actionButtons {
+      display: flex;
+
+      .actionButton {
+        background: none;
+        border: none;
+        border-radius: 0.1875rem;
+        color: colors.$secondary-medium-gray;
+        margin-right: 0.25rem;
+        outline: none;
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &:hover {
+          background: colors.$light-gray-background;
+        }
+
+        &:focus-visible {
+          border: 2px solid colors.$bright-blue;
+          color: colors.$bright-blue;
+        }
+      }
+    }
+  }
+}

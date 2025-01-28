@@ -1,0 +1,32 @@
+@use "../../../../../../../common/styles/vars/colors";
+
+.formPreview {
+  border: 1px solid colors.$light-gray-border;
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border-top: 0;
+  padding: 1rem 0.5rem;
+
+  &.error {
+    border-color: colors.$bright-red;
+  }
+
+  .summaryLabel {
+    font-size: 0.875rem;
+    color: colors.$secondary-medium-gray;
+    margin: 0;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
+
+  .summaryValue {
+    color: black;
+    margin-bottom: 0.5rem;
+
+    &.error {
+      color: colors.$bright-red;
+    }
+  }
+}
