@@ -7,15 +7,12 @@
   color: colors.$secondary-medium-gray;
   font-size: 1rem;
   margin-bottom: 0.125rem;
-
-  p {
-    font-weight: 500;
-    margin: 0;
-  }
+  font-weight: 500;
 }
 
 .optionLabel {
   color: colors.$off-black;
+  font-weight: normal;
 }
 
 .description {
@@ -44,6 +41,10 @@
 
 .dropdownError {
   border: 1px solid colors.$bright-red !important;
+}
+
+.control {
+  font-weight: normal;
 }
 
 .error {

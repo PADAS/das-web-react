@@ -21,7 +21,7 @@ const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
 </div>;
 
 
-const Dropdown = ({ details, onChange, value, id, hasError, disabled, required, ...otherProps }) => {
+const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
 
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
@@ -57,7 +57,8 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, required, 
       placeholder={details.hint}
         components={{ Option }}
         classNames={{
-          control: () => hasError && styles.dropdownError,
+          // control: () => ,
+          control: () => `${styles.control} ${ hasError ? styles.dropdownError : '' }`,
           multiValue: () => styles.multiValue,
           multiValueRemove: () => styles.multiValueRemove,
           placeholder: () => hasError && styles.error,
@@ -66,7 +67,6 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, required, 
       }}
       isDisabled={disabled}
       noOptionsMessage={() => t('select.noOptionsMessage')}
-      required={required}
       {...otherProps}
     />;
 };
@@ -92,7 +92,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           aria-invalid={hasError}
           hasError={hasError}
           aria-required={details.isRequired}
-          required={details.isRequired}
           id={id}
           onChange={(newValue) => {
               onFieldChange(id, newValue);
@@ -106,7 +105,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           className={`${styles.description} ${hasError ? styles.error : ''}`}
           id={`${id}-description`}
       >
-      {error || details.description}
+        {error?.message || details.description}
       </p>}
   </div>;
 };

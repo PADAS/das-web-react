@@ -63,7 +63,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     });
 
     expect(screen.getByText('Choice list label *')).toBeVisible();
-    expect(screen.getByRole('combobox')).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -75,7 +74,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
   test('shows an error state in the label if the value is invalid', () => {
     renderChoiceList({
       ...defaultProps,
-      error: 'A incredible error message'
+      error: {
+        message: 'A incredible error message'
+      }
     });
 
 
@@ -114,7 +115,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
   test('shows an invalid input when there are errors', () => {
     renderChoiceList({
       ...defaultProps,
-      error: 'A incredible error message'
+      error: {
+        message: 'A incredible error message'
+      }
     });
 
     const choiceListInput = screen.getByRole('combobox');

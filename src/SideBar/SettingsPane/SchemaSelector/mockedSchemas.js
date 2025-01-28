@@ -1045,131 +1045,248 @@ export const choicesOptions = [
 const choiceLists = {
   label: 'Example for choice list',
   schema: {
-    json: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      additionalProperties: false,
-      properties: {
-        'this_is_a_required_multi-choice_list': {
-          deprecated: false,
-          description: 'This is a really good description',
-          title: 'This is a required multi-choice list',
-          type: 'array',
-          uniqueItems: true,
-          items: {
-            type: 'string',
-            anyOf: [
+    'json': {
+      '$schema': 'https://json-schema.org/draft/2020-12/schema',
+      'additionalProperties': false,
+      'properties': {
+        'required_multi-option': {
+          'deprecated': false,
+          'description': 'This is a description',
+          'title': 'Required multi-option',
+          'type': 'array',
+          'uniqueItems': true,
+          'items': {
+            'type': 'string',
+            'anyOf': [
               {
                 oneOf: choicesOptions
               }
             ]
           }
         },
-        'this_is_a_non_required_single-choice_list': {
-          deprecated: false,
-          description: '',
-          title: 'This is a non required single-choice list',
-          type: 'string',
-          anyOf: [
+        'optional_single_choice': {
+          'deprecated': false,
+          'description': 'This a detailed description',
+          'title': 'Optional single choice',
+          'type': 'string',
+          'anyOf': [
             {
               oneOf: choicesOptions
             }
           ]
         },
-        'text_field': {
-          default: '',
-          deprecated: false,
-          description: 'A detailed description',
-          title: 'Text field',
-          type: 'string'
+        'a_collection_of_data': {
+          'deprecated': false,
+          'items': {
+            'additionalProperties': false,
+            'properties': {
+              'single_option': {
+                'deprecated': false,
+                'description': 'This is a description',
+                'title': 'Single option',
+                'type': 'string',
+                'anyOf': [
+                  {
+                    oneOf: choicesOptions
+                  }
+                ]
+              },
+              'extra_info': {
+                'deprecated': false,
+                'items': {
+                  'additionalProperties': false,
+                  'properties': {
+                    'multiple_option': {
+                      'deprecated': false,
+                      'description': 'This is a description',
+                      'title': 'Multiple option',
+                      'type': 'array',
+                      'uniqueItems': true,
+                      'items': {
+                        'type': 'string',
+                        'anyOf': [
+                          {
+                            oneOf: choicesOptions
+                          }
+                        ]
+                      }
+                    },
+                    'record_name': {
+                      'default': '',
+                      'deprecated': false,
+                      'description': '',
+                      'title': 'Record name',
+                      'type': 'string'
+                    }
+                  },
+                  'required': [
+                    'multiple_option'
+                  ],
+                  'type': 'object'
+                },
+                'title': 'Extra info',
+                'type': 'array',
+                'unevaluatedItems': false
+              }
+            },
+            'required': [
+              'single_option'
+            ],
+            'type': 'object'
+          },
+          'title': 'A collection of data',
+          'type': 'array',
+          'unevaluatedItems': false
         },
-        'a_number_field': {
-          deprecated: false,
-          description: 'Some instructions',
-          title: 'a number field',
-          type: 'number'
+        'optional_numeric_stuff': {
+          'deprecated': false,
+          'description': '',
+          'title': 'Optional numeric stuff',
+          'type': 'number'
         }
       },
-      required: [
-        'this_is_a_required_multi-choice_list'
+      'required': [
+        'required_multi-option'
       ],
-      type: 'object'
+      'type': 'object'
     },
-    ui: {
-      fields: {
-        'this_is_a_required_multi-choice_list': {
-          choices: {
-            eventTypeCategories: [],
-            existingChoiceList: [],
-            featureCategories: [],
-            myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
-            subjectGroups: [
+    'ui': {
+      'fields': {
+        'required_multi-option': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [],
+            'featureCategories': [],
+            'myDataType': 'SUBJECTS_FROM_SUBJECT_GROUP',
+            'subjectGroups': [
               '5bf8761c-0c87-4756-8282-23fa11d72433'
             ],
-            subjectSubtypes: [],
-            type: 'MY_DATA'
+            'subjectSubtypes': [],
+            'type': 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
-          placeholder: 'This is a hint',
-          type: 'CHOICE_LIST',
-          parent: 'section-23V7YPH6Rw_8VUFGuHUZo'
+          'inputType': 'DROPDOWN',
+          'placeholder': 'This is a placeholder',
+          'type': 'CHOICE_LIST',
+          'parent': 'section-75Vs8Xv8lrjuUoZuIaTN2'
         },
-        'this_is_a_non_required_single-choice_list': {
-          choices: {
-            eventTypeCategories: [],
-            existingChoiceList: [],
-            featureCategories: [],
-            myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
-            subjectGroups: [
+        'optional_single_choice': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [
+              'contactrep_whoinitiatedcontact'
+            ],
+            'featureCategories': [],
+            'myDataType': '',
+            'subjectGroups': [],
+            'subjectSubtypes': [],
+            'type': 'EXISTING_CHOICE_LIST'
+          },
+          'inputType': 'DROPDOWN',
+          'placeholder': 'This is a hint',
+          'type': 'CHOICE_LIST',
+          'parent': 'section-75Vs8Xv8lrjuUoZuIaTN2'
+        },
+        'a_collection_of_data': {
+          'buttonText': 'add more',
+          'columns': 1,
+          'itemIdentifier': '',
+          'itemName': 'people',
+          'leftColumn': [
+            'single_option',
+            'extra_info'
+          ],
+          'rightColumn': [],
+          'type': 'COLLECTION',
+          'parent': 'section-75Vs8Xv8lrjuUoZuIaTN2'
+        },
+        'single_option': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [],
+            'featureCategories': [],
+            'myDataType': 'SUBJECTS_FROM_SUBJECT_GROUP',
+            'subjectGroups': [
               '5bf8761c-0c87-4756-8282-23fa11d72433'
             ],
-            subjectSubtypes: [],
-            type: 'MY_DATA'
+            'subjectSubtypes': [],
+            'type': 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
-          placeholder: '',
-          type: 'CHOICE_LIST',
-          parent: 'section-23V7YPH6Rw_8VUFGuHUZo'
+          'inputType': 'DROPDOWN',
+          'placeholder': 'This is a hint',
+          'type': 'CHOICE_LIST',
+          'parent': 'a_collection_of_data'
         },
-        'text_field': {
-          inputType: 'SHORT_TEXT',
-          placeholder: 'A placeholder',
-          type: 'TEXT',
-          parent: 'section-23V7YPH6Rw_8VUFGuHUZo'
+        'extra_info': {
+          'buttonText': 'add record',
+          'columns': 1,
+          'itemIdentifier': '',
+          'itemName': 'record',
+          'leftColumn': [
+            'multiple_option',
+            'record_name'
+          ],
+          'rightColumn': [],
+          'type': 'COLLECTION',
+          'parent': 'a_collection_of_data'
         },
-        'a_number_field': {
-          placeholder: 'Some example of number',
-          type: 'NUMERIC',
-          parent: 'section-23V7YPH6Rw_8VUFGuHUZo'
+        'multiple_option': {
+          'choices': {
+            'eventTypeCategories': [],
+            'existingChoiceList': [],
+            'featureCategories': [],
+            'myDataType': 'SUBJECTS_FROM_SUBJECT_SUBTYPE',
+            'subjectGroups': [],
+            'subjectSubtypes': [
+              'bighorn_sheep_desert',
+              'pronghorn'
+            ],
+            'type': 'MY_DATA'
+          },
+          'inputType': 'DROPDOWN',
+          'placeholder': 'This is a hint',
+          'type': 'CHOICE_LIST',
+          'parent': 'extra_info'
+        },
+        'record_name': {
+          'inputType': 'SHORT_TEXT',
+          'placeholder': 'Record example',
+          'type': 'TEXT',
+          'parent': 'extra_info'
+        },
+        'optional_numeric_stuff': {
+          'placeholder': 'Some numeric data example',
+          'type': 'NUMERIC',
+          'parent': 'section-75Vs8Xv8lrjuUoZuIaTN2'
         }
       },
-      headers: {},
-      order: [
-        'section-23V7YPH6Rw_8VUFGuHUZo'
+      'headers': {},
+      'order': [
+        'section-75Vs8Xv8lrjuUoZuIaTN2'
       ],
-      sections: {
-        'section-23V7YPH6Rw_8VUFGuHUZo': {
-          columns: 1,
-          isActive: true,
-          label: '',
-          leftColumn: [
+      'sections': {
+        'section-75Vs8Xv8lrjuUoZuIaTN2': {
+          'columns': 1,
+          'isActive': true,
+          'label': '',
+          'leftColumn': [
             {
-              name: 'this_is_a_required_multi-choice_list',
-              type: 'field'
+              'name': 'required_multi-option',
+              'type': 'field'
             },
             {
-              name: 'this_is_a_non_required_single-choice_list',
-              type: 'field'
+              'name': 'optional_single_choice',
+              'type': 'field'
             },
             {
-              name: 'text_field',
-              type: 'field'
+              'name': 'optional_numeric_stuff',
+              'type': 'field'
             },
             {
-              name: 'a_number_field',
-              type: 'field'
+              'name': 'a_collection_of_data',
+              'type': 'field'
             }
           ],
-          rightColumn: []
+          'rightColumn': []
         }
       }
     }
