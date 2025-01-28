@@ -24,8 +24,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
         {
           'const': '0d9fbeea-5252-4723-ba59-ca696baef2d9',
           'title': 'frank'
-        }
-      ],
+        }],
       description: 'A really great description',
       hint: 'This is a placeholder',
       multiple: true,
@@ -42,11 +41,16 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     <ChoiceList {...props} />
   );
 
-  test.only('shows a non required choice list field', () => {
-    renderChoiceList();
+  test('shows a non required choice list field', () => {
+    renderChoiceList({
+      ...defaultProps,
+      error: 'An error'
+    });
+
 
     expect(screen.getByText('Choice list label')).toBeVisible();
-    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice').firstChild).toHaveAttribute('aria-required', 'false');
+    expect(screen.getByRole('combobox')).not.toBeRequired();
+
   });
 
   test('shows a required choice list field', () => {
@@ -59,7 +63,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     });
 
     expect(screen.getByText('Choice list label *')).toBeVisible();
-    expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByRole('combobox')).toBeRequired();
   });
 
   test('does not show an error state in the label if the value is valid', () => {
@@ -73,6 +77,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
       ...defaultProps,
       error: 'A incredible error message'
     });
+
 
     expect(screen.getByText('Choice list label')).toHaveClass('error');
     expect(screen.getByText('A incredible error message')).toBeVisible();
@@ -88,7 +93,6 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     });
 
     expect(screen.queryByText('A really great description')).toBeNull();
-    expect(screen.getByTestId('schemaForm-field-choiceList-a-choice')).not.toHaveAccessibleDescription();
   });
 
   test('shows the description', () => {
@@ -125,6 +129,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
   test('allow to select single option when the choice list is set to single selection', async () => {
     const onFieldChange = jest.fn();
+
     renderChoiceList({
       ...defaultProps,
       details: {

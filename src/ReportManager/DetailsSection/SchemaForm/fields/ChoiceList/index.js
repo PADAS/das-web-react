@@ -21,7 +21,7 @@ const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
 </div>;
 
 
-const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
+const Dropdown = ({ details, onChange, value, id, hasError, disabled, required, ...otherProps }) => {
 
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
@@ -66,6 +66,7 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherPr
       }}
       isDisabled={disabled}
       noOptionsMessage={() => t('select.noOptionsMessage')}
+      required={required}
       {...otherProps}
     />;
 };
@@ -83,14 +84,15 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
 
   return <div>
     <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
-      <p>{label}</p>
+      {label}
 
       <Input
-          aria-describedby={hasDescription ? `${id}-description`: undefined}
-          aria-errormessage={hasError ? `${id}-description` : undefined}
+          aria-describedby={hasDescription ? `${id}-description`: ''}
+          aria-errormessage={hasError ? `${id}-description` : ''}
           aria-invalid={hasError}
           hasError={hasError}
           aria-required={details.isRequired}
+          required={details.isRequired}
           id={id}
           onChange={(newValue) => {
               onFieldChange(id, newValue);
