@@ -974,7 +974,7 @@ const headers = {
   },
 };
 
-export const choicesOptions = [
+const choicesOptions = [
   {
     const: '048fdcef-f599-4205-8b44-1536d46645aa',
     title: 'DumboAlfonso'
@@ -1143,10 +1143,45 @@ const choiceLists = {
           description: '',
           title: 'Optional numeric stuff',
           type: 'number'
+        },
+        'single-option': {
+          deprecated: false,
+          description: 'This is a description',
+          title: 'Single-option',
+          type: 'string',
+          anyOf: [
+            {
+              oneOf: choicesOptions
+            }
+          ]
+        },
+        'multioption': {
+          deprecated: false,
+          description: 'This is a description',
+          title: 'Multi-option',
+          type: 'array',
+          uniqueItems: true,
+          items: {
+            type: 'string',
+            anyOf: [
+              {
+                oneOf: choicesOptions
+              }
+            ]
+          }
+        },
+        'a_text_field': {
+          default: '',
+          deprecated: true,
+          description: '',
+          title: 'A text field',
+          type: 'string'
         }
       },
       required: [
-        'required_multi-option'
+        'required_multi-option',
+        'single-option',
+        'multioption'
       ],
       type: 'object'
     },
@@ -1257,11 +1292,52 @@ const choiceLists = {
           placeholder: 'Some numeric data example',
           type: 'NUMERIC',
           parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
+        },
+        'single-option': {
+          choices: {
+            eventTypeCategories: [],
+            existingChoiceList: [],
+            featureCategories: [],
+            myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
+            subjectGroups: [
+              '5bf8761c-0c87-4756-8282-23fa11d72433'
+            ],
+            subjectSubtypes: [],
+            type: 'MY_DATA'
+          },
+          inputType: 'DROPDOWN',
+          placeholder: 'A placeholder',
+          type: 'CHOICE_LIST',
+          parent: 'section-7FilZuXOYsniOsN5oAclf'
+        },
+        'multioption': {
+          choices: {
+            eventTypeCategories: [],
+            existingChoiceList: [],
+            featureCategories: [],
+            myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
+            subjectGroups: [],
+            subjectSubtypes: [],
+            type: 'MY_DATA'
+          },
+          inputType: 'DROPDOWN',
+          placeholder: 'A placeholder',
+          type: 'CHOICE_LIST',
+          parent: 'section-7FilZuXOYsniOsN5oAclf'
+        },
+        'a_text_field': {
+          inputType: 'SHORT_TEXT',
+          placeholder: 'This is a placeholder',
+          type: 'TEXT',
+          parent: 'section-puA6GAI1Vc3sCyIwi73Pu'
         }
+
       },
       headers: {},
       order: [
-        'section-75Vs8Xv8lrjuUoZuIaTN2'
+        'section-75Vs8Xv8lrjuUoZuIaTN2',
+        'section-7FilZuXOYsniOsN5oAclf',
+        'section-puA6GAI1Vc3sCyIwi73Pu'
       ],
       sections: {
         'section-75Vs8Xv8lrjuUoZuIaTN2': {
@@ -1283,6 +1359,35 @@ const choiceLists = {
             },
             {
               name: 'a_collection_of_data',
+              type: 'field'
+            }
+          ],
+          rightColumn: []
+        },
+        'section-7FilZuXOYsniOsN5oAclf': {
+          columns: 2,
+          isActive: true,
+          label: 'Choice list fields',
+          leftColumn: [
+            {
+              name: 'multioption',
+              type: 'field'
+            }
+          ],
+          rightColumn: [
+            {
+              name: 'single-option',
+              type: 'field'
+            }
+          ]
+        },
+        'section-puA6GAI1Vc3sCyIwi73Pu': {
+          columns: 1,
+          isActive: true,
+          label: '',
+          leftColumn: [
+            {
+              name: 'a_text_field',
               type: 'field'
             }
           ],

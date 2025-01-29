@@ -3,7 +3,8 @@ import { format, parseISO } from 'date-fns';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../constants';
 
 import { getHumanizedValue } from './';
-import { choicesOptions } from '../../../../../../../SideBar/SettingsPane/SchemaSelector/mockedSchemas';
+
+import { choicesListOptions } from '../../../../fixtures';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - Item - utils', () => {
   describe('getHumanizedValue', () => {
@@ -28,7 +29,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
         {
           details: {
             multiple: true,
-            options: choicesOptions
+            options: choicesListOptions
           },
           type: FORM_ELEMENT_TYPES.CHOICE_LIST
         },
@@ -44,7 +45,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
         {
           details: {
             multiple: false,
-            options: choicesOptions
+            options: choicesListOptions
           },
           type: FORM_ELEMENT_TYPES.CHOICE_LIST
         },

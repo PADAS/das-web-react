@@ -13,7 +13,7 @@ const addHeaderToFieldsObject = (headerId, fields, uiSchema) => {
   };
 };
 
-const mapOptionsFromAnyOf = (ref) => {
+export const flattenChoiceListOptionsFromSchema = (ref) => {
   return (ref.type === 'array' ? ref.items.anyOf : ref.anyOf).map(item => item.oneOf).flat();
 };
 
@@ -43,7 +43,7 @@ const addFieldToFieldsObjectRecursively = (
   } else if (fields[fieldId].type === FORM_ELEMENT_TYPES.CHOICE_LIST) {
     fields[fieldId].details.inputType = uiSchema.fields[fieldId].inputType;
 
-    fields[fieldId].details.options = mapOptionsFromAnyOf(jsonSubschema.properties[fieldId]);
+    fields[fieldId].details.options = flattenChoiceListOptionsFromSchema(jsonSubschema.properties[fieldId]);
     fields[fieldId].details.description =
       jsonSubschema.properties[fieldId].description;
     fields[fieldId].details.hint = uiSchema.fields[fieldId].placeholder;

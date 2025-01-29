@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { components as SelectComponent } from 'react-select';
 import { useTranslation } from 'react-i18next';
 import ReactSelect from 'react-select';
@@ -23,50 +23,56 @@ const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
 
 const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
 
+  const [isMenuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
-  const selectedValue = details.multiple && Array.isArray(value) ? value : details.options.find((item) => item.const === value);
-
-  const getOptionLabel = (option) => {
-    return option.title ?? details.options.find((item) => item.const === option).title;
-  };
-
-  const getOptionValue = (option) => {
-    return option.const ?? option;
-  };
+  const selectedValue = details.multiple ? value : details.options.find((item) => item.const === value);
 
   const handleOnChange = (newValue) => {
-    const isValueArray = Array.isArray(newValue);
-    if ( ( isValueArray && newValue.length === 0 ) || !newValue){
+    if ( ( details.multiple && newValue.length === 0 ) || !newValue){
       return onChange(undefined);
     }
-    const returnedValue = isValueArray ? newValue.map((item) => item.const ?? item) : newValue.const;
+    const returnedValue = details.multiple ? newValue.map((item) => item.const ?? item) : newValue.const;
     return onChange( returnedValue );
   };
 
+  const onMenuClose = () => setMenuOpen(false);
+
+  const onMenuOpen = () => setMenuOpen(true);
+
+  const onKeyDown = (event) => {
+    if (event.key === 'Escape' && isMenuOpen) {
+      event.stopPropagation();
+    }
+  };
+
   return <ReactSelect
-      isClearable={true}
-      id={id}
-      value={selectedValue}
-      isMulti={details.multiple}
-      isSearchable={true}
-      onChange={handleOnChange}
-      options={details.options}
-      getOptionLabel={getOptionLabel}
-      getOptionValue={getOptionValue}
-      placeholder={details.hint}
-        components={{ Option }}
-        classNames={{
-          // control: () => ,
-          control: () => `${styles.control} ${ hasError ? styles.dropdownError : '' }`,
+      components={{ Option }}
+      classNames={{
+          control: (state) => `${styles.control} ${ hasError ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
+          dropdownIndicator: () => styles.cursorPointer,
+          indicatorsContainer: () => hasError && styles.caretError,
+          indicatorSeparator: () => styles.separator,
           multiValue: () => styles.multiValue,
           multiValueRemove: () => styles.multiValueRemove,
+          option: () => styles.cursorPointer,
           placeholder: () => hasError && styles.error,
-          indicatorSeparator: () => styles.separator,
-          indicatorsContainer: () => hasError && styles.caretError,
       }}
+      getOptionLabel={(option) => option.title ?? details.options.find((item) => item.const === option).title}
+      getOptionValue={(option) => option.const ?? option}
+      isClearable
       isDisabled={disabled}
+      inputId={id}
+      isMulti={details.multiple}
+      isSearchable
+      onChange={handleOnChange}
       noOptionsMessage={() => t('select.noOptionsMessage')}
+      options={details.options}
+      onMenuClose={onMenuClose}
+      onMenuOpen={onMenuOpen}
+      onKeyDown={onKeyDown}
+      placeholder={details.hint}
+      value={selectedValue}
       {...otherProps}
     />;
 };
@@ -93,9 +99,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           hasError={hasError}
           aria-required={details.isRequired}
           id={id}
-          onChange={(newValue) => {
-              onFieldChange(id, newValue);
-          }}
+          onChange={(newValue) => onFieldChange(id, newValue)}
           value={value}
           details={details} />
     </label>

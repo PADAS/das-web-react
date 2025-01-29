@@ -1,6 +1,5 @@
-import makeFieldsFromSchema from '.';
+import makeFieldsFromSchema, { flattenChoiceListOptionsFromSchema } from '.';
 import {
-  CHOICE_LIST_ELEMENT_CHOICE_TYPES,
   CHOICE_LIST_ELEMENT_INPUT_TYPES,
   DATE_TIME_ELEMENT_INPUT_TYPES,
   FORM_ELEMENT_TYPES,
@@ -8,7 +7,8 @@ import {
   ROOT_CANVAS_ID,
   TEXT_ELEMENT_INPUT_TYPES,
 } from '../../constants';
-import {choicesOptions} from "../../../../../SideBar/SettingsPane/SchemaSelector/mockedSchemas";
+
+import { choicesListOptions } from '../../fixtures';
 
 describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSchema', () => {
   it('creates section fields from the schema', () => {
@@ -158,7 +158,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
               type: 'string',
               anyOf: [
                 {
-                  oneOf: choicesOptions,
+                  oneOf: choicesListOptions,
                 },
               ],
             },
@@ -245,7 +245,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
           label: 'Choice List 1 Label',
           multiple: true,
           value: 'choice-list-1',
-          options: choicesOptions
+          options: choicesListOptions
         },
         parentId: 'section-1',
         type: FORM_ELEMENT_TYPES.CHOICE_LIST,
@@ -772,7 +772,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
                     type: 'string',
                     anyOf: [
                       {
-                        oneOf: choicesOptions
+                        oneOf: choicesListOptions
                       }
                     ],
                   },
@@ -914,7 +914,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
           isRequired: true,
           label: 'Choice List 1 Label',
           multiple: true,
-          options: choicesOptions,
+          options: choicesListOptions,
           value: 'choice-list-1',
         },
         parentId: 'collection-1',
@@ -986,4 +986,61 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
       },
     });
   });
+
+  it('Flatten choice list option when the field is an array', () => {
+    const options = [
+      {
+        title: 'An option',
+        value: 1234
+      },
+      {
+        title: 'Another option',
+        value: 5678
+      },
+    ];
+
+    expect(
+      flattenChoiceListOptionsFromSchema({
+        type: 'array',
+        items: {
+          anyOf: [
+            {
+              oneOf: options
+            },
+            {
+              oneOf: options
+            }
+          ]
+        }
+      })
+    ).toStrictEqual([...options, ...options]);
+  });
+
+  it('Flatten choice list option when the field is an string', () => {
+    const options = [
+      {
+        title: 'An option',
+        value: 1234
+      },
+      {
+        title: 'Another option',
+        value: 5678
+      },
+    ];
+
+    expect(
+      flattenChoiceListOptionsFromSchema({
+        type: 'string',
+        anyOf: [
+          {
+            oneOf: options
+          },
+          {
+            oneOf: options
+          }
+        ]
+      })
+    ).toStrictEqual([...options, ...options]);
+  });
+
 });

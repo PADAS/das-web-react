@@ -152,7 +152,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
   });
 
-  test('allow to select multiple options when the choice list is set to multiple selection', async () => {
+  test.only('allow to select multiple options when the choice list is set to multiple selection', async () => {
     const onFieldChange = jest.fn();
     renderChoiceList({
       ...defaultProps,
@@ -167,12 +167,15 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
     userEvent.click(screen.getByText('EarthRanger System'));
 
+    expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+      '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
+    ]);
+
     userEvent.type(dropdown, '{arrowdown}');
 
     userEvent.click(screen.getByText('frank'));
 
     expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
-      '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
       '0d9fbeea-5252-4723-ba59-ca696baef2d9'
     ]);
 

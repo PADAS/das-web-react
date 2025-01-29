@@ -45,6 +45,15 @@
 
 .control {
   font-weight: normal;
+
+  &:hover{
+    cursor: text;
+  }
+}
+
+.controlFocused{
+  box-shadow: 0 0 0 1px colors.$bright-blue !important;
+  border-color: colors.$bright-blue !important;
 }
 
 .error {
@@ -63,12 +72,21 @@
   }
 }
 
+.cursorPointer {
+  &:hover{
+    cursor: pointer;
+  }
+}
+
 .singleOption {
   margin-left: 1rem;
 }
 
 .checkMark{
   width: 0.8rem;
-  margin-right: 0.2rem;
-  color: colors.$light-blue;
+  color: colors.$bright-blue;
+  float: left;
+  margin-right: 0.4rem;
+  margin-left: -0.3rem;
+  margin-top: 0.4rem;
 }
