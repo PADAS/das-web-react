@@ -5,15 +5,15 @@ import { getHumanizedValue } from '../utils';
 
 import styles from './styles.module.scss';
 
-const FormPreview = ({ errors, fieldIds, fields, formData }) => {
+const FormPreview = ({ errors, fieldIds, fields, formData, isDragOverlay }) => {
   const { t, i18n } = useTranslation('reports', {
-    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.item.formPreview',
+    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item.formPreview',
   });
 
   const hasError = !!errors;
 
   return <ul
-      className={`${styles.formPreview} ${hasError ? styles.error : ''}`}
+      className={`${styles.formPreview} ${isDragOverlay ? styles.dragOverlay : ''} ${hasError ? styles.error : ''}`}
       data-testid="schema-form-collection-item-form-preview"
     >
     {fieldIds.map((fieldId) => <div key={fieldId}>

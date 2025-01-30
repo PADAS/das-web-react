@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { render, screen } from '../../../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { render, screen } from '../../../../../../../../test-utils';
+import { FORM_ELEMENT_TYPES } from '../../../../../constants';
 
 import FormPreview from './';
 

@@ -1,20 +1,43 @@
 @use "sass:color";
 
-@use "../../../../../../common/styles/vars/colors";
-
-$itemExpansionTransitionTime: 300ms;
+@use "../../../../../../../common/styles/vars/colors";
 
 .item {
-  transition: margin $itemExpansionTransitionTime;
+  cursor: grab;
+  outline: none;
+  touch-action: manipulation;
+
+  &:focus-visible:not(.isDragging) {
+    outline: colors.$bright-blue auto 1px;
+  }
 
   &.open {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
 
     .header {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
       height: unset;
 
       .title {
         white-space: normal;
+      }
+    }
+  }
+
+  &.isDragging {
+    opacity: 0.5;
+  }
+
+  &.dragOverlay {
+    cursor: grabbing;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+
+    .header {
+      border: 2px solid colors.$bright-blue;
+
+      .dragHandle {
+        color: colors.$secondary-medium-gray;
       }
     }
   }
@@ -34,11 +57,11 @@ $itemExpansionTransitionTime: 300ms;
     }
   }
 
-  &:not(.open) {
-    &:last-child {
+  &:not(.open):not(.dragOverlay) {
+    &:not(:last-of-type) {
       .header {
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
       }
     }
 
@@ -52,20 +75,34 @@ $itemExpansionTransitionTime: 300ms;
     }
   }
 
+  &:hover {
+    .header {
+      .dragHandle {
+        color: colors.$secondary-medium-gray;
+      }
+    }
+  }
+
   .header {
     align-items: center;
     background: white;
     border: 1px solid colors.$light-gray-border;
-    border-top-left-radius: 0.25rem;
-    border-top-right-radius: 0.25rem;
+    border-radius: 0.25rem;
     display: flex;
     height: 2.5rem;
-    justify-content: space-between;
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0.5rem;
     width: 100%;
 
+    .dragHandle {
+      color: colors.$secondary-light-gray;
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+
     .title {
+      flex: 1;
       margin: 0;
+      margin-left: 0.25rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

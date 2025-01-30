@@ -1,46 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../common/images/icons/arrow-down-simple.svg';
-import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../../common/images/icons/arrow-up-simple.svg';
-import { ReactComponent as PencilIcon } from '../../../../../../common/images/icons/pencil.svg';
-import { ReactComponent as TrashCanIcon } from '../../../../../../common/images/icons/trash-can.svg';
+import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../../common/images/icons/arrow-down-simple.svg';
+import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../../../common/images/icons/arrow-up-simple.svg';
+import { ReactComponent as GripDotsVerticalIcon } from '../../../../../../../common/images/icons/grip-dots-vertical.svg';
+import { ReactComponent as PencilIcon } from '../../../../../../../common/images/icons/pencil.svg';
+import { ReactComponent as TrashCanIcon } from '../../../../../../../common/images/icons/trash-can.svg';
 
-import { getHumanizedValue } from './utils';
+import { getItemTitle } from './utils';
 
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
 
 import styles from './styles.module.scss';
 
-const getTitle = (formData, identifier, name, index, fields, language, t) => {
-  const defaultTitle = `${name} ${index + 1}`;
-
-  if (!identifier || !formData[identifier]) {
-    return defaultTitle;
-  }
-  return getHumanizedValue(fields[identifier], formData[identifier], defaultTitle, language, t);
-};
-
 const Item = ({
-  breadcrumbs,
-  columns,
+  breadcrumbs = null,
+  collectionDetails,
   errors,
   fields,
   formData,
-  identifier,
-  index,
-  leftColumn,
-  name,
-  onChange,
-  onDelete,
-  openModalAutomatically = false,
-  renderField,
-  rightColumn,
-}) => {
+  id,
+  isDragging = false,
+  isDragOverlay = false,
+  isFormModalOpen = false,
+  isFormPreviewOpen,
+  onChange = null,
+  onDelete = null,
+  renderField = null,
+  setIsFormModalOpen = null,
+  setIsFormPreviewOpen = null,
+  ...otherProps
+}, ref) => {
   const { i18n, t } = useTranslation('reports', {
-    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.item',
+    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
 
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
@@ -48,11 +42,15 @@ const Item = ({
   const errorsBeforeEditingRef = useRef(null);
   const formDataBeforeEditingRef = useRef(null);
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(openModalAutomatically);
-
   const hasError = !!errors;
-  const title = getTitle(formData, identifier, name, index, fields, i18n.language, t);
+  const title = getItemTitle(
+    formData,
+    collectionDetails.itemIdentifier,
+    `${collectionDetails.itemName} ${id + 1}`,
+    fields[collectionDetails.itemIdentifier],
+    i18n.language,
+    t
+  );
 
   const onEditButtonClick = (event) => {
     event.stopPropagation();
@@ -66,15 +64,13 @@ const Item = ({
   };
 
   const onFieldChange = (fieldId, value, error) => {
+    // We update the field error in the errors object.
     let updatedErrors = { ...errors };
     if (error) {
-      // If the changed field has an error, we set it in the updated errors object.
       updatedErrors[fieldId] = error;
     } else {
-      // If the changed field cleans its error we delete its property.
       delete updatedErrors[fieldId];
       if (Object.keys(updatedErrors).length === 0) {
-        // If after deleting the changed field error the error object is empty, we totally remove it.
         updatedErrors = undefined;
       }
     }
@@ -87,6 +83,21 @@ const Item = ({
     setIsFormModalOpen(false);
   };
 
+  const onActionButtonKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.stopPropagation();
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.body.style.cursor = 'grabbing';
+      return () => {
+        document.body.style.cursor = '';
+      };
+    }
+  }, [isDragging]);
+
   useEffect(() => {
     if (isFormModalOpen) {
       formDataBeforeEditingRef.current = structuredClone(formData);
@@ -96,17 +107,22 @@ const Item = ({
   }, [isFormModalOpen]);
 
   return <li
-      className={`${styles.item} ${isOpen ? styles.open : ''} ${hasError ? styles.error : ''}`}
+      className={`${styles.item} ${isFormPreviewOpen ? styles.open : ''} ${isDragging ? styles.isDragging : ''} ${isDragOverlay ? styles.dragOverlay : ''} ${hasError ? styles.error : ''}`}
       data-testid="schema-form-collection-item"
+      ref={ref}
+      {...otherProps}
     >
     <div className={styles.header}>
+      <GripDotsVerticalIcon className={styles.dragHandle} />
+
       <p className={styles.title} title={title}>{title}</p>
 
       <div className={styles.actionButtons}>
         <button
           aria-label={t('deleteButtonLabel', { itemTitle: title } )}
           className={styles.actionButton}
-          onClick={onDelete}
+          onClick={isDragOverlay ? undefined : onDelete}
+          onKeyDown={onActionButtonKeyDown}
           title={t('deleteButtonLabel', { itemTitle: title } )}
           type="button"
         >
@@ -116,7 +132,8 @@ const Item = ({
         <button
           aria-label={t('editButtonLabel', { itemTitle: title })}
           className={styles.actionButton}
-          onClick={onEditButtonClick}
+          onClick={isDragOverlay ? undefined : onEditButtonClick}
+          onKeyDown={onActionButtonKeyDown}
           title={t('editButtonLabel', { itemTitle: title })}
           type="button"
         >
@@ -125,46 +142,48 @@ const Item = ({
 
         <button
           aria-controls={`collectionForm-${title}`}
-          aria-expanded={isOpen}
-          aria-label={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+          aria-expanded={isFormPreviewOpen}
+          aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           className={styles.actionButton}
-          onClick={() => setIsOpen(!isOpen)}
-          title={t(`chevronButtonLabel.${isOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+          onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
+          onKeyDown={onActionButtonKeyDown}
+          title={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           type="button"
         >
-          {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+          {isFormPreviewOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
         </button>
       </div>
     </div>
 
-    <Collapse in={isOpen}>
+    <Collapse in={isFormPreviewOpen}>
       <div id={`collectionForm-${title}`}>
         <FormPreview
           errors={errors}
           formData={formData}
-          fieldIds={[...leftColumn, ...rightColumn]}
+          fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           fields={fields}
+          isDragOverlay={isDragOverlay}
         />
       </div>
     </Collapse>
 
-    <FormModal
+    {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
-      columns={columns}
+      columns={collectionDetails.columns}
       formData={formData}
       errors={errors}
       isOpen={isFormModalOpen}
-      itemName={name}
-      leftColumn={leftColumn}
+      itemName={collectionDetails.itemName}
+      leftColumn={collectionDetails.leftColumn}
       onCancel={onFormModalCancel}
       onDeleteItem={onDeleteItem}
       onDone={() => setIsFormModalOpen(false)}
       onFieldChange={onFieldChange}
       renderField={renderField}
-      rightColumn={rightColumn}
+      rightColumn={collectionDetails.rightColumn}
       title={title}
-    />
+    />}
   </li>;
 };
 
-export default Item;
+export default forwardRef(Item);

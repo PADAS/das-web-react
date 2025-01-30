@@ -1,7 +1,7 @@
 import { format, isValid, parseISO } from 'date-fns';
 
-import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../constants';
-import { shouldUse12HourFormat } from '../../../../../../../utils/datetime';
+import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
+import { shouldUse12HourFormat } from '../../../../../../../../utils/datetime';
 
 // Utility to calculate a human readable version of the field values. For example, render a date-time like
 // 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
@@ -53,3 +53,8 @@ export const getHumanizedValue = (field, value, defaultHumanizedValue, language,
     return value;
   };
 };
+
+export const getItemTitle = (formData, identifier, defaultTitle, identifierField, language, t) =>
+  !identifier || !formData[identifier]
+    ? defaultTitle
+    : getHumanizedValue(identifierField, formData[identifier], defaultTitle, language, t);

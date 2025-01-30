@@ -146,21 +146,28 @@
               "closed": "Ouvrir la liste de {{collectionLabel}}",
               "open": "Fermer la liste de {{collectionLabel}}"
             },
-            "item": {
-              "collectionHumanizedValue": "{{collectionLength}} éléments",
-              "deleteButtonLabel": "Supprimer {{itemTitle}}",
-              "editButtonLabel": "Modifier {{itemTitle}}",
-              "formModal": {
-                "cancelButton": "Annuler",
-                "deleteButton": "Supprimer {{itemTitle}}",
-                "doneButton": "Terminé"
-              },
-              "formPreview": {
-                "collectionHumanizedValue": "{{collectionLength}} éléments"
-              },
-              "chevronButtonLabel": {
-                "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
-                "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
+            "sortableList": {
+              "dragCancelAnnouncement": "Glissement annulé. {{activeItemTitle}} a été déposé.",
+              "dragEndAnnouncement": "{{activeItemTitle}} a été déposé à la position {{overItemPosition}} sur {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Pour saisir un {{itemName}}, appuyez sur la barre d’espace ou Entrée. Pendant le déplacement, utilisez les touches fléchées haut et bas pour déplacer le {{itemName}} et mettre à jour sa position. Appuyez à nouveau sur la barre d’espace ou Entrée pour déposer le {{itemName}} à sa nouvelle position.",
+              "dragOverAnnouncement": "{{activeItemTitle}} a été déplacé à la position {{overItemPosition}} sur {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} a été saisi. {{activeItemTitle}} est à la position {{activeItemPosition}} sur {{itemsLength}}.",
+              "item": {
+                "collectionHumanizedValue": "{{collectionLength}} éléments",
+                "deleteButtonLabel": "Supprimer {{itemTitle}}",
+                "editButtonLabel": "Modifier {{itemTitle}}",
+                "formModal": {
+                  "cancelButton": "Annuler",
+                  "deleteButton": "Supprimer {{itemTitle}}",
+                  "doneButton": "Terminé"
+                },
+                "formPreview": {
+                  "collectionHumanizedValue": "{{collectionLength}} éléments"
+                },
+                "chevronButtonLabel": {
+                  "closed": "Ouvrir l'aperçu du formulaire {{itemTitle}}",
+                  "open": "Fermer l'aperçu du formulaire {{itemTitle}}"
+                }
               }
             }
           }

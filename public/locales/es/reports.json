@@ -146,21 +146,28 @@
               "closed": "Abrir la lista de {{collectionLabel}}",
               "open": "Cerrar la lista de {{collectionLabel}}"
             },
-            "item": {
-              "collectionHumanizedValue": "{{collectionLength}} elementos",
-              "deleteButtonLabel": "Eliminar {{itemTitle}}",
-              "editButtonLabel": "Editar {{itemTitle}}",
-              "formModal": {
-                "cancelButton": "Cancelar",
-                "deleteButton": "Eliminar {{itemTitle}}",
-                "doneButton": "Hecho"
-              },
-              "formPreview": {
-                "collectionHumanizedValue": "{{collectionLength}} elementos"
-              },
-              "chevronButtonLabel": {
-                "closed": "Abrir la vista previa del formulario {{itemTitle}}",
-                "open": "Cerrar la vista previa del formulario {{itemTitle}}"
+            "sortableList": {
+              "dragCancelAnnouncement": "Arrastre cancelado. {{activeItemTitle}} se soltó.",
+              "dragEndAnnouncement": "{{activeItemTitle}} se soltó en la posición {{overItemPosition}} de {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Para agarrar un {{itemName}}, presione la barra espaciadora o Enter. Mientras arrastra, use las teclas de flecha arriba y abajo para mover el {{itemName}} y actualizar su posición. Presione la barra espaciadora o Enter nuevamente para soltar el {{itemName}} en su nueva posición.",
+              "dragOverAnnouncement": "{{activeItemTitle}} se movió a la posición {{overItemPosition}} de {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} seleccionado. {{activeItemTitle}} está en la posición {{activeItemPosition}} de {{itemsLength}}.",
+              "item": {
+                "collectionHumanizedValue": "{{collectionLength}} elementos",
+                "deleteButtonLabel": "Eliminar {{itemTitle}}",
+                "editButtonLabel": "Editar {{itemTitle}}",
+                "formModal": {
+                  "cancelButton": "Cancelar",
+                  "deleteButton": "Eliminar {{itemTitle}}",
+                  "doneButton": "Hecho"
+                },
+                "formPreview": {
+                  "collectionHumanizedValue": "{{collectionLength}} elementos"
+                },
+                "chevronButtonLabel": {
+                  "closed": "Abrir la vista previa del formulario {{itemTitle}}",
+                  "open": "Cerrar la vista previa del formulario {{itemTitle}}"
+                }
               }
             }
           }

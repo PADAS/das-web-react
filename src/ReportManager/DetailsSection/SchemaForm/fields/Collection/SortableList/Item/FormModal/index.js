@@ -3,7 +3,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Modal from 'react-bootstrap/Modal';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as TrashCanIcon } from '../../../../../../../common/images/icons/trash-can.svg';
+import { ReactComponent as TrashCanIcon } from '../../../../../../../../common/images/icons/trash-can.svg';
 
 import styles from './styles.module.scss';
 
@@ -24,7 +24,7 @@ const FormModal = ({
   title,
 }) => {
   const { t } = useTranslation('reports', {
-    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.item.formModal',
+    keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item.formModal',
   });
 
   // If there are breadcrumbs, we know that we are in a nested modal (nested collection) so we disable modal animations
