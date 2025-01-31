@@ -19,6 +19,11 @@
     "partiallyCheckedTitle": "Partially visible",
     "uncheckedTitle": "Hidden"
   },
+  "choiceList": {
+    "select": {
+      "noOptionsMessage": "No options to display"
+    }
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Open calendar",
