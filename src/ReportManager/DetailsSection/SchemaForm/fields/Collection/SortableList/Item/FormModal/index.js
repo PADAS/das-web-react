@@ -37,6 +37,9 @@ const FormModal = ({
       backdrop={false}
       centered
       className={isNestedModal ? styles.noBackground : ''}
+      // It's a good practice to add a focus trap in modals but since some widgets like selects or time pickers use
+      // popovers to render their menus, they get impossible to access.
+      enforceFocus={false}
       keyboard={false}
       scrollable
       show={isOpen}

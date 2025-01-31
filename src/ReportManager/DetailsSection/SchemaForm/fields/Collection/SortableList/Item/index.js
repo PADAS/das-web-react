@@ -52,6 +52,15 @@ const Item = ({
     t
   );
 
+  const onTitleButtonKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+
+      setIsFormPreviewOpen(!isFormPreviewOpen);
+    }
+  };
+
   const onEditButtonClick = (event) => {
     event.stopPropagation();
 
@@ -83,12 +92,6 @@ const Item = ({
     setIsFormModalOpen(false);
   };
 
-  const onActionButtonKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.stopPropagation();
-    }
-  };
-
   useEffect(() => {
     if (isDragging) {
       document.body.style.cursor = 'grabbing';
@@ -113,16 +116,28 @@ const Item = ({
       {...otherProps}
     >
     <div className={styles.header}>
-      <GripDotsVerticalIcon className={styles.dragHandle} />
+      <div
+        aria-controls={`collectionForm-${title}`}
+        aria-expanded={isFormPreviewOpen}
+        // This wrapper behaves just like the chevron button so we reuse the label.
+        aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
+        className={styles.titleButton}
+        onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
+        onKeyDown={onTitleButtonKeyDown}
+        role="button"
+        tabIndex={0}
+      >
+        <GripDotsVerticalIcon className={styles.dragHandle} />
 
-      <p className={styles.title} title={title}>{title}</p>
+        <p className={styles.title} title={title}>{title}</p>
+      </div>
 
       <div className={styles.actionButtons}>
         <button
           aria-label={t('deleteButtonLabel', { itemTitle: title } )}
           className={styles.actionButton}
           onClick={isDragOverlay ? undefined : onDelete}
-          onKeyDown={onActionButtonKeyDown}
+          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('deleteButtonLabel', { itemTitle: title } )}
           type="button"
         >
@@ -133,7 +148,7 @@ const Item = ({
           aria-label={t('editButtonLabel', { itemTitle: title })}
           className={styles.actionButton}
           onClick={isDragOverlay ? undefined : onEditButtonClick}
-          onKeyDown={onActionButtonKeyDown}
+          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t('editButtonLabel', { itemTitle: title })}
           type="button"
         >
@@ -146,7 +161,7 @@ const Item = ({
           aria-label={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           className={styles.actionButton}
           onClick={isDragOverlay ? undefined : () => setIsFormPreviewOpen(!isFormPreviewOpen)}
-          onKeyDown={onActionButtonKeyDown}
+          onKeyDown={(event) => (event.key === 'Enter' || event.key === ' ') && event.stopPropagation()}
           title={t(`chevronButtonLabel.${isFormPreviewOpen ? 'open' : 'closed'}`, { itemTitle: title })}
           type="button"
         >
