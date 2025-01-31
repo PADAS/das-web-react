@@ -14,7 +14,7 @@ const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
     {
       isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
     }
-    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}>
+    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`} title={data.title}>
       {data.title}
     </span>
   </SelectComponent.Option>
@@ -49,6 +49,8 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherPr
   return <ReactSelect
       components={{ Option }}
       classNames={{
+          clearIndicator: () => styles.clearIndicator,
+          container: () => styles.container,
           control: (state) => `${styles.control} ${ hasError ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
           dropdownIndicator: () => styles.cursorPointer,
           indicatorsContainer: () => hasError && styles.caretError,
