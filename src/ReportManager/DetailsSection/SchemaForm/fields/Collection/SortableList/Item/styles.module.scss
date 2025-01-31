@@ -13,8 +13,10 @@
     position: relative;
 
     .header {
-      .dragHandle {
-        color: colors.$secondary-medium-gray;
+      .titleButton {
+        .dragHandle {
+          color: colors.$secondary-medium-gray;
+        }
       }
     }
   }
@@ -23,8 +25,10 @@
     outline: colors.$bright-blue auto 1px;
 
     .header {
-      .dragHandle {
-        color: colors.$secondary-medium-gray;
+      .titleButton {
+        .dragHandle {
+          color: colors.$secondary-medium-gray;
+        }
       }
     }
   }
