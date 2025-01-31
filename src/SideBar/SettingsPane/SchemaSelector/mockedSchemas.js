@@ -977,7 +977,7 @@ const headers = {
 const choicesOptions = [
   {
     const: '048fdcef-f599-4205-8b44-1536d46645aa',
-    title: 'DumboAlfonso'
+    title: 'This is a really long option title, useful to test our option menu and see if there is anything breaking for these kind of cases'
   },
   {
     const: '0d553bb7-5c4f-43d7-9b82-a561a668ae64',

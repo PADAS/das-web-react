@@ -13,6 +13,11 @@
 .optionLabel {
   color: colors.$off-black;
   font-weight: normal;
+  display: inline-block;
+  max-width: 31.25rem;
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
 }
 
 .description {
@@ -69,6 +74,16 @@
     > div {
       border-top: 0.3rem solid colors.$bright-red !important;
     }
+  }
+}
+
+.container {
+  margin-top: 0.125rem;
+}
+
+.clearIndicator {
+  &:hover {
+    cursor: pointer;
   }
 }
 
