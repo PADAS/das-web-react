@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns';
 
-import { choicesListOptions } from '../../../../fixtures';
+import { choicesListOptions } from '../../../../../fixtures';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
 
 import { getHumanizedValue, getItemTitle } from './';
