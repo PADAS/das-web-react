@@ -19,6 +19,11 @@
     "partiallyCheckedTitle": "Sehemu inaonekana",
     "uncheckedTitle": "Fichwa"
   },
+  "choiceList": {
+    "select": {
+      "noOptionsMessage": "Hakuna chaguo za kuonyesha"
+    }
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Fungua kalenda",

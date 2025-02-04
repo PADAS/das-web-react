@@ -3,6 +3,10 @@ import { format, isValid, parseISO } from 'date-fns';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
 import { shouldUse12HourFormat } from '../../../../../../../../utils/datetime';
 
+const getChoiceListOptionLabel = (value, field) => {
+  return field.details.options.find((option) => option.const === value)?.title;
+};
+
 // Utility to calculate a human readable version of the field values. For example, render a date-time like
 // 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
 export const getHumanizedValue = (field, value, defaultHumanizedValue, language, t) => {
@@ -18,9 +22,12 @@ export const getHumanizedValue = (field, value, defaultHumanizedValue, language,
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     if (field.details.multiple) {
-      return value.join(', ');
+      const humanizedValues = value.map((val) => {
+        return getChoiceListOptionLabel(val, field);
+      });
+      return humanizedValues.join(', ');
     }
-    return value;
+    return getChoiceListOptionLabel(value, field);
 
   case FORM_ELEMENT_TYPES.DATE_TIME:
     let parsedDate;

@@ -13,6 +13,11 @@
     },
     "defaultTitle": "Ajouter"
   },
+  "choiceList": {
+    "select": {
+      "noOptionsMessage": "Aucune option à afficher"
+    }
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Ouvrir le calendrier",
