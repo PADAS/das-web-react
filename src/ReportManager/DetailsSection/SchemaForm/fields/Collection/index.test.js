@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, within } from '../../../../../test-utils';
+import { render, screen, waitFor, within } from '../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../constants';
 
 import Collection from './';
@@ -135,6 +135,37 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(screen.getAllByTestId('schema-form-collection-item')).toHaveLength(2);
     expect(screen.queryByTestId('schema-form-collection-list-empty-state')).toBeNull();
+  });
+
+  test('opens and closes the form preview of an item', () => {
+    renderCollectionField({ value: [{}] });
+
+    const collectionItem = screen.getByTestId('schema-form-collection-item');
+    const itemChevronButton = screen.getAllByLabelText('Open the Item 1 form preview')[1];
+
+    expect(collectionItem).not.toHaveClass('open');
+
+    userEvent.click(itemChevronButton);
+
+    expect(collectionItem).toHaveClass('open');
+
+    userEvent.click(itemChevronButton);
+
+    expect(collectionItem).not.toHaveClass('open');
+  });
+
+  test('opens and closes the form modal of an item', async () => {
+    renderCollectionField({ value: [{}] });
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    userEvent.click(screen.getByLabelText('Edit Item 1'));
+
+    expect(screen.getByRole('dialog')).toBeVisible();
+
+    userEvent.click(screen.getByText('Cancel'));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   test('changes the collection value when there is a change in an item and updates the error from the item', () => {

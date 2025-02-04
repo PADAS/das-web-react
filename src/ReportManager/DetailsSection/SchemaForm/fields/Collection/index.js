@@ -169,7 +169,9 @@ const Collection = ({
             collectionDetails={details}
             fields={fields}
             // Merge the value, error and items array into a single array of item objects.
-            items={items.map((item, index) => ({ ...item, error: error?.[index], formData: value[index] }))}
+            items={items
+              .filter((_, index) => !!value[index])
+              .map((item, index) => ({ ...item, error: error?.[index], formData: value[index] }))}
             onItemChange={onItemChange}
             onItemDelete={onItemDelete}
             onItemMove={onItemMove}

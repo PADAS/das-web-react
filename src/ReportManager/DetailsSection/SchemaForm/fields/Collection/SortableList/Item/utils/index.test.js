@@ -2,9 +2,9 @@ import { format, parseISO } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
 
-import { getHumanizedValue } from './';
+import { getHumanizedValue, getItemTitle } from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - Item - utils', () => {
+describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - utils', () => {
   describe('getHumanizedValue', () => {
     const t = (_, { collectionLength }) => `${collectionLength} items`;
 
@@ -102,6 +102,43 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
         'en-US',
         t
       )).toBe('Value');
+    });
+  });
+
+  describe('getItemTitle', () => {
+    const t = (_, { collectionLength }) => `${collectionLength} items`;
+
+    test('returns the default value if there is no identifier', () => {
+      expect(getItemTitle(
+        { identifier: 'identifier value' },
+        null,
+        'default',
+        { type: FORM_ELEMENT_TYPES.TEXT },
+        'en-US',
+        t
+      )).toBe('default');
+    });
+
+    test('returns the default value if the identifier does not have a value', () => {
+      expect(getItemTitle(
+        {},
+        'identifier',
+        'default',
+        { type: FORM_ELEMENT_TYPES.TEXT },
+        'en-US',
+        t
+      )).toBe('default');
+    });
+
+    test('returns the humanized value of the identifier', () => {
+      expect(getItemTitle(
+        { identifier: 'identifier value' },
+        'identifier',
+        'default',
+        { type: FORM_ELEMENT_TYPES.TEXT },
+        'en-US',
+        t
+      )).toBe('identifier value');
     });
   });
 });

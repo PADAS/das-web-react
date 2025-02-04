@@ -5,7 +5,7 @@ import { render, screen } from '../../../../../../../../test-utils';
 
 import FormModal from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - Item - FormModal', () => {
+describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormModal', () => {
   const onCancel = jest.fn();
   const onDeleteItem = jest.fn();
   const onDone = jest.fn();

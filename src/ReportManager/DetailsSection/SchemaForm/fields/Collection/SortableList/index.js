@@ -44,9 +44,9 @@ const SortableList = ({
   onItemChange,
   onItemDelete,
   onItemMove,
+  renderField,
   setIsItemFormModalOpen,
   setIsItemFormPreviewOpen,
-  renderField,
 }) => {
   const sensors = useSensors(
     useSensor(MouseSensor, {

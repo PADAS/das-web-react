@@ -1,19 +1,32 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor, within } from '../../../../../../../test-utils';
+import { render, screen, within } from '../../../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../../../constants';
 
 import Item from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - Item', () => {
+describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item', () => {
   const onChange = jest.fn();
   const onDelete = jest.fn();
   const renderField = jest.fn();
+  const setIsFormModalOpen = jest.fn();
+  const setIsFormPreviewOpen = jest.fn();
+
+  let collectionDetails;
+  beforeEach(() => {
+    collectionDetails = {
+      columns: 1,
+      itemIdentifier: 'field-1',
+      itemName: 'Collection 1',
+      leftColumn: ['field-1', 'field-2'],
+      rightColumn: [],
+    };
+  });
 
   const renderItem = (props) => render(<Item
     breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-    columns={1}
+    collectionDetails={collectionDetails}
     errors={undefined}
     fields={{
       'field-1': {
@@ -30,17 +43,49 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
       },
     }}
     formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
-    identifier="field-1"
-    index={1}
-    leftColumn={['field-1', 'field-2']}
-    name="Collection 1"
+    id={1}
+    isDragging={false}
+    isDragOverlay={false}
+    isFormModalOpen={false}
+    isFormPreviewOpen={false}
     onChange={onChange}
     onDelete={onDelete}
-    openModalAutomatically={false}
     renderField={renderField}
-    rightColumn={[]}
+    setIsFormModalOpen={setIsFormModalOpen}
+    setIsFormPreviewOpen={setIsFormPreviewOpen}
     {...props}
   />);
+
+  test('shows the item with the form preview open', () => {
+    renderItem({ isFormPreviewOpen: true });
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('open');
+  });
+
+  test('shows the item while it is being dragged', () => {
+    renderItem({ isDragging: true });
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('isDragging');
+    expect(document.body.style.cursor).toBe('grabbing');
+  });
+
+  test('shows the item as a drag overlay', () => {
+    renderItem({ isDragOverlay: true });
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('dragOverlay');
+
+    userEvent.click(screen.getByLabelText('Delete Value 1'));
+
+    expect(onDelete).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Edit Value 1'));
+
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
+
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+  });
 
   test('shows an error state in the item if the children have errors', () => {
     renderItem({ errors: { 'field-1': { message: 'Error' } } });
@@ -48,14 +93,60 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('error');
   });
 
-  test('does not show an error state in the item', () => {
+  test('shows the item normally', () => {
     renderItem();
 
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('open');
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('isDragging');
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('dragOverlay');
     expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('error');
+    expect(document.body.style.cursor).not.toBe('grabbing');
+    expect(onDelete).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Delete Value 1'));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Edit Value 1'));
+
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
+
+    expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+  });
+
+  test('opens the form preview when the user clicks the title', () => {
+    renderItem();
+
+    const titleButton = screen.getAllByLabelText('Open the Value 1 form preview')[0];
+
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+
+    userEvent.click(titleButton);
+
+    expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormPreviewOpen).toHaveBeenCalledWith(true);
+  });
+
+  test('closes the form preview when user clicks the title again', () => {
+    renderItem({ isFormPreviewOpen: true });
+
+    const titleButton = screen.getAllByLabelText('Close the Value 1 form preview')[0];
+
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+
+    userEvent.click(titleButton);
+
+    expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormPreviewOpen).toHaveBeenCalledWith(false);
   });
 
   test('sets a default title with the collection name and its index if there is no identifier', () => {
-    renderItem({ identifier: undefined });
+    collectionDetails.itemIdentifier = undefined;
+    renderItem();
 
     expect(screen.getByText('Collection 1 2')).toBeVisible();
   });
@@ -75,50 +166,68 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
     expect(title).toHaveClass('title');
   });
 
-  test('opens the form preview when user clicks the chevron', () => {
+  test('deletes the item when the user clicks the trash button', async () => {
     renderItem();
 
-    const chevronButton = screen.getByLabelText('Open the Value 1 form preview');
+    expect(onDelete).not.toHaveBeenCalled();
 
-    expect(chevronButton).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('open');
+    userEvent.click(screen.getByLabelText('Delete Value 1'));
 
-    userEvent.click(chevronButton);
-
-    expect(chevronButton).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('open');
-  });
-
-  test('closes the form preview when user clicks the chevron again', () => {
-    renderItem();
-
-    const chevronButton = screen.getByLabelText('Open the Value 1 form preview');
-
-    userEvent.click(chevronButton);
-
-    expect(chevronButton).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByTestId('schema-form-collection-item')).toHaveClass('open');
-
-    userEvent.click(chevronButton);
-
-    expect(chevronButton).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveClass('open');
-  });
-
-  test('opens the form modal automatically', () => {
-    renderItem({ openModalAutomatically: true });
-
-    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
   test('opens the form modal when user clicks the edit button', () => {
     renderItem();
 
-    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
 
     userEvent.click(screen.getByLabelText('Edit Value 1'));
 
-    expect(screen.getByRole('dialog')).toBeVisible();
+
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledWith(true);
+  });
+
+  test('opens the form preview when user clicks the chevron', () => {
+    renderItem();
+
+    const chevronButton = screen.getAllByLabelText('Open the Value 1 form preview')[1];
+
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+
+    userEvent.click(chevronButton);
+
+    expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormPreviewOpen).toHaveBeenCalledWith(true);
+  });
+
+  test('closes the form preview when user clicks the chevron again', () => {
+    renderItem({ isFormPreviewOpen: true });
+
+    const chevronButton = screen.getAllByLabelText('Close the Value 1 form preview')[1];
+
+    expect(setIsFormPreviewOpen).not.toHaveBeenCalled();
+
+    userEvent.click(chevronButton);
+
+    expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormPreviewOpen).toHaveBeenCalledWith(false);
+  });
+
+  test('closes the form modal when the user clicks Done', () => {
+    renderField.mockImplementation((id, value, onChange) => <input
+      data-testid={id}
+      onChange={(event) => onChange(id, event.target.value)}
+      value={value}
+    />);
+    renderItem({ isFormModalOpen: true });
+
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByText('Done'));
+
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledWith(false);
   });
 
   test('changes the content of a child field and clears its error in the form modal', () => {
@@ -127,9 +236,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
       onChange={(event) => onChange(id, event.target.value)}
       value={value}
     />);
-    renderItem({ errors: { 'field-1': { message: 'Error' }, 'field-2': { message: 'Error' } } });
-
-    userEvent.click(screen.getByLabelText('Edit Value 1'));
+    renderItem({ errors: { 'field-1': { message: 'Error' }, 'field-2': { message: 'Error' } }, isFormModalOpen: true });
 
     expect(onChange).not.toHaveBeenCalled();
 
@@ -143,13 +250,11 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
   });
 
   test('resets the initial values of the form and closes the form modal after editing it if the user clicks Cancel', async () => {
-    const { rerender } = renderItem();
-
-    userEvent.click(screen.getByLabelText('Edit Value 1'));
+    const { rerender } = renderItem({ isFormModalOpen: true });
 
     rerender(<Item
       breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-      columns={1}
+      collectionDetails={collectionDetails}
       errors={undefined}
       fields={{
         'field-1': {
@@ -166,55 +271,41 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
         },
       }}
       formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
-      identifier="field-1"
-      index={1}
-      leftColumn={['field-1', 'field-2']}
-      name="Collection 1"
+      id={1}
+      isDragging={false}
+      isDragOverlay={false}
+      isFormModalOpen={true}
+      isFormPreviewOpen={false}
       onChange={onChange}
       onDelete={onDelete}
       renderField={renderField}
-      rightColumn={[]}
+      setIsFormModalOpen={setIsFormModalOpen}
+      setIsFormPreviewOpen={setIsFormPreviewOpen}
     />);
 
-    const formModal = screen.getByRole('dialog');
-
     expect(onChange).not.toHaveBeenCalled();
-    expect(formModal).toBeVisible();
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
 
     userEvent.click(screen.getByText('Cancel'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith({ 'field-1': 'Value 1', 'field-2': 'Value 2' }, undefined);
-    await waitFor(() => {
-      expect(formModal).not.toBeVisible();
-    });
-  });
-
-  test('deletes the item when the user clicks the trash button in the header', async () => {
-    renderItem();
-
-    expect(onDelete).not.toHaveBeenCalled();
-
-    userEvent.click(screen.getByLabelText('Delete Value 1'));
-
-    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledWith(false);
   });
 
   test('deletes the item and closes the form modal when the user clicks the trash button in the modal', async () => {
-    renderItem();
-
-    userEvent.click(screen.getByLabelText('Edit Value 1'));
+    renderItem({ isFormModalOpen: true });
 
     const formModal = screen.getByRole('dialog');
 
     expect(onDelete).not.toHaveBeenCalled();
-    expect(formModal).toBeVisible();
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
 
     userEvent.click(within(formModal).getByLabelText('Delete Value 1'));
 
     expect(onDelete).toHaveBeenCalledTimes(1);
-    await waitFor(() => {
-      expect(formModal).not.toBeVisible();
-    });
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledWith(false);
   });
 });
