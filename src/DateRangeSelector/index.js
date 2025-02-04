@@ -71,8 +71,6 @@ const DateRangeSelector = ({
     onFilterSettingsToggle && onFilterSettingsToggle(!filterSettingsOpen);
   }, [filterSettingsOpen, onFilterSettingsToggle]);
 
-  const hasEndMaxDate = typeof endMaxDate !== 'undefined';
-
   const onStartDateTimePickerChange = (dateTime) => {
     setStartDateTime(dateTime);
 
@@ -147,7 +145,7 @@ const DateRangeSelector = ({
                 popperPlacement: placement,
               },
             }}
-            max={formatDateToLocalISO(hasEndMaxDate ? endMaxDate : maxDate)}
+            max={endMaxDate === null ? undefined : formatDateToLocalISO(endMaxDate || maxDate)}
             min={formatDateToLocalISO(startDate || new Date('2000-01-01'))}
             onChange={onEndDateTimePickerChange}
             required={requireEnd}
