@@ -93,4 +93,22 @@ describe('SelectListGroup', () => {
     expect(onChange).toHaveBeenCalledWith(32409);
   });
 
+  test('shows a proper selectable item with custom option object', () => {
+    const options = [
+      {
+        title: 'A custom product',
+        price: 150
+      }
+    ];
+    renderSelectListGroup({
+      ...initialProps,
+      options,
+      getOptionLabel: (option) => option.title,
+      getOptionValue: (option) => option.price
+    });
+
+    expect( screen.getByText('A custom product') ).toBeVisible();
+    expect( screen.getByRole('checkbox', { name: 'A custom product' }).value ).toBe('150');
+  });
+
 });

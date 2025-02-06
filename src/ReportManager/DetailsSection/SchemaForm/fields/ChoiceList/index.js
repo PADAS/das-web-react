@@ -92,23 +92,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
 
-  const [optionsValue, setOptionsValue] = useState('');
-
-  const options = [
-    {
-      label: 'An option',
-      value: 124
-    },
-    {
-      label: 'The option',
-      value: 32409
-    },
-    {
-      label: 'Option',
-      value: 1340
-    },
-  ];
-
   return <div>
     <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
       {label}
