@@ -8,7 +8,8 @@ import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';
-import Checkbox from '../../../../../SelectListGroup/Checkbox';
+
+import SelectListGroup from '../../../../../SelectListGroup';
 
 const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
   <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>
@@ -91,6 +92,23 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
 
+  const [optionsValue, setOptionsValue] = useState('');
+
+  const options = [
+    {
+      label: 'An option',
+      value: 124
+    },
+    {
+      label: 'The option',
+      value: 32409
+    },
+    {
+      label: 'Option',
+      value: 1340
+    },
+  ];
+
   return <div>
     <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
       {label}
@@ -114,9 +132,14 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
       >
         {error?.message || details.description}
       </p>}
-    <Checkbox onChange={(...args) => {
-         console.log(args);
-     }} value={120} label='A checkbox' isChecked={false} />
+
+    <SelectListGroup
+        id='This is a list'
+        isMulti={true}
+        value={optionsValue}
+        options={options}
+        onChange={(newValue) => setOptionsValue(newValue)}
+    />
   </div>;
 };
 
