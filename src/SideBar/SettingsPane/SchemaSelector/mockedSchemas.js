@@ -1216,7 +1216,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'EXISTING_CHOICE_LIST'
           },
-          inputType: 'LIST',
+          inputType: 'DROPDOWN',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
           parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
@@ -1320,7 +1320,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'MY_DATA'
           },
-          inputType: 'LIST',
+          inputType: 'DROPDOWN',
           placeholder: 'A placeholder',
           type: 'CHOICE_LIST',
           parent: 'section-7FilZuXOYsniOsN5oAclf'
