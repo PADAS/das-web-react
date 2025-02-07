@@ -1,14 +1,9 @@
-const { polygon, featureCollection } =  require('@turf/helpers');
-const rewind = require('@turf/rewind');
-const faker = require('faker/locale/en');
-
-const utils = require('../utils');
-
-const { randomItemFromArray, randomInteger } = utils;
+const { faker } = require('@faker-js/faker');
+const { featureCollection, polygon, rewind } =  require('@turf/turf');
 
 const generateArrayofCoordinatePairs = (length = 5) => {
-  const baseLat = Number.parseFloat(faker.address.latitude()) / 2;
-  const baseLon = Number.parseFloat(faker.address.longitude()) / 2;
+  const baseLat = Number.parseFloat(faker.location.latitude()) / 2;
+  const baseLon = Number.parseFloat(faker.location.longitude()) / 2;
 
   const getRandomBetweenMinusOneAndOne = () => Math.random() * (Math.random() > 0.5 ? 1 : -1);
 
@@ -21,7 +16,7 @@ const createPolygonFeatureCollection = () => {
   const numberOfPolygons = 1; // change this to randomInteger() when you want to support multi-feature featurecollections for the geometry prop
 
   const polygonCoordinateSets = Array.from({ length: numberOfPolygons }, () => {
-    let coordinates = generateArrayofCoordinatePairs(randomInteger(4, 8));
+    let coordinates = generateArrayofCoordinatePairs(faker.number.int({ max: 8, min: 4 }));
     coordinates = [[...coordinates, coordinates[0]]]; /* close the polygon by adding a final point identical to the first */
 
     return coordinates;
@@ -48,16 +43,16 @@ const priorityOptions = [
 ];
 
 const generateEvent = (override) => {
-  const geometry = randomItemFromArray(geometryOptions)?.();
+  const geometry = faker.helpers.arrayElement(geometryOptions)?.();
 
   const location = !!geometry ? null : {
-    latitude: Number.parseFloat(faker.address.latitude()),
-    longitude: Number.parseFloat(faker.address.longitude()),
+    latitude: Number.parseFloat(faker.location.latitude()),
+    longitude: Number.parseFloat(faker.location.longitude()),
   };
 
-  const priority = randomItemFromArray(priorityOptions);
+  const priority = faker.helpers.arrayElement(priorityOptions);
   const timestamp = faker.date.recent();
-  const id = faker.datatype.uuid();
+  const id = faker.string.uuid();
 
   return {
     id,
@@ -65,7 +60,7 @@ const generateEvent = (override) => {
     geometry,
     location,
     time: timestamp,
-    serial_number: faker.datatype.number(),
+    serial_number: faker.number.int(),
     message: '',
     provenance: '',
     ...override,
@@ -106,16 +101,4 @@ const generateEvent = (override) => {
   };
 };
 
-const generateEventsList = (length = 25) => ({
-  data: {
-    results: Array.from({ length }, generateEvent),
-    next: null,
-    count: 25,
-  }
-});
-
-
-module.exports = {
-  generateEvent,
-  generateEventsList,
-};
+module.exports = { generateEvent };

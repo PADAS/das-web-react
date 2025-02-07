@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { calcGeometryTypeForReport } from '../../utils/events';
 import { EVENT_FORM_STATES, FEATURE_FLAG_LABELS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
@@ -16,6 +15,7 @@ import {
   getLinearErrorPropTree,
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
+import { selectEventTypeByValue } from '../../selectors/event-types';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { TrackerContext } from '../../utils/analytics';
 import { useFeatureFlag } from '../../hooks';
@@ -46,8 +46,7 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
 const DetailsSection = ({
-  formSchema = null,
-  formUISchema = null,
+  eventSchema = null,
   formValidator,
   isCollection,
   isNewEvent,
@@ -69,13 +68,18 @@ const DetailsSection = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
-  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
+  const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
 
-  const eventTypes = useSelector((state) => state.data.eventTypes);
-  // TODO: Temporary solution to test new schemas. This should be deleted.
+  // Temporary solution to test new schemas starts here.
+  // Feature flag to enable mocks schemas from the selector.
+  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
+  // Schema from schema selector, it is stored in redux.
   const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema : null
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema.schema : null
   );
+  // Override to the schema.
+  const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
+  // Temporary solution to test new schemas ends here.
 
   const reportTracker = useContext(TrackerContext);
 
@@ -85,17 +89,10 @@ const DetailsSection = ({
   const [date, setDate] = useState(reportTime ? format(reportTime, 'yyyy-MM-dd') : EMPTY_DATE_VALUE);
   const [time, setTime] = useState(reportTime ? getHoursAndMinutesString(reportTime) : EMPTY_TIME_VALUE);
 
+  const geometryType = eventType?.geometry_type;
+  const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
   const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
-
-  // TODO: Change to read the draft of the schema.
-  const isNewDraftSchema = efbFormSchemaSupportEnabled;
-
-  const geometryType = useMemo(() =>
-    reportForm
-    && eventTypes
-    && calcGeometryTypeForReport(reportForm, eventTypes)
-  , [eventTypes, reportForm]);
 
   const onStateDropdownKeyDown = useCallback((event) => {
     if (event.key === 'Escape') {
@@ -139,11 +136,11 @@ const DetailsSection = ({
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutRequiredValueOnSchemaPropErrors(errors),
-      formUISchema
+      eventSchemaOverride.formUISchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [formUISchema]);
+  }, [eventSchemaOverride?.formUISchema]);
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -196,7 +193,7 @@ const DetailsSection = ({
             {t('reportedByLabel')}
 
             <ReportedBySelect
-              isDisabled={formSchema?.readonly}
+              isDisabled={jsonSchema?.readonly}
               onChange={onReportedByChange}
               value={reportForm?.reported_by}
             />
@@ -206,7 +203,7 @@ const DetailsSection = ({
             {t('priorityLabel')}
 
             <PrioritySelect
-              isDisabled={formSchema?.readonly}
+              isDisabled={jsonSchema?.readonly}
               onChange={onPriorityChange}
               priority={reportForm?.priority}
             />
@@ -238,7 +235,7 @@ const DetailsSection = ({
               <DatePicker
                 className={styles.datePicker}
                 data-testid="reportManager-detailsSection-datePicker"
-                disabled={formSchema?.readonly}
+                disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
                 onChange={onDatePickerChange}
                 value={date}
@@ -250,7 +247,7 @@ const DetailsSection = ({
 
               <TimePicker
                 data-testid="reportManager-detailsSection-timePicker"
-                disabled={formSchema?.readonly}
+                disabled={jsonSchema?.readonly}
                 max={reportTime && isToday(reportTime) ? getHoursAndMinutesString(new Date()) : undefined}
                 minutesInterval={15}
                 onChange={onTimePickerChange}
@@ -269,15 +266,15 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
-    {!!formSchema && !isNewDraftSchema && <Form
+    {(eventType?.version === 1 && !efbFormSchemaSupportEnabled) && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
-      disabled={formSchema?.readonly}
+      disabled={jsonSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
       formData={reportForm.event_details}
       onChange={onLegacyFormChange}
       onError={onFormError}
       onSubmit={onFormSubmit}
-      schema={formSchema}
+      schema={jsonSchema}
       showErrorList={false}
       templates={{
         ArrayFieldItemTemplate,
@@ -287,14 +284,13 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={formUISchema}
+      uiSchema={eventSchemaOverride?.formUISchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {/* TODO: Replace schemaFromSchemaSelector.schema for the formSchema and remove the label */}
-    {!!schemaFromSchemaSelector?.schema && efbFormSchemaSupportEnabled && isNewDraftSchema && <SchemaForm
+    {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
       autofillDefaultInputs={isNewEvent}
       initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
@@ -304,10 +300,10 @@ const DetailsSection = ({
         ref={submitFormButtonRef}
         type="submit"
       />}
-      schema={schemaFromSchemaSelector.schema}
+      schema={eventSchemaOverride}
     />}
 
-    {!formSchema && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
+    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
       color={LOADER_COLOR}
       data-testid="reportManager-detailsSection-loader"
       size={LOADER_SIZE}

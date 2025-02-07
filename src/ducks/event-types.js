@@ -1,34 +1,41 @@
 import axios from 'axios';
+
+import { API_URL, API_V2_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
-import { API_URL } from '../constants';
+const USE_EVENT_TYPES_V2_MOCK_API = process.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
+  && process.env.NODE_ENV === 'development';
 
-export const EVENT_TYPE_API_URL = `${API_URL}activity/events/eventtypes`;
+export const EVENT_TYPES_API_URL = `${API_URL}activity/events/eventtypes`;
+export const EVENT_TYPES_V2_API_URL =
+  `${USE_EVENT_TYPES_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes`;
 
+// Actions
 export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
 
-export const fetchEventTypes = () => dispatch => axios.get(EVENT_TYPE_API_URL)
-  .then((response) => {
-    dispatch(fetchEventTypesSuccess(response));
-  });
+// Action creators
+export const fetchEventTypes = () => async (dispatch) => {
+  const eventTypesResponse = await axios.get(EVENT_TYPES_API_URL);
+  const eventTypesV2Response = await axios.get(EVENT_TYPES_V2_API_URL);
 
-const fetchEventTypesSuccess = response => dispatch => {
-  dispatch({
-    type: FETCH_EVENT_TYPES_SUCCESS,
-    payload: response.data.data,
-  });
+  const eventTypes = [
+    ...eventTypesResponse.data.data.map((eventType) => ({ ...eventType, version: 1 })),
+    ...eventTypesV2Response.data.data.map((eventType) => ({ ...eventType, version: 2 })),
+  ];
+
+  dispatch({ payload: eventTypes, type: FETCH_EVENT_TYPES_SUCCESS });
 };
 
-// reducer
+// Reducer
 const INITIAL_STATE = [];
-const eventTypesReducer = (state, action = {}) => {
+
+const eventTypesReducer = (state, action) => {
   switch (action.type) {
-  case FETCH_EVENT_TYPES_SUCCESS: {
+  case FETCH_EVENT_TYPES_SUCCESS:
     return action.payload;
-  }
-  default: {
+
+  default:
     return state;
-  }
   }
 };
 
