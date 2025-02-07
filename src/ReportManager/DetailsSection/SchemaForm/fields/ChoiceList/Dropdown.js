@@ -4,7 +4,7 @@ import ReactSelect, { components as SelectComponent } from 'react-select';
 
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
-import styles from '../styles.module.scss';
+import styles from './styles.module.scss';
 
 const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
   <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>

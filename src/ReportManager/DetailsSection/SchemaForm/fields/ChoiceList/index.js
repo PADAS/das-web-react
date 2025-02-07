@@ -2,6 +2,7 @@ import React from 'react';
 
 import List from './List';
 import Dropdown from './Dropdown';
+
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';

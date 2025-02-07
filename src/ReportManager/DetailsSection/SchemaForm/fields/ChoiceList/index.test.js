@@ -1,9 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
-import { screen } from '../../../../../test-utils';
+
+import { render, screen } from '../../../../../test-utils';
 
 import ChoiceList from './';
 
