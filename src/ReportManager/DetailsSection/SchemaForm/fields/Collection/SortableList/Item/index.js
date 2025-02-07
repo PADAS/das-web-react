@@ -109,12 +109,12 @@ const Item = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFormModalOpen]);
 
-  return <li
-      className={`${styles.item} ${isFormPreviewOpen ? styles.open : ''} ${isDragging ? styles.isDragging : ''} ${isDragOverlay ? styles.dragOverlay : ''} ${hasError ? styles.error : ''}`}
-      data-testid="schema-form-collection-item"
-      ref={ref}
-      {...otherProps}
-    >
+  const itemClassName = styles.item
+    + (isFormPreviewOpen ? ` ${styles.open}` : '')
+    + (isDragging ? ` ${styles.isDragging}` : '')
+    + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
+    + (hasError ? ` ${styles.error}` : '');
+  return <li className={itemClassName} data-testid="schema-form-collection-item" ref={ref} {...otherProps}>
     <div className={styles.header}>
       <div
         aria-controls={`collectionForm-${title}`}
