@@ -11,6 +11,7 @@ const SelectListGroup = ({
   disabled = false,
   getOptionLabel = null,
   getOptionValue = null,
+  hasError,
   id = '',
   isMulti = true,
   options,
@@ -44,7 +45,7 @@ const SelectListGroup = ({
     return state;
   }, {}), [options, calculateOptionValue, isOptionChecked, selectListValue, isMulti, getOptionLabel]);
 
-  const handleOnChange = (selectedOptionValue, isChecked) => {
+  const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
       const newValue = isChecked
         ? isListEmpty ? [selectedOptionValue] : [...selectListValue, selectedOptionValue]
@@ -56,19 +57,21 @@ const SelectListGroup = ({
     }
   };
 
-  return <div id={id} className={`${styles.container} ${className}`}>
+  return <div id={id} className={`${styles.container} ${className} ${hasError ? styles.error : ''}`} tabIndex='0'>
     {
       Object.keys(optionsState).map((optionKey) =>
         <SelectableItem
             disabled={disabled}
+            hasError={hasError}
             isChecked={optionsState[optionKey].isChecked}
             id={optionKey}
             isMulti={isMulti}
             key={optionKey}
             label={optionsState[optionKey].label}
-            onChange={handleOnChange}
+            onClick={handleOnSelectableItemClick}
             readOnly={readOnly}
-            value={optionsState[optionKey].value} />
+            value={optionsState[optionKey].value}
+            {...otherProps} />
       )
     }
   </div>;

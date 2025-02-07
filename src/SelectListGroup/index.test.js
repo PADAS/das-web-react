@@ -41,7 +41,7 @@ describe('SelectListGroup', () => {
 
     options.forEach((option) => {
       expect( screen.getByText(option.label) ).toBeVisible();
-      expect( screen.getByRole('checkbox', { name: option.label }) ).toBeInTheDocument();
+      expect( screen.getByTestId(`input-for-${option.label}`) ).toBeInTheDocument();
     });
   });
 
@@ -52,9 +52,8 @@ describe('SelectListGroup', () => {
     });
 
     options.forEach((option) => {
-      const [, input] = screen.getAllByRole('radio', { name: option.label });
       expect( screen.getByText(option.label) ).toBeVisible();
-      expect( input ).toBeInTheDocument();
+      expect( screen.getByTestId(`input-for-${option.label}`) ).toBeInTheDocument();
     });
   });
 
@@ -108,7 +107,7 @@ describe('SelectListGroup', () => {
     });
 
     expect( screen.getByText('A custom product') ).toBeVisible();
-    expect( screen.getByRole('checkbox', { name: 'A custom product' }).value ).toBe('150');
+    expect( screen.getByRole('checkbox').value ).toBe('150');
   });
 
 });

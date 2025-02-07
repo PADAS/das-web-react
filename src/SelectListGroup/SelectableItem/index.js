@@ -10,23 +10,26 @@ const Ripple = ({ onClick, readOnly, disabled, children }) =>
     {children}
   </div>;
 
-const SelectableItemIcon = ({ isMulti, isChecked, id }) => isMulti
-  ? <div className={`${styles.checkboxIconWrapper} ${isChecked ? styles.checked : ''}`}
-           data-testid={`selectable-item-icon-${id}`}>
-    <CheckIcon role='img' />
-  </div>
-  : <div className={`${styles.radioIconWrapper} ${isChecked ? styles.checked : ''}`}
-           data-testid={`selectable-item-icon-${id}`}>
-    { isChecked && <div className={styles.radioBoxIcon} /> }
-  </div>;
+const SelectableItemIcon = ({ isMulti, isChecked, fieldId, hasError }) =>
+  isMulti
+    ? <div className={`${styles.checkboxIconWrapper} ${isChecked ? styles.checked : ''} ${hasError ? styles.iconError : ''}`}
+         data-testid={`selectable-item-icon-${fieldId}`}>
+      <CheckIcon role='img' />
+    </div>
+    : <div className={`${styles.radioIconWrapper} ${isChecked ? styles.checked : ''} ${hasError ? styles.iconError : ''}`}
+         data-testid={`selectable-item-icon-${fieldId}`}>
+      { isChecked && <div className={styles.radioBoxIcon} /> }
+    </div>
+;
 
 const SelectableItem = ({
   className = '',
+  hasError,
   disabled = false,
   isChecked,
   id,
   label,
-  onChange,
+  onClick,
   readOnly = false,
   value,
   isMulti = true,
@@ -35,30 +38,32 @@ const SelectableItem = ({
   const [isFocused, setIsFocused] = useState(false);
   const role = isMulti ? 'checkbox' : 'radio';
 
-  const handleOnChange = () => readOnly || disabled || onChange(value, !isChecked);
+  const handleOnClick = (event) => {
+    event?.preventDefault();
+    readOnly || disabled || onClick(value, !isChecked);
+  };
 
   const handleOnKeyDown = (event) => {
     if (isFocused && (event.code === 'Enter' || event.code === 'Space')){
       event.stopPropagation();
       event.preventDefault();
 
-      handleOnChange();
+      handleOnClick();
     }
   };
 
-  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className}`}
+  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${hasError ? styles.error : ''}`}
               tabIndex='0'
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               onKeyDown={handleOnKeyDown}
-              role={role}
-              aria-checked={isChecked}>
+              aria-checked={isChecked} onClick={handleOnClick}>
 
-    <Ripple onClick={handleOnChange} readOnly={readOnly} disabled={disabled}>
-      <SelectableItemIcon isMulti={isMulti} isChecked={isChecked} id={id} />
+    <Ripple readOnly={readOnly} disabled={disabled}>
+      <SelectableItemIcon isMulti={isMulti} isChecked={isChecked} fieldId={id} hasError={hasError} />
     </Ripple>
 
-    <label htmlFor={id}>
+    <label title={label}>
       {label}
     </label>
 
@@ -66,9 +71,9 @@ const SelectableItem = ({
            readOnly={readOnly}
            disabled={disabled}
            value={value}
-           checked={isChecked}
-           onChange={handleOnChange}
+           defaultChecked={isChecked}
            id={id}
+           data-testid={`input-for-${label}`}
            {...otherProps} />
   </div>;
 };

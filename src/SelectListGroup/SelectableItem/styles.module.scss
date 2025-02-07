@@ -5,8 +5,26 @@
   display: flex;
   align-items: center;
 
-  label:hover {
-    cursor: pointer;
+  label {
+      color: colors.$off-black;
+      font-weight: normal;
+      display: inline-block;
+      max-width: 35rem;
+      overflow-y: hidden;
+      text-overflow: ellipsis;
+      text-wrap: nowrap;
+      width: 100%;
+
+    &:hover {
+      cursor: pointer;
+
+    }
+  }
+
+  &.error {
+    label {
+      color: colors.$bright-red;
+    }
   }
 
   input {
@@ -80,6 +98,11 @@
       &.checked {
         border: 2px solid colors.$bright-blue;
       }
+    }
+
+    .radioIconWrapper.iconError,
+    .checkboxIconWrapper.iconError, {
+      border-color: colors.$bright-red;
     }
 
   }

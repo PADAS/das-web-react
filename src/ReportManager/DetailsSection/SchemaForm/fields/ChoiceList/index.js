@@ -1,88 +1,14 @@
-import React, { useState } from 'react';
-import { components as SelectComponent } from 'react-select';
-import { useTranslation } from 'react-i18next';
-import ReactSelect from 'react-select';
+import React from 'react';
 
-import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
-
+import List from './List';
+import Dropdown from './Dropdown';
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import styles from './styles.module.scss';
 
-import SelectListGroup from '../../../../../SelectListGroup';
-
-const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
-  <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>
-    {
-      isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
-    }
-    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`} title={data.title}>
-      {data.title}
-    </span>
-  </SelectComponent.Option>
-</div>;
-
-
-const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
-
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
-
-  const selectedValue = details.multiple ? value : details.options.find((item) => item.const === value);
-
-  const handleOnChange = (newValue) => {
-    if ( ( details.multiple && newValue.length === 0 ) || !newValue){
-      return onChange(undefined);
-    }
-    const returnedValue = details.multiple ? newValue.map((item) => item.const ?? item) : newValue.const;
-    return onChange( returnedValue );
-  };
-
-  const onMenuClose = () => setMenuOpen(false);
-
-  const onMenuOpen = () => setMenuOpen(true);
-
-  const onKeyDown = (event) => {
-    if (event.key === 'Escape' && isMenuOpen) {
-      event.stopPropagation();
-    }
-  };
-
-  return <ReactSelect
-      components={{ Option }}
-      classNames={{
-          clearIndicator: () => styles.clearIndicator,
-          container: () => styles.container,
-          control: (state) => `${styles.control} ${ hasError ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
-          dropdownIndicator: () => styles.cursorPointer,
-          indicatorsContainer: () => hasError && styles.caretError,
-          indicatorSeparator: () => styles.separator,
-          multiValue: () => styles.multiValue,
-          multiValueRemove: () => styles.multiValueRemove,
-          option: () => styles.cursorPointer,
-          placeholder: () => hasError && styles.error,
-      }}
-      getOptionLabel={(option) => option.title ?? details.options.find((item) => item.const === option).title}
-      getOptionValue={(option) => option.const ?? option}
-      isClearable
-      isDisabled={disabled}
-      inputId={id}
-      isMulti={details.multiple}
-      isSearchable
-      onChange={handleOnChange}
-      noOptionsMessage={() => t('select.noOptionsMessage')}
-      options={details.options}
-      onMenuClose={onMenuClose}
-      onMenuOpen={onMenuOpen}
-      onKeyDown={onKeyDown}
-      placeholder={details.hint}
-      value={selectedValue}
-      {...otherProps}
-    />;
-};
-
 const INPUTS = {
-  [CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN]: Dropdown
+  [CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN]: Dropdown,
+  [CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST]: List
 };
 
 const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
@@ -103,7 +29,9 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
           hasError={hasError}
           aria-required={details.isRequired}
           id={id}
-          onChange={(newValue) => onFieldChange(id, newValue)}
+          onChange={(newValue) => {
+            onFieldChange(id, newValue);
+          }}
           value={value}
           details={details} />
     </label>
@@ -115,14 +43,6 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
       >
         {error?.message || details.description}
       </p>}
-
-    <SelectListGroup
-        id='This is a list'
-        isMulti={true}
-        value={optionsValue}
-        options={options}
-        onChange={(newValue) => setOptionsValue(newValue)}
-    />
   </div>;
 };
 

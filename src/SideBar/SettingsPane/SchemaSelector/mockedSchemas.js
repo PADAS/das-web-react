@@ -1199,7 +1199,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'This is a placeholder',
           type: 'CHOICE_LIST',
           parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
@@ -1216,7 +1216,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'EXISTING_CHOICE_LIST'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
           parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
@@ -1246,7 +1246,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
           parent: 'a_collection_of_data'
@@ -1277,7 +1277,7 @@ const choiceLists = {
             ],
             type: 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
           parent: 'extra_info'
@@ -1305,7 +1305,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'A placeholder',
           type: 'CHOICE_LIST',
           parent: 'section-7FilZuXOYsniOsN5oAclf'
@@ -1320,7 +1320,7 @@ const choiceLists = {
             subjectSubtypes: [],
             type: 'MY_DATA'
           },
-          inputType: 'DROPDOWN',
+          inputType: 'LIST',
           placeholder: 'A placeholder',
           type: 'CHOICE_LIST',
           parent: 'section-7FilZuXOYsniOsN5oAclf'
