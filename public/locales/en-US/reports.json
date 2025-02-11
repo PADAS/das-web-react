@@ -157,21 +157,28 @@
               "closed": "Open the {{collectionLabel}} list",
               "open": "Close the {{collectionLabel}} list"
             },
-            "item": {
-              "collectionHumanizedValue": "{{collectionLength}} items",
-              "deleteButtonLabel": "Delete {{itemTitle}}",
-              "editButtonLabel": "Edit {{itemTitle}}",
-              "formModal": {
-                "cancelButton": "Cancel",
-                "deleteButton": "Delete {{itemTitle}}",
-                "doneButton": "Done"
-              },
-              "formPreview": {
-                "collectionHumanizedValue": "{{collectionLength}} items"
-              },
-              "chevronButtonLabel": {
-                "closed": "Open the {{itemTitle}} form preview",
-                "open": "Close the {{itemTitle}} form preview"
+            "sortableList": {
+              "dragCancelAnnouncement": "Dragging was cancelled. {{activeItemTitle}} was dropped.",
+              "dragEndAnnouncement": "{{activeItemTitle}} was dropped at position {{overItemPosition}} of {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "To pick up a {{itemName}}, press space or enter. While dragging, use the up and down arrow keys to move the {{itemName}} and update its position. Press space or enter again to drop the {{itemName}} in its new position.",
+              "dragOverAnnouncement": "{{activeItemTitle}} was moved into position {{overItemPosition}} of {{itemsLength}}.",
+              "dragStartAnnouncement": "Picked up {{activeItemTitle}}. {{activeItemTitle}} is in position {{activeItemPosition}} of {{itemsLength}}.",
+              "item": {
+                "collectionHumanizedValue": "{{collectionLength}} items",
+                "deleteButtonLabel": "Delete {{itemTitle}}",
+                "editButtonLabel": "Edit {{itemTitle}}",
+                "formModal": {
+                  "cancelButton": "Cancel",
+                  "deleteButton": "Delete {{itemTitle}}",
+                  "doneButton": "Done"
+                },
+                "formPreview": {
+                  "collectionHumanizedValue": "{{collectionLength}} items"
+                },
+                "chevronButtonLabel": {
+                  "closed": "Open the {{itemTitle}} form preview",
+                  "open": "Close the {{itemTitle}} form preview"
+                }
               }
             }
           }

@@ -1,7 +1,7 @@
 import { format, isValid, parseISO } from 'date-fns';
 
-import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../constants';
-import { shouldUse12HourFormat } from '../../../../../../../utils/datetime';
+import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
+import { shouldUse12HourFormat } from '../../../../../../../../utils/datetime';
 
 const getChoiceListOptionLabel = (value, field) => {
   return field.details.options.find((option) => option.const === value)?.title;
@@ -60,3 +60,8 @@ export const getHumanizedValue = (field, value, defaultHumanizedValue, language,
     return value;
   };
 };
+
+export const getItemTitle = (formData, identifier, defaultTitle, identifierField, language, t) =>
+  !identifier || !formData[identifier]
+    ? defaultTitle
+    : getHumanizedValue(identifierField, formData[identifier], defaultTitle, language, t);

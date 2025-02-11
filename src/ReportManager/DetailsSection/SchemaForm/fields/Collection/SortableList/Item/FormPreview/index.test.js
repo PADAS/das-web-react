@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { render, screen } from '../../../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { render, screen } from '../../../../../../../../test-utils';
+import { FORM_ELEMENT_TYPES } from '../../../../../constants';
 
 import FormPreview from './';
 
-describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - Item - FormPreview', () => {
+describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormPreview', () => {
   const renderFormPreview = (props) => render(<FormPreview
     errors={undefined}
     fieldIds={['field-1', 'field-2']}
@@ -24,8 +24,21 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - It
       },
     }}
     formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+    isDragOverlay={false}
     {...props}
   />);
+
+  test('shows the form preview as a drag overlay', () => {
+    renderFormPreview({ isDragOverlay: true });
+
+    expect(screen.getByTestId('schema-form-collection-item-form-preview')).toHaveClass('dragOverlay');
+  });
+
+  test('does not show the form preview as a drag overlay', () => {
+    renderFormPreview();
+
+    expect(screen.getByTestId('schema-form-collection-item-form-preview')).not.toHaveClass('dragOverlay');
+  });
 
   test('shows an error state if there are errors', () => {
     renderFormPreview({ errors: { 'field-1': { message: 'Error' } } });

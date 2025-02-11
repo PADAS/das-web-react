@@ -1,7 +1,7 @@
 @use "sass:color";
 
-@use "../../../../../../../common/styles/vars/colors";
-@use '../../../../../../../common/styles/inputs';
+@use "../../../../../../../../common/styles/vars/colors";
+@use '../../../../../../../../common/styles/inputs';
 
 .noBackground {
   background: none !important;

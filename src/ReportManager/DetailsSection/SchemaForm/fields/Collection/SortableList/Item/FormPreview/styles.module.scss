@@ -1,11 +1,17 @@
-@use "../../../../../../../common/styles/vars/colors";
+@use "../../../../../../../../common/styles/vars/colors";
 
 .formPreview {
+  background-color: white;
   border: 1px solid colors.$light-gray-border;
   border-bottom-left-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   border-top: 0;
   padding: 1rem 0.5rem;
+
+  &.dragOverlay {
+    border: 2px solid colors.$bright-blue;
+    border-top: 0;
+  }
 
   &.error {
     border-color: colors.$bright-red;
