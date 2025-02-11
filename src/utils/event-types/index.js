@@ -1,4 +1,4 @@
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import colorVariables from '../../common/styles/vars/colors.module.scss';
 
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;

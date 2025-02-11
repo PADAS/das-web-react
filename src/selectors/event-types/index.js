@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { mapEventTypesToCategories } from '../utils/event-types';
+import { mapEventTypesToCategories } from '../../utils/event-types';
 
 const selectEventCategories = (state) => state.data.eventCategories;
 const selectEventTypes = (state) => state.data.eventTypes;

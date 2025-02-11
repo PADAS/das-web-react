@@ -15,10 +15,10 @@ export const EVENT_TYPE_SCHEMA_V2_API_URL = (eventTypeValue) =>
   `${USE_EVENTTYPE_SCHEMA_V2_MOCK_API ? '/api/v2.0/' : API_V2_URL}activity/eventtypes/${eventTypeValue}/schema`;
 
 // Actions
-const FETCH_EVENT_TYPE_SCHEMA = 'FETCH_EVENT_TYPE_SCHEMA';
-const FETCH_EVENT_TYPE_SCHEMA_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_SUCCESS';
-const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE';
-const FETCH_EVENTS_SCHEMA_SUCCESS = 'FETCH_EVENTS_SCHEMA_SUCCESS';
+export const FETCH_EVENT_TYPE_SCHEMA = 'FETCH_EVENT_TYPE_SCHEMA';
+export const FETCH_EVENT_TYPE_SCHEMA_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_SUCCESS';
+export const FETCH_EVENT_TYPE_SCHEMA_FAILURE = 'FETCH_EVENT_TYPE_SCHEMA_FAILURE';
+export const FETCH_EVENTS_SCHEMA_SUCCESS = 'FETCH_EVENTS_SCHEMA_SUCCESS';
 
 // Action creators
 export const fetchEventsSchema = () => async (dispatch) => {
@@ -51,6 +51,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
     if (eventType.version === 1) {
       const { schema, uiSchema } = sanitizeSchemas(response.data.data);
 
+      payload.definition = response.data.data.definition;
       payload.schema = schema;
       payload.uiSchema = uiSchema;
     } else if (eventType.version === 2) {
@@ -67,7 +68,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
 };
 
 // Reducer
-const INITIAL_STATE = { loading: false };
+export const INITIAL_STATE = { loading: false };
 
 const eventSchemasReducer = (state, action) => {
   switch (action.type) {
@@ -85,7 +86,6 @@ const eventSchemasReducer = (state, action) => {
     };
 
   case FETCH_EVENT_TYPE_SCHEMA_SUCCESS:
-    console.log(action.payload);
     if (action.payload.eventTypeVersion === 1) {
       return {
         ...state,
@@ -93,7 +93,7 @@ const eventSchemasReducer = (state, action) => {
         [action.payload.eventTypeValue]: {
           ...state[action.payload.eventTypeValue],
           [action.payload.eventId || 'base']: {
-            definition: action.payload.schema.definition,
+            definition: action.payload.definition,
             schema: action.payload.schema,
             uiSchema: action.payload.uiSchema,
           },

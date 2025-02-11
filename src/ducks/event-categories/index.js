@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import { API_URL } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
+import { API_URL } from '../../constants';
+import globallyResettableReducer from '../../reducers/global-resettable';
 
-const EVENT_CATEGORIES_API_URL = `${API_URL}activity/events/categories`;
+export const EVENT_CATEGORIES_API_URL = `${API_URL}activity/events/categories`;
 
 // Actions
-const FETCH_EVENT_CATEGORIES_SUCCESS = 'FETCH_EVENT_CATEGORIES_SUCCESS';
+export const FETCH_EVENT_CATEGORIES_SUCCESS = 'FETCH_EVENT_CATEGORIES_SUCCESS';
 
 // Action creators
 export const fetchEventCategories = () => async (dispatch) => {
@@ -22,7 +22,7 @@ export const fetchEventCategories = () => async (dispatch) => {
 };
 
 // Reducer
-const INITIAL_STATE = {};
+export const INITIAL_STATE = {};
 
 const eventCategoriesReducer = (state, action) => {
   switch (action.type) {

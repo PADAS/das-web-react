@@ -16,7 +16,7 @@ const eventtypesFixture = {
       geometry_type: 'Point',
       resolve_time: null,
       auto_resolve: false,
-      url: 'https://stage.pamdas.org/api/v1.0/activity/events/eventtypes/29736bf4-c1eb-4cb7-bdb2-3b6464108517',
+      url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/animal_control_v2',
     },
     {
       id: 'bbd64930-a029-4d89-98f2-f94e269f8fe6',
@@ -34,7 +34,7 @@ const eventtypesFixture = {
       geometry_type: 'Polygon',
       resolve_time: null,
       auto_resolve: false,
-      url: 'https://stage.pamdas.org/api/v1.0/activity/events/eventtypes/bbd64930-a029-4d89-98f2-f94e269f8fe6',
+      url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/fire_v2',
     },
     {
       id: '551d9203-a74c-4107-b727-681cc10c6f3e',
@@ -52,7 +52,7 @@ const eventtypesFixture = {
       geometry_type: 'Point',
       resolve_time: 2,
       auto_resolve: true,
-      url: 'https://stage.pamdas.org/api/v1.0/activity/events/eventtypes/551d9203-a74c-4107-b727-681cc10c6f3e',
+      url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/light_v2',
     },
   ],
   status: {

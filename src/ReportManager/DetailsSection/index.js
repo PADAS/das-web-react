@@ -136,11 +136,11 @@ const DetailsSection = ({
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutRequiredValueOnSchemaPropErrors(errors),
-      eventSchemaOverride.formUISchema
+      eventSchemaOverride.uiSchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventSchemaOverride?.formUISchema]);
+  }, [eventSchemaOverride?.uiSchema]);
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -284,7 +284,7 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={eventSchemaOverride?.formUISchema}
+      uiSchema={eventSchemaOverride?.uiSchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />

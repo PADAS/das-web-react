@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-import { API_URL, API_V2_URL } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
+import { API_URL, API_V2_URL } from '../../constants';
+import globallyResettableReducer from '../../reducers/global-resettable';
 
 const USE_EVENT_TYPES_V2_MOCK_API = process.env.REACT_APP_MOCK_EVENTTYPES_V2_API === 'true'
   && process.env.NODE_ENV === 'development';
@@ -18,6 +18,9 @@ export const fetchEventTypes = () => async (dispatch) => {
   const eventTypesResponse = await axios.get(EVENT_TYPES_API_URL);
   const eventTypesV2Response = await axios.get(EVENT_TYPES_V2_API_URL);
 
+  // Technical debt: the eventTypes reducer is stored as an array, which makes the finding operations expensive for
+  // selectors. It would be better to have a key - value data structure but doing that change will require a
+  // regression.
   const eventTypes = [
     ...eventTypesResponse.data.data.map((eventType) => ({ ...eventType, version: 1 })),
     ...eventTypesV2Response.data.data.map((eventType) => ({ ...eventType, version: 2 })),
@@ -27,7 +30,7 @@ export const fetchEventTypes = () => async (dispatch) => {
 };
 
 // Reducer
-const INITIAL_STATE = [];
+export const INITIAL_STATE = [];
 
 const eventTypesReducer = (state, action) => {
   switch (action.type) {

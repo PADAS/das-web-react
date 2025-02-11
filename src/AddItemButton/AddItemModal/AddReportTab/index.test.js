@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../..';
 import AddReportTab from '.';
+import eventCategories from '../../../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen } from '../../../test-utils';
@@ -20,7 +21,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
 
-    store = { data: { eventTypes }, view: { featureFlagOverrides: {} } };
+    store = { data: { eventCategories, eventTypes }, view: { featureFlagOverrides: {} } };
 
     renderAddReportTab = (props, addItemContext, overrideStore) => {
       render(

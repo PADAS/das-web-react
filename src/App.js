@@ -39,7 +39,7 @@ import './App.scss';
 
 export const MapContext = createContext(null);
 
-const App = () => {
+export const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
