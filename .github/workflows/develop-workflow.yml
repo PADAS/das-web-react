@@ -29,12 +29,7 @@ jobs:
           token_format: 'access_token'
           workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
-          create_credentials_file: true
       
-      - name: Set GOOGLE_APPLICATION_CREDENTIALS
-        run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}" >> $GITHUB_ENV
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -43,7 +38,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "0.13.7"
+          terraform_version: "1.5.0"
 
       - name: "Configure python"
         uses: actions/setup-python@v5
@@ -91,8 +86,6 @@ jobs:
           cd terraform && terraform init
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Allowlist IP address
         if: steps.validate_env.outputs.site_exists == 'true'
