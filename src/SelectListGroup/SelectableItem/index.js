@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-
-import { ReactComponent as CheckIcon } from '../../common/images/icons/check-light.svg';
+import React, { forwardRef } from 'react';
 
 import styles from './styles.module.scss';
 
@@ -10,72 +8,81 @@ const Ripple = ({ onClick, readOnly, disabled, children }) =>
     {children}
   </div>;
 
-const SelectableItemIcon = ({ isMulti, isChecked, fieldId, hasError }) =>
-  isMulti
-    ? <div className={`${styles.checkboxIconWrapper} ${isChecked ? styles.checked : ''} ${hasError ? styles.iconError : ''}`}
-         data-testid={`selectable-item-icon-${fieldId}`}>
-      <CheckIcon role='img' />
-    </div>
-    : <div className={`${styles.radioIconWrapper} ${isChecked ? styles.checked : ''} ${hasError ? styles.iconError : ''}`}
-         data-testid={`selectable-item-icon-${fieldId}`}>
-      { isChecked && <div className={styles.radioBoxIcon} /> }
-    </div>
-;
-
 const SelectableItem = ({
   className = '',
   hasError,
   disabled = false,
+  focusNextSelectableItem,
+  focusPreviousSelectableItem,
+  groupId,
   isChecked,
   id,
+  isFocused,
   label,
   onClick,
   readOnly = false,
+  setIsFocused,
   value,
-  isMulti = true,
-  ...otherProps
-}) => {
-  const [isFocused, setIsFocused] = useState(false);
+  isMulti = true
+}, ref) => {
+
   const role = isMulti ? 'checkbox' : 'radio';
 
-  const handleOnClick = (event) => {
+  const handleOnChange = (event) => {
+    console.log('has been clicked');
     event?.preventDefault();
     readOnly || disabled || onClick(value, !isChecked);
   };
 
   const handleOnKeyDown = (event) => {
-    if (isFocused && (event.code === 'Enter' || event.code === 'Space')){
-      event.stopPropagation();
-      event.preventDefault();
+    if (isFocused) {
+      switch (event.key) {
+      case 'Enter':
+      case 'Space':
+        event.stopPropagation();
+        event.preventDefault();
+        handleOnChange();
+        break;
 
-      handleOnClick();
+      case 'ArrowDown':
+      case 'ArrowRight':
+        focusNextSelectableItem?.(id);
+        break;
+
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        focusPreviousSelectableItem?.(id);
+        break;
+
+      default:
+        break;
+      }
     }
   };
 
   return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${hasError ? styles.error : ''}`}
-              tabIndex='0'
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              onKeyDown={handleOnKeyDown}
-              aria-checked={isChecked} onClick={handleOnClick}>
-
-    <Ripple readOnly={readOnly} disabled={disabled}>
-      <SelectableItemIcon isMulti={isMulti} isChecked={isChecked} fieldId={id} hasError={hasError} />
+              onKeyDown={handleOnKeyDown}>
+    <Ripple>
+      <input type={role}
+             onFocus={() => setIsFocused(true, id)}
+             onBlur={() => setIsFocused(false, id)}
+             readOnly={readOnly}
+             disabled={disabled}
+             value={value}
+             checked={isChecked}
+             id={id}
+             name={ isMulti ? id : `${groupId}-option`}
+             data-testid={`input-for-${label}`}
+             onChange={handleOnChange}
+             ref={ref} />
     </Ripple>
 
-    <label title={label}>
+    <label title={label} htmlFor={id}>
       {label}
     </label>
-
-    <input type={role}
-           readOnly={readOnly}
-           disabled={disabled}
-           value={value}
-           defaultChecked={isChecked}
-           id={id}
-           data-testid={`input-for-${label}`}
-           {...otherProps} />
   </div>;
 };
 
-export default SelectableItem;
+const SelectableItemWithRef = forwardRef(SelectableItem);
+
+export default SelectableItemWithRef;

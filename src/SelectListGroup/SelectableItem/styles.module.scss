@@ -10,7 +10,7 @@
       font-weight: normal;
       display: inline-block;
       max-width: 35rem;
-      overflow-y: hidden;
+      overflow: hidden;
       text-overflow: ellipsis;
       text-wrap: nowrap;
       width: 100%;
@@ -25,10 +25,16 @@
     label {
       color: colors.$bright-red;
     }
+
   }
 
   input {
-    display: none;
+    width: 1rem;
+    height: 1rem;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 
   .ripple {

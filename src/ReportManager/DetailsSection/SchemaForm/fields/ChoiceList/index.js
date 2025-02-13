@@ -25,16 +25,15 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
 
       <Input
           aria-describedby={hasDescription ? `${id}-description`: ''}
-          aria-errormessage={hasError ? `${id}-description` : ''}
           aria-invalid={hasError}
           hasError={hasError}
-          aria-required={details.isRequired}
           id={id}
           onChange={(newValue) => {
             onFieldChange(id, newValue);
           }}
           value={value}
-          details={details} />
+          details={details}
+          label={label} />
     </label>
 
     {(hasDescription || hasError) && <p

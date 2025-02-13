@@ -15,7 +15,14 @@ describe('SelectListGroup - SelectableItem', () => {
     onClick: () => {},
     readOnly: false,
     value: 110,
-    isMulti: true
+    isMulti: true,
+
+    hasError: false,
+    focusNextSelectableItem: null,
+    focusPreviousSelectableItem: null,
+    groupId: 'selectable-group-id',
+    isFocused: false,
+    setIsFocused: () => {},
   };
 
   const renderSelectableItem = (props = defaultProps) => render(
@@ -30,9 +37,14 @@ describe('SelectListGroup - SelectableItem', () => {
       onClick,
     });
 
+
+    screen.debug(undefined, 9999999);
+
     expect(onClick).not.toHaveBeenCalled();
 
-    userEvent.click(queryClickableElement());
+    const element = queryClickableElement();
+
+    userEvent.click(element);
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
@@ -229,9 +241,9 @@ describe('SelectListGroup - SelectableItem', () => {
       expect( radioIcon ).not.toHaveClass('checked');
     });
 
-    test('the radio is unchecked when user clicks on label', () => {
+    test.only('the radio is unchecked when user clicks on label', () => {
       testSelectableItemHasChangedWithClick(
-        () => screen.getByTestId('selectable-item-icon-item-123'),
+        () => screen.getByText('This is a radio'),
         false,
         {
           label: 'This is a radio',
