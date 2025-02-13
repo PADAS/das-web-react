@@ -152,7 +152,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
   });
 
-  test.only('allow to select multiple options when the choice list is set to multiple selection', async () => {
+  test('allow to select multiple options when the choice list is set to multiple selection', async () => {
     const onFieldChange = jest.fn();
     renderChoiceList({
       ...defaultProps,

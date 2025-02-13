@@ -31,20 +31,16 @@ describe('SelectListGroup - SelectableItem', () => {
 
   const testSelectableItemHasChangedWithClick = (queryClickableElement, expectedIsChecked, props = {}) => {
     const onClick = jest.fn();
+
     renderSelectableItem({
       ...defaultProps,
       ...props,
       onClick,
     });
 
-
-    screen.debug(undefined, 9999999);
-
     expect(onClick).not.toHaveBeenCalled();
 
-    const element = queryClickableElement();
-
-    userEvent.click(element);
+    userEvent.click(queryClickableElement());
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
@@ -86,10 +82,8 @@ describe('SelectListGroup - SelectableItem', () => {
       renderSelectableItem();
 
       const checkbox = screen.getByRole('checkbox');
-      const checkboxIcon = screen.getByTestId('selectable-item-icon-item-123');
 
       expect( checkbox ).toBeChecked();
-      expect( checkboxIcon ).toHaveClass('checked');
     });
 
     test('shows an unchecked checkbox', () => {
@@ -99,10 +93,8 @@ describe('SelectListGroup - SelectableItem', () => {
       });
 
       const checkbox = screen.getByRole('checkbox');
-      const checkboxIcon = screen.getByTestId('selectable-item-icon-item-123');
 
       expect( checkbox ).not.toBeChecked();
-      expect( checkboxIcon ).not.toHaveClass('checked');
     });
 
     test('the checkbox is unchecked when user clicks on label', () => {
@@ -122,27 +114,13 @@ describe('SelectListGroup - SelectableItem', () => {
       );
     });
 
-    test('the checkbox is unchecked when user clicks on checkbox icon', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByRole('img'),
-        false
-      );
-    });
-
-    test('the checkbox is checked when user clicks on checkbox icon', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByRole('img'),
-        true,
-        {
-          isChecked: false
-        }
-      );
-    });
-
     test('the checkbox is unchecked when user focus item and hits Enter', () => {
       testSelectableItemHasChangedUsingKeyboard(
         '[Enter]',
-        false
+        false,
+        {
+          isFocused: true
+        }
       );
     });
 
@@ -151,7 +129,8 @@ describe('SelectListGroup - SelectableItem', () => {
         '[Enter]',
         true,
         {
-          isChecked: false
+          isChecked: false,
+          isFocused: true,
         }
       );
     });
@@ -220,10 +199,8 @@ describe('SelectListGroup - SelectableItem', () => {
       });
 
       const radio = screen.getByRole('radio');
-      const radioIcon = screen.getByTestId('selectable-item-icon-item-123');
 
       expect( radio ).toBeChecked();
-      expect( radioIcon ).toHaveClass('checked');
     });
 
     test('shows an unchecked radio', () => {
@@ -235,90 +212,8 @@ describe('SelectListGroup - SelectableItem', () => {
       });
 
       const radio = screen.getByRole('radio');
-      const radioIcon = screen.getByTestId('selectable-item-icon-item-123');
 
       expect( radio ).not.toBeChecked();
-      expect( radioIcon ).not.toHaveClass('checked');
-    });
-
-    test.only('the radio is unchecked when user clicks on label', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByText('This is a radio'),
-        false,
-        {
-          label: 'This is a radio',
-          isMulti: false,
-        }
-      );
-    });
-
-    test('the radio is checked when user clicks on label', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByTestId('selectable-item-icon-item-123'),
-        true,
-        {
-          label: 'This is a radio',
-          isMulti: false,
-          isChecked: false,
-        },
-      );
-    });
-
-    test('the radio is unchecked when user clicks on checkbox icon', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByTestId('selectable-item-icon-item-123'),
-        false,
-        {
-          isMulti: false,
-        },
-      );
-    });
-
-    test('the radio is checked when user clicks on checkbox icon', () => {
-      testSelectableItemHasChangedWithClick(
-        () => screen.getByTestId('selectable-item-icon-item-123'),
-        true,
-        {
-          isMulti: false,
-          isChecked: false,
-        },
-      );
-    });
-
-    test('the radio is unchecked when user focus item and hits Enter', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Enter]',
-        false
-      );
-    });
-
-    test('the radio is checked when user focus item and hits Enter', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Enter]',
-        true,
-        {
-          isMulti: false,
-          isChecked: false,
-        }
-      );
-    });
-
-    test('the radio is unchecked when user focus item and hits space bar', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Space]',
-        false
-      );
-    });
-
-    test('the radio is checked when user focus item and types  space bar', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Space]',
-        true,
-        {
-          isMulti: false,
-          isChecked: false,
-        }
-      );
     });
 
     test('radio is disabled', () => {

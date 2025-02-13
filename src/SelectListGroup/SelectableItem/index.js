@@ -29,7 +29,6 @@ const SelectableItem = ({
   const role = isMulti ? 'checkbox' : 'radio';
 
   const handleOnChange = (event) => {
-    console.log('has been clicked');
     event?.preventDefault();
     readOnly || disabled || onClick(value, !isChecked);
   };
@@ -77,7 +76,7 @@ const SelectableItem = ({
              ref={ref} />
     </Ripple>
 
-    <label title={label} htmlFor={id}>
+    <label htmlFor={id}>
       {label}
     </label>
   </div>;

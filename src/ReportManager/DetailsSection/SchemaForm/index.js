@@ -40,7 +40,6 @@ const SchemaForm = ({
   const fields = useMemo(() => makeFieldsFromSchema(schema), [schema]);
 
   const onSectionFieldChange = useCallback((fieldId, value) => {
-    console.log(value);
     setFormData((formData) => ({ ...formData, [fieldId]: value }));
 
     shouldSendFormDataChangeRef.current = true;
@@ -56,7 +55,9 @@ const SchemaForm = ({
       // If there are validation errors we focus the first erroneous field if it is visible (it may be inside a
       // collection).
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
-      document.getElementById(idOfFirstErroneousField)?.focus();
+      const elementWithError = document.getElementById(idOfFirstErroneousField);
+      elementWithError?.scrollIntoView?.();
+      elementWithError?.focus();
     } else {
       onFormSubmit();
     }

@@ -21,10 +21,10 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
 
   return <div>
     <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
-      {label}
-
+      { details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN ?  label : '' }
       <Input
           aria-describedby={hasDescription ? `${id}-description`: ''}
+          aria-errormessage={hasError ? `${id}-description` : undefined}
           aria-invalid={hasError}
           hasError={hasError}
           id={id}

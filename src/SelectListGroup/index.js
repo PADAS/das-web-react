@@ -6,8 +6,8 @@ import styles from './styles.module.scss';
 
 const calculateOptionValue = (option, getOptionValue = null) => option.value ?? getOptionValue?.(option);
 
-const isOptionChecked = (option, currentSelectListValue, isMulti, isListEmpty) => {
-  const optionValue = calculateOptionValue(option);
+const isOptionChecked = (option, currentSelectListValue, isMulti, isListEmpty, getOptionValue = null) => {
+  const optionValue = calculateOptionValue(option, getOptionValue);
   if (isMulti) {
     return isListEmpty ? false : currentSelectListValue.includes(optionValue);
   }
@@ -35,7 +35,7 @@ const SelectListGroup = ({
     const label = option.label ?? getOptionLabel?.(option);
     const value = calculateOptionValue(option, getOptionValue);
     return {
-      isChecked: isOptionChecked(option, selectListValue, isMulti, !selectListValue || selectListValue?.length === 0),
+      isChecked: isOptionChecked(option, selectListValue, isMulti, !selectListValue || selectListValue?.length === 0, getOptionValue),
       id: `${id}-${value}`,
       label,
       value,
@@ -46,8 +46,8 @@ const SelectListGroup = ({
     id,
     isFocused: false
   })));
-  const [autoFocusOptionId, setAutoFocusOptionId] = useState(null);
 
+  const [autoFocusOptionId, setAutoFocusOptionId] = useState(null);
   const autoFocusRef = useRef(null);
 
   const handleOptionIsFocused = (isOptionFocused, optionId) => {
@@ -81,7 +81,10 @@ const SelectListGroup = ({
     const autoFocusedOptionIndex = focusNextElement
       ? focusedOptionIndex !== areOptionsFocused.length - 1 ? focusedOptionIndex + 1 : focusedOptionIndex
       : focusedOptionIndex > 0 ? focusedOptionIndex - 1 : focusedOptionIndex;
-    setAutoFocusOptionId(areOptionsFocused[autoFocusedOptionIndex].id);
+
+    if (focusedOptionIndex !== autoFocusedOptionIndex){
+      setAutoFocusOptionId(areOptionsFocused[autoFocusedOptionIndex].id);
+    }
   };
 
   useEffect(() => {

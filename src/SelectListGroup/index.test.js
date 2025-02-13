@@ -29,8 +29,10 @@ describe('SelectListGroup', () => {
     options,
     onChange: () => {},
     readOnly: false,
-    value: null
+    value: null,
+    label: 'A selectable group'
   };
+
 
   const renderSelectListGroup = (props = initialProps) => render(
     <SelectListGroup {...props} />

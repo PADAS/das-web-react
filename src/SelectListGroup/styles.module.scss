@@ -5,9 +5,23 @@
   padding: 0.2rem;
   border-radius: 0.5rem;
 
+  legend {
+    width: 100%;
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    margin-bottom: 0.125rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+  }
+
   &.error {
     border-color: colors.$bright-red;
+
+    legend {
+      color: colors.$bright-red;
+    }
   }
+
 }
 
 
