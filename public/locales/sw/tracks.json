@@ -47,8 +47,8 @@
       "title": "Wakati wa siku"
     },
     "timeOfDaySettingsButtonLabel": {
-      "active": "Amua rangi kwa wakati wa siku",
-      "inactive": "Zima rangi kwa wakati wa siku"
+      "active": "Zima rangi kwa wakati wa siku",
+      "inactive": "Amua rangi kwa wakati wa siku"
     },
     "trackSettings": {
       "closeButtonLabel": "Funga mipangilio ya nyimbo",

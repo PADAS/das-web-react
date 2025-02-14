@@ -47,8 +47,8 @@
       "title": "Time of Day"
     },
     "timeOfDaySettingsButtonLabel": {
-      "active": "Activate the time of day coloring",
-      "inactive": "Deactivate the time of day coloring"
+      "active": "Deactivate the time of day coloring",
+      "inactive": "Activate the time of day coloring"
     },
     "trackSettings": {
       "closeButtonLabel": "Close the track settings",

@@ -47,8 +47,8 @@
       "title": "Heure de la journée"
     },
     "timeOfDaySettingsButtonLabel": {
-      "active": "Activer la coloration par heure de la journée",
-      "inactive": "Désactiver la coloration par heure de la journée"
+      "active": "Désactiver la coloration par heure de la journée",
+      "inactive": "Activer la coloration par heure de la journée"
     },
     "trackSettings": {
       "closeButtonLabel": "Fermer les paramètres des trajectoires",
