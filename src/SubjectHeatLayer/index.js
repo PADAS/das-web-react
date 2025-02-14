@@ -2,12 +2,12 @@ import React, { memo, useEffect, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
-import { trimmedHeatmapTrackData } from '../selectors/tracks';
+import { selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope } from '../selectors/tracks';
 
 import HeatLayer from '../HeatLayer';
 
 const SubjectHeatLayer = () => {
-  const trackData = useSelector(trimmedHeatmapTrackData);
+  const trackData = useSelector(selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope);
 
   const [points, setPoints] = useState(featureCollection([]));
 

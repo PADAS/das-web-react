@@ -83,8 +83,6 @@ const CursorGpsDisplay = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  if (!isValidLocation) return null;
-
   return <Dropdown
       align="end"
       data-testid="cursorGpsDisplay-dropdown"
@@ -97,7 +95,7 @@ const CursorGpsDisplay = () => {
         <SearchIcon title={t('titleIconSearch')} />
       </div>
 
-      {calcGpsDisplayString(cursorCoordinates.lat, cursorCoordinates.lng, gpsFormat)}
+      {isValidLocation && calcGpsDisplayString(cursorCoordinates.lat, cursorCoordinates.lng, gpsFormat)}
     </Dropdown.Toggle>
 
     <Dropdown.Menu className={styles.menu}>

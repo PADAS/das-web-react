@@ -45,7 +45,7 @@ describe('SubjectPopup', () => {
           active: false,
           virtualDate: null,
         },
-        trackLength: {
+        trackSettings: {
           origin: 'customLength',
           length: 21,
         },

@@ -9,24 +9,63 @@
       "removeButton": "remove"
     }
   },
-  "trackLegend": {
-    "multipleSubjectsTitle": "{{count}} subjects",
-    "titleElement": {
-      "icon": "Icon for {{title}}",
-      "pointCount_one": "{{count}} point",
-      "pointCount_other": "{{count}} points",
-      "pointsOverTimeSpan": "{{pointCount}} points over {{trackDuration}}",
-      "removeButton": "remove"
+  "subjectTrackLegend": {
+    "clearTracksButton": "Clear Tracks",
+    "icon": "Icon for {{title}}",
+    "multipleSubjectTracksTitle": "{{count}} subjects",
+    "pointsOverTime": "{{pointCount}} points over {{trackTime}}",
+    "subjectTrackList": {
+      "closeButtonLabel": "Close the list of subjects",
+      "subjectTracksItem": {
+        "icon": "Icon for {{title}}",
+        "pointCount_one": "{{count}} point",
+        "pointCount_other": "{{count}} points",
+        "removeButton": "Remove"
+      },
+      "title": "Subjects"
+    },
+    "subjectTracksListButtonLabel": {
+      "closed": "Open the list of subjects",
+      "open": "Close the list of subjects"
+    },
+    "timeOfDaySettings": {
+      "chevronButtonLabel": {
+        "closed": "Expand the time of day settings",
+        "open": "Collapse the time of day settings"
+      },
+      "coloredTimeSquarLabels": {
+        "americanYellow": "American yellow",
+        "fandangoPink": "Fandango pink",
+        "green": "green",
+        "lapisLazuli": "Lapis lazuli",
+        "majorelleBlue": "Majorelle blue",
+        "purplePlum": "Purple plum",
+        "spanishGreen": "Spanish green",
+        "titaniumYellow": "Titanium yellow"
+      },
+      "informationTooltip": "Track colors are estimations based on tracking data provided. Speed and dwell are not taken into account.",
+      "title": "Time of Day"
+    },
+    "timeOfDaySettingsButtonLabel": {
+      "active": "Activate the time of day coloring",
+      "inactive": "Deactivate the time of day coloring"
+    },
+    "trackSettings": {
+      "closeButtonLabel": "Close the track settings",
+      "customLengthErrorMessage": "Please enter a track length between {{min}} and {{max}}.",
+      "customLengthRadioLabel": "Custom length",
+      "customLengthInputLabel": "Track length in days",
+      "eventFilterRadioLabel": "Match event filter \"from\" date ({{length}} days)",
+      "title": "Track Settings",
+      "trackLengthLegend": "Track Length"
+    },
+    "trackSettingsButtonLabel": {
+      "closed": "Open the track settings",
+      "open": "Close the track settings"
     }
   },
   "trackLength": {
     "length": "{{length}} kilometers",
     "title": "Track length"
-  },
-  "trackLengthControls": {
-    "customLengthLabel": "Custom length",
-    "header": "Track Length:",
-    "invalidCustomLengthAlert": "Please enter a track length between {{min}} and {{max}}.",
-    "matchReportFilterDateLabel": "Match event filter \"from\" date ({{reportFilterDateRangeLength}} days)"
   }
 }

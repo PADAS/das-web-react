@@ -1,0 +1,91 @@
+@use 'sass:color';
+
+@use '../../common/styles/vars/colors';
+
+.trackSettings {
+  background: colors.$light-gray;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+
+  .header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+
+    .title {
+      color: black;
+      margin: 0;
+    }
+
+    .closeButton {
+      background: none;
+      border: none;
+      border-radius: .1875rem;
+      color: colors.$secondary-medium-gray;
+      padding: 0rem 0.5rem;
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+
+      .crossIcon {
+        height: 0.75rem;
+        width: 0.75rem;
+      }
+    }
+  }
+
+  .trackLengthLegend {
+    color: black;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .radioButton {
+    align-items: center;
+    display: flex;
+
+    .input {
+      height: 0.875rem;
+      outline-color: colors.$bright-blue;
+      width: 0.875rem;
+    }
+
+    .label {
+      color: black;
+      font-size: 0.875rem;
+      margin-left: 0.25rem;
+    }
+  }
+
+  .customLengthInputs {
+    align-items: center;
+    display: flex;
+    padding-left: 1rem;
+
+    .rangeInput {
+      margin-right: 0.5rem;
+      min-width: 10rem;
+    }
+
+    .numberInput {
+      max-width: 4rem;
+    }
+  }
+
+  .customLengthErrorMessage {
+    color: colors.$bright-red;
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin: 0;
+    margin-left: 1rem;
+  }
+}

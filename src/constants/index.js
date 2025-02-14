@@ -337,3 +337,8 @@ export const EVENT_SORT_OPTIONS = [
 export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
+
+export const BOOTSTRAP_DEFAULTS = {
+  COLLAPSE_TRANSITION_TIME: 300,
+  MODAL_ZINDEX: 1055,
+};

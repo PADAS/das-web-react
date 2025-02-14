@@ -14,7 +14,7 @@ import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
-import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
+import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
@@ -60,7 +60,7 @@ const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', 
 const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
-const trackLengthPersistenceConfig = generateStorageConfig('trackLength');
+const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
 const schemaSelectorPersistenceConfig = generateStorageConfig('schemaSelector');
 
@@ -129,7 +129,7 @@ const rootReducer = combineReducers({
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
     schemaSelector: persistReducer(schemaSelectorPersistenceConfig, schemaSelectorReducer), /*ToDo: Remove reducer once mock data is no longer needed for EFB support*/
-    trackLength: persistReducer(trackLengthPersistenceConfig, trackDateRangeReducer),
+    trackSettings: persistReducer(trackSettingsPersistenceConfig, trackSettingsReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,

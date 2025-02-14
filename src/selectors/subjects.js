@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect';
 
 import { getTimeSliderState } from './';
-import { tracks } from './tracks';
 
 import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
@@ -14,6 +13,7 @@ export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const getSystemConfig = ({ view: { systemConfig } }) => systemConfig;
 const getUserPermissions = ({ data: { user, selectedUserProfile } }) => (selectedUserProfile.id ? selectedUserProfile : user).permissions || {};
+const selectTracks = (state) => state.data.tracks;
 
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
@@ -64,7 +64,7 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, tracks, getTimeSliderState],
+  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, selectTracks, getTimeSliderState],
   (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
 

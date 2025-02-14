@@ -22,9 +22,10 @@ import {
 import styles from './styles.module.scss';
 
 const NumericInput = ({
+  className = '',
   disabled = false,
   id,
-  inputAriaProps= {},
+  inputProps= {},
   inputClassName = '',
   max = '',
   min = '',
@@ -33,6 +34,7 @@ const NumericInput = ({
   required = false,
   readOnly = false,
   blockOutOfRangeValues = true,
+  title = '',
   value = '',
   ...otherProps
 },
@@ -114,7 +116,7 @@ ref) => {
   };
 
 
-  return <div className={styles.numericInput} role='group' {...otherProps}>
+  return <div className={`${styles.numericInput} ${className}`} role='group' {...otherProps}>
     <input id={id}
            className={inputClassName}
            type="text"
@@ -128,8 +130,9 @@ ref) => {
            placeholder={placeholder}
            required={required}
            aria-label={t('numericInputLabel')}
-           {...inputAriaProps}
-           ref={ref} />
+           {...inputProps}
+           ref={ref}
+           title={title} />
     {
       !readOnly && (
       <div className={styles.controls}>

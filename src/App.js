@@ -50,7 +50,7 @@ export const App = () => {
   const showGeoPermWarningMessage = useSelector(
     (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
   );
-  const trackLength = useSelector((state) => state.view.trackLength);
+  const trackSettings = useSelector((state) => state.view.trackSettings);
 
   const socket = useContext(SocketContext);
 
@@ -111,7 +111,7 @@ export const App = () => {
         }
         if (results.track_length) {
           const { track_length } = results;
-          const { defaultCustomTrackLength, length } = trackLength;
+          const { defaultCustomTrackLength, length } = trackSettings;
           if (defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
             dispatch(setTrackLength(track_length));
             dispatch(setDefaultCustomTrackLength(track_length));

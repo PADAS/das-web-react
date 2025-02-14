@@ -9,24 +9,63 @@
       "removeButton": "remover"
     }
   },
-  "trackLegend": {
-    "multipleSubjectsTitle": "{{count}} sujetos",
-    "titleElement": {
-      "icon": "Ícono para {{title}}",
-      "pointCount_one": "{{count}} punto",
-      "pointCount_other": "{{count}} puntos",
-      "pointsOverTimeSpan": "{{pointCount}} puntos en {{trackDuration}}",
-      "removeButton": "remover"
+  "subjectTrackLegend": {
+    "clearTracksButton": "Limpiar trayectorias",
+    "icon": "Icono para {{title}}",
+    "multipleSubjectTracksTitle": "{{count}} sujetos",
+    "pointsOverTime": "{{pointCount}} puntos en {{trackTime}}",
+    "subjectTrackList": {
+      "closeButtonLabel": "Cerrar la lista de sujetos",
+      "subjectTracksItem": {
+        "icon": "Icono para {{title}}",
+        "pointCount_one": "{{count}} punto",
+        "pointCount_other": "{{count}} puntos",
+        "removeButton": "Eliminar"
+      },
+      "title": "Sujetos"
+    },
+    "subjectTracksListButtonLabel": {
+      "closed": "Abrir la lista de sujetos",
+      "open": "Cerrar la lista de sujetos"
+    },
+    "timeOfDaySettings": {
+      "chevronButtonLabel": {
+        "closed": "Expandir la configuración de la hora del día",
+        "open": "Contraer la configuración de la hora del día"
+      },
+      "coloredTimeSquarLabels": {
+        "americanYellow": "Amarillo americano",
+        "fandangoPink": "Rosa fandango",
+        "green": "verde",
+        "lapisLazuli": "Lapislázuli",
+        "majorelleBlue": "Azul majorelle",
+        "purplePlum": "Ciruela púrpura",
+        "spanishGreen": "Verde español",
+        "titaniumYellow": "Amarillo titanio"
+      },
+      "informationTooltip": "Los colores de las trayectorias son estimaciones basadas en los datos de trayectorias proporcionados. La velocidad y el tiempo de permanencia no se tienen en cuenta.",
+      "title": "Hora del día"
+    },
+    "timeOfDaySettingsButtonLabel": {
+      "active": "Activar la coloración por hora del día",
+      "inactive": "Desactivar la coloración por hora del día"
+    },
+    "trackSettings": {
+      "closeButtonLabel": "Cerrar la configuración de trayectorias",
+      "customLengthErrorMessage": "Por favor, introduce una duración de trayectoria entre {{min}} y {{max}}.",
+      "customLengthRadioLabel": "Duración personalizada",
+      "customLengthInputLabel": "Duración de la trayectoria en días",
+      "eventFilterRadioLabel": "Coincidir con el filtro de eventos \"desde\" la fecha ({{length}} días)",
+      "title": "Configuración de trayectorias",
+      "trackLengthLegend": "Duración de la trayectoria"
+    },
+    "trackSettingsButtonLabel": {
+      "closed": "Abrir la configuración de trayectorias",
+      "open": "Cerrar la configuración de trayectorias"
     }
   },
   "trackLength": {
     "length": "{{length}} kilómetros",
     "title": "Longitud de trayectoria"
-  },
-  "trackLengthControls": {
-    "customLengthLabel": "Longitud personalizada",
-    "header": "Longitud de trayectoria:",
-    "invalidCustomLengthAlert": "Por favor ingrese una longitud de trayectoria entre {{min}} y {{max}}.",
-    "matchReportFilterDateLabel": "Igualar al valor \"desde\" de la fecha en el filtro de eventos ({{reportFilterDateRangeLength}} días)"
   }
 }

@@ -2,13 +2,13 @@ import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { patrolsWithTrackShown } from '../selectors/patrols';
-import { trackTimeEnvelope as trackTimeEnvelopeSelector } from '../selectors/tracks';
+import { selectTrackTimeEnvelope } from '../selectors/tracks';
 
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
 const PatrolTracks = (props) => {
   const patrols = useSelector(patrolsWithTrackShown);
-  const trackTimeEnvelope = useSelector(trackTimeEnvelopeSelector);
+  const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
   return patrols.map((patrol, index) => <PatrolTrackLayer
     key={`patrol-track-${patrol.id}-${index}`}

@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
-import Popover from 'react-bootstrap/Popover';
+import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -10,31 +10,24 @@ import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapLegend = (props) => {
-  const { onClose, settingsComponent, titleElement: Title, ...rest } = props;
-  return <div className={`${styles.legend} ${styles.closedLegend}`} {...rest}>
-    {Title}
-    <button className={styles.close} onClick={onClose}>
-      <CloseIcon />
-    </button>
-    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom'
-      onEntered={() => mapInteractionTracker.track('Heatmap Settings Clicked')}
-      overlay={
-        <Popover className={styles.controlPopover}>
-          {settingsComponent}
-        </Popover>
-      }>
-      <button type="button" className={styles.gearButton}></button>
-    </OverlayTrigger>}
-  </div>;
+const MapLegend = ({ onClose, renderSettings = null, renderTitle }) => <div className={styles.mapLegend}>
+  {renderTitle()}
 
-};
+  <button className={styles.close} onClick={onClose}>
+    <CloseIcon />
+  </button>
 
-export default memo(MapLegend);
+  {renderSettings && <OverlayTrigger
+    onEntered={() => mapInteractionTracker.track('Heatmap Settings Clicked')}
+    overlay={<Popover className={styles.controlPopover}>
+      {renderSettings()}
+    </Popover>}
+    placement="bottom"
+    rootClose
+    trigger="click"
+  >
+    <button className={styles.gearButton} type="button" />
+  </OverlayTrigger>}
+</div>;
 
-
-MapLegend.propTypes = {
-  titleElement: PropTypes.element.isRequired,
-  onClose: PropTypes.func.isRequired,
-  settingsComponent: PropTypes.element,
-};
+export default MapLegend;

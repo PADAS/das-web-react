@@ -16,7 +16,10 @@ export const FETCH_EVENT_TYPES_SUCCESS = 'FETCH_EVENT_TYPES_SUCCESS';
 // Action creators
 export const fetchEventTypes = () => async (dispatch) => {
   const eventTypesResponse = await axios.get(EVENT_TYPES_API_URL);
-  const eventTypesV2Response = await axios.get(EVENT_TYPES_V2_API_URL);
+  // TODO: Remove this condition once the GET eventtypes v2 endpoint works
+  const eventTypesV2Response = USE_EVENT_TYPES_V2_MOCK_API
+    ? await axios.get(EVENT_TYPES_V2_API_URL)
+    : { data: { data: [] } };
 
   // Technical debt: the eventTypes reducer is stored as an array, which makes the finding operations expensive for
   // selectors. It would be better to have a key - value data structure but doing that change will require a

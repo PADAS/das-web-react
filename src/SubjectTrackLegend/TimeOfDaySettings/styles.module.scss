@@ -1,0 +1,116 @@
+@use 'sass:color';
+
+@use '../../common/styles/vars/colors';
+
+.timeOfDaySettings {
+  background: colors.$light-gray;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+
+  .header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+
+    .titleWrapper {
+      align-items: center;
+      display: flex;
+
+      .title {
+        color: black;
+        margin: 0;
+        margin-right: 0.5rem;
+      }
+
+      .informationIcon {
+        color: colors.$secondary-medium-light-gray;
+        height: 1.125rem;
+        width: 1.125rem;
+      }
+    }
+
+    .chevronButton {
+      background: none;
+      border: none;
+      border-radius: .1875rem;
+      color: colors.$secondary-medium-gray;
+      padding: 0rem 0.5rem;
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+
+      .arrowIcon {
+        height: 0.75rem;
+        width: 0.75rem;
+      }
+    }
+  }
+
+  .coloringDescription {
+    display: flex;
+
+    .gradient {
+      background: linear-gradient(#F2E200 0%, #DF3897 25%, #5C4FE7 50%, #009552 75%, #F2E200 100%);
+      margin-right: 0.5rem;
+      width: 0.75rem;
+    }
+
+    .coloredTimesList {
+      margin: 0;
+
+      .item {
+        align-items: center;
+        color: black;
+        display: flex;
+        font-size: 0.875rem;
+
+        .square {
+          height: 0.75rem;
+          margin-right: 0.25rem;
+          width: 0.75rem;
+    
+          &.titaniumYellow {
+            background-color: #F2E200;
+          }
+
+          &.americanYellow {
+            background-color: #F2A900;
+          }
+
+          &.fandangoPink {
+            background-color: #E14C85;
+          }
+
+          &.purplePlum {
+            background-color: #9845C2;
+          }
+
+          &.majorelleBlue {
+            background-color: #5C4FE7;
+          }
+
+          &.lapisLazuli {
+            background-color: #336FA4;
+          }
+
+          &.spanishGreen {
+            background-color: #009552;
+          }
+
+          &.green {
+            background-color: #62B431;
+          }
+        }
+      }
+    }
+  }
+}
