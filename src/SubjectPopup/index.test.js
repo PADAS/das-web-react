@@ -7,6 +7,8 @@ import { GPS_FORMATS } from '../utils/location';
 
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
 
+import eventCategories from '../__test-helpers/fixtures/event-categories';
+import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { render, screen } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -24,6 +26,8 @@ describe('SubjectPopup', () => {
   beforeEach(() => {
     state = {
       data: {
+        eventCategories,
+        eventTypes,
         eventFilter: {
           filter: {
             date_range: {

@@ -1,11 +1,12 @@
 import { combineReducers } from 'redux';
+import localForage from 'localforage';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import localForage from 'localforage';
 
 import { generateStorageConfig } from './storage-config';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
@@ -76,6 +77,7 @@ const rootReducer = combineReducers({
     eventFilter: persistReducer(eventFilterPersistenceConfig, eventFilterReducer),
     patrolFilter: persistReducer(patrolFilterPersistenceConfig, patrolFilterReducer),
     eventSchemas: eventSchemaReducer,
+    eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
     mapLayerFilter: persistReducer(
