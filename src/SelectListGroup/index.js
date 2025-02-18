@@ -43,26 +43,17 @@ const SelectListGroup = ({
     };
   }), [options, getOptionLabel, getOptionValue, initialValue, isMulti, id]);
 
-  const [areOptionsFocused, setAreOptionsFocused] = useState(() => optionsState.map(({ id }) => ({
-    id,
-    isFocused: false
-  })));
+  const [focusedOptionId, setFocusedOptionId] = useState(null);
 
   const [autoFocusOptionId, setAutoFocusOptionId] = useState(null);
   const autoFocusRef = useRef(null);
 
-  const handleOptionIsFocused = (isOptionFocused, optionId) => {
-    const newOptionsIsFocused = areOptionsFocused.map((option) => {
-      if (option.id === optionId) {
-        option.isFocused = isOptionFocused;
-      }
-      return option;
-    });
+  const handleOptionIsFocused = (isOptionFocused, optionId) =>
+    setFocusedOptionId(
+      isOptionFocused ? optionId : null
+    );
 
-    setAreOptionsFocused(newOptionsIsFocused);
-  };
-
-  const isOptionFocused = (optionId) => !!areOptionsFocused.find((option) => option.id === optionId)?.isFocused;
+  const isOptionFocused = (optionId) => optionId === focusedOptionId;
 
   const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
@@ -78,13 +69,13 @@ const SelectListGroup = ({
   };
 
   const autoFocusSelectableItem = (currentFocusedOptionId, focusNextElement = true) => {
-    const focusedOptionIndex = areOptionsFocused.findIndex((option) => currentFocusedOptionId === option.id);
+    const focusedOptionIndex = optionsState.findIndex((option) => currentFocusedOptionId === option.id);
     const autoFocusedOptionIndex = focusNextElement
-      ? focusedOptionIndex !== areOptionsFocused.length - 1 ? focusedOptionIndex + 1 : focusedOptionIndex
+      ? focusedOptionIndex !== optionsState.length - 1 ? focusedOptionIndex + 1 : focusedOptionIndex
       : focusedOptionIndex > 0 ? focusedOptionIndex - 1 : focusedOptionIndex;
 
     if (focusedOptionIndex !== autoFocusedOptionIndex){
-      setAutoFocusOptionId(areOptionsFocused[autoFocusedOptionIndex].id);
+      setAutoFocusOptionId(optionsState[autoFocusedOptionIndex].id);
     }
   };
 
