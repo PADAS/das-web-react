@@ -55,44 +55,44 @@ export const trackTimeEnvelope = createSelector([trackLength, (...args) => getTi
     return { from: trackLengthStartDate, until: null };
   });
 
-const TIME_OF_DAY_RANGES = {
-  0: {
+const TIME_OF_DAY_RANGES = [
+  {
     from: { hour: 12, min: 1 },
     to: { hour: 15, min: 0 }
   },
-  1: {
+  {
     from: { hour: 15, min: 1 },
     to: { hour: 18, min: 0 }
   },
-  2: {
+  {
     from: { hour: 18, min: 1 },
     to: { hour: 21, min: 0 }
   },
-  3: {
+  {
     from: { hour: 21, min: 1 },
     to: { hour: 0, min: 0 }
   },
-  4: {
+  {
     from: { hour: 0, min: 1 },
     to: { hour: 3, min: 0 }
   },
-  5: {
+  {
     from: { hour: 3, min: 1 },
     to: { hour: 6, min: 0 }
   },
-  6: {
+  {
     from: { hour: 6, min: 1 },
     to: { hour: 9, min: 0 }
   },
-  7: {
+  {
     from: { hour: 9, min: 1 },
     to: { hour: 12, min: 0 }
   },
-  8: {
+  {
     from: { hour: 12, min: 1 },
     to: { hour: 15, min: 0 }
-  },
-};
+  }
+];
 
 const getTimeOfDayRangeLabel = (key) => {
   const range = TIME_OF_DAY_RANGES[key];
@@ -112,18 +112,15 @@ const COLORED_TIME_ITEMS = [
 ];
 
 
-/* ToDo:
-*   - Use a better way to define range id/keys
-*   - add refactors
- */
 const addNewPropBasedOnTime = (time) => {
+  // convert time based on selected timezone
   const dateTimeObject = new Date(time);
   const hour = getHours(dateTimeObject);
   const min = getMinutes(dateTimeObject);
   let timeOfDayRange = null;
 
-  for (const [key, range] of Object.entries(TIME_OF_DAY_RANGES)) {
-    const { from, to } = range;
+  for (let key = 0; key < TIME_OF_DAY_RANGES.length; key++) {
+    const { from, to } = TIME_OF_DAY_RANGES[key];
     if ( (hour >= from.hour && min >= from.min) && (hour <= to.hour && min <= to.min) ){
       timeOfDayRange = key;
       break;
@@ -153,6 +150,10 @@ const addTimeLegendSomething = (trackData) => {
     };
   });
 };
+
+
+///background: linear-gradient(90deg, #F2E200 0%, #DF3897 25%, #5C4FE7 50%, #009552 75%, #F2E200 100%);
+
 
 export const trimmedVisibleTrackData = createSelector(
   [visibleTrackData, trackTimeEnvelope],
