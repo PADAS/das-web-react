@@ -50,16 +50,6 @@ const CursorGpsDisplay = () => {
     onSearchCoordinates();
   }, [onSearchCoordinates]);
 
-  const onGPSInputChange = useCallback((location) => setGpsInputValue(location), []);
-
-  const onGPSInputKeyDown = useCallback((event) => {
-    if (event.key === 'Enter') {
-      onSearchCoordinates();
-    }
-  }, [onSearchCoordinates]);
-
-  const onToggle = useCallback(() => setIsOpen(!isOpen), [isOpen]);
-
   useEffect(() => {
     if (map) {
       const onMouseMove = (event) => setCursorCoordinates(event.lngLat);
@@ -86,7 +76,7 @@ const CursorGpsDisplay = () => {
   return <Dropdown
       align="end"
       data-testid="cursorGpsDisplay-dropdown"
-      onToggle={onToggle}
+      onToggle={() => setIsOpen(!isOpen)}
       ref={dropdownRef}
       show={isOpen}
     >
@@ -102,8 +92,8 @@ const CursorGpsDisplay = () => {
       <GpsInput
         buttonContent={<SearchIcon title={t('titleIconSearch')} className={styles.searchButton} />}
         onButtonClick={onGPSInputButtonClick}
-        onKeyDown={onGPSInputKeyDown}
-        onValidChange={onGPSInputChange}
+        onKeyDown={(event) => event.key === 'Enter' && onSearchCoordinates()}
+        onValidChange={(location) => setGpsInputValue(location)}
         tooltip={t('gpsDisplayTooltip')}
       />
     </Dropdown.Menu>

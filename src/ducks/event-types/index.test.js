@@ -32,8 +32,9 @@ describe('Ducks - Event types', () => {
       payload: [
         { ...snareTypeV1, version: 1 },
         { ...spoorTypeV1, version: 1 },
-        { ...animalControlTypeV2, version: 2 },
-        { ...fireTypeV2, version: 2 },
+        // TODO: Add these once the GET eventtypes v2 endpoint works
+        // { ...animalControlTypeV2, version: 2 },
+        // { ...fireTypeV2, version: 2 },
       ],
       type: FETCH_EVENT_TYPES_SUCCESS,
     });

@@ -2,8 +2,8 @@ import { createSelector } from 'reselect';
 import { differenceInCalendarDays, subDays } from 'date-fns';
 import uniq from 'lodash/uniq';
 
-import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
+import { trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;

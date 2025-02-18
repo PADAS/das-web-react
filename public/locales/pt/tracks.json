@@ -20,7 +20,8 @@
             "icon": "Ícone para {{title}}",
             "pointCount_one": "{{count}} ponto",
             "pointCount_other": "{{count}} pontos",
-            "removeButton": "Remover"
+            "removeButton": "Remover",
+            "removeButtonLabel": "Remover {{title}}"
           },
           "title": "Sujeitos"
         },

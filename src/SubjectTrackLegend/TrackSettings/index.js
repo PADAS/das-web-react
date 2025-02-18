@@ -22,13 +22,13 @@ const TrackSettings = ({ onClose }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend.trackSettings' });
 
-  const eventFilterDateRange = useSelector((state) => state.data.eventFilter.filter.date_range);
+  const lowerEventFilterDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
   const [customLength, setCustomLength] = useState(trackSettings.length);
   const [isCustomLengthValid, setIsCustomLengthValid] = useState(true);
 
-  const lengthFromEventFilterLowerRangeToToday = differenceInCalendarDays(new Date(), eventFilterDateRange.lower);
+  const lengthFromEventFilterLowerRangeToToday = differenceInCalendarDays(new Date(), lowerEventFilterDateRange);
 
   const onTrackLengthChange = (event) => {
     dispatch(setTrackLengthOrigin(event.target.value));

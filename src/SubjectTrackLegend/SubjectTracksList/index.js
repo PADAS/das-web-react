@@ -9,14 +9,15 @@ import styles from './styles.module.scss';
 const SubjectTracksItem = ({ onRemove, track }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend.subjectTrackList.subjectTracksItem' });
 
-  const subjectStore = useSelector((state) => state.data.subjectStore);
+  const subjectId = track.features[0].properties.id;
+
+  const subject = useSelector((state) => state.data.subjectStore[subjectId]);
 
   const image = track.features[0].properties.image;
   const pointCount = track.features[0].geometry?.coordinates.length || 0;
-  const subjectId = track.features[0].properties.id;
   const title = track.features[0].properties.title;
 
-  const subjectLastPositionImage = subjectStore[subjectId]?.last_position?.properties?.image;
+  const subjectLastPositionImage = subject?.last_position?.properties?.image;
 
   return <li className={styles.subjectTracksItem}>
     <div className={styles.leftColumn}>
@@ -28,7 +29,12 @@ const SubjectTracksItem = ({ onRemove, track }) => {
     <div className={styles.rightColumn}>
       <p className={styles.pointCount}>{t('pointCount', { count: pointCount })}</p>
 
-      <button className={styles.removeButton} onClick={() => onRemove(subjectId)} type="button">
+      <button
+        aria-label={t('removeButtonLabel', { title })}
+        className={styles.removeButton}
+        onClick={() => onRemove(subjectId)}
+        type="button"
+      >
         {t('removeButton')}
       </button>
     </div>

@@ -20,7 +20,8 @@
             "icon": "{{title}} को आइकन",
             "pointCount_one": "{{count}} पोइन्ट",
             "pointCount_other": "{{count}} पोइन्टहरू",
-            "removeButton": "हटाउनुहोस्"
+            "removeButton": "हटाउनुहोस्",
+            "removeButtonLabel": "{{title}} हटाउनुहोस्"
           },
           "title": "विषयहरू"
         },

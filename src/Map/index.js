@@ -357,8 +357,6 @@ const Map = ({
     showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onClearSubjectTracks = useCallback(() => dispatch(updateTrackState({ visible: [], pinned: [] })), [dispatch]);
-
   const onSubjectHeatmapClose = useCallback(() => {
     dispatch(
       updateHeatmapSubjects([])
@@ -650,7 +648,7 @@ const Map = ({
         </span>
 
         <>
-          <SubjectTrackLegend onClearTracks={onClearSubjectTracks} />
+          <SubjectTrackLegend />
           {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
           {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
           {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}

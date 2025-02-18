@@ -116,7 +116,12 @@ ref) => {
   };
 
 
-  return <div className={`${styles.numericInput} ${className}`} role='group' {...otherProps}>
+  return <div
+      className={`${styles.numericInput} ${className}`}
+      data-testid="numericInput"
+      role="group"
+      {...otherProps}
+    >
     <input id={id}
            className={inputClassName}
            type="text"

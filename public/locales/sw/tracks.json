@@ -20,7 +20,8 @@
         "icon": "Ikoni ya {{title}}",
         "pointCount_one": "Pointi {{count}}",
         "pointCount_other": "Pointi {{count}}",
-        "removeButton": "Ondoa"
+        "removeButton": "Ondoa",
+        "removeButtonLabel": "Ondoa {{title}}"
       },
       "title": "Wasanii"
     },

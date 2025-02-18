@@ -31,7 +31,7 @@ const MENUS = {
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const SubjectTrackLegend = ({ onClearTracks, subjectTracksCount }) => {
+const SubjectTrackLegend = ({ subjectTracksCount }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend' });
 
@@ -116,6 +116,8 @@ const SubjectTrackLegend = ({ onClearTracks, subjectTracksCount }) => {
     }
   }, [dispatch, expandedMenu]);
 
+  const onClickClearTracks = () => dispatch(updateTrackState({ visible: [], pinned: [] }));
+
   const onRemoveSubjectTracks = (subjectId) => {
     dispatch(updateTrackState({
       pinned: subjectTrackState.pinned.filter((pinnedSubjectTracksId) => pinnedSubjectTracksId !== subjectId),
@@ -143,10 +145,13 @@ const SubjectTrackLegend = ({ onClearTracks, subjectTracksCount }) => {
     }
   }, [show, subjectTracksCount]);
 
-  return <div className={`${styles.subjectTrackLegendWrapper} ${show ? styles.show : ''}`}>
+  return <div
+      className={`${styles.subjectTrackLegendWrapper} ${show ? styles.show : ''}`}
+      data-testid="subjectTrackLegend"
+    >
     <div className={styles.subjectTrackLegend}>
       <div className={styles.row}>
-        <div className={styles.titleWrapper}>
+        <div className={styles.titleWrapper} data-testid="subjectTrackLegend-titleWrapper">
           {titleIconSrc
             ? <img alt={t('icon', { title })} className={styles.icon} src={titleIconSrc} />
             : <TracksOffIcon className={styles.tracksOffIcon} />}
@@ -198,7 +203,7 @@ const SubjectTrackLegend = ({ onClearTracks, subjectTracksCount }) => {
           {t('pointsOverTime', { pointCount: subjectTrackPointCount, trackTime: trackTimeEnvelopeFormatted })}
         </p>
 
-        <button className={styles.clearTracksButton} onClick={() => onClearTracks()} type="button">
+        <button className={styles.clearTracksButton} onClick={onClickClearTracks} type="button">
           {t('clearTracksButton')}
         </button>
       </div>
@@ -233,7 +238,7 @@ const SubjectTrackLegend = ({ onClearTracks, subjectTracksCount }) => {
 };
 
 // Wrap the component with a delayed unmount so the slide out transition ends before unmounting.
-const SubjectTrackLegendDelayedUnmount = ({ onClearTracks }) => {
+const SubjectTrackLegendDelayedUnmount = () => {
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
 
   const subjectTracksCount = useMemo(
@@ -243,7 +248,7 @@ const SubjectTrackLegendDelayedUnmount = ({ onClearTracks }) => {
 
   // We unmount the component after the collapse transition ends when there are no more subject tracks.
   return <DelayedUnmount delay={BOOTSTRAP_DEFAULTS.COLLAPSE_TRANSITION_TIME} isMounted={subjectTracksCount > 0}>
-    <SubjectTrackLegend onClearTracks={onClearTracks} subjectTracksCount={subjectTracksCount} />
+    <SubjectTrackLegend subjectTracksCount={subjectTracksCount} />
   </DelayedUnmount>;
 };
 
