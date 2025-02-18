@@ -1,9 +1,6 @@
-@use "../common/styles/vars/colors";
+@use '../common/styles/vars/colors';
 
-.container {
-  border: 1px solid colors.$light-gray-border;
-  padding: 0.2rem;
-  border-radius: 0.5rem;
+.fieldset {
 
   legend {
     width: 100%;
@@ -11,7 +8,12 @@
     font-size: 1rem;
     margin-bottom: 0.125rem;
     font-weight: 500;
-    margin-left: 0.5rem;
+  }
+
+  .container {
+    border: 1px solid colors.$light-gray-border;
+    border-radius: 0.15rem;
+    padding: 0.7rem;
   }
 
   &.error {

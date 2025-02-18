@@ -3,6 +3,7 @@
 .container {
   background: white;
   display: flex;
+  margin-bottom: 1rem;
 
   label {
       color: colors.$off-black;
@@ -10,11 +11,9 @@
       display: inline-block;
       line-height: 1.1rem;
       width: 100%;
-      margin-top: 0.6rem;
 
     &:hover {
       cursor: pointer;
-
     }
   }
 
@@ -28,6 +27,7 @@
   input {
     width: 1rem;
     height: 1rem;
+    margin-right: 0.5rem;
 
     &:hover {
       cursor: pointer;

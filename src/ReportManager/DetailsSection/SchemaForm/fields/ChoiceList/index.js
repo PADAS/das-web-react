@@ -20,21 +20,26 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
   const label = details.isRequired ? `${details.label} *` : details.label;
 
   return <div>
-    <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
-      { details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN ?  label : '' }
-      <Input
-          aria-describedby={hasDescription ? `${id}-description`: ''}
-          aria-errormessage={hasError ? `${id}-description` : undefined}
-          aria-invalid={hasError}
-          hasError={hasError}
-          id={id}
-          onChange={(newValue) => {
-            onFieldChange(id, newValue);
-          }}
-          value={value}
-          details={details}
-          label={label} />
-    </label>
+    {
+      details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN &&
+        <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
+          {label}
+        </label>
+    }
+
+    <Input
+        aria-describedby={hasDescription ? `${id}-description`: ''}
+        aria-errormessage={hasError ? `${id}-description` : undefined}
+        aria-invalid={hasError}
+        aria-required={details.isRequired}
+        invalid={hasError}
+        id={id}
+        onChange={(newValue) => {
+          onFieldChange(id, newValue);
+        }}
+        value={value}
+        details={details}
+        label={label} />
 
     {(hasDescription || hasError) && <p
           aria-live={hasError ? 'assertive' : 'off'}

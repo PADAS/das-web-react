@@ -2,6 +2,11 @@ import React, { forwardRef } from 'react';
 
 import styles from './styles.module.scss';
 
+const INPUT_ROLES = {
+  CHECKBOX: 'checkbox',
+  RADIO: 'radio'
+};
+
 const Ripple = ({ onClick, readOnly, disabled, children }) =>
   <div className={`${styles.ripple} ${!readOnly && !disabled ? styles.active : ''}`}
          onClick={onClick}>
@@ -10,7 +15,7 @@ const Ripple = ({ onClick, readOnly, disabled, children }) =>
 
 const SelectableItem = ({
   className = '',
-  hasError,
+  invalid,
   disabled = false,
   focusNextSelectableItem,
   focusPreviousSelectableItem,
@@ -23,14 +28,13 @@ const SelectableItem = ({
   readOnly = false,
   setIsFocused,
   value,
-  isMulti = true
+  isMulti = true,
+  ...otherProps
 }, ref) => {
-
-  const role = isMulti ? 'checkbox' : 'radio';
 
   const handleOnChange = (event) => {
     event?.preventDefault();
-    readOnly || disabled || onClick(value, !isChecked);
+    onClick(value, !isChecked);
   };
 
   const handleOnKeyDown = (event) => {
@@ -59,29 +63,25 @@ const SelectableItem = ({
     }
   };
 
-  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${hasError ? styles.error : ''}`}
+  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${invalid ? styles.error : ''}`}
               onKeyDown={handleOnKeyDown}>
-    <Ripple>
-      <input type={role}
-             onFocus={() => setIsFocused(true, id)}
-             onBlur={() => setIsFocused(false, id)}
-             readOnly={readOnly}
-             disabled={disabled}
-             value={value}
-             checked={isChecked}
-             id={id}
-             name={ isMulti ? id : `${groupId}-option`}
-             data-testid={`input-for-${label}`}
-             onChange={handleOnChange}
-             ref={ref} />
-    </Ripple>
-
+    <input type={isMulti ? INPUT_ROLES.CHECKBOX : INPUT_ROLES.RADIO}
+           onFocus={() => setIsFocused(true, id)}
+           onBlur={() => setIsFocused(false, id)}
+           readOnly={readOnly}
+           disabled={disabled}
+           value={!isMulti ? value : undefined}
+           checked={isChecked}
+           id={id}
+           name={ isMulti ? id : `${groupId}-option`}
+           data-testid={`input-for-${label}`}
+           onChange={handleOnChange}
+           ref={ref}
+           {...otherProps} />
     <label htmlFor={id}>
       {label}
     </label>
   </div>;
 };
 
-const SelectableItemWithRef = forwardRef(SelectableItem);
-
-export default SelectableItemWithRef;
+export default forwardRef(SelectableItem);

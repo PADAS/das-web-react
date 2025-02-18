@@ -18,7 +18,7 @@ const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
 </div>;
 
 
-const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherProps }) => {
+const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherProps }) => {
 
   const [isMenuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
@@ -33,29 +33,19 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherPr
     return onChange( returnedValue );
   };
 
-  const onMenuClose = () => setMenuOpen(false);
-
-  const onMenuOpen = () => setMenuOpen(true);
-
-  const onKeyDown = (event) => {
-    if (event.key === 'Escape' && isMenuOpen) {
-      event.stopPropagation();
-    }
-  };
-
   return <ReactSelect
         components={{ Option }}
         classNames={{
             clearIndicator: () => styles.clearIndicator,
             container: () => styles.container,
-            control: (state) => `${styles.control} ${ hasError ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
+            control: (state) => `${styles.control} ${ invalid ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
             dropdownIndicator: () => styles.cursorPointer,
-            indicatorsContainer: () => hasError && styles.caretError,
+            indicatorsContainer: () => invalid && styles.caretError,
             indicatorSeparator: () => styles.separator,
             multiValue: () => styles.multiValue,
             multiValueRemove: () => styles.multiValueRemove,
             option: () => styles.cursorPointer,
-            placeholder: () => hasError && styles.error,
+            placeholder: () => invalid && styles.error,
         }}
         getOptionLabel={(option) => option.title ?? details.options.find((item) => item.const === option).title}
         getOptionValue={(option) => option.const ?? option}
@@ -67,9 +57,9 @@ const Dropdown = ({ details, onChange, value, id, hasError, disabled, ...otherPr
         onChange={handleOnChange}
         noOptionsMessage={() => t('select.noOptionsMessage')}
         options={details.options}
-        onMenuClose={onMenuClose}
-        onMenuOpen={onMenuOpen}
-        onKeyDown={onKeyDown}
+        onMenuClose={() => setMenuOpen(false)}
+        onMenuOpen={() => setMenuOpen(true)}
+        onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
         placeholder={details.hint}
         value={selectedValue}
         {...otherProps}

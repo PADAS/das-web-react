@@ -6,28 +6,29 @@ import styles from './styles.module.scss';
 
 const calculateOptionValue = (option, getOptionValue = null) => option.value ?? getOptionValue?.(option);
 
-const isOptionChecked = (option, currentSelectListValue, isMulti, isListEmpty, getOptionValue = null) => {
+const isOptionChecked = (option, currentSelectListValue, isMulti, isAnyOptionChecked, getOptionValue = null) => {
   const optionValue = calculateOptionValue(option, getOptionValue);
   if (isMulti) {
-    return isListEmpty ? false : currentSelectListValue.includes(optionValue);
+    return isAnyOptionChecked ? false : currentSelectListValue.includes(optionValue);
   }
 
   return optionValue === currentSelectListValue;
 };
 
 const SelectListGroup = ({
+  'aria-required': ariaRequired,
   className = '',
   disabled = false,
   getOptionLabel = null,
   getOptionValue = null,
-  hasError,
+  invalid,
   id = '',
   isMulti = true,
   label,
   options,
   onChange,
   readOnly,
-  value: selectListValue,
+  value: initialValue,
   ...otherProps
 }) => {
 
@@ -35,12 +36,12 @@ const SelectListGroup = ({
     const label = option.label ?? getOptionLabel?.(option);
     const value = calculateOptionValue(option, getOptionValue);
     return {
-      isChecked: isOptionChecked(option, selectListValue, isMulti, !selectListValue || selectListValue?.length === 0, getOptionValue),
+      isChecked: isOptionChecked(option, initialValue, isMulti, !initialValue || initialValue?.length === 0, getOptionValue),
       id: `${id}-${value}`,
       label,
       value,
     };
-  }), [options, getOptionLabel, getOptionValue, selectListValue, isMulti, id]);
+  }), [options, getOptionLabel, getOptionValue, initialValue, isMulti, id]);
 
   const [areOptionsFocused, setAreOptionsFocused] = useState(() => optionsState.map(({ id }) => ({
     id,
@@ -65,10 +66,10 @@ const SelectListGroup = ({
 
   const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
-      const isListEmpty = !selectListValue || selectListValue?.length === 0;
+      const isListEmpty = !initialValue || initialValue?.length === 0;
       const newValue = isChecked
-        ? isListEmpty ? [selectedOptionValue] : [...selectListValue, selectedOptionValue]
-        : selectListValue.filter((value) => value !== selectedOptionValue);
+        ? isListEmpty ? [selectedOptionValue] : [...initialValue, selectedOptionValue]
+        : initialValue.filter((value) => value !== selectedOptionValue);
 
       onChange(newValue);
     } else {
@@ -89,37 +90,42 @@ const SelectListGroup = ({
 
   useEffect(() => {
     if (autoFocusOptionId){
-      setTimeout(() => {
-        autoFocusRef?.current?.focus();
-        setAutoFocusOptionId(null);
-      }, 100);
+      autoFocusRef?.current?.focus();
+      setAutoFocusOptionId(null);
     }
   }, [autoFocusOptionId]);
 
-  return <fieldset id={id} className={`${styles.container} ${className} ${hasError ? styles.error : ''}`} {...otherProps}>
+  return <fieldset id={id} className={`${styles.fieldset} ${className} ${invalid ? styles.error : ''}`} {...otherProps}>
     <legend>{label}</legend>
-    {
-      optionsState.map(({ isChecked, label: optionLabel, value, id: optionId }) =>
-        <SelectableItem
-            disabled={disabled}
-            groupId={id}
-            hasError={hasError}
-            isChecked={isChecked}
-            id={optionId}
-            isMulti={isMulti}
-            key={optionId}
-            label={optionLabel}
-            onClick={handleOnSelectableItemClick}
-            readOnly={readOnly}
-            value={value}
-            setIsFocused={handleOptionIsFocused}
-            isFocused={isOptionFocused(optionId)}
-            ref={optionId === autoFocusOptionId ? autoFocusRef : undefined}
-            focusNextSelectableItem={autoFocusSelectableItem}
-            focusPreviousSelectableItem={(currentFocusedOptionId) => autoFocusSelectableItem(currentFocusedOptionId, false)}
-        />
-      )
-    }
+    <div className={styles.container}>
+      {
+        optionsState.map(({ isChecked, label: optionLabel, value, id: optionId, index }) =>
+          <SelectableItem
+              disabled={disabled}
+              groupId={id}
+              invalid={invalid}
+              isChecked={isChecked}
+              id={optionId}
+              isMulti={isMulti}
+              key={optionId}
+              label={optionLabel}
+              onClick={handleOnSelectableItemClick}
+              readOnly={readOnly}
+              value={value}
+              setIsFocused={handleOptionIsFocused}
+              isFocused={isOptionFocused(optionId)}
+              ref={optionId === autoFocusOptionId ? autoFocusRef : undefined}
+              focusNextSelectableItem={autoFocusSelectableItem}
+              focusPreviousSelectableItem={(currentFocusedOptionId) => autoFocusSelectableItem(currentFocusedOptionId, false)}
+              aria-required={
+                isMulti
+                    ? ariaRequired
+                    : !isMulti && ariaRequired && index === 0 ? ariaRequired : undefined
+              }
+          />
+        )
+      }
+    </div>
   </fieldset>;
 };
 
