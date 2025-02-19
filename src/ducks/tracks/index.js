@@ -1,15 +1,15 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 
-import globallyResettableReducer from '../../reducers/global-resettable';
-import { API_URL } from '../../constants';
-import { SOCKET_SUBJECT_STATUS } from '../subjects';
 import {
   addSocketStatusUpdateToTrack,
   convertTrackFeatureCollectionToPoints,
   fixAntimeridianCrossing,
   trackHasDataWithinTimeRange,
 } from '../../utils/tracks';
+import { API_URL } from '../../constants';
+import globallyResettableReducer from '../../reducers/global-resettable';
+import { SOCKET_SUBJECT_STATUS } from '../subjects';
 
 export const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
