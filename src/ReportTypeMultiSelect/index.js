@@ -1,18 +1,17 @@
 import React, { memo, Fragment, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-import { mapReportTypesToCategories } from '../utils/event-types';
+import { EVENT_FILTER_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { mapEventTypesToCategories } from '../utils/event-types';
+
 import CheckableList from '../CheckableList';
-import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
+import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
-
-import { trackEventFactory, EVENT_FILTER_CATEGORY } from '../utils/analytics';
-import { useTranslation } from 'react-i18next';
 
 const filterProps = ['display', 'value', 'category.display'];
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
@@ -33,10 +32,18 @@ const filterEventTypes = (eventTypes, filterText) =>
     })
   );
 
-
-const ReportTypeMultiSelect = (props) => {
-  const { eventTypes = [], filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
+const ReportTypeMultiSelect = ({
+  filter,
+  onFilterChange,
+  onFilteredItemsSelect,
+  onCategoryToggle,
+  onTypeToggle,
+  selectedReportTypeIDs,
+}) => {
   const { t } = useTranslation('filters', { keyPrefix: 'reportTypeMultiSelect' });
+
+  const eventTypes = useSelector((state) => state.data.eventTypes);
+  const eventCategories = useSelector((state) => state.data.eventCategories);
 
   const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
 
@@ -51,7 +58,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const filteredEventTypes = filter.length ? filterEventTypes(eventTypes, filter) : eventTypes;
 
-  const itemsGroupedByCategory = mapReportTypesToCategories(filteredEventTypes);
+  const itemsGroupedByCategory = mapEventTypesToCategories(filteredEventTypes, eventCategories);
 
   const categoryFullyChecked = (category) => {
     if (noEventTypeSetInFilter) return true;
@@ -117,15 +124,4 @@ const ReportTypeMultiSelect = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
-
-export default connect(mapStateToProps, null)(memo(ReportTypeMultiSelect));
-
-
-
-
-ReportTypeMultiSelect.propTypes = {
-  onCategoryToggle: PropTypes.func.isRequired,
-  onTypeToggle: PropTypes.func.isRequired,
-  selectedReportTypeIDs: PropTypes.array.isRequired,
-};
+export default memo(ReportTypeMultiSelect);

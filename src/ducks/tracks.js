@@ -17,10 +17,6 @@ export const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';
 export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
-const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
-const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
-const CUSTOM_TRACK_LENGTH = 'CUSTOM_TRACK_LENGTH';
-
 // action creators
 export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (dispatch, getState) => {
   const { subject_id, points } = payload;
@@ -83,21 +79,6 @@ const fetchTracksError = error => ({
   payload: error,
 });
 
-export const setTrackLength = (range) => ({
-  type: SET_TRACK_LENGTH,
-  payload: range,
-});
-
-export const setTrackLengthRangeOrigin = (origin) => ({
-  type: SET_TRACK_LENGTH_ORIGIN,
-  payload: origin,
-});
-
-export const setDefaultCustomTrackLength = (length) => ({
-  type: CUSTOM_TRACK_LENGTH,
-  payload: length,
-});
-
 
 // reducers
 const INITIAL_TRACKS_STATE = {};
@@ -139,35 +120,55 @@ const tracksReducer = (state = INITIAL_TRACKS_STATE, action = {}) => {
 export default globallyResettableReducer(tracksReducer, INITIAL_TRACKS_STATE);
 
 
-export const TRACK_LENGTH_ORIGINS = {
-  eventFilter: 'eventFilter',
-  customLength: 'customLength',
-};
+export const TRACK_LENGTH_ORIGINS = { EVENT_FILTER: 'EVENT_FILTER', CUSTOM_LENGTH: 'CUSTOM_LENGTH' };
 
-export const INITIAL_TRACK_DATE_RANGE_STATE = {
-  origin: TRACK_LENGTH_ORIGINS.customLength,
-  length: 21,
+// Actions
+const SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH = 'SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH';
+const SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE = 'SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE';
+const SET_TRACK_SETTINGS_LENGTH = 'SET_TRACK_SETTINGS_LENGTH';
+const SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN = 'SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN';
+
+// Action creators
+export const setDefaultCustomTrackLength = (defaultCustomTrackLength) => ({
+  payload: defaultCustomTrackLength,
+  type: SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH,
+});
+
+export const setIsTimeOfDayColoringActive = (isTimeOfDayColoringActive) => ({
+  payload: isTimeOfDayColoringActive,
+  type: SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE,
+});
+
+export const setTrackLength = (length) => ({ payload: length, type: SET_TRACK_SETTINGS_LENGTH });
+
+export const setTrackLengthOrigin = (origin) => ({
+  payload: origin,
+  type: SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN,
+});
+
+// Reducer
+export const INITIAL_TRACK_SETTINGS_STATE = {
   defaultCustomTrackLength: undefined,
+  isTimeOfDayColoringActive: false,
+  length: 21,
+  origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
 };
 
-export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {
-  if (type === SET_TRACK_LENGTH_ORIGIN) {
-    return {
-      ...state,
-      origin: payload,
-    };
-  }
-  if (type === CUSTOM_TRACK_LENGTH) {
-    return {
-      ...state,
-      defaultCustomTrackLength: payload,
-    };
-  }
-  if (type === SET_TRACK_LENGTH) {
-    return {
-      ...state, length: payload,
-    };
-  }
+export const trackSettingsReducer = globallyResettableReducer((state, action) => {
+  switch (action.type) {
+  case SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH:
+    return { ...state, defaultCustomTrackLength: action.payload };
 
-  return state;
-}, INITIAL_TRACK_DATE_RANGE_STATE);
+  case SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE:
+    return { ...state, isTimeOfDayColoringActive: action.payload };
+
+  case SET_TRACK_SETTINGS_LENGTH:
+    return { ...state, length: action.payload };
+
+  case SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN:
+    return { ...state, origin: action.payload };
+
+  default:
+    return state;
+  }
+}, INITIAL_TRACK_SETTINGS_STATE);

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { trimmedHeatmapTrackData } from '../selectors/tracks';
+import { selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';
@@ -65,8 +65,8 @@ const SubjectHeatmapLegend = ({ onClose }) => {
   const { t } = useTranslation('heatmap', { keyPrefix: 'subjectHeatmapLegend' });
 
   const heatmapSubjectIDs = useSelector((state) => state.view.heatmapSubjectIDs);
-  const trackData = useSelector(trimmedHeatmapTrackData);
-  const trackLength = useSelector((state) => state.view.trackLength);
+  const trackData = useSelector(selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope);
+  const trackSettings = useSelector((state) => state.view.trackSettings);
 
   const subjectCount = trackData.length;
   const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
@@ -87,7 +87,7 @@ const SubjectHeatmapLegend = ({ onClose }) => {
   };
 
   return <HeatmapLegend
-    dayCount={trackLength.length}
+    dayCount={trackSettings.length}
     onClose={onClose}
     pointCount={trackPointCount}
     title={<TitleElement

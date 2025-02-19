@@ -181,7 +181,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 const trackFetchState = {};
 export  const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
-  const { data: { tracks, virtualDate, eventFilter }, view: { trackLength, timeSliderState } } = store.getState();
+  const { data: { tracks, virtualDate, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
 
 
   const { active: timeSliderActive } = timeSliderState;
@@ -189,12 +189,12 @@ export  const fetchTracksIfNecessary = (ids, config) => {
   const results = ids.map((id) => {
     let dateRange;
 
-    const { length, origin: trackLengthOrigin } = trackLength;
+    const { length, origin: trackLengthOrigin } = trackSettings;
     const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilter.filter.date_range;
 
-    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
-    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
+    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
 

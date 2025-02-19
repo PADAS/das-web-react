@@ -15,12 +15,12 @@ import { createPortal } from 'react-dom';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 
+import { BOOTSTRAP_DEFAULTS } from '../../../../../../constants';
 import { getItemTitle } from './Item/utils';
 
 import Item from './Item';
 import SortableItem from './SortableItem';
 
-const BOOTSTRAP_MODAL_ZINDEX = 1055;
 const ITEM_HEADER_HEIGHT = 40;
 
 const customKeyboardCoordinateGetter = (event, args) => {
@@ -166,7 +166,7 @@ const SortableList = ({
             }),
           }}
           wrapperElement="ul"
-          zIndex={BOOTSTRAP_MODAL_ZINDEX + 1}
+          zIndex={BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1}
         >
           {activeItemIndex !== null ? <Item
             collectionDetails={collectionDetails}

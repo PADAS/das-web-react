@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import PropTypes from 'prop-types';
 import { ResizeSpinLoader } from 'react-css-loaders';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +11,7 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icon
 import { fetchEvent } from '../../../ducks/events';
 import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
 import { getSchemasForEventTypeByEventId } from '../../../utils/event-schemas';
+import { selectEventTypeByValue } from '../../../selectors/event-types';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -31,6 +31,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
+  const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
 
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
@@ -48,10 +49,10 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
   }, [dispatch, report.id, reportFromEventStore]);
 
   useEffect(() => {
-    if (!reportSchemas) {
+    if (!!eventType && !reportSchemas) {
       dispatch(fetchEventTypeSchema(report.event_type, report.id));
     }
-  }, [dispatch, report.event_type, report.id, reportSchemas]);
+  }, [dispatch, eventType, report.event_type, report.id, reportSchemas]);
 
   return <li>
     <div
@@ -91,7 +92,6 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       <div>
         {!!reportFromEventStore && !!reportSchemas
           ? <ReportFormSummary
-            className={styles.reportFormSummary}
             report={reportFromEventStore}
             schema={reportSchemas.schema}
             uiSchema={reportSchemas.uiSchema}
@@ -100,13 +100,6 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       </div>
     </Collapse>
   </li>;
-};
-
-ContainedReportListItem.propTypes = {
-  cardsExpanded: PropTypes.array.isRequired,
-  onCollapse: PropTypes.func.isRequired,
-  onExpand: PropTypes.func.isRequired,
-  report: PropTypes.object.isRequired,
 };
 
 export default memo(ContainedReportListItem);

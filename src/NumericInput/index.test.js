@@ -24,6 +24,12 @@ describe('NumericInput', () => {
     <NumericInput {...props} />
   );
 
+  test('adds a custom class name', () => {
+    renderNumericInput({ className: 'className' });
+
+    expect(screen.getByTestId('numericInput')).toHaveClass('className');
+  });
+
   test('display proper default value', () => {
     renderNumericInput();
 
@@ -54,6 +60,12 @@ describe('NumericInput', () => {
     expect( screen.getByRole('textbox').readOnly ).toBe(true);
     expect(upButton).not.toBeDefined();
     expect(downButton).not.toBeDefined();
+  });
+
+  test('sets the title of the input', () => {
+    renderNumericInput({ ...initialProps, title: 'Title' });
+
+    expect(screen.getByTitle('Title')).toBeVisible();
   });
 
   test('block typing if input is disabled', async () => {

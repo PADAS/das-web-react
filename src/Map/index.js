@@ -126,8 +126,8 @@ const Map = ({
   const showTrackTimepoints = useSelector(state => state.view.showTrackTimepoints);
   const timeSliderState = useSelector(state => state.view.timeSliderState);
   const bounceEventIDs = useSelector(state => state.view.bounceEventIDs);
-  const trackLength = useSelector(state => state.view.trackLength.length);
-  const trackLengthOrigin = useSelector(state => state.view.trackLength.origin);
+  const trackLength = useSelector(state => state.view.trackSettings.length);
+  const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
   const mapImages = useSelector(state => state.view.mapImages);
   const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
   const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
@@ -357,12 +357,6 @@ const Map = ({
     showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onTrackLegendClose = useCallback(() =>  {
-    dispatch(
-      updateTrackState({ visible: [], pinned: [] })
-    );
-  }, [dispatch]);
-
   const onSubjectHeatmapClose = useCallback(() => {
     dispatch(
       updateHeatmapSubjects([])
@@ -512,7 +506,7 @@ const Map = ({
   }, [eventFilter, map, socket]);
 
   useEffect(() => {
-    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       setTrackLengthToEventFilterLowerValue();
     }
   }, [trackLengthOrigin, setTrackLengthToEventFilterLowerValue]);
@@ -652,8 +646,9 @@ const Map = ({
         <span className='compass-wrapper' onClick={onRotationControlClick} >
           <CursorGpsDisplay />
         </span>
+
         <>
-          {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
+          <SubjectTrackLegend />
           {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
           {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
           {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}

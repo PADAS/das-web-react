@@ -1,5 +1,6 @@
 export const eventTypes = [
   {
+    'version': 1,
     'id': 'd0884b8c-4ecb-45da-841d-f2f8d6246abf',
     'icon': '',
     'value': 'jtar',
@@ -27,6 +28,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '0ee79753-a2d0-42ba-9894-b8e430b28113',
     'icon': '',
     'value': 'j207bfinal',
@@ -55,6 +57,7 @@ export const eventTypes = [
     'geometry_type': 'Polygon'
   },
   {
+    'version': 1,
     'id': '3ff27054-da2a-41a5-8785-a10a90e57486',
     'icon': '',
     'value': 'js21b',
@@ -82,6 +85,7 @@ export const eventTypes = [
     'geometry_type': 'Polygon'
   },
   {
+    'version': 1,
     'id': '60b4bcb2-655e-4526-abdc-3ed7fb83d360',
     'icon': '',
     'value': 'jenae92f',
@@ -109,6 +113,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2d6bf099-f41c-4e1a-b8d7-e9ddad35ffd4',
     'icon': '',
     'value': 'das5074',
@@ -136,6 +141,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '76505548-f68e-41b3-baf0-3dbccfc99dc4',
     'icon': 'fire_rep',
     'value': 'gfw_activefire_alert',
@@ -163,6 +169,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c4379fa2-5ed0-448d-a78a-bbb7903b47e4',
     'icon': 'radar_rep',
     'value': 'acoustic_detection',
@@ -190,6 +197,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ab57d471-96d9-44df-9201-f3c3f42b39b3',
     'icon': '',
     'value': 'jes_rep',
@@ -217,6 +225,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74',
     'icon': '',
     'value': 'accident_rep',
@@ -244,6 +253,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6e9f2ce7-b961-437a-96fe-cd8427242f1a',
     'icon': 'birds_rep',
     'value': 'test',
@@ -271,6 +281,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6f78a2d1-93a8-4195-9c58-006ea55ccd93',
     'icon': '',
     'value': 'kws_grantmanagement_rep_ks',
@@ -298,6 +309,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '76352957-4589-4915-8b55-f19a1d15a64e',
     'icon': 'accident_rep',
     'value': 'sand_accident_rep',
@@ -326,6 +338,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '38a48ca6-7559-4aab-955b-487454f30d73',
     'icon': 'accident_rep',
     'value': 'sand_easterisland_accident_rep',
@@ -354,6 +367,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '74941f0d-4b89-48be-a62a-a74c78db8383',
     'icon': '',
     'value': 'fire_rep',
@@ -381,6 +395,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '984531ca-3e69-4b6a-876c-e293b81dbc75',
     'icon': null,
     'value': 'all_posts',
@@ -408,6 +423,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '022fe4cd-c300-4c33-9eca-5583b758bd42',
     'icon': 'fire_rep',
     'value': 'sand_fire_rep',
@@ -436,6 +452,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '64ccc207-0e2f-424b-a096-b94073cb7689',
     'icon': 'fence_rep',
     'value': 'sand_fence_rep',
@@ -464,6 +481,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2adcbd7a-8dcc-4327-b1c6-050de4008bef',
     'icon': 'hwc_rep',
     'value': 'sand_easterisland_hwc_rep',
@@ -492,6 +510,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'bc644829-1a7e-4799-a88a-7eccd4647b7d',
     'icon': 'fence_rep',
     'value': 'sand_easterisland_fence_rep',
@@ -520,6 +539,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'be060c4f-c8c8-4ba3-9df9-01335ab60980',
     'icon': '',
     'value': 'hwc_rep',
@@ -547,6 +567,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '009793a4-e233-42fc-b068-b3245e93935e',
     'icon': null,
     'value': 'fence_rep',
@@ -574,6 +595,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'd969ddf1-3f84-4b11-9e09-4c3a0aa88afc',
     'icon': 'hwc_rep',
     'value': 'sand_hwc_rep',
@@ -602,6 +624,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e808b1c8-eef9-4608-bbe5-53ae50c7b077',
     'icon': 'animal_control_rep',
     'value': 'sand_animal_control_rep',
@@ -630,6 +653,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'cef16991-c71b-44b6-b4e1-c3d80bb33af1',
     'icon': 'injured_animal_rep',
     'value': 'sand_easterisland_injured_animal_rep',
@@ -658,6 +682,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '096fdd6b-e3eb-4aa2-8d59-ffea5c69f6cf',
     'icon': 'animal_control_rep',
     'value': 'sand_easterisland_animal_control_rep',
@@ -686,6 +711,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b4ecee53-4b37-49b2-8ddc-b85a7d76e50c',
     'icon': null,
     'value': 'injured_animal_rep',
@@ -713,6 +739,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '57914f8f-fb76-4997-a94d-d1f0a99cba07',
     'icon': null,
     'value': 'animal_control_rep',
@@ -740,6 +767,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ab97075f-f5c7-4322-84a2-e04e433d5da9',
     'icon': null,
     'value': 'radio_rep',
@@ -767,6 +795,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'cb2d66c0-7e17-4bc5-af17-d8cc3c454c2a',
     'icon': null,
     'value': 'invasive_species_rep',
@@ -794,6 +823,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2c6a0755-3f5b-453d-b3e8-f3fb2c614a47',
     'icon': 'arrest_rep',
     'value': 'sand_arrest_rep',
@@ -822,6 +852,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f32f1a13-ccfd-46eb-8dd7-6efa64346b66',
     'icon': 'arrest_rep',
     'value': 'sand_easterisland_arrest_rep',
@@ -850,6 +881,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e55bebea-fab7-4264-93f0-88a56a7f8fc4',
     'icon': 'invasive_species_rep',
     'value': 'sand_easterisland_invasive_species_rep',
@@ -878,6 +910,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2adf7302-ecef-42af-9f7c-45992ce52dd0',
     'icon': 'birds_rep',
     'value': 'arrest_rep',
@@ -906,6 +939,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b0d66402-34cb-4e9a-9715-2ac4eeebb574',
     'icon': 'abandoned_camp_rep',
     'value': 'carcass_rep',
@@ -933,6 +967,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '21b67871-a72b-43f5-8931-e3996dd88c21',
     'icon': '',
     'value': 'test_this2',
@@ -960,6 +995,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c16fab4a-b2ac-4002-8446-dd62ff7f19e4',
     'icon': 'carcass_rep',
     'value': 'sand_carcass_rep',
@@ -988,6 +1024,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2938945d-9d66-45ed-b747-e5f4f54b498f',
     'icon': 'carcass_rep',
     'value': 'sand_easterisland_carcass_rep',
@@ -1016,6 +1053,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4ef3fee3-e545-482e-a0ad-49f28fce2021',
     'icon': null,
     'value': 'test_this3',
@@ -1043,6 +1081,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '46b1a847-fde9-4b7d-8e4d-28bac6e2b7fe',
     'icon': null,
     'value': 'test_this4',
@@ -1070,6 +1109,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c629eee6-930b-4402-9498-b5de0153d2b1',
     'icon': 'confiscation_rep',
     'value': 'sand_confiscation_rep',
@@ -1098,6 +1138,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5ef5f147-feaa-4cb8-9672-53135190e9b6',
     'icon': 'rhino_sighting_rep',
     'value': 'sand_easterisland_rhino_sighting_rep',
@@ -1126,6 +1167,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f8666d6f-512e-4732-b641-bbc5dcb868bf',
     'icon': 'confiscation_rep',
     'value': 'sand_easterisland_confiscation_rep',
@@ -1154,6 +1196,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'bdfffdc5-0195-4c0a-9e42-bced05f4e0c4',
     'icon': null,
     'value': 'confiscation_rep',
@@ -1181,6 +1224,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '125eabe7-85b3-4d82-a915-66fad942a33d',
     'icon': '',
     'value': 'rhino_sighting_rep',
@@ -1208,6 +1252,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '1f20b27c-95f2-42f3-bacc-94642399dc46',
     'icon': '',
     'value': 'wildlife_sighting_rep',
@@ -1235,6 +1280,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b802a634-a9c9-4e04-9c68-82a8d350b56e',
     'icon': 'wildlife_sighting_rep_SMART',
     'value': 'sand_wildlife_sighting_rep',
@@ -1263,6 +1309,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '3bdde979-3471-4cde-9bb3-4c5c4beb41f8',
     'icon': 'incident_collection',
     'value': 'sand_incident_collection',
@@ -1291,6 +1338,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6408afcf-c3b6-4f4b-a440-2d87d87f8424',
     'icon': null,
     'value': 'incident_collection',
@@ -1318,6 +1366,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4be7dcc6-d3b3-4faa-a4cc-a81912a4ee18',
     'icon': 'wildlife_sighting_rep_SMART',
     'value': 'sand_easterisland_wildlife_sighting_rep',
@@ -1346,6 +1395,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'cacf8f8a-c45c-4ac9-a816-0de988c0afdf',
     'icon': 'incident_collection',
     'value': 'sand_easterisland_incident_collection',
@@ -1374,6 +1424,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c0a66c05-efff-44de-9a40-e7abfe26f5ba',
     'icon': 'light_rep',
     'value': 'sand_light_rep',
@@ -1402,6 +1453,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8ef21ef4-aba1-4c65-a53a-38d37552d76a',
     'icon': 'light_rep',
     'value': 'sand_easterisland_light_rep',
@@ -1430,6 +1482,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '97a18051-6fd9-4ff1-ab98-1ff1e8c17a86',
     'icon': null,
     'value': 'light_rep',
@@ -1457,6 +1510,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '55537836-0f99-4bfd-8c0b-be7f20a8c887',
     'icon': '',
     'value': 'medevac_rep',
@@ -1484,6 +1538,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '31b5ad05-5a87-4a39-94cd-94e5d4e8f093',
     'icon': 'medevac_rep',
     'value': 'sand_easterisland_medevac_rep',
@@ -1512,6 +1567,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '997002af-5237-4010-ad46-cc1c956e7788',
     'icon': 'medevac_rep',
     'value': 'sand_medevac_rep',
@@ -1540,6 +1596,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6bf94758-c189-4fb8-96c5-6d6ad67dd8dd',
     'icon': null,
     'value': 'mist_rep',
@@ -1567,6 +1624,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'cfaae6f1-588f-423f-9247-7710e33f7c62',
     'icon': 'mist_rep',
     'value': 'sand_easterisland_mist_rep',
@@ -1595,6 +1653,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'bb58bf5e-c4a8-4bd7-a2a6-d5e27ee408a5',
     'icon': 'mist_rep',
     'value': 'sand_mist_rep',
@@ -1623,6 +1682,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '7d3ac5a0-9dab-430f-8f66-b5b9f1dc2544',
     'icon': 'contact_rep',
     'value': 'sand_easterisland_contact_rep',
@@ -1651,6 +1711,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8e4466d9-dd67-4d58-be80-e5fe2a380aab',
     'icon': 'contact_rep',
     'value': 'sand_contact_rep',
@@ -1679,6 +1740,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '0a91ff26-238f-4e21-a5f6-96da52eaab80',
     'icon': null,
     'value': 'contact_rep',
@@ -1706,6 +1768,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b923ccf7-c0c4-4967-8a54-c17d27c00b80',
     'icon': null,
     'value': 'poacher_camp_rep',
@@ -1733,6 +1796,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '51f0681f-b87d-4dc8-aea8-f153661685a9',
     'icon': 'poacher_camp_rep',
     'value': 'sand_easterisland_poacher_camp_rep',
@@ -1761,6 +1825,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e01b0868-1290-487a-860a-f59f6f798dc8',
     'icon': 'poacher_camp_rep',
     'value': 'sand_poacher_camp_rep',
@@ -1789,6 +1854,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ec56d455-e8f3-43e4-9ae9-ebacd615c9b4',
     'icon': 'ranger_shot_rep',
     'value': 'sand_ranger_shot_rep',
@@ -1817,6 +1883,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e8738d5f-9fbb-4601-bce5-59d52ca6174f',
     'icon': null,
     'value': 'ranger_shot_rep',
@@ -1844,6 +1911,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '0a00cbcc-eb95-4e66-a4a0-a0a7bc7c9155',
     'icon': 'ranger_shot_rep',
     'value': 'sand_easterisland_ranger_shot_rep',
@@ -1872,6 +1940,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5e5ad160-f19e-4274-b051-9befeee0d0e0',
     'icon': 'shot_rep',
     'value': 'sand_easterisland_shot_rep',
@@ -1900,6 +1969,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '3cc19bb0-176d-4d9a-8eeb-d36a5dad8640',
     'icon': 'shot_rep',
     'value': 'sand_shot_rep',
@@ -1928,6 +1998,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f804e01e-006d-41d0-aa7d-fe6e798e4852',
     'icon': null,
     'value': 'shot_rep',
@@ -1955,6 +2026,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '06fe0a93-b34c-47f3-ad4b-b4818eb91d2a',
     'icon': '',
     'value': 'sit_rep',
@@ -1982,6 +2054,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'dd9e5ff8-c35b-449d-b791-d9a23acb0f99',
     'icon': 'sit_rep',
     'value': 'sand_sit_rep',
@@ -2010,6 +2083,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'a832e300-77d2-4f50-a112-bb6bb35ffc8c',
     'icon': 'sit_rep',
     'value': 'sand_easterisland_sit_rep',
@@ -2038,6 +2112,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ed316fbc-b72a-45d2-8258-5e7ecdab1a92',
     'icon': 'snare_rep',
     'value': 'sand_snare_rep',
@@ -2066,6 +2141,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8e2812d8-4ac9-4874-b1b2-1adc5ea192b5',
     'icon': null,
     'value': 'snare_rep',
@@ -2093,6 +2169,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c9c242bc-25f8-4298-ae0d-4a6c67792072',
     'icon': 'snare_rep',
     'value': 'sand_easterisland_snare_rep',
@@ -2121,6 +2198,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '261e83df-f17b-42a9-8233-78d6ea465a25',
     'icon': 'spoor_rep',
     'value': 'sand_easterisland_spoor_rep',
@@ -2149,6 +2227,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
     'icon': null,
     'value': 'spoor_rep',
@@ -2176,6 +2255,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4e16f536-3deb-4e04-8e49-db9be121ff93',
     'icon': 'spoor_rep',
     'value': 'sand_spoor_rep',
@@ -2204,6 +2284,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b6790a27-39b8-45c7-b1a6-8e8d20a80cd7',
     'icon': 'activity_rep',
     'value': 'sand_activity_rep',
@@ -2232,6 +2313,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'a47a371e-cd86-4b57-beed-aa1242eb0516',
     'icon': 'activity_rep',
     'value': 'sand_easterisland_activity_rep',
@@ -2260,6 +2342,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5b7bc8f2-5e08-4d26-a55a-b35ded392fa0',
     'icon': null,
     'value': 'activity_rep',
@@ -2287,6 +2370,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ea2fafee-1af8-43d7-b661-b7aad9befefa',
     'icon': 'traffic_rep',
     'value': 'sand_easterisland_traffic_rep',
@@ -2315,6 +2399,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '17cf470e-d708-439c-983e-a7fe06c45ab1',
     'icon': null,
     'value': 'traffic_rep',
@@ -2342,6 +2427,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '9ff2b388-0253-41bc-b9de-7eb3d8999e7a',
     'icon': 'traffic_rep',
     'value': 'sand_traffic_rep',
@@ -2370,6 +2456,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c419acac-874d-422e-8b7b-54470afe56c5',
     'icon': '',
     'value': 'immobility',
@@ -2397,6 +2484,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b72054d9-d213-4e55-a35b-ece7f65b74d9',
     'icon': 'immobility',
     'value': 'sand_immobility',
@@ -2425,6 +2513,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '729bece5-7ddd-4b95-9c28-8e4e53d316a1',
     'icon': 'immobility',
     'value': 'sand_easterisland_immobility',
@@ -2453,6 +2542,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8bf325e7-2880-447a-b2d8-156c66bc5708',
     'icon': '',
     'value': 'immobility_all_clear',
@@ -2480,6 +2570,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4ca23976-1af4-4887-bd59-673b08a9d505',
     'icon': null,
     'value': 'low_speed_wilcoxon',
@@ -2507,6 +2598,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '54be0cc4-f42b-4602-bce5-4316e484b833',
     'icon': null,
     'value': 'low_speed_wilcoxon_all_clear',
@@ -2534,6 +2626,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'cd86aa65-d0ba-41a3-a138-afcfbdc8e5f2',
     'icon': null,
     'value': 'low_speed_percentile',
@@ -2561,6 +2654,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '30f041ff-b5e0-41c6-90f8-9732c4b59330',
     'icon': 'geofence_break',
     'value': 'sand_easterisland_geofence_break',
@@ -2589,6 +2683,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '57943092-b817-43cc-a67c-c7704e59f6ea',
     'icon': '',
     'value': 'geofence_break',
@@ -2616,6 +2711,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c53717b8-29e4-44fb-bb29-d09004ba87e7',
     'icon': 'geofence_break',
     'value': 'sand_geofence_break',
@@ -2644,6 +2740,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5bc380cb-6cef-4cdf-b7be-5c8ae1c083bb',
     'icon': 'firms_rep',
     'value': 'firms_rep',
@@ -2671,6 +2768,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c96620be-9d3d-416c-86e6-c0daa64a7063',
     'icon': null,
     'value': 'proximity',
@@ -2698,6 +2796,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e56038a3-3b56-4c10-ae16-6856267b224a',
     'icon': 'deforestation_rep',
     'value': 'sand_easterisland_deforestation_rep',
@@ -2726,6 +2825,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '01037bcc-fa05-4cd6-9ce6-74dce9a92f26',
     'icon': 'firms_rep',
     'value': 'sand_easterisland_firms_rep',
@@ -2754,6 +2854,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b19949cc-6135-4862-b0a4-63ffffc02515',
     'icon': 'firms_rep',
     'value': 'sand_firms_rep',
@@ -2782,6 +2883,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'afc7da28-3b20-41c1-a63d-d4329b5672af',
     'icon': 'deforestation_rep',
     'value': 'sand_deforestation_rep',
@@ -2810,6 +2912,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '900dbcea-b150-43f9-adca-5b3bdb4e8b4f',
     'icon': '',
     'value': 'mep_collaring',
@@ -2837,6 +2940,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8e4cb26a-ff60-4688-943a-12f6d0e8cb79',
     'icon': '',
     'value': 'kws_arrest_current',
@@ -2864,6 +2968,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '772cbbc6-4233-4c0c-849c-1bbcb2837b3b',
     'icon': '',
     'value': 'pendjari_test',
@@ -2891,6 +2996,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '75d7a799-fa34-4edb-998d-bfd5d0278cc8',
     'icon': '',
     'value': 'arrests_tests',
@@ -2918,6 +3024,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '9875a017-c4d7-4481-8b8d-8e6b7eab1705',
     'icon': '',
     'value': 'kws_arrest_ex',
@@ -2945,6 +3052,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '3b37f401-e3b5-479c-a1d5-e0217ba4f959',
     'icon': '',
     'value': 'logistics_incident',
@@ -2973,6 +3081,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '7de8e219-af95-4ac8-a10e-50b9eb413a63',
     'icon': '',
     'value': 'luistest',
@@ -3001,6 +3110,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '9e97f265-b373-46aa-b79b-409f8f37af4f',
     'icon': 'human_wildlife_conflict_rep',
     'value': 'commcenter_rep',
@@ -3028,6 +3138,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f2313526-beeb-44bb-808c-3aabac06d6bd',
     'icon': '',
     'value': 'empty',
@@ -3056,6 +3167,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c51975d2-576f-49fe-b9e5-b1dff0f9197a',
     'icon': '',
     'value': 'description_text_rep',
@@ -3083,6 +3195,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '679dc4c2-cb8c-412f-9de9-cd2c60ab6461',
     'icon': 'deforestation_rep',
     'value': 'gfw_glad_alert',
@@ -3110,6 +3223,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b3438b92-9957-4023-9f69-f92fb6b65a47',
     'icon': '',
     'value': 'sighting_rep',
@@ -3137,6 +3251,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8433abc4-d04d-4ee8-978b-39d5ff4654d7',
     'icon': '',
     'value': 'wildlifemortalityrep',
@@ -3164,6 +3279,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '89a31334-46cc-42a7-87d2-2eaf4296c03d',
     'icon': '',
     'value': 'macaque',
@@ -3191,6 +3307,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '021e2a02-6678-4f27-8dd0-a1969bf5fca4',
     'icon': '',
     'value': 'js21f',
@@ -3218,6 +3335,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'dd83d7b9-c2fb-4c16-8ae3-fb5fec280bb9',
     'icon': 'acoustic_sensor_rep',
     'value': 'sand_acoustic_detection',
@@ -3246,6 +3364,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '943674b3-9f49-48c8-8038-d3a0e6d6612f',
     'icon': 'cameratrap_rep',
     'value': 'sand_cameratrap_rep',
@@ -3274,6 +3393,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'fc83ca6e-3c21-4681-90bb-9453a763adad',
     'icon': '',
     'value': 'jtd5355',
@@ -3301,6 +3421,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '550c9c57-ccef-4a8d-a09e-60504e0b4cd2',
     'icon': '',
     'value': 'lion_sighting_rep',
@@ -3328,6 +3449,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '21edbb89-5024-40c5-b419-35bdcae4ac8c',
     'icon': '',
     'value': 'hwchumaninjury_rep',
@@ -3355,6 +3477,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'af0990ea-6dba-4c1d-b149-b2b799dc331c',
     'icon': '',
     'value': 'hwc_propertydamage',
@@ -3382,6 +3505,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f02444d8-84d0-460b-b04f-5d5243ee77ef',
     'icon': '',
     'value': 'subject_proximity',
@@ -3409,6 +3533,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ff98a53d-b546-4db5-ad8b-b0fde82d92a8',
     'icon': '',
     'value': 'recovery_kws_other',
@@ -3436,6 +3561,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '404ddc74-6621-4252-9452-4340f67e4afe',
     'icon': '',
     'value': 'fire',
@@ -3463,6 +3589,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2125674b-3217-461e-9443-ee16c1c5ce3b',
     'icon': '',
     'value': 'disable_test',
@@ -3490,6 +3617,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '948c6b61-0133-4e35-a6b4-09f358b19eb8',
     'icon': '',
     'value': 'tw2',
@@ -3517,6 +3645,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c1d67ffe-3269-4267-88ba-e059096f06f0',
     'icon': '',
     'value': 'chrisd_checkbox',
@@ -3544,6 +3673,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8a61512d-3ffd-40f8-b2e5-e0bc3682b58a',
     'icon': '',
     'value': 'jt208f',
@@ -3571,6 +3701,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '42983691-0bd5-4cc1-8af4-60d5137e5ff0',
     'icon': 'entry_alert_rep',
     'value': 'entry_alert_rep',
@@ -3598,6 +3729,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '78bb63f8-6953-47f0-960d-5124c86a26f3',
     'icon': '',
     'value': '_aallupder5',
@@ -3626,6 +3758,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '925460e4-e5d9-4b57-9061-77b3cbd6d61c',
     'icon': 'AK_47_rep',
     'value': 'ap_contact_rep',
@@ -3653,6 +3786,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '6b52c657-3a09-419e-9395-d84efb68a39f',
     'icon': '',
     'value': 'kws_livestockupdatetwo',
@@ -3680,6 +3814,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '63c0419b-b927-4ada-bd93-9a8194917130',
     'icon': 'wildlife_sighting_rep',
     'value': 'wildlife_checkboxes_rep',
@@ -3707,6 +3842,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '1a0ef64a-3601-4984-99f5-2cad9af356ab',
     'icon': '',
     'value': 'jsone',
@@ -3734,6 +3870,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5ebf3209-d2e4-4b99-a735-0d7a59282ce5',
     'icon': '',
     'value': 'kctype',
@@ -3761,6 +3898,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'a73f2639-bdd6-4709-948b-b33e60a7c688',
     'icon': '',
     'value': 'hwchumanthreat_rep',
@@ -3788,6 +3926,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5152fea3-8137-4228-a395-d8df4b869fa6',
     'icon': '',
     'value': 'rar5262',
@@ -3815,6 +3954,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '27a99c49-08fd-4b24-a59b-1462ed7aa96b',
     'icon': '',
     'value': 'mytest0907',
@@ -3842,6 +3982,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '738d0162-4688-4629-b614-283c03626d0c',
     'icon': '',
     'value': 'feeding',
@@ -3869,6 +4010,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c67e892d-a39e-42e7-add7-34d1ecf5eeef',
     'icon': 'abandoned_camp_rep',
     'value': 'ranger_camp_rep',
@@ -3896,6 +4038,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'c9e9944f-c232-4596-be46-4a91bcbd6779',
     'icon': '',
     'value': 'kws_humanmortality',
@@ -3923,6 +4066,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f4a8b46c-6991-484c-a3bd-bfcc9d5dce9e',
     'icon': '',
     'value': 'j5262',
@@ -3950,6 +4094,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b51ac924-4842-45a8-ad81-4fab164d7ef2',
     'icon': 'mammal_rep',
     'value': 'dws_test',
@@ -3977,6 +4122,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '9a87af3b-b691-47d3-90b2-bccad23cd3af',
     'icon': 'wildlife_sighting_rep_SMART',
     'value': 'sc_nw_animal_obs',
@@ -4004,6 +4150,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b28043e7-c0e5-4ab4-a8d5-38d8e01a832b',
     'icon': '',
     'value': 'report_query',
@@ -4031,6 +4178,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f0fee29f-685a-4bda-9d93-88a584086187',
     'icon': null,
     'value': 'cameratrap_rep',
@@ -4058,6 +4206,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '0019407c-788c-4611-957c-95e84c241c86',
     'icon': '',
     'value': 'testluis',
@@ -4086,6 +4235,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '9a6505ce-6c3d-4e2e-839a-45d4fbada514',
     'icon': '',
     'value': 'gile_wildlife_sighting_rep',
@@ -4113,6 +4263,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '01576f2d-4356-4637-93a2-a90fd9152714',
     'icon': '',
     'value': 'kws_cropdamage',
@@ -4140,6 +4291,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '673ec820-87f4-4be3-aa83-5fb2108c7b20',
     'icon': '',
     'value': 'arrest_rep2',
@@ -4167,6 +4319,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '5002287a-8b47-4235-b54b-1e4044d09acb',
     'icon': '',
     'value': 'jenaeonefield',
@@ -4194,6 +4347,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'ddcec987-8410-47f4-ae5b-25e367be0387',
     'icon': '',
     'value': 'kws_animalmortality',
@@ -4221,6 +4375,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4bf3abe7-a6c9-49e8-a111-707bf0e01473',
     'icon': '',
     'value': 'j207b',
@@ -4248,6 +4403,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '1e5e7a8a-bc03-457d-9f53-092bc9310812',
     'icon': '',
     'value': 'js95b',
@@ -4275,6 +4431,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4f73200f-61fc-4b0b-96c0-691e96b720f7',
     'icon': '',
     'value': 'lewa_test_blackrhino',
@@ -4302,6 +4459,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '78c9ee4a-1ef2-4090-9448-cafa17663b6d',
     'icon': '',
     'value': 'jfs23',
@@ -4329,6 +4487,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '2e273eb7-e56d-4f7a-8699-3a4d531987d0',
     'icon': 'road_status_rep',
     'value': 'sand_road_damage',
@@ -4357,6 +4516,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4d575988-4c39-4bab-99ba-30229faa1a80',
     'icon': '',
     'value': 'test0816_value_2',
@@ -4385,6 +4545,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '0f486579-4e22-43e8-84cc-5cdc073af976',
     'icon': 'cameratrap_rep',
     'value': 'sand_easterisland_cameratrap_rep',
@@ -4413,6 +4574,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '919b4677-b26f-4349-8b38-6ecc970ad4b6',
     'icon': '',
     'value': 'k25',
@@ -4440,6 +4602,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '753e1bf1-33b4-4e39-9929-2e6f6ede58c2',
     'icon': '',
     'value': 'jbe',
@@ -4467,6 +4630,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'af8fed45-b8c1-4571-8df0-510498115c89',
     'icon': '',
     'value': 'vehiclerequestfeedback',
@@ -4494,6 +4658,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'f7410ec2-2c6c-4bfa-b6fd-5adce65369ef',
     'icon': '',
     'value': 'luistest1',
@@ -4521,6 +4686,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '4f270006-a471-497e-b4a9-8637c65c6d8c',
     'icon': '',
     'value': 'vehiclemanagement',
@@ -4548,6 +4714,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e10b6eb5-811d-44c7-b506-62a89d0ad74f',
     'icon': 'acoustic_sensor_rep',
     'value': 'sand_easterisland_acoustic_detection',
@@ -4576,6 +4743,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'acc00183-9e07-4557-863b-b75fbbfb085d',
     'icon': 'cougar_bed_rep',
     'value': 'cougar_bed',
@@ -4603,6 +4771,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '8eef1402-1e42-4aac-aa29-8bbd4a6fd5e2',
     'icon': '',
     'value': 'dws2',
@@ -4630,6 +4799,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': '01575c5c-3816-4997-8da0-9053251b459d',
     'icon': '',
     'value': 'personrep',
@@ -4657,6 +4827,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'fd29ae5d-76fa-45dc-afbd-3965b8413a62',
     'icon': '',
     'value': 'vehiclerequest',
@@ -4684,6 +4855,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'b79fcc50-5efe-4426-a33d-bf0fb9b099bb',
     'icon': '',
     'value': 'elephanthwc',
@@ -4711,6 +4883,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'e22a4b10-846e-4a79-88ba-4abed8ff86ac',
     'icon': '',
     'value': 'cameratrap_rep_panthera',
@@ -4738,6 +4911,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'dbb5b399-2d7c-49be-b071-1dcc72d608fc',
     'icon': '',
     'value': 'embedded_view',
@@ -4765,6 +4939,7 @@ export const eventTypes = [
     'geometry_type': 'Point'
   },
   {
+    'version': 1,
     'id': 'df3a1eb7-5d17-4092-a5c8-db3a1bd9814e',
     'icon': 'radar_rep',
     'value': 'embedded_object',
@@ -4792,3 +4967,95 @@ export const eventTypes = [
     'geometry_type': 'Point'
   }
 ];
+
+export const snareTypeV1 =  {
+  id: '8e2812d8-4ac9-4874-b1b2-1adc5ea192b5',
+  has_events_assigned: true,
+  icon: null,
+  value: 'snare_rep',
+  display: 'Snare',
+  ordernum: 800.0,
+  is_collection: false,
+  category: {
+    id: '007a45d3-2aba-4ed1-b3fc-e09fc0ad41f8',
+    value: 'security',
+    display: 'Security',
+    is_active: true,
+    ordernum: 856.0,
+    flag: 'user',
+    permissions: ['create', 'update', 'delete', 'read'],
+  },
+  icon_id: 'snare_rep',
+  is_active: true,
+  default_priority: 0,
+  default_state: 'new',
+  geometry_type: 'Point',
+  resolve_time: null,
+  auto_resolve: false,
+  url: 'https://root.dev.pamdas.org/api/v1.0/activity/events/eventtypes/8e2812d8-4ac9-4874-b1b2-1adc5ea192b5',
+};
+
+export const spoorTypeV1 = {
+  id: '58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
+  has_events_assigned: false,
+  icon: null,
+  value: 'spoor_rep',
+  display: 'Spoor',
+  ordernum: 802.0,
+  is_collection: false,
+  category: {
+    id: '007a45d3-2aba-4ed1-b3fc-e09fc0ad41f8',
+    value: 'security',
+    display: 'Security',
+    is_active: true,
+    ordernum: 856.0,
+    flag: 'user',
+    permissions: ['create', 'update', 'delete', 'read'],
+  },
+  icon_id: 'spoor_rep',
+  is_active: true,
+  default_priority: 0,
+  default_state: 'new',
+  geometry_type: 'Point',
+  resolve_time: null,
+  auto_resolve: false,
+  url: 'https://root.dev.pamdas.org/api/v1.0/activity/events/eventtypes/58bde7d9-4a5c-43bf-a5c7-06803a3aaec8',
+};
+
+export const animalControlTypeV2 = {
+  id: '29736bf4-c1eb-4cb7-bdb2-3b6464108517',
+  has_events_assigned: true,
+  icon: 'animal_control_rep',
+  value: 'animal_control_v2',
+  display: 'Animal Control v2',
+  ordernum: 1,
+  is_collection: false,
+  category: 'security',
+  icon_id: 'animal_control_rep',
+  is_active: true,
+  default_priority: 0,
+  default_state: 'active',
+  geometry_type: 'Point',
+  resolve_time: null,
+  auto_resolve: false,
+  url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/animal_control_v2',
+};
+
+export const fireTypeV2 = {
+  id: 'bbd64930-a029-4d89-98f2-f94e269f8fe6',
+  has_events_assigned: true,
+  icon: 'fire_rep',
+  value: 'fire_v2',
+  display: 'Fire v2',
+  ordernum: 2,
+  is_collection: false,
+  category: 'monitoring',
+  icon_id: 'fire_rep',
+  is_active: true,
+  default_priority: 300,
+  default_state: 'active',
+  geometry_type: 'Polygon',
+  resolve_time: null,
+  auto_resolve: false,
+  url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/fire_v2',
+};

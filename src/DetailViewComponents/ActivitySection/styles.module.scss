@@ -106,6 +106,7 @@ $cardExpansionTransitionTime: 300ms;
   border: 0.0625rem solid $light-gray-border;
   border-top: none;
   border-radius: 0.1875rem;
+  padding: 1rem 1.5rem;
   
   @media print {
     display: block !important;

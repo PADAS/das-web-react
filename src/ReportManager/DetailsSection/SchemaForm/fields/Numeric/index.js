@@ -29,7 +29,7 @@ const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, valu
         min={details.minInput ?? null}
         value={value}
         id={id}
-        inputAriaProps={{
+        inputProps={{
           'aria-describedby': hasDescription ? `${id}-description`: undefined,
           'aria-errormessage': hasError ? `${id}-description` : undefined,
           'aria-invalid': hasError,

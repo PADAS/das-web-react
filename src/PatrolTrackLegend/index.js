@@ -16,7 +16,7 @@ import DasIcon from '../DasIcon';
 import MapLegend from '../MapLegend';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
-import styles from '../TrackLegend/styles.module.scss';
+import styles from './styles.module.scss';
 
 const TitleElement = ({ displayTitle, iconId, onRemovePatrolClick, patrolData }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend.titleElement' });
@@ -70,7 +70,7 @@ const TitleElement = ({ displayTitle, iconId, onRemovePatrolClick, patrolData })
   </div>;
 };
 
-const PatrolTrackLegend = (props) => {
+const PatrolTrackLegend = ({ onClose }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend' });
 
@@ -94,13 +94,13 @@ const PatrolTrackLegend = (props) => {
   const iconId = !isMulti && hasData ? iconTypeForPatrol(patrolData[0].patrol) : null;
 
   return hasData ? <MapLegend
-    {...props}
-    titleElement={<TitleElement
+    onClose={onClose}
+    renderTitle={() => <TitleElement
       displayTitle={displayTitle}
       iconId={iconId}
       onRemovePatrolClick={(event) => dispatch(updatePatrolTrackState({
-        visible: trackState.visible.filter((value) => value !== event.target.value),
         pinned: trackState.pinned.filter((value) => value !== event.target.value),
+        visible: trackState.visible.filter((value) => value !== event.target.value),
       }))}
       patrolData={patrolData}
     />}
