@@ -195,6 +195,18 @@ describe('ReportManager - ReportDetailView', () => {
     expect(fetchEventTypeSchema).not.toHaveBeenCalled();
   });
 
+  test('does not fetch the event schema if the event type is not available yet', async () => {
+    state.data.eventTypes = [];
+    renderWithWrapper(
+      <ReportDetailView
+            isNewReport={false}
+            reportId="456"
+          />
+    );
+
+    expect(fetchEventTypeSchema).not.toHaveBeenCalled();
+  });
+
   test('fetches the event schema if it is not loaded already', async () => {
     renderWithWrapper(
       <ReportDetailView

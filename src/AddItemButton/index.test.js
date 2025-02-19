@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import AddItemButton from './';
+import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -18,7 +19,7 @@ describe('AddItemButton', () => {
   let renderAddItemButton, store;
   beforeEach(() => {
     store = {
-      data: { eventTypes, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
+      data: { eventTypes, eventCategories, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
       view: { featureFlagOverrides: {} },
     };
 

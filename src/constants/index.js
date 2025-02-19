@@ -7,6 +7,7 @@ export const {
   REACT_APP_DAS_AUTH_TOKEN_URL,
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
+  REACT_APP_DAS_API_V2_URL,
   REACT_APP_ROUTE_PREFIX,
   REACT_APP_GA4_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
@@ -27,6 +28,7 @@ export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
+export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
@@ -272,13 +274,6 @@ export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles', 'wms_base
 export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];
 
 export const DEFAULT_SHOW_TRACK_DAYS = 7;
-
-
-export const COLUMN_CLASS_PREFIXES = {
-  sm: 'col-sm-',
-  md: 'col-md-',
-  lg: 'col-lg-',
-};
 
 export const EXTERNAL_SAME_DOMAIN_ROUTES = [
   '/admin',

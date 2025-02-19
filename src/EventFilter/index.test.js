@@ -12,6 +12,7 @@ import {
 
 import EventFilter from './';
 import { mockStore } from '../__test-helpers/MockStore';
+import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { render, screen, waitFor, within } from '../test-utils';
 
@@ -36,6 +37,7 @@ describe('EventFilter', () => {
     initialState = {
       data: {
         subjectStore: {},
+        eventCategories,
         eventTypes,
         eventFilter: cloneDeep(INITIAL_FILTER_STATE),
         eventSchemas: {

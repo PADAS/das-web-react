@@ -157,21 +157,28 @@
               "closed": "Fungua orodha ya {{collectionLabel}}",
               "open": "Funga orodha ya {{collectionLabel}}"
             },
-            "item": {
-              "collectionHumanizedValue": "{{collectionLength}} vitu",
-              "deleteButtonLabel": "Futa {{itemTitle}}",
-              "editButtonLabel": "Hariri {{itemTitle}}",
-              "formModal": {
-                "cancelButton": "Ghairi",
-                "deleteButton": "Futa {{itemTitle}}",
-                "doneButton": "Imekamilika"
-              },
-              "formPreview": {
-                  "collectionHumanizedValue": "{{collectionLength}} vitu"
-              },
-              "chevronButtonLabel": {
-                "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
-                "open": "Funga muhtasari wa fomu ya {{itemTitle}}"
+            "sortableList": {
+              "dragCancelAnnouncement": "Kuburuta kulisitishwa. {{activeItemTitle}} imeangushwa.",
+              "dragEndAnnouncement": "{{activeItemTitle}} imeangushwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
+              "draggableScreenReaderInstructions": "Kuchukua {{itemName}}, bonyeza space au Enter. Wakati wa kuburuta, tumia vibonyo vya mshale juu na chini kusogeza {{itemName}} na kusasisha msimamo wake. Bonyeza space au Enter tena kuacha {{itemName}} kwenye msimamo wake mpya.",
+              "dragOverAnnouncement": "{{activeItemTitle}} imehamishwa kwenye nafasi ya {{overItemPosition}} kati ya {{itemsLength}}.",
+              "dragStartAnnouncement": "{{activeItemTitle}} imechukuliwa. {{activeItemTitle}} iko kwenye nafasi ya {{activeItemPosition}} kati ya {{itemsLength}}.",
+              "item": {
+                "collectionHumanizedValue": "{{collectionLength}} vitu",
+                "deleteButtonLabel": "Futa {{itemTitle}}",
+                "editButtonLabel": "Hariri {{itemTitle}}",
+                "formModal": {
+                  "cancelButton": "Ghairi",
+                  "deleteButton": "Futa {{itemTitle}}",
+                  "doneButton": "Imekamilika"
+                },
+                "formPreview": {
+                    "collectionHumanizedValue": "{{collectionLength}} vitu"
+                },
+                "chevronButtonLabel": {
+                  "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",
+                  "open": "Funga muhtasari wa fomu ya {{itemTitle}}"
+                }
               }
             }
           }

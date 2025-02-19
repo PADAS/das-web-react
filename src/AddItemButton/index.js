@@ -1,12 +1,10 @@
 import React, { createContext, memo, useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
-import { addReportFormProps } from '../proptypes';
-import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { selectCreatableEventTypesByCategory } from '../selectors/event-types';
 import { trackEvent } from '../utils/analytics';
 
 import AddItemModal from './AddItemModal';
@@ -17,25 +15,31 @@ import styles from './styles.module.scss';
 export const AddItemContext = createContext();
 
 const AddItemButton = ({
-  analyticsMetadata,
-  className,
-  formProps,
-  hideAddPatrolTab,
-  hideAddReportTab,
-  iconComponent,
-  modalProps,
-  onAddPatrol,
-  onAddReport,
-  patrolData,
-  reportData,
-  showLabel,
-  title,
-  variant,
+  analyticsMetadata = { category: 'Feed', location: null },
+  className = '',
+  formProps = {
+    hidePatrols: false,
+    isPatrolReport: false,
+    onSaveError: null,
+    onSaveSuccess: null,
+    relationshipButtonDisabled: false,
+  },
+  hideAddPatrolTab = false,
+  hideAddReportTab = false,
+  iconComponent = <AddButtonIcon />,
+  modalProps = {},
+  onAddPatrol = null,
+  onAddReport = null,
+  patrolData = {},
+  reportData = {},
+  showLabel = true,
+  title = null,
+  variant = 'primary',
   ...restProps
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'addItemButton' });
 
-  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
+  const eventsByCategory = useSelector(selectCreatableEventTypesByCategory);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const [showModal, setShowModal] = useState(false);
@@ -78,49 +82,6 @@ const AddItemButton = ({
       {showLabel && <label>{title || t('defaultTitle')}</label>}
     </button> : null}
   </AddItemContext.Provider>;
-};
-
-AddItemButton.defaultProps = {
-  analyticsMetadata: { category: 'Feed', location: null },
-  className: '',
-  formProps: {
-    hidePatrols: false,
-    isPatrolReport: false,
-    onSaveError: null,
-    onSaveSuccess: null,
-    relationshipButtonDisabled: false,
-  },
-  hideAddPatrolTab: false,
-  hideAddReportTab: false,
-  iconComponent: <AddButtonIcon />,
-  modalProps: {},
-  onAddPatrol: null,
-  onAddReport: null,
-  patrolData: {},
-  reportData: {},
-  showLabel: true,
-  title: null,
-  variant: 'primary',
-};
-
-AddItemButton.propTypes = {
-  analyticsMetadata: PropTypes.shape({
-    category: PropTypes.string,
-    location: PropTypes.string,
-  }),
-  className: PropTypes.string,
-  formProps: addReportFormProps,
-  hideAddPatrolTab: PropTypes.bool,
-  hideAddReportTab: PropTypes.bool,
-  iconComponent: PropTypes.node,
-  modalProps: PropTypes.object,
-  onAddPatrol: PropTypes.func,
-  onAddReport: PropTypes.func,
-  patrolData: PropTypes.object,
-  reportData: PropTypes.object,
-  showLabel: PropTypes.bool,
-  title: PropTypes.string,
-  variant: PropTypes.oneOf(['primary', 'secondary']),
 };
 
 export default memo(AddItemButton);

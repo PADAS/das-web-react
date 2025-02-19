@@ -1,11 +1,10 @@
 import React, { memo, forwardRef, useMemo } from 'react';
 import isObject from 'lodash/isObject';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
-import { displayEventTypes } from '../selectors/event-types';
+import { selectDisplayEventTypes } from '../selectors/event-types';
 
 import DasIcon from '../DasIcon';
 
@@ -14,7 +13,7 @@ import styles from './styles.module.scss';
 const EventIcon = ({ report, ...rest }, ref) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventIcon' });
 
-  const eventTypes = useSelector(displayEventTypes);
+  const eventTypes = useSelector(selectDisplayEventTypes);
 
   const topRatedReportAndType = useMemo(
     () => report.is_collection ? calcTopRatedReportAndTypeForCollection(report, eventTypes) : null,
@@ -51,10 +50,4 @@ const EventIcon = ({ report, ...rest }, ref) => {
   </span>;
 };
 
-const EventIconForwardRef = forwardRef(EventIcon);
-
-EventIconForwardRef.propTypes = {
-  report: PropTypes.object.isRequired,
-};
-
-export default memo(EventIconForwardRef);
+export default memo(forwardRef(EventIcon));

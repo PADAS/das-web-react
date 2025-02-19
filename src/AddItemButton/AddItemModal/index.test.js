@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { AddItemContext } from '../';
 import AddItemModal, { ADD_TAB_KEYS } from './';
+import eventCategories from '../../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { getStoredTab, storeTab } from './utils';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -30,7 +31,16 @@ describe('AddItemButton - AddItemModal', () => {
     storeTab.mockImplementation(storeTabMock);
 
     store = {
-      data: { eventTypes, patrolTypes, user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE] } }, },
+      data: {
+        eventCategories,
+        eventTypes,
+        patrolTypes,
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.CREATE],
+          },
+        },
+      },
       view: { featureFlagOverrides: {} },
     };
 
@@ -128,7 +138,7 @@ describe('AddItemButton - AddItemModal', () => {
   test('changes to Add Report tab if Add Patrol is selected but patrols are not enabled', async () => {
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    renderAddItemModal({}, {}, { data: { eventTypes, patrolTypes, user: { permissions: {} } } });
+    renderAddItemModal({}, {}, { data: { eventCategories, eventTypes, patrolTypes, user: { permissions: {} } } });
 
     const tabs = await screen.findAllByRole('tab');
 

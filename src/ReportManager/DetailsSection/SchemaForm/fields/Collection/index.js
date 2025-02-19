@@ -1,4 +1,5 @@
 import React, { memo, useRef, useState } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 import Collapse from 'react-bootstrap/Collapse';
 import { useTranslation } from 'react-i18next';
 
@@ -6,9 +7,7 @@ import { ReactComponent as AddButtonIcon } from '../../../../../common/images/ic
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../common/images/icons/arrow-down-simple.svg';
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../common/images/icons/arrow-up-simple.svg';
 
-import { uuid } from '../../../../../utils/string';
-
-import Item from './Item';
+import SortableList from './SortableList';
 
 import styles from './styles.module.scss';
 
@@ -28,27 +27,32 @@ const Collection = ({
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
 
-  const temporalIdentifierOfLastAddedItemRef = useRef(null);
+  // Ref to keep track of the temporal id of the last added item so we keep incrementing them when the user adds more
+  // items.
+  const lastAddedItemIdRef = useRef(value.length - 1);
 
   const [isOpen, setIsOpen] = useState(true);
-  // React requires rendered arrays to have a unique key, but there's nothing we can use for the collection items so we
-  // handle an array of temporal identifiers with uuids for each item.
-  const [temporalIdentifiers, setTemporalIdentifiers] = useState(value.map(() => uuid()));
+  // Items is an internal state variable to assign temporal ids to each collection item (used as the key prop, sortable
+  // id and numeric identifier) and to track their state. It's stored as an array and the index of each item in the
+  // value prop will always be matched in here.
+  const [items, setItems] = useState(value.map((_, index) => ({
+    id: index,
+    isFormModalOpen: false,
+    isFormPreviewOpen: false,
+  })));
 
   const hasError = !!error?.message;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
+    // We clean the collection error message and update the changed item error.
     let updatedError = { ...error };
     delete updatedError.message;
     if (itemError) {
-      // If the changed item has an error, we set it in the updated error object by the item index.
       updatedError[itemIndex] = itemError;
     } else {
-      // If the changed item cleans its error we delete its property.
       delete updatedError[itemIndex];
       if (Object.keys(updatedError).length === 0) {
-        // If after deleting the changed item error the error object is empty, we totally remove it.
         updatedError = undefined;
       }
     }
@@ -61,16 +65,15 @@ const Collection = ({
   };
 
   const onItemDelete = (itemIndex) => () => {
-    // We clean the error related to the deleted item and the collection error message since it is related to the
-    // amount of items (min and max).
+    // We clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
     delete updatedError.message;
     if (Object.keys(updatedError).length === 0) {
-      // If after deleting the deleted item error the error object is empty, we totally remove it.
       updatedError = undefined;
     } else {
-      // If there were other errors, we decrease the index number of all the erroneous items over the deleted item.
+      // If there were errors assigned to other items, we decrease the index number of all the erroneous items over the
+      // deleted item.
       Object.keys(updatedError).forEach((erroneousItemIndex) => {
         if (erroneousItemIndex > itemIndex) {
           updatedError[parseInt(erroneousItemIndex) - 1] = updatedError[erroneousItemIndex];
@@ -79,24 +82,53 @@ const Collection = ({
       });
     }
 
-    onFieldChange(id, value.filter((_, valueIndex) => itemIndex !== valueIndex), updatedError);
-    setTemporalIdentifiers(temporalIdentifiers.filter((_, idIndex) => itemIndex !== idIndex));
+    onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
+    setItems(items.filter((_, index) => itemIndex !== index));
   };
 
+  const onItemMove = (originalItemIndex, newItemIndex) => {
+    // If there were any errors before moving the item, we update the indexes of the items after the update in the
+    // error object.
+    let updatedError;
+    if (error) {
+      updatedError = error.message ? { message: error.message } : {};
+
+      const itemErrorsAsArray = value.map((_, index) => error[index]);
+      const itemErrorsAsArrayMoved = arrayMove(itemErrorsAsArray, originalItemIndex, newItemIndex);
+      itemErrorsAsArrayMoved.forEach((itemError, index) => {
+        if (itemError) {
+          updatedError[index] = itemError;
+        }
+      });
+    }
+
+    onFieldChange(id, arrayMove(value, originalItemIndex, newItemIndex), updatedError);
+    setItems(arrayMove(items, originalItemIndex, newItemIndex));
+  };
+
+  const setIsItemFormModalOpen = (itemIndex) => (isItemFormModalOpen) => setItems([
+    ...items.slice(0, itemIndex),
+    { ...items[itemIndex], isFormModalOpen: isItemFormModalOpen },
+    ...items.slice(itemIndex + 1),
+  ]);
+
+  const setIsItemFormPreviewOpen = (itemIndex) => (isItemFormPreviewOpen) => setItems([
+    ...items.slice(0, itemIndex),
+    { ...items[itemIndex], isFormPreviewOpen: isItemFormPreviewOpen },
+    ...items.slice(itemIndex + 1),
+  ]);
+
   const onAddButtonClick = () => {
-    // We clean the collection error message since it is related to the amount of items (min and max).
+    // We clean the collection error message.
     let updatedError = { ...error };
     delete updatedError.message;
     if (Object.keys(updatedError).length === 0) {
-      // If after deleting the collection error message the error object is empty, we totally remove it.
       updatedError = undefined;
     }
 
+    lastAddedItemIdRef.current += 1;
     onFieldChange(id, [...value, {}], updatedError);
-
-    const temporalIdentifier = uuid();
-    setTemporalIdentifiers([...temporalIdentifiers, temporalIdentifier]);
-    temporalIdentifierOfLastAddedItemRef.current = temporalIdentifier;
+    setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
   };
 
   return <div
@@ -132,25 +164,21 @@ const Collection = ({
       <div className={styles.collapse} id={`collectionList-${id}`}>
         {value.length === 0
           ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
-          : <ul aria-live="polite">
-            {value.map((itemValues, index) => <Item
-              breadcrumbs={breadcrumbs}
-              columns={details.columns}
-              errors={error?.[index]}
-              fields={fields}
-              formData={itemValues}
-              identifier={details.itemIdentifier}
-              index={index}
-              key={temporalIdentifiers[index]}
-              leftColumn={details.leftColumn}
-              name={details.itemName}
-              onChange={onItemChange(index)}
-              onDelete={onItemDelete(index)}
-              openModalAutomatically={temporalIdentifierOfLastAddedItemRef.current === temporalIdentifiers[index]}
-              renderField={renderField}
-              rightColumn={details.rightColumn}
-            />)}
-          </ul>}
+          : <SortableList
+            breadcrumbs={breadcrumbs}
+            collectionDetails={details}
+            fields={fields}
+            // Merge the value, error and items array into a single array of item objects.
+            items={items
+              .filter((_, index) => !!value[index])
+              .map((item, index) => ({ ...item, error: error?.[index], formData: value[index] }))}
+            onItemChange={onItemChange}
+            onItemDelete={onItemDelete}
+            onItemMove={onItemMove}
+            setIsItemFormModalOpen={setIsItemFormModalOpen}
+            setIsItemFormPreviewOpen={setIsItemFormPreviewOpen}
+            renderField={renderField}
+          />}
 
         <button
           aria-label={t('addButtonLabel', { itemName: details.itemName })}

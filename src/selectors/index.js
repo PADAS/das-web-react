@@ -5,7 +5,6 @@ import pickBy from 'lodash/pickBy';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
-import { mapReportTypesToCategories } from '../utils/event-types';
 
 const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
@@ -38,19 +37,7 @@ export const bboxBoundsPolygon = createSelector(
   (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
 );
 
-const getEventTypes = ({ data: { eventTypes = [] } }) => eventTypes;
-
-const userCreatableEventTypesByCategory = createSelector(
-  [getEventTypes],
-  (eventTypes) => mapReportTypesToCategories(eventTypes)
-    .filter((category) => {
-      if (category.flag && category.flag === 'user') {
-        return category.permissions.includes('create');
-      }
-      if (!category.flag) return true;
-      return false;
-    })
-);
+const getEventTypes = (state) => state.data.eventTypes;
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore, getEventTypes, locallyEditedEvent],
@@ -96,19 +83,6 @@ export const getFeedIncidents = createSelector(
       .map(id => eventStore[id])
       .filter(item => !!item),
   }),
-);
-
-export const getUserCreatableEventTypesByCategory = createSelector(
-  [userCreatableEventTypesByCategory],
-  (categories) => {
-    return categories
-      .map(cat => ({
-        ...cat,
-        types: cat.types
-          .filter(t => !t.is_collection && !t.readonly),
-      }))
-      .filter(({ types }) => !!types.length);
-  },
 );
 
 export const getGlobalSchemaReportedBy = createSelector(
