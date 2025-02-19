@@ -28,86 +28,95 @@
     width: 1rem;
     height: 1rem;
     margin-right: 0.5rem;
+    position: relative;
+    z-index: 2;
 
     &:hover {
       cursor: pointer;
+      + .ripple {
+        background: rgba(colors.$bright-blue, 0.08);
+      }
+
     }
   }
 
-  .ripple {
-    width: 2.3rem;
-    height: 2.3rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    transition: background-color 200ms ease-in-out;
+  .rippleContainer{
+    position: relative;
+
+    .ripple {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: transparent;
+      transition: background-color 200ms ease-in-out;
+
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      margin-left: -0.55rem;
+      margin-top: -0.4rem;
 
 
-    &.active {
-      &:hover {
-        cursor: pointer;
-        background: rgba(colors.$bright-blue, 0.06);
-      }
 
-      &:active {
-        background-color: unset;
-      }
-
-    }
-
-    .checkboxIconWrapper {
-      width: 1.1rem;
-      height: 1.1rem;
-      border: 2px solid colors.$gray-border;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0.1rem;
-
-      svg {
-        display: none;
-      }
-
-      &.checked {
-        background: colors.$bright-blue;
-        border-color: colors.$bright-blue;
-
-        svg {
-          color: white;
-          display: unset;
+      &.active {
+        &:hover {
+          background: rgba(colors.$bright-blue, 0.08);
         }
       }
-    }
 
-    .radioIconWrapper {
-      width: 1.2rem;
-      height: 1.2rem;
-      border: 2px solid colors.$gray-border;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
+      .checkboxIconWrapper {
+        width: 1.1rem;
+        height: 1.1rem;
+        border: 2px solid colors.$gray-border;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.1rem;
 
+        svg {
+          display: none;
+        }
 
-      .radioBoxIcon {
-        width: 0.65rem;
-        height: 0.65rem;
-        background-color: colors.$bright-blue;
+        &.checked {
+          background: colors.$bright-blue;
+          border-color: colors.$bright-blue;
+
+          svg {
+            color: white;
+            display: unset;
+          }
+        }
+      }
+
+      .radioIconWrapper {
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 2px solid colors.$gray-border;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 50%;
+
+
+        .radioBoxIcon {
+          width: 0.65rem;
+          height: 0.65rem;
+          background-color: colors.$bright-blue;
+          border-radius: 50%;
+        }
+
+        &.checked {
+          border: 2px solid colors.$bright-blue;
+        }
       }
 
-      &.checked {
-        border: 2px solid colors.$bright-blue;
+      .radioIconWrapper.iconError,
+      .checkboxIconWrapper.iconError, {
+        border-color: colors.$bright-red;
       }
-    }
 
-    .radioIconWrapper.iconError,
-    .checkboxIconWrapper.iconError, {
-      border-color: colors.$bright-red;
     }
-
   }
 
   &.disabled {

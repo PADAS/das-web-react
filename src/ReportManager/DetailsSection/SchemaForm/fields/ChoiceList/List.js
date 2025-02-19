@@ -7,14 +7,14 @@ const List = ({
   onChange,
   ...otherProps
 }) => <SelectListGroup
-    onChange={(newValue) => {
-      onChange( !newValue || !newValue?.length ? undefined : newValue );
-    }}
-    options={details.options}
-    isMulti={details.multiple}
-    getOptionValue={(option) => option.const}
-    getOptionLabel={(option) => option.title}
-    {...otherProps}
+        onChange={(newValue) => {
+            onChange( !newValue || !newValue?.length ? undefined : newValue );
+        }}
+        options={details.options}
+        isMulti={details.multiple}
+        getOptionValue={(option) => option.const}
+        getOptionLabel={(option) => option.title}
+        {...otherProps}
 />;
 
 export default List;

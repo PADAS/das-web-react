@@ -7,11 +7,12 @@ const INPUT_ROLES = {
   RADIO: 'radio'
 };
 
-const Ripple = ({ onClick, readOnly, disabled, children }) =>
-  <div className={`${styles.ripple} ${!readOnly && !disabled ? styles.active : ''}`}
-         onClick={onClick}>
+const Ripple = ({ readOnly, disabled, children }) =>
+  <div className={styles.rippleContainer}>
     {children}
-  </div>;
+    <div className={`${styles.ripple} ${!readOnly && !disabled ? styles.active : ''}`} />
+  </div>
+;
 
 const SelectableItem = ({
   className = '',
@@ -33,8 +34,10 @@ const SelectableItem = ({
 }, ref) => {
 
   const handleOnChange = (event) => {
-    event?.preventDefault();
-    onClick(value, !isChecked);
+    if (!readOnly && !disabled){
+      event?.preventDefault();
+      onClick(value, !isChecked);
+    }
   };
 
   const handleOnKeyDown = (event) => {
@@ -65,19 +68,21 @@ const SelectableItem = ({
 
   return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${invalid ? styles.error : ''}`}
               onKeyDown={handleOnKeyDown}>
-    <input type={isMulti ? INPUT_ROLES.CHECKBOX : INPUT_ROLES.RADIO}
-           onFocus={() => setIsFocused(true, id)}
-           onBlur={() => setIsFocused(false, id)}
-           readOnly={readOnly}
-           disabled={disabled}
-           value={!isMulti ? value : undefined}
-           checked={isChecked}
-           id={id}
-           name={ isMulti ? id : `${groupId}-option`}
-           data-testid={`input-for-${label}`}
-           onChange={handleOnChange}
-           ref={ref}
-           {...otherProps} />
+    <Ripple>
+      <input type={isMulti ? INPUT_ROLES.CHECKBOX : INPUT_ROLES.RADIO}
+             onFocus={() => setIsFocused(true, id)}
+             onBlur={() => setIsFocused(false, id)}
+             readOnly={readOnly}
+             disabled={disabled}
+             value={!isMulti ? value : undefined}
+             checked={isChecked}
+             id={id}
+             name={ isMulti ? id : `${groupId}-option`}
+             data-testid={`input-for-${label}`}
+             onChange={handleOnChange}
+             ref={ref}
+             {...otherProps} />
+    </Ripple>
     <label htmlFor={id}>
       {label}
     </label>

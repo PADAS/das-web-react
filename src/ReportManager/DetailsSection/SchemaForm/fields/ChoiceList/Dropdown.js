@@ -9,10 +9,11 @@ import styles from './styles.module.scss';
 const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
   <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>
     {
-            isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
-        }
-    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`} title={data.title}>
-      {data.title}
+        isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
+    }
+    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}
+          title={data.label}>
+      {data.label}
     </span>
   </SelectComponent.Option>
 </div>;
@@ -23,13 +24,20 @@ const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherPro
   const [isMenuOpen, setMenuOpen] = useState(false);
   const { t } = useTranslation('components', { keyPrefix: 'choiceList' });
 
-  const selectedValue = details.multiple ? value : details.options.find((item) => item.const === value);
+  const options = details.options.map(({ title, 'const': value }) => ({
+    value,
+    label: title
+  }));
+
+  const selectedValue = details.multiple
+    ? options.filter((option) => value.includes(option.value))
+    : options.find((item) => item.value === value);
 
   const handleOnChange = (newValue) => {
     if ( ( details.multiple && newValue.length === 0 ) || !newValue){
       return onChange(undefined);
     }
-    const returnedValue = details.multiple ? newValue.map((item) => item.const ?? item) : newValue.const;
+    const returnedValue = details.multiple ? newValue.map(({ value }) => value) : newValue.value;
     return onChange( returnedValue );
   };
 
@@ -47,8 +55,6 @@ const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherPro
             option: () => styles.cursorPointer,
             placeholder: () => invalid && styles.error,
         }}
-        getOptionLabel={(option) => option.title ?? details.options.find((item) => item.const === option).title}
-        getOptionValue={(option) => option.const ?? option}
         isClearable
         isDisabled={disabled}
         inputId={id}
@@ -56,7 +62,7 @@ const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherPro
         isSearchable
         onChange={handleOnChange}
         noOptionsMessage={() => t('select.noOptionsMessage')}
-        options={details.options}
+        options={options}
         onMenuClose={() => setMenuOpen(false)}
         onMenuOpen={() => setMenuOpen(true)}
         onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
