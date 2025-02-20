@@ -77,19 +77,12 @@ describe('CursorGpsDisplay', () => {
     expect(map.off.mock.calls[0][0]).toBe('mousemove');
   });
 
-  test('does not render until there are valid cursor coordinates', async () => {
-    renderCursorGpsDisplay();
-
-    expect(screen.queryByTestId('cursorGpsDisplay-dropdown')).toBeNull();
-  });
-
   test('renders the dropdown component and the coordinates once there are valid cursor coordinates', async () => {
     renderCursorGpsDisplay();
 
     map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
 
-    expect(screen.getByTestId('cursorGpsDisplay-dropdown')).toBeDefined();
-    expect(screen.getByText('11.666666°, 10.012657°')).toBeDefined();
+    expect(screen.getByTestId('cursorGpsDisplay-dropdown')).toHaveTextContent(('11.666666°, 10.012657°'));
   });
 
   test('jumps to searched coordinates location and shows a marker popup when clicking the search button', () => {

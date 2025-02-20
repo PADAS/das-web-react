@@ -15,6 +15,7 @@ import reportsEnUS from '../public/locales/en-US/reports.json';
 import settingsEnUS from '../public/locales/en-US/settings.json';
 import subjectsEnUS from '../public/locales/en-US/subjects.json';
 import topBarEnUS from '../public/locales/en-US/top-bar.json';
+import tracksEnUS from '../public/locales/en-US/tracks.json';
 import utilsEnUS from '../public/locales/en-US/utils.json';
 
 i18n
@@ -43,6 +44,7 @@ i18n
         'settings': settingsEnUS,
         'subjects': subjectsEnUS,
         'top-bar': topBarEnUS,
+        'tracks': tracksEnUS,
         'utils': utilsEnUS,
       },
     },

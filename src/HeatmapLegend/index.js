@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const HeatmapLegend = ({ dayCount, onClose, pointCount, title, ...restProps }) => {
+const HeatmapLegend = ({ dayCount, onClose, pointCount, title }) => {
   const { t } = useTranslation('heatmap', { keyPrefix: 'heatmapLegend' });
 
   const onLegendClose = (event) => {
@@ -23,19 +23,16 @@ const HeatmapLegend = ({ dayCount, onClose, pointCount, title, ...restProps }) =
 
   return <MapLegend
     onClose={onLegendClose}
-    settingsComponent={<HeatmapStyleControls showCancel={false} />}
-    titleElement={
-      <div className={styles.titleWrapper}>
-        <HeatmapToggleButton className={styles.heatIcon} heatmapVisible={true} showLabel={false} />
+    renderSettings={() => <HeatmapStyleControls showCancel={false} />}
+    renderTitle={() => <div className={styles.titleWrapper}>
+      <HeatmapToggleButton className={styles.heatIcon} heatmapVisible={true} showLabel={false} />
 
-        <div className={styles.innerTitleWrapper}>
-          {isValidElement(title) ? title : <h6>{title}</h6>}
+      <div className={styles.innerTitleWrapper}>
+        {isValidElement(title) ? title : <h6>{title}</h6>}
 
-          <span>{t('pointCount', { count: pointCount })} {t('dayTimespan', { count: dayCount })}</span>
-        </div>
+        <span>{t('pointCount', { count: pointCount })} {t('dayTimespan', { count: dayCount })}</span>
       </div>
-    }
-    {...restProps}
+    </div>}
   />;
 };
 
