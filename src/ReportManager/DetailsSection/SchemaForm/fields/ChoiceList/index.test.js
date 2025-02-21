@@ -1,9 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
-import { screen } from '../../../../../test-utils';
+
+import { render, screen } from '../../../../../test-utils';
 
 import ChoiceList from './';
 
@@ -41,145 +41,318 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
     <ChoiceList {...props} />
   );
 
-  test('shows a non required choice list field', () => {
-    renderChoiceList({
-      ...defaultProps,
-      error: 'An error'
+  describe('Dropdown', () => {
+
+    test('shows a non required choice-list field as a Dropdown', () => {
+      renderChoiceList({
+        ...defaultProps
+      });
+
+      expect(screen.getByText('Choice list label')).toBeVisible();
+      expect(screen.getByRole('combobox')).not.toBeRequired();
     });
 
+    test('shows a required choice-list field as a Dropdown', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          isRequired: true
+        }
+      });
 
-    expect(screen.getByText('Choice list label')).toBeVisible();
-    expect(screen.getByRole('combobox')).not.toBeRequired();
-
-  });
-
-  test('shows a required choice list field', () => {
-    renderChoiceList({
-      ...defaultProps,
-      details: {
-        ...defaultProps.details,
-        isRequired: true
-      }
+      expect(screen.getByText('Choice list label *')).toBeVisible();
     });
 
-    expect(screen.getByText('Choice list label *')).toBeVisible();
-  });
+    test('does not show an error state in the label if the value is valid', () => {
+      renderChoiceList();
 
-  test('does not show an error state in the label if the value is valid', () => {
-    renderChoiceList();
-
-    expect(screen.getByText('Choice list label')).not.toHaveClass('error');
-  });
-
-  test('shows an error state in the label if the value is invalid', () => {
-    renderChoiceList({
-      ...defaultProps,
-      error: {
-        message: 'A incredible error message'
-      }
+      expect(screen.getByText('Choice list label')).not.toHaveClass('error');
     });
 
+    test('shows an error state in the label if the value is invalid', () => {
+      renderChoiceList({
+        ...defaultProps,
+        error: {
+          message: 'A incredible error message'
+        }
+      });
 
-    expect(screen.getByText('Choice list label')).toHaveClass('error');
-    expect(screen.getByText('A incredible error message')).toBeVisible();
-  });
 
-  test('does not show the description', () => {
-    renderChoiceList({
-      ...defaultProps,
-      details: {
-        ...defaultProps.details,
-        description: null
-      }
+      expect(screen.getByText('Choice list label')).toHaveClass('error');
+      expect(screen.getByText('A incredible error message')).toBeVisible();
     });
 
-    expect(screen.queryByText('A really great description')).toBeNull();
-  });
+    test('does not show the description', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          description: null
+        }
+      });
 
-  test('shows the description', () => {
-    renderChoiceList();
-
-    expect(screen.queryByText('A really great description')).toBeVisible();
-    expect(screen.getByRole('combobox')).toHaveAccessibleDescription();
-  });
-
-  test('shows a valid input when there are no errors', () => {
-    renderChoiceList();
-
-    const choiceListInput = screen.getByRole('combobox');
-
-    expect(choiceListInput).toBeValid();
-    expect(choiceListInput).not.toHaveAccessibleErrorMessage();
-  });
-
-  test('shows an invalid input when there are errors', () => {
-    renderChoiceList({
-      ...defaultProps,
-      error: {
-        message: 'A incredible error message'
-      }
+      expect(screen.queryByText('A really great description')).toBeNull();
     });
 
-    const choiceListInput = screen.getByRole('combobox');
-    const description = screen.getByText('A incredible error message');
+    test('shows the description', () => {
+      renderChoiceList();
 
-    expect(choiceListInput).toBeInvalid();
-    expect(choiceListInput).toHaveAccessibleErrorMessage('A incredible error message');
-    expect(description).toBeVisible();
-    expect(description).toHaveAttribute('aria-live', 'assertive');
-    expect(description).toHaveClass('error');
-  });
-
-  test('allow to select single option when the choice list is set to single selection', async () => {
-    const onFieldChange = jest.fn();
-
-    renderChoiceList({
-      ...defaultProps,
-      details: {
-        ...defaultProps.details,
-        multiple: false
-      },
-      onFieldChange
+      expect(screen.queryByText('A really great description')).toBeVisible();
+      expect(screen.getByRole('combobox')).toHaveAccessibleDescription();
     });
 
-    expect(onFieldChange).toHaveBeenCalledTimes(0);
+    test('shows a valid input when there are no errors', () => {
+      renderChoiceList();
 
-    userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
+      const choiceListInput = screen.getByRole('combobox');
 
-    userEvent.click(screen.getByText('EarthRanger System'));
-
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
-    expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
-  });
-
-  test('allow to select multiple options when the choice list is set to multiple selection', async () => {
-    const onFieldChange = jest.fn();
-    renderChoiceList({
-      ...defaultProps,
-      onFieldChange
+      expect(choiceListInput).toBeValid();
+      expect(choiceListInput).not.toHaveAccessibleErrorMessage();
     });
 
-    expect(onFieldChange).toHaveBeenCalledTimes(0);
+    test('shows an invalid input when there are errors', () => {
+      renderChoiceList({
+        ...defaultProps,
+        error: {
+          message: 'A incredible error message'
+        }
+      });
 
-    const dropdown = screen.getByRole('combobox');
+      const choiceListInput = screen.getByRole('combobox');
+      const description = screen.getByText('A incredible error message');
 
-    userEvent.type(dropdown, '{arrowdown}');
+      expect(choiceListInput).toBeInvalid();
+      expect(choiceListInput).toHaveAccessibleErrorMessage('A incredible error message');
+      expect(description).toBeVisible();
+      expect(description).toHaveAttribute('aria-live', 'assertive');
+      expect(description).toHaveClass('error');
+    });
 
-    userEvent.click(screen.getByText('EarthRanger System'));
+    test('allow to select single option when the choice list is set to single selection', async () => {
+      const onFieldChange = jest.fn();
 
-    expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
-      '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
-    ]);
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          multiple: false
+        },
+        onFieldChange
+      });
 
-    userEvent.type(dropdown, '{arrowdown}');
+      expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(screen.getByText('frank'));
+      userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
 
-    expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
-      '0d9fbeea-5252-4723-ba59-ca696baef2d9'
-    ]);
+      userEvent.click(screen.getByText('EarthRanger System'));
 
-    expect(onFieldChange).toHaveBeenCalledTimes(2);
+      expect(onFieldChange).toHaveBeenCalledTimes(1);
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
+    });
+
+    test('allow to select multiple options when the choice list is set to multiple selection', async () => {
+      const onFieldChange = jest.fn();
+      renderChoiceList({
+        ...defaultProps,
+        onFieldChange
+      });
+
+      expect(onFieldChange).toHaveBeenCalledTimes(0);
+
+      const dropdown = screen.getByRole('combobox');
+
+      userEvent.type(dropdown, '{arrowdown}');
+
+      userEvent.click(screen.getByText('EarthRanger System'));
+
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+        '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
+      ]);
+
+      userEvent.type(dropdown, '{arrowdown}');
+
+      userEvent.click(screen.getByText('frank'));
+
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+        '0d9fbeea-5252-4723-ba59-ca696baef2d9'
+      ]);
+
+      expect(onFieldChange).toHaveBeenCalledTimes(2);
+    });
+
+  });
+
+  describe('List', () => {
+
+    test('shows a non required choice-list field as a List', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      expect(screen.getByText('Choice list label')).toBeVisible();
+      expect(screen.getByRole('group')).not.toBeRequired();
+    });
+
+    test('shows a required choice-list field as a List', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
+          isRequired: true
+        }
+      });
+
+      expect(screen.getByText('Choice list label *')).toBeVisible();
+    });
+
+    test('does not show an error state in the label if the value is valid', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      expect(screen.getByText('Choice list label')).not.toHaveClass('error');
+    });
+
+    test('shows an error state in the label if the value is invalid', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        },
+        error: {
+          message: 'A incredible error message'
+        }
+      });
+
+
+      expect(screen.getByRole('group')).toHaveClass('error');
+      expect(screen.getByText('A incredible error message')).toBeVisible();
+    });
+
+    test('does not show the description', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          description: null,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      expect(screen.queryByText('A really great description')).toBeNull();
+    });
+
+    test('shows the description', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      expect(screen.queryByText('A really great description')).toBeVisible();
+      expect(screen.getByRole('group')).toHaveAccessibleDescription();
+    });
+
+    test('shows a valid input when there are no errors', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        }
+      });
+
+      const fieldset = screen.getByRole('group');
+
+      expect(fieldset).toBeValid();
+      expect(fieldset).not.toHaveAccessibleErrorMessage();
+    });
+
+    test('shows an invalid input when there are errors', () => {
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        },
+        error: {
+          message: 'A incredible error message'
+        }
+      });
+
+      const fieldset = screen.getByRole('group');
+      const description = screen.getByText('A incredible error message');
+
+      expect(fieldset).toBeInvalid();
+      expect(fieldset).toHaveAccessibleErrorMessage('A incredible error message');
+      expect(description).toBeVisible();
+      expect(description).toHaveAttribute('aria-live', 'assertive');
+      expect(description).toHaveClass('error');
+    });
+
+    test('allow to select single option when the choice list is set to single selection', async () => {
+      const onFieldChange = jest.fn();
+
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST,
+          multiple: false
+        },
+        onFieldChange
+      });
+
+      expect(onFieldChange).toHaveBeenCalledTimes(0);
+
+      userEvent.click(screen.getByText('EarthRanger System'));
+
+      expect(onFieldChange).toHaveBeenCalledTimes(1);
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
+    });
+
+    test('allow to select multiple options when the choice list is set to multiple selection', async () => {
+      const onFieldChange = jest.fn();
+
+      renderChoiceList({
+        ...defaultProps,
+        details: {
+          ...defaultProps.details,
+          inputType: CHOICE_LIST_ELEMENT_INPUT_TYPES.LIST
+        },
+        onFieldChange
+      });
+
+      expect(onFieldChange).toHaveBeenCalledTimes(0);
+
+      userEvent.click(screen.getByText('EarthRanger System'));
+
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+        '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
+      ]);
+
+      userEvent.click(screen.getByText('frank'));
+
+      expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
+        '0d9fbeea-5252-4723-ba59-ca696baef2d9'
+      ]);
+
+      expect(onFieldChange).toHaveBeenCalledTimes(2);
+    });
+
   });
 
 });
