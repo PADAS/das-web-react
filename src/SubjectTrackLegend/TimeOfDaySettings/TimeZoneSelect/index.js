@@ -11,14 +11,22 @@ import styles from './styles.module.scss';
 
 const TIMEZONE_OFFSET_REGEX = /^(?:UTC|GMT)([+-])(\d{1,2})(?::(\d{2}))?$/;
 
+const CustomDropdownIndicator = ({ selectProps, ...otherProps }) => <components.DropdownIndicator
+    className={styles.dropdownIndicator}
+    selectProps={selectProps}
+    {...otherProps}
+  >
+  <div className={`${styles.caret} ${selectProps.menuIsOpen ? styles.menuOpen : ''}`} role="img" />
+</components.DropdownIndicator>;
+
 const CustomIndicatorSeparator = () => null;
 
-const CustomOption = ({ data, isFocused, isSelected, ...restProps }) => <div title={data.label}>
+const CustomOption = ({ data, isFocused, isSelected, ...otherProps }) => <div title={data.label}>
   <components.Option
     className={`${styles.option} ${isFocused ? styles.focused : ''} ${isSelected ? styles.selected : ''}`}
     isFocused={isFocused}
     isSelected={isSelected}
-    {...restProps}
+    {...otherProps}
   >
     {isSelected && <CheckLightIcon className={styles.checkLightIcon} />}
 
@@ -131,9 +139,13 @@ const TimeZoneSelect = () => {
         classNames={{
           control: (state) => `${styles.control} ${state.isFocused ? styles.focused : ''}`,
           menuList: () => styles.menuList,
-          indicatorsContainer: () => styles.indicatorsContainer,
+          singleValue: () => styles.singleValue,
         }}
-        components={{ IndicatorSeparator: CustomIndicatorSeparator, Option: CustomOption }}
+        components={{
+          DropdownIndicator: CustomDropdownIndicator,
+          IndicatorSeparator: CustomIndicatorSeparator,
+          Option: CustomOption,
+        }}
         inputId="timeZoneSelect-input"
         noOptionsMessage={() => t('noSelectOptionsMessage')}
         onChange={(newValue) => dispatch(setTimeOfDayTimeZone(newValue.value))}

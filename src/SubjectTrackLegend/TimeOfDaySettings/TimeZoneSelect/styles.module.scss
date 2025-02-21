@@ -1,4 +1,5 @@
 @use '../../../common/styles/vars/colors';
+@use '../../../common/styles/inputs';
 
 .timeZoneSelect {
   align-items: center;
@@ -6,7 +7,7 @@
   margin-bottom: 0.25rem;
 
   .label {
-    color: colors.$bright-blue;
+    color: colors.$secondary-medium-gray;
     font-size: 0.75rem;
     margin-right: 0.5rem;
     white-space: nowrap;
@@ -16,23 +17,39 @@
     width: 100%;
 
     .control {
+      cursor: text;
       font-size: 0.75rem;
       height: 2rem;
       min-height: 2rem;
 
       &.focused {
         border-color: colors.$bright-blue;
+
+        .singleValue {
+          color: colors.$secondary-medium-gray;
+        }
+      }
+
+      .singleValue {
+        color: black;
+      }
+
+      .dropdownIndicator {
+        cursor: pointer;
+        padding: 0.5rem;
+
+        .caret {
+          @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+    
+          &.menuOpen {
+            transform: rotate(180deg);
+          }
+        }
       }
     }
 
     .menuList {
       overflow-x: hidden;
-    }
-  
-    .indicatorsContainer {
-      & > div {
-        padding: 0.25rem;
-      }
     }
   
     .option {
