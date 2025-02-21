@@ -13,6 +13,8 @@ import merge from 'lodash/merge';
 import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
+import { getTimeInTimezone } from './datetime';
+import { TIME_OF_DAY_PERIODS } from '../SubjectTrackLegend/constants';
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
@@ -355,4 +357,43 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     };
   }
   return tracks;
+};
+
+const parseTimeStringToObject = (timeString) => {
+  const [hour, min] = timeString.split(':');
+  return {
+    hour: parseInt(hour),
+    min: parseInt(min)
+  };
+};
+
+export const getTimeOfDayRangeLevelBasedOnTime = (datetimeString, timeZone) => {
+  const trackTimeInTimeZone = parseTimeStringToObject( getTimeInTimezone(new Date(datetimeString), timeZone) );
+  const trackTotalMinInTZ = (trackTimeInTimeZone.hour * 60) + trackTimeInTimeZone.min;
+  const [
+    firstTDPeriod,
+    secondTDPeriod,
+    thirdTDPeriod,
+    fourthTDPeriod,
+    fifthTDPeriod,
+    sixthTDPeriod,
+    seventhTDPeriod,
+    eighthTDPeriod,
+  ] = TIME_OF_DAY_PERIODS;
+
+  if ( trackTotalMinInTZ >= firstTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= firstTDPeriod.rangeMinutesMax ) return 0;
+
+  if ( trackTotalMinInTZ >= secondTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= secondTDPeriod.rangeMinutesMax ) return 1;
+
+  if ( trackTotalMinInTZ >= thirdTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= thirdTDPeriod.rangeMinutesMax ) return 2;
+
+  if ( trackTotalMinInTZ >= fourthTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= fourthTDPeriod.rangeMinutesMax ) return 3;
+
+  if ( trackTotalMinInTZ >= fifthTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= fifthTDPeriod.rangeMinutesMax ) return 4;
+
+  if ( trackTotalMinInTZ >= sixthTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= sixthTDPeriod.rangeMinutesMax ) return 5;
+
+  if ( trackTotalMinInTZ >= seventhTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= seventhTDPeriod.rangeMinutesMax ) return 6;
+
+  if ( trackTotalMinInTZ >= eighthTDPeriod.rangeMinutesMin && trackTotalMinInTZ <= eighthTDPeriod.rangeMinutesMax ) return 7;
 };

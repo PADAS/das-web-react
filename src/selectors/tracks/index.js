@@ -3,8 +3,8 @@ import { differenceInCalendarDays, subDays } from 'date-fns';
 import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
-import { trimTrackDataToTimeRange } from '../../utils/tracks';
-import { getTimeOfDayRangeLevelBasedOnTime } from '../../SubjectTrackLegend/utils';
+
+import { getTimeOfDayRangeLevelBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -93,7 +93,7 @@ const selectSubjectTracks = createSelector(
 );
 
 
-export const selectSubjectTracksTrimmedToTrackTimeEnvelope = createSelector(
+export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
   (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone }) => subjectTracks.map(
     (subjectTrack) => {

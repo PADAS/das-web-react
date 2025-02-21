@@ -5,7 +5,7 @@ import { createSelector } from 'reselect';
 import { getTimeSliderState } from './';
 import { getSubjectStore } from './subjects';
 
-import { selectSubjectTracksTrimmedToTrackTimeEnvelope } from './tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from './tracks';
 import { getLeaderForPatrol, extractPatrolPointsFromTrackData, drawLinesBetweenPatrolTrackAndPatrolPoints, patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
 
@@ -116,7 +116,7 @@ export const visibleTrackedPatrolData = createSelector(
 );
 
 export const visibleTrackDataWithPatrolAwareness = createSelector(
-  [(...args) => selectSubjectTracksTrimmedToTrackTimeEnvelope(...args), patrolsWithTrackShown],
+  [(...args) => selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod(...args), patrolsWithTrackShown],
   (trackData, patrolsWithTrackShown) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
     const hasPatrolTrackMatch = patrolsWithTrackShown.some(p =>

@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { selectSubjectTracksTrimmedToTrackTimeEnvelope } from '../selectors/tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../selectors/tracks';
 
 const TrackLength = ({ className, trackId }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLength' });
 
-  const tracks = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelope);
+  const tracks = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod);
 
   const [trackFeature, setTrackFeature] = useState();
 

@@ -1,23 +1,42 @@
-export const TIME_OF_DAY_RANGE_LEVELS = {
-  LEVEL_1: 0,
-  LEVEL_2: 1,
-  LEVEL_3: 2,
-  LEVEL_4: 3,
-  LEVEL_5: 4,
-  LEVEL_6: 5,
-  LEVEL_7: 6,
-  LEVEL_8: 7,
-  LEVEL_9: 8
-};
-
-export const TIME_OF_DAY_RANGES = {
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_1]: '12:01 - 15:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_2]: '15:01 - 18:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_3]: '18:01 - 21:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_4]: '21:01 - 00:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_5]: '00:01 - 03:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_6]: '03:01 - 06:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_7]: '06:01 - 09:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_8]: '09:01 - 12:00',
-  [TIME_OF_DAY_RANGE_LEVELS.LEVEL_9]: '12:01 - 15:00'
-};
+export const TIME_OF_DAY_PERIODS = [
+  {
+    rangeString: '12:01 - 15:00',
+    rangeMinutesMin: 721,
+    rangeMinutesMax: 900,
+  },
+  {
+    rangeString: '15:01 - 18:00',
+    rangeMinutesMin: 901,
+    rangeMinutesMax: 1080,
+  },
+  {
+    rangeString: '18:01 - 21:00',
+    rangeMinutesMin: 1081,
+    rangeMinutesMax: 1260,
+  },
+  {
+    rangeString: '21:01 - 00:00',
+    rangeMinutesMin: 1261,
+    rangeMinutesMax: 1440,
+  },
+  {
+    rangeString: '00:01 - 03:00',
+    rangeMinutesMin: 1,
+    rangeMinutesMax: 180,
+  },
+  {
+    rangeString: '03:01 - 06:00',
+    rangeMinutesMin: 181,
+    rangeMinutesMax: 360,
+  },
+  {
+    rangeString: '06:01 - 09:00',
+    rangeMinutesMin: 361,
+    rangeMinutesMax: 54,
+  },
+  {
+    rangeString: '09:01 - 12:00',
+    rangeMinutesMin: 55,
+    rangeMinutesMax: 720,
+  }
+];

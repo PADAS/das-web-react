@@ -10,55 +10,55 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 
 import TimeZoneSelect from './TimeZoneSelect';
 
-import { TIME_OF_DAY_RANGE_LEVELS, TIME_OF_DAY_RANGES } from '../constants';
+import { TIME_OF_DAY_PERIODS } from '../constants';
 
 import styles from './styles.module.scss';
 
 const COLORED_TIME_ITEMS = [
   {
     color: 'titaniumYellow',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_1,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_1]
+    key: 0,
+    text: TIME_OF_DAY_PERIODS[0].rangeString
   },
   {
     color: 'americanYellow',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_2,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_2]
+    key: 1,
+    text: TIME_OF_DAY_PERIODS[1].rangeString
   },
   {
     color: 'fandangoPink',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_3,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_3]
+    key: 2,
+    text: TIME_OF_DAY_PERIODS[2].rangeString
   },
   {
     color: 'purplePlum',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_4,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_4]
+    key: 3,
+    text: TIME_OF_DAY_PERIODS[3].rangeString
   },
   {
     color: 'majorelleBlue',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_5,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_5]
+    key: 4,
+    text: TIME_OF_DAY_PERIODS[4].rangeString
   },
   {
     color: 'lapisLazuli',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_6,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_6]
+    key: 5,
+    text: TIME_OF_DAY_PERIODS[5].rangeString
   },
   {
     color: 'spanishGreen',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_7,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_7]
+    key: 6,
+    text: TIME_OF_DAY_PERIODS[6].rangeString
   },
   {
     color: 'green',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_8,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_8]
+    key: 7,
+    text: TIME_OF_DAY_PERIODS[7].rangeString
   },
   {
     color: 'titaniumYellow',
-    key: TIME_OF_DAY_RANGE_LEVELS.LEVEL_9,
-    text: TIME_OF_DAY_RANGES[TIME_OF_DAY_RANGE_LEVELS.LEVEL_9]
+    key: 8,
+    text: TIME_OF_DAY_PERIODS[0].rangeString
   },
 ];
 
