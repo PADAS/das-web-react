@@ -8,6 +8,8 @@ import { ReactComponent as ArrowDownSimpleIcon } from '../../common/images/icons
 import { ReactComponent as ArrowUpSimpleIcon } from '../../common/images/icons/arrow-up-simple.svg';
 import { ReactComponent as InformationIcon } from '../../common/images/icons/information.svg';
 
+import TimeZoneSelect from './TimeZoneSelect';
+
 import { TIME_OF_DAY_RANGE_LEVELS, TIME_OF_DAY_RANGES } from '../constants';
 
 import styles from './styles.module.scss';
@@ -90,6 +92,8 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
 
     <Collapse id="timeOfDaySettingsBody" in={isExpanded}>
       <div>
+        <TimeZoneSelect />
+
         <div className={styles.coloringDescription}>
           <div className={styles.gradient} />
 

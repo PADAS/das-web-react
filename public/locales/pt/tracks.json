@@ -45,6 +45,10 @@
             "titaniumYellow": "Amarelo titânio"
           },
           "informationTooltip": "As cores das trajetórias são estimativas baseadas nos dados de trajetórias fornecidos. A velocidade e o tempo de permanência não são considerados.",
+          "timeZoneSelect": {
+            "label": "Fuso horário:",
+            "noSelectOptionsMessage": "Nenhum fuso horário"
+          },
           "title": "Hora do dia"
         },
         "timeOfDaySettingsButtonLabel": {

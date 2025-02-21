@@ -1,15 +1,15 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 
-import globallyResettableReducer from '../../reducers/global-resettable';
-import { API_URL } from '../../constants';
-import { SOCKET_SUBJECT_STATUS } from '../subjects';
 import {
   addSocketStatusUpdateToTrack,
   convertTrackFeatureCollectionToPoints,
   fixAntimeridianCrossing,
   trackHasDataWithinTimeRange,
 } from '../../utils/tracks';
+import { API_URL } from '../../constants';
+import globallyResettableReducer from '../../reducers/global-resettable';
+import { SOCKET_SUBJECT_STATUS } from '../subjects';
 
 export const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -126,6 +126,7 @@ export const TRACK_LENGTH_ORIGINS = { EVENT_FILTER: 'EVENT_FILTER', CUSTOM_LENGT
 export const SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH = 'SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH';
 export const SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE = 'SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE';
 export const SET_TRACK_SETTINGS_LENGTH = 'SET_TRACK_SETTINGS_LENGTH';
+export const SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE = 'SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE';
 export const SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN = 'SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN';
 
 // Action creators
@@ -137,6 +138,11 @@ export const setDefaultCustomTrackLength = (defaultCustomTrackLength) => ({
 export const setIsTimeOfDayColoringActive = (isTimeOfDayColoringActive) => ({
   payload: isTimeOfDayColoringActive,
   type: SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE,
+});
+
+export const setTimeOfDayTimeZone = (timeOfDayTimeZone) => ({
+  payload: timeOfDayTimeZone,
+  type: SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE,
 });
 
 export const setTrackLength = (length) => ({ payload: length, type: SET_TRACK_SETTINGS_LENGTH });
@@ -152,6 +158,7 @@ export const INITIAL_TRACK_SETTINGS_STATE = {
   isTimeOfDayColoringActive: false,
   length: 21,
   origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+  timeOfDayTimeZone: null,
 };
 
 export const trackSettingsReducer = globallyResettableReducer((state, action) => {
@@ -164,6 +171,9 @@ export const trackSettingsReducer = globallyResettableReducer((state, action) =>
 
   case SET_TRACK_SETTINGS_LENGTH:
     return { ...state, length: action.payload };
+
+  case SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE:
+    return { ...state, timeOfDayTimeZone: action.payload };
 
   case SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN:
     return { ...state, origin: action.payload };

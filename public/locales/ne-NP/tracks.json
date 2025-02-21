@@ -45,6 +45,10 @@
             "titaniumYellow": "टाइटानियम पहेंलो"
           },
           "informationTooltip": "ट्र्याकहरूको रंगहरू प्रदान गरिएको ट्र्याक डाटा आधारित अनुमानहरू हुन्। गति र ठहराईलाई ध्यानमा राखिएको छैन।",
+          "timeZoneSelect": {
+            "label": "समय क्षेत्र:",
+            "noSelectOptionsMessage": "कुनै समय क्षेत्र छैन"
+          },
           "title": "दिनको समय"
         },
         "timeOfDaySettingsButtonLabel": {

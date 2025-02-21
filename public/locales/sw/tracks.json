@@ -45,6 +45,10 @@
         "titaniumYellow": "Njano ya Titanium"
       },
       "informationTooltip": "Rangi za nyimbo ni makadirio kulingana na data ya nyimbo iliyotolewa. Kasi na muda wa kukaa hazizingatiwi.",
+      "timeZoneSelect": {
+        "label": "Eneo la saa:",
+        "noSelectOptionsMessage": "Hakuna maeneo ya saa"
+      },
       "title": "Wakati wa siku"
     },
     "timeOfDaySettingsButtonLabel": {
