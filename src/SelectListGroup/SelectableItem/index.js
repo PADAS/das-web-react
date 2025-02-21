@@ -18,16 +18,12 @@ const SelectableItem = ({
   className = '',
   invalid,
   disabled = false,
-  focusNextSelectableItem,
-  focusPreviousSelectableItem,
   groupId,
   isChecked,
   id,
-  isFocused,
   label,
   onClick,
   readOnly = false,
-  setIsFocused,
   value,
   isMulti = true,
   ...otherProps
@@ -40,38 +36,9 @@ const SelectableItem = ({
     }
   };
 
-  const handleOnKeyDown = (event) => {
-    if (isFocused) {
-      switch (event.key) {
-      case 'Enter':
-      case 'Space':
-        event.stopPropagation();
-        event.preventDefault();
-        handleOnChange();
-        break;
-
-      case 'ArrowDown':
-      case 'ArrowRight':
-        focusNextSelectableItem?.(id);
-        break;
-
-      case 'ArrowUp':
-      case 'ArrowLeft':
-        focusPreviousSelectableItem?.(id);
-        break;
-
-      default:
-        break;
-      }
-    }
-  };
-
-  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${invalid ? styles.error : ''}`}
-              onKeyDown={handleOnKeyDown}>
+  return <div className={`${styles.container} ${disabled ? styles.disabled : ''} ${className} ${invalid ? styles.error : ''}`}>
     <Ripple>
       <input type={isMulti ? INPUT_ROLES.CHECKBOX : INPUT_ROLES.RADIO}
-             onFocus={() => setIsFocused(true, id)}
-             onBlur={() => setIsFocused(false, id)}
              readOnly={readOnly}
              disabled={disabled}
              value={!isMulti ? value : undefined}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import SelectableItem from './SelectableItem';
 
@@ -43,17 +43,6 @@ const SelectListGroup = ({
     };
   }), [options, getOptionLabel, getOptionValue, value, isMulti, id]);
 
-  const [focusedOptionId, setFocusedOptionId] = useState(null);
-  const [optionIdKeyboardNav, setOptionIdKeyboardNav] = useState(null);
-  const optionIdKeyboardNavRef = useRef(null);
-
-  const handleOptionIsFocused = (isOptionFocused, optionId) =>
-    setFocusedOptionId(
-      isOptionFocused ? optionId : null
-    );
-
-  const isOptionFocused = (optionId) => optionId === focusedOptionId;
-
   const handleOnSelectableItemClick = (selectedOptionValue, isChecked) => {
     if (isMulti){
       const isListEmpty = !value || value?.length === 0;
@@ -66,24 +55,6 @@ const SelectListGroup = ({
       onChange(selectedOptionValue);
     }
   };
-
-  const focusSelectableItem = (currentFocusedOptionId, focusNextElement = true) => {
-    const focusedOptionIndex = optionsState.findIndex((option) => currentFocusedOptionId === option.id);
-    const autoFocusedOptionIndex = focusNextElement
-      ? focusedOptionIndex !== optionsState.length - 1 ? focusedOptionIndex + 1 : focusedOptionIndex
-      : focusedOptionIndex > 0 ? focusedOptionIndex - 1 : focusedOptionIndex;
-
-    if (focusedOptionIndex !== autoFocusedOptionIndex){
-      setOptionIdKeyboardNav(optionsState[autoFocusedOptionIndex].id);
-    }
-  };
-
-  useEffect(() => {
-    if (optionIdKeyboardNav){
-      optionIdKeyboardNavRef?.current?.focus();
-      setOptionIdKeyboardNav(null);
-    }
-  }, [optionIdKeyboardNav]);
 
   return <fieldset disabled={disabled} id={id} className={`${styles.fieldset} ${className} ${invalid ? styles.error : ''}`} {...otherProps}>
     <legend>{label}</legend>
@@ -102,11 +73,6 @@ const SelectListGroup = ({
               onClick={handleOnSelectableItemClick}
               readOnly={readOnly}
               value={optionValue}
-              setIsFocused={handleOptionIsFocused}
-              isFocused={isOptionFocused(optionId)}
-              ref={optionId === optionIdKeyboardNav ? optionIdKeyboardNavRef : undefined}
-              focusNextSelectableItem={focusSelectableItem}
-              focusPreviousSelectableItem={(currentFocusedOptionId) => focusSelectableItem(currentFocusedOptionId, false)}
               aria-required={
                 isMulti
                     ? ariaRequired

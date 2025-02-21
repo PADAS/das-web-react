@@ -21,7 +21,6 @@
     label {
       color: colors.$bright-red;
     }
-
   }
 
   input {
@@ -36,7 +35,6 @@
       + .ripple {
         background: rgba(colors.$bright-blue, 0.08);
       }
-
     }
   }
 
@@ -49,15 +47,12 @@
       border-radius: 50%;
       background: transparent;
       transition: background-color 200ms ease-in-out;
-
       position: absolute;
       z-index: 1;
       top: 0;
       left: 0;
       margin-left: -0.55rem;
       margin-top: -0.4rem;
-
-
 
       &.active {
         &:hover {
@@ -98,7 +93,6 @@
         justify-content: center;
         border-radius: 50%;
 
-
         .radioBoxIcon {
           width: 0.65rem;
           height: 0.65rem;
@@ -115,7 +109,6 @@
       .checkboxIconWrapper.iconError, {
         border-color: colors.$bright-red;
       }
-
     }
   }
 
@@ -126,6 +119,5 @@
       cursor: default;
     }
   }
-
 }
 

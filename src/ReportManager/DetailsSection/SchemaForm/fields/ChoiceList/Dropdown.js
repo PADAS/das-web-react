@@ -6,13 +6,14 @@ import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/
 
 import styles from './styles.module.scss';
 
-const Option = ({ data, isSelected, isMulti, ...restProps }) => <div>
+const IndicatorSeparator = () => null;
+
+const Option = ({ data, isSelected, isMulti, ...restProps }) => <div title={data.label}>
   <SelectComponent.Option data={data} isMulti={isMulti} {...restProps}>
     {
         isSelected && !isMulti && <CheckIcon className={styles.checkMark} />
     }
-    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}
-          title={data.label}>
+    <span className={`${styles.optionLabel} ${ !isMulti && !isSelected && styles.singleOption }`}>
       {data.label}
     </span>
   </SelectComponent.Option>
@@ -42,14 +43,13 @@ const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherPro
   };
 
   return <ReactSelect
-        components={{ Option }}
+        components={{ Option, IndicatorSeparator }}
         classNames={{
             clearIndicator: () => styles.clearIndicator,
             container: () => styles.container,
             control: (state) => `${styles.control} ${ invalid ? styles.dropdownError : '' } ${ state.isFocused ? styles.controlFocused : '' }`,
             dropdownIndicator: () => styles.cursorPointer,
             indicatorsContainer: () => invalid && styles.caretError,
-            indicatorSeparator: () => styles.separator,
             multiValue: () => styles.multiValue,
             multiValueRemove: () => styles.multiValueRemove,
             option: () => styles.cursorPointer,
@@ -59,7 +59,6 @@ const Dropdown = ({ details, onChange, value, id, invalid, disabled, ...otherPro
         isDisabled={disabled}
         inputId={id}
         isMulti={details.multiple}
-        isSearchable
         onChange={handleOnChange}
         noOptionsMessage={() => t('select.noOptionsMessage')}
         options={options}

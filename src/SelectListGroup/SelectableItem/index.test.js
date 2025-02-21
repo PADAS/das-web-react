@@ -16,13 +16,8 @@ describe('SelectListGroup - SelectableItem', () => {
     readOnly: false,
     value: 110,
     isMulti: true,
-
-    hasError: false,
-    focusNextSelectableItem: null,
-    focusPreviousSelectableItem: null,
+    invalid: false,
     groupId: 'selectable-group-id',
-    isFocused: false,
-    setIsFocused: () => {},
   };
 
   const renderSelectableItem = (props = defaultProps) => render(
@@ -110,27 +105,6 @@ describe('SelectListGroup - SelectableItem', () => {
         true,
         {
           isChecked: false
-        }
-      );
-    });
-
-    test('the checkbox is unchecked when user focus item and hits Enter', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Enter]',
-        false,
-        {
-          isFocused: true
-        }
-      );
-    });
-
-    test('the checkbox is checked when user focus item and hits Enter', () => {
-      testSelectableItemHasChangedUsingKeyboard(
-        '[Enter]',
-        true,
-        {
-          isChecked: false,
-          isFocused: true,
         }
       );
     });

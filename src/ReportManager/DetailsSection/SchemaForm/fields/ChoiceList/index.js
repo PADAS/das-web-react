@@ -22,7 +22,7 @@ const ChoiceList = ({ details, error, id, onFieldChange, value = '' }) => {
   return <div>
     {
       details.inputType === CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN &&
-        <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`}>
+        <label className={`${styles.dropdownWrapper} ${hasError ? styles.error : ''}`} htmlFor={id}>
           {label}
         </label>
     }
