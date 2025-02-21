@@ -1,0 +1,29 @@
+@use '../common/styles/vars/colors';
+
+.fieldset {
+
+  legend {
+    width: 100%;
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    margin-bottom: 0.125rem;
+    font-weight: 500;
+  }
+
+  .container {
+    border: 1px solid colors.$light-gray-border;
+    border-radius: 0.15rem;
+    padding: 0.7rem;
+  }
+
+  &.error {
+    border-color: colors.$bright-red;
+
+    legend {
+      color: colors.$bright-red;
+    }
+  }
+
+}
+
+

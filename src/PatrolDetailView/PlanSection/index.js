@@ -290,7 +290,7 @@ const PlanSection = ({
       <label className={styles.autoFieldCheckbox}>
         <input
           checked={isAutoEnd}
-          disabled={!endDate || !isFuture(endDate)}
+          disabled={endDate === EMPTY_DATE_VALUE}
           onChange={handleAutoEndChange}
           type="checkbox"
           data-testid="patrol-is-auto-end"
