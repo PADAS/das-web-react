@@ -23,7 +23,6 @@ export const fetchObservationsForSubject = (params = {}) =>
 
 const INITIAL_OBSERVATIONS_STATE = [];
 
-
 const observationsReducer = (state = INITIAL_OBSERVATIONS_STATE, action = {}) => {
   if (action.type === FETCH_OBSERVATIONS_FOR_SUBJECT_SUCCESS) {
     return action.payload;
