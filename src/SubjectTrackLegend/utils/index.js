@@ -5,8 +5,8 @@ import {
   setMinutes
 } from 'date-fns';
 
-import { TIME_OF_DAY_RANGES } from './constants';
-import { getTimeInTimezone } from '../utils/datetime';
+import { TIME_OF_DAY_RANGES } from '../constants';
+import { getTimeInTimezone } from '../../utils/datetime';
 
 const buildTimeOfDayRangeObjectFromRangeString = (range) => {
   const [from, to] = range.split('-');
@@ -33,8 +33,8 @@ const buildDateBasedOnStringTime = (stringTime) => {
   );
 };
 
-export const getTimeOfDayRangeLevelBasedOnTime = (time, timeZone = 'America/Tijuana') => {
-  const trackPointTimeDate = buildDateBasedOnStringTime(getTimeInTimezone(new Date(time), timeZone));
+export const getTimeOfDayRangeLevelBasedOnTime = (datetimeString, timeZone) => {
+  const trackPointTimeDate = buildDateBasedOnStringTime(getTimeInTimezone(new Date(datetimeString), timeZone));
   let timeOfDayRangeLevel = null;
 
   for (const [rangeLevel, range] of Object.entries(TIME_OF_DAY_RANGES)) {
@@ -42,11 +42,14 @@ export const getTimeOfDayRangeLevelBasedOnTime = (time, timeZone = 'America/Tiju
     const fromRangeDate = buildDateBasedOnStringTime(`${from.hour}:${from.min}`);
     const toRangeDate = buildDateBasedOnStringTime(`${to.hour}:${to.min}`);
 
-    if ( isAfter(trackPointTimeDate, fromRangeDate) && isBefore(trackPointTimeDate, toRangeDate) ){
+    const after = isAfter(trackPointTimeDate, fromRangeDate);
+    const before = isBefore(trackPointTimeDate, toRangeDate);
+
+    if ( after && before ){
       timeOfDayRangeLevel = rangeLevel;
       break;
     }
   }
 
-  return timeOfDayRangeLevel;
+  return parseInt(timeOfDayRangeLevel);
 };

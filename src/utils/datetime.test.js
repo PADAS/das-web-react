@@ -19,8 +19,8 @@ describe('format dates', () => {
   });
 
   test('converts date to time based on time zone', () => {
-    const date = new Date('2020-04-13T14:41:00.000-06:00');
-    expect( getTimeInTimezone( date, 'America/Tijuana') ).toBe('13:41');
+    const date = new Date('2025-02-21T03:00:07.940Z');
+    expect( getTimeInTimezone( date, 'America/Monterrey') ).toBe('21:00');
   });
 
 });
