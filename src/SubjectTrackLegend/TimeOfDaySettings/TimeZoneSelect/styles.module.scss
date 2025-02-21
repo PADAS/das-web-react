@@ -77,17 +77,25 @@
         width: 0.75rem;
       }
   
-      .label {
-        color: black;
+      .labelWrapper {
         font-size: 0.75rem;
-        margin: 0;
         overflow: hidden;
-        text-overflow: ellipsis;
         text-transform: capitalize;
-        white-space: nowrap;
+
+        .label {
+          color: black;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
   
         .description {
           color: colors.$secondary-medium-gray;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
     }
