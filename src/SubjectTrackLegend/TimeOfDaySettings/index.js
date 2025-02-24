@@ -10,7 +10,7 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 
 import TimeZoneSelect from './TimeZoneSelect';
 
-import { TIME_OF_DAY_PERIODS } from '../constants';
+import { TIME_OF_DAY_PERIODS } from '../../constants';
 
 import styles from './styles.module.scss';
 

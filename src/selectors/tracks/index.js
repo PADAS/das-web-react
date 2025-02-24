@@ -4,7 +4,7 @@ import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
-import { getTimeOfDayRangeLevelBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
+import { getTimeOfDayRangePeriodBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -95,7 +95,7 @@ const selectSubjectTracks = createSelector(
 
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
-  (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone }) => subjectTracks.map(
+  (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
     (subjectTrack) => {
       const {
         points: {
@@ -118,7 +118,9 @@ export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = 
               ...otherFeaturesProps,
               properties: {
                 ...properties,
-                timeOfDayRangeLevel: getTimeOfDayRangeLevelBasedOnTime(properties.time, timeOfDayTimeZone)
+                timeOfDayRangeLevel: isTimeOfDayColoringActive
+                  ? getTimeOfDayRangePeriodBasedOnTime(properties.time, timeOfDayTimeZone)
+                  : undefined
               }
             };
           })

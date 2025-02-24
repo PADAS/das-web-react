@@ -1,4 +1,4 @@
-import { getTimeOfDayRangeLevelBasedOnTime } from './tracks';
+import { getTimeOfDayRangePeriodBasedOnTime } from './tracks';
 
 describe('utils - tracks', () => {
 
@@ -7,7 +7,7 @@ describe('utils - tracks', () => {
   test('calculate proper time of day range based on time', () => {
     expect(
       // time being converted to 15:41 based on Monterrey time, having 941 minutes therefore falling into period #1
-      getTimeOfDayRangeLevelBasedOnTime(
+      getTimeOfDayRangePeriodBasedOnTime(
         baseDateTimeString,
         'America/Monterrey'
       )
@@ -17,7 +17,7 @@ describe('utils - tracks', () => {
   test.only('calculate proper time of day range based on time', () => {
     expect(
       // time being converted to 05:41 based on Hong Kong time, having 341 minutes therefore falling into period #1
-      getTimeOfDayRangeLevelBasedOnTime(
+      getTimeOfDayRangePeriodBasedOnTime(
         baseDateTimeString,
         'Asia/Hong_Kong'
       )
