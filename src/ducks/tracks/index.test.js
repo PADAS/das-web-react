@@ -3,14 +3,18 @@ import {
   SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH,
   SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE,
   SET_TRACK_SETTINGS_LENGTH,
+  SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE,
   SET_TRACK_SETTINGS_TRACK_LENGTH_ORIGIN,
   setDefaultCustomTrackLength,
   setIsTimeOfDayColoringActive,
+  setTimeOfDayTimeZone,
   setTrackLength,
   setTrackLengthOrigin,
   TRACK_LENGTH_ORIGINS,
   trackSettingsReducer,
 } from './';
+
+jest.mock('../../store');
 
 describe('Ducks - Tracks', () => {
   test('setDefaultCustomTrackLength dispatches the SET_TRACK_SETTINGS_DEFAULT_CUSTOM_TRACK_LENGTH action', () => {
@@ -21,6 +25,11 @@ describe('Ducks - Tracks', () => {
   test('setIsTimeOfDayColoringActive dispatches the SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE action', () => {
     expect(setIsTimeOfDayColoringActive(true))
       .toEqual({ payload: true, type: SET_TRACK_SETTINGS_IS_TIME_OF_DAY_COLORING_ACTIVE });
+  });
+
+  test('setTimeOfDayTimeZone dispatches the SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE action', () => {
+    expect(setTimeOfDayTimeZone('America/Mexico_City'))
+      .toEqual({ payload: 'America/Mexico_City', type: SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE });
   });
 
   test('setTrackLength dispatches the SET_TRACK_SETTINGS_LENGTH action', () => {
@@ -44,6 +53,7 @@ describe('Ducks - Tracks', () => {
         isTimeOfDayColoringActive: false,
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+        timeOfDayTimeZone: null,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -56,6 +66,20 @@ describe('Ducks - Tracks', () => {
         isTimeOfDayColoringActive: true,
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+        timeOfDayTimeZone: null,
+      };
+
+      expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
+    });
+
+    test('handles a SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE action', async () => {
+      const action = { payload: 'America/Mexico_City', type: SET_TRACK_SETTINGS_TIME_OF_DAY_TIME_ZONE };
+      const expectedState = {
+        defaultCustomTrackLength: undefined,
+        isTimeOfDayColoringActive: false,
+        length: 21,
+        origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+        timeOfDayTimeZone: 'America/Mexico_City',
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -68,6 +92,7 @@ describe('Ducks - Tracks', () => {
         isTimeOfDayColoringActive: false,
         length: 60,
         origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+        timeOfDayTimeZone: null,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);
@@ -80,6 +105,7 @@ describe('Ducks - Tracks', () => {
         isTimeOfDayColoringActive: false,
         length: 21,
         origin: TRACK_LENGTH_ORIGINS.EVENT_FILTER,
+        timeOfDayTimeZone: null,
       };
 
       expect(trackSettingsReducer(INITIAL_TRACK_SETTINGS_STATE, action)).toEqual(expectedState);

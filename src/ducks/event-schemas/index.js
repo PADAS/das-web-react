@@ -55,7 +55,7 @@ export const fetchEventTypeSchema = (eventTypeValue, eventId) => async (dispatch
       payload.schema = schema;
       payload.uiSchema = uiSchema;
     } else if (eventType.version === 2) {
-      payload.schema = JSON.parse(response.data.data);
+      payload.schema = response.data;
     }
 
     dispatch({ payload, type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS });

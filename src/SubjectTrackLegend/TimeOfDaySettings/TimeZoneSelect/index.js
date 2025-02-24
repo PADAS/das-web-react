@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Select, { components } from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -11,28 +11,34 @@ import styles from './styles.module.scss';
 
 const TIMEZONE_OFFSET_REGEX = /^(?:UTC|GMT)([+-])(\d{1,2})(?::(\d{2}))?$/;
 
+const CustomDropdownIndicator = ({ selectProps, ...otherProps }) => <components.DropdownIndicator
+    className={styles.dropdownIndicator}
+    selectProps={selectProps}
+    {...otherProps}
+  >
+  <div className={`${styles.caret} ${selectProps.menuIsOpen ? styles.menuOpen : ''}`} role="img" />
+</components.DropdownIndicator>;
+
 const CustomIndicatorSeparator = () => null;
 
-const CustomOption = ({ data, isFocused, isSelected, ...restProps }) => <div title={data.label}>
+const CustomOption = ({ data, isFocused, isSelected, ...otherProps }) => <div title={data.label}>
   <components.Option
     className={`${styles.option} ${isFocused ? styles.focused : ''} ${isSelected ? styles.selected : ''}`}
     isFocused={isFocused}
     isSelected={isSelected}
-    {...restProps}
+    {...otherProps}
   >
     {isSelected && <CheckLightIcon className={styles.checkLightIcon} />}
 
-    <p className={styles.label}>
-      {data.title}
+    <div className={styles.labelWrapper}>
+      <p className={styles.label}>{data.title}</p>
 
-      <br />
-
-      <span className={styles.description}>{data.description}</span>
-    </p>
+      <p className={styles.description}>{data.description}</p>
+    </div>
   </components.Option>
 </div>;
 
-const getTimeZoneOffsetParts = (ianaTimeZone, locales) => {
+const getTimeZoneParts = (ianaTimeZone, locales) => {
   const now = new Date();
 
   // Get the localized long time zone name.
@@ -66,19 +72,19 @@ const getTimeZoneOffsetParts = (ianaTimeZone, locales) => {
   return { hours: 0, ianaTimeZone, longTimeZoneName, minutes: 0, sign: '+' };
 };
 
-const compareTimeZoneOffsetParts = (timeZoneOffsetPartsA, timeZoneOffsetPartsB) => {
+const compareTimeZoneParts = (timeZonePartsA, timeZonePartsB) => {
   // Get the time zone offset in minutes and make the total negative if the sign is "-".
-  const timeZoneOffsetInMinutesA = ((timeZoneOffsetPartsA.hours * 60) + timeZoneOffsetPartsA.minutes)
-    * (timeZoneOffsetPartsA.sign === '-' ? -1 : 1);
-  const timeZoneOffsetInMinutesB = ((timeZoneOffsetPartsB.hours * 60) + timeZoneOffsetPartsB.minutes)
-    * (timeZoneOffsetPartsB.sign === '-' ? -1 : 1);
+  const timeZoneOffsetInMinutesA = ((timeZonePartsA.hours * 60) + timeZonePartsA.minutes)
+    * (timeZonePartsA.sign === '-' ? -1 : 1);
+  const timeZoneOffsetInMinutesB = ((timeZonePartsB.hours * 60) + timeZonePartsB.minutes)
+    * (timeZonePartsB.sign === '-' ? -1 : 1);
 
   // Compare by the offset amount.
   if (timeZoneOffsetInMinutesA !== timeZoneOffsetInMinutesB) {
     return timeZoneOffsetInMinutesA - timeZoneOffsetInMinutesB;
   }
   // If the offset amount is the same, compare by the IANA time zone name alphabetically.
-  return timeZoneOffsetPartsA.ianaTimeZone.localeCompare(timeZoneOffsetPartsB.ianaTimeZone);
+  return timeZonePartsA.ianaTimeZone.localeCompare(timeZonePartsB.ianaTimeZone);
 };
 
 const TimeZoneSelect = () => {
@@ -87,27 +93,25 @@ const TimeZoneSelect = () => {
 
   const timeOfDayTimeZone = useSelector((state) => state.view.trackSettings.timeOfDayTimeZone);
 
-  const inputRef = useRef();
-
   const options = useMemo(() => Intl.supportedValuesOf('timeZone')
-    .map((ianaTimeZone) => getTimeZoneOffsetParts(ianaTimeZone, i18n.language))
-    .sort(compareTimeZoneOffsetParts)
-    .map((timeZoneOffsetParts) => {
+    .map((ianaTimeZone) => getTimeZoneParts(ianaTimeZone, i18n.language))
+    .sort(compareTimeZoneParts)
+    .map((timeZoneParts) => {
       // Build the time zone offset in UTC+HH:mm format and humanize the IANA time zone text so its readable.
       const timeZoneOffsetInUTC = '(UTC'
-        + timeZoneOffsetParts.sign
-        + String(timeZoneOffsetParts.hours).padStart(2, '0')
+        + timeZoneParts.sign
+        + String(timeZoneParts.hours).padStart(2, '0')
         + ':'
-        + String(timeZoneOffsetParts.minutes).padStart(2, '0')
+        + String(timeZoneParts.minutes).padStart(2, '0')
         + ')';
-      const humanizedIANATimeZone = timeZoneOffsetParts.ianaTimeZone.replaceAll('_', ' ').replaceAll('/', ' / ');
+      const humanizedIANATimeZone = timeZoneParts.ianaTimeZone.replaceAll('_', ' ').replaceAll('/', ' / ');
 
       // Return the option data, including all the texts in the label so they are searchable.
       return {
-        description: timeZoneOffsetParts.longTimeZoneName,
-        label: `${timeZoneOffsetInUTC} ${humanizedIANATimeZone} - ${timeZoneOffsetParts.longTimeZoneName}`,
+        description: timeZoneParts.longTimeZoneName,
+        label: `${timeZoneOffsetInUTC} ${humanizedIANATimeZone} - ${timeZoneParts.longTimeZoneName}`,
         title: `${timeZoneOffsetInUTC} ${humanizedIANATimeZone}`,
-        value: timeZoneOffsetParts.ianaTimeZone,
+        value: timeZoneParts.ianaTimeZone,
       };
     }), [i18n.language]);
 
@@ -131,18 +135,17 @@ const TimeZoneSelect = () => {
         classNames={{
           control: (state) => `${styles.control} ${state.isFocused ? styles.focused : ''}`,
           menuList: () => styles.menuList,
-          indicatorsContainer: () => styles.indicatorsContainer,
+          singleValue: () => styles.singleValue,
         }}
-        components={{ IndicatorSeparator: CustomIndicatorSeparator, Option: CustomOption }}
+        components={{
+          DropdownIndicator: CustomDropdownIndicator,
+          IndicatorSeparator: CustomIndicatorSeparator,
+          Option: CustomOption,
+        }}
         inputId="timeZoneSelect-input"
         noOptionsMessage={() => t('noSelectOptionsMessage')}
         onChange={(newValue) => dispatch(setTimeOfDayTimeZone(newValue.value))}
         options={options}
-        ref={(ref) => {
-          if (ref) {
-            inputRef.current = ref.inputRef;
-          }
-        }}
         value={value}
       />
     </div>

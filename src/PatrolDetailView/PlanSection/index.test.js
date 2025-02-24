@@ -266,6 +266,53 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
   });
 
+  test('disables the auto-end checkbox when there is no end date set', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    renderPlanSectionWithWrapper({
+      patrolForm: {
+        ...newPatrol,
+        patrol_segments: [{
+          ...newPatrol.patrol_segments[0],
+          time_range: {
+            end_time: null,
+            start_time: tomorrow,
+          },
+        }],
+      }
+    });
+
+    expect(await screen.findByTestId('patrol-is-auto-end')).toBeDisabled();
+  });
+
+  test('allows the user to check auto-end checkbox when the end date is the same as the start date ', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    renderPlanSectionWithWrapper({
+      patrolForm: {
+        ...newPatrol,
+        patrol_segments: [{
+          ...newPatrol.patrol_segments[0],
+          time_range: {
+            end_time: tomorrow,
+            start_time: tomorrow,
+          },
+        }],
+      }
+    });
+
+    const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
+
+    expect(autoEndInput).not.toBeDisabled();
+
+    userEvent.click(autoEndInput);
+    const [, autoEndAction] = mockedStore.getActions();
+
+    expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
+  });
+
   test('prevent updating user preferences when user changes auto end/start value for an existing', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);

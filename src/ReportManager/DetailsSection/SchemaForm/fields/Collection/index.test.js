@@ -1,7 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor, within } from '../../../../../test-utils';
+import { render, screen, within } from '../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../constants';
 
 import Collection from './';
