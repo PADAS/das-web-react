@@ -1,0 +1,103 @@
+@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/inputs';
+
+.timeZoneSelect {
+  align-items: center;
+  display: flex;
+  margin-bottom: 0.25rem;
+
+  .label {
+    color: colors.$secondary-medium-gray;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .inputWrapper {
+    width: 100%;
+
+    .control {
+      cursor: text;
+      font-size: 0.75rem;
+      height: 2rem;
+      min-height: 2rem;
+
+      &.focused {
+        border-color: colors.$bright-blue;
+
+        .singleValue {
+          color: colors.$secondary-medium-gray;
+        }
+      }
+
+      .singleValue {
+        color: black;
+      }
+
+      .dropdownIndicator {
+        cursor: pointer;
+        padding: 0.5rem;
+
+        .caret {
+          @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+    
+          &.menuOpen {
+            transform: rotate(180deg);
+          }
+        }
+      }
+    }
+
+    .menuList {
+      overflow-x: hidden;
+    }
+  
+    .option {
+      align-items: center;
+      display: flex;
+      padding: 0.25rem 0.5rem;
+      padding-left: 1.75rem;
+  
+      &.focused {
+        background-color: colors.$semi-light-gray;
+      }
+  
+      &.selected {
+        background-color: colors.$very-light-blue;
+        padding-left: 0.5rem;
+      }
+  
+      &:hover {
+        background-color: colors.$semi-light-gray;
+      }
+  
+      .checkLightIcon {
+        color: colors.$bright-blue;
+        margin-right: 0.5rem;
+        width: 0.75rem;
+      }
+  
+      .labelWrapper {
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-transform: capitalize;
+
+        .label {
+          color: black;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+  
+        .description {
+          color: colors.$secondary-medium-gray;
+          margin: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}

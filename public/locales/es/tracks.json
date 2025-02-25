@@ -45,6 +45,10 @@
         "titaniumYellow": "Amarillo titanio"
       },
       "informationTooltip": "Los colores de las trayectorias son estimaciones basadas en los datos de trayectorias proporcionados. La velocidad y el tiempo de permanencia no se tienen en cuenta.",
+      "timeZoneSelect": {
+        "label": "Zona horaria:",
+        "noSelectOptionsMessage": "No hay zonas horarias"
+      },
       "title": "Hora del día"
     },
     "timeOfDaySettingsButtonLabel": {

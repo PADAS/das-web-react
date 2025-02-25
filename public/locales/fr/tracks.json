@@ -45,6 +45,10 @@
         "titaniumYellow": "Jaune titane"
       },
       "informationTooltip": "Les couleurs des trajectoires sont des estimations basées sur les données de trajectoires fournies. La vitesse et le temps de séjour ne sont pas pris en compte.",
+      "timeZoneSelect": {
+        "label": "Fuseau horaire:",
+        "noSelectOptionsMessage": "Aucun fuseau horaire"
+      },
       "title": "Heure de la journée"
     },
     "timeOfDaySettingsButtonLabel": {
