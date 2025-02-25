@@ -56,7 +56,7 @@ export const getCoordinatesForEvent = (event) => {
 };
 
 export const getCoordinatesForCollection = (collection) => {
-  if (collection.contains){
+  if (collection.contains) {
     const collectionCoords = collection.contains
       .map(({ related_event }) => getCoordinatesForEvent(related_event))
       .filter((item) => !!item);
@@ -96,7 +96,7 @@ export const createNewReportForEventType = (reportType, data) => {
     is_collection: false,
     location,
     priority: reportType.default_priority || 0,
-    reported_by: reporter || null,
+    reported_by: reporter || null,
     state: reportType.default_state || EVENT_FORM_STATES.ACTIVE,
     time: time ? new Date(time) : new Date(),
   };
@@ -178,7 +178,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     return true;
   };
 
-  const reportMatchesStateFilter = () => !eventFilter.state || eventFilter.state.includes(report.state);
+  const reportMatchesStateFilter = () => !eventFilter.state || eventFilter.state.includes(report.state);
 
   const reportMatchesEventTypeFilter = () => {
     if (!eventFilter.filter.event_type.length) {
@@ -277,7 +277,7 @@ export const PRIORITY_COLOR_MAP = {
 };
 
 export const setOriginalTextToEventNotes = (event) => {
-  if (!event){
+  if (!event) {
     return null;
   }
 
@@ -291,6 +291,7 @@ export const setOriginalTextToEventNotes = (event) => {
 export const isReportActive = (report) => ['active', 'new'].includes(report?.state);
 
 export const formValidator = customizeValidator({ additionalMetaSchemas: [metaSchemaDraft04] });
+
 
 export const REPORT_SAVE_ACTIONS = {
   create: (data) => ({
