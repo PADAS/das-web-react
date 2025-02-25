@@ -359,7 +359,7 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
   return tracks;
 };
 
-export const getTimeOfDayRangePeriodBasedOnTime = (datetimeString, timeZone) => {
+export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
   const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
   const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
 
