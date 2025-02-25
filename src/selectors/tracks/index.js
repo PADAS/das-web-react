@@ -3,7 +3,8 @@ import { differenceInCalendarDays, subDays } from 'date-fns';
 import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
-import { trimTrackDataToTimeRange } from '../../utils/tracks';
+
+import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -91,10 +92,40 @@ const selectSubjectTracks = createSelector(
     .map((subjectId) => tracks[subjectId])
 );
 
-export const selectSubjectTracksTrimmedToTrackTimeEnvelope = createSelector(
-  [selectSubjectTracks, selectTrackTimeEnvelope],
-  (subjectTracks, trackTimeEnvelope) => subjectTracks.map(
-    // Trim each subject tracks to the track time envelope.
-    (subjectTracks) => trimTrackDataToTimeRange(subjectTracks, trackTimeEnvelope.from, trackTimeEnvelope.until)
+
+export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
+  [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
+  (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
+    (subjectTrack) => {
+      const {
+        points: {
+          features,
+          ...otherPointsProps
+        },
+        ...otherData
+      } = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
+        subjectTrack,
+        trackTimeEnvelope.from,
+        trackTimeEnvelope.until
+      );
+
+      return {
+        ...otherData,
+        points: {
+          ...otherPointsProps,
+          features: features.map(({ properties, ...otherFeaturesProps }) => {
+            return {
+              ...otherFeaturesProps,
+              properties: {
+                ...properties,
+                timeOfDayPeriod: isTimeOfDayColoringActive
+                  ? getTimeOfDayPeriodBasedOnTime(properties.time, timeOfDayTimeZone)
+                  : undefined
+              }
+            };
+          })
+        }
+      };
+    }
   )
 );

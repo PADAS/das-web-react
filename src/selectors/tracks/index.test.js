@@ -1,7 +1,7 @@
 import {
   selectTrackTimeEnvelope,
   selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope,
-  selectSubjectTracksTrimmedToTrackTimeEnvelope,
+  selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod,
 } from './';
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
@@ -136,7 +136,7 @@ describe('Selectors - Tracks', () => {
     });
   });
 
-  describe('selectSubjectTracksTrimmedToTrackTimeEnvelope', () => {
+  describe('selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod', () => {
     beforeAll(() => {
       jest.useFakeTimers().setSystemTime(new Date('2021-01-01'));
     });
@@ -162,7 +162,7 @@ describe('Selectors - Tracks', () => {
           },
         },
       };
-      expect(selectSubjectTracksTrimmedToTrackTimeEnvelope(state))
+      expect(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod(state))
         .toEqual([{
           indices: {
             from: 0,

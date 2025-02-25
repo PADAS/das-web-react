@@ -13,6 +13,8 @@ import merge from 'lodash/merge';
 import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
+import { getTimeInTimezone } from './datetime';
+import { TIME_OF_DAY_PERIODS } from '../constants';
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
@@ -355,4 +357,13 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     };
   }
   return tracks;
+};
+
+export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
+  const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
+  const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
+
+  return TIME_OF_DAY_PERIODS.findIndex((timeOfDayPeriod) =>
+    trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
+  );
 };

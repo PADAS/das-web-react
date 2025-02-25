@@ -12,7 +12,7 @@ import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_o
 import { BOOTSTRAP_DEFAULTS, FEATURE_FLAG_LABELS } from '../constants';
 import { getCurrentLocale } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { selectSubjectTracksTrimmedToTrackTimeEnvelope, selectTrackTimeEnvelope } from '../selectors/tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../selectors/tracks';
 import { setIsTimeOfDayColoringActive } from '../ducks/tracks';
 import { updateTrackState } from '../ducks/map-ui';
 import { useFeatureFlag } from '../hooks';
@@ -40,7 +40,7 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
 
   const isTimeOfDayColoringActive = useSelector((state) => state.view.trackSettings.isTimeOfDayColoringActive);
   const subjectStore = useSelector((state) => state.data.subjectStore);
-  const subjectTracksTrimmedToTrackTimeEnvelope = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelope);
+  const subjectTracksTrimmedToTrackTimeEnvelope = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod);
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 

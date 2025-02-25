@@ -10,18 +10,56 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 
 import TimeZoneSelect from './TimeZoneSelect';
 
+import { TIME_OF_DAY_PERIODS } from '../../constants';
+
 import styles from './styles.module.scss';
 
 const COLORED_TIME_ITEMS = [
-  { color: 'titaniumYellow', key: 0, text: '12:01 - 15:00' },
-  { color: 'americanYellow', key: 1, text: '15:01 - 18:00' },
-  { color: 'fandangoPink', key: 2, text: '18:01 - 21:00' },
-  { color: 'purplePlum', key: 3, text: '21:01 - 00:00' },
-  { color: 'majorelleBlue', key: 4, text: '00:01 - 03:00' },
-  { color: 'lapisLazuli', key: 5, text: '03:01 - 06:00' },
-  { color: 'spanishGreen', key: 6, text: '06:01 - 09:00' },
-  { color: 'green', key: 7, text: '09:01 - 12:00' },
-  { color: 'titaniumYellow', key: 8, text: '12:01 - 15:00' },
+  {
+    color: 'titaniumYellow',
+    key: 0,
+    text: TIME_OF_DAY_PERIODS[0].rangeString
+  },
+  {
+    color: 'americanYellow',
+    key: 1,
+    text: TIME_OF_DAY_PERIODS[1].rangeString
+  },
+  {
+    color: 'fandangoPink',
+    key: 2,
+    text: TIME_OF_DAY_PERIODS[2].rangeString
+  },
+  {
+    color: 'purplePlum',
+    key: 3,
+    text: TIME_OF_DAY_PERIODS[3].rangeString
+  },
+  {
+    color: 'majorelleBlue',
+    key: 4,
+    text: TIME_OF_DAY_PERIODS[4].rangeString
+  },
+  {
+    color: 'lapisLazuli',
+    key: 5,
+    text: TIME_OF_DAY_PERIODS[5].rangeString
+  },
+  {
+    color: 'spanishGreen',
+    key: 6,
+    text: TIME_OF_DAY_PERIODS[6].rangeString
+  },
+  {
+    color: 'green',
+    key: 7,
+    text: TIME_OF_DAY_PERIODS[7].rangeString
+  },
+  {
+    color: 'titaniumYellow',
+    key: 8,
+    text: TIME_OF_DAY_PERIODS[0].rangeString
+  },
 ];
 
 const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTimeOfDaySettings }) => {
