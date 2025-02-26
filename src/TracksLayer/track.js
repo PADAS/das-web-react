@@ -46,19 +46,9 @@ const TIMEPOINT_LAYER_PAINT = {
 };
 
 const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimepoints, trackData }) => {
-  console.log('TrackLayer render start', {
-    trackDataExists: !!trackData,
-    trackExists: !!trackData?.track,
-    trackFeaturesCount: trackData?.track?.features?.length,
-    timeOfDaySegmentsExists: !!trackData?.time_of_day_segments,
-    timeOfDaySegmentsFeaturesCount: trackData?.time_of_day_segments?.features?.length
-  });
-
   const map = useContext(MapContext);
 
   const trackId = id || (trackData.track?.features?.[0]?.properties?.id || 'unknown-track');
-
-  console.log('TrackId:', trackId);
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -113,8 +103,6 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
       const [startColor, endColor] = colorPairKey.split('|');
       const pairSourceId = `${sourceId}-colorpair-${index}`;
       const pairLayerId = `${layerId}-colorpair-${index}`;
-
-      console.log(`Color pair ${index}: ${startColor} -> ${endColor} (${segments.length} segments)`);
 
       // Add source config
       sources.push({
