@@ -1,9 +1,15 @@
-import { memo, useContext } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../App';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import {
+  useMapEventBinding,
+  useMapLayer,
+  useMapSource,
+  useMapSourceBatch,
+  useMapLayerBatch
+} from '../hooks';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -24,7 +30,7 @@ const TRACK_LAYER_LINE_LAYOUT = {
 const TIMEPOINT_LAYER_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 15, true],
   'icon-anchor': 'bottom',
-  'icon-size': ['step', ['zoom'], 0, 11, 0.3/MAP_ICON_SCALE, 15, 0.5/MAP_ICON_SCALE],
+  'icon-size': ['step', ['zoom'], 0, 11, 0.3 / MAP_ICON_SCALE, 15, 0.5 / MAP_ICON_SCALE],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',
   'icon-pitch-alignment': 'map',
@@ -40,9 +46,19 @@ const TIMEPOINT_LAYER_PAINT = {
 };
 
 const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimepoints, trackData }) => {
+  console.log('TrackLayer render start', {
+    trackDataExists: !!trackData,
+    trackExists: !!trackData?.track,
+    trackFeaturesCount: trackData?.track?.features?.length,
+    timeOfDaySegmentsExists: !!trackData?.time_of_day_segments,
+    timeOfDaySegmentsFeaturesCount: trackData?.time_of_day_segments?.features?.length
+  });
+
   const map = useContext(MapContext);
 
-  const trackId = id || trackData.track.features[0].properties.id;
+  const trackId = id || (trackData.track?.features?.[0]?.properties?.id || 'unknown-track');
+
+  console.log('TrackId:', trackId);
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -53,17 +69,113 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
-  useMapSource(sourceId, trackData.track, { tolerance: 1.5, type: 'geojson' });
+  // Always add the main sources
+  useMapSource(sourceId, trackData.time_of_day_segments || trackData.track, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
   useMapSource(pointSourceId, trackData.points);
 
+  let trackLayerPaintStyles = { ...TRACK_LAYER_LINE_PAINT, ...linePaint };
+
+  // Prepare color pair data
+  const { sourcesConfigs, layersConfigs, hasTimeOfDaySegments } = useMemo(() => {
+    if (!trackData?.time_of_day_segments?.features?.length) {
+      return { sourcesConfigs: [], layersConfigs: [], hasTimeOfDaySegments: false };
+    }
+
+    // Group segments by color combinations
+    const segmentsByColorPair = {};
+    let segmentsWithMissingColors = 0;
+
+    // Group segments with the same start/end color
+    trackData.time_of_day_segments.features.forEach((segment, idx) => {
+      // Skip segments without required color properties
+      if (!segment.properties?.startColor || !segment.properties?.endColor) {
+        segmentsWithMissingColors++;
+        if (idx < 5) {
+          console.warn(`Segment ${idx} missing color properties:`, segment.properties);
+        }
+        return;
+      }
+
+      const key = `${segment.properties.startColor}|${segment.properties.endColor}`;
+      if (!segmentsByColorPair[key]) {
+        segmentsByColorPair[key] = [];
+      }
+      segmentsByColorPair[key].push(segment);
+    });
+
+    console.log('Segments with missing colors:', segmentsWithMissingColors);
+    console.log('Number of unique color pairs:', Object.keys(segmentsByColorPair).length);
+
+    const sources = [];
+    const layers = [];
+
+    Object.entries(segmentsByColorPair).forEach(([colorPairKey, segments], index) => {
+      const [startColor, endColor] = colorPairKey.split('|');
+      const pairSourceId = `${sourceId}-colorpair-${index}`;
+      const pairLayerId = `${layerId}-colorpair-${index}`;
+
+      console.log(`Color pair ${index}: ${startColor} -> ${endColor} (${segments.length} segments)`);
+
+      // Add source config
+      sources.push({
+        id: pairSourceId,
+        data: {
+          type: 'FeatureCollection',
+          features: segments
+        },
+        options: {
+          tolerance: 1.5,
+          type: 'geojson',
+          lineMetrics: true
+        }
+      });
+
+      // Add layer config
+      layers.push({
+        id: pairLayerId,
+        type: 'line',
+        sourceId: pairSourceId,
+        paint: {
+          // 'line-width': trackLayerPaintStyles['line-width'],
+          'line-width': 2,
+          'line-gradient': [
+            'interpolate',
+            ['linear'],
+            ['line-progress'],
+            0, startColor,
+            1, endColor
+          ]
+        },
+        layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
+        options: {
+          before: before || SUBJECT_SYMBOLS
+        }
+      });
+    });
+
+    console.log('Sources created:', sources.length, 'Layers created:', layers.length);
+
+    return {
+      sourcesConfigs: sources,
+      layersConfigs: layers,
+      hasTimeOfDaySegments: sources.length > 0
+    };
+  }, [trackData, sourceId, layerId, trackLayerPaintStyles, lineLayout, before]);
+
+  useMapSourceBatch(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapLayerBatch(layersConfigs, { before: before || SUBJECT_SYMBOLS });
+
+  // Only create the normal layer if there are no time_of_day_segments
   useMapLayer(
     layerId,
     'line',
     sourceId,
-    { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
+    trackLayerPaintStyles,
     { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    { before: before || SUBJECT_SYMBOLS }
+    { before: before || SUBJECT_SYMBOLS, condition: !hasTimeOfDaySegments }
   );
+
+  // The timepoint layer is always created
   useMapLayer(
     pointLayerId,
     'symbol',

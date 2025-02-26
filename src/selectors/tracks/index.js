@@ -4,7 +4,7 @@ import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
-import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
+import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange, sliceLineStringByTimeOfDay } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -97,34 +97,21 @@ export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = 
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
   (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
     (subjectTrack) => {
-      const {
-        points: {
-          features,
-          ...otherPointsProps
-        },
-        ...otherData
-      } = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
+      const trimmed = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
         subjectTrack,
         trackTimeEnvelope.from,
         trackTimeEnvelope.until
       );
 
+      if (!isTimeOfDayColoringActive) {
+        return trimmed;
+      }
+
+      const time_of_day_segments = sliceLineStringByTimeOfDay(trimmed.track, timeOfDayTimeZone);
+
       return {
-        ...otherData,
-        points: {
-          ...otherPointsProps,
-          features: features.map(({ properties, ...otherFeaturesProps }) => {
-            return {
-              ...otherFeaturesProps,
-              properties: {
-                ...properties,
-                timeOfDayPeriod: isTimeOfDayColoringActive
-                  ? getTimeOfDayPeriodBasedOnTime(properties.time, timeOfDayTimeZone)
-                  : undefined
-              }
-            };
-          })
-        }
+        ...trimmed,
+        time_of_day_segments,
       };
     }
   )
