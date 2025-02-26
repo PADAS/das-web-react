@@ -20,7 +20,7 @@ import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
@@ -222,10 +222,9 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={startLocation}
-            onLocationChange={onPatrolStartLocationChange}
+          <LocationPicker
+            value={startLocation}
+            onChange={onPatrolStartLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
           />
         </label>
@@ -278,10 +277,9 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={endLocation}
-            onLocationChange={onPatrolEndLocationChange}
+          <LocationPicker
+            value={endLocation}
+            onChange={onPatrolEndLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
           />
         </label>

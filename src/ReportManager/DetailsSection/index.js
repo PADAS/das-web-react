@@ -34,7 +34,7 @@ import {
 import AreaSelectorInput from './AreaSelectorInput';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
 import GeometryPreview from './AreaSelectorInput/GeometryPreview';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
@@ -220,11 +220,7 @@ const DetailsSection = ({
                 onGeometryChange={onReportGeometryChange}
                 originalEvent={originalReport}
               />
-              : <LocationSelectorInput
-                label={null}
-                location={reportLocation}
-                onLocationChange={onReportLocationChange}
-              />
+              : <LocationPicker onChange={onReportLocationChange} value={reportLocation} />
             }
           </label>
 

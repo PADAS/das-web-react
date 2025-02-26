@@ -1,8 +1,11 @@
 @import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
 
 .clipboardWrapper {
   position: relative;
+
   button {
     @include unstyledButton;
+    color: $bright-blue;
   }
 }

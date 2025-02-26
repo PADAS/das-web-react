@@ -1,29 +1,31 @@
-@import '../common/styles/vars/colors';
+@use 'sass:color';
 
-.choices {
+@use '../common/styles/vars/colors';
+
+.tabs {
   align-items: center;
+  background-color: colors.$very-light-gray;
   display: flex;
   justify-content: space-evenly;
-  list-style-type: none;
-  margin: 0.25rem 0;
 
-  li {
-    align-items: center;
-    color: $dark-gray;
-    cursor: pointer;
-    display: flex;
-    height: 1.5rem;
-    justify-content: center;
+  .tab {
+    border: none;
+    color: colors.$off-black;
+    outline: none;
+    padding: 0.25rem;
     width: 100%;
 
-    &.active {
-      background-color: white;
-      color: $bright-blue;
-      font-weight: bold;
+    &:focus-visible {
+      border: 2px solid colors.$bright-blue;
     }
 
     &:hover {
-      font-weight: bold;
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    &.active {
+      background-color: white;
+      color: colors.$bright-blue;
     }
   }
 }
@@ -34,14 +36,14 @@
   justify-content: center;
   position: relative;
 
+  .value {
+    display: block;
+    text-align: center;
+  }
+
   svg {
     height: 1rem;
     margin-left: 0.5rem;
     width: 1rem;
   }
-}
-
-.value {
-  display: block;
-  text-align: center;
 }

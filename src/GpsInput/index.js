@@ -1,8 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -17,107 +13,94 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 import styles from './styles.module.scss';
 
-const GpsInput = ({ buttonContent, lngLat, onButtonClick, onValidChange, tooltip, ...restProps }) => {
+const GpsInput = ({ gpsFormatToggleRef, id, onChange, renderButton = null, value = null, ...otherProps }, ref) => {
   const { t } = useTranslation('components', { keyPrefix: 'gpsInput' });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-  const hasInitialLocation = !!lngLat && lngLat.length === 2;
+  const innerRef = useRef();
 
-  const [inputValue, setInputValue] = useState(hasInitialLocation
-    ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
+  useImperativeHandle(ref, () => innerRef.current);
+
+  const [inputValue, setInputValue] = useState(!!value && value.length === 2
+    ? calcGpsDisplayString(value[1], value[0], gpsFormat)
     : '');
   const [isValid, setIsValid] = useState(true);
-  const [lastKnownValidValue, setLastKnownValidValue] = useState(null);
 
-  const onInputBlur = useCallback(() => {
-    if (lastKnownValidValue) {
-      setInputValue(calcGpsDisplayString(lastKnownValidValue[1], lastKnownValidValue[0], gpsFormat));
-    }
-  }, [gpsFormat, lastKnownValidValue]);
+  const onInputBlur = () => {
+    setInputValue(value ? calcGpsDisplayString(value[1], value[0], gpsFormat) : '');
+    setIsValid(true);
+  };
 
-  const onInputChange = useCallback((event) => {
-    const inputValue = event.target.value;
+  const onInputChange = (event) => {
+    setInputValue(event.target.value);
 
-    setInputValue(inputValue);
-
-    if (!inputValue) {
+    if (!event.target.value) {
       setIsValid(true);
-      setLastKnownValidValue(inputValue);
-      onValidChange(inputValue);
+      onChange(null);
     } else {
       try {
-        const locationObject = calcActualGpsPositionForRawText(inputValue, gpsFormat);
+        const locationObject = calcActualGpsPositionForRawText(event.target.value, gpsFormat);
         const isLocationValid = validateLngLat(locationObject.longitude, locationObject.latitude);
         if (!isLocationValid) {
           setIsValid(false);
         } else {
-          const valueNormalized = [
+          setIsValid(true);
+          onChange([
             (parseFloat(locationObject.longitude) * 10) / 10,
             (parseFloat(locationObject.latitude) * 10) / 10,
-          ];
-
-          setIsValid(true);
-          setLastKnownValidValue(valueNormalized);
-          onValidChange(valueNormalized);
+          ]);
         }
       } catch (error) {
         setIsValid(false);
       }
     }
-  }, [gpsFormat, onValidChange]);
+  };
 
   useEffect(() => {
-    if (lastKnownValidValue || hasInitialLocation) {
-      const location = lastKnownValidValue || lngLat;
-      setInputValue(calcGpsDisplayString(location[1], location[0], gpsFormat));
+    if (value) {
+      setInputValue(calcGpsDisplayString(value[1], value[0], gpsFormat));
     }
-  }, [gpsFormat]); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gpsFormat]);
 
-  return <>
-    <GpsFormatToggle showGpsString={false} />
+  return <div role="group">
+    <GpsFormatToggle
+      onKeyDown={(event) => event.key === 'Enter' && innerRef.current.focus()}
+      showGpsString={false}
+      ref={gpsFormatToggleRef}
+    />
 
-    <div className={`${styles.actionsWrapper} ${onButtonClick ? styles.withButton : ''}`}>
-      <OverlayTrigger
-        overlay={(props) => tooltip ? <Tooltip {...props}>{tooltip}</Tooltip> : <div />}
-        placement="bottom-end"
-      >
-        <input
-          className={!isValid ? styles.error : ''}
-          onBlur={onInputBlur}
-          onChange={onInputChange}
-          placeholder={gpsFormat ? t(`gpsFormats.${gpsFormat}`) : t('defaultPlaceholder')}
-          type="text"
-          value={inputValue}
-          {...restProps}
-        />
-      </OverlayTrigger>
+    <div className={styles.inputWrapper}>
+      <input
+        aria-describedby={`${id}-description`}
+        aria-errormessage={!isValid ? `${id}-description` : undefined}
+        aria-invalid={!isValid}
+        aria-label={t('inputLabel')}
+        className={`${styles.input} ${renderButton ? styles.hasButton : ''}`}
+        id={id}
+        onBlur={onInputBlur}
+        onChange={onInputChange}
+        placeholder={gpsFormat ? t(`placeholders.${gpsFormat}`) : t('defaultPlaceholder')}
+        ref={innerRef}
+        type="text"
+        value={inputValue}
+        {...otherProps}
+      />
 
-      {onButtonClick && <Button onClick={onButtonClick} variant="light">{buttonContent}</Button>}
+      {renderButton?.()}
     </div>
 
-    <small className={`${styles.textBelow} ${!isValid ? styles.error : ''}`} data-testid="gpsInput-textBelow">
+    <p
+      aria-live={isValid ? 'off' : 'assertive'}
+      className={`${styles.description} ${!isValid ? styles.error : ''}`}
+      id={`${id}-description`}
+    >
       {isValid
-          ? t('inputExample', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
-          : t('invalidLocation')
-      }
-    </small>
-  </>;
+        ? t('inputDescription', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
+        : t('errorMessage')}
+    </p>
+  </div>;
 };
 
-GpsInput.defaultProps = {
-  buttonContent: null,
-  lngLat: null,
-  onButtonClick: null,
-  tooltip: '',
-};
-
-GpsInput.propTypes = {
-  buttonContent: PropTypes.node,
-  lngLat: PropTypes.array,
-  onButtonClick: PropTypes.func,
-  onValidChange: PropTypes.func.isRequired,
-  tooltip: PropTypes.string,
-};
-
-export default memo(GpsInput);
+export default memo(forwardRef(GpsInput));

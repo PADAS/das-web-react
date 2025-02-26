@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import throttle from 'lodash/throttle';
 import { useDispatch, useSelector } from 'react-redux';
@@ -90,11 +91,14 @@ const CursorGpsDisplay = () => {
 
     <Dropdown.Menu className={styles.menu}>
       <GpsInput
-        buttonContent={<SearchIcon title={t('titleIconSearch')} className={styles.searchButton} />}
-        onButtonClick={onGPSInputButtonClick}
+        id="cursorGpsDisplay-gpsInput"
+        onChange={setGpsInputValue}
         onKeyDown={(event) => event.key === 'Enter' && onSearchCoordinates()}
-        onValidChange={(location) => setGpsInputValue(location)}
-        tooltip={t('gpsDisplayTooltip')}
+        renderButton={() => <Button className={styles.gpsInputButton} onClick={onGPSInputButtonClick} variant="light">
+          <SearchIcon title={t('titleIconSearch')} className={styles.searchIcon} />
+        </Button>}
+        title={t('gpsDisplayTooltip')}
+        value={gpsInputValue}
       />
     </Dropdown.Menu>
   </Dropdown>;
