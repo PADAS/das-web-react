@@ -62,9 +62,9 @@ const RootApp = () => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    if (window?.OneTrust) {
+    if (window?.Osana) {
       document.documentElement.lang = i18n.language;
-      window.OneTrust.changeLanguage(i18n.language);
+      window.Osana.setLanguage(i18n.language);
     }
   }, [i18n.language]);
 
