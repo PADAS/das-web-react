@@ -301,169 +301,99 @@ export const useMapLayerBatch = (layersConfigs = [], defaultConfig = {}) => {
   useEffect(() => {
     if (!map) return;
 
+    // Handle global condition from defaultConfig
+    const globalCondition = defaultConfig.hasOwnProperty('condition')
+      ? defaultConfig.condition
+      : true;
+
+    // If global condition is false, remove all layers and return
+    if (!globalCondition) {
+      // Remove all previously added layers
+      layerIdsRef.current.forEach(id => {
+        if (map.getLayer(id)) {
+          map.removeLayer(id);
+        }
+      });
+      layerIdsRef.current = [];
+      return;
+    }
+
+    // Get current layer IDs to track which ones should remain
+    const currentLayerIds = layersConfigs.map(config => config.id).filter(Boolean);
+
+    // Remove layers that are no longer in the configs
+    layerIdsRef.current.forEach(id => {
+      if (!currentLayerIds.includes(id) && map.getLayer(id)) {
+        map.removeLayer(id);
+      }
+    });
+
+    // Update our tracking reference with only current layers
+    layerIdsRef.current = currentLayerIds.slice();
+
+    // Add or update layers
     layersConfigs.forEach(config => {
       try {
-        if (!config || !config.id || !config.type || !config.sourceId) return;
-
-        const { id, type, sourceId, paint = {}, layout = {}, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-        const before = options.before || defaultConfig.before;
-
-        // Check if source exists before adding layer
-        if (!map.getSource(sourceId)) {
-          console.warn(`Source ${sourceId} not found when creating layer ${id}`);
+        if (!config || !config.id || !config.type || !config.sourceId) {
           return;
         }
 
-        if (condition && !map.getLayer(id)) {
-          // Build layer object with validated properties
-          const layerObj = {
-            id,
-            source: sourceId,
-            type,
-            layout: layout || {},
-            paint: paint || {}
-          };
+        const { id, type, sourceId, paint, layout, options = {} } = config;
+        const condition = options.hasOwnProperty('condition') ? options.condition : true;
+        const before = options.before || defaultConfig.before;
 
-          // Only add filter if it's defined and is an array
-          const filterValue = options.filter || defaultConfig.filter;
-          if (Array.isArray(filterValue)) {
-            layerObj.filter = filterValue;
+        // Check if source exists before trying to add layer
+        if (!map.getSource(sourceId)) {
+          return;
+        }
+
+        // Handle the layer based on condition
+        if (condition) {
+          if (!map.getLayer(id)) {
+            // Build layer object
+            const layerObj = {
+              id,
+              source: sourceId,
+              type,
+              layout: layout || {},
+              paint: paint || {}
+            };
+
+            // Handle line-gradient and line-color conflict
+            if (type === 'line' && paint?.['line-gradient'] && paint?.['line-color']) {
+              // delete layerObj.paint['line-color'];
+            }
+
+            map.addLayer(layerObj, before);
           }
-
-          // Handle line-gradient and line-color conflict
-          if (type === 'line' && paint?.['line-gradient'] && paint?.['line-color']) {
-            console.warn(`Layer ${id}: line-gradient and line-color cannot both be specified`);
-            delete layerObj.paint['line-color'];
+        } else {
+          // If condition is false and layer exists, remove it
+          if (map.getLayer(id)) {
+            map.removeLayer(id);
+            // We don't need to update layerIdsRef here as we've already
+            // set it to currentLayerIds above
           }
-
-          map.addLayer(layerObj, before);
-          layerIdsRef.current.push(id);
         }
       } catch (error) {
-        console.error('Error adding layer for config:', config, error);
+        console.error('Error managing layer:', error, config);
       }
     });
   }, [map, layersConfigs, defaultConfig]);
 
-  // Update layout properties for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id || !config.layout) return;
-
-        const { id, layout, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-
-        if (condition && map.getLayer(id) && layout) {
-          Object.entries(layout).forEach(([key, value]) => {
-            map.setLayoutProperty(id, key, value);
-          });
-        }
-      });
-    }
-  }, [map, layersConfigs]);
-
-  // Update paint properties for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id || !config.paint) return;
-
-        const { id, paint, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-
-        if (condition && map.getLayer(id) && paint) {
-          Object.entries(paint).forEach(([key, value]) => {
-            map.setPaintProperty(id, key, value);
-          });
-        }
-      });
-    }
-  }, [map, layersConfigs]);
-
-  // Update filters for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id) return;
-
-        const { id, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-        const filter = options.filter || defaultConfig.filter;
-
-        // Only set filter if it's valid (must be an array)
-        if (condition && Array.isArray(filter) && map.getLayer(id)) {
-          map.setFilter(id, filter);
-        }
-      });
-    }
-  }, [map, layersConfigs, defaultConfig]);
-
-  // Remove layers when condition becomes false
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id) return;
-
-        const { id, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-
-        if (!condition && map.getLayer(id)) {
-          map.removeLayer(id);
-        }
-      });
-    }
-  }, [map, layersConfigs]);
-
-  // Update layer order based on before
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id) return;
-
-        const { id, options = {} } = config;
-        const before = options.before || defaultConfig.before;
-
-        if (before && map.getLayer(id)) {
-          map.moveLayer(id, before);
-        }
-      });
-    }
-  }, [map, layersConfigs, defaultConfig]);
-
-  // Update zoom ranges
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id) return;
-
-        const { id, options = {} } = config;
-        const condition = options.hasOwnProperty('condition') ? options.condition : true;
-        const minzoom = options.minZoom || defaultConfig.minZoom || MIN_ZOOM;
-        const maxzoom = options.maxZoom || defaultConfig.maxZoom || MAX_ZOOM;
-
-        if (condition && map.getLayer(id)) {
-          map.setLayerZoomRange(id, minzoom, maxzoom);
-        }
-      });
-    }
-  }, [map, layersConfigs, defaultConfig]);
-
-  // Cleanup on unmount
+  // Clean up all layers on unmount
   useEffect(() => {
     return () => {
-      if (map) {
-        try {
-          layerIdsRef.current.forEach(id => {
-            if (map.getLayer(id)) {
-              map.removeLayer(id);
-            }
-          });
-        } catch (error) {
-          // Silent error handling as in the original hook
+      if (!map) return;
+
+      layerIdsRef.current.forEach(id => {
+        if (map.getLayer(id)) {
+          try {
+            map.removeLayer(id);
+          } catch (err) {
+            console.warn('Error removing layer on unmount:', err);
+          }
         }
-      }
+      });
     };
   }, [map]);
 };

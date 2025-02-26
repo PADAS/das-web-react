@@ -63,7 +63,7 @@ export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125)
   tryToGetMapBounds();
 
   const interval = window.setInterval(() => {
-    timeoutRemaining = (timeoutRemaining-INTERVAL_LENGTH);
+    timeoutRemaining = (timeoutRemaining - INTERVAL_LENGTH);
     tryToGetMapBounds();
   }, [INTERVAL_LENGTH]);
 });
@@ -75,7 +75,7 @@ export const addMapImage = async ({ src, id, height, width, options = {} }) => {
     iconSrc,
     (width ? (width * MAP_ICON_SCALE) : (MAP_ICON_SIZE * MAP_ICON_SCALE)),
     (height && (height * MAP_ICON_SCALE)),
-  );
+  ).catch();
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }, options));
   return {
     icon_id,
@@ -89,7 +89,7 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
-    .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
+    .filter((properties, index, array) => array.findIndex(item => item.image === properties.image) === index)
     .filter((properties) => {
       if (!map) return !!properties;
       return !!map.hasImage(calcImgIdFromUrlForMapImages(properties.image, properties.width, properties.height));
@@ -101,7 +101,7 @@ export const addFeatureCollectionImagesToMap = (collection, options = {}, map = 
 
 export const filterInactiveRadiosFromCollection = (subjects) => {
   if (subjects && subjects.features.length) {
-    return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
+    return featureCollection(subjects.features.filter((subject) => subject.properties.radio_state !== 'offline'));
   }
   return featureCollection([]);
 };
@@ -125,7 +125,7 @@ const setUpEventGeoJson = (events, eventTypes) => {
   const key = 'geojson';
 
   return events
-    .filter (event => !!event[key])
+    .filter(event => !!event[key])
     .map(event => {
       const key = 'geojson';
 
@@ -198,7 +198,7 @@ export const lockMap = (map, isLocked) => {
 const baseLayerIsArcGisServer = ({ attributes: { url } }) => url.includes('arcgisonline.com/ArcGIS/rest/services');
 const baseLayerIsGoogleMap = ({ attributes: { url } }) => url.includes('mt.google.com');
 
-const fetchAttributionForArcGisServer = ({ attributes: { url } } ) => {
+const fetchAttributionForArcGisServer = ({ attributes: { url } }) => {
   const attributionUrl = `${url.substring(0, url.lastIndexOf('MapServer') + 9)}?f=pjson`;
   return window.fetch(attributionUrl)
     .then((response) => response.json())

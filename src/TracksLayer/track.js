@@ -66,9 +66,9 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   let trackLayerPaintStyles = { ...TRACK_LAYER_LINE_PAINT, ...linePaint };
 
   // Prepare color pair data
-  const { sourcesConfigs, layersConfigs, hasTimeOfDaySegments } = useMemo(() => {
+  const { sourcesConfigs, layersConfigs } = useMemo(() => {
     if (!trackData?.time_of_day_segments?.features?.length) {
-      return { sourcesConfigs: [], layersConfigs: [], hasTimeOfDaySegments: false };
+      return { sourcesConfigs: [], layersConfigs: [] };
     }
 
     // Group segments by color combinations
@@ -124,8 +124,9 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
         type: 'line',
         sourceId: pairSourceId,
         paint: {
-          // 'line-width': trackLayerPaintStyles['line-width'],
+          ...TRACK_LAYER_LINE_PAINT,
           'line-width': 2,
+          'line-gap-width': 1,
           'line-gradient': [
             'interpolate',
             ['linear'],
@@ -146,22 +147,23 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
     return {
       sourcesConfigs: sources,
       layersConfigs: layers,
-      hasTimeOfDaySegments: sources.length > 0
     };
+
   }, [trackData, sourceId, layerId, trackLayerPaintStyles, lineLayout, before]);
 
-  useMapSourceBatch(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayerBatch(layersConfigs, { before: before || SUBJECT_SYMBOLS });
-
-  // Only create the normal layer if there are no time_of_day_segments
   useMapLayer(
     layerId,
     'line',
     sourceId,
     trackLayerPaintStyles,
     { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-    { before: before || SUBJECT_SYMBOLS, condition: !hasTimeOfDaySegments }
+    { before: before || SUBJECT_SYMBOLS }
   );
+
+  useMapSourceBatch(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+
+  useMapLayerBatch(layersConfigs, { before: before || SUBJECT_SYMBOLS, condition: !!trackData.time_of_day_segments, before: layerId });
+
 
   // The timepoint layer is always created
   useMapLayer(
