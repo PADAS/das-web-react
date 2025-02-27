@@ -56,7 +56,7 @@ export const getCoordinatesForEvent = (event) => {
 };
 
 export const getCoordinatesForCollection = (collection) => {
-  if (collection.contains){
+  if (collection.contains) {
     const collectionCoords = collection.contains
       .map(({ related_event }) => getCoordinatesForEvent(related_event))
       .filter((item) => !!item);
