@@ -361,122 +361,79 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
 export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
   const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
-  const trackTotalMinutesInTZ = ((parseInt(hour) * 60) + parseInt(min)) || 1440;
+  const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
 
-  // Find the period that matches this time
-  for (let i = 0; i < TIME_OF_DAY_PERIODS.length; i++) {
-    const period = TIME_OF_DAY_PERIODS[i];
-    if (trackTotalMinutesInTZ >= period.rangeMinutesMin &&
-      trackTotalMinutesInTZ <= period.rangeMinutesMax) {
-      return {
-        period,
-        index: i
-      };
-    }
-  }
+  const period = TIME_OF_DAY_PERIODS.find((timeOfDayPeriod) =>
+    trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
+  );
 
-  // Default to the first period if no match found
-  return {
-    period: TIME_OF_DAY_PERIODS[0],
-    index: 0
+  return period ?? TIME_OF_DAY_PERIODS[0];
+};
+
+export const buildFeatureCollectionOfTwoPointLineStringSegments = (trackFeatureCollection, timeZone) => {
+  const featureCollection = {
+    type: 'FeatureCollection',
+    features: []
   };
-};
 
-// Map period indices to hex colors
-export const TIME_PERIOD_COLORS = [
-  '#f3e34b',  // titaniumYellow (12:01 - 15:00) 
-  '#ffbd00',  // americanYellow (15:01 - 18:00)
-  '#de5285',  // fandangoPink (18:01 - 21:00)
-  '#8d4e85',  // purplePlum (21:01 - 00:00)
-  '#5b5ee9',  // majorelleBlue (00:01 - 03:00)
-  '#1a5fb4',  // lapisLazuli (03:01 - 06:00)
-  '#29a272',  // spanishGreen (06:01 - 09:00)
-  '#2ec27e',  // green (09:01 - 12:00)
-];
-
-/**
- * Get color from time and timezone
- * @param {string} timeString - ISO timestamp string
- * @param {string} timeZone - IANA timezone string
- * @returns {string} - CSS color class key
- */
-export const getColorForTime = (timeString, timeZone) => {
-  const [hour, min] = getTimeInTimezone(new Date(timeString), timeZone).split(':');
-  const totalMinutesInDay = ((parseInt(hour) * 60) + parseInt(min)) || 1440;
-
-  // Find matching period index directly
-  let periodIndex = 0;
-  for (let i = 0; i < TIME_OF_DAY_PERIODS.length; i++) {
-    const period = TIME_OF_DAY_PERIODS[i];
-    if (totalMinutesInDay >= period.rangeMinutesMin &&
-      totalMinutesInDay <= period.rangeMinutesMax) {
-      periodIndex = i;
-      break;
-    }
-  }
-
-  return TIME_PERIOD_COLORS[periodIndex] || TIME_PERIOD_COLORS[0];
-};
-
-/**
- * Slice a GeoJSON LineString into segments colored by time of day
- * @param {Object} trackFeatureCollection - GeoJSON FeatureCollection containing a single LineString feature
- * @param {string} timeZone - IANA timezone string (e.g. "America/New_York")
- * @returns {Object} - FeatureCollection of line segments with color properties
- */
-export const sliceLineStringByTimeOfDay = (trackFeatureCollection, timeZone) => {
-  // Validate input
   if (!trackFeatureCollection || !trackFeatureCollection.features || !trackFeatureCollection.features.length) {
-    console.log('sliceLineStringByTimeOfDay: No features provided in track');
-    return { type: 'FeatureCollection', features: [] };
+    return featureCollection;
   }
 
-  const lineStringFeature = trackFeatureCollection.features[0];
+  const [lineStringFeature] = trackFeatureCollection.features;
 
-  if (!lineStringFeature ||
-    !lineStringFeature.geometry ||
-    lineStringFeature.geometry.type !== 'LineString' ||
+  // Checking if first feature is valid
+  if (!lineStringFeature?.geometry ||
+    lineStringFeature.geometry?.type !== 'LineString' ||
     !lineStringFeature.properties?.coordinateProperties?.times) {
-    console.log('sliceLineStringByTimeOfDay: First feature is not a valid LineString with times');
-    return { type: 'FeatureCollection', features: [] };
+    return featureCollection;
   }
 
-  const coordinates = lineStringFeature.geometry.coordinates;
-  const times = lineStringFeature.properties.coordinateProperties.times;
+  const {
+    geometry: {
+      coordinates
+    },
+    properties: {
+      coordinateProperties: {
+        times
+      }
+    }
+  } = lineStringFeature;
 
+  // At least there should be 2 points to create the line string and the amount of times should be the same as the amount of coordinates
   if (coordinates.length < 2 || coordinates.length !== times.length) {
-    console.log('sliceLineStringByTimeOfDay: Not enough coordinates or mismatch with times array');
-    return { type: 'FeatureCollection', features: [] };
+    return featureCollection;
   }
 
   const segments = [];
 
   // Create a line segment for each pair of consecutive points
   for (let i = 0; i < coordinates.length - 1; i++) {
-    try {
-      const startTime = times[i];
-      const endTime = times[i + 1];
+    const startTime = times[i];
+    const endTime = times[i + 1];
+    const startCoors = coordinates[i];
+    const endCoors = coordinates[i + 1];
 
-      // Get colors for the time periods
-      const startColor = getColorForTime(startTime, timeZone);
-      const endColor = getColorForTime(endTime, timeZone);
-
-      segments.push({
-        type: 'Feature',
-        properties: {
-          startColor,
-          endColor,
-          startTime,
-          endTime
-        },
-        geometry: {
-          type: 'LineString',
-          coordinates: [coordinates[i], coordinates[i + 1]]
-        }
-      });
-    } catch (error) {
-      console.error(`Error creating segment ${i}:`, error);
+    if (!endTime || !endCoors){
+      break;
     }
+
+    const { color: startColor } = getTimeOfDayPeriodBasedOnTime(startTime, timeZone);
+    const { color: endColor } = getTimeOfDayPeriodBasedOnTime(endTime, timeZone);
+
+    segments.push({
+      type: 'Feature',
+      properties: {
+        startColor,
+        endColor,
+        startTime,
+        endTime
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [startCoors, endCoors]
+      }
+    });
   }
 
   return {

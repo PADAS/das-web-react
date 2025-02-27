@@ -4,7 +4,10 @@ import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
-import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange, sliceLineStringByTimeOfDay } from '../../utils/tracks';
+import {
+  trimTrackDataToTimeRange,
+  buildFeatureCollectionOfTwoPointLineStringSegments
+} from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
@@ -12,7 +15,7 @@ const selectPatrolStore = (state) => state.data.patrolStore;
 const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTrackSettings = (state) => state.view.trackSettings;
+export const selectTrackSettings = (state) => state.view.trackSettings;
 const selectTracks = (state) => state.data.tracks;
 
 export const selectTrackTimeEnvelope = createSelector([selectEventFilter, selectTimeSliderState, selectTrackSettings],
@@ -97,22 +100,20 @@ export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = 
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
   (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
     (subjectTrack) => {
-      const trimmed = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
+      const trimmedTrackData = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
         subjectTrack,
         trackTimeEnvelope.from,
         trackTimeEnvelope.until
       );
 
-      if (!isTimeOfDayColoringActive) {
-        return trimmed;
-      }
+      console.log(trimmedTrackData.track);
 
-      const time_of_day_segments = sliceLineStringByTimeOfDay(trimmed.track, timeOfDayTimeZone);
-
-      return {
-        ...trimmed,
-        time_of_day_segments,
-      };
+      return isTimeOfDayColoringActive
+        ? {
+          ...trimmedTrackData,
+          twoPointLineStringTrackPoints: buildFeatureCollectionOfTwoPointLineStringSegments(trimmedTrackData.track, timeOfDayTimeZone)
+        }
+        : trimmedTrackData;
     }
   )
 );
