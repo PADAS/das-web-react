@@ -6,6 +6,7 @@ import { render, screen, within } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setIsTimeOfDayColoringActive, TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 import { updateTrackState } from '../ducks/map-ui';
+import { useFeatureFlag } from '../hooks';
 
 import SubjectTrackLegend from '.';
 

@@ -8,8 +8,6 @@ import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange } from '../../u
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
-const selectPatrolStore = (state) => state.data.patrolStore;
-const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTrackSettings = (state) => state.view.trackSettings;
@@ -64,27 +62,11 @@ export const selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope = createSelect
   )
 );
 
-const selectPatrolTracksLeaderIds = createSelector(
-  [selectPatrolStore, selectPatrolTrackState],
-  (patrolStore, patrolTrackState) => [...patrolTrackState.visible, ...patrolTrackState.pinned]
-    // List the patrols that have visible or pinned tracks from the store.
-    .map((patrolId) => patrolStore[patrolId])
-    // Filter the defined patrols.
-    .filter((patrol) => !!patrol)
-    // Get the leader of each patrol.
-    .map((patrol) => patrol.patrol_segments.length > 0 && patrol.patrol_segments[0].leader)
-    // Filter the defined leaders.
-    .filter((patrolLeader) => !!patrolLeader)
-    // Return the list of leader ids.
-    .map((patrolLeader) => patrolLeader.id)
-);
-
 const selectSubjectTracks = createSelector(
-  [selectPatrolTracksLeaderIds, selectSubjectTrackState, selectTracks],
-  (patrolTracksLeaderIds, subjectTrackState, tracks) => uniq([
+  [selectSubjectTrackState, selectTracks],
+  (subjectTrackState, tracks) => uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
-    ...patrolTracksLeaderIds,
   ])
     // Filter the defined subject ids.
     .filter((subjectId) => !!tracks[subjectId])
@@ -92,40 +74,33 @@ const selectSubjectTracks = createSelector(
     .map((subjectId) => tracks[subjectId])
 );
 
-
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
-  (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
+  (subjectTracks, trackTimeEnvelope, trackSettings) => subjectTracks.map(
     (subjectTrack) => {
-      const {
-        points: {
-          features,
-          ...otherPointsProps
-        },
-        ...otherData
-      } = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
-        subjectTrack,
-        trackTimeEnvelope.from,
-        trackTimeEnvelope.until
-      );
+      // Trim each subject tracks to the track time envelope.
+      const trimmedTrackData = trimTrackDataToTimeRange(subjectTrack, trackTimeEnvelope.from, trackTimeEnvelope.until);
 
-      return {
-        ...otherData,
-        points: {
-          ...otherPointsProps,
-          features: features.map(({ properties, ...otherFeaturesProps }) => {
-            return {
-              ...otherFeaturesProps,
-              properties: {
-                ...properties,
-                timeOfDayPeriod: isTimeOfDayColoringActive
-                  ? getTimeOfDayPeriodBasedOnTime(properties.time, timeOfDayTimeZone)
-                  : undefined
-              }
-            };
-          })
-        }
-      };
+      if (trackSettings.isTimeOfDayColoringActive) {
+        // If time of day coloring is active we add the time of day period to each point feature.
+        const pointFeaturesWithTimeOfDayPeriod = trimmedTrackData.points.features.map((feature) => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            timeOfDayPeriod: getTimeOfDayPeriodBasedOnTime(feature.properties.time, trackSettings.timeOfDayTimeZone),
+          },
+        }));
+
+        return {
+          ...trimmedTrackData,
+          points: {
+            ...trimmedTrackData.points,
+            features: pointFeaturesWithTimeOfDayPeriod,
+          }
+        };
+      }
+
+      return trimmedTrackData;
     }
   )
 );

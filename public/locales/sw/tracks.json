@@ -1,34 +1,18 @@
 {
   "patrolTrackLegend": {
-    "multiplePatrolsTitle": "{{count}} doria",
-    "singlePatrolTitle": "Doria: {{patrolDisplayTitle}}",
-    "titleElement": {
-      "coveredSpan": " imefunikwa",
-      "icon": "Ikoni kwa {{title}}",
-      "lengthCovered": "{{length}} imefunikwa",
-      "removeButton": "ondoa"
-    }
+    "icon": "Ikoni kwa {{title}}",
+    "itemDescription": "{{length}} imefunikwa",
+    "trackLegendItemsName": "doria"
   },
   "subjectTrackLegend": {
+    "description": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
+    "itemDescription_one": "Pointi {{count}}",
+    "itemDescription_other": "Pointi {{count}}",
+    "itemIcon": "Ikoni ya {{title}}",
+    "trackLegendItemsName": "wasanii"
+  },
+  "trackLegend": {
     "clearTracksButton": "Futa nyimbo",
-    "icon": "Ikoni ya {{title}}",
-    "multipleSubjectTracksTitle": "Wasanii {{count}}",
-    "pointsOverTime": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
-    "subjectTrackList": {
-      "closeButtonLabel": "Funga orodha ya wasanii",
-      "subjectTracksItem": {
-        "icon": "Ikoni ya {{title}}",
-        "pointCount_one": "Pointi {{count}}",
-        "pointCount_other": "Pointi {{count}}",
-        "removeButton": "Ondoa",
-        "removeButtonLabel": "Ondoa {{title}}"
-      },
-      "title": "Wasanii"
-    },
-    "subjectTracksListButtonLabel": {
-      "closed": "Fungua orodha ya wasanii",
-      "open": "Funga orodha ya wasanii"
-    },
     "timeOfDaySettings": {
       "chevronButtonLabel": {
         "closed": "Panua mipangilio ya wakati wa siku",
@@ -54,6 +38,17 @@
     "timeOfDaySettingsButtonLabel": {
       "active": "Zima rangi kwa wakati wa siku",
       "inactive": "Amua rangi kwa wakati wa siku"
+    },
+    "tracksList": {
+      "closeButtonLabel": "Funga orodha ya {{itemsName}}",
+      "tracksItem": {
+        "removeButton": "Ondoa",
+        "removeButtonLabel": "Ondoa {{title}}"
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Fungua orodha ya {{itemsName}}",
+      "open": "Funga orodha ya {{itemsName}}"
     },
     "trackSettings": {
       "closeButtonLabel": "Funga mipangilio ya nyimbo",
