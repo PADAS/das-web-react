@@ -62,18 +62,22 @@ const RootApp = () => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Osano) {
-      document.documentElement.lang = i18n.language;
-      try {
-        window.Osano('locale', i18n.language);
-      } catch (error) {
-        if (error.message === 'Language unavailable') {
-          window.Osano('locale', 'en');
-        } else {
-          throw error;
+    const setLocale = async () => {
+      if (typeof window !== 'undefined' && window.Osano) {
+        document.documentElement.lang = i18n.language;
+        try {
+          await window.Osano('locale', i18n.language);
+        } catch (error) {
+          if (error.message === 'Language unavailable') {
+            await window.Osano('locale', 'en');
+          } else {
+            console.error('Error setting Osano locale:', error);
+          }
         }
       }
-    }
+    };
+
+    setLocale();
   }, [i18n.language]);
 
   return <>
