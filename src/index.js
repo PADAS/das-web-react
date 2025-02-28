@@ -64,7 +64,15 @@ const RootApp = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.Osano) {
       document.documentElement.lang = i18n.language;
-      window.Osano('locale', i18n.language);
+      try {
+        window.Osano('locale', i18n.language);
+      } catch (error) {
+        if (error.message === 'Language unavailable') {
+          window.Osano('locale', 'en');
+        } else {
+          throw error;
+        }
+      }
     }
   }, [i18n.language]);
 
