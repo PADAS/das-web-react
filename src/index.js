@@ -64,7 +64,7 @@ const RootApp = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.Osano) {
       document.documentElement.lang = i18n.language;
-      window.Osano.setLanguage(i18n.language);
+      window.Osano('locale', i18n.language);
     }
   }, [i18n.language]);
 

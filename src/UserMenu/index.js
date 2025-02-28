@@ -53,7 +53,11 @@ const UserMenu = ({ onLogOutClick, onProfileClick, selectedUserProfile, user, us
           <Dropdown.Divider />
         </>}
 
-        <Dropdown.Item onClick={() => window.Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')}>{t('cookieSettingsItem')}</Dropdown.Item>
+        {window.Osano?.cm && (
+          <Dropdown.Item onClick={() => window.Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')}>
+            {t('cookieSettingsItem')}
+          </Dropdown.Item>
+        )}
 
         <Dropdown.Item onClick={onLogOutItemClick}>{t('logoutItem')}</Dropdown.Item>
       </Dropdown.Menu>
