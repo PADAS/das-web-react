@@ -29,18 +29,18 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {
-  case 300: {
-    return colorVariables.red;
-  }
-  case 200: {
-    return colorVariables.amber;
-  }
-  case 100: {
-    return colorVariables.green;
-  }
-  default: {
-    return colorVariables.gray;
-  }
+    case 300: {
+      return colorVariables.red;
+    }
+    case 200: {
+      return colorVariables.amber;
+    }
+    case 100: {
+      return colorVariables.green;
+    }
+    default: {
+      return colorVariables.gray;
+    }
   }
 };
 
@@ -49,7 +49,7 @@ export const mapEventTypesToCategories = (eventTypes, eventCategories) => {
     // Read the event type category. The location of the event category value property depends on the event type
     // version.
     const eventTypeCategory = eventType.version === 1
-      ? eventCategories[eventType.category.value]
+      ? eventType.category
       : eventCategories[eventType.category];
 
     if (eventTypeCategory.value === 'hidden') {
