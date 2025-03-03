@@ -106,8 +106,6 @@ export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = 
         trackTimeEnvelope.until
       );
 
-      console.log(trimmedTrackData.track);
-
       return isTimeOfDayColoringActive
         ? {
           ...trimmedTrackData,

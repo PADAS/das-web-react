@@ -74,46 +74,7 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
   }, [map, condition, eventType, layerId, handlerFn]);
 };
 
-export const useMapSource = (sourceId, data, config = { type: 'geojson' }) => {
-  const map = useContext(MapContext);
-  useEffect(() => {
-    if (map && !map?.getSource(sourceId)) {
-      map.addSource(sourceId, {
-        ...config,
-        data,
-      });
-    }
-  }, [sourceId, config, data, map]);
-
-  useEffect(() => {
-    let timeout;
-    timeout = window.setTimeout(() => {
-      const source = map?.getSource?.(sourceId);
-
-      if (source) {
-        source?.setData?.(data);
-      }
-
-    });
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [data, map, sourceId]);
-
-  useEffect(() => {
-    return () => {
-      if (map) {
-        setTimeout(() => {
-          map?.getSource(sourceId) && map.removeSource(sourceId);
-        });
-      }
-    };
-  }, [sourceId, map]);
-
-  return map?.getSource(sourceId);
-};
-
-export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {}) => {
+export const useMapLayerZZZZ = (layerId, type, sourceId, paint, layout, config = {}) => {
   const map = useContext(MapContext);
   const layer = map?.getLayer(layerId);
 
@@ -123,6 +84,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
   const minzoom = useMemoCompare(config?.minZoom);
   const maxzoom = useMemoCompare(config?.maxZoom);
 
+  // Add layers that don't exist yet
   useEffect(() => {
     if (condition && map && !layer) {
       if (!!map.getSource(sourceId)) {
@@ -138,6 +100,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
     }
   }, [before, condition, config, filter, layer, layerId, layout, map, sourceId, paint, type]);
 
+  // Update layout properties for existing layers
   useEffect(() => {
     if (condition && layer && layout) {
       Object.entries(layout).forEach(([key, value]) => {
@@ -146,6 +109,7 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
     }
   }, [condition, layer, layerId, layout, map]);
 
+  // Update paint properties for existing layers
   useEffect(() => {
     if (condition && layer && paint) {
       Object.entries(paint).forEach(([key, value]) => {
@@ -154,18 +118,21 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
     }
   }, [condition, map, layer, layerId, paint]);
 
+  // Update filters for existing layers
   useEffect(() => {
     if (condition && map && map.getLayer(layerId)) {
       map.setFilter(layerId, filter);
     }
   }, [condition, filter, layer, layerId, map]);
 
+  // Remove layers when condition becomes false
   useEffect(() => {
     if (!condition && layer) {
       map.removeLayer(layerId);
     }
   }, [condition, layer, layerId, map]);
 
+  // Update layer order based on before
   useEffect(() => {
     return () => {
       if (map) {
@@ -178,13 +145,14 @@ export const useMapLayer = (layerId, type, sourceId, paint, layout, config = {})
     };
   }, [layerId, map]);
 
+  // Update zoom ranges
   useEffect(() => {
     if (condition && map && layer && (minzoom || maxzoom)) {
       map.setLayerZoomRange(layerId, (minzoom || MIN_ZOOM), (maxzoom || MAX_ZOOM));
     }
   }, [condition, layer, layerId, map, minzoom, maxzoom]);
 
-
+  // Cleanup on unmount
   useEffect(() => {
     if (layerId && map && before) {
       map.getLayer(layerId) && map.moveLayer(layerId, before);

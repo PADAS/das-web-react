@@ -9,7 +9,8 @@ import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
-import { useMapLayer, useMapSource } from '../hooks';
+import useMapSource from '../hooks/useMapSource';
+import useMapLayer from '../hooks/useMapLayer';
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
 
@@ -89,8 +90,14 @@ const StartStopLayer = (props) => {
   const layerSymbolPaint = useMemo(() => ({ ...symbolPaint, 'text-color': ['get', 'stroke'] }), []);
   const layerLinePaint = useMemo(() => ({ ...linePaint, 'line-color': ['get', 'stroke'] }), []);
 
-  useMapSource(sourceId, patrolPointsSourceData);
-  useMapLayer(`${layerId}-lines`, 'line', sourceId, layerLinePaint, lineLayout);
+  useMapSource({ id: sourceId, data: patrolPointsSourceData });
+  useMapLayer({
+    id: `${layerId}-lines`,
+    type: 'line',
+    sourceId,
+    paint: layerLinePaint,
+    layout: lineLayout
+  });
 
   if (!points && !lines) return null;
 

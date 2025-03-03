@@ -1,10 +1,11 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 
 import { MapContext } from '../../App';
 
-const useMapSourceBatch = (sourcesConfigs = [], defaultConfig = { type: 'geojson' }) => {
+const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
   const map = useContext(MapContext);
   const sourceIdsRef = useRef([]);
+  const sourcesConfigs = useMemo(() => Array.isArray(sourceConfig) ? sourceConfig : [sourceConfig], [sourceConfig]);
 
   useEffect(() => {
     // Initialize sources that don't exist yet
@@ -29,22 +30,18 @@ const useMapSourceBatch = (sourcesConfigs = [], defaultConfig = { type: 'geojson
   // Update data for existing sources
   useEffect(() => {
     let timeouts = [];
-
     sourcesConfigs.forEach(config => {
       if (!!config?.id && !!config?.data){
         const { id, data, options = {} } = config;
-        const enabled = options.hasOwnProperty('enabled') ? options.enabled : true;
-
-        if (!enabled) return;
-
-        const timeout = window.setTimeout(() => {
-          const source = map?.getSource?.(id);
-          if (source) {
-            source?.setData?.(data);
-          }
-        });
-
-        timeouts.push(timeout);
+        if (!!options.enabled){
+          const timeout = window.setTimeout(() => {
+            const source = map?.getSource?.(id);
+            if (source) {
+              source?.setData?.(data);
+            }
+          });
+          timeouts.push(timeout);
+        }
       }
     });
 
@@ -57,10 +54,11 @@ const useMapSourceBatch = (sourcesConfigs = [], defaultConfig = { type: 'geojson
 
   // Cleanup on unmount
   useEffect(() => {
+    const refs = sourceIdsRef?.current;
     return () => {
       if (map) {
         setTimeout(() => {
-          sourceIdsRef?.current.forEach(id => {
+          refs.forEach(id => {
             if (map?.getSource(id)) {
               map.removeSource(id);
             }
@@ -69,6 +67,8 @@ const useMapSourceBatch = (sourcesConfigs = [], defaultConfig = { type: 'geojson
       }
     };
   }, [map]);
+
+  return sourcesConfigs.map((source) => map?.getSource(source.id));
 };
 
-export default useMapSourceBatch;
+export default useMapSource;

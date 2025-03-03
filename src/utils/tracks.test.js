@@ -160,6 +160,40 @@ describe('utils - tracks', () => {
 
     });
 
+    test('returns empty feature collection when track data has no features', () => {
+      const emptyTracks = { ...track };
+      emptyTracks.features = [];
+
+      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(emptyTracks, 'America/Monterrey');
+
+      expect(emptyFeatureCollection.features.length).toBe(0);
+      expect(emptyFeatureCollection.type).toBe('FeatureCollection');
+    });
+
+    test('returns empty feature collection when track data has no valid features', () => {
+      const invalidFeaturesTrack = { ...track };
+      invalidFeaturesTrack.features = [{}];
+
+      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(invalidFeaturesTrack, 'America/Monterrey');
+
+      expect(emptyFeatureCollection.features.length).toBe(0);
+      expect(emptyFeatureCollection.type).toBe('FeatureCollection');
+    });
+
+    test('returns empty feature collection when track feature has no enough data', () => {
+      const feature = { ...track.features[0] };
+      feature.geometry.coordinates = [];
+
+      const notEnoughFeaturesTracks = { ...track };
+      notEnoughFeaturesTracks.features = [feature];
+
+      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(notEnoughFeaturesTracks, 'America/Monterrey');
+
+      expect(emptyFeatureCollection.features.length).toBe(0);
+      expect(emptyFeatureCollection.type).toBe('FeatureCollection');
+    });
+
+
   });
 
 

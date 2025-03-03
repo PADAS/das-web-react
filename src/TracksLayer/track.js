@@ -4,15 +4,13 @@ import PropTypes from 'prop-types';
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../App';
 import {
-  useMapEventBinding,
-  useMapLayer,
-  useMapSource
+  useMapEventBinding
 } from '../hooks';
 import { generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments } from './utils';
 import { useSelector } from 'react-redux';
 import { selectTrackSettings } from '../selectors/tracks';
-import useMapSourceBatch from '../hooks/useMapSourceBatch';
-import useMapLayerBatch from '../hooks/useMapLayerBatch';
+import useMapSource from '../hooks/useMapSource';
+import useMapLayer from '../hooks/useMapLayer';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -79,31 +77,34 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
 
 
-  useMapSource(sourceId, trackData.twoPointLineStringTrackPoints || trackData.track, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapSource(pointSourceId, trackData.points);
+  useMapSource({ id: sourceId, data: trackData.twoPointLineStringTrackPoints || trackData.track }, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapSource({ id: pointSourceId, data: trackData.points });
 
-  useMapSourceBatch(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayerBatch(layersConfigs, { before: before || SUBJECT_SYMBOLS });
+  useMapSource(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapLayer(layersConfigs, { before: before || SUBJECT_SYMBOLS });
 
   // Only create the normal layer if there are no time_of_day_segments
   useMapLayer(
-    layerId,
-    'line',
-    sourceId,
-    { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
-    { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
     {
+      id: layerId,
+      type: 'line',
+      sourceId,
+      paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
+      layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
       before: before || SUBJECT_SYMBOLS,
       condition: !isTimeOfDayColoringActive && !hasTimeOfDaySegments }
   );
 
   useMapLayer(
-    pointLayerId,
-    'symbol',
-    pointSourceId,
-    TIMEPOINT_LAYER_PAINT,
-    TIMEPOINT_LAYER_LAYOUT,
-    { before: before || SUBJECT_SYMBOLS, condition: showTimepoints }
+    {
+      id: pointLayerId,
+      type: 'symbol',
+      sourceId: pointSourceId,
+      paint: TIMEPOINT_LAYER_PAINT,
+      layout: TIMEPOINT_LAYER_LAYOUT,
+      before: before || SUBJECT_SYMBOLS,
+      condition: showTimepoints
+    }
   );
 
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);

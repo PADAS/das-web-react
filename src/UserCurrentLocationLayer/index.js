@@ -7,9 +7,11 @@ import { addMapImage } from '../utils/map';
 import { bboxBoundsPolygon, userLocationCanBeShown as userLocationCanBeShownSelector } from '../selectors';
 import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
 import { MapContext } from '../App';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSource from '../hooks/useMapSource';
 
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
+import useMapLayer from '../hooks/useMapLayer';
 
 const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
 
@@ -101,10 +103,23 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     }
   }, [animationState, showLayer]);
 
-  useMapSource(CURRENT_USER_LOCATION_SOURCE, userLocationPoint);
+  useMapSource({ id: CURRENT_USER_LOCATION_SOURCE, data: userLocationPoint });
 
-  useMapLayer(ICON_LAYER_ID, 'symbol', CURRENT_USER_LOCATION_SOURCE, null, SYMBOL_LAYOUT, layerConfig);
-  useMapLayer(CIRCLE_LAYER_ID, 'circle', CURRENT_USER_LOCATION_SOURCE, circlePaint, null, layerConfig);
+  useMapLayer({
+    id: ICON_LAYER_ID,
+    type: 'symbol',
+    sourceId: CURRENT_USER_LOCATION_SOURCE,
+    layout: SYMBOL_LAYOUT,
+    ...layerConfig
+  });
+
+  useMapLayer({
+    id: CIRCLE_LAYER_ID,
+    type: 'circle',
+    sourceId: CURRENT_USER_LOCATION_SOURCE,
+    paint: circlePaint,
+    ...layerConfig
+  });
 
   useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
 

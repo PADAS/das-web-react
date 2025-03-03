@@ -10,7 +10,9 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSource from '../hooks/useMapSource';
+import useMapLayer from '../hooks/useMapLayer';
 
 const {
   CLUSTERS_LAYER_ID,
@@ -53,8 +55,14 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     subjectFeatureCollection.features,
   ]);
 
-  useMapSource(CLUSTERS_SOURCE_ID, clustersSourceData, CLUSTER_SOURCE_CONFIG);
-  useMapLayer(CLUSTERS_LAYER_ID, 'circle', CLUSTERS_SOURCE_ID, CLUSTER_LAYER_PAINT, null, CLUSTER_LAYER_CONFIG);
+  useMapSource({ id: CLUSTERS_SOURCE_ID, data: clustersSourceData }, CLUSTER_SOURCE_CONFIG);
+  useMapLayer({
+    id: CLUSTERS_LAYER_ID,
+    type: 'circle',
+    sourceId: CLUSTERS_SOURCE_ID,
+    paint: CLUSTER_LAYER_PAINT,
+    ...CLUSTER_LAYER_CONFIG
+  });
 
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon();
 

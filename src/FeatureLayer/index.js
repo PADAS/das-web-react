@@ -10,7 +10,9 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SOURCE_IDS } fr
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSource from '../hooks/useMapSource';
+import useMapLayer from '../hooks/useMapLayer';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SKY_LAYER } = LAYER_IDS;
 
@@ -114,14 +116,41 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
 
   const layerConfig = { minZoom, before: SKY_LAYER };
 
-  useMapSource(MAP_FEATURES_LINES_SOURCE, lines);
-  useMapSource(MAP_FEATURES_POLYGONS_SOURCE, polygons);
-  useMapSource(MAP_FEATURES_SYMBOLS_SOURCE, symbols);
+  useMapSource({ id: MAP_FEATURES_LINES_SOURCE, data: lines });
+  useMapSource({ id: MAP_FEATURES_POLYGONS_SOURCE, data: polygons });
+  useMapSource({ id: MAP_FEATURES_SYMBOLS_SOURCE, data: symbols });
 
-  // (layerId, type, sourceId, paint, layout, filter, minzoom, maxzoom, condition = true)
-  useMapLayer(FEATURE_FILLS, 'fill', MAP_FEATURES_POLYGONS_SOURCE, fillPaint, fillLayout, layerConfig);
-  useMapLayer(FEATURE_LINES, 'line', MAP_FEATURES_LINES_SOURCE, linePaint, lineLayout, layerConfig);
-  useMapLayer(FEATURE_SYMBOLS, 'symbol', MAP_FEATURES_SYMBOLS_SOURCE, symbolPaint, layout, layerConfig);
+  // (layerId, type, sourceId, paint, layout, filter, min-zoom, max-zoom, condition = true)
+  useMapLayer({
+    id: FEATURE_FILLS,
+    type: 'fill',
+    sourceId: MAP_FEATURES_POLYGONS_SOURCE,
+    paint: fillPaint,
+    layout: fillLayout,
+    ...layerConfig
+  });
+
+  useMapLayer(
+    {
+      id: FEATURE_LINES,
+      type: 'line',
+      sourceId: MAP_FEATURES_LINES_SOURCE,
+      paint: linePaint,
+      layout: lineLayout,
+      ...layerConfig
+    }
+  );
+
+  useMapLayer(
+    {
+      id: FEATURE_SYMBOLS,
+      type: 'symbol',
+      sourceId: MAP_FEATURES_SYMBOLS_SOURCE,
+      paint: symbolPaint,
+      layout: layout,
+      ...layerConfig
+    }
+  );
 
   useMapEventBinding('click', onSymbolClick, FEATURE_SYMBOLS);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, FEATURE_SYMBOLS);
