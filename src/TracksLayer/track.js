@@ -6,7 +6,7 @@ import { MapContext } from '../App';
 import {
   useMapEventBinding
 } from '../hooks';
-import { generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments } from './utils';
+import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
 import { useSelector } from 'react-redux';
 import { selectTrackSettings } from '../selectors/tracks';
 import useMapSource from '../hooks/useMapSource';
@@ -50,7 +50,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   const map = useContext(MapContext);
   const { isTimeOfDayColoringActive } = useSelector(selectTrackSettings);
 
-  const trackId = id || (trackData.track?.features?.[0]?.properties?.id || 'unknown-track');
+  const trackId = id || 'unknown-track';
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -63,9 +63,8 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
 
   const {
     sourcesConfigs,
-    layersConfigs,
-    hasTimeOfDaySegments
-  } = useMemo(() => generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments(
+    layersConfigs
+  } = useMemo(() => getTimeOfDaySourceAndLayerConfigurations(
     trackData,
     isTimeOfDayColoringActive,
     sourceId,
@@ -93,7 +92,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
       layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
       options: {
         before: before || SUBJECT_SYMBOLS,
-        condition: !isTimeOfDayColoringActive && !hasTimeOfDaySegments
+        condition: !isTimeOfDayColoringActive && sourcesConfigs.length === 0
       }
     }
   );

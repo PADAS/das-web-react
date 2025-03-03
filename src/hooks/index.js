@@ -6,7 +6,7 @@ import noop from 'lodash/noop';
 
 import { MapContext } from '../App';
 
-import { DEVELOPMENT_FEATURE_FLAGS, MIN_ZOOM, MAX_ZOOM } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 export const useSystemConfigFlag = (flag) => useSelector((state) => !!state?.view?.systemConfig?.[flag]);
 

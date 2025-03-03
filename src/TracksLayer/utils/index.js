@@ -1,12 +1,10 @@
 
-export const segmentTrackPointsByTimeOfDayPeriodPairs = (twoPointLineStringTrackPoints) => {
+export const segmentTrackPointsByTimeOfDayPeriodPairs = (timeOfDayFeatureCollection) => {
   const segmentsByColorPair = {};
-  let segmentsWithMissingColors = 0;
 
-  twoPointLineStringTrackPoints.features.forEach((segment) => {
+  timeOfDayFeatureCollection.features.forEach((segment) => {
     // Skip segments without required color properties
     if (!segment.properties?.startColor || !segment.properties?.endColor) {
-      segmentsWithMissingColors++;
       return;
     }
 
@@ -17,22 +15,18 @@ export const segmentTrackPointsByTimeOfDayPeriodPairs = (twoPointLineStringTrack
     segmentsByColorPair[key].push(segment);
   });
 
-  if (segmentsWithMissingColors > 0){
-    console.warn('Segments with missing colors:', segmentsWithMissingColors);
-  }
-
   return segmentsByColorPair;
 };
 
-export const generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments = (trackData, isTimeOfDayColoringActive, sourceId, layerId, layerLayout, layerOptions) => {
+export const getTimeOfDaySourceAndLayerConfigurations = (trackData, isTimeOfDayColoringActive, sourceId, layerId, layerLayout, layerOptions) => {
 
-  if (!trackData?.twoPointLineStringTrackPoints?.features?.length || !isTimeOfDayColoringActive) {
-    return { sourcesConfigs: [], layersConfigs: [], hasTimeOfDaySegments: false };
+  if (!trackData?.timeOfDayFeatureCollection?.features?.length || !isTimeOfDayColoringActive) {
+    return { sourcesConfigs: [], layersConfigs: [] };
   }
 
   const sources = [];
   const layers = [];
-  const trackPointsSegmentsByColorPair = segmentTrackPointsByTimeOfDayPeriodPairs(trackData.twoPointLineStringTrackPoints);
+  const trackPointsSegmentsByColorPair = segmentTrackPointsByTimeOfDayPeriodPairs(trackData.timeOfDayFeatureCollection);
 
   Object.entries(trackPointsSegmentsByColorPair).forEach(([colorPairKey, segments], index) => {
     const [startColor, endColor] = colorPairKey.split('|');
@@ -75,7 +69,6 @@ export const generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments = (tra
 
   return {
     sourcesConfigs: sources,
-    layersConfigs: layers,
-    hasTimeOfDaySegments: sources.length > 0
+    layersConfigs: layers
   };
 };

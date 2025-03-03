@@ -6,7 +6,7 @@ import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 import {
   trimTrackDataToTimeRange,
-  buildFeatureCollectionOfTwoPointLineStringSegments
+  buildTimeOfDayFeatureCollection
 } from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
@@ -109,7 +109,7 @@ export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = 
       return isTimeOfDayColoringActive
         ? {
           ...trimmedTrackData,
-          twoPointLineStringTrackPoints: buildFeatureCollectionOfTwoPointLineStringSegments(trimmedTrackData.track, timeOfDayTimeZone)
+          timeOfDayFeatureCollection: buildTimeOfDayFeatureCollection(trimmedTrackData.track, timeOfDayTimeZone)
         }
         : trimmedTrackData;
     }

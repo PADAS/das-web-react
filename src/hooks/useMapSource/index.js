@@ -2,42 +2,35 @@ import { useContext, useEffect, useMemo, useRef } from 'react';
 
 import { MapContext } from '../../App';
 
+
 const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
   const map = useContext(MapContext);
   const sourceIdsRef = useRef([]);
-  const sourcesConfigs = useMemo(() => Array.isArray(sourceConfig) ? sourceConfig : [sourceConfig], [sourceConfig]);
+  const sourceConfigsBatch = useMemo(() => Array.isArray(sourceConfig) ? sourceConfig : [sourceConfig], [sourceConfig]);
 
   useEffect(() => {
-    // Initialize sources that don't exist yet
     if (map) {
-      sourcesConfigs.forEach(config => {
-        if (!!config?.id && !!config?.data){
-          const { id, data, options = {} } = config;
-          const sourceConfig = { ...defaultConfig, ...options };
-
-          if (!map.getSource(id)) {
-            map.addSource(id, {
-              ...sourceConfig,
-              data,
-            });
-            sourceIdsRef.current.push(id);
-          }
+      sourceConfigsBatch.forEach(sourceConfig => {
+        if (sourceConfig?.id && !map.getSource(sourceConfig.id)){
+          const { id, data = {}, options = {} } = sourceConfig;
+          const fullSourceConfig = { ...defaultConfig, ...options };
+          map.addSource(id, {
+            ...fullSourceConfig,
+            data,
+          });
+          sourceIdsRef.current.push(id);
         }
       });
     }
-  }, [map, sourcesConfigs, defaultConfig]);
+  }, [map, sourceConfigsBatch, defaultConfig]);
 
-  // Update data for existing sources
   useEffect(() => {
     let timeouts = [];
-    sourcesConfigs.forEach(config => {
-      if (!!config?.id && !!config?.data){
-        const { id, data } = config;
+    sourceConfigsBatch.forEach(sourceConfig => {
+      const source = map?.getSource?.(sourceConfig?.id);
+      if (sourceConfig?.id && sourceConfig?.data && source){
         const timeout = window.setTimeout(() => {
-          const source = map?.getSource?.(id);
-          if (source) {
-            source?.setData?.(data);
-          }
+          source.setData(sourceConfig.data);
         });
         timeouts.push(timeout);
       }
@@ -48,9 +41,8 @@ const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
         window.clearTimeout(timeout);
       });
     };
-  }, [map, sourcesConfigs]);
+  }, [map, sourceConfigsBatch]);
 
-  // Cleanup on unmount
   useEffect(() => {
     const refs = sourceIdsRef?.current;
     return () => {
@@ -66,7 +58,9 @@ const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
     };
   }, [map]);
 
-  return sourcesConfigs.map((source) => map?.getSource(source.id));
+  return sourceConfigsBatch
+    .map((sourceConfig) => sourceConfig.id ? map?.getSource(sourceConfig.id) : null)
+    .filter(sourceConfig => !!sourceConfig);
 };
 
 export default useMapSource;

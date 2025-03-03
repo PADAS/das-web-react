@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { MapContext } from '../../App';
 import { MAX_ZOOM, MIN_ZOOM } from '../../constants';
@@ -6,158 +6,142 @@ import { MAX_ZOOM, MIN_ZOOM } from '../../constants';
 const useMapLayer = (layerConfig, defaultConfig = {}) => {
   const map = useContext(MapContext);
   const layerIdsRef = useRef([]);
-  const layersConfigs = useMemo(() => Array.isArray(layerConfig) ? layerConfig : [layerConfig], [layerConfig]);
+  const layerConfigsBatch = useMemo(() => Array.isArray(layerConfig) ? layerConfig : [layerConfig], [layerConfig]);
 
-  // Add layers that don't exist yet
+  const shouldUpdateMapLayer = useCallback((config) => config?.id && config?.condition !== false && map.getLayer(config.id), [map]);
+
   useEffect(() => {
     if (map){
-      layersConfigs.forEach(config => {
-        if (config?.id && config?.type && config?.sourceId){
-          const { id, type, sourceId, paint = {}, layout = {}, options = {} } = config;
-          const { filter, condition, before } = options;
-          const conditionValue = condition ?? true;
-          const beforeValue = before || defaultConfig.before;
+      layerConfigsBatch.forEach(layerConfig => {
+        if (
+          layerConfig?.id
+          && layerConfig?.condition !== false
+          && !map.getLayer(layerConfig.id)
+          && layerConfig?.type
+          && layerConfig?.sourceId
+          && map.getSource(layerConfig.sourceId)
+        ){
+          const {
+            id,
+            type,
+            sourceId,
+            paint = {},
+            layout = {},
+            options: {
+              filter,
+              before
+            } = {}
+          } = layerConfig;
 
-          if (map.getSource(sourceId) && conditionValue && !map.getLayer(id)){
-            const layerObj = {
-              id,
-              source: sourceId,
-              type,
-              layout: layout || {},
-              paint: paint || {}
-            };
+          const layerObj = {
+            id,
+            source: sourceId,
+            type,
+            layout: layout,
+            paint: paint
+          };
 
-            // Only add filter if it's defined and is an array
-            const filterValue = filter || defaultConfig.filter;
-            if (Array.isArray(filterValue)) {
-              layerObj.filter = filterValue;
-            }
-
-            // Handle line-gradient and line-color conflict
-            if (type === 'line' && paint?.['line-gradient'] && paint?.['line-color']) {
-              console.warn(`Layer ${id}: line-gradient and line-color cannot both be specified`);
-              delete layerObj.paint['line-color'];
-            }
-
-            map.addLayer(layerObj, beforeValue);
-            layerIdsRef.current.push(id);
-          }
-        }
-      });
-    }
-  }, [map, defaultConfig, layersConfigs]);
-
-  // Update layout properties for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (config?.id && config.layout){
-          const { id, layout, options = {} } = config;
-          const { condition } = options;
-          if (( condition ?? true ) && map.getLayer(id) && layout) {
-            Object.entries(layout).forEach(([key, value]) => {
-              map.setLayoutProperty(id, key, value);
-            });
-          }
-        }
-      });
-    }
-  }, [map, layersConfigs]);
-
-  // Update paint properties for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (config?.id && config?.paint){
-          const { id, paint, options = {} } = config;
-          const { condition } = options;
-          if (( condition ?? true ) && map.getLayer(id) && paint) {
-            Object.entries(paint).forEach(([key, value]) => {
-              map.setPaintProperty(id, key, value);
-            });
-          }
-        }
-      });
-    }
-  }, [map, layersConfigs]);
-
-  // Update filters for existing layers
-  useEffect(() => {
-    if (map) {
-      layersConfigs.forEach(config => {
-        if (config?.id){
-          const { id, options = {} } = config;
-          const { filter, condition } = options;
           const filterValue = filter || defaultConfig.filter;
-
-          // Only set filter if it's valid (must be an array)
-          if (( condition ?? true ) && Array.isArray(filterValue) && map.getLayer(id)) {
-            map.setFilter(id, filterValue);
+          if (Array.isArray(filterValue)) {
+            layerObj.filter = filterValue;
           }
+
+          // Handle line-gradient and line-color conflict
+          if (type === 'line' && paint?.['line-gradient'] && paint?.['line-color']) {
+            console.warn(`Layer ${id}: line-gradient and line-color cannot both be specified`);
+            delete layerObj.paint['line-color'];
+          }
+
+          map.addLayer(layerObj, before || defaultConfig.before);
+          layerIdsRef.current.push(id);
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig]);
+  }, [map, defaultConfig, layerConfigsBatch, shouldUpdateMapLayer]);
 
-  // Remove layers when condition becomes false
   useEffect(() => {
     if (map) {
-      layersConfigs.forEach(config => {
-        if (config?.id){
-          const { id, options = {} } = config;
-          const { condition } = options;
-          if (!(condition ?? true) && map.getLayer(id)) {
-            map.removeLayer(id);
-          }
+      layerConfigsBatch.forEach(layerConfig => {
+        if ( shouldUpdateMapLayer(layerConfig) && layerConfig.layout ){
+          Object.entries(layerConfig.layout).forEach(([name, value]) => {
+            map.setLayoutProperty(layerConfig.id, name, value);
+          });
         }
       });
     }
-  }, [map, layersConfigs]);
+  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
 
-  // Update layer order based on before
   useEffect(() => {
     if (map) {
-      layersConfigs.forEach(config => {
-        if (config?.id){
-          const { id, options = {} } = config;
-          const { before } = options;
-          const beforeValue = before || defaultConfig.before;
-
-          if (beforeValue && map.getLayer(id)) {
-            map.moveLayer(id, beforeValue);
-          }
+      layerConfigsBatch.forEach(layerConfig => {
+        if ( shouldUpdateMapLayer(layerConfig) && layerConfig.paint ){
+          Object.entries(layerConfig.paint).forEach(([name, value]) => {
+            map.setPaintProperty(layerConfig.id, name, value);
+          });
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig]);
+  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
 
-  // Update zoom ranges
   useEffect(() => {
     if (map) {
-      layersConfigs.forEach(config => {
-        if (!config || !config.id) return;
-
-        const { id, options = {} } = config;
-        const { condition, minZoom, maxZoom } = options;
-        const minZoomValue = minZoom || defaultConfig.minZoom || MIN_ZOOM;
-        const maxZoomValue = maxZoom || defaultConfig.maxZoom || MAX_ZOOM;
-
-        if (( condition ?? true ) && map.getLayer(id)) {
-          map.setLayerZoomRange(id, minZoomValue, maxZoomValue);
+      layerConfigsBatch.forEach(layerConfig => {
+        const filter = layerConfig?.options?.filter || defaultConfig.filter;
+        if (shouldUpdateMapLayer(layerConfig) && Array.isArray(filter)){
+          map.setFilter(layerConfig.id, filter);
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig]);
+  }, [map, layerConfigsBatch, defaultConfig, shouldUpdateMapLayer]);
 
-  // Cleanup on unmount
+  useEffect(() => {
+    if (map) {
+      layerConfigsBatch.forEach(layerConfig => {
+        if ( shouldUpdateMapLayer(layerConfig) ){
+          map.removeLayer(layerConfig.id);
+        }
+      });
+    }
+  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
+
+  useEffect(() => {
+    if (map) {
+      layerConfigsBatch.forEach(layerConfig => {
+        const before = layerConfig?.options?.before || defaultConfig.before;
+        if (
+          layerConfig?.id
+          && before
+          && map.getLayer(layerConfig.id)
+        ){
+          map.moveLayer(layerConfig.id, before);
+        }
+      });
+    }
+  }, [map, layerConfigsBatch, defaultConfig]);
+
+  useEffect(() => {
+    if (map) {
+      layerConfigsBatch.forEach(layerConfig => {
+        if ( shouldUpdateMapLayer(layerConfig) ) {
+          const { options: { minZoom, maxZoom } = {} } = layerConfig;
+          map.setLayerZoomRange(
+            layerConfig.id,
+            minZoom || defaultConfig.minZoom || MIN_ZOOM,
+            maxZoom || defaultConfig.maxZoom || MAX_ZOOM
+          );
+        }
+      });
+    }
+  }, [map, layerConfigsBatch, defaultConfig, shouldUpdateMapLayer]);
+
   useEffect(() => {
     const refs = layerIdsRef.current;
     return () => {
       if (map) {
         try {
-          refs.forEach(id => {
-            if (map.getLayer(id)) {
-              map.removeLayer(id);
+          refs.forEach(layerId => {
+            if (map.getLayer(layerId)) {
+              map.removeLayer(layerId);
             }
           });
         } catch (error) {
@@ -167,7 +151,9 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
     };
   }, [map]);
 
-  return layersConfigs.map((layer) => map?.getLayer(layer.id));
+  return layerConfigsBatch
+    .map((layerConfig) => layerConfig?.id ? map?.getLayer(layerConfig.id) : null)
+    .filter(layerConfig => !!layerConfig);
 };
 
 export default useMapLayer;

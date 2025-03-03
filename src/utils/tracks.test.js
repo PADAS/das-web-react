@@ -1,4 +1,4 @@
-import { buildFeatureCollectionOfTwoPointLineStringSegments, getTimeOfDayPeriodBasedOnTime } from './tracks';
+import { buildTimeOfDayFeatureCollection, getTimeOfDayPeriodBasedOnTime } from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
@@ -136,7 +136,7 @@ describe('utils - tracks', () => {
         }
       ];
 
-      const twoPointFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(track, 'America/Monterrey');
+      const twoPointFeatureCollection = buildTimeOfDayFeatureCollection(track, 'America/Monterrey');
 
       expect(twoPointFeatureCollection.features.length).toBe(resultFeatures.length);
       expect(twoPointFeatureCollection.type).toBe('FeatureCollection');
@@ -164,7 +164,7 @@ describe('utils - tracks', () => {
       const emptyTracks = { ...track };
       emptyTracks.features = [];
 
-      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(emptyTracks, 'America/Monterrey');
+      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(emptyTracks, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
@@ -174,7 +174,7 @@ describe('utils - tracks', () => {
       const invalidFeaturesTrack = { ...track };
       invalidFeaturesTrack.features = [{}];
 
-      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(invalidFeaturesTrack, 'America/Monterrey');
+      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(invalidFeaturesTrack, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
@@ -187,7 +187,7 @@ describe('utils - tracks', () => {
       const notEnoughFeaturesTracks = { ...track };
       notEnoughFeaturesTracks.features = [feature];
 
-      const emptyFeatureCollection = buildFeatureCollectionOfTwoPointLineStringSegments(notEnoughFeaturesTracks, 'America/Monterrey');
+      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(notEnoughFeaturesTracks, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');

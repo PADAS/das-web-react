@@ -1,6 +1,6 @@
-import { buildFeatureCollectionOfTwoPointLineStringSegments } from '../../utils/tracks';
+import { buildTimeOfDayFeatureCollection } from '../../utils/tracks';
 import {
-  generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments,
+  getTimeOfDaySourceAndLayerConfigurations,
   segmentTrackPointsByTimeOfDayPeriodPairs
 } from './';
 
@@ -49,8 +49,8 @@ describe('TracksLayer - utils', () => {
       }
     ]
   };
-  const twoPointLineStringTrackPoints = buildFeatureCollectionOfTwoPointLineStringSegments(track, 'America/Monterrey');
-  const segmentPairs = segmentTrackPointsByTimeOfDayPeriodPairs(twoPointLineStringTrackPoints);
+  const timeOfDayFeatureCollection = buildTimeOfDayFeatureCollection(track, 'America/Monterrey');
+  const segmentPairs = segmentTrackPointsByTimeOfDayPeriodPairs(timeOfDayFeatureCollection);
 
   test('segments track points by pairs of time of day periods', () => {
     const layoutOptions =  {
@@ -62,10 +62,10 @@ describe('TracksLayer - utils', () => {
     };
     const sourceId = 'aSourceId';
     const layerId = 'aLayerId';
-    const trackData = { twoPointLineStringTrackPoints };
-    const configs = generateMapSourcesAndLayersBasedOnTwoLineTrackPointsSegments(trackData, true, sourceId, layerId, layoutOptions, layerOptions);
+    const trackData = { timeOfDayFeatureCollection };
+    const configs = getTimeOfDaySourceAndLayerConfigurations(trackData, true, sourceId, layerId, layoutOptions, layerOptions);
 
-    expect(configs.hasTimeOfDaySegments).toBe(true);
+    expect(configs.sourcesConfigs).toBe(true);
 
     Object.entries(segmentPairs).forEach(([pairKey, segment], index) => {
       const [startColor, endColor] = pairKey.split('|');

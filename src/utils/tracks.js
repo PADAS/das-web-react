@@ -370,7 +370,14 @@ export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
   return period ?? TIME_OF_DAY_PERIODS[0];
 };
 
-export const buildFeatureCollectionOfTwoPointLineStringSegments = (trackFeatureCollection, timeZone) => {
+/*
+* This method split all track points by segments formed by a line-string object of 2 points having:
+*   - Coors and times of points A and B
+*   - assigning a startColor and endColor based on the time of each point
+* The segmentation will allow us to set a line gradient with specific stop colors to each line.
+* This being a workaround of the issue of MapBox not being able to apply dynamically data-drive stop colors for a gradient line.
+* */
+export const buildTimeOfDayFeatureCollection = (trackFeatureCollection, timeZone) => {
   const featureCollection = {
     type: 'FeatureCollection',
     features: []

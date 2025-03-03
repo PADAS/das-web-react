@@ -179,7 +179,7 @@ describe('hooks - useMapLayer', () => {
             options: config
           }), { wrapper });
 
-          expect(map.addLayer).not.toHaveBeenCalled();
+          expect(map.addLayer).toHaveBeenCalled();
 
           config.condition = true;
 

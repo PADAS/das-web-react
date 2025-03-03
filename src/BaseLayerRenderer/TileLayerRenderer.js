@@ -26,7 +26,7 @@ const SourceComponent = ({ id, tileUrl, sourceConfig }) => {
     ...sourceConfig,
   }), [sourceConfig, tileUrl]);
 
-  useMapSource({ id, data: {} }, config);
+  useMapSource({ id }, config);
 
   return null;
 };
