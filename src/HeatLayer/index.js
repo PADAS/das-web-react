@@ -38,7 +38,9 @@ const HeatLayer = ({ points }) => {
       type: 'heatmap',
       sourceId: `heatmap-source-${idRef.current}`,
       paint,
-      before: SKY_LAYER
+      options: {
+        before: SKY_LAYER
+      }
     }
   );
 

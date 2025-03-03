@@ -127,7 +127,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     sourceId: MAP_FEATURES_POLYGONS_SOURCE,
     paint: fillPaint,
     layout: fillLayout,
-    ...layerConfig
+    options: layerConfig
   });
 
   useMapLayer(
@@ -137,7 +137,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
       sourceId: MAP_FEATURES_LINES_SOURCE,
       paint: linePaint,
       layout: lineLayout,
-      ...layerConfig
+      options: layerConfig
     }
   );
 
@@ -148,7 +148,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
       sourceId: MAP_FEATURES_SYMBOLS_SOURCE,
       paint: symbolPaint,
       layout: layout,
-      ...layerConfig
+      options: layerConfig
     }
   );
 

@@ -13,7 +13,8 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
     if (map){
       layersConfigs.forEach(config => {
         if (config?.id && config?.type && config?.sourceId){
-          const { id, type, sourceId, paint = {}, layout = {}, filter, condition, before } = config;
+          const { id, type, sourceId, paint = {}, layout = {}, options = {} } = config;
+          const { filter, condition, before } = options;
           const conditionValue = condition ?? true;
           const beforeValue = before || defaultConfig.before;
 
@@ -44,15 +45,15 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layerConfig, defaultConfig, layersConfigs]);
+  }, [map, defaultConfig, layersConfigs]);
 
   // Update layout properties for existing layers
   useEffect(() => {
     if (map) {
       layersConfigs.forEach(config => {
         if (config?.id && config.layout){
-          const { id, layout, condition } = config;
-
+          const { id, layout, options = {} } = config;
+          const { condition } = options;
           if (( condition ?? true ) && map.getLayer(id) && layout) {
             Object.entries(layout).forEach(([key, value]) => {
               map.setLayoutProperty(id, key, value);
@@ -61,14 +62,15 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layersConfigs, layerConfig]);
+  }, [map, layersConfigs]);
 
   // Update paint properties for existing layers
   useEffect(() => {
     if (map) {
       layersConfigs.forEach(config => {
         if (config?.id && config?.paint){
-          const { id, paint, condition } = config;
+          const { id, paint, options = {} } = config;
+          const { condition } = options;
           if (( condition ?? true ) && map.getLayer(id) && paint) {
             Object.entries(paint).forEach(([key, value]) => {
               map.setPaintProperty(id, key, value);
@@ -77,14 +79,15 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layersConfigs, layerConfig]);
+  }, [map, layersConfigs]);
 
   // Update filters for existing layers
   useEffect(() => {
     if (map) {
       layersConfigs.forEach(config => {
         if (config?.id){
-          const { id, filter, condition } = config;
+          const { id, options = {} } = config;
+          const { filter, condition } = options;
           const filterValue = filter || defaultConfig.filter;
 
           // Only set filter if it's valid (must be an array)
@@ -94,28 +97,30 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig, layerConfig]);
+  }, [map, layersConfigs, defaultConfig]);
 
   // Remove layers when condition becomes false
   useEffect(() => {
     if (map) {
       layersConfigs.forEach(config => {
         if (config?.id){
-          const { id, condition } = config;
+          const { id, options = {} } = config;
+          const { condition } = options;
           if (!(condition ?? true) && map.getLayer(id)) {
             map.removeLayer(id);
           }
         }
       });
     }
-  }, [map, layersConfigs, layerConfig]);
+  }, [map, layersConfigs]);
 
   // Update layer order based on before
   useEffect(() => {
     if (map) {
       layersConfigs.forEach(config => {
         if (config?.id){
-          const { id, before } = config;
+          const { id, options = {} } = config;
+          const { before } = options;
           const beforeValue = before || defaultConfig.before;
 
           if (beforeValue && map.getLayer(id)) {
@@ -124,7 +129,7 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig, layerConfig]);
+  }, [map, layersConfigs, defaultConfig]);
 
   // Update zoom ranges
   useEffect(() => {
@@ -132,7 +137,8 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
       layersConfigs.forEach(config => {
         if (!config || !config.id) return;
 
-        const { id, condition, minZoom, maxZoom } = config;
+        const { id, options = {} } = config;
+        const { condition, minZoom, maxZoom } = options;
         const minZoomValue = minZoom || defaultConfig.minZoom || MIN_ZOOM;
         const maxZoomValue = maxZoom || defaultConfig.maxZoom || MAX_ZOOM;
 
@@ -141,7 +147,7 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layersConfigs, defaultConfig, layerConfig]);
+  }, [map, layersConfigs, defaultConfig]);
 
   // Cleanup on unmount
   useEffect(() => {

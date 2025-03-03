@@ -56,8 +56,10 @@ const TileLayerRenderer = (props) => {
       id: `tile-layer-${activeLayer?.id}`,
       type: 'raster',
       sourceId: `layer-source-${activeLayer?.id}`,
-      before: TOPMOST_STYLE_LAYER,
-      condition: !!activeLayer
+      options: {
+        before: TOPMOST_STYLE_LAYER,
+        condition: !!activeLayer
+      }
     }
   );
 

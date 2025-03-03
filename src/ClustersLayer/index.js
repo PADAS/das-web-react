@@ -61,7 +61,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     type: 'circle',
     sourceId: CLUSTERS_SOURCE_ID,
     paint: CLUSTER_LAYER_PAINT,
-    ...CLUSTER_LAYER_CONFIG
+    options: CLUSTER_LAYER_CONFIG
   });
 
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon();

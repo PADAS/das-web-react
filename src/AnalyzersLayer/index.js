@@ -77,7 +77,7 @@ const AnalyzerLayer = (
       type: 'line',
       sourceId: ANALYZER_POLYS_WARNING_SOURCE,
       paint: linePaint,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 
@@ -89,7 +89,7 @@ const AnalyzerLayer = (
       sourceId: ANALYZER_POLYS_CRITICAL_SOURCE,
       paint: criticalLinePaint,
       layout: lineLayout,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 
@@ -101,7 +101,7 @@ const AnalyzerLayer = (
       sourceId: ANALYZER_LINES_WARNING_SOURCE,
       paint: linePaint,
       layout: lineLayout,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 
@@ -113,7 +113,7 @@ const AnalyzerLayer = (
       sourceId: ANALYZER_LINES_CRITICAL_SOURCE,
       paint: criticalLinePaint,
       layout: lineLayout,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 

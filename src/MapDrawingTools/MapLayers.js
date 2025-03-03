@@ -59,7 +59,9 @@ const MapDrawingLayers = ({
       sourceId: SOURCE_IDS.LINE_SOURCE,
       paint: symbolPaint,
       layout: lineSymbolLayout,
-      condition: drawing || !isHoveringGeometry || draggedPoint,
+      options: {
+        condition: drawing || !isHoveringGeometry || draggedPoint
+      }
     }
   );
   useMapLayer(
@@ -69,7 +71,9 @@ const MapDrawingLayers = ({
       sourceId: SOURCE_IDS.FILL_LABEL_SOURCE,
       paint: symbolPaint,
       layout: polygonSymbolLayout,
-      condition: drawing || !isHoveringGeometry || draggedPoint,
+      options: {
+        condition: drawing || !isHoveringGeometry || draggedPoint
+      }
     }
   );
 

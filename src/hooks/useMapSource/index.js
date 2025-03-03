@@ -32,16 +32,14 @@ const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
     let timeouts = [];
     sourcesConfigs.forEach(config => {
       if (!!config?.id && !!config?.data){
-        const { id, data, options = {} } = config;
-        if (!!options.enabled){
-          const timeout = window.setTimeout(() => {
-            const source = map?.getSource?.(id);
-            if (source) {
-              source?.setData?.(data);
-            }
-          });
-          timeouts.push(timeout);
-        }
+        const { id, data } = config;
+        const timeout = window.setTimeout(() => {
+          const source = map?.getSource?.(id);
+          if (source) {
+            source?.setData?.(data);
+          }
+        });
+        timeouts.push(timeout);
       }
     });
 

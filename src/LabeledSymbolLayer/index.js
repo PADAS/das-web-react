@@ -86,7 +86,7 @@ const LabeledSymbolLayer = (
     sourceId,
     paint: symbolPaint,
     layout: symbolLayout,
-    ...layerConfig
+    options: layerConfig
   });
 
   useMapLayer({
@@ -95,7 +95,7 @@ const LabeledSymbolLayer = (
     sourceId,
     paint: labelPaint,
     layout: labelLayout,
-    ...layerConfig
+    options: layerConfig
   });
 
   return null;

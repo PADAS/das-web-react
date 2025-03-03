@@ -77,7 +77,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
 
 
-  useMapSource({ id: sourceId, data: trackData.twoPointLineStringTrackPoints || trackData.track }, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapSource({ id: sourceId, data: trackData.track }, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
   useMapSource({ id: pointSourceId, data: trackData.points });
 
   useMapSource(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
@@ -91,8 +91,11 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
       sourceId,
       paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
       layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-      before: before || SUBJECT_SYMBOLS,
-      condition: !isTimeOfDayColoringActive && !hasTimeOfDaySegments }
+      options: {
+        before: before || SUBJECT_SYMBOLS,
+        condition: !isTimeOfDayColoringActive && !hasTimeOfDaySegments
+      }
+    }
   );
 
   useMapLayer(
@@ -102,8 +105,10 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
       sourceId: pointSourceId,
       paint: TIMEPOINT_LAYER_PAINT,
       layout: TIMEPOINT_LAYER_LAYOUT,
-      before: before || SUBJECT_SYMBOLS,
-      condition: showTimepoints
+      options: {
+        before: before || SUBJECT_SYMBOLS,
+        condition: showTimepoints
+      }
     }
   );
 

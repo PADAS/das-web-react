@@ -81,7 +81,9 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     'circle-stroke-opacity': animationState.opacity,
   };
 
-  const layerConfig = { minZoom: 6, condition: !!showLayer };
+  const layerConfig = useMemo(() => (
+    { minZoom: 6, condition: !!showLayer }
+  ), [showLayer]);
 
   const onCurrentLocationIconClick = useCallback(() => {
     onIconClick(userLocation);
@@ -110,7 +112,7 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     type: 'symbol',
     sourceId: CURRENT_USER_LOCATION_SOURCE,
     layout: SYMBOL_LAYOUT,
-    ...layerConfig
+    options: layerConfig
   });
 
   useMapLayer({
@@ -118,7 +120,7 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     type: 'circle',
     sourceId: CURRENT_USER_LOCATION_SOURCE,
     paint: circlePaint,
-    ...layerConfig
+    options: layerConfig
   });
 
   useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);

@@ -112,7 +112,7 @@ const StaticSensorsLayer = () => {
       sourceId: currentSourceId,
       paint: backgroundLayerStyles.paint,
       layout: backgroundLayoutObject,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 
@@ -123,7 +123,7 @@ const StaticSensorsLayer = () => {
       sourceId: currentSourceId,
       paint: labelLayerStyles.paint,
       layout: layoutObject,
-      ...layerConfig,
+      options: layerConfig,
     }
   );
 

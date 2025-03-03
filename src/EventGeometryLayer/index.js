@@ -71,7 +71,7 @@ const EventGeometryLayer = ({ onClick }) => {
     sourceId: EVENT_GEOMETRY,
     paint,
     layout,
-    ...layerConfig
+    options: layerConfig
   });
 
   useMapEventBinding('click', onClick, EVENT_GEOMETRY_LAYER);

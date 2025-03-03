@@ -30,7 +30,7 @@ const useClusterBufferPolygon = () => {
     type: 'fill',
     sourceId: CLUSTER_BUFFER_POLYGON_SOURCE_ID,
     paint: CLUSTER_BUFFER_POLYGON_PAINT,
-    ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION
+    options: CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION
   });
 
   const renderClusterPolygon = useCallback((clusterFeatureCollection) => {
