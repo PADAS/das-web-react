@@ -29,18 +29,18 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {
-    case 300: {
-      return colorVariables.red;
-    }
-    case 200: {
-      return colorVariables.amber;
-    }
-    case 100: {
-      return colorVariables.green;
-    }
-    default: {
-      return colorVariables.gray;
-    }
+  case 300: {
+    return colorVariables.red;
+  }
+  case 200: {
+    return colorVariables.amber;
+  }
+  case 100: {
+    return colorVariables.green;
+  }
+  default: {
+    return colorVariables.gray;
+  }
   }
 };
 
