@@ -9,12 +9,13 @@ import { ReactComponent as DayNightIcon } from '../common/images/icons/day-night
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_off.svg';
 
-import { BOOTSTRAP_DEFAULTS } from '../constants';
+import { BOOTSTRAP_DEFAULTS, FEATURE_FLAG_LABELS } from '../constants';
 import { getCurrentLocale } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { selectSubjectTracksTrimmedToTrackTimeEnvelope, selectTrackTimeEnvelope } from '../selectors/tracks';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod, selectTrackTimeEnvelope } from '../selectors/tracks';
 import { setIsTimeOfDayColoringActive } from '../ducks/tracks';
 import { updateTrackState } from '../ducks/map-ui';
+import { useFeatureFlag } from '../hooks';
 
 import DelayedUnmount from '../DelayedUnmount';
 import TimeOfDaySettings from './TimeOfDaySettings';
@@ -35,9 +36,11 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend' });
 
+  const timeOfDayTrackingEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.TIME_OF_DAY_TRACKING);
+
   const isTimeOfDayColoringActive = useSelector((state) => state.view.trackSettings.isTimeOfDayColoringActive);
   const subjectStore = useSelector((state) => state.data.subjectStore);
-  const subjectTracksTrimmedToTrackTimeEnvelope = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelope);
+  const subjectTracksTrimmedToTrackTimeEnvelope = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod);
   const subjectTrackState = useSelector((state) => state.view.subjectTrackState);
   const trackTimeEnvelope = useSelector(selectTrackTimeEnvelope);
 
@@ -172,7 +175,7 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
         </div>
 
         <div>
-          <button
+          {timeOfDayTrackingEnabled && <button
             aria-controls="timeOfDaySettings"
             aria-expanded={isTimeOfDayColoringActive}
             aria-label={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
@@ -182,7 +185,7 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
             type="button"
           >
             <DayNightIcon className={styles.icon} />
-          </button>
+          </button>}
 
           <button
             aria-controls="trackSettingsCollapse"
@@ -225,7 +228,7 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
       </div>
     </Collapse>
 
-    <Collapse id="timeOfDaySettings" in={isTimeOfDayColoringActive}>
+    {timeOfDayTrackingEnabled && <Collapse id="timeOfDaySettings" in={isTimeOfDayColoringActive}>
       <div>
         <TimeOfDaySettings
           isExpanded={isTimeOfDaySettingsExpanded}
@@ -233,7 +236,7 @@ const SubjectTrackLegend = ({ subjectTracksCount }) => {
           onExpandTimeOfDaySettings={() => onExpandMenu(MENUS.TIME_OF_DAY_SETTINGS)}
         />
       </div>
-    </Collapse>
+    </Collapse>}
   </div>;
 };
 

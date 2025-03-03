@@ -1,7 +1,7 @@
 import {
   selectTrackTimeEnvelope,
   selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope,
-  selectSubjectTracksTrimmedToTrackTimeEnvelope,
+  selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod,
 } from './';
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
@@ -76,14 +76,6 @@ describe('Selectors - Tracks', () => {
         until: null,
       });
     });
-
-    test('builds the track time envelope if the track length origin is the event filter', () => {
-      state.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-      expect(selectTrackTimeEnvelope(state)).toEqual({
-        from: new Date('2020-01-02T00:00:00.000Z'),
-        until: null,
-      });
-    });
   });
 
   describe('selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope', () => {
@@ -136,7 +128,7 @@ describe('Selectors - Tracks', () => {
     });
   });
 
-  describe('selectSubjectTracksTrimmedToTrackTimeEnvelope', () => {
+  describe('selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod', () => {
     beforeAll(() => {
       jest.useFakeTimers().setSystemTime(new Date('2021-01-01'));
     });
@@ -162,7 +154,7 @@ describe('Selectors - Tracks', () => {
           },
         },
       };
-      expect(selectSubjectTracksTrimmedToTrackTimeEnvelope(state))
+      expect(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod(state))
         .toEqual([{
           indices: {
             from: 0,

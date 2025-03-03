@@ -45,6 +45,10 @@
         "titaniumYellow": "Titanium yellow"
       },
       "informationTooltip": "Track colors are estimations based on tracking data provided. Speed and dwell are not taken into account.",
+      "timeZoneSelect": {
+        "label": "Time zone:",
+        "noSelectOptionsMessage": "No time zones"
+      },
       "title": "Time of Day"
     },
     "timeOfDaySettingsButtonLabel": {

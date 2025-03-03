@@ -1,7 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../test-utils';
+import { mockStore } from '../../__test-helpers/MockStore';
 
 import TimeOfDaySettings from '.';
 
@@ -9,12 +11,27 @@ describe('SubjectTrackLegend - TimeOfDaySettings', () => {
   const onCollapseTimeOfDaySettings = jest.fn();
   const onExpandTimeOfDaySettings = jest.fn();
 
-  const renderTimeOfDaySettings = (props) => render(<TimeOfDaySettings
-    isExpanded
-    onCollapseTimeOfDaySettings={onCollapseTimeOfDaySettings}
-    onExpandTimeOfDaySettings={onExpandTimeOfDaySettings}
-    {...props}
-  />);
+  let store;
+  beforeEach(() => {
+    store = {
+      view: {
+        trackSettings: {
+          timeOfDayTimeZone: 'America/Mexico_City',
+        },
+      },
+    };
+  });
+
+  const renderTimeOfDaySettings = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <TimeOfDaySettings
+        isExpanded
+        onCollapseTimeOfDaySettings={onCollapseTimeOfDaySettings}
+        onExpandTimeOfDaySettings={onExpandTimeOfDaySettings}
+        {...props}
+      />
+    </Provider>
+  );
 
   afterEach(() => {
     jest.restoreAllMocks();
