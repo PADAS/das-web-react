@@ -1,88 +1,206 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+import { waitFor } from '@testing-library/react';
 
+import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
-
-import useMapLayerBatch from './';
+import useMapLayer from './';
 
 describe('hooks - useMapLayer', () => {
-  const layerId = 'sourceId';
-  const baseMap = {
-    getSource: jest.fn(),
-    getLayer: jest.fn(),
-    addLayer: jest.fn(),
-    setLayoutProperty: jest.fn(),
-    setPaintProperty: jest.fn(),
-    setFilter: jest.fn(),
-    removeLayer: jest.fn(),
-    moveLayer: jest.fn(),
-    setLayerZoomRange: jest.fn(),
-  };
+  let wrapper, map;
 
-  // eslint-disable-next-line react/display-name
-  const wrapper = (map) => ({ children }) => <MapContext.Provider value={map}>
-    {children}
-  </MapContext.Provider>;
+  const layerId = 'test-layer-id';
 
-  const renderUserMapLayer = (layerConfig, map, defaultConfig) =>
-    renderHook(
-      () => useMapLayerBatch(layerConfig, defaultConfig),
-      { wrapper: wrapper(map) }
-    );
+  beforeEach(() => {
+    map = createMapMock({
+      getSource: jest.fn(() => true),
+    });
+
+    wrapper = ({ children }) => <MapContext.Provider value={map}>{children}</MapContext.Provider>; // eslint-disable-line react/display-name
+  });
 
   test('adding a layer to the map', () => {
-    const map = {
-      ...baseMap,
-      getSource: jest.fn(() => true)
-    };
-    renderUserMapLayer({
-      id: layerId,
-      type: 'string',
-      sourceId: 'whatever-source-id'
-    }, map);
+    renderHook(() => useMapLayer({ id: layerId, type: 'string', sourceId: 'whatever-source-id' }), { wrapper });
 
     expect(map.addLayer).toHaveBeenCalled();
   });
 
   test('not adding a layer if no map is available', () => {
-    renderUserMapLayer();
-    expect(baseMap.addLayer).not.toHaveBeenCalled();
+    renderHook(() => useMapLayer()); // no context wrapper means there's no map available;
+
+    expect(map.addLayer).not.toHaveBeenCalled();
   });
 
   describe('when the layer is present', () => {
     beforeEach(() => {
-      baseMap.getLayer.mockReturnValue({ whatever: 'ok' });
+      map.getLayer.mockReturnValue({ whatever: 'ok' });
     });
-
     test('setting and changing paint props', () => {
-      let config = {
+      let paintObject = { value1: 'yellow', value2: 0.6 };
+
+      const { rerender } = renderHook(() => useMapLayer({
         id: layerId,
         type: 'string',
         sourceId: 'whatever-source-id',
-        paint: { value1: 'yellow', value2: 0.6 }
-      };
+        paint: paintObject
+      }), { wrapper });
 
-      const { rerender } = renderUserMapLayer(config, baseMap);
-
-      Object.entries(config.paint).forEach(([key, value]) => {
-        expect(baseMap.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
+      Object.entries(paintObject).forEach(([key, value]) => {
+        expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
 
-      const newConfig = {
-        id: layerId,
-        type: 'string',
-        sourceId: 'whatever-source-id',
-        paint: {
-          whatever: true
-        }
-      };
+      paintObject = { whatever: true };
 
-      rerender(newConfig);
 
-      Object.entries(config.paint).forEach(([key, value]) => {
-        expect(baseMap.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
+      rerender();
+
+      Object.entries(paintObject).forEach(([key, value]) => {
+        expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
       });
+
     });
 
+    test('setting and changing layout props', () => {
+      let layoutObject = { value1: 'yellow', value2: 0.6 };
+
+      const { rerender } = renderHook(() => useMapLayer({
+        id: layerId,
+        type: 'string',
+        sourceId: 'whatever-source-id',
+        layout: layoutObject
+      }), { wrapper });
+
+      Object.entries(layoutObject).forEach(([key, value]) => {
+        expect(map.setLayoutProperty).toHaveBeenCalledWith(layerId, key, value);
+      });
+
+      layoutObject = { whatever: true };
+
+      rerender();
+
+      Object.entries(layoutObject).forEach(([key, value]) => {
+        expect(map.setLayoutProperty).toHaveBeenCalledWith(layerId, key, value);
+      });
+
+    });
+
+    test('returning the layer value', () => {
+
+      const { result } = renderHook(() => useMapLayer({
+        id: layerId,
+        type: 'string',
+        sourceId: 'whatever-source-id',
+      }), { wrapper });
+
+      expect(result.current).toEqual([{ whatever: 'ok' }]);
+    });
+
+    describe('@param config', () => {
+      test('.filter sets and changes', () => {
+        let filter = ['==', [['get', 'subject_subtype'], 'ranger']];
+
+        const { rerender } = renderHook(() => useMapLayer({
+          id: layerId,
+          type: 'string',
+          sourceId: 'whatever-source-id',
+          options: { filter }
+        }), { wrapper });
+
+        expect(map.setFilter).toHaveBeenCalledWith(layerId, filter);
+
+        filter = ['oh whatever dude'];
+
+        rerender();
+
+        expect(map.setFilter).toHaveBeenCalledWith(layerId, ['oh whatever dude']);
+
+      });
+
+      test('.before sets and changes', async () => {
+        let before = null;
+
+        const { rerender } = renderHook(() => useMapLayer({
+          id: layerId,
+          type: 'string',
+          sourceId: 'whatever-source-id',
+          options: { before }
+        }), { wrapper });
+
+        expect(map.moveLayer).not.toHaveBeenCalled();
+
+        before = 'how';
+
+        rerender();
+
+        await waitFor(() => {
+          expect(map.moveLayer).toHaveBeenCalledWith(layerId, 'how');
+        });
+      });
+
+      test('zoom config sets and changes', () => {
+        const config = {
+          maxZoom: 15,
+          minZoom: 1
+        };
+
+        const { rerender } = renderHook(() => useMapLayer({
+          id: layerId,
+          type: 'string',
+          sourceId: 'whatever-source-id',
+          options: config
+        }), { wrapper });
+
+        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 1, 15);
+
+        config.maxZoom = 20;
+
+        rerender();
+
+        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 1, 20);
+
+        config.minZoom = 7;
+
+        rerender();
+
+        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 7, 20);
+
+      });
+
+      describe('.condition', () => {
+        test('adds and removes a layer when toggled', async () => {
+          map.getLayer.mockReturnValue(undefined);
+
+          const config = { condition: false };
+
+          const { rerender } = renderHook(() => useMapLayer({
+            id: layerId,
+            type: 'string',
+            sourceId: 'whatever-source-id',
+            options: config
+          }), { wrapper });
+
+          expect(map.addLayer).not.toHaveBeenCalled();
+
+          config.condition = true;
+
+          rerender();
+
+          await waitFor(() => {
+            expect(map.removeLayer).not.toHaveBeenCalled();
+            expect(map.addLayer).toHaveBeenCalled();
+          });
+
+          map.getLayer.mockReturnValue({ whatever: 'ok' });
+          config.condition = false;
+
+          rerender();
+          await waitFor(() => {
+            expect(map.removeLayer).toHaveBeenCalled();
+          });
+        });
+
+      });
+    });
   });
+
 });
