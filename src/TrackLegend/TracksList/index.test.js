@@ -1,128 +1,131 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../test-utils';
-import { mockStore } from '../../__test-helpers/MockStore';
 
-import SubjectTracksList from '.';
+import TracksList from '.';
 
-describe('SubjectTrackLegend - SubjectTracksList', () => {
+describe('TrackLegend - TracksList', () => {
   const onClose = jest.fn();
-  const onRemoveSubjectTracks = jest.fn();
+  const onRemoveItemTracks = jest.fn();
 
-  let store;
-  beforeEach(() => {
-    store = {
-      data: {
-        subjectStore: {
-          1234: {
-            last_position: {
-              properties: {
-                image: 'https://root.dev.pamdas.org/static/elk-male.svg',
-              },
-            },
-          },
-          5678: {
-            last_position: {
-              properties: {
-                image: 'https://root.dev.pamdas.org/static/bison-male.svg',
-              },
-            },
-          },
-        },
-      },
-    };
-  });
-
-  const renderSubjectTracksList = (props, overrideStore) => render(
-    <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <SubjectTracksList
-        onClose={onClose}
-        onRemoveSubjectTracks={onRemoveSubjectTracks}
-        subjectTracks={[{
-          track: {
-            features: [{
-              geometry: {
-                coordinates: [
-                  [10, -15],
-                ],
-              },
-              properties: {
-                id: '1234',
-                image: 'https://root.dev.pamdas.org/static/elk-male.svg',
-                title: 'Ludwig',
-              },
-            }],
-          },
-        }, {
-          track: {
-            features: [{
-              geometry: {
-                coordinates: [
-                  [12, 8],
-                ],
-              },
-              properties: {
-                id: '5678',
-                image: 'https://root.dev.pamdas.org/static/bison-male.svg',
-                title: 'Gabo',
-              },
-            }],
-          },
-        }]}
-        {...props}
-      />
-    </Provider>
-  );
+  const renderTracksList = (props) => render(<TracksList
+    items={[]}
+    itemsName="items"
+    onClose={onClose}
+    onRemoveItemTracks={onRemoveItemTracks}
+    {...props}
+  />);
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  test('closes the subject track list', () => {
-    renderSubjectTracksList();
+  test('closes the tracks list', () => {
+    renderTracksList();
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Close the list of subjects'));
+    userEvent.click(screen.getByLabelText('Close the list of items'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('lists all the subjects', () => {
-    renderSubjectTracksList();
+  test('lists all the items', () => {
+    renderTracksList({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
   });
 
-  test('shows the subject image', () => {
-    renderSubjectTracksList();
+  test('shows the item icon', () => {
+    renderTracksList({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    expect(screen.getByAltText('Icon for Ludwig'))
-      .toHaveAttribute('src', 'https://root.dev.pamdas.org/static/elk-male.svg');
+    expect(screen.getByAltText('Item 1 icon')).toHaveAttribute('src', 'icon-1');
+    expect(screen.getByAltText('Item 2 icon')).toHaveAttribute('src', 'icon-2');
   });
 
-  test('shows the subject title', () => {
-    renderSubjectTracksList();
+  test('shows the item title', () => {
+    renderTracksList({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    expect(screen.getByText('Ludwig')).toBeVisible();
+    expect(screen.getByText('Item 1 title')).toBeVisible();
+    expect(screen.getByText('Item 2 title')).toBeVisible();
   });
 
-  test('shows the point count of the subject tracks', () => {
-    renderSubjectTracksList();
+  test('shows the item description', () => {
+    renderTracksList({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    expect(screen.getAllByText('1 point')).toHaveLength(2);
+    expect(screen.getByText('Item 1 description')).toBeVisible();
+    expect(screen.getByText('Item 2 description')).toBeVisible();
   });
 
-  test('removes a subject from the tracks list', () => {
-    renderSubjectTracksList();
+  test('removes an item from the tracks list', () => {
+    renderTracksList({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    expect(onRemoveSubjectTracks).not.toHaveBeenCalled();
+    expect(onRemoveItemTracks).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Remove Ludwig'));
+    userEvent.click(screen.getByLabelText('Remove Item 2 title'));
 
-    expect(onRemoveSubjectTracks).toHaveBeenCalledTimes(1);
-    expect(onRemoveSubjectTracks).toHaveBeenCalledWith('1234');
+    expect(onRemoveItemTracks).toHaveBeenCalledTimes(1);
+    expect(onRemoveItemTracks).toHaveBeenCalledWith('2');
   });
 });

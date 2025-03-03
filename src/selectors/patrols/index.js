@@ -6,9 +6,9 @@ import {
   drawLinesBetweenPatrolTrackAndPatrolPoints,
   extractPatrolPointsFromTrackData,
   patrolStateAllowsTrackDisplay,
-} from '../utils/patrols';
-import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from './tracks';
-import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
+} from '../../utils/patrols';
+import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../tracks';
+import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../../utils/tracks';
 
 const buildPatrolData = (patrol, timeSliderState, tracks) => {
   // Get the patrol leader from the first patrol segment and its tracks.
@@ -73,6 +73,14 @@ const selectSubjectStore = (state) => state.data.subjectStore;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
 
+const selectPatrolLeaders = createSelector(
+  [selectPatrolLeaderSchema],
+  (patrolLeaderSchema) => patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(
+    // Map the patrol leaders from the patrol leader schema.
+    (leader) => leader.value
+  ) || null
+);
+
 const selectVisibleAndPinnedPatrolTracks = createSelector(
   [selectPatrolTrackState],
   (patrolTrackState) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned])
@@ -81,6 +89,26 @@ const selectVisibleAndPinnedPatrolTracks = createSelector(
 export const selectPatrolData = createSelector(
   [selectTimeSliderState, selectTracks, (_, patrol) => patrol],
   (timeSliderState, tracks, patrol) => buildPatrolData(patrol, timeSliderState, tracks)
+);
+
+export const selectPatrolLeadersWithLastPosition = createSelector(
+  [selectPatrolLeaders, selectSubjectStore],
+  (patrolLeaders, subjectStore) => patrolLeaders ? patrolLeaders.map((patrolLeader) => {
+    // Map each patrol leader to its subject.
+    const patrolLeaderSubject = subjectStore[patrolLeader.id];
+    if (!patrolLeader.last_position
+      && !patrolLeader.last_position_status
+      && patrolLeaderSubject?.last_position
+      && patrolLeaderSubject?.last_position_status) {
+      // If the patrol leader misses the last position properties, fill them from the subject object.
+      return {
+        ...patrolLeader,
+        last_position: patrolLeaderSubject.last_position,
+        last_position_status: patrolLeaderSubject.last_position_status,
+      };
+    }
+    return patrolLeader;
+  }) : null
 );
 
 export const selectPatrolsWithTracks = createSelector(
@@ -112,32 +140,4 @@ export const selectSubjectTracksWithPatrolTrackShownFlag = createSelector(
       // Map each subject tracks and add the patrolTrackShown flag.
       return { ...subjectTracks, patrolTrackShown: isSubjectLeaderOfSomePatrol };
     }),
-);
-
-const selectPatrolLeaders = createSelector(
-  [selectPatrolLeaderSchema],
-  (patrolLeaderSchema) => patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(
-    // Map the patrol leaders from the patrol leader schema.
-    (leader) => leader.value
-  ) || null
-);
-
-export const selectPatrolLeadersWithLastPosition = createSelector(
-  [selectPatrolLeaders, selectSubjectStore],
-  (patrolLeaders, subjectStore) => patrolLeaders ? patrolLeaders.map((patrolLeader) => {
-    // Map each patrol leader to its subject.
-    const patrolLeaderSubject = subjectStore[patrolLeader.id];
-    if (!patrolLeader.last_position
-      && !patrolLeader.last_position_status
-      && patrolLeaderSubject?.last_position
-      && patrolLeaderSubject?.last_position_status) {
-      // If the patrol leader misses the last position properties, fill them from the subject object.
-      return {
-        ...patrolLeader,
-        last_position: patrolLeaderSubject.last_position,
-        last_position_status: patrolLeaderSubject.last_position_status,
-      };
-    }
-    return patrolLeader;
-  }) : null
 );

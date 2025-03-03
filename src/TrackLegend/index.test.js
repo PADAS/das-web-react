@@ -5,19 +5,12 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setIsTimeOfDayColoringActive, TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
-import { updateTrackState } from '../ducks/map-ui';
-import { useFeatureFlag } from '../hooks';
 
-import SubjectTrackLegend from '.';
+import TrackLegend from '.';
 
 jest.mock('../ducks/tracks', () => ({
   ...jest.requireActual('../ducks/tracks'),
   setIsTimeOfDayColoringActive: jest.fn(),
-}));
-
-jest.mock('../ducks/map-ui', () => ({
-  ...jest.requireActual('../ducks/map-ui'),
-  updateTrackState: jest.fn(),
 }));
 
 jest.mock('../hooks', () => ({
@@ -25,15 +18,14 @@ jest.mock('../hooks', () => ({
   useFeatureFlag: () => true,
 }));
 
-describe('SubjectTrackLegend', () => {
-  const onClearTracks = jest.fn();
+describe('TrackLegend', () => {
+  const onClickClearTracks = jest.fn();
+  const onRemoveItemTracks = jest.fn();
 
-  let setIsTimeOfDayColoringActiveMock, updateTrackStateMock, store;
+  let setIsTimeOfDayColoringActiveMock, store;
   beforeEach(() => {
     setIsTimeOfDayColoringActiveMock = jest.fn(() => () => {});
     setIsTimeOfDayColoringActive.mockImplementation(setIsTimeOfDayColoringActiveMock);
-    updateTrackStateMock = jest.fn(() => () => {});
-    updateTrackState.mockImplementation(updateTrackStateMock);
 
     store = {
       data: {
@@ -44,67 +36,28 @@ describe('SubjectTrackLegend', () => {
             },
           },
         },
-        patrolStore: {},
-        subjectStore: {
-          123: {},
-          456: {},
-        },
-        tracks: {
-          123: {
-            points: {
-              features: [],
-            },
-            track: {
-              features: [{
-                properties: {
-                  id: '123',
-                  image: 'https://root.dev.pamdas.org/static/elk-male.svg',
-                  title: 'Ludwig',
-                },
-              }],
-            },
-          },
-          456: {
-            points: {
-              features: [],
-            },
-            track: {
-              features: [{
-                properties: {
-                  id: '456',
-                  image: 'https://root.dev.pamdas.org/static/bison-male.svg',
-                  title: 'Gabo',
-                },
-              }],
-            },
-          },
-        },
       },
       view: {
-        patrolTrackState: {
-          pinned: [],
-          visible: [],
-        },
-        subjectTrackState: {
-          pinned: [],
-          visible: [],
-        },
-        timeSliderState: {
-          active: false,
-          virtualDate: '2020-06-01T06:00:00.000Z',
-        },
         trackSettings: {
           isTimeOfDayColoringActive: false,
           length: 21,
           origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+          timeOfDayTimeZone: null,
         },
       },
     };
   });
 
-  const renderSubjectTrackLegend = (props, overrideStore) => render(
+  const renderTrackLegend = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <SubjectTrackLegend onClearTracks={onClearTracks} {...props} />
+      <TrackLegend
+        description="Description"
+        items={[]}
+        itemsName="items"
+        onClickClearTracks={onClickClearTracks}
+        onRemoveItemTracks={onRemoveItemTracks}
+        {...props}
+      />
     </Provider>
   );
 
@@ -112,98 +65,180 @@ describe('SubjectTrackLegend', () => {
     jest.restoreAllMocks();
   });
 
-  test('shows the subject track legend if there are subjects with visible or pinned tracks', () => {
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+  test('shows the track legend if there is at least one item', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
-    expect(screen.getByTestId('subjectTrackLegend')).toHaveClass('show');
+    expect(screen.getByTestId('trackLegend')).toHaveClass('show');
   });
 
-  test('does not show the subject track legend if there are no subjects with visible or pinned tracks', () => {
-    renderSubjectTrackLegend();
+  test('does not show the track legend if there are no items', () => {
+    renderTrackLegend();
 
-    expect(screen.queryByTestId('subjectTrackLegend')).toBeNull();
+    expect(screen.queryByTestId('trackLegend')).toBeNull();
   });
 
-  test('shows the icon and title of the subject if there is only one subject being tracked', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+  test('shows the icon and title of the item if there is only one item', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
-    const titleWrapper = screen.getByTestId('subjectTrackLegend-titleWrapper');
+    const titleWrapper = screen.getByTestId('trackLegend-titleWrapper');
 
-    expect(within(titleWrapper).getByAltText('Icon for Ludwig'))
-      .toHaveAttribute('src', 'https://root.dev.pamdas.org/static/elk-male.svg');
-    expect(titleWrapper).toHaveTextContent('Ludwig');
+    expect(within(titleWrapper).getByAltText('Item icon')).toHaveAttribute('src', 'icon');
+    expect(titleWrapper).toHaveTextContent('Item title');
   });
 
-  test('shows the tracks icon and a button with the amount of subjects if there are multiple subjects being tracked', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123', '456'];
-    renderSubjectTrackLegend();
+  test('shows the tracks icon and a button with the amount of items if there are zero or multiple items', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    const titleWrapper = screen.getByTestId('subjectTrackLegend-titleWrapper');
+    const titleWrapper = screen.getByTestId('trackLegend-titleWrapper');
 
     expect(within(titleWrapper).getByText('tracks_off.svg')).toBeVisible();
-    expect(titleWrapper).toHaveTextContent('2 subjects');
+    expect(titleWrapper).toHaveTextContent('2 items');
   });
 
-  test('opens and closes the subject tracks list when clicking the button in the title', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123', '456'];
-    renderSubjectTrackLegend();
+  test('opens and closes the tracks list when clicking the button in the title', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    const subjectTracksListButton = screen.getByLabelText('Open the list of subjects');
+    const tracksListButton = screen.getByLabelText('Open the list of items');
 
-    expect(subjectTracksListButton).toHaveAttribute('aria-expanded', 'false');
+    expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
 
-    userEvent.click(subjectTracksListButton);
+    userEvent.click(tracksListButton);
 
-    expect(subjectTracksListButton).toHaveAttribute('aria-expanded', 'true');
-    expect(subjectTracksListButton).toHaveAttribute('aria-label', 'Close the list of subjects');
+    expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
+    expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
-    userEvent.click(subjectTracksListButton);
+    userEvent.click(tracksListButton);
 
-    expect(subjectTracksListButton).toHaveAttribute('aria-expanded', 'false');
-    expect(subjectTracksListButton).toHaveAttribute('aria-label', 'Open the list of subjects');
+    expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
+    expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
   });
 
-  test('closes the subject tracks list from the close button in the menu', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123', '456'];
-    renderSubjectTrackLegend();
+  test('closes the tracks list from the close button in the menu', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    const subjectTracksListButton = screen.getByLabelText('Open the list of subjects');
-    userEvent.click(subjectTracksListButton);
+    const tracksListButton = screen.getByLabelText('Open the list of items');
+    userEvent.click(tracksListButton);
 
-    expect(subjectTracksListButton).toHaveAttribute('aria-expanded', 'true');
-    expect(subjectTracksListButton).toHaveAttribute('aria-label', 'Close the list of subjects');
+    expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
+    expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
-    userEvent.click(screen.getAllByLabelText('Close the list of subjects')[1]);
+    userEvent.click(screen.getAllByLabelText('Close the list of items')[1]);
 
-    expect(subjectTracksListButton).toHaveAttribute('aria-expanded', 'false');
-    expect(subjectTracksListButton).toHaveAttribute('aria-label', 'Open the list of subjects');
+    expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
+    expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
   });
 
-  test('removes the tracks of a subject from the subject tracks list', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123', '456'];
-    renderSubjectTrackLegend();
+  test('removes the tracks of an item from the tracks list', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
 
-    userEvent.click(screen.getByLabelText('Open the list of subjects'));
+    userEvent.click(screen.getByLabelText('Open the list of items'));
 
-    expect(updateTrackState).not.toHaveBeenCalled();
+    expect(onRemoveItemTracks).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Remove Ludwig'));
+    userEvent.click(screen.getByLabelText('Remove Item 2 title'));
 
-    expect(updateTrackState).toHaveBeenCalledTimes(1);
-    expect(updateTrackState).toHaveBeenCalledWith({ pinned: [], visible: ['456'] });
+    expect(onRemoveItemTracks).toHaveBeenCalledTimes(1);
+    expect(onRemoveItemTracks).toHaveBeenCalledWith('2');
   });
 
-  test('activates the time of day coloring when clicking the day night button', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+  test('doest not show the time of day settings button', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+      showTimeOfDaySettings: false,
+    });
+
+    expect(screen.queryByLabelText('Activate the time of day coloring')).toBeNull();
+  });
+
+  test('shows the time of day settings button', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
+
+    expect(screen.getByLabelText('Activate the time of day coloring')).toBeVisible();
+  });
+
+  test('activates the time of day coloring when clicking the time of day settings button', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
     const timeOfDaySettingsButton = screen.getByLabelText('Activate the time of day coloring');
 
@@ -218,10 +253,15 @@ describe('SubjectTrackLegend', () => {
   });
 
   test('expands and collapses the time of day settings menu when clicking the chevron', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
     store.view.trackSettings.isTimeOfDayColoringActive = true;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
     const timeOfDaySettingsChevronButton = screen.getByLabelText('Expand the time of day settings');
 
@@ -239,10 +279,15 @@ describe('SubjectTrackLegend', () => {
   });
 
   test('deactivates the time of day coloring when clicking the day night button', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
     store.view.trackSettings.isTimeOfDayColoringActive = true;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
     const timeOfDaySettingsButton = screen.getByLabelText('Deactivate the time of day coloring');
 
@@ -256,10 +301,42 @@ describe('SubjectTrackLegend', () => {
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledWith(false);
   });
 
+  test('doest not show the track settings button', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+      showTrackSettings: false,
+    });
+
+    expect(screen.queryByLabelText('Open the track settings')).toBeNull();
+  });
+
+  test('shows the track settings button', () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
+
+    expect(screen.getByLabelText('Open the track settings')).toBeVisible();
+  });
+
   test('opens and closes the track settings when clicking the gear button', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
     const trackSettingsButton = screen.getByLabelText('Open the track settings');
 
@@ -280,9 +357,14 @@ describe('SubjectTrackLegend', () => {
   });
 
   test('closes the track settings from the close button in the menu', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
     const trackSettingsButton = screen.getByLabelText('Open the track settings');
     userEvent.click(trackSettingsButton);
@@ -297,15 +379,19 @@ describe('SubjectTrackLegend', () => {
   });
 
   test('clears the tracks when clicking the clear tracks button', () => {
-    store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-    store.view.subjectTrackState.visible = ['123'];
-    renderSubjectTrackLegend();
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
 
-    expect(updateTrackState).not.toHaveBeenCalled();
+    expect(onClickClearTracks).not.toHaveBeenCalled();
 
     userEvent.click(screen.getByText('Clear Tracks'));
 
-    expect(updateTrackState).toHaveBeenCalledTimes(1);
-    expect(updateTrackState).toHaveBeenCalledWith({ pinned: [], visible: [] });
+    expect(onClickClearTracks).toHaveBeenCalledTimes(1);
   });
 });

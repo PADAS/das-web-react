@@ -13,7 +13,7 @@ jest.mock('../../../ducks/tracks', () => ({
   setTimeOfDayTimeZone: jest.fn(),
 }));
 
-describe('SubjectTrackLegend - TimeOfDaySettings - TimeZoneSelect', () => {
+describe('TrackLegend - TimeOfDaySettings - TimeZoneSelect', () => {
   let setTimeOfDayTimeZoneMock, store;
   beforeEach(() => {
     setTimeOfDayTimeZoneMock = jest.fn(() => () => {});
