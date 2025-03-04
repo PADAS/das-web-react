@@ -6,7 +6,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { useMapEventBinding } from '../hooks';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapLayers from '../hooks/useMapLayers';
 
 const LabeledSymbolLayer = (
   { before, paint, layout, textPaint, textLayout, id, sourceId, map, mapUserLayoutConfigByLayerId, onClick, onInit,
@@ -80,23 +80,23 @@ const LabeledSymbolLayer = (
   useMapEventBinding('mouseleave', handleMouseLeave, id);
   useMapEventBinding('mouseleave', handleMouseLeave, textLayerId);
 
-  useMapLayer({
+  useMapLayers([{
     id: id,
     type: 'symbol',
     sourceId,
     paint: symbolPaint,
     layout: symbolLayout,
     options: layerConfig
-  });
+  }]);
 
-  useMapLayer({
+  useMapLayers([{
     id: textLayerId,
     type: 'symbol',
     sourceId,
     paint: labelPaint,
     layout: labelLayout,
     options: layerConfig
-  });
+  }]);
 
   return null;
 };

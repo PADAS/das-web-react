@@ -1,12 +1,11 @@
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
 
 
-const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
+const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson' }) => {
   const map = useContext(MapContext);
   const sourceIdsRef = useRef([]);
-  const sourceConfigsBatch = useMemo(() => Array.isArray(sourceConfig) ? sourceConfig : [sourceConfig], [sourceConfig]);
 
   useEffect(() => {
     if (map) {
@@ -63,4 +62,4 @@ const useMapSource = (sourceConfig, defaultConfig = { type: 'geojson' }) => {
     .filter(sourceConfig => !!sourceConfig);
 };
 
-export default useMapSource;
+export default useMapSources;

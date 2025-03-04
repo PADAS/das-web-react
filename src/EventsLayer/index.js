@@ -18,7 +18,7 @@ import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import { MapContext } from '../App';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
-import useMapSource from '../hooks/useMapSource';
+import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 import EventGeometryLayer from '../EventGeometryLayer';
@@ -241,7 +241,7 @@ const EventsLayer = ({
     ...mapEventFeatures,
     features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
   };
-  useMapSource({ id: UNCLUSTERED_EVENTS_SOURCE, data: geoJson });
+  useMapSources([{ id: UNCLUSTERED_EVENTS_SOURCE, data: geoJson }]);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
   const isClustersSourceReady = !!map.getSource(CLUSTERS_SOURCE_ID);

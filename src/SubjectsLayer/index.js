@@ -9,7 +9,7 @@ import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { MapContext } from '../App';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
-import useMapSource from '../hooks/useMapSource';
+import useMapSources from '../hooks/useMapSources';
 
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -67,13 +67,13 @@ const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
     }
   ), [map, onSubjectClick, subjectLayerIds]);
 
-  useMapSource({
+  useMapSources([{
     id: UNCLUSTERED_SOURCE_ID,
     data: {
       ...mapSubjectFeatures,
       features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
     }
-  });
+  }]);
 
   return <>
     <LabeledPatrolSymbolLayer

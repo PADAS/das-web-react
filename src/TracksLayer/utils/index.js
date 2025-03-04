@@ -1,8 +1,8 @@
 
-export const segmentTrackPointsByTimeOfDayPeriodPairs = (timeOfDayFeatureCollection) => {
+export const segmentTrackPointsByTimeOfDayPeriodPairs = (trackSegments) => {
   const segmentsByColorPair = {};
 
-  timeOfDayFeatureCollection.features.forEach((segment) => {
+  trackSegments.features.forEach((segment) => {
     // Skip segments without required color properties
     if (!segment.properties?.startColor || !segment.properties?.endColor) {
       return;
@@ -20,13 +20,13 @@ export const segmentTrackPointsByTimeOfDayPeriodPairs = (timeOfDayFeatureCollect
 
 export const getTimeOfDaySourceAndLayerConfigurations = (trackData, isTimeOfDayColoringActive, sourceId, layerId, layerLayout, layerOptions) => {
 
-  if (!trackData?.timeOfDayFeatureCollection?.features?.length || !isTimeOfDayColoringActive) {
+  if (!trackData?.trackSegments?.features?.length || !isTimeOfDayColoringActive) {
     return { sourcesConfigs: [], layersConfigs: [] };
   }
 
   const sources = [];
   const layers = [];
-  const trackPointsSegmentsByColorPair = segmentTrackPointsByTimeOfDayPeriodPairs(trackData.timeOfDayFeatureCollection);
+  const trackPointsSegmentsByColorPair = segmentTrackPointsByTimeOfDayPeriodPairs(trackData.trackSegments);
 
   Object.entries(trackPointsSegmentsByColorPair).forEach(([colorPairKey, segments], index) => {
     const [startColor, endColor] = colorPairKey.split('|');

@@ -11,8 +11,8 @@ import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../sel
 import { MapContext } from '../App';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 import { useMapEventBinding } from '../hooks';
-import useMapSource from '../hooks/useMapSource';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const {
   CLUSTERS_LAYER_ID,
@@ -55,14 +55,14 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     subjectFeatureCollection.features,
   ]);
 
-  useMapSource({ id: CLUSTERS_SOURCE_ID, data: clustersSourceData }, CLUSTER_SOURCE_CONFIG);
-  useMapLayer({
+  useMapSources([{ id: CLUSTERS_SOURCE_ID, data: clustersSourceData }], CLUSTER_SOURCE_CONFIG);
+  useMapLayers([{
     id: CLUSTERS_LAYER_ID,
     type: 'circle',
     sourceId: CLUSTERS_SOURCE_ID,
     paint: CLUSTER_LAYER_PAINT,
     options: CLUSTER_LAYER_CONFIG
-  });
+  }]);
 
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon();
 

@@ -18,6 +18,7 @@ import { TIME_OF_DAY_PERIODS } from '../constants';
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
+const MAX_MINUTES_PER_DAY = 1440;
 
 export const fixAntimeridianCrossing = (trackFeatureCollection) => {
   if (!trackFeatureCollection?.features?.length) return trackFeatureCollection;
@@ -361,13 +362,15 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
 export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
   const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
-  const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
+  const parsedHour = (parseInt(hour) * 60);
 
-  const period = TIME_OF_DAY_PERIODS.find((timeOfDayPeriod) =>
+  const trackTotalMinutesInTZ = parsedHour === MAX_MINUTES_PER_DAY
+    ? MAX_MINUTES_PER_DAY
+    : ( parsedHour + parseInt(min) ) || MAX_MINUTES_PER_DAY;
+
+  return TIME_OF_DAY_PERIODS.find((timeOfDayPeriod) =>
     trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
   );
-
-  return period ?? TIME_OF_DAY_PERIODS[0];
 };
 
 /*
@@ -377,14 +380,14 @@ export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
 * The segmentation will allow us to set a line gradient with specific stop colors to each line.
 * This being a workaround of the issue of MapBox not being able to apply dynamically data-drive stop colors for a gradient line.
 * */
-export const buildTimeOfDayFeatureCollection = (trackFeatureCollection, timeZone) => {
-  const featureCollection = {
+export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
+  const emptyFeatureCollection = {
     type: 'FeatureCollection',
     features: []
   };
 
   if (!trackFeatureCollection || !trackFeatureCollection.features || !trackFeatureCollection.features.length) {
-    return featureCollection;
+    return emptyFeatureCollection;
   }
 
   const [lineStringFeature] = trackFeatureCollection.features;
@@ -393,7 +396,7 @@ export const buildTimeOfDayFeatureCollection = (trackFeatureCollection, timeZone
   if (!lineStringFeature?.geometry ||
     lineStringFeature.geometry?.type !== 'LineString' ||
     !lineStringFeature.properties?.coordinateProperties?.times) {
-    return featureCollection;
+    return emptyFeatureCollection;
   }
 
   const {
@@ -409,7 +412,7 @@ export const buildTimeOfDayFeatureCollection = (trackFeatureCollection, timeZone
 
   // At least there should be 2 points to create the line string and the amount of times should be the same as the amount of coordinates
   if (coordinates.length < 2 || coordinates.length !== times.length) {
-    return featureCollection;
+    return emptyFeatureCollection;
   }
 
   const segments = [];
@@ -443,8 +446,5 @@ export const buildTimeOfDayFeatureCollection = (trackFeatureCollection, timeZone
     });
   }
 
-  return {
-    type: 'FeatureCollection',
-    features: segments
-  };
+  return featureCollection(segments);
 };

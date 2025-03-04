@@ -4,9 +4,9 @@ import { waitFor } from '@testing-library/react';
 
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
-import useMapLayer from './';
+import useMapLayers from './';
 
-describe('hooks - useMapLayer', () => {
+describe('hooks - useMapLayers', () => {
   let wrapper, map;
 
   const layerId = 'test-layer-id';
@@ -20,13 +20,13 @@ describe('hooks - useMapLayer', () => {
   });
 
   test('adding a layer to the map', () => {
-    renderHook(() => useMapLayer({ id: layerId, type: 'string', sourceId: 'whatever-source-id' }), { wrapper });
+    renderHook(() => useMapLayers([{ id: layerId, type: 'string', sourceId: 'whatever-source-id' }]), { wrapper });
 
     expect(map.addLayer).toHaveBeenCalled();
   });
 
   test('not adding a layer if no map is available', () => {
-    renderHook(() => useMapLayer()); // no context wrapper means there's no map available;
+    renderHook(() => useMapLayers()); // no context wrapper means there's no map available;
 
     expect(map.addLayer).not.toHaveBeenCalled();
   });
@@ -38,12 +38,12 @@ describe('hooks - useMapLayer', () => {
     test('setting and changing paint props', () => {
       let paintObject = { value1: 'yellow', value2: 0.6 };
 
-      const { rerender } = renderHook(() => useMapLayer({
+      const { rerender } = renderHook(() => useMapLayers([{
         id: layerId,
         type: 'string',
         sourceId: 'whatever-source-id',
         paint: paintObject
-      }), { wrapper });
+      }]), { wrapper });
 
       Object.entries(paintObject).forEach(([key, value]) => {
         expect(map.setPaintProperty).toHaveBeenCalledWith(layerId, key, value);
@@ -63,12 +63,12 @@ describe('hooks - useMapLayer', () => {
     test('setting and changing layout props', () => {
       let layoutObject = { value1: 'yellow', value2: 0.6 };
 
-      const { rerender } = renderHook(() => useMapLayer({
+      const { rerender } = renderHook(() => useMapLayers([{
         id: layerId,
         type: 'string',
         sourceId: 'whatever-source-id',
         layout: layoutObject
-      }), { wrapper });
+      }]), { wrapper });
 
       Object.entries(layoutObject).forEach(([key, value]) => {
         expect(map.setLayoutProperty).toHaveBeenCalledWith(layerId, key, value);
@@ -86,11 +86,11 @@ describe('hooks - useMapLayer', () => {
 
     test('returning the layer value', () => {
 
-      const { result } = renderHook(() => useMapLayer({
+      const { result } = renderHook(() => useMapLayers([{
         id: layerId,
         type: 'string',
         sourceId: 'whatever-source-id',
-      }), { wrapper });
+      }]), { wrapper });
 
       expect(result.current).toEqual([{ whatever: 'ok' }]);
     });
@@ -99,12 +99,12 @@ describe('hooks - useMapLayer', () => {
       test('.filter sets and changes', () => {
         let filter = ['==', [['get', 'subject_subtype'], 'ranger']];
 
-        const { rerender } = renderHook(() => useMapLayer({
+        const { rerender } = renderHook(() => useMapLayers([{
           id: layerId,
           type: 'string',
           sourceId: 'whatever-source-id',
           options: { filter }
-        }), { wrapper });
+        }]), { wrapper });
 
         expect(map.setFilter).toHaveBeenCalledWith(layerId, filter);
 
@@ -119,12 +119,12 @@ describe('hooks - useMapLayer', () => {
       test('.before sets and changes', async () => {
         let before = null;
 
-        const { rerender } = renderHook(() => useMapLayer({
+        const { rerender } = renderHook(() => useMapLayers([{
           id: layerId,
           type: 'string',
           sourceId: 'whatever-source-id',
           options: { before }
-        }), { wrapper });
+        }]), { wrapper });
 
         expect(map.moveLayer).not.toHaveBeenCalled();
 
@@ -143,12 +143,12 @@ describe('hooks - useMapLayer', () => {
           minZoom: 1
         };
 
-        const { rerender } = renderHook(() => useMapLayer({
+        const { rerender } = renderHook(() => useMapLayers([{
           id: layerId,
           type: 'string',
           sourceId: 'whatever-source-id',
           options: config
-        }), { wrapper });
+        }]), { wrapper });
 
         expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 1, 15);
 
@@ -172,12 +172,12 @@ describe('hooks - useMapLayer', () => {
 
           const config = { condition: false };
 
-          const { rerender } = renderHook(() => useMapLayer({
+          const { rerender } = renderHook(() => useMapLayers([{
             id: layerId,
             type: 'string',
             sourceId: 'whatever-source-id',
             options: config
-          }), { wrapper });
+          }]), { wrapper });
 
           expect(map.addLayer).toHaveBeenCalled();
 

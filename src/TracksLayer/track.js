@@ -9,8 +9,8 @@ import {
 import { getTimeOfDaySourceAndLayerConfigurations } from './utils';
 import { useSelector } from 'react-redux';
 import { selectTrackSettings } from '../selectors/tracks';
-import useMapSource from '../hooks/useMapSource';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -76,40 +76,36 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
 
 
-  useMapSource({ id: sourceId, data: trackData.track }, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapSource({ id: pointSourceId, data: trackData.points });
+  useMapSources([{ id: sourceId, data: trackData.track }], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapSources([{ id: pointSourceId, data: trackData.points }]);
 
-  useMapSource(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayer(layersConfigs, { before: before || SUBJECT_SYMBOLS });
+  useMapSources(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
+  useMapLayers(layersConfigs, { before: before || SUBJECT_SYMBOLS });
 
   // Only create the normal layer if there are no time_of_day_segments
-  useMapLayer(
-    {
-      id: layerId,
-      type: 'line',
-      sourceId,
-      paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
-      layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
-      options: {
-        before: before || SUBJECT_SYMBOLS,
-        condition: !isTimeOfDayColoringActive && sourcesConfigs.length === 0
-      }
+  useMapLayers([{
+    id: layerId,
+    type: 'line',
+    sourceId,
+    paint: { ...TRACK_LAYER_LINE_PAINT, ...linePaint },
+    layout: { ...TRACK_LAYER_LINE_LAYOUT, ...lineLayout },
+    options: {
+      before: before || SUBJECT_SYMBOLS,
+      condition: !isTimeOfDayColoringActive && sourcesConfigs.length === 0
     }
-  );
+  }]);
 
-  useMapLayer(
-    {
-      id: pointLayerId,
-      type: 'symbol',
-      sourceId: pointSourceId,
-      paint: TIMEPOINT_LAYER_PAINT,
-      layout: TIMEPOINT_LAYER_LAYOUT,
-      options: {
-        before: before || SUBJECT_SYMBOLS,
-        condition: showTimepoints
-      }
+  useMapLayers([{
+    id: pointLayerId,
+    type: 'symbol',
+    sourceId: pointSourceId,
+    paint: TIMEPOINT_LAYER_PAINT,
+    layout: TIMEPOINT_LAYER_LAYOUT,
+    options: {
+      before: before || SUBJECT_SYMBOLS,
+      condition: showTimepoints
     }
-  );
+  }]);
 
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);

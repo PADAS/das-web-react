@@ -10,8 +10,8 @@ import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 import { PRIORITY_COLOR_MAP } from '../utils/events';
 import { useMapEventBinding } from '../hooks';
-import useMapSource from '../hooks/useMapSource';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { EVENT_GEOMETRY_LAYER, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -63,16 +63,16 @@ const EventGeometryLayer = ({ onClick }) => {
   const onMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  useMapSource({ id: EVENT_GEOMETRY, data: eventFeatureCollection });
+  useMapSources([{ id: EVENT_GEOMETRY, data: eventFeatureCollection }]);
 
-  useMapLayer({
+  useMapLayers([{
     id: EVENT_GEOMETRY_LAYER,
     type: 'fill',
     sourceId: EVENT_GEOMETRY,
     paint,
     layout,
     options: layerConfig
-  });
+  }]);
 
   useMapEventBinding('click', onClick, EVENT_GEOMETRY_LAYER);
   useMapEventBinding('mouseenter', onMouseEnter, EVENT_GEOMETRY_LAYER);

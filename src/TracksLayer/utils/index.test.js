@@ -1,4 +1,4 @@
-import { buildTimeOfDayFeatureCollection } from '../../utils/tracks';
+import { buildTrackSegments } from '../../utils/tracks';
 import {
   getTimeOfDaySourceAndLayerConfigurations,
   segmentTrackPointsByTimeOfDayPeriodPairs
@@ -49,8 +49,8 @@ describe('TracksLayer - utils', () => {
       }
     ]
   };
-  const timeOfDayFeatureCollection = buildTimeOfDayFeatureCollection(track, 'America/Monterrey');
-  const segmentPairs = segmentTrackPointsByTimeOfDayPeriodPairs(timeOfDayFeatureCollection);
+  const trackSegments = buildTrackSegments(track, 'America/Monterrey');
+  const segmentPairs = segmentTrackPointsByTimeOfDayPeriodPairs(trackSegments);
 
   test('segments track points by pairs of time of day periods', () => {
     const layoutOptions =  {
@@ -62,10 +62,10 @@ describe('TracksLayer - utils', () => {
     };
     const sourceId = 'aSourceId';
     const layerId = 'aLayerId';
-    const trackData = { timeOfDayFeatureCollection };
+    const trackData = { trackSegments };
     const configs = getTimeOfDaySourceAndLayerConfigurations(trackData, true, sourceId, layerId, layoutOptions, layerOptions);
 
-    expect(configs.sourcesConfigs).toBe(true);
+    expect(configs.sourcesConfigs.length > 0).toBe(true);
 
     Object.entries(segmentPairs).forEach(([pairKey, segment], index) => {
       const [startColor, endColor] = pairKey.split('|');

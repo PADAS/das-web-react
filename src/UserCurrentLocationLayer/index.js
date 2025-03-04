@@ -8,10 +8,10 @@ import { bboxBoundsPolygon, userLocationCanBeShown as userLocationCanBeShownSele
 import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
 import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
-import useMapSource from '../hooks/useMapSource';
+import useMapSources from '../hooks/useMapSources';
 
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
 
@@ -105,23 +105,23 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     }
   }, [animationState, showLayer]);
 
-  useMapSource({ id: CURRENT_USER_LOCATION_SOURCE, data: userLocationPoint });
+  useMapSources([{ id: CURRENT_USER_LOCATION_SOURCE, data: userLocationPoint }]);
 
-  useMapLayer({
+  useMapLayers([{
     id: ICON_LAYER_ID,
     type: 'symbol',
     sourceId: CURRENT_USER_LOCATION_SOURCE,
     layout: SYMBOL_LAYOUT,
     options: layerConfig
-  });
+  }]);
 
-  useMapLayer({
+  useMapLayers([{
     id: CIRCLE_LAYER_ID,
     type: 'circle',
     sourceId: CURRENT_USER_LOCATION_SOURCE,
     paint: circlePaint,
     options: layerConfig
-  });
+  }]);
 
   useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
 

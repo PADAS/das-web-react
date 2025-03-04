@@ -4,8 +4,8 @@ import { MapContext } from '../App';
 import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS, MAX_ZOOM, MIN_ZOOM } from '../constants';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
-import useMapSource from '../hooks/useMapSource';
-import useMapLayer from '../hooks/useMapLayer';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
@@ -26,7 +26,7 @@ const SourceComponent = ({ id, tileUrl, sourceConfig }) => {
     ...sourceConfig,
   }), [sourceConfig, tileUrl]);
 
-  useMapSource({ id }, config);
+  useMapSources([{ id }], config);
 
   return null;
 };
@@ -51,17 +51,15 @@ const TileLayerRenderer = (props) => {
     }
   }, [map, mapConfig]);
 
-  useMapLayer(
-    {
-      id: `tile-layer-${activeLayer?.id}`,
-      type: 'raster',
-      sourceId: `layer-source-${activeLayer?.id}`,
-      options: {
-        before: TOPMOST_STYLE_LAYER,
-        condition: !!activeLayer
-      }
+  useMapLayers([{
+    id: `tile-layer-${activeLayer?.id}`,
+    type: 'raster',
+    sourceId: `layer-source-${activeLayer?.id}`,
+    options: {
+      before: TOPMOST_STYLE_LAYER,
+      condition: !!activeLayer
     }
-  );
+  }]);
 
   return layers
     .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))

@@ -1,12 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
 import { MAX_ZOOM, MIN_ZOOM } from '../../constants';
 
-const useMapLayer = (layerConfig, defaultConfig = {}) => {
+const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
   const map = useContext(MapContext);
   const layerIdsRef = useRef([]);
-  const layerConfigsBatch = useMemo(() => Array.isArray(layerConfig) ? layerConfig : [layerConfig], [layerConfig]);
 
   const shouldUpdateMapLayer = useCallback((config) => config?.id && config?.condition !== false && map.getLayer(config.id), [map]);
 
@@ -156,4 +155,4 @@ const useMapLayer = (layerConfig, defaultConfig = {}) => {
     .filter(layerConfig => !!layerConfig);
 };
 
-export default useMapLayer;
+export default useMapLayers;

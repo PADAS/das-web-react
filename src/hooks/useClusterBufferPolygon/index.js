@@ -3,8 +3,8 @@ import { buffer, concave, featureCollection, simplify } from '@turf/turf';
 
 import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
 import { MapContext } from '../../App';
-import useMapSource from '../useMapSource';
-import useMapLayer from '../useMapLayer';
+import useMapSources from '../useMapSources';
+import useMapLayers from '../useMapLayers';
 
 const { CLUSTER_BUFFER_POLYGON_LAYER_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
 const { CLUSTER_BUFFER_POLYGON_SOURCE_ID } = SOURCE_IDS;
@@ -23,15 +23,15 @@ const useClusterBufferPolygon = () => {
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
 
   const map = useContext(MapContext);
-  const [source] = useMapSource({ id: CLUSTER_BUFFER_POLYGON_SOURCE_ID, data: clusterBufferPolygon });
+  const [source] = useMapSources([{ id: CLUSTER_BUFFER_POLYGON_SOURCE_ID, data: clusterBufferPolygon }]);
 
-  useMapLayer({
+  useMapLayers([{
     id: CLUSTER_BUFFER_POLYGON_LAYER_ID,
     type: 'fill',
     sourceId: CLUSTER_BUFFER_POLYGON_SOURCE_ID,
     paint: CLUSTER_BUFFER_POLYGON_PAINT,
     options: CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION
-  });
+  }]);
 
   const renderClusterPolygon = useCallback((clusterFeatureCollection) => {
     if (source && map.getZoom() < CLUSTERS_MAX_ZOOM) {

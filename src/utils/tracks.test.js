@@ -1,4 +1,4 @@
-import { buildTimeOfDayFeatureCollection, getTimeOfDayPeriodBasedOnTime } from './tracks';
+import { buildTrackSegments, getTimeOfDayPeriodBasedOnTime } from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
@@ -81,7 +81,7 @@ describe('utils - tracks', () => {
         {
           properties: {
             startColor: TIME_OF_DAY_PERIODS[1].color,
-            endColor: TIME_OF_DAY_PERIODS[0].color,
+            endColor: TIME_OF_DAY_PERIODS[3].color,
             startTime: '2025-02-27T21:42:01+00:00',
             endTime: '2025-02-24T06:06:05+00:00'
           },
@@ -94,7 +94,7 @@ describe('utils - tracks', () => {
         },
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[0].color,
+            startColor: TIME_OF_DAY_PERIODS[3].color,
             endColor: TIME_OF_DAY_PERIODS[3].color,
             startTime: '2025-02-24T06:06:05+00:00',
             endTime: '2025-02-24T03:58:02+00:00'
@@ -136,12 +136,12 @@ describe('utils - tracks', () => {
         }
       ];
 
-      const twoPointFeatureCollection = buildTimeOfDayFeatureCollection(track, 'America/Monterrey');
+      const trackSegments = buildTrackSegments(track, 'America/Monterrey');
 
-      expect(twoPointFeatureCollection.features.length).toBe(resultFeatures.length);
-      expect(twoPointFeatureCollection.type).toBe('FeatureCollection');
+      expect(trackSegments.features.length).toBe(resultFeatures.length);
+      expect(trackSegments.type).toBe('FeatureCollection');
 
-      twoPointFeatureCollection.features.forEach((feature, index) => {
+      trackSegments.features.forEach((feature, index) => {
         const expectedFeature = resultFeatures[index];
 
         expect(feature.type).toBe('Feature');
@@ -164,7 +164,7 @@ describe('utils - tracks', () => {
       const emptyTracks = { ...track };
       emptyTracks.features = [];
 
-      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(emptyTracks, 'America/Monterrey');
+      const emptyFeatureCollection = buildTrackSegments(emptyTracks, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
@@ -174,7 +174,7 @@ describe('utils - tracks', () => {
       const invalidFeaturesTrack = { ...track };
       invalidFeaturesTrack.features = [{}];
 
-      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(invalidFeaturesTrack, 'America/Monterrey');
+      const emptyFeatureCollection = buildTrackSegments(invalidFeaturesTrack, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
@@ -187,7 +187,7 @@ describe('utils - tracks', () => {
       const notEnoughFeaturesTracks = { ...track };
       notEnoughFeaturesTracks.features = [feature];
 
-      const emptyFeatureCollection = buildTimeOfDayFeatureCollection(notEnoughFeaturesTracks, 'America/Monterrey');
+      const emptyFeatureCollection = buildTrackSegments(notEnoughFeaturesTracks, 'America/Monterrey');
 
       expect(emptyFeatureCollection.features.length).toBe(0);
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
