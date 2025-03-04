@@ -68,22 +68,22 @@ const TrackLegend = ({
     onExpandMenu(MENUS.TIME_OF_DAY_SETTINGS);
   };
 
-  const onDectivateTimeOfDayColoring = useCallback(() => {
+  const onDeactivateTimeOfDayColoring = useCallback(() => {
     dispatch(setIsTimeOfDayColoringActive(false));
 
     // When deactivating the time of day coloring, we collapse its menu if it was expanded.
-    if (expandedMenu === MENUS.TIME_OF_DAY_SETTINGS) {
+    if (isTimeOfDaySettingsExpanded) {
       onCollapseMenu();
     }
-  }, [dispatch, expandedMenu]);
+  }, [dispatch, isTimeOfDaySettingsExpanded]);
 
   useEffect(() => {
     // If there were multiple tracked items, the user could have expanded the tracks list menu. If then the user
     // removes all tracked items but one, we collapse it automatically.
-    if (items.length === 1 && expandedMenu === MENUS.TRACKS_LIST) {
+    if (items.length === 1 && isTracksListExpanded) {
       onCollapseMenu();
     }
-  }, [dispatch, expandedMenu, items.length]);
+  }, [dispatch, isTracksListExpanded, items.length]);
 
   useEffect(() => {
     // If there are tracked items, show the legend. If not, hide it. The state variable is used so the transition
@@ -131,7 +131,7 @@ const TrackLegend = ({
             aria-expanded={isTimeOfDayColoringActive}
             aria-label={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
             className={`${styles.settingsButton} ${isTimeOfDayColoringActive ? styles.open : ''}`}
-            onClick={() => isTimeOfDayColoringActive ? onDectivateTimeOfDayColoring() : onActivateTimeOfDayColoring()}
+            onClick={() => isTimeOfDayColoringActive ? onDeactivateTimeOfDayColoring() : onActivateTimeOfDayColoring()}
             title={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
             type="button"
           >

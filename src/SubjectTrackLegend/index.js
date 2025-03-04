@@ -46,10 +46,12 @@ const SubjectTrackLegend = () => {
 
   // Build the items array with the description, icon, id and title of each tracked subject.
   const items = useMemo(() => subjectTracksTrimmedToTrackTimeEnvelope.map((subjectTracks) => {
-    const id = subjectTracks.track.features[0].properties.id;
-    const image = subjectTracks.track.features[0].properties.image;
-    const pointCount = subjectTracks.track.features[0].geometry?.coordinates.length || 0;
-    const title = subjectTracks.track.features[0].properties.title;
+    const [firstTrackFeature] = subjectTracks.track.features;
+
+    const id = firstTrackFeature.properties.id;
+    const image = firstTrackFeature.properties.image;
+    const pointCount = firstTrackFeature.geometry?.coordinates.length || 0;
+    const title = firstTrackFeature.properties.title;
 
     const lastPositionImage = subjectStore[id]?.last_position?.properties?.image;
 
