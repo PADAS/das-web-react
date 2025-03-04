@@ -79,8 +79,7 @@ describe('ReportManager - DetailsSection', () => {
         <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             <DetailsSection
-              formSchema={eventSchemas.accident_rep.base.schema}
-              formUISchema={eventSchemas.accident_rep.base.uiSchema}
+              eventSchema={eventSchemas.accident_rep.base}
               formValidator={formValidator}
               isCollection={false}
               isNewEvent={false}
@@ -394,7 +393,7 @@ describe('ReportManager - DetailsSection', () => {
   });
 
   test('shows a loader while the schema loads', async () => {
-    renderDetailsSection({ formSchema: null, loadingSchema: true });
+    renderDetailsSection({ eventSchema: null, loadingSchema: true });
 
     expect(screen.getByTestId('reportManager-detailsSection-loader')).toBeVisible();
   });

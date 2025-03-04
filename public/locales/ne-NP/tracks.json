@@ -9,24 +9,68 @@
             "removeButton": "हटाउनुहोस्"
         }
     },
-    "trackLegend": {
-        "multipleSubjectsTitle": "{{count}} विषयहरु",
-        "titleElement": {
-            "icon": "{{title}} को लागि आइकन",
-            "pointCount_one": "{{count}} बिन्दु",
-            "pointCount_other": "{{count}} बिन्दुहरु",
-            "pointsOverTimeSpan": "{{trackDuration}}मा {{pointCount}} बिन्दुहरु",
-            "removeButton": "हटाउनुहोस्"
+    "subjectTrackLegend": {
+        "clearTracksButton": "ट्र्याकहरू खाली गर्नुहोस्",
+        "icon": "{{title}} को आइकन",
+        "multipleSubjectTracksTitle": "{{count}} विषयहरू",
+        "pointsOverTime": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",
+        "subjectTrackList": {
+          "closeButtonLabel": "विषयहरूको सूची बन्द गर्नुहोस्",
+          "subjectTracksItem": {
+            "icon": "{{title}} को आइकन",
+            "pointCount_one": "{{count}} पोइन्ट",
+            "pointCount_other": "{{count}} पोइन्टहरू",
+            "removeButton": "हटाउनुहोस्",
+            "removeButtonLabel": "{{title}} हटाउनुहोस्"
+          },
+          "title": "विषयहरू"
+        },
+        "subjectTracksListButtonLabel": {
+          "closed": "विषयहरूको सूची खोल्नुहोस्",
+          "open": "विषयहरूको सूची बन्द गर्नुहोस्"
+        },
+        "timeOfDaySettings": {
+          "chevronButtonLabel": {
+            "closed": "दिनको समय सेटिङ विस्तार गर्नुहोस्",
+            "open": "दिनको समय सेटिङ संकुचित गर्नुहोस्"
+          },
+          "coloredTimeSquareLabels": {
+            "americanYellow": "अमेरिकन पहेंलो",
+            "fandangoPink": "फान्डाङ्गो गुलाबी",
+            "green": "हरियो",
+            "lapisLazuli": "ल्यापिस लाजुली",
+            "majorelleBlue": "माजोरेल निलो",
+            "purplePlum": "पर्पल प्लम",
+            "spanishGreen": "स्पेनिस हरियो",
+            "titaniumYellow": "टाइटानियम पहेंलो"
+          },
+          "informationTooltip": "ट्र्याकहरूको रंगहरू प्रदान गरिएको ट्र्याक डाटा आधारित अनुमानहरू हुन्। गति र ठहराईलाई ध्यानमा राखिएको छैन।",
+          "timeZoneSelect": {
+            "label": "समय क्षेत्र:",
+            "noSelectOptionsMessage": "कुनै समय क्षेत्र छैन"
+          },
+          "title": "दिनको समय"
+        },
+        "timeOfDaySettingsButtonLabel": {
+          "active": "दिनको समय अनुसार रंग निष्क्रिय गर्नुहोस्",
+          "inactive": "दिनको समय अनुसार रंग सक्रिय गर्नुहोस्"
+        },
+        "trackSettings": {
+          "closeButtonLabel": "ट्र्याक सेटिङहरू बन्द गर्नुहोस्",
+          "customLengthErrorMessage": "कृपया {{min}} देखि {{max}} को बीचमा ट्र्याक लम्बाइ प्रविष्ट गर्नुहोस्।",
+          "customLengthRadioLabel": "कस्टम लम्बाइ",
+          "customLengthInputLabel": "दिनमा ट्र्याक लम्बाइ",
+          "eventFilterRadioLabel": "इभेन्ट फिल्टर \"मिति\" सँग मिलाउनुहोस् ({{length}} दिन)",
+          "title": "ट्र्याक सेटिङहरू",
+          "trackLengthLegend": "ट्र्याक लम्बाइ"
+        },
+        "trackSettingsButtonLabel": {
+          "closed": "ट्र्याक सेटिङहरू खोल्नुहोस्",
+          "open": "ट्र्याक सेटिङहरू बन्द गर्नुहोस्"
         }
-    },
+      },
     "trackLength": {
         "length": "{{length}} किलोमिटर",
         "title": "ट्रयाकको लम्बाइ"
-    },
-    "trackLengthControls": {
-        "customLengthLabel": "ट्रयाकको लम्बाइ अनुकुलन गर्नुहोस्",
-        "header": "ट्रयाकको लम्बाइ:",
-        "invalidCustomLengthAlert": "कृपया {{min}} देखि {{max}} सम्मको ट्रयाकको लम्बाइ राख्नुहोस ।",
-        "matchReportFilterDateLabel": "मिति \\\"from\\\" देखि ({{reportFilterDateRangeLength}} दिन) घटनाको फिल्टर मिलाउनुहोस्"
     }
 }

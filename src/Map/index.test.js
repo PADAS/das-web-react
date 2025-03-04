@@ -158,7 +158,7 @@ describe('Map', () => {
         simplifyMapDataOnZoom: {},
         subjectTrackState: { pinned: [], visible: [] },
         timeSliderState: {},
-        trackLength: {},
+        trackSettings: {},
         userPreferences: {},
       },
     };

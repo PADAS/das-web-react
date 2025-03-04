@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
 import Dropdown from 'react-bootstrap/Dropdown';
-import PropTypes from 'prop-types';
 import SplitButton from 'react-bootstrap/SplitButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -17,7 +16,6 @@ import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/p
 import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
-import { addReportFormProps } from '../../proptypes';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
 import {
   createNewIncidentCollection,
@@ -33,6 +31,7 @@ import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
+import { selectEventTypeById, selectEventTypeByValue } from '../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { SidebarScrollContext } from '../../SidebarScrollContext';
 import { TAB_KEYS } from '../../constants';
@@ -107,14 +106,14 @@ const generateErrorListForApiResponseDetails = (response, t) => {
 };
 
 const ReportDetailView = ({
-  className,
-  formProps,
-  isAddedReport,
+  className = '',
+  formProps = {},
+  isAddedReport = false,
   isNewReport,
-  newReportTypeId,
-  onAddReport,
-  onSaveAddedReport: onSaveAddedReportCallback,
-  reportData,
+  newReportTypeId = null,
+  onAddReport = null,
+  onSaveAddedReport: onSaveAddedReportCallback = null,
+  reportData = null,
   reportId,
 }) => {
   const dispatch = useDispatch();
@@ -128,9 +127,14 @@ const ReportDetailView = ({
   const eventSchemas = useSelector((state) => state.data.eventSchemas);
   const eventStore = useSelector((state) => state.data.eventStore);
   const patrolStore = useSelector((state) => state.data.patrolStore);
-  const reportType = useSelector(
-    (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
-  );
+  const eventType = useSelector((state) => {
+    if (isNewReport) {
+      return selectEventTypeById(state, newReportTypeId);
+    } else {
+      const eventTypeValue = state.data.eventStore[reportId].event_type;
+      return selectEventTypeByValue(state, eventTypeValue);
+    }
+  });
 
   const newAttachmentRef = useRef(null);
   const newNoteRef = useRef(null);
@@ -138,8 +142,8 @@ const ReportDetailView = ({
   const submitFormButtonRef = useRef(null);
 
   const newReport = useMemo(
-    () => reportType ? createNewReportForEventType(reportType, reportData) : null,
-    [reportData, reportType]
+    () => eventType ? createNewReportForEventType(eventType, reportData) : null,
+    [eventType, reportData]
   );
 
   const reportFromStore = setOriginalTextToEventNotes(eventStore[reportId]);
@@ -159,10 +163,15 @@ const ReportDetailView = ({
     relationshipButtonDisabled,
   } = formProps || {};
 
+  const reportSchemas = reportForm
+    ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
+    : null;
+
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isActive = isReportActive(originalReport);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
+  const isLoadingSchemas = (!!reportForm && !reportSchemas) || !!eventSchemas.loading;
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
   const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
@@ -209,10 +218,6 @@ const ReportDetailView = ({
   );
 
   const reportNotes = useMemo(() => Array.isArray(reportForm?.notes) ? [...reportForm.notes] : [], [reportForm?.notes]);
-
-  const reportSchemas = reportForm
-    ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
-    : null;
 
   const reportChanges = useMemo(() => {
     if (!originalReport || !reportForm) {
@@ -442,10 +447,12 @@ const ReportDetailView = ({
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
-  const onFormDataChange = useCallback((formData) => setReportForm((reportForm) => ({
-    ...reportForm,
-    event_details: formData,
-  })), []);
+  const onFormDataChange = useCallback((formData) => {
+    setReportForm((reportForm) => ({
+      ...reportForm,
+      event_details: formData,
+    }));
+  }, []);
 
   const onDeleteAttachment = useCallback((attachment) => {
     setAttachmentsToAdd(attachmentsToAdd.filter((attachmentToAdd) => attachmentToAdd.file.name !== attachment.name));
@@ -663,10 +670,10 @@ const ReportDetailView = ({
   ]);
 
   useEffect(() => {
-    if (!!reportForm && !reportSchemas) {
+    if (!!reportForm && !!eventType && !reportSchemas) {
       dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
     }
-  }, [dispatch, reportForm, reportSchemas]);
+  }, [dispatch, eventType, reportForm, reportSchemas]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
@@ -786,11 +793,10 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
-                formSchema={reportSchemas?.schema}
-                formUISchema={reportSchemas?.uiSchema}
+                eventSchema={reportSchemas}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
-                loadingSchema={!!eventSchemas.loading}
+                loadingSchema={isLoadingSchemas}
                 onFormDataChange={onFormDataChange}
                 onFormError={onFormError}
                 onFormSubmit={onFormSubmit}
@@ -900,28 +906,6 @@ const ReportDetailView = ({
       </QuickLinks>
     </div>
   </div>;
-};
-
-ReportDetailView.defaulProps = {
-  className: '',
-  formProps: {},
-  isAddedReport: false,
-  newReportTypeId: null,
-  onAddReport: null,
-  onSaveAddedReport: null,
-  reportData: null,
-};
-
-ReportDetailView.propTypes = {
-  className: PropTypes.string,
-  formProps: addReportFormProps,
-  isAddedReport: PropTypes.bool,
-  isNewReport: PropTypes.bool.isRequired,
-  newReportTypeId: PropTypes.string,
-  onAddReport: PropTypes.func,
-  onSaveAddedReport: PropTypes.func,
-  reportData: PropTypes.object,
-  reportId: PropTypes.string.isRequired,
 };
 
 export default memo(ReportDetailView);

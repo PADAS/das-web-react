@@ -1,10 +1,9 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { AddItemContext } from '../..';
-import { getUserCreatableEventTypesByCategory } from '../../../selectors';
+import { selectCreatableEventTypesByCategory } from '../../../selectors/event-types';
 import  { TAB_KEYS } from '../../../constants';
 import { trackEvent } from '../../../utils/analytics';
 import useNavigate from '../../../hooks/useNavigate';
@@ -24,7 +23,7 @@ const AddReportTab = ({ onHideModal }) => {
 
   const { analyticsMetadata, formProps, onAddReport, reportData = {} } = useContext(AddItemContext);
 
-  const eventsByCategory = useSelector(getUserCreatableEventTypesByCategory);
+  const eventsByCategory = useSelector(selectCreatableEventTypesByCategory);
 
   const reportTypesListRef = useRef(null);
 
@@ -97,10 +96,6 @@ const AddReportTab = ({ onHideModal }) => {
       typesByCategory={eventsByCategory}
     />
   </>;
-};
-
-AddReportTab.propTypes = {
-  onHideModal: PropTypes.func.isRequired,
 };
 
 export default memo(AddReportTab);

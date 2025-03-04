@@ -7,6 +7,7 @@ export const {
   REACT_APP_DAS_AUTH_TOKEN_URL,
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
+  REACT_APP_DAS_API_V2_URL,
   REACT_APP_ROUTE_PREFIX,
   REACT_APP_GA4_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
@@ -27,6 +28,7 @@ export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
 export const API_URL = `${DAS_HOST}${REACT_APP_DAS_API_URL}`;
+export const API_V2_URL = `${DAS_HOST}${REACT_APP_DAS_API_V2_URL}`;
 
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
@@ -273,13 +275,6 @@ export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* 
 
 export const DEFAULT_SHOW_TRACK_DAYS = 7;
 
-
-export const COLUMN_CLASS_PREFIXES = {
-  sm: 'col-sm-',
-  md: 'col-md-',
-  lg: 'col-lg-',
-};
-
 export const EXTERNAL_SAME_DOMAIN_ROUTES = [
   '/admin',
   '/admin/',
@@ -324,11 +319,13 @@ export const SUPPORTED_LANGUAGES = {
 export const FEATURE_FLAG_LABELS = {
   LEGACY_RT_ENABLED: 'LEGACY_RT_ENABLED',
   EFB_FORM_SCHEMA_SUPPORT_ENABLED: 'EFB_FORM_SCHEMA_SUPPORT_ENABLED',
+  TIME_OF_DAY_TRACKING: 'TIME_OF_DAY_TRACKING',
 };
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
   [FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED]: process.env.REACT_APP_LEGACY_RT_ENABLED === 'true',
   [FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED]: process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED === 'true',
+  [FEATURE_FLAG_LABELS.TIME_OF_DAY_TRACKING]: process.env.REACT_APP_TIME_OF_DAY_TRACKING === 'true',
 };
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
@@ -342,3 +339,51 @@ export const EVENT_SORT_OPTIONS = [
 export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
+
+export const BOOTSTRAP_DEFAULTS = {
+  COLLAPSE_TRANSITION_TIME: 300,
+  MODAL_ZINDEX: 1055,
+};
+
+export const TIME_OF_DAY_PERIODS = [
+  {
+    rangeString: '12:01 - 15:00',
+    rangeMinutesMin: 721,
+    rangeMinutesMax: 900,
+  },
+  {
+    rangeString: '15:01 - 18:00',
+    rangeMinutesMin: 901,
+    rangeMinutesMax: 1080,
+  },
+  {
+    rangeString: '18:01 - 21:00',
+    rangeMinutesMin: 1081,
+    rangeMinutesMax: 1260,
+  },
+  {
+    rangeString: '21:01 - 00:00',
+    rangeMinutesMin: 1261,
+    rangeMinutesMax: 1440,
+  },
+  {
+    rangeString: '00:01 - 03:00',
+    rangeMinutesMin: 1,
+    rangeMinutesMax: 180,
+  },
+  {
+    rangeString: '03:01 - 06:00',
+    rangeMinutesMin: 181,
+    rangeMinutesMax: 360,
+  },
+  {
+    rangeString: '06:01 - 09:00',
+    rangeMinutesMin: 361,
+    rangeMinutesMax: 54,
+  },
+  {
+    rangeString: '09:01 - 12:00',
+    rangeMinutesMin: 55,
+    rangeMinutesMax: 720,
+  }
+];

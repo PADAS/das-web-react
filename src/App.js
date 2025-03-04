@@ -1,99 +1,86 @@
-import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-
-import Map from './Map';
-import Nav from './Nav';
-import { connect, useSelector } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import { ToastContainer, toast, Slide } from 'react-toastify';
+import { Slide, toast, ToastContainer } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
-import 'axios-progress-bar/dist/nprogress.css';
 
-import useNavigate from './hooks/useNavigate';
+import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
+import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 
-import { fetchMaps } from './ducks/maps';
-import { userIsGeoPermissionRestricted } from './utils/geo-perms';
-import { fetchSystemStatus } from './ducks/system-status';
-import { fetchEventTypes } from './ducks/event-types';
-import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
-import { fetchSubjectGroups } from './ducks/subjects';
-import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
+import { fetchEventCategories } from './ducks/event-categories';
+import { fetchEventsSchema } from './ducks/event-schemas';
+import { fetchEventTypes } from './ducks/event-types';
+import { fetchFeaturesets } from './ducks/features';
+import { fetchMaps } from './ducks/maps';
 import { fetchPatrolTypes } from './ducks/patrol-types';
-import { fetchEventSchema } from './ducks/event-schemas';
+import { fetchSubjectGroups } from './ducks/subjects';
+import { fetchSystemStatus } from './ducks/system-status';
 import { getCurrentTabFromURL } from './utils/navigation';
-import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
+import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
+import { showToast } from './utils/toast';
+import useNavigate from './hooks/useNavigate';
+import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
 import Drawer from './Drawer';
-import SideBar from './SideBar';
-import PrintTitle from './PrintTitle';
+import Map from './Map';
+import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
 import ModalRenderer from './ModalRenderer';
+import Nav from './Nav';
+import PrintTitle from './PrintTitle';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
-import WithSocketContext, { SocketContext } from './withSocketConnection';
-import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
-import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-
-import './App.scss';
-import { showToast } from './utils/toast';
+import SideBar from './SideBar';
 import { SidebarScrollProvider } from './SidebarScrollContext';
+import WithSocketContext, { SocketContext } from './withSocketConnection';
+
+import 'axios-progress-bar/dist/nprogress.css';
+import './App.scss';
 
 export const MapContext = createContext(null);
 
-const App = (props) => {
-  const {
-    fetchMaps,
-    fetchEventTypes,
-    fetchEventSchema,
-    fetchAnalyzers,
-    fetchPatrolTypes,
-    fetchSubjectGroups,
-    fetchFeaturesets,
-    fetchSystemStatus,
-    mapLocationSelection,
-    trackLength,
-    setTrackLength,
-    setDefaultCustomTrackLength,
-    showGeoPermWarningMessage,
-  } = props;
-
+export const App = () => {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const currentTab = getCurrentTabFromURL(location.pathname);
-  let sidebarOpen = !!currentTab;
-
-  const [map, setMap] = useState(null);
-
-  const homeMap = useSelector(state => state.view.homeMap);
-  const mapPosition = useSelector(state => state.data.mapPosition);
-
-  const [isDragging, setDragState] = useState(false);
+  const homeMap = useSelector((state) => state.view.homeMap);
+  const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
+  const mapPosition = useSelector((state) => state.data.mapPosition);
+  const showGeoPermWarningMessage = useSelector(
+    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
+  );
+  const trackSettings = useSelector((state) => state.view.trackSettings);
 
   const socket = useContext(SocketContext);
+
+  const [isDragging, setDragState] = useState(false);
+  const [map, setMap] = useState(null);
+
+  const currentTab = getCurrentTabFromURL(location.pathname);
+  let sidebarOpen = !!currentTab;
 
   const jumpToStartingLocation = useCallback((map) => {
     const lnglat = new URLSearchParams(location.search).get('lnglat');
 
     if (lnglat) {
-      const lngLatFromParams = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
+      const lngLatFromParams = lnglat.replace(' ', '').split(',').map((n) => parseFloat(n));
       const newLocation = { ...location };
-
       delete newLocation.search;
+
       navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
 
       map.jumpTo({ center: lngLatFromParams, zoom: 16 });
-
     } else if (homeMap && !mapPosition?.center && !mapPosition?.zoom) {
-      const { center, zoom } = homeMap;
-      map.jumpTo({ center, zoom });
+      map.jumpTo({ center: homeMap.center, zoom: homeMap.zoom });
     }
   }, [homeMap, location, mapPosition, navigate]);
 
   const onMapHasLoaded = useCallback((map) => {
     setMap(map);
     jumpToStartingLocation(map);
-    fetchFeaturesets();
-  }, [fetchFeaturesets, jumpToStartingLocation]);
+    dispatch(fetchFeaturesets());
+  }, [dispatch, jumpToStartingLocation]);
 
   const disallowDragAndDrop = useCallback((e) => {
     setDragState(true);
@@ -111,55 +98,57 @@ const App = (props) => {
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
-    fetchEventTypes();
-    fetchEventSchema();
-    fetchMaps();
-    fetchSubjectGroups();
-    fetchAnalyzers();
-    fetchSystemStatus()
+    dispatch(fetchEventTypes());
+    dispatch(fetchEventCategories());
+    dispatch(fetchEventsSchema());
+    dispatch(fetchMaps());
+    dispatch(fetchSubjectGroups());
+    dispatch(fetchAnalyzers());
+    dispatch(fetchSystemStatus())
       .then((results = {}) => {
         if (results.patrol_enabled) {
-          fetchPatrolTypes();
+          dispatch(fetchPatrolTypes());
         }
         if (results.track_length) {
           const { track_length } = results;
-          const { defaultCustomTrackLength, length } = trackLength;
+          const { defaultCustomTrackLength, length } = trackSettings;
           if (defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
-            setTrackLength(track_length);
-            setDefaultCustomTrackLength(track_length);
+            dispatch(setTrackLength(track_length));
+            dispatch(setDefaultCustomTrackLength(track_length));
           } else if (track_length !== defaultCustomTrackLength) {
-            setDefaultCustomTrackLength(track_length);
+            dispatch(setDefaultCustomTrackLength(track_length));
           }
         }
       });
 
     loadProgressBar({}, axios);
-
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (showGeoPermWarningMessage) {
+      // TODO: Missing i18n
       const toastId = showToast({
         message: 'Some data may only be displayed when you are near its location.',
-        toastConfig: { type: 'info', autoClose: false, onClose() {
-        } } });
+        toastConfig: {
+          autoClose: false,
+          type: 'info',
+          onClose: () => {},
+        },
+      });
 
-      return () => {
-        toast.dismiss(toastId);
-      };
+      return () => toast.dismiss(toastId);
     }
   }, [showGeoPermWarningMessage]);
 
-  const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation
-    ? 'picking-location-fullscreen'
-    : '';
+  const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
-    data-testid="app-wrapper"
-    onDrop={onDrop}
-    onDragLeave={finishDrag}
-    onDragOver={disallowDragAndDrop}
+      className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
+      data-testid="app-wrapper"
+      onDrop={onDrop}
+      onDragLeave={finishDrag}
+      onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
       <MapDrawingToolsContextProvider>
@@ -169,19 +158,17 @@ const App = (props) => {
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+
           {!!map && <SidebarScrollProvider>
             <SideBar map={map} />
-          </SidebarScrollProvider>
-          }
+          </SidebarScrollProvider>}
+
           <ModalRenderer />
         </div>
 
-        <div style={{
-          display: 'none',
-          height: 0,
-          width: 0,
-        }}>
+        <div style={{ display: 'none', height: 0, width: 0 }}>
           <ReportTypeIconSprite id="reportTypeIconSprite" />
+
           <EarthRangerLogoSprite />
         </div>
 
@@ -190,30 +177,13 @@ const App = (props) => {
         <ServiceWorkerWatcher />
       </MapDrawingToolsContextProvider>
     </MapContext.Provider>
+
     <ToastContainer transition={Slide} />
   </div>;
 };
 
-const mapStateToProps = ({
-  view: { trackLength, mapLocationSelection, userLocation },
-  data: { user } },
-) => {
-  const geoPermRestricted = userIsGeoPermissionRestricted(user);
-
-  return {
-    trackLength,
-    mapLocationSelection,
-    lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
-    userIsGeoPermissionRestricted: geoPermRestricted,
-  };
-};
-
-export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
-
-
 const AppWithSocketContext = () => <WithSocketContext>
-  <ConnectedApp />
+  <App />
 </WithSocketContext>;
 
 export default AppWithSocketContext;

@@ -1,4 +1,3 @@
-version: '3'
 services:
   web:
     build:
@@ -12,9 +11,9 @@ services:
   #   build:
   #     context: ./mock-api
   #     dockerfile: Dockerfile.dev
-    # volumes:
-    #   - /app/node_modules
-    #   - ./mock-api:/app
+  #   volumes:
+  #     - /app/node_modules
+  #     - ./mock-api:/app
   web_test:
     build:
       context: .

@@ -1,5 +1,6 @@
-@use "sass:color";
-@use "../../../../../common/styles/vars/colors";
+@use 'sass:color';
+
+@use '../../../../../common/styles/vars/colors';
 
 
 .dropdownWrapper {
@@ -63,10 +64,6 @@
 
 .error {
   color: colors.$bright-red !important;
-}
-
-.separator {
-  display: none !important;
 }
 
 .caretError {

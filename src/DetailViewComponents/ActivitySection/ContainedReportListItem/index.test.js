@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { EVENT_API_URL } from '../../../ducks/events';
 import { EVENT_TYPE_SCHEMA_API_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
+import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
@@ -39,7 +40,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
   );
 
   beforeEach(() => {
-    store = { data: { eventSchemas: {}, eventStore: {}, eventTypes: [], patrolTypes: [] }, view: {} };
+    store = { data: { eventSchemas: {}, eventStore: {}, eventTypes, patrolTypes: [] }, view: {} };
   });
 
   afterEach(() => {
@@ -84,6 +85,19 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('does not fetch the schema if it is already in the store', async () => {
     store.data.eventStore[report.id] = report;
     store.data.eventSchemas[report.event_type] = { [report.id]: {} };
+    const mockedStore = mockStore(store);
+    renderCursorGpsDisplay(undefined, mockedStore);
+
+    await waitFor(() => {
+      const actions = mockedStore.getActions();
+
+      expect(actions).not.toContainEqual({ type: 'FETCH_EVENT_TYPE_SCHEMA' });
+    });
+  });
+
+  test('does not fetch the schema if the event type is not available yet', async () => {
+    store.data.eventStore[report.id] = report;
+    store.data.eventTypes = [];
     const mockedStore = mockStore(store);
     renderCursorGpsDisplay(undefined, mockedStore);
 

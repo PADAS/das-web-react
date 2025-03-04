@@ -160,3 +160,11 @@ export const shouldUse12HourFormat = (locale) => {
   // Hour cycles where 12 hour format should be used.
   return dateTimeOptions.hourCycle === 'h12' || dateTimeOptions.hourCycle === 'h11';
 };
+
+export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en-US', {
+  timeZone,
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+}).format(date);
+

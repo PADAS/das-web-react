@@ -13,6 +13,8 @@ import merge from 'lodash/merge';
 import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
+import { getTimeInTimezone } from './datetime';
+import { TIME_OF_DAY_PERIODS } from '../constants';
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
@@ -181,7 +183,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 const trackFetchState = {};
 export  const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
-  const { data: { tracks, virtualDate, eventFilter }, view: { trackLength, timeSliderState } } = store.getState();
+  const { data: { tracks, virtualDate, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
 
 
   const { active: timeSliderActive } = timeSliderState;
@@ -189,12 +191,12 @@ export  const fetchTracksIfNecessary = (ids, config) => {
   const results = ids.map((id) => {
     let dateRange;
 
-    const { length, origin: trackLengthOrigin } = trackLength;
+    const { length, origin: trackLengthOrigin } = trackSettings;
     const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilter.filter.date_range;
 
-    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
-    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
+    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
 
@@ -355,4 +357,13 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     };
   }
   return tracks;
+};
+
+export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
+  const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
+  const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
+
+  return TIME_OF_DAY_PERIODS.findIndex((timeOfDayPeriod) =>
+    trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
+  );
 };

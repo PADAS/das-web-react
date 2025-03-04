@@ -9,23 +9,68 @@
             "removeButton": "Remover"
         }
     },
-    "trackLegend": {
-        "titleElement": {
+    "subjectTrackLegend": {
+        "clearTracksButton": "Limpar trajetórias",
+        "icon": "Ícone para {{title}}",
+        "multipleSubjectTracksTitle": "{{count}} sujeitos",
+        "pointsOverTime": "{{pointCount}} pontos ao longo de {{trackTime}}",
+        "subjectTrackList": {
+          "closeButtonLabel": "Fechar a lista de sujeitos",
+          "subjectTracksItem": {
             "icon": "Ícone para {{title}}",
             "pointCount_one": "{{count}} ponto",
             "pointCount_other": "{{count}} pontos",
-            "pointsOverTimeSpan": "{{pointCount}} pontos em {{trackDuration}}",
-            "removeButton": "Remover"
+            "removeButton": "Remover",
+            "removeButtonLabel": "Remover {{title}}"
+          },
+          "title": "Sujeitos"
+        },
+        "subjectTracksListButtonLabel": {
+          "closed": "Abrir a lista de sujeitos",
+          "open": "Fechar a lista de sujeitos"
+        },
+        "timeOfDaySettings": {
+          "chevronButtonLabel": {
+            "closed": "Expandir as configurações da hora do dia",
+            "open": "Recolher as configurações da hora do dia"
+          },
+          "coloredTimeSquareLabels": {
+            "americanYellow": "Amarelo americano",
+            "fandangoPink": "Rosa fandango",
+            "green": "verde",
+            "lapisLazuli": "Lápis-lazúli",
+            "majorelleBlue": "Azul Majorelle",
+            "purplePlum": "Ameixa roxa",
+            "spanishGreen": "Verde espanhol",
+            "titaniumYellow": "Amarelo titânio"
+          },
+          "informationTooltip": "As cores das trajetórias são estimativas baseadas nos dados de trajetórias fornecidos. A velocidade e o tempo de permanência não são considerados.",
+          "timeZoneSelect": {
+            "label": "Fuso horário:",
+            "noSelectOptionsMessage": "Nenhum fuso horário"
+          },
+          "title": "Hora do dia"
+        },
+        "timeOfDaySettingsButtonLabel": {
+          "active": "Desativar a coloração por hora do dia",
+          "inactive": "Ativar a coloração por hora do dia"
+        },
+        "trackSettings": {
+          "closeButtonLabel": "Fechar configurações de trajetórias",
+          "customLengthErrorMessage": "Por favor, insira uma duração de trajetória entre {{min}} e {{max}}.",
+          "customLengthRadioLabel": "Duração personalizada",
+          "customLengthInputLabel": "Duração da trajetória em dias",
+          "eventFilterRadioLabel": "Corresponder ao filtro de eventos \"a partir de\" a data ({{length}} dias)",
+          "title": "Configurações de trajetórias",
+          "trackLengthLegend": "Duração da trajetória"
+        },
+        "trackSettingsButtonLabel": {
+          "closed": "Abrir configurações de trajetórias",
+          "open": "Fechar configurações de trajetórias"
         }
-    },
+      },
     "trackLength": {
         "length": "{{length}} quilometros",
         "title": "Duração:"
-    },
-    "trackLengthControls": {
-        "customLengthLabel": "Duração personalizada:",
-        "header": "Duração:",
-        "invalidCustomLengthAlert": "Adicione uma duração entre {{min}} e {{max}}.",
-        "matchReportFilterDateLabel": "Corresponder data \\\"de\\\" do filtro de eventos ({{reportFilterDateRangeLength}} dias)"
     }
 }

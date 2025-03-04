@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { createMapMock } from '../__test-helpers/mocks';
 import { events, eventWithPoint } from '../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../ducks/events';
+import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
@@ -78,6 +79,7 @@ describe('SideBar', () => {
         },
         eventSchemas: {},
         eventStore: {},
+        eventCategories,
         eventTypes,
         featureSets: { data: [] },
         feedEvents: { results: [] },

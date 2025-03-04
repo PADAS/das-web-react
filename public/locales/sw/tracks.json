@@ -9,24 +9,68 @@
       "removeButton": "ondoa"
     }
   },
-  "trackLegend": {
-    "multipleSubjectsTitle": "{{count}} wahusika",
-    "titleElement": {
-      "icon": "Ikoni kwa {{title}}",
-      "pointCount_one": "{{count}} alama",
-      "pointCount_other": "{{count}} alama",
-      "pointsOverTimeSpan": "{{pointCount}} alama kwa kipindi cha {{trackDuration}}",
-      "removeButton": "ondoa"
+  "subjectTrackLegend": {
+    "clearTracksButton": "Futa nyimbo",
+    "icon": "Ikoni ya {{title}}",
+    "multipleSubjectTracksTitle": "Wasanii {{count}}",
+    "pointsOverTime": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
+    "subjectTrackList": {
+      "closeButtonLabel": "Funga orodha ya wasanii",
+      "subjectTracksItem": {
+        "icon": "Ikoni ya {{title}}",
+        "pointCount_one": "Pointi {{count}}",
+        "pointCount_other": "Pointi {{count}}",
+        "removeButton": "Ondoa",
+        "removeButtonLabel": "Ondoa {{title}}"
+      },
+      "title": "Wasanii"
+    },
+    "subjectTracksListButtonLabel": {
+      "closed": "Fungua orodha ya wasanii",
+      "open": "Funga orodha ya wasanii"
+    },
+    "timeOfDaySettings": {
+      "chevronButtonLabel": {
+        "closed": "Panua mipangilio ya wakati wa siku",
+        "open": "Funga mipangilio ya wakati wa siku"
+      },
+      "coloredTimeSquareLabels": {
+        "americanYellow": "Njano ya Kiamerika",
+        "fandangoPink": "Pinki ya Fandango",
+        "green": "kijani",
+        "lapisLazuli": "Lapis Lazuli",
+        "majorelleBlue": "Bluu ya Majorelle",
+        "purplePlum": "Zambarau ya Plum",
+        "spanishGreen": "Kijani cha Kihispania",
+        "titaniumYellow": "Njano ya Titanium"
+      },
+      "informationTooltip": "Rangi za nyimbo ni makadirio kulingana na data ya nyimbo iliyotolewa. Kasi na muda wa kukaa hazizingatiwi.",
+      "timeZoneSelect": {
+        "label": "Eneo la saa:",
+        "noSelectOptionsMessage": "Hakuna maeneo ya saa"
+      },
+      "title": "Wakati wa siku"
+    },
+    "timeOfDaySettingsButtonLabel": {
+      "active": "Zima rangi kwa wakati wa siku",
+      "inactive": "Amua rangi kwa wakati wa siku"
+    },
+    "trackSettings": {
+      "closeButtonLabel": "Funga mipangilio ya nyimbo",
+      "customLengthErrorMessage": "Tafadhali ingiza urefu wa wimbo kati ya {{min}} na {{max}}.",
+      "customLengthRadioLabel": "Urefu maalum",
+      "customLengthInputLabel": "Urefu wa wimbo kwa siku",
+      "eventFilterRadioLabel": "Linganisha na kichujio cha matukyo \"kuanzia\" tarehe ({{length}} siku)",
+      "title": "Mipangilio ya Nyimbo",
+      "trackLengthLegend": "Urefu wa Wimbo"
+    },
+    "trackSettingsButtonLabel": {
+      "closed": "Fungua mipangilio ya nyimbo",
+      "open": "Funga mipangilio ya nyimbo"
     }
   },
   "trackLength": {
     "length": "{{length}} kilomita",
     "title": "Urefu wa Mzunguko"
-  },
-  "trackLengthControls": {
-    "customLengthLabel": "Urefu wa Kipekee",
-    "header": "Urefu wa Mzunguko:",
-    "invalidCustomLengthAlert": "Tafadhali ingiza urefu wa mzunguko kati ya {{min}} na {{max}}.",
-    "matchReportFilterDateLabel": "Kulingana na tarehe ya kichujio cha tukio \"kutoka\" ({{reportFilterDateRangeLength}} siku)"
   }
 }

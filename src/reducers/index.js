@@ -1,11 +1,12 @@
 import { combineReducers } from 'redux';
+import localForage from 'localforage';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import localForage from 'localforage';
 
 import { generateStorageConfig } from './storage-config';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
@@ -13,7 +14,7 @@ import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
-import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
+import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
@@ -59,7 +60,7 @@ const featureFlagOverrideConfig = generateStorageConfig('featureFlagOverrides', 
 const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
-const trackLengthPersistenceConfig = generateStorageConfig('trackLength');
+const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
 const schemaSelectorPersistenceConfig = generateStorageConfig('schemaSelector');
 
@@ -76,6 +77,7 @@ const rootReducer = combineReducers({
     eventFilter: persistReducer(eventFilterPersistenceConfig, eventFilterReducer),
     patrolFilter: persistReducer(patrolFilterPersistenceConfig, patrolFilterReducer),
     eventSchemas: eventSchemaReducer,
+    eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
     mapLayerFilter: persistReducer(
@@ -127,7 +129,7 @@ const rootReducer = combineReducers({
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
     schemaSelector: persistReducer(schemaSelectorPersistenceConfig, schemaSelectorReducer), /*ToDo: Remove reducer once mock data is no longer needed for EFB support*/
-    trackLength: persistReducer(trackLengthPersistenceConfig, trackDateRangeReducer),
+    trackSettings: persistReducer(trackSettingsPersistenceConfig, trackSettingsReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
