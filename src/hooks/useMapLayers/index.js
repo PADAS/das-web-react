@@ -1,24 +1,34 @@
-import { useCallback, useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
 import { MAX_ZOOM, MIN_ZOOM } from '../../constants';
 
+const hasLayerCondition = (layerConfig) => layerConfig?.options?.hasOwnProperty('condition')
+  ? layerConfig.options.condition
+  : true;
+
+const shouldUpdateMapLayer = (layerConfig, map) => {
+  return !!(
+    !!layerConfig?.id
+    && hasLayerCondition(layerConfig)
+    && !!map.getLayer(layerConfig.id)
+  );
+};
+
 const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
   const map = useContext(MapContext);
   const layerIdsRef = useRef([]);
-
-  const shouldUpdateMapLayer = useCallback((config) => config?.id && config?.condition !== false && map.getLayer(config.id), [map]);
 
   useEffect(() => {
     if (map){
       layerConfigsBatch.forEach(layerConfig => {
         if (
           layerConfig?.id
-          && layerConfig?.condition !== false
-          && !map.getLayer(layerConfig.id)
           && layerConfig?.type
           && layerConfig?.sourceId
           && map.getSource(layerConfig.sourceId)
+          && layerConfig?.options?.condition !== false
+          && !map.getLayer(layerConfig.id)
         ){
           const {
             id,
@@ -56,52 +66,52 @@ const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
         }
       });
     }
-  }, [map, defaultConfig, layerConfigsBatch, shouldUpdateMapLayer]);
+  }, [map, defaultConfig, layerConfigsBatch]);
 
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        if ( shouldUpdateMapLayer(layerConfig) && layerConfig.layout ){
+        if ( layerConfig.layout && shouldUpdateMapLayer(layerConfig, map) ){
           Object.entries(layerConfig.layout).forEach(([name, value]) => {
             map.setLayoutProperty(layerConfig.id, name, value);
           });
         }
       });
     }
-  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
+  }, [map, layerConfigsBatch]);
 
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        if ( shouldUpdateMapLayer(layerConfig) && layerConfig.paint ){
+        if ( layerConfig?.paint && shouldUpdateMapLayer(layerConfig, map) ){
           Object.entries(layerConfig.paint).forEach(([name, value]) => {
             map.setPaintProperty(layerConfig.id, name, value);
           });
         }
       });
     }
-  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
+  }, [map, layerConfigsBatch]);
 
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
         const filter = layerConfig?.options?.filter || defaultConfig.filter;
-        if (shouldUpdateMapLayer(layerConfig) && Array.isArray(filter)){
+        if (Array.isArray(filter) && shouldUpdateMapLayer(layerConfig, map)){
           map.setFilter(layerConfig.id, filter);
         }
       });
     }
-  }, [map, layerConfigsBatch, defaultConfig, shouldUpdateMapLayer]);
+  }, [map, layerConfigsBatch, defaultConfig]);
 
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        if ( shouldUpdateMapLayer(layerConfig) ){
+        if ( layerConfig?.id && !hasLayerCondition(layerConfig) && map.getLayer(layerConfig.id) ){
           map.removeLayer(layerConfig.id);
         }
       });
     }
-  }, [map, layerConfigsBatch, shouldUpdateMapLayer]);
+  }, [map, layerConfigsBatch]);
 
   useEffect(() => {
     if (map) {
@@ -121,7 +131,7 @@ const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        if ( shouldUpdateMapLayer(layerConfig) ) {
+        if ( shouldUpdateMapLayer(layerConfig, map) ) {
           const { options: { minZoom, maxZoom } = {} } = layerConfig;
           map.setLayerZoomRange(
             layerConfig.id,
@@ -131,7 +141,7 @@ const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
         }
       });
     }
-  }, [map, layerConfigsBatch, defaultConfig, shouldUpdateMapLayer]);
+  }, [map, layerConfigsBatch, defaultConfig]);
 
   useEffect(() => {
     const refs = layerIdsRef.current;
