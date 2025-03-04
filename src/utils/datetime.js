@@ -166,6 +166,5 @@ export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en
   hour: '2-digit',
   minute: '2-digit',
   hourCycle: 'h23',
-}
-).format(date);
+}).format(date);
 
