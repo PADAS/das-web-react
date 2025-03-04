@@ -49,7 +49,7 @@ export const mapEventTypesToCategories = (eventTypes, eventCategories) => {
     // Read the event type category. The location of the event category value property depends on the event type
     // version.
     const eventTypeCategory = eventType.version === 1
-      ? eventCategories[eventType.category.value]
+      ? eventType.category
       : eventCategories[eventType.category];
 
     if (eventTypeCategory.value === 'hidden') {

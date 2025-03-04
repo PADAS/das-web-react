@@ -35,6 +35,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
       - name: "Configure python"
         uses: actions/setup-python@v5
         with:
