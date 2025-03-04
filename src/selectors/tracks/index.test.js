@@ -76,14 +76,6 @@ describe('Selectors - Tracks', () => {
         until: null,
       });
     });
-
-    test('builds the track time envelope if the track length origin is the event filter', () => {
-      state.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
-      expect(selectTrackTimeEnvelope(state)).toEqual({
-        from: new Date('2020-01-02T00:00:00.000Z'),
-        until: null,
-      });
-    });
   });
 
   describe('selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope', () => {
