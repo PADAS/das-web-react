@@ -20,7 +20,7 @@ const server = setupServer(
   http.get(`${EVENT_TYPE_SCHEMA_API_URL}/snare_rep`, () => HttpResponse.json({ data: snareSchemaV1 })),
   http.get(
     EVENT_TYPE_SCHEMA_V2_API_URL('snare_rep'),
-    () => HttpResponse.json({ data: JSON.stringify(snareSchemaV2) })
+    () => HttpResponse.json(snareSchemaV2)
   ),
   http.get(`${EVENTS_SCHEMA_API_URL}`, () => HttpResponse.json({ data: globalSchema })),
 );
