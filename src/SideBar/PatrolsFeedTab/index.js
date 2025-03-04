@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { getPatrolList } from '../../selectors/patrols';
 import useNavigate from '../../hooks/useNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
@@ -10,8 +9,8 @@ import { sortPatrolList } from '../../utils/patrols';
 
 const PatrolsFeedTab = ({ loadingPatrolsFeed }) => {
   const navigate= useNavigate();
-  const patrols = useSelector(getPatrolList);
-  const sortedPatrols = useMemo(() => sortPatrolList(patrols.results), [patrols.results]);
+  const patrolStore = useSelector((state) => state.data.patrolStore);
+  const sortedPatrols = useMemo(() => sortPatrolList(Object.values(patrolStore)), [patrolStore]);
 
   const onItemClick = useCallback((id) => navigate(id), [navigate]);
 

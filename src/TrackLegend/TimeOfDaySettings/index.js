@@ -63,7 +63,7 @@ const COLORED_TIME_ITEMS = [
 ];
 
 const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTimeOfDaySettings }) => {
-  const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend.timeOfDaySettings' });
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.timeOfDaySettings' });
 
   return <div className={styles.timeOfDaySettings}>
     <div className={styles.header}>

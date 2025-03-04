@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { caseInsensitiveCompare } from '../utils/string';
-import { getPatrolList } from '../selectors/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { isFilterModified } from '../utils/patrol-filter';
@@ -34,7 +33,7 @@ const PatrolFilter = ({ className }) => {
   const containerRef = useRef(null);
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
-  const patrols = useSelector(getPatrolList);
+  const patrolStore = useSelector((state) => state.data.patrolStore);
   const patrolFilter = useSelector(state => state.data.patrolFilter);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
@@ -160,7 +159,7 @@ const PatrolFilter = ({ className }) => {
         className={styles.friendlyFilterString}
         dateRange={patrolFilter.filter.date_range}
         isFiltered={isFilterModified(patrolFilter)}
-        totalFeedCount={patrols?.results?.length ?? 0}
+        totalFeedCount={Object.keys(patrolStore).length ?? 0}
       />
 
       {

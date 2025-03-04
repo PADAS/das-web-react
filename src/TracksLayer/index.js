@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { addMapImage } from '../utils/map';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { MapContext } from '../App';
-import { visibleTrackDataWithPatrolAwareness } from '../selectors/patrols';
+import { selectSubjectTracksWithPatrolTrackShownFlag } from '../selectors/patrols';
 
 import Arrow from '../common/images/icons/track-arrow.svg';
 import TrackLayer from './track';
@@ -17,7 +17,7 @@ const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 const TracksLayer = ({ onPointClick, showTimepoints }) => {
   const map = useContext(MapContext);
 
-  const trackData = useSelector(visibleTrackDataWithPatrolAwareness);
+  const subjectTracksWithPatrolTrackShownFlag = useSelector(selectSubjectTracksWithPatrolTrackShownFlag);
 
   const onTimepointClick = useCallback((event) => {
     const layer = map.queryRenderedFeatures(event.point)
@@ -33,13 +33,15 @@ const TracksLayer = ({ onPointClick, showTimepoints }) => {
     }
   }, [map]);
 
-  return trackData.length > 0 ? trackData.map((data) => <TrackLayer
-    key={`track-layer-${data.track.features[0].properties.id}`}
-    linePaint={{ 'line-opacity': data.patrolTrackShown ? 0.4 : 1 }}
-    onPointClick={onTimepointClick}
-    showTimepoints={showTimepoints}
-    trackData={data}
-  />) : null;
+  return subjectTracksWithPatrolTrackShownFlag.length > 0
+    ? subjectTracksWithPatrolTrackShownFlag.map((subjectTracks) => <TrackLayer
+        key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
+        linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
+        onPointClick={onTimepointClick}
+        showTimepoints={showTimepoints}
+        trackData={subjectTracks}
+      />)
+    : null;
 };
 
 TracksLayer.defaultProps = {

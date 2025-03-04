@@ -20,7 +20,7 @@ const MIN_TRACK_LENGTH = 1;
 
 const TrackSettings = ({ onClose }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend.trackSettings' });
+  const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.trackSettings' });
 
   const lowerEventFilterDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const trackSettings = useSelector((state) => state.view.trackSettings);
@@ -46,7 +46,7 @@ const TrackSettings = ({ onClose }) => {
   }, [dispatch, lengthFromEventFilterLowerRangeToToday, trackSettings.origin]);
 
   useEffect(() => {
-    // If the track length origin is set to a custom length, the track length follows the inputs while they ahve a
+    // If the track length origin is set to a custom length, the track length follows the inputs while they have a
     // valid value.
     if (trackSettings.origin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
       const isCustomLengthValid = (customLength >= MIN_TRACK_LENGTH)

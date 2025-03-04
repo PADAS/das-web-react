@@ -18,12 +18,18 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListItem from '../PatrolListItem';
 
-import { INITIAL_PATROLS_STATE, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
+import { PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
-
 import styles from './styles.module.scss';
+
+const INITIAL_PATROLS_STATE = {
+  count: null,
+  next: null,
+  previous: null,
+  results: [],
+};
 
 const { Header, Title, Body, Footer } = Modal;
 

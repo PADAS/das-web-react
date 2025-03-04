@@ -3,23 +3,23 @@ import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 
 import { withMap } from '../EarthRangerMap';
-import { patrolsWithTrackShown } from '../selectors/patrols';
+import { selectPatrolsWithTracks } from '../selectors/patrols';
 
 import StartStopLayer from './layer';
 
 
-const PatrolStartStopLayer = ({ patrols }) => {
+const PatrolStartStopLayer = ({ patrolsWithTracks }) => {
   const onSymbolClick = () => {};
 
   return <Fragment>
-    {patrols
+    {patrolsWithTracks
       .map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
   </Fragment>;
 
 };
 
 const mapStateToProps = (state) => ({
-  patrols: patrolsWithTrackShown(state),
+  patrolsWithTracks: selectPatrolsWithTracks(state),
 });
 
 

@@ -3,7 +3,6 @@ import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
 
-import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest/* , 
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
@@ -262,45 +261,6 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
     });
 };
 
-export const INITIAL_PATROLS_STATE = {
-  count: null,
-  next: null,
-  previous: null,
-  results: [],
-};
-
-const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
-  const { type, payload } = action;
-
-  if (type === FETCH_PATROLS_SUCCESS) {
-    return {
-      ...payload,
-      results: payload.results.map(p => p.id),
-    };
-  }
-
-
-  if (type === CREATE_PATROL_REALTIME) {
-    const match = state.results.includes(payload.id);
-
-    if (!match) {
-      return {
-        ...state,
-        results: [payload.id, ...state.results],
-      };
-    }
-  }
-
-  if (type === REMOVE_PATROL_BY_ID) {
-    return {
-      ...state,
-      results: state.results.filter(id => id !== payload),
-    };
-  }
-
-  return state;
-};
-
 // patrol store 
 const INITIAL_STORE_STATE = {};
 export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
@@ -336,9 +296,6 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   }
   return state;
 };
-
-export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
-
 
 const INITIAL_PATROL_TRACKS_STATE = {
   pinned: [],

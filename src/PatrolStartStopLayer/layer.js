@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
-import { createPatrolDataSelector } from '../selectors/patrols';
+import { selectPatrolData } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
@@ -100,10 +100,9 @@ const StartStopLayer = (props) => {
 };
 
 const makeMapStateToProps = () => {
-  const getDataForPatrolFromProps = createPatrolDataSelector();
   const mapStateToProps = (state, props) => {
     return {
-      patrolData: getDataForPatrolFromProps(state, props),
+      patrolData: selectPatrolData(state, props.patrol),
     };
   };
   return mapStateToProps;

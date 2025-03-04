@@ -89,7 +89,7 @@ const compareTimeZoneParts = (timeZonePartsA, timeZonePartsB) => {
 
 const TimeZoneSelect = () => {
   const dispatch = useDispatch();
-  const { i18n, t } = useTranslation('tracks', { keyPrefix: 'subjectTrackLegend.timeOfDaySettings.timeZoneSelect' });
+  const { i18n, t } = useTranslation('tracks', { keyPrefix: 'trackLegend.timeOfDaySettings.timeZoneSelect' });
 
   const timeOfDayTimeZone = useSelector((state) => state.view.trackSettings.timeOfDayTimeZone);
 
@@ -143,6 +143,9 @@ const TimeZoneSelect = () => {
           Option: CustomOption,
         }}
         inputId="timeZoneSelect-input"
+        // The absolute position of this item was hidding it behind other map legeds, attaching the portal to the body
+        // fixes the issue. 
+        menuPortalTarget={document.querySelector('body')}
         noOptionsMessage={() => t('noSelectOptionsMessage')}
         onChange={(newValue) => dispatch(setTimeOfDayTimeZone(newValue.value))}
         options={options}
