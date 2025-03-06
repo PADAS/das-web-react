@@ -51,7 +51,7 @@ describe('useFetchPatrolsFeed', () => {
 
     await waitFor(() => {
       expect(actions).toHaveLength(2);
-      expect(actions[0].type).toBe('FETCH_PATROLS_SUCCESS');
+      expect(actions[0].type).toBe('FETCH_PATROLS_FEED_SUCCESS');
       expect(actions[1].type).toBe('UPDATE_PATROL_STORE');
     });
   });

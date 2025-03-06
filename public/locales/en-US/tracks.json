@@ -1,7 +1,7 @@
 {
   "patrolTrackLegend": {
-    "icon": "Icon for {{title}}",
-    "itemDescription": "{{length}} covered",
+    "icon": "Icon for {{patrolTitle}}",
+    "itemTitle": "Patrol: {{patrolTitle}}",
     "trackLegendItemsName": "patrols"
   },
   "subjectTrackLegend": {
