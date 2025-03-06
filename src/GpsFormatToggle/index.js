@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -25,6 +25,11 @@ const GpsFormatToggle = ({
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
+  const fieldsetRef = useRef();
+  const innerRef = useRef();
+
+  useImperativeHandle(ref, () => innerRef.current);
+
   const gpsString = showGpsString ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
 
   const onGpsFormatChange = (gpsFormat) => {
@@ -33,8 +38,18 @@ const GpsFormatToggle = ({
     gpsFormatTracker.track('Change GPS Format', `GPS Format:${gpsFormat}`);
   };
 
+  useEffect(() => {
+    // Fixes a bug in when mounting map popups where the browser automatically focuses the first input and not the
+    // one that is checked.
+    setTimeout(() => {
+      if (fieldsetRef.current?.contains(document.activeElement) && document.activeElement !== innerRef.current) {
+        innerRef.current.focus();
+      }
+    });
+  }, []);
+
   return <div {...otherProps}>
-    <fieldset className={styles.fieldset}>
+    <fieldset className={styles.fieldset} ref={fieldsetRef}>
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
       {Object.values(GPS_FORMATS).map((itemGpsFormat) =>
@@ -48,8 +63,8 @@ const GpsFormatToggle = ({
             name={name}
             onChange={() => onGpsFormatChange(itemGpsFormat)}
             ref={(element) => {
-              if (ref && gpsFormat === itemGpsFormat) {
-                ref.current = element;
+              if (gpsFormat === itemGpsFormat) {
+                innerRef.current = element;
               }
             }}
             type="radio"
