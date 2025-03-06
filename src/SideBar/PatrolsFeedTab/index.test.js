@@ -21,7 +21,7 @@ const patrolFilter = { filter: {
 let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
 store.data.patrolStore = { [activePatrol.id]: activePatrol };
-store.data.patrols.results = [activePatrol.id];
+store.data.patrolsFeed = [activePatrol.id];
 
 describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;
