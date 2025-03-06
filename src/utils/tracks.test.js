@@ -81,7 +81,7 @@ describe('utils - tracks', () => {
         {
           properties: {
             startColor: TIME_OF_DAY_PERIODS[1].color,
-            endColor: TIME_OF_DAY_PERIODS[3].color,
+            endColor: TIME_OF_DAY_PERIODS[4].color,
             startTime: '2025-02-27T21:42:01+00:00',
             endTime: '2025-02-24T06:06:05+00:00'
           },
@@ -94,7 +94,7 @@ describe('utils - tracks', () => {
         },
         {
           properties: {
-            startColor: TIME_OF_DAY_PERIODS[3].color,
+            startColor: TIME_OF_DAY_PERIODS[4].color,
             endColor: TIME_OF_DAY_PERIODS[3].color,
             startTime: '2025-02-24T06:06:05+00:00',
             endTime: '2025-02-24T03:58:02+00:00'

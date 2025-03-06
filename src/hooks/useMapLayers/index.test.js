@@ -116,56 +116,6 @@ describe('hooks - useMapLayers', () => {
 
       });
 
-      test('.before sets and changes', async () => {
-        let before = null;
-
-        const { rerender } = renderHook(() => useMapLayers([{
-          id: layerId,
-          type: 'string',
-          sourceId: 'whatever-source-id',
-          options: { before }
-        }]), { wrapper });
-
-        expect(map.moveLayer).not.toHaveBeenCalled();
-
-        before = 'how';
-
-        rerender();
-
-        await waitFor(() => {
-          expect(map.moveLayer).toHaveBeenCalledWith(layerId, 'how');
-        });
-      });
-
-      test('zoom config sets and changes', () => {
-        const config = {
-          maxZoom: 15,
-          minZoom: 1
-        };
-
-        const { rerender } = renderHook(() => useMapLayers([{
-          id: layerId,
-          type: 'string',
-          sourceId: 'whatever-source-id',
-          options: config
-        }]), { wrapper });
-
-        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 1, 15);
-
-        config.maxZoom = 20;
-
-        rerender();
-
-        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 1, 20);
-
-        config.minZoom = 7;
-
-        rerender();
-
-        expect(map.setLayerZoomRange).toHaveBeenCalledWith(layerId, 7, 20);
-
-      });
-
       describe('.condition', () => {
         test('adds and removes a layer when toggled', async () => {
           map.getLayer.mockReturnValue(undefined);

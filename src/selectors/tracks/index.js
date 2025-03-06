@@ -98,7 +98,7 @@ const selectSubjectTracks = createSelector(
 
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
-  (subjectTracks, trackTimeEnvelope, { timeOfDayTimeZone, isTimeOfDayColoringActive }) => subjectTracks.map(
+  (subjectTracks, trackTimeEnvelope, { isTimeOfDayColoringActive, timeOfDayTimeZone }) => subjectTracks.map(
     (subjectTrack) => {
       const trimmedTrackData = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
         subjectTrack,

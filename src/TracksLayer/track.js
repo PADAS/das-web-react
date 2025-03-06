@@ -80,7 +80,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   useMapSources([{ id: pointSourceId, data: trackData.points }]);
 
   useMapSources(sourcesConfigs, { tolerance: 1.5, type: 'geojson', lineMetrics: true });
-  useMapLayers(layersConfigs, { before: before || SUBJECT_SYMBOLS });
+  useMapLayers(layersConfigs);
 
   // Only create the normal layer if there are no time_of_day_segments
   useMapLayers([{

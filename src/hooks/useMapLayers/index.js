@@ -1,72 +1,62 @@
 import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
-import { MAX_ZOOM, MIN_ZOOM } from '../../constants';
 
-const hasLayerCondition = (layerConfig) => layerConfig?.options?.hasOwnProperty('condition')
-  ? layerConfig.options.condition
-  : true;
+const assertLayerCondition = (layerConfig) => layerConfig?.options?.condition ?? true;
 
-const shouldUpdateMapLayer = (layerConfig, map) => {
-  return !!(
-    !!layerConfig?.id
-    && hasLayerCondition(layerConfig)
-    && !!map.getLayer(layerConfig.id)
-  );
-};
+const shouldUpdateMapLayer = (layerConfig, map) => !!(
+  layerConfig?.id
+  && assertLayerCondition(layerConfig)
+  && map.getLayer(layerConfig.id)
+);
 
-const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
+const useMapLayers = (layerConfigsBatch = []) => {
   const map = useContext(MapContext);
   const layerIdsRef = useRef([]);
 
   useEffect(() => {
     if (map){
+
+      // Remove layers that are no longer in the configs
+      const existingLayers = layerConfigsBatch.map(config => config.id).filter((id) => !!id);
+      layerIdsRef.current.forEach(id => {
+        if (!existingLayers.includes(id) && map.getLayer(id)) {
+          map.removeLayer(id);
+        }
+      });
+      layerIdsRef.current = existingLayers.slice();
+
+      // Add new layers
       layerConfigsBatch.forEach(layerConfig => {
         if (
           layerConfig?.id
           && layerConfig?.type
           && layerConfig?.sourceId
           && map.getSource(layerConfig.sourceId)
-          && layerConfig?.options?.condition !== false
+          && assertLayerCondition(layerConfig)
           && !map.getLayer(layerConfig.id)
         ){
-          const {
-            id,
-            type,
-            sourceId,
-            paint = {},
-            layout = {},
-            options: {
-              filter,
-              before
-            } = {}
-          } = layerConfig;
+          map.addLayer(
+            {
+              id: layerConfig.id,
+              source: layerConfig.sourceId,
+              type: layerConfig.type,
+              layout: layerConfig.layout ?? {},
+              paint: layerConfig.paint ?? {},
+              ...(
+                Array.isArray(layerConfig.filter)
+                  ? { filter: layerConfig.filter }
+                  : {}
+              )
+            },
+            layerConfig?.options?.before
+          );
 
-          const layerObj = {
-            id,
-            source: sourceId,
-            type,
-            layout: layout,
-            paint: paint
-          };
-
-          const filterValue = filter || defaultConfig.filter;
-          if (Array.isArray(filterValue)) {
-            layerObj.filter = filterValue;
-          }
-
-          // Handle line-gradient and line-color conflict
-          if (type === 'line' && paint?.['line-gradient'] && paint?.['line-color']) {
-            console.warn(`Layer ${id}: line-gradient and line-color cannot both be specified`);
-            delete layerObj.paint['line-color'];
-          }
-
-          map.addLayer(layerObj, before || defaultConfig.before);
-          layerIdsRef.current.push(id);
+          layerIdsRef.current.push(layerConfig.id);
         }
       });
     }
-  }, [map, defaultConfig, layerConfigsBatch]);
+  }, [map, layerConfigsBatch]);
 
   useEffect(() => {
     if (map) {
@@ -95,19 +85,8 @@ const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        const filter = layerConfig?.options?.filter || defaultConfig.filter;
-        if (Array.isArray(filter) && shouldUpdateMapLayer(layerConfig, map)){
-          map.setFilter(layerConfig.id, filter);
-        }
-      });
-    }
-  }, [map, layerConfigsBatch, defaultConfig]);
-
-  useEffect(() => {
-    if (map) {
-      layerConfigsBatch.forEach(layerConfig => {
-        if ( layerConfig?.id && !hasLayerCondition(layerConfig) && map.getLayer(layerConfig.id) ){
-          map.removeLayer(layerConfig.id);
+        if (Array.isArray(layerConfig?.options?.filter) && shouldUpdateMapLayer(layerConfig, map)){
+          map.setFilter(layerConfig.id, layerConfig.options.filter);
         }
       });
     }
@@ -116,32 +95,12 @@ const useMapLayers = (layerConfigsBatch = [], defaultConfig = {}) => {
   useEffect(() => {
     if (map) {
       layerConfigsBatch.forEach(layerConfig => {
-        const before = layerConfig?.options?.before || defaultConfig.before;
-        if (
-          layerConfig?.id
-          && before
-          && map.getLayer(layerConfig.id)
-        ){
-          map.moveLayer(layerConfig.id, before);
+        if ( layerConfig?.id && !assertLayerCondition(layerConfig) && map.getLayer(layerConfig.id) ){
+          map.removeLayer(layerConfig.id);
         }
       });
     }
-  }, [map, layerConfigsBatch, defaultConfig]);
-
-  useEffect(() => {
-    if (map) {
-      layerConfigsBatch.forEach(layerConfig => {
-        if ( shouldUpdateMapLayer(layerConfig, map) ) {
-          const { options: { minZoom, maxZoom } = {} } = layerConfig;
-          map.setLayerZoomRange(
-            layerConfig.id,
-            minZoom || defaultConfig.minZoom || MIN_ZOOM,
-            maxZoom || defaultConfig.maxZoom || MAX_ZOOM
-          );
-        }
-      });
-    }
-  }, [map, layerConfigsBatch, defaultConfig]);
+  }, [map, layerConfigsBatch]);
 
   useEffect(() => {
     const refs = layerIdsRef.current;

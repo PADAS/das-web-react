@@ -24,22 +24,12 @@ const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson
   }, [map, sourceConfigsBatch, defaultConfig]);
 
   useEffect(() => {
-    let timeouts = [];
     sourceConfigsBatch.forEach(sourceConfig => {
       const source = map?.getSource?.(sourceConfig?.id);
       if (sourceConfig?.id && sourceConfig?.data && source){
-        const timeout = window.setTimeout(() => {
-          source.setData(sourceConfig.data);
-        });
-        timeouts.push(timeout);
+        source.setData?.(sourceConfig.data);
       }
     });
-
-    return () => {
-      timeouts.forEach(timeout => {
-        window.clearTimeout(timeout);
-      });
-    };
   }, [map, sourceConfigsBatch]);
 
   useEffect(() => {

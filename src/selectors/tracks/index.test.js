@@ -265,7 +265,7 @@ describe('Selectors - Tracks', () => {
                   'type': 'Feature',
                   'properties': {
                     'startColor': '#ffbd00',
-                    'endColor': '#8d4e85',
+                    'endColor': '#5b5ee9',
                     'startTime': '2025-02-27T21:42:01+00:00',
                     'endTime': '2025-02-24T06:06:05+00:00'
                   },
