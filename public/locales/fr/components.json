@@ -55,26 +55,44 @@
     "shareLocationToastMessage": "Partager votre position pour afficher des données avec des autorisations géographiques",
     "shareLocationToastTitle": "Comment faire?"
   },
+  "getUserLocationButton": {
+    "errorToastMessage": "Impossible de lire votre position actuelle : {{errorMessage}}",
+    "loadingOverlayMessage": "Tentative de lecture de votre position...",
+    "userLocationButtonLabel": "Obtenir la position actuelle"
+  },
+  "gpsFormatToggle": {
+    "fieldsetLegend": "Format GPS"
+  },
   "gpsInput": {
-    "gpsFormats": {
+    "defaultPlaceholder": "Position",
+    "errorMessage": "Coordonnées GPS invalides",
+    "inputDescription": "Exemple: {{gpsFormat}}",
+    "inputLabel": "Position GPS",
+    "placeholders": {
       "DDM": "Degrés Decimaux Minutes (DDM)",
       "DEG": "Lattitude, Longitude",
       "DMS": "Degrés Minutes Secondes (DMS)",
       "UTM": "Transversale Universelle de Mercator (UTM)",
       "MGRS": "Système de Coordonnées Militaire (MGRS)"
-    },
-    "defaultPlaceholder": "Position",
-    "inputExample": "Exemple: {{gpsFormat}}",
-    "invalidLocation": "Coordonnées GPS invalides"
+    }
   },
   "locationJumpButton": {
     "title": "Naviguer à la position suivante"
   },
-  "mapLocationPicker": {
-    "cancelButton": "Annuler",
-    "popupLabel": "Cliquez ici pour placer les coordonnées GPS",
-    "selectLocationButtonLabel": "Sélectionnez sur la carte",
-    "selectLocationButtonTitle": "Placer le curseur sur la carte"
+  "locationPicker": {
+    "defaultPlaceholder": "Définir l’emplacement",
+    "inputDescription": "Cliquez sur le bouton pour définir une valeur à partir du menu du sélecteur d’emplacement.",
+    "inputLabel": "Emplacement",
+    "jumpToLocationButtonLabel": "Aller à l’emplacement",
+    "menuPopover": {
+      "getUserLocationButton": "Utiliser ma position",
+      "pickMapLocationButton": "Définir sur la carte"
+    },
+    "setLocationButtonLabel": {
+      "closed": "Ouvrir le menu du sélecteur d’emplacement pour définir une valeur",
+      "open": "Fermer le menu du sélecteur d’emplacement"
+    },
+    "textCopyButtonLabel": "Copier l’emplacement dans le presse-papiers"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -108,6 +126,10 @@
     "senderDetails": {
       "radioIconTitle": "Icône de radio pour {{subjectName}}"
     }
+  },
+  "pickMapLocationButton": {
+    "instructionsPopupLabel": "Cliquez pour sélectionner un emplacement",
+    "pickLocationButtonLabel": "Sélectionnez un emplacement sur la carte"
   },
   "priorityPicker": {
     "amber": "Ambre",

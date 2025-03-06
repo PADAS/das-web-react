@@ -61,26 +61,44 @@
     "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",
     "shareLocationToastTitle": "Jifunze zaidi"
   },
+  "getUserLocationButton": {
+    "errorToastMessage": "Imeshindikana kusoma eneo lako la sasa: {{errorMessage}}",
+    "loadingOverlayMessage": "Inajaribu kusoma eneo lako...",
+    "userLocationButtonLabel": "Pata eneo la sasa"
+  },
+  "gpsFormatToggle": {
+    "fieldsetLegend": "Muundo wa GPS"
+  },
   "gpsInput": {
-    "gpsFormats": {
+    "defaultPlaceholder": "Eneo",
+    "errorMessage": "Eneo halali",
+    "inputDescription": "Mfano: {{gpsFormat}}",
+    "inputLabel": "Mahali pa GPS",
+    "placeholders": {
       "DDM": "Digrii, Desimali, Dakika",
       "DEG": "Latitudo, Longitudo",
       "DMS": "Digrii, Dakika, Sekunde",
       "UTM": "Ukurasa wa Jumla wa Transverse",
       "MGRS": "Mfumo wa Kijeshi wa Kumbukumbu ya Gridi"
-    },
-    "defaultPlaceholder": "Eneo",
-    "inputExample": "Mfano: {{gpsFormat}}",
-    "invalidLocation": "Eneo halali"
+    }
   },
   "locationJumpButton": {
     "title": "Ruka hadi eneo hili"
   },
-  "mapLocationPicker": {
-    "cancelButton": "Ghairi",
-    "popupLabel": "Bonyeza kuchagua eneo",
-    "selectLocationButtonLabel": "Chagua kwenye ramani",
-    "selectLocationButtonTitle": "Weka alama kwenye ramani"
+  "locationPicker": {
+    "defaultPlaceholder": "Weka mahali",
+    "inputDescription": "Bonyeza kitufe ili kuweka thamani kutoka kwenye menyu ya kiondoa mahali.",
+    "inputLabel": "Mahali",
+    "jumpToLocationButtonLabel": "Ruka kwa mahali",
+    "menuPopover": {
+      "getUserLocationButton": "Tumia eneo langu",
+      "pickMapLocationButton": "Weka kwenye ramani"
+    },
+    "setLocationButtonLabel": {
+      "closed": "Fungua menyu ya kiondoa mahali ili kuweka thamani",
+      "open": "Funga menyu ya kiondoa mahali"
+    },
+    "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -119,6 +137,10 @@
     "numericInputLabel": "Sehemu ya nambari",
     "incrementValueNumericInputButtonLabel": "Kitufe cha kuongeza thamani ya nambari",
     "decrementValueNumericInputButtonLabel": "Kitufe cha kupunguza thamani ya nambari"
+  },
+  "pickMapLocationButton": {
+    "instructionsPopupLabel": "Bonyeza ili kuchagua mahali",
+    "pickLocationButtonLabel": "Chagua mahali kwenye ramani"
   },
   "priorityPicker": {
     "amber": "Ambari",

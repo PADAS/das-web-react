@@ -1,7 +1,8 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Presione enter para buscar",
-    "titleIconSearch": "Buscar"
+    "gpsDisplayTooltip": "Presiona Enter para ir a las coordenadas",
+    "gpsInputButtonLabel": "Ir a coordenadas",
+    "toggleTitle": "Configuración de coordenadas"
   },
   "baseLayer": {
     "popoverButton": "Configurar capa base del mapa",

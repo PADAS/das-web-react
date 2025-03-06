@@ -1,7 +1,8 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Appuyez sur la barre d'entrée pour rechercher",
-    "titleIconSearch": "Recherche"
+    "gpsDisplayTooltip": "Appuyez sur Entrée pour aller aux coordonnées",
+    "gpsInputButtonLabel": "Aller aux coordonnées",
+    "toggleTitle": "Paramètres des coordonnées"
   },
   "baseLayer": {
     "popoverButton": "Définir la Carte d'Arrière Plan",

@@ -1,8 +1,8 @@
 {
     "cursorGPSDisplay": {
-        "gpsDisplayTooltip": "खोज्नका लागि enter थिच्नुहोस",
-        "titleIconSearch": "खोज्नुहोस्",
-        "toggleTitle": "कोअर्डिनेट सेटिङ"
+        "gpsDisplayTooltip": "समन्वयमा जानका लागि Enter थिच्नुहोस्",
+        "gpsInputButtonLabel": "समन्वयमा जानुहोस्",
+        "toggleTitle": "समन्वय सेटिङहरू"
     },
     "baseLayer": {
         "popoverButton": "नक्साको आधार तह सेट गर्नुहोस्",

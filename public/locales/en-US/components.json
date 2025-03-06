@@ -61,6 +61,11 @@
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",
     "shareLocationToastTitle": "Learn how"
   },
+  "getUserLocationButton": {
+    "errorToastMessage": "Could not read your current location: {{errorMessage}}",
+    "loadingOverlayMessage": "Trying to read your location...",
+    "userLocationButtonLabel": "Get current position"
+  },
   "gpsFormatToggle": {
     "fieldsetLegend": "GPS format"
   },
@@ -255,10 +260,5 @@
     "defaultMessage": "An error has occurred",
     "hideDetailsButton": "Hide Details",
     "showDetailsButton": "See Details"
-  },
-  "getUserLocationButton": {
-    "errorToastMessage": "Could not read your current location: {{errorMessage}}",
-    "loadingOverlayMessage": "Trying to read your location...",
-    "userLocationButtonLabel": "Get current position"
   }
 }
