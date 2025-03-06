@@ -4,13 +4,16 @@ import uniq from 'lodash/uniq';
 
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
-import { getTimeOfDayPeriodBasedOnTime, trimTrackDataToTimeRange } from '../../utils/tracks';
+import {
+  trimTrackDataToTimeRange,
+  buildTrackSegments
+} from '../../utils/tracks';
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
 const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
-const selectTrackSettings = (state) => state.view.trackSettings;
+export const selectTrackSettings = (state) => state.view.trackSettings;
 const selectTracks = (state) => state.data.tracks;
 
 export const selectTrackTimeEnvelope = createSelector([selectEventFilter, selectTimeSliderState, selectTrackSettings],
@@ -74,33 +77,23 @@ const selectSubjectTracks = createSelector(
     .map((subjectId) => tracks[subjectId])
 );
 
+
 export const selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod = createSelector(
   [selectSubjectTracks, selectTrackTimeEnvelope, selectTrackSettings],
-  (subjectTracks, trackTimeEnvelope, trackSettings) => subjectTracks.map(
+  (subjectTracks, trackTimeEnvelope, { isTimeOfDayColoringActive, timeOfDayTimeZone }) => subjectTracks.map(
     (subjectTrack) => {
-      // Trim each subject tracks to the track time envelope.
-      const trimmedTrackData = trimTrackDataToTimeRange(subjectTrack, trackTimeEnvelope.from, trackTimeEnvelope.until);
+      const trimmedTrackData = trimTrackDataToTimeRange( // Trim each subject tracks to the track time envelope.
+        subjectTrack,
+        trackTimeEnvelope.from,
+        trackTimeEnvelope.until
+      );
 
-      if (trackSettings.isTimeOfDayColoringActive) {
-        // If time of day coloring is active we add the time of day period to each point feature.
-        const pointFeaturesWithTimeOfDayPeriod = trimmedTrackData.points.features.map((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            timeOfDayPeriod: getTimeOfDayPeriodBasedOnTime(feature.properties.time, trackSettings.timeOfDayTimeZone),
-          },
-        }));
-
-        return {
+      return isTimeOfDayColoringActive
+        ? {
           ...trimmedTrackData,
-          points: {
-            ...trimmedTrackData.points,
-            features: pointFeaturesWithTimeOfDayPeriod,
-          }
-        };
-      }
-
-      return trimmedTrackData;
+          trackSegments: buildTrackSegments(trimmedTrackData.track, timeOfDayTimeZone)
+        }
+        : trimmedTrackData;
     }
   )
 );

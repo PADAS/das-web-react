@@ -21,7 +21,7 @@ jest.mock('redux-persist', () => {
   };
 });
 
-describe('PatrolFilter', () => {
+  describe('PatrolFilter', () => {
   let store, updatePatrolFilterMock;
   beforeEach(() => {
     updatePatrolFilterMock = jest.fn(() => () => {});
@@ -43,6 +43,7 @@ describe('PatrolFilter', () => {
         },
         patrolsFeed: [],
         subjectStore: {},
+        patrolStore: {},
       },
     };
 

@@ -2,9 +2,10 @@ import React, { memo, useContext, useMemo, useEffect } from 'react';
 import { MapContext } from '../App';
 
 import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS, MAX_ZOOM, MIN_ZOOM } from '../constants';
-import { useMapLayer, useMapSource } from '../hooks';
 
 import { calcConfigForMapAndSourceFromLayer } from '../utils/layers';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
@@ -25,7 +26,7 @@ const SourceComponent = ({ id, tileUrl, sourceConfig }) => {
     ...sourceConfig,
   }), [sourceConfig, tileUrl]);
 
-  useMapSource(id, null, config);
+  useMapSources([{ id }], config);
 
   return null;
 };
@@ -50,14 +51,15 @@ const TileLayerRenderer = (props) => {
     }
   }, [map, mapConfig]);
 
-  useMapLayer(
-    `tile-layer-${activeLayer?.id}`,
-    'raster',
-    `layer-source-${activeLayer?.id}`,
-    undefined,
-    undefined,
-    { before: TOPMOST_STYLE_LAYER, condition: !!activeLayer }
-  );
+  useMapLayers([{
+    id: `tile-layer-${activeLayer?.id}`,
+    type: 'raster',
+    sourceId: `layer-source-${activeLayer?.id}`,
+    options: {
+      before: TOPMOST_STYLE_LAYER,
+      condition: !!activeLayer
+    }
+  }]);
 
   return layers
     .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))

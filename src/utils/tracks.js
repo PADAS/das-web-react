@@ -18,6 +18,7 @@ import { TIME_OF_DAY_PERIODS } from '../constants';
 
 const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
+const MAX_MINUTES_PER_DAY = 1440;
 
 export const fixAntimeridianCrossing = (trackFeatureCollection) => {
   if (!trackFeatureCollection?.features?.length) return trackFeatureCollection;
@@ -107,12 +108,12 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     from, until,
   };
 
-  const earliestTime = times[times.length -1];
+  const earliestTime = times[times.length - 1];
   const mostRecentTime = times[0];
 
   if (from) {
     results.from = dateIsAtOrAfterDate(earliestTime, from)
-      ? times.length -1
+      ? times.length - 1
       : findDateIndexInRange(times, from);
   }
   if (until) {
@@ -126,7 +127,7 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     ) {
       results.until = times.length;
     } else if (untilIndex > -1) {
-      results.until = isEqualDate(new Date(times[untilIndex]), new Date(until)) ? untilIndex :  untilIndex + 1;
+      results.until = isEqualDate(new Date(times[untilIndex]), new Date(until)) ? untilIndex : untilIndex + 1;
     }
   }
   return results;
@@ -181,7 +182,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 };
 
 const trackFetchState = {};
-export  const fetchTracksIfNecessary = (ids, config) => {
+export const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
   const { data: { tracks, virtualDate, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
 
@@ -244,7 +245,7 @@ export  const fetchTracksIfNecessary = (ids, config) => {
         }
       } else if (!!oldRange?.until) {
         if (!dateRange.until
-        || new Date(dateRange.until).getTime() > new Date(oldRange.until).getTime()) {
+          || new Date(dateRange.until).getTime() > new Date(oldRange.until).getTime()) {
           shouldCancelPriorRequest = true;
         }
       }
@@ -258,7 +259,7 @@ export  const fetchTracksIfNecessary = (ids, config) => {
     };
 
     if (!trackData
-    || !trackHasDataWithinTimeRange(trackData, dateRange.since, dateRange.until)) {
+      || !trackHasDataWithinTimeRange(trackData, dateRange.since, dateRange.until)) {
       return handleFetch();
     }
     return trackData;
@@ -274,7 +275,7 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
   const [originalTrack] = track.features;
   if ((!from && !until) || !originalTrack.geometry) return { track, points };
 
-  const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
+  const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until ? new Date(until) : until);
 
   if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
     return { track, points };
@@ -361,9 +362,89 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
 export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
   const [hour, min] = getTimeInTimezone(new Date(datetimeString), timeZone).split(':');
-  const trackTotalMinutesInTZ = ( (parseInt(hour) * 60) + parseInt(min) ) || 1440;
+  const parsedHour = (parseInt(hour) * 60);
 
-  return TIME_OF_DAY_PERIODS.findIndex((timeOfDayPeriod) =>
+  const trackTotalMinutesInTZ = parsedHour === MAX_MINUTES_PER_DAY
+    ? MAX_MINUTES_PER_DAY
+    : ( parsedHour + parseInt(min) ) || MAX_MINUTES_PER_DAY;
+
+  return TIME_OF_DAY_PERIODS.find((timeOfDayPeriod) =>
     trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
   );
+};
+
+/*
+* This method split all track points by segments formed by a line-string object of 2 points having:
+*   - Coors and times of points A and B
+*   - assigning a startColor and endColor based on the time of each point
+* The segmentation will allow us to set a line gradient with specific stop colors to each line.
+* This being a workaround of the issue of MapBox not being able to apply dynamically data-drive stop colors for a gradient line.
+* */
+export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
+  const emptyFeatureCollection = {
+    type: 'FeatureCollection',
+    features: []
+  };
+
+  if (!trackFeatureCollection || !trackFeatureCollection.features || !trackFeatureCollection.features.length) {
+    return emptyFeatureCollection;
+  }
+
+  const [lineStringFeature] = trackFeatureCollection.features;
+
+  // Checking if first feature is valid
+  if (!lineStringFeature?.geometry ||
+    lineStringFeature.geometry?.type !== 'LineString' ||
+    !lineStringFeature.properties?.coordinateProperties?.times) {
+    return emptyFeatureCollection;
+  }
+
+  const {
+    geometry: {
+      coordinates
+    },
+    properties: {
+      coordinateProperties: {
+        times
+      }
+    }
+  } = lineStringFeature;
+
+  // At least there should be 2 points to create the line string and the amount of times should be the same as the amount of coordinates
+  if (coordinates.length < 2 || coordinates.length !== times.length) {
+    return emptyFeatureCollection;
+  }
+
+  const segments = [];
+
+  // Create a line segment for each pair of consecutive points
+  for (let i = 0; i < coordinates.length - 1; i++) {
+    const startTime = times[i];
+    const endTime = times[i + 1];
+    const startCoors = coordinates[i];
+    const endCoors = coordinates[i + 1];
+
+    if (!endTime || !endCoors){
+      break;
+    }
+
+    const { color: startColor } = getTimeOfDayPeriodBasedOnTime(startTime, timeZone);
+    const { color: endColor } = getTimeOfDayPeriodBasedOnTime(endTime, timeZone);
+
+    segments.push({
+      type: 'Feature',
+      properties: {
+        startColor,
+        endColor,
+        startTime,
+        endTime
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [startCoors, endCoors]
+      }
+    });
+  }
+
+  return featureCollection(segments);
 };

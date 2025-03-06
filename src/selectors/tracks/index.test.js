@@ -132,6 +132,7 @@ describe('Selectors - Tracks', () => {
 
     test('builds the subject tracks from the subjects with tracks active trimmed to the time envelope', () => {
       state.view.subjectTrackState.visible = ['123'];
+      state.view.trackSettings.isTimeOfDayColoringActive = false;
       state.data.tracks = {
         123: {
           points: {
@@ -172,6 +173,117 @@ describe('Selectors - Tracks', () => {
             }],
           },
         }]);
+    });
+
+    test('builds the subject tracks with trimmed to the time envelope and track segments', () => {
+      state.view.subjectTrackState.visible = ['123'];
+      state.view.trackSettings.isTimeOfDayColoringActive = true;
+      state.view.trackSettings.timeOfDayTimeZone = 'America/Monterrey';
+      state.data.tracks = {
+        123: {
+          points: {
+            features: [],
+          },
+          track: {
+            'type': 'FeatureCollection',
+            'features': [
+              {
+                'type': 'Feature',
+                'geometry': {
+                  'type': 'LineString',
+                  'coordinates': [
+                    [
+                      -109.41014560634443,
+                      -27.166035291320892
+                    ],
+                    [
+                      -109.41937192180515,
+                      -27.161194427154097
+                    ],
+                  ]
+                },
+                'properties': {
+                  'coordinateProperties': {
+                    'times': [
+                      '2025-02-27T21:42:01+00:00',
+                      '2025-02-24T06:06:05+00:00',
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+        },
+      };
+      expect(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod(state))
+        .toEqual([
+          {
+            'track': {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+                      [
+                        -109.41014560634443,
+                        -27.166035291320892
+                      ],
+                      [
+                        -109.41937192180515,
+                        -27.161194427154097
+                      ]
+                    ]
+                  },
+                  'properties': {
+                    'coordinateProperties': {
+                      'times': [
+                        '2025-02-27T21:42:01+00:00',
+                        '2025-02-24T06:06:05+00:00'
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            'points': {
+              'features': [
+
+              ]
+            },
+            'indices': {
+              'from': 1
+            },
+            'trackSegments': {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'properties': {
+                    'startColor': '#ffbd00',
+                    'endColor': '#5b5ee9',
+                    'startTime': '2025-02-27T21:42:01+00:00',
+                    'endTime': '2025-02-24T06:06:05+00:00'
+                  },
+                  'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+                      [
+                        -109.41014560634443,
+                        -27.166035291320892
+                      ],
+                      [
+                        -109.41937192180515,
+                        -27.161194427154097
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]);
     });
   });
 });
