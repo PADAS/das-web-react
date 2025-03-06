@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useRef } from 'react';
+import React, { forwardRef, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,7 @@ const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 const GpsFormatToggle = ({
   lat = null,
   lng = null,
+  name,
   showCopyControl = null,
   showGpsString = true,
   ...otherProps
@@ -24,62 +25,40 @@ const GpsFormatToggle = ({
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-  const tabRefs = useRef([]);
-
   const gpsString = showGpsString ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
 
-  const onTabClick = (gpsFormat, index) => {
+  const onGpsFormatChange = (gpsFormat) => {
     dispatch(updateUserPreferences({ gpsFormat }));
-
-    tabRefs.current[index]?.focus();
 
     gpsFormatTracker.track('Change GPS Format', `GPS Format:${gpsFormat}`);
   };
 
-  const onKeyDown = (event) => {
-    const gpsFormatsArray = Object.values(GPS_FORMATS);
-    const activeIndex = Object.values(GPS_FORMATS).indexOf(gpsFormat);
-
-    let newGpsFormatIndex;
-    if (event.key === 'ArrowRight') {
-      newGpsFormatIndex = (activeIndex + 1) % gpsFormatsArray.length;
-    } else if (event.key === 'ArrowLeft') {
-      newGpsFormatIndex = (activeIndex - 1 + gpsFormatsArray.length) % gpsFormatsArray.length;
-    } else if (event.key === 'Home') {
-      newGpsFormatIndex = 0;
-    } else if (event.key === 'End') {
-      newGpsFormatIndex = gpsFormatsArray.length - 1;
-    }
-
-    if (newGpsFormatIndex !== undefined) {
-      dispatch(updateUserPreferences({ gpsFormat: gpsFormatsArray[newGpsFormatIndex] }));
-      tabRefs.current[newGpsFormatIndex]?.focus();
-    }
-  };
-
   return <div {...otherProps}>
-    <div aria-label={t('tabsLabel')} className={styles.tabs} role="tablist">
-      {Object.values(GPS_FORMATS).map((itemGpsFormat, index) => <button
-        aria-selected={gpsFormat === itemGpsFormat}
-        className={`${styles.tab} ${gpsFormat === itemGpsFormat ? styles.active : ''}`}
-        id={`${itemGpsFormat}-tab`}
-        key={itemGpsFormat}
-        onClick={() => onTabClick(itemGpsFormat, index)}
-        onKeyDown={onKeyDown}
-        onMouseDown={(event) => event.preventDefault()}
-        ref={(element) => {
-          if (ref && gpsFormat === itemGpsFormat) {
-            ref.current = element;
-          }
-          tabRefs.current[index] = element;
-        }}
-        role="tab"
-        tabIndex={gpsFormat === itemGpsFormat ? 0 : -1}
-        type="button"
-      >
-        {itemGpsFormat}
-      </button>)}
-    </div>
+    <fieldset className={styles.fieldset}>
+      <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
+
+      {Object.values(GPS_FORMATS).map((itemGpsFormat) =>
+        <label
+          className={`${styles.label} ${gpsFormat === itemGpsFormat ? styles.active : ''}`}
+          key={itemGpsFormat}
+        >
+          <input
+            checked={gpsFormat === itemGpsFormat}
+            className={styles.radioInput}
+            name={name}
+            onChange={() => onGpsFormatChange(itemGpsFormat)}
+            ref={(element) => {
+              if (ref && gpsFormat === itemGpsFormat) {
+                ref.current = element;
+              }
+            }}
+            type="radio"
+            value={itemGpsFormat}
+          />
+
+          {itemGpsFormat}
+        </label>)}
+    </fieldset>
 
     {gpsString && <div className={styles.gpsStringWrapper}>
       <span className={styles.value} data-testid="gpsFormatToggle-gpsString">{gpsString}</span>

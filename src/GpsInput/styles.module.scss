@@ -22,11 +22,6 @@
         color: color.adjust(colors.$bright-red, $lightness: 33%);
       }
     }
-
-    &.hasButton {
-      border-bottom-right-radius: 0;
-      border-top-right-radius: 0;
-    }
   }
 }
 

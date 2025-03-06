@@ -2,20 +2,33 @@
 
 @use '../common/styles/vars/colors';
 
-.tabs {
+.fieldset {
   align-items: center;
   background-color: colors.$very-light-gray;
   display: flex;
   justify-content: space-evenly;
 
-  .tab {
+  .legend, .radioInput {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .label {
     border: none;
     color: colors.$off-black;
+    cursor: pointer;
     outline: none;
+    text-align: center;
     padding: 0.25rem;
     width: 100%;
 
-    &:focus-visible {
+    &:focus-within {
       border: 2px solid colors.$bright-blue;
     }
 

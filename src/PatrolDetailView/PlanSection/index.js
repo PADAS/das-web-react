@@ -223,9 +223,10 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
           <LocationPicker
-            value={startLocation}
+            id="patrolDetailView-planSection-startLocationPicker"
             onChange={onPatrolStartLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={startLocation}
           />
         </label>
       </div>
@@ -278,9 +279,10 @@ const PlanSection = ({
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
           <LocationPicker
-            value={endLocation}
+            id="patrolDetailView-planSection-endLocationPicker"
             onChange={onPatrolEndLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={endLocation}
           />
         </label>
       </div>

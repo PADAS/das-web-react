@@ -14,13 +14,25 @@
 
     .setLocationButton {
       .input {
-        color: colors.$bright-red;
-        
         &::placeholder {
           color: color.adjust(colors.$bright-red, $lightness: 33%);
         }
       }
     }
+
+    .textCopyButton {
+      button {
+        color: colors.$bright-red;
+      }
+    }
+
+    .jumpToLocationButton {
+      color: colors.$bright-red;
+    }
+  }
+
+  &.disabled {
+    background-color: colors.$disabled-field-gray;
   }
 
   .setLocationButton {
@@ -34,10 +46,8 @@
     padding: 0 0.5rem;
     width: 100%;
 
-    &:disabled {
+    &:disabled:not(.readOnly) {
       background-color: colors.$disabled-field-gray;
-      cursor: not-allowed;
-      opacity: 0.66;
     }
 
     &:focus-visible:not(:disabled) {
@@ -45,6 +55,7 @@
     }
 
     .input {
+      background: unset;
       border: none;
       cursor: pointer;
       padding: 0;
@@ -52,6 +63,18 @@
 
       &::placeholder {
         color: colors.$bright-blue;
+      }
+
+      &:disabled {
+        cursor: default;
+
+        &::placeholder {
+          color: unset;
+        }
+      }
+
+      &.readOnly {
+        cursor: default;
       }
     }
 
@@ -78,8 +101,7 @@
 
       &:disabled {
         background-color: colors.$disabled-field-gray;
-        cursor: not-allowed;
-        opacity: 0.66;
+        color: colors.$secondary-medium-gray;
       }
   
       &:focus-visible:not(:disabled) {
@@ -98,13 +120,12 @@
     border-radius: 0.25rem;
     color: colors.$secondary-medium-gray;
     height: 100%;
+    min-width: 2.5rem;
     outline: none;
     width: 2.5rem;
 
     &:disabled {
       background-color: colors.$disabled-field-gray;
-      cursor: not-allowed;
-      opacity: 0.66;
     }
 
     &:focus-visible:not(:disabled) {

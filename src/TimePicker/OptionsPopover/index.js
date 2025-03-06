@@ -131,6 +131,8 @@ const OptionsPopover = ({
   const onItemSelection = (time) => {
     onChange(time);
     onClose();
+
+    optionsPopoverButtonRef.current.focus();
   };
 
   // Keyboard navigation for the list.
@@ -166,6 +168,8 @@ const OptionsPopover = ({
       event.stopPropagation();
 
       onClose();
+
+      optionsPopoverButtonRef.current.focus();
       break;
 
     default:
@@ -191,19 +195,9 @@ const OptionsPopover = ({
   useEffect(() => {
     const selectedOption = options[selectedOptionIndex];
     if (selectedOption) {
-      document.getElementById(selectedOption.value).scrollIntoView?.();
+      document.getElementById(selectedOption.value).scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
     }
   }, [options, selectedOptionIndex]);
-
-  useEffect(() => {
-    const onMouseDown = (event) => !listRef.current.contains(event.target)
-      && !optionsPopoverButtonRef.current.contains(event.target)
-      && onClose();
-
-    document.addEventListener('mousedown', onMouseDown);
-
-    return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [onClose, optionsPopoverButtonRef]);
 
   return <Popover
       className={`${className} ${styles.optionsPopover}`}

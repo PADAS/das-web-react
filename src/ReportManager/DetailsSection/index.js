@@ -220,7 +220,11 @@ const DetailsSection = ({
                 onGeometryChange={onReportGeometryChange}
                 originalEvent={originalReport}
               />
-              : <LocationPicker onChange={onReportLocationChange} value={reportLocation} />
+              : <LocationPicker
+                id="reportManager-detailsSection-locationPicker"
+                onChange={onReportLocationChange}
+                value={reportLocation}
+              />
             }
           </label>
 

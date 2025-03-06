@@ -62,7 +62,7 @@
     "shareLocationToastTitle": "Learn how"
   },
   "gpsFormatToggle": {
-    "tabsLabel": "GPS formats"
+    "fieldsetLegend": "GPS format"
   },
   "gpsInput": {
     "defaultPlaceholder": "Location",
@@ -257,8 +257,8 @@
     "showDetailsButton": "See Details"
   },
   "getUserLocationButton": {
-    "loadingMessage": "Trying to read your location...",
-    "errorAlert": "Could not read your current location: {{errorMessage}}",
+    "errorToastMessage": "Could not read your current location: {{errorMessage}}",
+    "loadingOverlayMessage": "Trying to read your location...",
     "userLocationButtonLabel": "Get current position"
   }
 }

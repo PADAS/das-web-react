@@ -21,9 +21,9 @@ const LocationPicker = ({
   onBlur = null,
   onChange,
   onFocus = null,
+  placeholder = null,
   readOnly = false,
   required = false,
-  placeholder = null,
   value,
   ...otherProps
 }, ref) => {
@@ -31,7 +31,6 @@ const LocationPicker = ({
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  // const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
 
   const innerRef = useRef();
   const setLocationButtonRef = useRef();
@@ -42,15 +41,9 @@ const LocationPicker = ({
 
   const displayValue = value ? calcGpsDisplayString(value[1], value[0], gpsFormat) : '';
 
-  const onCloseMenuPopover = () => {
-    setIsMenuPopoverOpen(false);
-    // We focus the set location button automatically when the popover closes.
-    setLocationButtonRef.current.focus();
-  };
-
   return <>
     <div
-        className={`${styles.locationPicker} ${className}`}
+        className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${className}`}
         id={id}
         // Since our picker is a group of buttons, we handle the blur and focus from the wrapper but make sure to not
         // call the methods if we are just changing focus within the inner buttons.
@@ -64,10 +57,9 @@ const LocationPicker = ({
         aria-controls={`${id}-menuPopover`}
         aria-expanded={isMenuPopoverOpen}
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
-        className={styles.setLocationButton}
-        // TODO: Set different styles if its disabled or readonly.
+        className={`${styles.setLocationButton} ${readOnly ? styles.readOnly : ''}`}
         disabled={disabled || readOnly}
-        onClick={() => isMenuPopoverOpen ? onCloseMenuPopover : setIsMenuPopoverOpen(true)}
+        onClick={() => setIsMenuPopoverOpen(!isMenuPopoverOpen)}
         ref={setLocationButtonRef}
         title={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         type="button"
@@ -75,7 +67,8 @@ const LocationPicker = ({
         <input
           aria-describedby={`${id}-inputDescription`}
           aria-label={t('inputLabel')}
-          className={styles.input}
+          className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
+          disabled={disabled}
           placeholder={placeholder || t('defaultPlaceholder')}
           readOnly
           required={required}
@@ -111,11 +104,19 @@ const LocationPicker = ({
       <input data-testid="locationPicker-input" name={name} type="hidden" value={value} />
     </div>
 
-    <Overlay container={innerRef} placement="bottom-end" show={isMenuPopoverOpen} target={innerRef}>
+    <Overlay
+      container={innerRef}
+      onHide={() => setIsMenuPopoverOpen(false)}
+      placement="bottom-end"
+      rootClose
+      show={isMenuPopoverOpen}
+      target={innerRef}
+      >
       <MenuPopover
         id={id}
         onChange={onChange}
-        onClose={onCloseMenuPopover}
+        onClose={() => setIsMenuPopoverOpen(false)}
+        setLocationButtonRef={setLocationButtonRef}
         target={innerRef}
         value={value}
       />

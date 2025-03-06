@@ -14,7 +14,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
   const onComplete = useCallback(() => dispatch(hidePopup(id)), [dispatch, id]);
 
   return <>
-    <GpsFormatToggle lat={location.lat} lng={location.lng} />
+    <GpsFormatToggle lat={location.lat} lng={location.lng} name="droppedMarkerPopup-gpsFormatToggle" />
 
     <hr />
 

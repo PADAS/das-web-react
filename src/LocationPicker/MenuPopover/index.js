@@ -1,14 +1,12 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 import { ReactComponent as MarkerFeedIcon } from '../../common/images/icons/marker-feed.svg';
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../utils/analytics';
-import { hideSideBar, showSideBar } from '../../ducks/side-bar';
-import { setModalVisibilityState } from '../../ducks/modals';
 
 import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
@@ -16,6 +14,7 @@ import PickMapLocationButton from '../../PickMapLocationButton';
 
 import styles from './styles.module.scss';
 
+// TODO: This is a common component and its events shouldn't be linked to the event report track category.
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const MenuPopover = ({
@@ -23,12 +22,12 @@ const MenuPopover = ({
   id,
   onChange,
   onClose,
+  setLocationButtonRef,
   style,
   target,
   value,
   ...otherProps
 }, ref) => {
-  const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker.menuPopover' });
 
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
@@ -44,6 +43,8 @@ const MenuPopover = ({
       event.stopPropagation();
 
       onClose();
+
+      setLocationButtonRef.current.focus();
     }
   };
 
@@ -53,6 +54,8 @@ const MenuPopover = ({
       event.stopPropagation();
 
       onClose();
+
+      setLocationButtonRef.current.focus();
     }
   };
 
@@ -61,34 +64,24 @@ const MenuPopover = ({
 
     onClose();
 
-    dispatch(setModalVisibilityState(true));
-    dispatch(showSideBar());
-  };
-
-  const onPickMapLocationCancel = () => {
-    dispatch(setModalVisibilityState(true));
-    dispatch(showSideBar());
-  };
-
-  const onPickMapLocationClick = () => {
-    dispatch(setModalVisibilityState(false));
-    dispatch(hideSideBar());
-
-    eventReportTracker.track('Click \'Set on map\'');
+    setLocationButtonRef.current.focus();
   };
 
   const onUserLocationGet = (coordinates) => {
     onChange([coordinates.longitude, coordinates.latitude]);
 
     onClose();
+
+    setLocationButtonRef.current.focus();
   };
 
-  // Select the GPS input on mount so user can type away or navigate.
   useEffect(() => {
+    // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
   }, []);
 
   useEffect(() => {
+    // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab.
     const onKeyDown = (event) => {
       if (event.key === 'Tab') {
         if (event.shiftKey && document.activeElement === firstFocusableElementRef.current) {
@@ -108,16 +101,6 @@ const MenuPopover = ({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  useEffect(() => {
-    const onMouseDown = (event) => !wrapperRef.current.contains(event.target)
-      && !target.current.contains(event.target)
-      && onClose();
-
-    document.addEventListener('mousedown', onMouseDown);
-
-    return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [onClose, target]);
-
   return <Popover
       className={`${className} ${styles.menuPopover}`}
       id={`${id}-menuPopover`}
@@ -130,16 +113,15 @@ const MenuPopover = ({
       <GpsInput
         gpsFormatToggleRef={firstFocusableElementRef}
         id={`${id}-menuPopover-gpsInput`}
+        inputRef={gpsInputRef}
         onKeyDown={onGpsInputKeyDown}
         onChange={onChange}
         value={value}
-        ref={gpsInputRef}
       />
 
       <div className={styles.buttons}>
         <PickMapLocationButton
-          onCancel={onPickMapLocationCancel}
-          onClick={onPickMapLocationClick}
+          // onClick={() => eventReportTracker.track('Click \'Set on map\'')}
           onPick={onMapLocationPick}
           ref={!showUserLocation ? lastFocusableElementRef : undefined}
           renderContent={() => <>
@@ -149,7 +131,7 @@ const MenuPopover = ({
           </>}
         />
 
-        {!!showUserLocation && <GetUserLocationButton
+        {showUserLocation && <GetUserLocationButton
           onClick={() => eventReportTracker.track('Click \'Use my location\'')}
           onGet={onUserLocationGet}
           ref={lastFocusableElementRef}

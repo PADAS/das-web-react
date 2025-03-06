@@ -70,6 +70,13 @@
   padding: 0.25rem;
   width: 18rem;
 
+  .gpsInput {
+    input[type=text] {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
   .gpsInputButton {
     align-items: center;
     background-color: #f4f7fd;

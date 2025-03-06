@@ -91,11 +91,18 @@ const CursorGpsDisplay = () => {
 
     <Dropdown.Menu className={styles.menu}>
       <GpsInput
+        className={styles.gpsInput}
         id="cursorGpsDisplay-gpsInput"
         onChange={setGpsInputValue}
         onKeyDown={(event) => event.key === 'Enter' && onSearchCoordinates()}
-        renderButton={() => <Button className={styles.gpsInputButton} onClick={onGPSInputButtonClick} variant="light">
-          <SearchIcon title={t('titleIconSearch')} className={styles.searchIcon} />
+        renderButton={() => <Button
+          aria-label={t('gpsInputButtonLabel')}
+          className={styles.gpsInputButton}
+          onClick={onGPSInputButtonClick}
+          title={t('gpsInputButtonLabel')}
+          variant="light"
+        >
+          <SearchIcon className={styles.searchIcon} />
         </Button>}
         title={t('gpsDisplayTooltip')}
         value={gpsInputValue}

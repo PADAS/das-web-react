@@ -22,7 +22,11 @@ const UserCurrentLocationPopup = ({ data, id }) => {
   return <>
     <h4>{t('header')}</h4>
 
-    <GpsFormatToggle lat={data.location.coords.latitude} lng={data.location.coords.longitude} />
+    <GpsFormatToggle
+      lat={data.location.coords.latitude}
+      lng={data.location.coords.longitude}
+      name="userCurrentLocationPopup-gpsFormatToggle"
+    />
 
     <p>{t('accuracy', { accuracy: data.location.coords.accuracy })}</p>
 

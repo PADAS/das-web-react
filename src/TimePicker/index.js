@@ -124,7 +124,7 @@ const TimePicker = ({
   const onHourInputBlur = () => {
     // If the hour input is blurred and the user left a single digit we autofill the first one with a zero, unless we
     // moved the focus programatically after the user typed a valid hour.
-    if (shouldAutofillHourOnBlurRef.current && shouldCompleteFirstHourDigitWithZero(hour)) {
+    if (!readOnly && shouldAutofillHourOnBlurRef.current && shouldCompleteFirstHourDigitWithZero(hour)) {
       onHourChange(`0${hour}`);
     }
 
@@ -156,15 +156,17 @@ const TimePicker = ({
   const onHourInputKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Decrease the hour when the user presses the down arrow.
-      const lowestPossibleHour = use12HourFormat ? 1 : 0;
-      if (hour === '' || parseInt(hour) === lowestPossibleHour) {
-        onHourChange(use12HourFormat ? '12' : '23');
-      } else if (isValidHourInput(hour, use12HourFormat)) {
-        const hourMinusOne = (parseInt(hour) - 1).toString().padStart(2, '0');
-        onHourChange(hourMinusOne);
+        // Decrease the hour when the user presses the down arrow.
+        const lowestPossibleHour = use12HourFormat ? 1 : 0;
+        if (hour === '' || parseInt(hour) === lowestPossibleHour) {
+          onHourChange(use12HourFormat ? '12' : '23');
+        } else if (isValidHourInput(hour, use12HourFormat)) {
+          const hourMinusOne = (parseInt(hour) - 1).toString().padStart(2, '0');
+          onHourChange(hourMinusOne);
+        }
       }
       break;
 
@@ -181,15 +183,17 @@ const TimePicker = ({
       break;
 
     case 'ArrowUp':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Increase the hour when the user presses the up arrow.
-      const highestPossibleHour = use12HourFormat ? '12' : '23';
-      if (hour === '' || hour === highestPossibleHour) {
-        onHourChange(use12HourFormat ? '01' : '00');
-      } else if (isValidHourInput(hour, use12HourFormat)) {
-        const hourPlusOne = (parseInt(hour) + 1).toString().padStart(2, '0');
-        onHourChange(hourPlusOne);
+        // Increase the hour when the user presses the up arrow.
+        const highestPossibleHour = use12HourFormat ? '12' : '23';
+        if (hour === '' || hour === highestPossibleHour) {
+          onHourChange(use12HourFormat ? '01' : '00');
+        } else if (isValidHourInput(hour, use12HourFormat)) {
+          const hourPlusOne = (parseInt(hour) + 1).toString().padStart(2, '0');
+          onHourChange(hourPlusOne);
+        }
       }
       break;
 
@@ -212,7 +216,7 @@ const TimePicker = ({
   const onMinuteInputBlur = () => {
     // If the minute input is blurred and the user left a single digit we autofill the first one with a zero, unless we
     // moved the focus programatically after the user typed a valid minute.
-    if (shouldAutofillMinuteOnBlurRef.current && shouldCompleteFirstMinuteDigitWithZero(minute)) {
+    if (!readOnly && shouldAutofillMinuteOnBlurRef.current && shouldCompleteFirstMinuteDigitWithZero(minute)) {
       onMinuteChange(`0${minute}`);
     }
 
@@ -244,14 +248,16 @@ const TimePicker = ({
   const onMinuteInputKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Decrease the minute when the user presses the down arrow.
-      if (minute === '' || parseInt(minute) === 0) {
-        onMinuteChange('59');
-      } else if (isValidMinuteInput(minute)) {
-        const minuteMinusOne = (parseInt(minute) - 1).toString().padStart(2, '0');
-        onMinuteChange(minuteMinusOne);
+        // Decrease the minute when the user presses the down arrow.
+        if (minute === '' || parseInt(minute) === 0) {
+          onMinuteChange('59');
+        } else if (isValidMinuteInput(minute)) {
+          const minuteMinusOne = (parseInt(minute) - 1).toString().padStart(2, '0');
+          onMinuteChange(minuteMinusOne);
+        }
       }
       break;
 
@@ -272,14 +278,16 @@ const TimePicker = ({
       break;
 
     case 'ArrowUp':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Increase the minute when the user presses the up arrow.
-      if (minute === '' || minute === '59') {
-        onMinuteChange('00');
-      } else if (isValidMinuteInput(minute)) {
-        const minutePlusOne = (parseInt(minute) + 1).toString().padStart(2, '0');
-        onMinuteChange(minutePlusOne);
+        // Increase the minute when the user presses the up arrow.
+        if (minute === '' || minute === '59') {
+          onMinuteChange('00');
+        } else if (isValidMinuteInput(minute)) {
+          const minutePlusOne = (parseInt(minute) + 1).toString().padStart(2, '0');
+          onMinuteChange(minutePlusOne);
+        }
       }
       break;
 
@@ -302,12 +310,14 @@ const TimePicker = ({
 
     case 'ArrowUp':
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Switch the period when user presses up and down arrows.
-      const newPeriod = period === AM_PERIOD ? PM_PERIOD : AM_PERIOD;
-      setPeriod(newPeriod);
-      onTransformTo24HourAndChange(hour, minute, newPeriod);
+        // Switch the period when user presses up and down arrows.
+        const newPeriod = period === AM_PERIOD ? PM_PERIOD : AM_PERIOD;
+        setPeriod(newPeriod);
+        onTransformTo24HourAndChange(hour, minute, newPeriod);
+      }
       break;
 
     case 'ArrowRight':
@@ -318,20 +328,24 @@ const TimePicker = ({
 
     case amPeriodInitial.toLocaleLowerCase():
     case amPeriodInitial.toLocaleUpperCase():
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // If the user types the first localized character of the AM period we trigger a change.
-      setPeriod(AM_PERIOD);
-      onTransformTo24HourAndChange(hour, minute, AM_PERIOD);
+        // If the user types the first localized character of the AM period we trigger a change.
+        setPeriod(AM_PERIOD);
+        onTransformTo24HourAndChange(hour, minute, AM_PERIOD);
+      }
       break;
 
     case pmPeriodInitial.toLocaleLowerCase():
     case pmPeriodInitial.toLocaleUpperCase():
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Same for PM period.
-      setPeriod(PM_PERIOD);
-      onTransformTo24HourAndChange(hour, minute, PM_PERIOD);
+        // Same for PM period.
+        setPeriod(PM_PERIOD);
+        onTransformTo24HourAndChange(hour, minute, PM_PERIOD);
+      }
       break;
 
     default:
@@ -350,12 +364,6 @@ const TimePicker = ({
     }
 
     onChange(newTime);
-  };
-
-  const onCloseOptionsPopover = () => {
-    setIsOptionsPopoverOpen(false);
-    // We focus the options popover button automatically when the popover closes.
-    optionsPopoverButtonRef.current.focus();
   };
 
   useEffect(() => {
@@ -456,7 +464,7 @@ const TimePicker = ({
       aria-label={t('optionsPopoverButtonLabel')}
       className={styles.optionsPopoverButton}
       disabled={disabled || readOnly}
-      onClick={() => isOptionsPopoverOpen ? onCloseOptionsPopover() : setIsOptionsPopoverOpen(true)}
+      onClick={() => setIsOptionsPopoverOpen(!isOptionsPopoverOpen)}
       ref={optionsPopoverButtonRef}
       title={t('optionsPopoverButtonLabel')}
       type="button"
@@ -464,14 +472,21 @@ const TimePicker = ({
       <div className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} role="img" />
     </button>
 
-    <Overlay placement="bottom-end" show={isOptionsPopoverOpen} target={innerRef}>
+    <Overlay
+      container={innerRef}
+      onHide={() => setIsOptionsPopoverOpen(false)}
+      placement="bottom-end"
+      rootClose
+      show={isOptionsPopoverOpen}
+      target={innerRef}
+    >
       <OptionsPopover
         internationalizedTimePeriods={internationalizedTimePeriods}
         max={max}
         min={min}
         minutesInterval={minutesInterval}
         onChange={onOptionsPopoverChange}
-        onClose={onCloseOptionsPopover}
+        onClose={() => setIsOptionsPopoverOpen(false)}
         optionsPopoverButtonRef={optionsPopoverButtonRef}
         showDurationFromMin={showDurationFromMin}
         target={innerRef}

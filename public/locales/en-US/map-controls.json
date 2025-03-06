@@ -1,7 +1,7 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Press enter to search",
-    "titleIconSearch": "Search",
+    "gpsDisplayTooltip": "Press enter to jump to coordinates",
+    "gpsInputButtonLabel": "Jump to coordinates",
     "toggleTitle": "Coordinate Settings"
   },
   "baseLayer": {
