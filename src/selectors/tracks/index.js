@@ -11,8 +11,6 @@ import {
 
 const selectEventFilter = (state) => state.data.eventFilter;
 const selectHeatmapSubjectIDs = (state) => state.view.heatmapSubjectIDs;
-const selectPatrolStore = (state) => state.data.patrolStore;
-const selectPatrolTrackState = (state) => state.view.patrolTrackState;
 const selectSubjectTrackState = (state) => state.view.subjectTrackState;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 export const selectTrackSettings = (state) => state.view.trackSettings;
@@ -67,27 +65,11 @@ export const selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope = createSelect
   )
 );
 
-const selectPatrolTracksLeaderIds = createSelector(
-  [selectPatrolStore, selectPatrolTrackState],
-  (patrolStore, patrolTrackState) => [...patrolTrackState.visible, ...patrolTrackState.pinned]
-    // List the patrols that have visible or pinned tracks from the store.
-    .map((patrolId) => patrolStore[patrolId])
-    // Filter the defined patrols.
-    .filter((patrol) => !!patrol)
-    // Get the leader of each patrol.
-    .map((patrol) => patrol.patrol_segments.length > 0 && patrol.patrol_segments[0].leader)
-    // Filter the defined leaders.
-    .filter((patrolLeader) => !!patrolLeader)
-    // Return the list of leader ids.
-    .map((patrolLeader) => patrolLeader.id)
-);
-
 const selectSubjectTracks = createSelector(
-  [selectPatrolTracksLeaderIds, selectSubjectTrackState, selectTracks],
-  (patrolTracksLeaderIds, subjectTrackState, tracks) => uniq([
+  [selectSubjectTrackState, selectTracks],
+  (subjectTrackState, tracks) => uniq([
     ...subjectTrackState.pinned,
     ...subjectTrackState.visible,
-    ...patrolTracksLeaderIds,
   ])
     // Filter the defined subject ids.
     .filter((subjectId) => !!tracks[subjectId])

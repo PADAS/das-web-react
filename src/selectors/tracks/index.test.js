@@ -19,15 +19,10 @@ describe('Selectors - Tracks', () => {
             },
           },
         },
-        patrolStore: {},
         tracks: {},
       },
       view: {
         heatmapSubjectIDs: [],
-        patrolTrackState: {
-          pinned: [],
-          visible: [],
-        },
         subjectTrackState: {
           pinned: [],
           visible: [],
@@ -36,8 +31,10 @@ describe('Selectors - Tracks', () => {
           active: false,
         },
         trackSettings: {
+          isTimeOfDayColoringActive: false,
           length: 21,
           origin: TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH,
+          timeOfDayTimeZone: null,
         },
       },
     };
@@ -133,7 +130,7 @@ describe('Selectors - Tracks', () => {
       jest.useFakeTimers().setSystemTime(new Date('2021-01-01'));
     });
 
-    test('builds the subject tracks from the subjects with heatmap active trimmed to the time envelope', () => {
+    test('builds the subject tracks from the subjects with tracks active trimmed to the time envelope', () => {
       state.view.subjectTrackState.visible = ['123'];
       state.view.trackSettings.isTimeOfDayColoringActive = false;
       state.data.tracks = {

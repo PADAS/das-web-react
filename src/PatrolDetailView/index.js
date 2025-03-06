@@ -9,7 +9,7 @@ import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import { addPatrolSegmentToEvent, getEventIdsForCollection, setOriginalTextToEventNotes } from '../utils/events';
-import { createPatrolDataSelector } from '../selectors/patrols';
+import { selectPatrolData } from '../selectors/patrols';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   actualEndTimeForPatrol,
@@ -496,7 +496,7 @@ const PatrolDetailView = () => {
       const navigationPatrolId = isNewPatrol ? newPatrolTemporalId : patrolId;
       const memoryPatrolId = isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id;
       if (navigationPatrolId !== memoryPatrolId) {
-        setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
+        setPatrolDataSelector(originalPatrol ? selectPatrolData(state, originalPatrol) : {});
         temporalIdRef.current = isNewPatrol ? newPatrolTemporalId : null;
       }
     }

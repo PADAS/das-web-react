@@ -7,7 +7,7 @@ import { mockStore } from '../../__test-helpers/MockStore';
 
 import TimeOfDaySettings from '.';
 
-describe('SubjectTrackLegend - TimeOfDaySettings', () => {
+describe('TrackLegend - TimeOfDaySettings', () => {
   const onCollapseTimeOfDaySettings = jest.fn();
   const onExpandTimeOfDaySettings = jest.fn();
 

@@ -19,17 +19,14 @@ import {
   patrolStateDetailsStartTime,
 } from '../../utils/patrols';
 
-import { createPatrolDataSelector } from '../../selectors/patrols';
+import { selectPatrolData } from '../../selectors/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 
-const usePatrol = (patrolFromProps) => {
+const usePatrol = (patrol) => {
   const dispatch = useDispatch();
 
-  const getDataForPatrolFromProps = useMemo(createPatrolDataSelector, []);
-  const patrolFromPropsObject = useMemo(() => ({ patrol: patrolFromProps }), [patrolFromProps]);
-
-  const patrolData = useSelector((state) => getDataForPatrolFromProps(state, patrolFromPropsObject));
+  const patrolData = useSelector((state) => selectPatrolData(state, patrol));
   const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
   const trackState = useSelector(state => state?.view?.subjectTrackState);
 
@@ -99,12 +96,12 @@ const usePatrol = (patrolFromProps) => {
   }, [patrolData.patrol]);
 
   const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrolFromProps, value);
+    const merged = merge(patrol, value);
     const payload = { ...merged };
     delete payload.updates;
 
     dispatch(updatePatrol(payload));
-  }, [dispatch, patrolFromProps]);
+  }, [dispatch, patrol]);
 
   const restorePatrol = useCallback(() => {
     onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });

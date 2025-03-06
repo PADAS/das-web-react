@@ -369,12 +369,6 @@ const Map = ({
     );
   }, [dispatch]);
 
-  const onPatrolTrackLegendClose = useCallback(() => {
-    dispatch(
-      updatePatrolTrackState({ visible: [], pinned: [] })
-    );
-  }, [dispatch]);
-
   const onRotationControlClick = useCallback(() => {
     map.easeTo({ bearing: 0, pitch: 0 });
   }, [map]);
@@ -651,7 +645,7 @@ const Map = ({
           <SubjectTrackLegend />
           {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
           {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
-          {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
+          <PatrolTrackLegend />
         </>
       </div>
 
