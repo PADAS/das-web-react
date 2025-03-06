@@ -66,6 +66,7 @@ const buildPatrolData = (patrol, timeSliderState, tracks) => {
   return patrolData;
 };
 
+const selectPatrolsFeed = (state) => state.data.patrolsFeed;
 const selectPatrolLeaderSchema = (state) => state.data.patrolLeaderSchema;
 const selectPatrolStore = (state) => state.data.patrolStore;
 const selectPatrolTrackState = (state) => state.view.patrolTrackState;
@@ -109,6 +110,12 @@ export const selectPatrolLeadersWithLastPosition = createSelector(
     }
     return patrolLeader;
   }) : null
+);
+
+export const selectPatrolsFeedMappedFromStore = createSelector(
+  [selectPatrolsFeed, selectPatrolStore],
+  // Map each patrol id from the feed to its patrol object and filter just the defined ones.
+  (patrolsFeed, patrolStore) => patrolsFeed.map((patrolId) => patrolStore[patrolId]).filter((patrol) => !!patrol),
 );
 
 export const selectPatrolsWithTracks = createSelector(

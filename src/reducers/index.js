@@ -9,7 +9,7 @@ import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedRedu
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
-import { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
+import { patrolsFeedReducer, patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -68,6 +68,7 @@ const rootReducer = combineReducers({
   data: combineReducers({
     baseLayers: baseLayersReducer,
     eventStore: eventStoreReducer,
+    patrolsFeed: patrolsFeedReducer,
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,

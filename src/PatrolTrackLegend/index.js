@@ -36,15 +36,18 @@ const PatrolTrackLegend = () => {
   // Build the items array with the description, icon, id and title of each tracked patrol.
   const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
     const iconId = iconTypeForPatrol(patrolData.patrol);
-    const title = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
+    const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
 
     return {
-      description: t('itemDescription', {
-        length: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
-      }),
-      icon: <DasIcon className={styles.itemIcon} iconId={iconId} title={t('icon', { title })} type="events" />,
+      description: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
+      icon: <DasIcon
+        className={styles.itemIcon}
+        iconId={iconId}
+        title={t('icon', { patrolTitle })}
+        type="events"
+      />,
       id: patrolData.patrol.id,
-      title,
+      title: t('itemTitle', { patrolTitle }),
     };
   }), [patrolsWithTrackData, t]);
 

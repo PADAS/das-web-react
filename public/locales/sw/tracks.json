@@ -1,7 +1,7 @@
 {
   "patrolTrackLegend": {
     "icon": "Ikoni kwa {{title}}",
-    "itemDescription": "{{length}} imefunikwa",
+    "itemTitle": "Doria: {{patrolTitle}}",
     "trackLegendItemsName": "doria"
   },
   "subjectTrackLegend": {

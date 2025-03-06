@@ -1,7 +1,7 @@
 {
     "patrolTrackLegend": {
         "icon": "{{title}}को लागि आइकन",
-        "itemDescription": "{{length}}  ढाकिएको",
+        "itemTitle": "गस्ती: {{patrolTitle}}",
         "trackLegendItemsName": "गस्तीहरु"
     },
     "subjectTrackLegend": {
