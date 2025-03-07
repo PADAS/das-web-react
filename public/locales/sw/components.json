@@ -67,7 +67,8 @@
     "userLocationButtonLabel": "Pata eneo la sasa"
   },
   "gpsFormatToggle": {
-    "fieldsetLegend": "Muundo wa GPS"
+    "fieldsetLegend": "Muundo wa GPS",
+    "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili"
   },
   "gpsInput": {
     "defaultPlaceholder": "Eneo",

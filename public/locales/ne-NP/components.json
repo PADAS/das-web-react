@@ -62,7 +62,8 @@
         "userLocationButtonLabel": "हालको स्थान प्राप्त गर्नुहोस्"
     },
     "gpsFormatToggle": {
-        "fieldsetLegend": "GPS ढाँचा"
+        "fieldsetLegend": "GPS ढाँचा",
+        "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
     },
     "gpsInput": {
         "defaultPlaceholder": "लोकेसन",

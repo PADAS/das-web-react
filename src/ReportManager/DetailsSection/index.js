@@ -91,7 +91,6 @@ const DetailsSection = ({
 
   const geometryType = eventType?.geometry_type;
   const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
-  const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -223,7 +222,7 @@ const DetailsSection = ({
               : <LocationPicker
                 id="reportManager-detailsSection-locationPicker"
                 onChange={onReportLocationChange}
-                value={reportLocation}
+                value={reportForm.location || null}
               />
             }
           </label>

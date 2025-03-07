@@ -35,11 +35,11 @@ const CursorGpsDisplay = () => {
 
   const onSearchCoordinates = useCallback(() => {
     if (gpsInputValue) {
-      jumpToLocation(gpsInputValue);
+      jumpToLocation([gpsInputValue.longitude, gpsInputValue.latitude]);
 
       setTimeout(() => dispatch(showPopup('dropped-marker', {
-        coordinates: gpsInputValue,
-        location: { lat: gpsInputValue[1], lng: gpsInputValue[0] },
+        coordinates: [gpsInputValue.longitude, gpsInputValue.latitude],
+        location: { lat: gpsInputValue.latitude, lng: gpsInputValue.longitude },
         popupAttrsOverride: { offset: [0, 0] },
       })), 50);
     }

@@ -46,17 +46,16 @@
 .gpsStringWrapper {
   align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
 
   .value {
     display: block;
     text-align: center;
+    width: 100%;
   }
 
-  svg {
-    height: 1rem;
-    margin-left: 0.5rem;
-    width: 1rem;
+  .textCopyButton {
+    margin: 0;
   }
 }

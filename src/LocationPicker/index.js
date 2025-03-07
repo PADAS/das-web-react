@@ -17,6 +17,7 @@ const LocationPicker = ({
   className = '',
   disabled = false,
   id,
+  inputProps = {},
   name = '',
   onBlur = null,
   onChange,
@@ -39,12 +40,12 @@ const LocationPicker = ({
 
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const displayValue = value ? calcGpsDisplayString(value[1], value[0], gpsFormat) : '';
+  const displayValue = value ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat) : '';
 
   return <>
     <div
-        className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${className}`}
-        id={id}
+        className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${inputProps['aria-invalid'] ? styles.error : ''} ${className}`}
+        id={`${id}-wrapper`}
         // Since our picker is a group of buttons, we handle the blur and focus from the wrapper but make sure to not
         // call the methods if we are just changing focus within the inner buttons.
         onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
@@ -69,12 +70,14 @@ const LocationPicker = ({
           aria-label={t('inputLabel')}
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
+          id={id}
           placeholder={placeholder || t('defaultPlaceholder')}
           readOnly
           required={required}
           tabIndex={-1}
           type="text"
           value={displayValue}
+          {...inputProps}
         />
 
         <p className={styles.inputDescription} id={`${id}-inputDescription`}>
@@ -94,7 +97,7 @@ const LocationPicker = ({
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
         disabled={!value || disabled}
-        onClick={() => jumpToLocation(value)}
+        onClick={() => jumpToLocation([value.longitude, value.latitude])}
         title={t('jumpToLocationButtonLabel')}
         type="button"
       >
@@ -107,7 +110,7 @@ const LocationPicker = ({
     <Overlay
       container={innerRef}
       onHide={() => setIsMenuPopoverOpen(false)}
-      placement="bottom-end"
+      placement="bottom-start"
       rootClose
       show={isMenuPopoverOpen}
       target={innerRef}

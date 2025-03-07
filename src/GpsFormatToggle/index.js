@@ -16,7 +16,6 @@ const GpsFormatToggle = ({
   lat = null,
   lng = null,
   name,
-  showCopyControl = null,
   showGpsString = true,
   ...otherProps
 }, ref) => {
@@ -78,7 +77,12 @@ const GpsFormatToggle = ({
     {gpsString && <div className={styles.gpsStringWrapper}>
       <span className={styles.value} data-testid="gpsFormatToggle-gpsString">{gpsString}</span>
 
-      {(showCopyControl ?? showGpsString) && <TextCopyBtn text={gpsString} />}
+      {showGpsString && <TextCopyBtn
+        aria-label={t('textCopyButtonLabel')}
+        className={styles.textCopyButton}
+        text={gpsString}
+        title={t('textCopyButtonLabel')}
+      />}
     </div>}
   </div>;
 };

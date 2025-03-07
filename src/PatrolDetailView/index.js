@@ -259,12 +259,10 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolEndLocationChange = useCallback((endLocation) => {
-    const updatedEndLocation = !!endLocation ? { latitude: endLocation[1], longitude: endLocation[0] } : null;
-
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        { ...patrolForm.patrol_segments[0], end_location: updatedEndLocation },
+        { ...patrolForm.patrol_segments[0], end_location: endLocation },
         ...patrolForm.patrol_segments.slice(1),
       ],
     });
@@ -333,12 +331,10 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolStartLocationChange = useCallback((startLocation) => {
-    const updatedStartLocation = !!startLocation ? { latitude: startLocation[1], longitude: startLocation[0] } : null;
-
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        { ...patrolForm.patrol_segments[0], start_location: updatedStartLocation },
+        { ...patrolForm.patrol_segments[0], start_location: startLocation },
         ...patrolForm.patrol_segments.slice(1),
       ],
     });

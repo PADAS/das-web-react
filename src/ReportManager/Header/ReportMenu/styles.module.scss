@@ -1,0 +1,5 @@
+.textCopyButton {
+  &:hover:not(:disabled) {
+    background-color: unset;
+  }
+}

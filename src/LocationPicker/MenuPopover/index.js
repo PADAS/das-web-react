@@ -14,6 +14,8 @@ import PickMapLocationButton from '../../PickMapLocationButton';
 
 import styles from './styles.module.scss';
 
+const MAX_POPOVER_WIDTH = 380;
+
 // TODO: This is a common component and its events shouldn't be linked to the event report track category.
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -36,6 +38,8 @@ const MenuPopover = ({
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
   const wrapperRef = useRef();
+
+  const popoverWidth = Math.min(target.current?.offsetWidth, MAX_POPOVER_WIDTH);
 
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
@@ -60,7 +64,7 @@ const MenuPopover = ({
   };
 
   const onMapLocationPick = (event) => {
-    onChange([event.lngLat.lng, event.lngLat.lat]);
+    onChange({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
 
     onClose();
 
@@ -68,7 +72,7 @@ const MenuPopover = ({
   };
 
   const onUserLocationGet = (coordinates) => {
-    onChange([coordinates.longitude, coordinates.latitude]);
+    onChange({ latitude: coordinates.latitude, longitude: coordinates.longitude });
 
     onClose();
 
@@ -106,7 +110,7 @@ const MenuPopover = ({
       id={`${id}-menuPopover`}
       ref={ref}
       role="presentation"
-      style={{ ...style, minWidth: target.current?.offsetWidth, width: target.current?.offsetWidth }}
+      style={{ ...style, minWidth: popoverWidth, width: popoverWidth }}
       {...otherProps}
     >
     <div className={styles.wrapper} onKeyDown={onWrapperKeyDown} ref={wrapperRef}>

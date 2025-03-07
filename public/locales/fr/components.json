@@ -61,7 +61,8 @@
     "userLocationButtonLabel": "Obtenir la position actuelle"
   },
   "gpsFormatToggle": {
-    "fieldsetLegend": "Format GPS"
+    "fieldsetLegend": "Format GPS",
+    "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers"
   },
   "gpsInput": {
     "defaultPlaceholder": "Position",

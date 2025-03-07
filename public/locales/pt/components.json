@@ -61,7 +61,8 @@
         "userLocationButtonLabel": "Obter localização atual"
     },
     "gpsFormatToggle": {
-        "fieldsetLegend": "Formato de GPS"
+        "fieldsetLegend": "Formato de GPS",
+        "textCopyButtonLabel": "Copiar valor do GPS para a área de transferência"
     },
     "gpsInput": {
         "defaultPlaceholder": "Localização",

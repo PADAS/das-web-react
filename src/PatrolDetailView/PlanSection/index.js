@@ -59,18 +59,6 @@ const PlanSection = ({
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
 
-  const startLocation = useMemo(() => {
-    const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
-
-    return startLocation ? [startLocation.longitude, startLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
-
-  const endLocation = useMemo(() => {
-    const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
-
-    return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
-
   const handleEndDateChange = useCallback((date) => {
     setEndDate(date);
 
@@ -226,7 +214,7 @@ const PlanSection = ({
             id="patrolDetailView-planSection-startLocationPicker"
             onChange={onPatrolStartLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
-            value={startLocation}
+            value={patrolForm.patrol_segments?.[0]?.start_location || null}
           />
         </label>
       </div>
@@ -282,7 +270,7 @@ const PlanSection = ({
             id="patrolDetailView-planSection-endLocationPicker"
             onChange={onPatrolEndLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
-            value={endLocation}
+            value={patrolForm.patrol_segments?.[0]?.end_location || null}
           />
         </label>
       </div>

@@ -29,12 +29,14 @@ const GpsInput = ({
   const innerInputRef = useRef();
 
   // The input value is handled locally to accept any input, we just trigger onChange when the input value is valid.
-  const [inputValue, setInputValue] = useState(value ? calcGpsDisplayString(value[1], value[0], gpsFormat) : '');
+  const [inputValue, setInputValue] = useState(value
+    ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat)
+    : '');
   const [isValid, setIsValid] = useState(true);
 
   // When blurring the input, we set the value as the input value again since it should have the last valid value.
   const onInputBlur = () => {
-    setInputValue(value ? calcGpsDisplayString(value[1], value[0], gpsFormat) : '');
+    setInputValue(value ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat) : '');
     setIsValid(true);
   };
 
@@ -55,10 +57,10 @@ const GpsInput = ({
         } else {
           // If the input is a valid location in the selected GPS format, we set it as valid and call onChange.
           setIsValid(true);
-          onChange([
-            (parseFloat(locationObject.longitude) * 10) / 10,
-            (parseFloat(locationObject.latitude) * 10) / 10,
-          ]);
+          onChange({
+            latitude: (parseFloat(locationObject.latitude) * 10) / 10,
+            longitude: (parseFloat(locationObject.longitude) * 10) / 10,
+          });
         }
       } catch (error) {
         setIsValid(false);
@@ -69,7 +71,7 @@ const GpsInput = ({
   useEffect(() => {
     if (value) {
       // If the user changes the GPS format, we transform the input value to the new format.
-      setInputValue(calcGpsDisplayString(value[1], value[0], gpsFormat));
+      setInputValue(calcGpsDisplayString(value.latitude, value.longitude, gpsFormat));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gpsFormat]);

@@ -67,7 +67,8 @@
     "userLocationButtonLabel": "Get current position"
   },
   "gpsFormatToggle": {
-    "fieldsetLegend": "GPS format"
+    "fieldsetLegend": "GPS format",
+    "textCopyButtonLabel": "Copy GPS value to clipboard"
   },
   "gpsInput": {
     "defaultPlaceholder": "Location",

@@ -9,7 +9,7 @@
   display: flex;
   height: 2.5rem;
 
-  &[aria-invalid="true"] {
+  &.error {
     border-color: colors.$bright-red;
 
     .setLocationButton {
@@ -93,24 +93,11 @@
 
   .textCopyButton {
     height: 100%;
-    
-    button {
-      border-radius: 0.25rem;
-      height: 100%;
-      width: 2.5rem;
+    width: 2.5rem;
 
-      &:disabled {
-        background-color: colors.$disabled-field-gray;
-        color: colors.$secondary-medium-gray;
-      }
-  
-      &:focus-visible:not(:disabled) {
-        border: 2px solid colors.$bright-blue;
-      }
-  
-      &:hover:not(:disabled) {
-        color: color.adjust(colors.$bright-blue, $lightness: -10%);
-      }
+    &:hover:not(:disabled) {
+      background-color: white;
+      color: colors.$bright-blue;
     }
   }
 

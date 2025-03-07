@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../../common/images/icons/arrow-down-simple.svg';
@@ -37,6 +38,8 @@ const Item = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
 
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
@@ -49,6 +52,7 @@ const Item = ({
     `${collectionDetails.itemName} ${id + 1}`,
     fields[collectionDetails.itemIdentifier],
     i18n.language,
+    gpsFormat,
     t
   );
 
