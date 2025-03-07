@@ -75,7 +75,7 @@ const DetailsSection = ({
   const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
   // Schema from schema selector, it is stored in redux.
   const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema.schema : null
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema?.schema : null
   );
   // Override to the schema.
   const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
