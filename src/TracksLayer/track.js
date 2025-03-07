@@ -75,6 +75,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
     }
   ), [trackData, sourceId, layerId, lineLayout, before, isTimeOfDayColoringActive]);
 
+
   useMapSources([{ id: sourceId, data: trackData.track }], { tolerance: 1.5, type: 'geojson', lineMetrics: true });
   useMapSources([{ id: pointSourceId, data: trackData.points }]);
 
