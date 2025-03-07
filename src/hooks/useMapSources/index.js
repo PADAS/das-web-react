@@ -42,7 +42,7 @@ const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson
               map.removeSource(id);
             }
           });
-        });
+        }, 200);
       }
     };
   }, [map]);
