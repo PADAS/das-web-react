@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
@@ -57,7 +57,6 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
 
   const sourceId = `track-source-${trackId}`;
   const pointSourceId = `${sourceId}-points`;
-  const layersRefs = useRef([]);
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
@@ -110,23 +109,6 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   useMapEventBinding('click', onPointClick, pointLayerId, showTimepoints);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, pointLayerId, showTimepoints);
   useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
-
-  layersConfigs.forEach(({ id }) => {
-    if (!layersRefs.current.includes(id)){
-      layersRefs.current.push(id);
-    }
-  });
-
-  useEffect(() => {
-    const unusedLayers = layersRefs.current;
-    return () => {
-      unusedLayers.forEach((id) => {
-        if (map?.getLayer(id)) {
-          map?.removeLayer(id);
-        }
-      });
-    };
-  }, [map]);
 
   return null;
 };
