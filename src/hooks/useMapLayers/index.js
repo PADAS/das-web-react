@@ -24,7 +24,6 @@ const useMapLayers = (layerConfigsBatch = []) => {
           map.removeLayer(id);
         }
       });
-      layerIdsRef.current = existingLayers.slice();
 
       // Add new layers
       layerConfigsBatch.forEach(layerConfig => {
