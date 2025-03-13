@@ -1,4 +1,4 @@
-import { imgElFromSrc, calcImgIdFromUrlForMapImages, calcUrlForImage } from './img';
+import { imgElFromSrc, imgElFromSrcWithHeight, calcImgIdFromUrlForMapImages, calcUrlForImage } from './img';
 
 // Mock global objects
 global.URL.createObjectURL = jest.fn();
@@ -94,15 +94,16 @@ describe('img utility functions', () => {
       await loadPromise;
     });
 
-    it('sets width and height if both are provided', async () => {
-      const loadPromise = imgElFromSrc('test.jpg', 200, 100);
+    it('sets width and height based on baseUnit', async () => {
+      const loadPromise = imgElFromSrc('test.jpg', 200);
 
       // Simulate successful load
       loadCallback();
       const img = await loadPromise;
 
+      // The dimensions should be set based on the natural dimensions
       expect(img.width).toBe(200);
-      expect(img.height).toBe(100);
+      expect(img.height).toBe(100); // Based on the 2:1 aspect ratio
     });
 
     it('calculates dimensions based on width if only width is provided', async () => {
@@ -123,7 +124,8 @@ describe('img utility functions', () => {
       mockImage.naturalWidth = 100;
       mockImage.naturalHeight = 200;
 
-      const loadPromise = imgElFromSrc('test.jpg', null, 50);
+      // Use the new function instead of passing a number as the third parameter
+      const loadPromise = imgElFromSrcWithHeight('test.jpg', 50);
 
       // Simulate successful load
       loadCallback();
@@ -194,13 +196,10 @@ describe('img utility functions', () => {
       it('returns cached promise for identical requests', async () => {
         const src = 'https://example.com/image.jpg';
         const width = 50;
-        const height = 30;
 
-        // First request
-        const promise1 = imgElFromSrc(src, width, height);
-
-        // Second identical request
-        const promise2 = imgElFromSrc(src, width, height);
+        // Updated to remove third parameter
+        const promise1 = imgElFromSrc(src, width);
+        const promise2 = imgElFromSrc(src, width);
 
         // They should be the same promise instance
         expect(promise1).toBe(promise2);
