@@ -31,8 +31,6 @@ export const imgElFromSrc = (src, baseUnit = null) => {
     return imageCache.get(cacheKey);
   }
 
-  const shouldRevokeURL = isObjectURL(src);
-
   const img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
 
@@ -70,7 +68,7 @@ export const imgElFromSrc = (src, baseUnit = null) => {
     img.onerror = (e) => {
       console.warn('image error', src, e);
 
-      if (shouldRevokeURL) {
+      if (isObjectURL(src)) {
         URL.revokeObjectURL(src);
       }
 
