@@ -25,26 +25,16 @@ export const imgElFromSrc = (src, baseUnit = null) => {
     return Promise.reject('no src provided');
   }
 
-  const shouldRevokeURL = isObjectURL(src);
   const cacheKey = generateImageCacheKey(src, baseUnit, null);
 
   if (imageCache.has(cacheKey)) {
     return imageCache.get(cacheKey);
   }
 
+  const shouldRevokeURL = isObjectURL(src);
+
   const img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
-
-  const cleanupImageResources = () => {
-    img.onload = null;
-    img.onerror = null;
-
-    if (shouldRevokeURL) {
-      URL.revokeObjectURL(src);
-    }
-
-    imageCache.delete(cacheKey);
-  };
 
   const imagePromise = new Promise((resolve, reject) => {
     const cleanupAndResolve = () => {
@@ -69,10 +59,8 @@ export const imgElFromSrc = (src, baseUnit = null) => {
         img.height = baseUnit;
       }
 
-      if (shouldRevokeURL) {
-        URL.revokeObjectURL(src);
-        imageCache.delete(cacheKey);
-      }
+
+
 
       resolve(img);
     };
@@ -95,114 +83,9 @@ export const imgElFromSrc = (src, baseUnit = null) => {
     img.src = src;
   });
 
-  imagePromise.cleanup = () => {
-    cleanupImageResources();
-  };
-
-  if (imageCache.size > 100) {
-    const firstKey = imageCache.keys().next().value;
-    const oldPromise = imageCache.get(firstKey);
-
-    if (oldPromise && typeof oldPromise.cleanup === 'function') {
-      oldPromise.cleanup();
-    }
-    imageCache.delete(firstKey);
-  }
-
   imageCache.set(cacheKey, imagePromise);
 
   return imagePromise;
-};
-
-export const imgElFromSrcWithHeight = (src, height) => {
-  if (!src) {
-    return Promise.reject('no src provided');
-  }
-
-  const shouldRevokeURL = isObjectURL(src);
-  const cacheKey = generateImageCacheKey(src, null, height);
-
-  if (imageCache.has(cacheKey)) {
-    return imageCache.get(cacheKey);
-  }
-
-  const img = new Image();
-  img.setAttribute('crossorigin', 'anonymous');
-
-  const cleanupImageResources = () => {
-    img.onload = null;
-    img.onerror = null;
-
-    if (shouldRevokeURL) {
-      URL.revokeObjectURL(src);
-    }
-
-    imageCache.delete(cacheKey);
-  };
-
-  const imagePromise = new Promise((resolve, reject) => {
-    const cleanupAndResolve = () => {
-      if (height && img.naturalWidth && img.naturalHeight) {
-        const aspectRatio = img.naturalWidth / img.naturalHeight;
-        img.height = height;
-        img.width = Math.round(height * aspectRatio);
-      } else if (height) {
-        img.width = height;
-        img.height = height;
-      }
-
-      if (shouldRevokeURL) {
-        URL.revokeObjectURL(src);
-        imageCache.delete(cacheKey);
-      }
-
-      resolve(img);
-    };
-
-    img.addEventListener('load', cleanupAndResolve, { once: true });
-
-    img.onerror = (e) => {
-      console.warn('image error', src, e);
-
-      if (shouldRevokeURL) {
-        URL.revokeObjectURL(src);
-      }
-
-      imageCache.delete(cacheKey);
-      img.onload = null;
-      img.onerror = null;
-      reject('could not load image');
-    };
-
-    img.src = src;
-  });
-
-  imagePromise.cleanup = () => {
-    cleanupImageResources();
-  };
-
-  if (imageCache.size > 100) {
-    const firstKey = imageCache.keys().next().value;
-    const oldPromise = imageCache.get(firstKey);
-
-    if (oldPromise && typeof oldPromise.cleanup === 'function') {
-      oldPromise.cleanup();
-    }
-    imageCache.delete(firstKey);
-  }
-
-  imageCache.set(cacheKey, imagePromise);
-
-  return imagePromise;
-};
-
-export const cleanupAllImages = () => {
-  imageCache.forEach(promise => {
-    if (promise && typeof promise.cleanup === 'function') {
-      promise.cleanup();
-    }
-  });
-  imageCache.clear();
 };
 
 export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) => {
