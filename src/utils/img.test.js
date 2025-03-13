@@ -134,15 +134,21 @@ describe('img utility functions', () => {
     });
 
     it('handles case when natural dimensions are not available', async () => {
+      // Use a unique src to avoid cache issues
+      const uniqueSrc = `test-no-dimensions-${Date.now()}.jpg`;
+
+      // Explicitly set zero dimensions
       mockImage.naturalWidth = 0;
       mockImage.naturalHeight = 0;
 
-      const loadPromise = imgElFromSrc('test.jpg', 50);
+      const loadPromise = imgElFromSrc(uniqueSrc, 50);
 
       // Simulate successful load
       loadCallback();
       const img = await loadPromise;
 
+      // Since natural dimensions are not available, both width and height
+      // should be set to the baseUnit (50)
       expect(img.width).toBe(50);
       expect(img.height).toBe(50);
     });
@@ -181,6 +187,121 @@ describe('img utility functions', () => {
       await loadPromise;
 
       expect(global.URL.revokeObjectURL).not.toHaveBeenCalled();
+    });
+
+    // Add new tests for memoization functionality
+    describe('memoization', () => {
+      it('returns cached promise for identical requests', async () => {
+        const src = 'https://example.com/image.jpg';
+        const width = 50;
+        const height = 30;
+
+        // First request
+        const promise1 = imgElFromSrc(src, width, height);
+
+        // Second identical request
+        const promise2 = imgElFromSrc(src, width, height);
+
+        // They should be the same promise instance
+        expect(promise1).toBe(promise2);
+
+        // Complete the loading to avoid unhandled promise
+        loadCallback();
+        await promise1;
+      });
+
+      it('creates new promise for different image sources', async () => {
+        const promise1 = imgElFromSrc('image1.jpg', 50);
+        const promise2 = imgElFromSrc('image2.jpg', 50);
+
+        // Verify they're different promises
+        expect(promise1).not.toBe(promise2);
+
+        // Complete the loading for both promises to avoid test timeouts
+        loadCallback(); // This completes the first image
+
+        // Create a new callback for the second image
+        const secondImage = global.Image.mock.results[1].value;
+        const secondLoadCallback = secondImage.addEventListener.mock.calls.find(
+          call => call[0] === 'load'
+        )[1];
+        secondLoadCallback();
+
+        await Promise.all([promise1, promise2]);
+      });
+
+      it('creates new promise for same source but different dimensions', async () => {
+        const src = 'image.jpg';
+        const promise1 = imgElFromSrc(src, 50);
+        const promise2 = imgElFromSrc(src, 100);
+
+        // Verify they're different promises
+        expect(promise1).not.toBe(promise2);
+
+        // Complete the loading for both promises to avoid test timeouts
+        loadCallback(); // This completes the first image
+
+        // Create a new callback for the second image
+        const secondImage = global.Image.mock.results[1].value;
+        const secondLoadCallback = secondImage.addEventListener.mock.calls.find(
+          call => call[0] === 'load'
+        )[1];
+        secondLoadCallback();
+
+        await Promise.all([promise1, promise2]);
+      });
+
+      it('removes object URLs from cache after loading', async () => {
+        // We need a spy to observe Map.delete being called
+        const mapDeleteSpy = jest.spyOn(Map.prototype, 'delete');
+
+        const objectURL = 'blob:https://example.com/1234-5678';
+        const loadPromise = imgElFromSrc(objectURL, 50);
+
+        // Simulate successful load
+        loadCallback();
+        await loadPromise;
+
+        // Should have been removed from cache
+        expect(mapDeleteSpy).toHaveBeenCalled();
+
+        mapDeleteSpy.mockRestore();
+      });
+
+      it('removes failed requests from cache', async () => {
+        const mapDeleteSpy = jest.spyOn(Map.prototype, 'delete');
+
+        const loadPromise = imgElFromSrc('broken-image.jpg', 50);
+
+        // Simulate error
+        mockImage.onerror(new Error('test error'));
+
+        try {
+          await loadPromise;
+        } catch (e) {
+          // Expected to reject
+        }
+
+        // Should have been removed from cache
+        expect(mapDeleteSpy).toHaveBeenCalled();
+
+        mapDeleteSpy.mockRestore();
+      });
+
+      it('limits cache size to prevent memory issues', async () => {
+        // Create spy to observe cache cleanup
+        const mapDeleteSpy = jest.spyOn(Map.prototype, 'delete');
+
+        // Generate 101 unique image requests to trigger cache limit
+        for (let i = 0; i < 101; i++) {
+          imgElFromSrc(`image${i}.jpg`, 50);
+        }
+
+        // The first image should be removed from cache when the 101st is added
+        expect(mapDeleteSpy).toHaveBeenCalled();
+
+        mapDeleteSpy.mockRestore();
+      });
     });
   });
 });
