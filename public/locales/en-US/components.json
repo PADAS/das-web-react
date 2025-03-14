@@ -239,6 +239,7 @@
     "alarmRadioStateToastMessage": "{{subjectName}} needs immediate attention"
   },
   "textCopyBtn": {
+    "buttonLabel": "Copy to clipboard",
     "defaultToastMessage": "Copied to clipboard"
   },
   "timePicker": {

@@ -183,9 +183,16 @@ const OptionsPopover = ({
     onItemSelection(option.value);
   };
 
-  // Set the focus to the list on mount so keyboard navigation is enabled.
   useEffect(() => {
+    // Set the focus to the list on mount so keyboard navigation is enabled.
     listRef.current.focus();
+
+    // Create a focus trap while the component is mounted.
+    const onKeyDown = (event) => event.key === 'Tab' && event.preventDefault();
+
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
   useEffect(() => {
@@ -198,6 +205,16 @@ const OptionsPopover = ({
       document.getElementById(selectedOption.value).scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
     }
   }, [options, selectedOptionIndex]);
+
+  useEffect(() => {
+    const onMouseDown = (event) => !listRef.current.contains(event.target)
+      && !optionsPopoverButtonRef.current.contains(event.target)
+      && onClose();
+
+    document.addEventListener('mousedown', onMouseDown);
+
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [onClose, optionsPopoverButtonRef]);
 
   return <Popover
       className={`${className} ${styles.optionsPopover}`}

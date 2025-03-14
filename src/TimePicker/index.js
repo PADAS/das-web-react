@@ -472,14 +472,7 @@ const TimePicker = ({
       <div className={`${styles.caret} ${isOptionsPopoverOpen ? styles.open : ''}`} role="img" />
     </button>
 
-    <Overlay
-      container={innerRef}
-      onHide={() => setIsOptionsPopoverOpen(false)}
-      placement="bottom-end"
-      rootClose
-      show={isOptionsPopoverOpen}
-      target={innerRef}
-    >
+    <Overlay container={innerRef} placement="bottom-end" show={isOptionsPopoverOpen} target={innerRef}>
       <OptionsPopover
         internationalizedTimePeriods={internationalizedTimePeriods}
         max={max}

@@ -228,7 +228,8 @@
         "alarmRadioStateToastMessage": "{{subjectName}} लाई तत्काल ध्यान दिन आवश्यक छ"
     },
     "textCopyBtn": {
-        "defaultToastMessage": "क्लिपबोर्डमा कपि गरियो"
+        "buttonLabel": "क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
+        "defaultToastMessage": "क्लिपबोर्डमा प्रतिलिपि गरियो"
     },
     "toastBody": {
         "defaultLinkTitle": "यहाँ क्लिक गर्नुहोस्",

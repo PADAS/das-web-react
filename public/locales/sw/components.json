@@ -239,6 +239,7 @@
     "alarmRadioStateToastMessage": "{{subjectName}} anahitaji uangalizi wa haraka"
   },
   "textCopyBtn": {
+    "buttonLabel": "Nakili kwenye ubao wa kunakili",
     "defaultToastMessage": "Imekopiwa kwenye ubao wa kunakili"
   },
   "timePicker": {

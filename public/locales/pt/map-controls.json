@@ -1,8 +1,13 @@
 {
     "cursorGPSDisplay": {
-        "gpsDisplayTooltip": "Pressione Enter para ir para as coordenadas",
-        "gpsInputButtonLabel": "Ir para coordenadas",
-        "toggleTitle": "Configurações de coordenadas"
+        "buttonLabel": {
+            "closed": "Abrir o menu de exibição do GPS",
+            "open": "Fechar o menu de exibição do GPS"
+        },
+        "menuPopover": {
+            "gpsDisplayTooltip": "Pressione Enter para pular para as coordenadas",
+            "gpsInputButtonLabel": "Pular para as coordenadas"
+        }
     },
     "baseLayer": {
         "popoverButton": "Definir camada de mapa de fundo",

@@ -104,17 +104,15 @@ const LocationPicker = ({
         <MarkerFeedIcon />
       </button>
 
-      <input data-testid="locationPicker-input" name={name} type="hidden" value={value} />
+      <input
+        data-testid="locationPicker-input"
+        name={name}
+        type="hidden"
+        value={value ? `${value.latitude},${value.longitude}` : ''}
+      />
     </div>
 
-    <Overlay
-      container={innerRef}
-      onHide={() => setIsMenuPopoverOpen(false)}
-      placement="bottom-start"
-      rootClose
-      show={isMenuPopoverOpen}
-      target={innerRef}
-      >
+    <Overlay container={innerRef} placement="bottom-start" show={isMenuPopoverOpen} target={innerRef}>
       <MenuPopover
         id={id}
         onChange={onChange}

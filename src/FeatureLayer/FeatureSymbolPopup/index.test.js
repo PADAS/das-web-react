@@ -25,7 +25,7 @@ describe('FeatureLayer - FeatureSymbolPopup', () => {
     store = { data: {}, view: { userPreferences: { gpsFormat: 'DEG' } } };
   });
 
-  test('extracts the coordinates from an array', async () => {
+  test('extracts the coordinates from an array', () => {
     render(<Provider store={mockStore(store)}>
       <FeatureSymbolPopup
         data={{ geometry: { coordinates: [0, 0] }, properties: {} }}
@@ -33,7 +33,7 @@ describe('FeatureLayer - FeatureSymbolPopup', () => {
       />
     </Provider>);
 
-    expect((await screen.findByTestId('gpsFormatToggle-gpsString'))).toHaveTextContent('0.000000°, 0.000000°');
+    expect(screen.getByText('0.000000°, 0.000000°')).toBeVisible();
   });
 
   test('extracts the coordinates from an array of arrays', async () => {
@@ -44,7 +44,7 @@ describe('FeatureLayer - FeatureSymbolPopup', () => {
       />
     </Provider>);
 
-    expect((await screen.findByTestId('gpsFormatToggle-gpsString'))).toHaveTextContent('0.000000°, 0.000000°');
+    expect(screen.getByText('0.000000°, 0.000000°')).toBeVisible();
   });
 
   test('hides the popup once the addition of a report completes', async () => {

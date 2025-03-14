@@ -39,9 +39,10 @@ const TextCopyBtn = ({
   }, [getText, permitPropagation, successMessage, t, text]);
 
   return <button
+      aria-label={t('buttonLabel')}
       className={`${styles.textCopyButton} ${className}`}
-      data-testid="textCopyBtn"
       onClick={onClickCopy}
+      title={t('buttonLabel')}
       type="button"
       {...otherProps}
     >

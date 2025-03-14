@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
-import { setIsPickingLocation } from '../ducks/map-ui';
 import { MapContext } from '../App';
+import { setIsPickingLocation } from '../ducks/map-ui';
 import { setModalVisibilityState } from '../ducks/modals';
 
 import Popup from '../Popup';

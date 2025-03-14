@@ -20,38 +20,34 @@ const GetUserLocationButton = ({ onClick = null, onGet, renderContent = null, ..
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const onGetCurrentPositionSuccess = (position) => {
-    setIsLoading(false);
-
-    dispatch(setCurrentUserLocation(position));
-
-    onGet(position.coords);
-  };
-
-  const onGetCurrentPositionError = (error) => {
-    setIsLoading(false);
-
-    toast.error(t('errorToastMessage', { errorMessage: error.message }));
-  };
-
   const onButtonClick = () => {
-    setIsLoading(true);
-
     onClick?.();
 
     if (userLocation) {
       // If the user location is already available in the store we just return it.
-      onGetCurrentPositionSuccess(userLocation);
+      onGet(userLocation.coords);
     } else {
+      setIsLoading(true);
+
       try {
-        // Otherwise, we request it from the navigator.geolocation API.
+        // Request the location from the navigator.geolocation API.
         window.navigator.geolocation.getCurrentPosition(
-          onGetCurrentPositionSuccess,
-          onGetCurrentPositionError,
+          (position) => {
+            setIsLoading(false);
+
+            dispatch(setCurrentUserLocation(position));
+            onGet(position.coords);
+          },
+          (error) => {
+            setIsLoading(false);
+
+            toast.error(t('errorToastMessage', { errorMessage: error.message }));
+          },
           GEOLOCATOR_OPTIONS
         );
       } catch (error) {
-        onGetCurrentPositionError(error);
+        setIsLoading(false);
+        toast.error(t('errorToastMessage', { errorMessage: error.message }));
       }
     }
   };

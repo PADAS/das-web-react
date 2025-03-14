@@ -216,6 +216,7 @@
         "alarmRadioStateToastMessage": "{{subjectName}} precisa de atenção imediata"
     },
     "textCopyBtn": {
+        "buttonLabel": "Copiar para a área de transferência",
         "defaultToastMessage": "Copiado para a área de transferência"
     },
     "toastBody": {

@@ -2,219 +2,257 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { MapContext } from '../../App';
-import MapDrawingToolsContextProvider from '../../MapDrawingTools/ContextProvider';
-import { createMapMock } from '../../__test-helpers/mocks';
-import { hideSideBar, showSideBar } from '../../ducks/side-bar';
-import LocationSelectorInput from './';
-import { mockStore } from '../../__test-helpers/MockStore';
-import { report } from '../../__test-helpers/fixtures/reports';
-import { setModalVisibilityState } from '../../ducks/modals';
-import { setIsPickingLocation } from '../../ducks/map-ui';
-import { cleanup, render, screen, waitFor } from '../../test-utils';
+import { fireEvent, render, screen, waitFor } from '../test-utils';
+import { GPS_FORMATS } from '../utils/location';
+import useJumpToLocation from '../hooks/useJumpToLocation';
+import { mockStore } from '../__test-helpers/MockStore';
 
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useLocation: () => ({ pathname: '/events' }),
-}));
+import LocationPicker from './';
 
+jest.mock('../hooks/useJumpToLocation', () => jest.fn());
 
-jest.mock('../../ducks/side-bar', () => ({
-  ...jest.requireActual('../../ducks/side-bar'),
-  hideSideBar: jest.fn(),
-  showSideBar: jest.fn(),
-}));
+describe('LocationPicker', () => {
+  const onChange = jest.fn();
 
-jest.mock('../../ducks/modals', () => ({
-  ...jest.requireActual('../../ducks/modals'),
-  setModalVisibilityState: jest.fn(),
-}));
-
-jest.mock('../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../ducks/map-ui'),
-  setIsPickingLocation: jest.fn(),
-}));
-
-describe('LocationSelectorInput', () => {
-  const onLocationChange = jest.fn();
-  let map, rerender, hideSideBarMock, setIsPickingLocationMock, setModalVisibilityStateMock, showSideBarMock, store;
+  let jumpToLocationMock, store;
   beforeEach(() => {
-    hideSideBarMock = jest.fn(() => () => { });
-    hideSideBar.mockImplementation(hideSideBarMock);
-    setModalVisibilityStateMock = jest.fn(() => () => { });
-    setModalVisibilityState.mockImplementation(setModalVisibilityStateMock);
-    showSideBarMock = jest.fn(() => () => { });
-    showSideBar.mockImplementation(showSideBarMock);
-    setIsPickingLocationMock = jest.fn(() => () => { });
-    setIsPickingLocation.mockImplementation(setIsPickingLocationMock);
+    jumpToLocationMock = jest.fn();
+    useJumpToLocation.mockImplementation(() => jumpToLocationMock);
 
-    map = createMapMock();
     store = {
       view: {
-        mapLocationSelection: { event: report },
-        userPreferences: {},
+        showUserLocation: false,
+        userLocation: null,
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
       },
     };
-
-    const output = render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput
-              label="label"
-              map={map}
-              onLocationChange={onLocationChange}
-            />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
-
-    rerender = output.rerender;
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  test('opens the popover when clicking location', async () => {
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
+  const renderLocationPicker = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <LocationPicker data-testid="locationPicker" id="locationPicker" onChange={onChange} value={null} {...props} />
+    </Provider>
+  );
 
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
+  test('adds a custom class name', () => {
+    renderLocationPicker({ className: 'className' });
 
-    expect((await screen.findByRole('tooltip'))).toBeDefined();
+    expect(screen.getByTestId('locationPicker')).toHaveClass('className');
   });
 
-  test('closes the popover when clicking location again', async () => {
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
-
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    expect((await screen.findByRole('tooltip'))).toBeDefined();
-
-    userEvent.click(setLocationButton);
-
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
+  test('does not disable the location picker', () => {
+    renderLocationPicker({
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
     });
+
+    const locationPicker = screen.getByTestId('locationPicker');
+
+    expect(locationPicker).not.toHaveClass('disabled');
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toBeDisabled();
+    expect(screen.getByLabelText('Location')).not.toBeDisabled();
+    expect(screen.getByLabelText('Copy location to clipboard')).not.toBeDisabled();
+    expect(screen.getByLabelText('Jump to location')).not.toBeDisabled();
   });
 
-  test('closes the popover when pressing escape', async () => {
-    expect((await screen.queryByRole('tooltip'))).toBeNull();
-
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    expect((await screen.findByRole('tooltip'))).toBeDefined();
-
-    userEvent.keyboard('{Escape}');
-
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
+  test('disables the location picker', () => {
+    renderLocationPicker({
+      disabled: true,
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
     });
+
+    const locationPicker = screen.getByTestId('locationPicker');
+
+    expect(locationPicker).toHaveClass('disabled');
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).toBeDisabled();
+    expect(screen.getByLabelText('Location')).toBeDisabled();
+    expect(screen.getByLabelText('Copy location to clipboard')).toBeDisabled();
+    expect(screen.getByLabelText('Jump to location')).toBeDisabled();
   });
 
-  test('hides the sidebar and the modal when choosing a location in the map', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
+  test('sets the name to an input with the location picker value', () => {
+    renderLocationPicker({
+      name: 'location-picker-name',
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    const locationPickerInput = screen.getByTestId('locationPicker-input');
+
+    expect(locationPickerInput).toHaveAttribute('name', 'location-picker-name');
+    expect(locationPickerInput).toHaveValue('15,10');
+  });
+
+  test('blurs the location picker', () => {
+    const onBlur = jest.fn();
+
+    renderLocationPicker({ onBlur });
+
+    const locationPicker = screen.getByTestId('locationPicker');
+    userEvent.click(locationPicker);
+
+    expect(onBlur).not.toHaveBeenCalled();
+
+    fireEvent.blur(locationPicker);
+
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  test('focuses the location picker when focusing one of the inner elements', () => {
+    const onFocus = jest.fn();
+
+    renderLocationPicker({ onFocus });
+
+    expect(onFocus).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Open the location picker menu to set a value'));
+
+    expect(onFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows a default placeholder', () => {
+    renderLocationPicker();
+
+    expect(screen.getByLabelText('Location')).toHaveAttribute('placeholder', 'Set Location');
+  });
+
+  test('shows a custom placeholder', () => {
+    renderLocationPicker({ placeholder: 'placeholder' });
+
+    expect(screen.getByLabelText('Location')).toHaveAttribute('placeholder', 'placeholder');
+  });
+
+  test('does not set the location picker as read only', () => {
+    renderLocationPicker();
+
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toHaveClass('readOnly');
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).not.toBeDisabled();
+    expect(screen.getByLabelText('Location')).not.toHaveClass('readOnly');
+  });
+
+  test('sets the location picker as read only', () => {
+    renderLocationPicker({ readOnly: true });
+
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).toHaveClass('readOnly');
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).toBeDisabled();
+    expect(screen.getByLabelText('Location')).toHaveClass('readOnly');
+  });
+
+  test('does not set the location picker as required', () => {
+    renderLocationPicker();
+
+    expect(screen.getByLabelText('Location')).not.toBeRequired();
+  });
+
+  test('sets the location picker as required', () => {
+    renderLocationPicker({ required: true });
+
+    expect(screen.getByLabelText('Location')).toBeRequired();
+  });
+
+  test('shows a display value in the input', () => {
+    renderLocationPicker({
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    expect(screen.getByLabelText('Location')).toHaveValue('15.000000°,  10.000000°');
+  });
+
+  test('does not show a text copy button if there is no value yet', () => {
+    renderLocationPicker();
+
+    expect(screen.queryByLabelText('Copy location to clipboard')).toBeNull();
+  });
+
+  test('shows a text copy button if there is a value', () => {
+    renderLocationPicker({
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    expect(screen.getByLabelText('Copy location to clipboard')).toBeVisible();
+  });
+
+  test('disables the jump to location button if there is no value yet', () => {
+    renderLocationPicker();
+
+    expect(screen.getByLabelText('Jump to location')).toBeDisabled();
+  });
+
+  test('enables the jump to location button if there is a value', () => {
+    renderLocationPicker({
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    expect(screen.getByLabelText('Jump to location')).toBeEnabled();
+  });
+
+  test('jumps to the location in the value when the user clicks the jump to location button', () => {
+    renderLocationPicker({
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    expect(jumpToLocationMock).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Jump to location'));
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
+    expect(jumpToLocationMock).toHaveBeenCalledWith([10, 15]);
+  });
+
+  test('opens the menu popover', () => {
+    renderLocationPicker();
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
+
     userEvent.click(setLocationButton);
+
+    expect(screen.getByRole('presentation')).toBeVisible();
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('closes the menu popover', async () => {
+    renderLocationPicker();
+
+    const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
+    userEvent.click(setLocationButton);
+    const menuPopover = screen.getByRole('presentation');
+
+    expect(menuPopover).toBeVisible();
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
+
+    userEvent.click(setLocationButton);
+
+    expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
 
     await waitFor(() => {
-      expect(hideSideBar).toHaveBeenCalledTimes(0);
-    });
-
-    const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
-
-    await waitFor(() => {
-      expect(hideSideBar).toHaveBeenCalled();
-      expect(setModalVisibilityState).toHaveBeenCalled();
-      expect(setModalVisibilityState).toHaveBeenCalledWith(false);
+      expect(menuPopover).not.toBeVisible();
     });
   });
-
-  test('shows the sidebar and modal again if user cancels map selection', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
-
-    await waitFor(() => {
-      expect(hideSideBar).toHaveBeenCalledTimes(1);
-      expect(setModalVisibilityState).toHaveBeenCalledWith(false);
-    });
-
-    userEvent.keyboard('{Escape}');
-
-    await waitFor(() => {
-      expect(showSideBar).toHaveBeenCalled();
-      expect(setModalVisibilityState).toHaveBeenCalledWith(true);
-    });
-  });
-
-  test('showing a placeholder when no value is present', async () => {
-    const displayValue = await screen.getByTestId('locationSelectorInput-displayValue');
-    expect(displayValue).toHaveTextContent('Set location');
-  });
-
-  test('only showing a "copy to clipboard" button when a value is present', async () => {
-    await waitFor(() => {
-      expect(screen.queryByTestId('textCopyBtn')).not.toBeInTheDocument();
-    });
-
-    rerender(<Provider store={mockStore(store)}>
-      <MapDrawingToolsContextProvider>
-        <MapContext.Provider value={map}>
-          <LocationSelectorInput
-            label="label"
-            location={[10, 10]}
-            map={map}
-            onLocationChange={onLocationChange}
-          />
-        </MapContext.Provider>
-      </MapDrawingToolsContextProvider>
-    </Provider>);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('textCopyBtn')).toBeInTheDocument();
-    });
-  });
-
-  test('triggers onLocationChange with map coordinates if user chooses a location in map', async () => {
-    const setLocationButton = await screen.getByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-
-    const placeMarkerOnMapButton = await screen.getByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
-
-    map.__test__.fireHandlers('click', { lngLat: { lng: 987, lat: 654 } });
-
-    expect(onLocationChange).toHaveBeenCalledTimes(1);
-    expect(onLocationChange).toHaveBeenCalledWith([987, 654]);
-    await waitFor(async () => {
-      expect((await screen.queryByRole('tooltip'))).toBeNull();
-    });
-  });
-
-  test('renders the label', async () => {
-    expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('label');
-  });
-
-  test('renders the label default value', async () => {
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <MapDrawingToolsContextProvider>
-          <MapContext.Provider value={map}>
-            <LocationSelectorInput map={map} onLocationChange={onLocationChange} />
-          </MapContext.Provider>
-        </MapDrawingToolsContextProvider>
-      </Provider>
-    );
-
-    expect((await screen.findByTestId('locationSelectorInput-label'))).toHaveTextContent('Location:');
-  });
-
 });

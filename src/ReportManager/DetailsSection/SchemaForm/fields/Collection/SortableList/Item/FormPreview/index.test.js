@@ -1,32 +1,50 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 
 import { render, screen } from '../../../../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../../../../constants';
+import { GPS_FORMATS } from '../../../../../../../../utils/location';
+import { mockStore } from '../../../../../../../../__test-helpers/MockStore';
 
 import FormPreview from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormPreview', () => {
-  const renderFormPreview = (props) => render(<FormPreview
-    errors={undefined}
-    fieldIds={['field-1', 'field-2']}
-    fields={{
-      'field-1': {
-        details: {
-          label: 'Field 1',
+  let store;
+  beforeEach(() => {
+    store = {
+      view: {
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
         },
-        type: FORM_ELEMENT_TYPES.TEXT,
       },
-      'field-2': {
-        details: {
-          label: 'Field 2',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-    }}
-    formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
-    isDragOverlay={false}
-    {...props}
-  />);
+    };
+  });
+
+  const renderFormPreview = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <FormPreview
+        errors={undefined}
+        fieldIds={['field-1', 'field-2']}
+        fields={{
+          'field-1': {
+            details: {
+              label: 'Field 1',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+          'field-2': {
+            details: {
+              label: 'Field 2',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+        }}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        isDragOverlay={false}
+        {...props}
+      />
+    </Provider>
+  );
 
   test('shows the form preview as a drag overlay', () => {
     renderFormPreview({ isDragOverlay: true });

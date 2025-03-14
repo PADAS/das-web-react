@@ -71,6 +71,6 @@ describe('SubjectTrackLegend - TimeOfDaySettings - TimeZoneSelect', () => {
 
     expect(setTimeOfDayTimeZone).toHaveBeenCalledTimes(1);
     // This test may break if someday the IANA standard updates.
-    expect(setTimeOfDayTimeZone).toHaveBeenCalledWith('America/Guadeloupe');
+    expect(setTimeOfDayTimeZone).toHaveBeenCalledWith('America/Marigot');
   });
 });

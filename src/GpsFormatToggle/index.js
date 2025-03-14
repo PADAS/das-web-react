@@ -12,13 +12,7 @@ import styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatToggle = ({
-  lat = null,
-  lng = null,
-  name,
-  showGpsString = true,
-  ...otherProps
-}, ref) => {
+const GpsFormatToggle = ({ lat = null, lng = null, name, showGpsString = true, ...otherProps }, ref) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
@@ -29,7 +23,7 @@ const GpsFormatToggle = ({
 
   useImperativeHandle(ref, () => innerRef.current);
 
-  const gpsString = showGpsString ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
+  const gpsString = showGpsString && lat !== null && lng !== null ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
 
   const onGpsFormatChange = (gpsFormat) => {
     dispatch(updateUserPreferences({ gpsFormat }));
@@ -75,14 +69,14 @@ const GpsFormatToggle = ({
     </fieldset>
 
     {gpsString && <div className={styles.gpsStringWrapper}>
-      <span className={styles.value} data-testid="gpsFormatToggle-gpsString">{gpsString}</span>
+      <span className={styles.value}>{gpsString}</span>
 
-      {showGpsString && <TextCopyBtn
+      <TextCopyBtn
         aria-label={t('textCopyButtonLabel')}
         className={styles.textCopyButton}
         text={gpsString}
         title={t('textCopyButtonLabel')}
-      />}
+      />
     </div>}
   </div>;
 };

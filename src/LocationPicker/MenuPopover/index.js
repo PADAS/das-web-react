@@ -34,7 +34,7 @@ const MenuPopover = ({
 
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
-  const firstFocusableElementRef = useRef();
+  const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
   const wrapperRef = useRef();
@@ -82,20 +82,18 @@ const MenuPopover = ({
   useEffect(() => {
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
-  }, []);
 
-  useEffect(() => {
     // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab.
     const onKeyDown = (event) => {
       if (event.key === 'Tab') {
-        if (event.shiftKey && document.activeElement === firstFocusableElementRef.current) {
+        if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
           event.preventDefault();
 
           lastFocusableElementRef.current.focus();
         } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
           event.preventDefault();
 
-          firstFocusableElementRef.current.focus();
+          gpsFormatToggleRef.current.focus();
         }
       }
     };
@@ -104,6 +102,16 @@ const MenuPopover = ({
 
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  useEffect(() => {
+    const onMouseDown = (event) => !wrapperRef.current.contains(event.target)
+      && !setLocationButtonRef.current.contains(event.target)
+      && onClose();
+
+    document.addEventListener('mousedown', onMouseDown);
+
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [onClose, setLocationButtonRef]);
 
   return <Popover
       className={`${className} ${styles.menuPopover}`}
@@ -115,7 +123,7 @@ const MenuPopover = ({
     >
     <div className={styles.wrapper} onKeyDown={onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
-        gpsFormatToggleRef={firstFocusableElementRef}
+        gpsFormatToggleRef={gpsFormatToggleRef}
         id={`${id}-menuPopover-gpsInput`}
         inputRef={gpsInputRef}
         onKeyDown={onGpsInputKeyDown}
@@ -125,7 +133,7 @@ const MenuPopover = ({
 
       <div className={styles.buttons}>
         <PickMapLocationButton
-          // onClick={() => eventReportTracker.track('Click \'Set on map\'')}
+          onClick={() => eventReportTracker.track('Click \'Set on map\'')}
           onPick={onMapLocationPick}
           ref={!showUserLocation ? lastFocusableElementRef : undefined}
           renderContent={() => <>

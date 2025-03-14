@@ -216,7 +216,8 @@
     "alarmRadioStateToastMessage": "TODO"
   },
   "textCopyBtn": {
-    "defaultToastMessage": "{{subjectName}} a besoin d'attention immédiate"
+    "buttonLabel": "Copier dans le presse-papiers",
+    "defaultToastMessage": "Copié dans le presse-papiers"
   },
   "timePicker": {
     "hourInputLabel": "Heure",

@@ -1,8 +1,13 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Bonyeza Enter ili kuruka kwa viwianishi",
-    "gpsInputButtonLabel": "Ruka kwa viwianishi",
-    "toggleTitle": "Mipangilio ya viwianishi"
+    "buttonLabel": {
+      "closed": "Fungua menyu ya onyesho la GPS",
+      "open": "Funga menyu ya onyesho la GPS"
+    },
+    "menuPopover": {
+      "gpsDisplayTooltip": "Bonyeza Enter ili kuruka kwa viwianishi",
+      "gpsInputButtonLabel": "Ruka kwa viwianishi"
+    }
   },
   "baseLayer": {
     "popoverButton": "Weka Tabaka la Msingi la Ramani",

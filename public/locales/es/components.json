@@ -216,6 +216,7 @@
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"
   },
   "textCopyBtn": {
+    "buttonLabel": "Copiar al portapapeles",
     "defaultToastMessage": "Copiado al portapapeles"
   },
   "timePicker": {
