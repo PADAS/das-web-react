@@ -1,0 +1,129 @@
+@use 'sass:color';
+
+@use '../common/styles/vars/colors';
+
+.trackLegendWrapper {
+  margin-bottom: 0.5rem;
+  transform: translateX(calc(100% + 1rem));
+  transition: transform 0.3s ease-in-out;
+  width: 21.25rem;
+
+  &.show {
+    transform: translateX(0);
+  }
+
+  .trackLegend {
+    align-items: center;
+    background: white;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+    padding: 0.5rem;
+
+    .row {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+
+      &:not(:last-child) {
+        margin-bottom: 0.25rem;
+      }
+
+      .titleWrapper {
+        align-items: center;
+        display: flex;
+        margin-right: 1rem;
+
+        .tracksOffIcon {
+          height: 1.5rem;
+          margin-right: 0.25rem;
+          width: 1.5rem;
+        }
+
+        .tracksListButton {
+          background: none;
+          border: none;
+          color: colors.$light-blue;
+          padding: 0 0.25rem;
+          text-decoration: underline;
+
+          &:focus-visible {
+            outline: 2px solid colors.$bright-blue;
+          }
+
+          &:hover {
+            color: color.adjust(colors.$bright-blue, $lightness: -10%);
+          }
+        }
+      
+        .title {
+          color: black;
+          margin: 0;
+          max-width: 12.5rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .settingsButton {
+        background: none;
+        border: none;
+        border-radius: .1875rem;
+        color: colors.$secondary-medium-gray;
+        padding: 0.25rem 0.5rem;
+
+        &:focus-visible {
+          color: colors.$bright-blue;
+          outline: 2px solid colors.$bright-blue;
+        }
+
+        &:hover {
+          background: colors.$light-gray-background;
+        }
+
+        &:not(:last-child) {
+          margin-right: 0.25rem
+        }
+
+        &.open {
+          background: colors.$bright-blue;
+          color: white;
+
+          &:hover {
+            background-color: color.adjust(colors.$bright-blue, $lightness: -10%);
+          }
+        }
+
+        .icon {
+          height: 1.25rem;
+          width: 1.25rem;
+        }
+      }
+
+      .pointsOverTime {
+        color: black;
+        font-size: 0.875rem;
+        margin: 0;
+        margin-right: 1rem;
+      }
+
+      .clearTracksButton {
+        background-color: colors.$light-gray-background;
+        border: none;
+        border-radius: 0.25rem;
+        color: colors.$off-black;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+
+        &:focus-visible {
+          outline: 2px solid colors.$bright-blue;
+        }
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 @use '../../common/styles/vars/colors';
 
-.subjectTracksList {
+.tracksList {
   backdrop-filter: blur(2px);
   background: rgb(white, 90%);
   border-radius: 0.25rem;
@@ -19,6 +19,7 @@
     .title {
       color: black;
       margin: 0;
+      text-transform: capitalize;
     }
 
     .closeButton {
@@ -49,7 +50,7 @@
     max-height: 12.5rem;
     overflow-y: scroll;
 
-    .subjectTracksItem {
+    .tracksItem {
       align-items: center;
       background: white;
       border-radius: 0.25rem;
@@ -62,12 +63,6 @@
         align-items: center;
         display: flex;
         margin-right: 0.25rem;
-
-        .icon {
-          height: 1rem;
-          margin-right: 0.5rem;
-          max-width: 1rem;
-        }
 
         .title {
           color: black;
@@ -85,7 +80,7 @@
         display: flex;
         margin-right: 0.25rem;
 
-        .pointCount {
+        .description {
           color: colors.$secondary-medium-gray;
           font-size: 0.75rem;
           margin: 0;

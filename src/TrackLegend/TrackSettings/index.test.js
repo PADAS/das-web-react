@@ -15,7 +15,7 @@ jest.mock('../../ducks/tracks', () => ({
   setTrackLengthOrigin: jest.fn(),
 }));
 
-describe('SubjectTrackLegend - TrackSettings', () => {
+describe('TrackLegend - TrackSettings', () => {
   const onClose = jest.fn();
 
   let setTrackLengthMock, setTrackLengthOriginMock, store;

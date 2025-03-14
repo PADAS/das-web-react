@@ -6,7 +6,8 @@ import { useSelector } from 'react-redux';
 import { LAYER_IDS, MAX_ZOOM } from '../constants';
 import { metersToPixelsAtMaxZoom } from '../utils/map';
 import { uuid } from '../utils/string';
-import { useMapLayer, useMapSource } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { HEATMAP_LAYER, SKY_LAYER } = LAYER_IDS;
 
@@ -30,8 +31,16 @@ const HeatLayer = ({ points }) => {
     };
   }, [heatmapStyles.intensity, heatmapStyles.radiusInMeters, points]);
 
-  useMapSource(`heatmap-source-${idRef.current}`, points);
-  useMapLayer(`${HEATMAP_LAYER}-${idRef.current}`, 'heatmap', `heatmap-source-${idRef.current}`, paint, null, { before: SKY_LAYER });
+  useMapSources([{ id: `heatmap-source-${idRef.current}`, data: points }]);
+  useMapLayers([{
+    id: `${HEATMAP_LAYER}-${idRef.current}`,
+    type: 'heatmap',
+    sourceId: `heatmap-source-${idRef.current}`,
+    paint,
+    options: {
+      before: SKY_LAYER
+    }
+  }]);
 
   return null;
 };

@@ -2,7 +2,9 @@ import React, { memo, useMemo } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING,
   ANALYZER_LINES_CRITICAL, SKY_LAYER } = LAYER_IDS;
@@ -68,44 +70,44 @@ const AnalyzerLayer = (
     condition: !!isSubjectSymbolsLayerReady,
   }), [isSubjectSymbolsLayerReady, minZoom]);
 
-  useMapSource(ANALYZER_POLYS_WARNING_SOURCE, warningPolys);
-  useMapLayer(
-    ANALYZER_POLYS_WARNING,
-    'line',
-    ANALYZER_POLYS_WARNING_SOURCE,
-    linePaint,
-    undefined,
-    layerConfig,
-  );
+  useMapSources([{ id: ANALYZER_POLYS_WARNING_SOURCE, data: warningPolys }]);
+  useMapLayers([{
+    id: ANALYZER_POLYS_WARNING,
+    type: 'line',
+    sourceId: ANALYZER_POLYS_WARNING_SOURCE,
+    paint: linePaint,
+    options: layerConfig,
+  }]);
 
-  useMapSource(ANALYZER_POLYS_CRITICAL_SOURCE, criticalPolys);
-  useMapLayer(
-    ANALYZER_POLYS_CRITICAL,
-    'line',
-    ANALYZER_POLYS_CRITICAL_SOURCE,
-    criticalLinePaint, lineLayout,
-    layerConfig,
-  );
+  useMapSources([{ id: ANALYZER_POLYS_CRITICAL_SOURCE, data: criticalPolys }]);
+  useMapLayers([{
+    id: ANALYZER_POLYS_CRITICAL,
+    type: 'line',
+    sourceId: ANALYZER_POLYS_CRITICAL_SOURCE,
+    paint: criticalLinePaint,
+    layout: lineLayout,
+    options: layerConfig,
+  }]);
 
-  useMapSource(ANALYZER_LINES_WARNING_SOURCE, warningLines);
-  useMapLayer(
-    ANALYZER_LINES_WARNING,
-    'line',
-    ANALYZER_LINES_WARNING_SOURCE,
-    linePaint,
-    lineLayout,
-    layerConfig,
-  );
+  useMapSources([{ id: ANALYZER_LINES_WARNING_SOURCE, data: warningLines }]);
+  useMapLayers([{
+    id: ANALYZER_LINES_WARNING,
+    type: 'line',
+    sourceId: ANALYZER_LINES_WARNING_SOURCE,
+    paint: linePaint,
+    layout: lineLayout,
+    options: layerConfig,
+  }]);
 
-  useMapSource(ANALYZER_LINES_CRITICAL_SOURCE, criticalLines);
-  useMapLayer(
-    ANALYZER_LINES_CRITICAL,
-    'line',
-    ANALYZER_LINES_CRITICAL_SOURCE,
-    criticalLinePaint,
-    lineLayout,
-    layerConfig,
-  );
+  useMapSources([{ id: ANALYZER_LINES_CRITICAL_SOURCE, data: criticalLines }]);
+  useMapLayers([{
+    id: ANALYZER_LINES_CRITICAL,
+    type: 'line',
+    sourceId: ANALYZER_LINES_CRITICAL_SOURCE,
+    paint: criticalLinePaint,
+    layout: lineLayout,
+    options: layerConfig,
+  }]);
 
   // (eventType = 'click', handlerFn = noop, layerId = null, condition = true)
   useMapEventBinding('mouseenter', onAnalyzerFeatureEnter, ANALYZER_POLYS_WARNING);

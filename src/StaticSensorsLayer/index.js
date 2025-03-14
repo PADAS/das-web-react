@@ -8,8 +8,9 @@ import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constant
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 import { MapContext } from '../App';
 import { showPopup } from '../ducks/popup';
-import { useMapEventBinding, useMapLayer } from '../hooks';
+import { useMapEventBinding } from '../hooks';
 import { backgroundLayerStyles, calcDynamicBackgroundLayerLayout, calcDynamicLabelLayerLayoutStyles, labelLayerStyles } from './layerStyles';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { STATIC_SENSOR, CLUSTERED_STATIC_SENSORS_LAYER, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
@@ -104,23 +105,23 @@ const StaticSensorsLayer = () => {
     map.getCanvas().style.cursor = '';
   }, [map]);
 
-  useMapLayer(
-    currentBackgroundLayerId,
-    'symbol',
-    currentSourceId,
-    backgroundLayerStyles.paint,
-    backgroundLayoutObject,
-    layerConfig,
-  );
+  useMapLayers([{
+    id: currentBackgroundLayerId,
+    type: 'symbol',
+    sourceId: currentSourceId,
+    paint: backgroundLayerStyles.paint,
+    layout: backgroundLayoutObject,
+    options: layerConfig,
+  }]);
 
-  useMapLayer(
-    currentLayerId,
-    'symbol',
-    currentSourceId,
-    labelLayerStyles.paint,
-    layoutObject,
-    layerConfig,
-  );
+  useMapLayers([{
+    id: currentLayerId,
+    type: 'symbol',
+    sourceId: currentSourceId,
+    paint: labelLayerStyles.paint,
+    layout: layoutObject,
+    options: layerConfig,
+  }]);
 
   useMapEventBinding('click', onLayerClick);
   useMapEventBinding('mouseenter', onLayerMouseEnter, currentBackgroundLayerId);

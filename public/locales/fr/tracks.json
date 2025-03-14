@@ -1,34 +1,18 @@
 {
   "patrolTrackLegend": {
-    "multiplePatrolsTitle": "{{count}} patrouilles",
-    "singlePatrolTitle": "Patrouille: {{patrolDisplayTitle}}",
-    "titleElement": {
-      "coveredSpan": "parcourue",
-      "icon": "Icône pour {{title}}",
-      "lengthCovered": "{{length}} parcourue",
-      "removeButton": "retirer"
-    }
+    "icon": "Icône pour {{title}}",
+    "itemTitle": "Patrouille : {{patrolTitle}}",
+    "trackLegendItemsName": "patrouilles"
   },
   "subjectTrackLegend": {
+    "description": "{{pointCount}} points sur {{trackTime}}",
+    "itemDescription_one": "{{count}} point",
+    "itemDescription_other": "{{count}} points",
+    "itemIcon": "Icône pour {{title}}",
+    "trackLegendItemsName": "sujets"
+  },
+  "trackLegend": {
     "clearTracksButton": "Effacer les trajectoires",
-    "icon": "Icône pour {{title}}",
-    "multipleSubjectTracksTitle": "{{count}} sujets",
-    "pointsOverTime": "{{pointCount}} points sur {{trackTime}}",
-    "subjectTrackList": {
-      "closeButtonLabel": "Fermer la liste des sujets",
-      "subjectTracksItem": {
-        "icon": "Icône pour {{title}}",
-        "pointCount_one": "{{count}} point",
-        "pointCount_other": "{{count}} points",
-        "removeButton": "Supprimer",
-        "removeButtonLabel": "Supprimer {{title}}"
-      },
-      "title": "Sujets"
-    },
-    "subjectTracksListButtonLabel": {
-      "closed": "Ouvrir la liste des sujets",
-      "open": "Fermer la liste des sujets"
-    },
     "timeOfDaySettings": {
       "chevronButtonLabel": {
         "closed": "Développer les paramètres de l'heure de la journée",
@@ -54,6 +38,17 @@
     "timeOfDaySettingsButtonLabel": {
       "active": "Désactiver la coloration par heure de la journée",
       "inactive": "Activer la coloration par heure de la journée"
+    },
+    "tracksList": {
+      "closeButtonLabel": "Fermer la liste des {{itemsName}}",
+      "tracksItem": {
+        "removeButton": "Supprimer",
+        "removeButtonLabel": "Supprimer {{title}}"
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Ouvrir la liste des {{itemsName}}",
+      "open": "Fermer la liste des {{itemsName}}"
     },
     "trackSettings": {
       "closeButtonLabel": "Fermer les paramètres des trajectoires",

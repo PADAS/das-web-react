@@ -25,7 +25,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
 import styles from './styles.module.scss';
-import { getPatrolLeadersWithLocation } from '../../selectors/patrols';
+import { selectPatrolLeadersWithLastPosition } from '../../selectors/patrols';
 import { useTranslation } from 'react-i18next';
 
 const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
@@ -48,7 +48,7 @@ const PlanSection = ({
   const userPrefAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!actualEndTime);
   const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!actualStartTime);
-  const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
+  const patrolLeaders = useSelector(selectPatrolLeadersWithLastPosition);
   const displayEndDate = displayEndTimeForPatrol(patrolForm);
   const displayStartDate = displayStartTimeForPatrol(patrolForm);
   const endDayIsSameAsStart = displayEndDate && displayStartDate?.toDateString() === displayEndDate?.toDateString();

@@ -47,56 +47,56 @@
         }
       }
     }
+  }
+}
 
-    .menuList {
-      overflow-x: hidden;
+.menuList {
+  overflow-x: hidden;
+
+  .option {
+    align-items: center;
+    display: flex;
+    padding: 0.25rem 0.5rem;
+    padding-left: 1.75rem;
+  
+    &.focused {
+      background-color: colors.$semi-light-gray;
     }
   
-    .option {
-      align-items: center;
-      display: flex;
-      padding: 0.25rem 0.5rem;
-      padding-left: 1.75rem;
+    &.selected {
+      background-color: colors.$very-light-blue;
+      padding-left: 0.5rem;
+    }
   
-      &.focused {
-        background-color: colors.$semi-light-gray;
-      }
+    &:hover {
+      background-color: colors.$semi-light-gray;
+    }
   
-      &.selected {
-        background-color: colors.$very-light-blue;
-        padding-left: 0.5rem;
-      }
+    .checkLightIcon {
+      color: colors.$bright-blue;
+      margin-right: 0.5rem;
+      width: 0.75rem;
+    }
   
-      &:hover {
-        background-color: colors.$semi-light-gray;
-      }
+    .labelWrapper {
+      font-size: 0.75rem;
+      overflow: hidden;
+      text-transform: capitalize;
   
-      .checkLightIcon {
-        color: colors.$bright-blue;
-        margin-right: 0.5rem;
-        width: 0.75rem;
-      }
-  
-      .labelWrapper {
-        font-size: 0.75rem;
+      .label {
+        color: black;
+        margin: 0;
         overflow: hidden;
-        text-transform: capitalize;
-
-        .label {
-          color: black;
-          margin: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
   
-        .description {
-          color: colors.$secondary-medium-gray;
-          margin: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
+      .description {
+        color: colors.$secondary-medium-gray;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }

@@ -1,110 +1,68 @@
-import React, { memo, useCallback } from 'react';
-import Button from 'react-bootstrap/Button';
+import React, { memo, useMemo } from 'react';
 import { length } from '@turf/turf';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
-
-import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { selectPatrolsWithTracksData } from '../selectors/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { visibleTrackedPatrolData } from '../selectors/patrols';
 
 import DasIcon from '../DasIcon';
-import MapLegend from '../MapLegend';
-import PatrolDistanceCovered from '../Patrols/DistanceCovered';
+import TrackLegend from '../TrackLegend';
 
 import styles from './styles.module.scss';
 
-const TitleElement = ({ displayTitle, iconId, onRemovePatrolClick, patrolData }) => {
-  const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend.titleElement' });
-
-  const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData, leader }) => {
-    const iconId = iconTypeForPatrol(patrol);
-    const title = displayTitleForPatrol(patrol, leader);
-
-    return <li key={patrol.id}>
-      <DasIcon className={styles.svgIcon} iconId={iconId} title={t('icon', { title })} type="events" />
-
-      <div className={styles.listItemDetails}>
-        <span>{title}</span>
-
-        <small>{t('lengthCovered', { length: `${trackData ? length(trackData.track).toFixed(2): 0.00}km` })}</small>
-      </div>
-
-      <Button onClick={onRemovePatrolClick} value={patrol.id} variant="secondary">{t('removeButton')}</Button>
-    </li>;
-  }, [onRemovePatrolClick, t]);
-
-  return <div className={styles.titleWrapper}>
-    {iconId && <DasIcon className={styles.svgIcon} iconId={iconId} type="events" />}
-
-    <div className={styles.innerTitleWrapper}>
-      <h6>
-        {displayTitle}
-
-        {patrolData.length > 1 && <OverlayTrigger
-          overlay={<Popover className={styles.popover} id="track-details">
-            <ul>
-              {patrolData.map(convertPatrolTrackToDetailItem)}
-            </ul>
-          </Popover>}
-          placement="right"
-          rootClose
-          trigger="click"
-        >
-          <button className={styles.infoButton} type="button">
-            <InfoIcon className={styles.infoIcon} />
-          </button>
-        </OverlayTrigger>}
-      </h6>
-
-      <span>
-        <PatrolDistanceCovered patrolsData={patrolData} />
-
-        {t('coveredSpan')}
-      </span>
-    </div>
-  </div>;
-};
-
-const PatrolTrackLegend = ({ onClose }) => {
+const PatrolTrackLegend = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'patrolTrackLegend' });
 
-  const patrolData = useSelector(visibleTrackedPatrolData);
-  const trackState = useSelector((state) => state.view.patrolTrackState);
+  const patrolTrackState = useSelector((state) => state.view.patrolTrackState);
+  const patrolsWithTrackData = useSelector(selectPatrolsWithTracksData);
 
-  const hasData = !!patrolData.length;
-  const isMulti = patrolData.length > 1;
+  // Calculate the total tracks length to show a description in the legend like "3km".
+  const description = useMemo(() => {
+    const totalTracksLength = patrolsWithTrackData
+      .filter((patrolData) => !!patrolStateAllowsTrackDisplay(patrolData.patrol))
+      .reduce((accumulator, patrolData) => {
+        const lineLength = patrolData.startStopGeometries?.lines ? length(patrolData.startStopGeometries.lines) : 0;
+        const trackLength = patrolData.trackData?.track ? length(patrolData.trackData.track) : 0;
 
-  let displayTitle;
-  if (!hasData) {
-    displayTitle = null;
-  } else if (!isMulti) {
-    displayTitle = t('singlePatrolTitle', {
-      patrolDisplayTitle: displayTitleForPatrol(patrolData[0].patrol, patrolData[0].leader),
-    });
-  } else {
-    displayTitle = t('multiplePatrolsTitle', { count: patrolData.length });
-  }
+        return accumulator + lineLength + trackLength;
+      }, 0);
 
-  const iconId = !isMulti && hasData ? iconTypeForPatrol(patrolData[0].patrol) : null;
+    return `${totalTracksLength ? totalTracksLength.toFixed(2) : 0}km`;
+  }, [patrolsWithTrackData]);
 
-  return hasData ? <MapLegend
-    onClose={onClose}
-    renderTitle={() => <TitleElement
-      displayTitle={displayTitle}
-      iconId={iconId}
-      onRemovePatrolClick={(event) => dispatch(updatePatrolTrackState({
-        pinned: trackState.pinned.filter((value) => value !== event.target.value),
-        visible: trackState.visible.filter((value) => value !== event.target.value),
-      }))}
-      patrolData={patrolData}
-    />}
-  /> : null;
+  // Build the items array with the description, icon, id and title of each tracked patrol.
+  const items = useMemo(() => patrolsWithTrackData.map((patrolData) => {
+    const iconId = iconTypeForPatrol(patrolData.patrol);
+    const patrolTitle = displayTitleForPatrol(patrolData.patrol, patrolData.leader);
+
+    return {
+      description: `${patrolData.trackData ? length(patrolData.trackData.track).toFixed(2): 0.00}km`,
+      icon: <DasIcon
+        className={styles.itemIcon}
+        iconId={iconId}
+        title={t('icon', { patrolTitle })}
+        type="events"
+      />,
+      id: patrolData.patrol.id,
+      title: t('itemTitle', { patrolTitle }),
+    };
+  }), [patrolsWithTrackData, t]);
+
+  return <TrackLegend
+    description={description}
+    items={items}
+    itemsName={t('trackLegendItemsName')}
+    onClickClearTracks={() => dispatch(updatePatrolTrackState({ visible: [], pinned: [] }))}
+    onRemoveItemTracks={(patrolId) => dispatch(updatePatrolTrackState({
+      pinned: patrolTrackState.pinned.filter((pinnedPatrolTracksId) => pinnedPatrolTracksId !== patrolId),
+      visible: patrolTrackState.visible.filter((visiblePatrolTracksId) => visiblePatrolTracksId !== patrolId),
+    }))}
+    showTimeOfDaySettings={false}
+    showTrackSettings={false}
+  />;
 };
 
 export default memo(PatrolTrackLegend);

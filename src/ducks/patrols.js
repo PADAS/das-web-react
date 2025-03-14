@@ -1,20 +1,16 @@
-import axios, { CancelToken, isCancel } from 'axios';
+import axios, { CancelToken } from 'axios';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
-
+import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import globallyResettableReducer from '../reducers/global-resettable';
-import { calcPatrolFilterForRequest/* , 
-  validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
-const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 
 const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
-// const CREATE_PATROL_ERROR = 'CREATE_PATROL_ERROR';
 
 const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
 
@@ -23,7 +19,6 @@ const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
 const UPLOAD_PATROL_FILES_START = 'UPLOAD_PATROL_FILES_START';
 const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
 const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
-
 
 const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 
@@ -75,14 +70,6 @@ export const updatePatrolStore = (patrols) => ({
   payload: patrols,
 });
 
-export const fetchPatrolsSuccess = (patrols) => (dispatch) => {
-  dispatch({
-    type: FETCH_PATROLS_SUCCESS,
-    payload: patrols,
-  });
-  dispatch(updatePatrolStore(patrols));
-};
-
 export const socketDeletePatrol = (payload) => (dispatch) => {
   const { patrol_id, matches_current_filter } = payload;
   if (matches_current_filter) {
@@ -106,33 +93,6 @@ export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`
     console.warn('error fetching patrol', error);
     throw error;
   });
-
-export const fetchPatrols = () => (dispatch) => {
-  let cancelToken = CancelToken.source();
-
-  const patrolFilterParamString = calcPatrolFilterForRequest({ params: { page_size: 200 } });
-
-  const request = axios.get(`${PATROLS_API_URL}?${patrolFilterParamString}`, {
-    cancelToken: cancelToken.token,
-  })
-    .then(({ data: { data: patrols } }) => {
-      dispatch(fetchPatrolsSuccess(patrols));
-      return patrols;
-
-    })
-    .catch((error) => {
-      console.warn('error fetching patrols', error);
-      dispatch({
-        type: FETCH_PATROLS_ERROR,
-        payload: error,
-      });
-      if (!isCancel(error)) {
-        return new Error(error);
-      }
-    });
-
-  return { request, cancelToken };
-};
 
 export const createPatrol = (patrol) => (dispatch) => {
 
@@ -262,45 +222,6 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
     });
 };
 
-export const INITIAL_PATROLS_STATE = {
-  count: null,
-  next: null,
-  previous: null,
-  results: [],
-};
-
-const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
-  const { type, payload } = action;
-
-  if (type === FETCH_PATROLS_SUCCESS) {
-    return {
-      ...payload,
-      results: payload.results.map(p => p.id),
-    };
-  }
-
-
-  if (type === CREATE_PATROL_REALTIME) {
-    const match = state.results.includes(payload.id);
-
-    if (!match) {
-      return {
-        ...state,
-        results: [payload.id, ...state.results],
-      };
-    }
-  }
-
-  if (type === REMOVE_PATROL_BY_ID) {
-    return {
-      ...state,
-      results: state.results.filter(id => id !== payload),
-    };
-  }
-
-  return state;
-};
-
 // patrol store 
 const INITIAL_STORE_STATE = {};
 export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
@@ -337,9 +258,6 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   return state;
 };
 
-export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
-
-
 const INITIAL_PATROL_TRACKS_STATE = {
   pinned: [],
   visible: [],
@@ -356,3 +274,49 @@ export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type,
 
   return state;
 };
+
+// Actions
+const FETCH_PATROLS_FEED_SUCCESS = 'FETCH_PATROLS_FEED_SUCCESS';
+
+// Action creators
+export const fetchPatrolsFeed = () => (dispatch) => {
+  const cancelToken = CancelToken.source();
+
+  const request = axios.get(
+    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({ params: { page_size: 200 } })}`,
+    { cancelToken: cancelToken.token }
+  )
+    .then((response) => {
+      dispatch({ payload: response.data.data.results.map((patrol) => patrol.id), type: FETCH_PATROLS_FEED_SUCCESS });
+      dispatch(updatePatrolStore(response.data.data));
+    })
+    .catch((error) => {
+      dispatch({ payload: error, type: FETCH_PATROLS_ERROR });
+
+      console.warn('error fetching patrols', error);
+    });
+
+  return { cancelToken, request };
+};
+
+// Reducer
+export const INITIAL_PATROLS_FEED_STATE = [];
+
+export const patrolsFeedReducer = globallyResettableReducer((state, action) => {
+  switch (action.type) {
+  case FETCH_PATROLS_FEED_SUCCESS:
+    return action.payload;
+
+  case CREATE_PATROL_REALTIME:
+    if (!state.includes(action.payload.id)) {
+      return [action.payload.id, ...state];
+    }
+    return state;
+
+  case REMOVE_PATROL_BY_ID:
+    return state.filter((patrolId) => patrolId !== action.payload);
+
+  default:
+    return state;
+  }
+}, INITIAL_PATROLS_FEED_STATE);

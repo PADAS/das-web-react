@@ -228,15 +228,6 @@ export const actualEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getLeaderForPatrol = (patrol, subjectStore) => {
-  if (!patrol?.patrol_segments.length) return null;
-  const [firstLeg] = patrol.patrol_segments;
-  const { leader }  = firstLeg;
-  if (!leader) return null;
-
-  return subjectStore[leader.id] || leader;
-};
-
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
