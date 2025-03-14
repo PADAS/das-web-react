@@ -39,18 +39,16 @@ export const imgElFromSrc = (src, baseUnit = null) => {
       if (baseUnit && img.naturalWidth && img.naturalHeight) {
         const widthIsLarger = img.naturalWidth > img.naturalHeight;
 
-        if (widthIsLarger || !widthIsLarger) {
-          const aspectRatio = widthIsLarger ?
-            img.naturalHeight / img.naturalWidth :
-            img.naturalWidth / img.naturalHeight;
+        const aspectRatio = widthIsLarger ?
+          img.naturalHeight / img.naturalWidth :
+          img.naturalWidth / img.naturalHeight;
 
-          if (widthIsLarger) {
-            img.width = baseUnit;
-            img.height = Math.round(baseUnit * aspectRatio);
-          } else {
-            img.height = baseUnit;
-            img.width = Math.round(baseUnit * aspectRatio);
-          }
+        if (widthIsLarger) {
+          img.width = baseUnit;
+          img.height = Math.round(baseUnit * aspectRatio);
+        } else {
+          img.height = baseUnit;
+          img.width = Math.round(baseUnit * aspectRatio);
         }
       } else if (baseUnit) {
         img.width = baseUnit;
