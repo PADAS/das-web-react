@@ -15,8 +15,8 @@ export const {
   REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS,
 } = process.env;
 
-export const DAS_HOST = 'https://root.dev.pamdas.org'; /* process.env.REACT_APP_DAS_HOST
-  || `${window.location.protocol}//${window.location.host}`; */
+export const DAS_HOST = process.env.REACT_APP_DAS_HOST
+  || `${window.location.protocol}//${window.location.host}`;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
