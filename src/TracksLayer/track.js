@@ -50,7 +50,7 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   const map = useContext(MapContext);
   const { isTimeOfDayColoringActive } = useSelector(selectTrackSettings);
 
-  const trackId = id || 'unknown-track';
+  const trackId = id;
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
