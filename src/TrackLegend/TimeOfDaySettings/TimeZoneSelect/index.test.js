@@ -60,21 +60,17 @@ describe('TrackLegend - TimeOfDaySettings - TimeZoneSelect', () => {
     expect(options[options.length - 1]).toHaveTextContent('Line Islands Time');
   });
 
-  // @TODO repair this :-)
-  // test('selects a new time zone', async () => {
+  // @ TODO: Fix this test
+  // test('selects a new time zone', () => {
   //   renderTimeZoneSelect();
 
   //   userEvent.click(screen.getByLabelText('Time zone:'));
 
   //   expect(setTimeOfDayTimeZone).not.toHaveBeenCalled();
 
-  //   const option = await screen.queryByTitle('(UTC-07:00) America / Tijuana - Pacific Daylight Time');
+  //   userEvent.click(screen.getAllByRole('option')[100]);
 
-  //   userEvent.click(option);
-
-  //   await waitFor(() => {
-  //     expect(setTimeOfDayTimeZone).toHaveBeenCalledTimes(1);
-  //   });
+  //   expect(setTimeOfDayTimeZone).toHaveBeenCalledTimes(1);
   //   // This test may break if someday the IANA standard updates.
   //   expect(setTimeOfDayTimeZone).toHaveBeenCalledWith('America/Guadeloupe');
   // });
