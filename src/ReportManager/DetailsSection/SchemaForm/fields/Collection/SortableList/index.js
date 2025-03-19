@@ -41,6 +41,7 @@ const SortableList = ({
   breadcrumbs,
   collectionDetails,
   fields,
+  focusLocationMarker,
   items,
   onItemChange,
   onItemDelete,
@@ -144,6 +145,7 @@ const SortableList = ({
           collectionDetails={collectionDetails}
           errors={item.error}
           fields={fields}
+          focusLocationMarker={focusLocationMarker(index)}
           formData={item.formData}
           id={item.id}
           isFormModalOpen={item.isFormModalOpen}

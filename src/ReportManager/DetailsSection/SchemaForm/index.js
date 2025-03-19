@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
+import useLocationMarkersLayer from './utils/useLocationMarkersLayer';
 import useSchemaValidations from './utils/useSchemaValidations';
 
 import Collection from './fields/Collection';
@@ -16,13 +17,13 @@ import Text from './fields/Text';
 export const FIELDS = {
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
-  [FORM_ELEMENT_TYPES.LOCATION]: Location,
   [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
   [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
 const SchemaForm = ({
   autofillDefaultInputs,
+  eventLocation,
   initialFormData,
   onFormDataChange,
   onFormSubmit,
@@ -30,6 +31,27 @@ const SchemaForm = ({
   schema,
 }) => {
   const runValidations = useSchemaValidations(schema);
+
+  const onLocationMarkerClick = useCallback((markerId) => {
+    const locationField = document.getElementById(markerId);
+    if (locationField) {
+      // If the location field that corresponds to the clicked marker is contained directly by a section, its element
+      // will be focusable.
+      locationField.focus();
+    } else {
+      // If the location field is nested in a collection, we try to calculate the id of the collection item that
+      // contains it to focus it.
+      const markerIdPathParts = markerId.split('.');
+      const collectionItemId = `${markerIdPathParts[0]}.${markerIdPathParts[1]}`;
+      document.getElementById(collectionItemId)?.focus();
+    }
+  }, []);
+
+  const {
+    blurLocationMarker,
+    focusLocationMarker,
+    updateLocationMarkers
+  } = useLocationMarkersLayer(eventLocation, onLocationMarkerClick);
 
   // This ref works as a flag to trigger a useEffect and call onFormDataChange asynchronously when there are changes in
   // the form data, so we can keep the onSectionFieldChange dependency array empty.
@@ -65,8 +87,9 @@ const SchemaForm = ({
   };
 
   // This method is designed to render fields inside sections and collections. In order to support recursion we let the
-  // parents handle the propagation of values, change callbacks, errors, breadcrumbs (only for collections), etc...
-  const renderField = (id, value, onChange, error, breadcrumbs = []) => {
+  // parents handle the propagation of values, change callbacks, errors, focusing of location markers and breadcrumbs
+  // (only for collections).
+  const renderField = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
     switch (fields[id].type) {
     case FORM_ELEMENT_TYPES.HEADER:
       return <Header details={fields[id].details} id={id} key={id} />;
@@ -77,10 +100,23 @@ const SchemaForm = ({
         details={fields[id].details}
         error={error}
         fields={fields}
+        focusLocationMarker={focusLocationMarker}
         id={id}
         key={id}
         onFieldChange={onChange}
         renderField={renderField}
+        value={value}
+      />;
+
+    case FORM_ELEMENT_TYPES.LOCATION:
+      return <Location
+        blurLocationMarker={blurLocationMarker}
+        details={fields[id].details}
+        error={error}
+        focusLocationMarker={focusLocationMarker}
+        id={id}
+        key={id}
+        onFieldChange={onChange}
         value={value}
       />;
 
@@ -106,10 +142,34 @@ const SchemaForm = ({
     }
   }, [formData, onFormDataChange]);
 
+  useEffect(() => {
+    // Update the location markers whenever there is a change.
+    const locationMarkers = {};
+    const addLocationMarkersFromFormDataRecursively = (formData, idPrefix = '') => {
+      // Iterate the fields.
+      Object.entries(formData).forEach(([fieldId, fieldValue]) => {
+        if (fields[fieldId]?.type === FORM_ELEMENT_TYPES.LOCATION && fieldValue) {
+          // If the field is a location with a value, add it to the location markers.
+          locationMarkers[`${idPrefix}${fieldId}`] = fieldValue;
+        } else if (fields[fieldId]?.type === FORM_ELEMENT_TYPES.COLLECTION) {
+          // If the field is a collection, add the location markers for each collection item.
+          fieldValue.forEach((itemFormData, index) => addLocationMarkersFromFormDataRecursively(
+            itemFormData,
+            `${idPrefix}${fieldId}.${index}.`
+          ));
+        }
+      });
+    };
+    addLocationMarkersFromFormDataRecursively(formData);
+
+    updateLocationMarkers(locationMarkers);
+  }, [fields, formData, updateLocationMarkers]);
+
   return <form onSubmit={onSubmit}>
     {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section
       details={fields[sectionId].details}
       fieldErrors={fieldErrors}
+      focusLocationMarker={focusLocationMarker}
       formData={formData}
       id={sectionId}
       key={sectionId}

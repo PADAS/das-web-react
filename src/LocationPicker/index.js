@@ -71,6 +71,7 @@ const LocationPicker = ({
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
           id={id}
+          onFocus={() => setLocationButtonRef.current.focus()}
           placeholder={placeholder || t('defaultPlaceholder')}
           readOnly
           required={required}

@@ -50,7 +50,7 @@
       background-color: colors.$disabled-field-gray;
     }
 
-    &:focus-visible:not(:disabled) {
+    &:focus:not(:disabled) {
       border: 2px solid colors.$bright-blue;
     }
 

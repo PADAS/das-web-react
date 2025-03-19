@@ -1,13 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import LocationPicker from '../../../../../LocationPicker';
 
 import styles from './styles.module.scss';
 
 const Location = ({
-  autofillDefaultInput: _autofillDefaultInput,
+  blurLocationMarker,
   details,
   error,
+  focusLocationMarker,
   id,
   onFieldChange,
   value = null,
@@ -15,6 +16,10 @@ const Location = ({
   const hasError = !!error;
   const hasDescription = !!details.description && !hasError;
   const label = details.isRequired ? `${details.label} *` : details.label;
+
+  // When closing a collection item form modal, the location fields get unmounted without triggering the blur event, so
+  // we need to blur the location markers manually.
+  useEffect(() => () => blurLocationMarker(), [blurLocationMarker]);
 
   return <div className={styles.text} data-testid={`schema-form-location-field-${id}`}>
     <label className={`${styles.label} ${hasError ? styles.error : ''}`} htmlFor={id}>{label}</label>
@@ -27,7 +32,9 @@ const Location = ({
         'aria-invalid': hasError,
         'aria-required': details.isRequired,
       }}
+      onBlur={() => blurLocationMarker()}
       onChange={(newLocation) => onFieldChange(id, newLocation || undefined)}
+      onFocus={() => focusLocationMarker(id)}
       value={value}
     />
 

@@ -20,6 +20,7 @@ const Collection = ({
   details,
   error,
   fields,
+  focusLocationMarker,
   id,
   onFieldChange,
   renderField,
@@ -131,6 +132,11 @@ const Collection = ({
     setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
   };
 
+  // If a location field from an item requests to focus its location marker, prefix the marker id with the collection
+  // id and the item index.
+  const focusLocationMarkerFromItem = (itemIndex) => (markerId) =>
+    focusLocationMarker(`${id}.${itemIndex}.${markerId}`);
+
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-labelledby={`${id}-label`}
@@ -168,6 +174,7 @@ const Collection = ({
             breadcrumbs={breadcrumbs}
             collectionDetails={details}
             fields={fields}
+            focusLocationMarker={focusLocationMarkerFromItem}
             // Merge the value, error and items array into a single array of item objects.
             items={items
               .filter((_, index) => !!value[index])

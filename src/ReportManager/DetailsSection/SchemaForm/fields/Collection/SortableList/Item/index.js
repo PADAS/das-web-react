@@ -21,6 +21,7 @@ const Item = ({
   collectionDetails,
   errors,
   fields,
+  focusLocationMarker,
   formData,
   id,
   isDragging = false,
@@ -118,7 +119,13 @@ const Item = ({
     + (isDragging ? ` ${styles.isDragging}` : '')
     + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
     + (hasError ? ` ${styles.error}` : '');
-  return <li className={itemClassName} data-testid="schema-form-collection-item" ref={ref} {...otherProps}>
+  return <li
+      className={itemClassName}
+      data-testid="schema-form-collection-item"
+      id={`${collectionDetails.value}.${id}`}
+      ref={ref}
+      {...otherProps}
+    >
     <div className={styles.header}>
       <div
         aria-controls={`collectionForm-${title}`}
@@ -189,6 +196,7 @@ const Item = ({
     {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
       columns={collectionDetails.columns}
+      focusLocationMarker={focusLocationMarker}
       formData={formData}
       errors={errors}
       isOpen={isFormModalOpen}
