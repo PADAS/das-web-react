@@ -148,6 +148,7 @@ const SortableList = ({
           focusLocationMarker={focusLocationMarker(index)}
           formData={item.formData}
           id={item.id}
+          index={index}
           isFormModalOpen={item.isFormModalOpen}
           isFormPreviewOpen={item.isFormPreviewOpen}
           key={item.id}

@@ -35,12 +35,10 @@ const SchemaForm = ({
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);
     if (locationField) {
-      // If the location field that corresponds to the clicked marker is contained directly by a section, its element
-      // will be focusable.
       locationField.focus();
     } else {
-      // If the location field is nested in a collection, we try to calculate the id of the collection item that
-      // contains it to focus it.
+      // If the location field of the clicked marker is not defined, it will be contained by a collection item, so we
+      // try to calculate the collection item id to focus it.
       const markerIdPathParts = markerId.split('.');
       const collectionItemId = `${markerIdPathParts[0]}.${markerIdPathParts[1]}`;
       document.getElementById(collectionItemId)?.focus();
@@ -146,13 +144,13 @@ const SchemaForm = ({
     // Update the location markers whenever there is a change.
     const locationMarkers = {};
     const addLocationMarkersFromFormDataRecursively = (formData, idPrefix = '') => {
-      // Iterate the fields.
       Object.entries(formData).forEach(([fieldId, fieldValue]) => {
         if (fields[fieldId]?.type === FORM_ELEMENT_TYPES.LOCATION && fieldValue) {
           // If the field is a location with a value, add it to the location markers.
           locationMarkers[`${idPrefix}${fieldId}`] = fieldValue;
         } else if (fields[fieldId]?.type === FORM_ELEMENT_TYPES.COLLECTION) {
-          // If the field is a collection, add the location markers for each collection item.
+          // If the field is a collection, add the location markers for each of its items recursively with a prefix to
+          // differentiate the same fields in different collection items.
           fieldValue.forEach((itemFormData, index) => addLocationMarkersFromFormDataRecursively(
             itemFormData,
             `${idPrefix}${fieldId}.${index}.`

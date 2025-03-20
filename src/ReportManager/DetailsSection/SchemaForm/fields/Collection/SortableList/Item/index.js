@@ -24,6 +24,7 @@ const Item = ({
   focusLocationMarker,
   formData,
   id,
+  index,
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
@@ -122,7 +123,9 @@ const Item = ({
   return <li
       className={itemClassName}
       data-testid="schema-form-collection-item"
-      id={`${collectionDetails.value}.${id}`}
+      // We use the index and not the item id because the id is internal for having a constant default title, while the
+      // index corresponds directly to the position of the item in the form data object.
+      id={`${collectionDetails.value}.${index}`}
       ref={ref}
       {...otherProps}
     >
