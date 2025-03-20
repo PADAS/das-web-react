@@ -131,6 +131,8 @@ const OptionsPopover = ({
   const onItemSelection = (time) => {
     onChange(time);
     onClose();
+
+    optionsPopoverButtonRef.current.focus();
   };
 
   // Keyboard navigation for the list.
@@ -166,6 +168,8 @@ const OptionsPopover = ({
       event.stopPropagation();
 
       onClose();
+
+      optionsPopoverButtonRef.current.focus();
       break;
 
     default:
@@ -179,9 +183,16 @@ const OptionsPopover = ({
     onItemSelection(option.value);
   };
 
-  // Set the focus to the list on mount so keyboard navigation is enabled.
   useEffect(() => {
+    // Set the focus to the list on mount so keyboard navigation is enabled.
     listRef.current.focus();
+
+    // Create a focus trap while the component is mounted.
+    const onKeyDown = (event) => event.key === 'Tab' && event.preventDefault();
+
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
   useEffect(() => {
@@ -191,7 +202,7 @@ const OptionsPopover = ({
   useEffect(() => {
     const selectedOption = options[selectedOptionIndex];
     if (selectedOption) {
-      document.getElementById(selectedOption.value).scrollIntoView?.();
+      document.getElementById(selectedOption.value).scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
     }
   }, [options, selectedOptionIndex]);
 

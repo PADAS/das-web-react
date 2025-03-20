@@ -38,11 +38,6 @@
     "stateResolveButton": "Hifadhi na Tatua",
     "stateReopenButton": "Hifadhi na Fungua tena"
   },
-  "geoLocator": {
-    "buttonLabel": "Tumia Mahali Yangu",
-    "loadingMessage": "Jaribu kusoma mahali yako...",
-    "readingLocationError": "Haiwezi kusoma mahali yako ya sasa: {{locationErrorMessage}}"
-  },
   "header": {
     "historyLinkCreated": "Imeundwa",
     "historyLinkUpdated": "Imesasishwa",
@@ -56,12 +51,6 @@
   "imageModal": {
     "errorTitle": "Kosa kwenye kupakia picha.",
     "errorMessage": "Ikiwa uliweka faili hii hivi karibuni, tafadhali subiri dakika na ujaribu tena."
-  },
-  "locationSelector": {
-    "copyButtonLabel": "Nakili Mahali",
-    "copyButtonTitle": "Nakili",
-    "inputLabel": "Mahali:",
-    "inputPlaceHolder": "Weka mahali"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Nenda Nyuma",

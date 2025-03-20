@@ -24,6 +24,18 @@ import { notes } from '../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { render, screen, waitFor, within } from '../test-utils';
 
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
+
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
@@ -301,17 +313,16 @@ describe('PatrolDetailView', () => {
     expect(titleInput).toHaveTextContent('2nknown patrol type');
   });
 
-  test('sets the start location when user changes it', async () => {
+  test('sets the start location when user changes it', () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[0];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    const startLocationPickerButton = screen.getByLabelText('Start Location');
+    userEvent.click(startLocationPickerButton);
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
-    expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+    expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
   });
 
   test('sets the start date when user changes it', async () => {
@@ -345,17 +356,16 @@ describe('PatrolDetailView', () => {
     expect(await within(startTimePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
 
-  test('sets the end location when user changes it', async () => {
+  test('sets the end location when user changes it', () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[1];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    const endLocationPickerButton = screen.getByLabelText('End Location');
+    userEvent.click(endLocationPickerButton);
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
-    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 56 } });
+    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
-    expect((await screen.findByText('56.000000°, 88.000000°'))).toBeDefined();
+    expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
   });
 
   test('sets the end date when user changes it', async () => {

@@ -1,8 +1,11 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import { useSortable } from '@dnd-kit/sortable';
 
 import { render, screen } from '../../../../../../../test-utils';
+import { GPS_FORMATS } from '../../../../../../../utils/location';
+import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 import { FORM_ELEMENT_TYPES } from '../../../../constants';
 
 import SortableItem from './';
@@ -15,7 +18,7 @@ jest.mock('@dnd-kit/sortable', () => ({
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - SortableItem', () => {
   const renderField = jest.fn();
 
-  let attributes, listeners, transform, transition, collectionDetails;
+  let attributes, collectionDetails, listeners, store, transform, transition;
   beforeEach(() => {
     attributes = { tabIndex: 0 };
     listeners = { onKeyDown: jest.fn() };
@@ -36,34 +39,49 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       leftColumn: ['field-1', 'field-2'],
       rightColumn: [],
     };
+
+    store = {
+      view: {
+        modals: {
+          canShowModals: true,
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
+    };
   });
 
-  const renderSortableItem = (props) => render(<SortableItem
-    breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-    collectionDetails={collectionDetails}
-    errors={undefined}
-    fields={{
-      'field-1': {
-        details: {
-          label: 'Field 1',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-      'field-2': {
-        details: {
-          label: 'Field 2',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-    }}
-    formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
-    id={1}
-    isDragOverlay={false}
-    isFormModalOpen={false}
-    isFormPreviewOpen={false}
-    renderField={renderField}
-    {...props}
-  />);
+  const renderSortableItem = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <SortableItem
+        breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+        collectionDetails={collectionDetails}
+        errors={undefined}
+        fields={{
+          'field-1': {
+            details: {
+              label: 'Field 1',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+          'field-2': {
+            details: {
+              label: 'Field 2',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+        }}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        id={1}
+        isDragOverlay={false}
+        isFormModalOpen={false}
+        isFormPreviewOpen={false}
+        renderField={renderField}
+        {...props}
+      />
+    </Provider>
+  );
 
   test('registers as a sortable and injects the sortable properties to the item component', () => {
     renderSortableItem();

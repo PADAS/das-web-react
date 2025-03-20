@@ -7,7 +7,6 @@ import EditableItemAttachmentControls from './AttachmentControls';
 import EditableItemAttachmentList from './AttachmentList';
 import EditableItemBody from './Body';
 import EditableItemFooter from './Footer';
-import LocationSelectorInput from './LocationSelectorInput';
 
 import { FormDataContext, withFormDataContext } from './context';
 
@@ -23,7 +22,6 @@ EditableItem.AttachmentControls = withFormDataContext(EditableItemAttachmentCont
 EditableItem.AttachmentList = withFormDataContext(EditableItemAttachmentList);
 EditableItem.Body = withFormDataContext(EditableItemBody);
 EditableItem.Footer = withFormDataContext(EditableItemFooter);
-EditableItem.LocationSelectorInput = withFormDataContext(LocationSelectorInput);
 
 EditableItem.ContextProvider = FormDataContext.Provider;
 

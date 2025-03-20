@@ -1,29 +1,44 @@
-@import '../common/styles/vars/colors';
+@use 'sass:color';
 
-.choices {
+@use '../common/styles/vars/colors';
+
+.fieldset {
   align-items: center;
+  background-color: colors.$very-light-gray;
   display: flex;
   justify-content: space-evenly;
-  list-style-type: none;
-  margin: 0.25rem 0;
 
-  li {
-    align-items: center;
-    color: $dark-gray;
+  .legend, .radioInput {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .label {
+    border: none;
+    color: colors.$off-black;
     cursor: pointer;
-    display: flex;
-    height: 1.5rem;
-    justify-content: center;
+    outline: none;
+    text-align: center;
+    padding: 0.25rem;
     width: 100%;
 
-    &.active {
-      background-color: white;
-      color: $bright-blue;
-      font-weight: bold;
+    &:focus-within {
+      border: 2px solid colors.$bright-blue;
     }
 
     &:hover {
-      font-weight: bold;
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    &.active {
+      background-color: white;
+      color: colors.$bright-blue;
     }
   }
 }
@@ -31,17 +46,16 @@
 .gpsStringWrapper {
   align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
 
-  svg {
-    height: 1rem;
-    margin-left: 0.5rem;
-    width: 1rem;
+  .value {
+    display: block;
+    text-align: center;
+    width: 100%;
   }
-}
 
-.value {
-  display: block;
-  text-align: center;
+  .textCopyButton {
+    margin: 0;
+  }
 }

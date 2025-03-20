@@ -407,9 +407,7 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onReportLocationChange = useCallback((location) => {
-    const updatedLocation = !!location ? { latitude: location[1], longitude: location[0] } : null;
-
-    setReportForm({ ...reportForm, location: updatedLocation });
+    setReportForm({ ...reportForm, location });
 
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);

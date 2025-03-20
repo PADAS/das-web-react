@@ -1,8 +1,13 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Press enter to search",
-    "titleIconSearch": "Search",
-    "toggleTitle": "Coordinate Settings"
+    "buttonLabel": {
+      "closed": "Open the GPS display menu",
+      "open": "Close the GPS display menu"
+    },
+    "menuPopover": {
+      "gpsDisplayTooltip": "Press enter to jump to coordinates",
+      "gpsInputButtonLabel": "Jump to coordinates"
+    }
   },
   "baseLayer": {
     "popoverButton": "Set Map Base Layer",

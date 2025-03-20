@@ -765,7 +765,7 @@ const collections = {
           rightColumn: [],
           type: 'COLLECTION',
           parent: 'section-lVgxKRYviEMeJfWNtWz72',
-        }
+        },
       },
       headers: {},
       order: [
@@ -977,70 +977,70 @@ const headers = {
 const choicesOptions = [
   {
     const: '048fdcef-f599-4205-8b44-1536d46645aa',
-    title: 'This is a really long option title, useful to test our option menu and see if there is anything breaking for these kind of cases'
+    title:
+      'This is a really long option title, useful to test our option menu and see if there is anything breaking for these kind of cases',
   },
   {
     const: '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
-    title: 'EarthRanger System'
+    title: 'EarthRanger System',
   },
   {
     const: '0d9fbeea-5252-4723-ba59-ca696baef2d9',
-    title: 'frank'
+    title: 'frank',
   },
   {
     const: '17e67b22-0e4a-4fcb-aeee-903b51a7a2e0',
-    title: 'Desert Bighorn Sheep'
+    title: 'Desert Bighorn Sheep',
   },
   {
     const: '1f32688b-26ea-4648-a995-d5f9bca326e7',
-    title: 'test_alan'
+    title: 'test_alan',
   },
   {
     const: '200cca41-3303-4b63-a835-4bea40afcc95',
-    title: 'Pronghorn'
+    title: 'Pronghorn',
   },
   {
     const: '223ab492-0ea7-4ff2-b8b8-cb6504c943b6',
-    title: 'Ranger Cruz'
+    title: 'Ranger Cruz',
   },
   {
     const: '25567b9a-500f-427c-8a87-59f5e41f858b',
-    title: 'Rabbit'
+    title: 'Rabbit',
   },
   {
     const: '2b7286bf-1734-490b-87c2-ee4206805b47',
-    title: 'ERA-10171'
+    title: 'ERA-10171',
   },
   {
     const: '2db50099-8d3b-4f29-ab04-fd42f01d4267',
-    title: 'Ludwig'
+    title: 'Ludwig',
   },
   {
     const: '3492ef65-0519-4b28-9294-a5c55f619696',
-    title: 'Testosteron'
+    title: 'Testosteron',
   },
   {
     const: '35ed3fdd-ba65-4201-9a8a-05775249d534',
-    title: 'alan radio'
+    title: 'alan radio',
   },
   {
     const: '37906bc2-5323-40d9-8be3-10700af31d26',
-    title: 'Alfonso Hernandez'
+    title: 'Alfonso Hernandez',
   },
   {
     const: '382860ff-d848-426e-b1f0-43cbfaaf9a12',
-    title: 'GFW Webhook'
+    title: 'GFW Webhook',
   },
   {
     const: '3b8c7f7d-526e-46a7-8e0d-cf042ab32027',
-    title: 'pw_source'
+    title: 'pw_source',
   },
   {
     const: '3bc7c8df-3461-47f2-8196-7b0a45405a13',
-    title: 'Subject X'
-  }
+    title: 'Subject X',
+  },
 ];
-
 
 const choiceLists = {
   label: 'Example for choice list',
@@ -1059,44 +1059,44 @@ const choiceLists = {
             type: 'string',
             anyOf: [
               {
-                oneOf: choicesOptions
-              }
-            ]
-          }
+                oneOf: choicesOptions,
+              },
+            ],
+          },
         },
-        'optional_single_choice': {
+        optional_single_choice: {
           deprecated: false,
           description: 'This a detailed description',
           title: 'Optional single choice',
           type: 'string',
           anyOf: [
             {
-              oneOf: choicesOptions
-            }
-          ]
+              oneOf: choicesOptions,
+            },
+          ],
         },
-        'a_collection_of_data': {
+        a_collection_of_data: {
           deprecated: false,
           items: {
             additionalProperties: false,
             properties: {
-              'single_option': {
+              single_option: {
                 deprecated: false,
                 description: 'This is a description',
                 title: 'Single option',
                 type: 'string',
                 anyOf: [
                   {
-                    oneOf: choicesOptions
-                  }
-                ]
+                    oneOf: choicesOptions,
+                  },
+                ],
               },
-              'extra_info': {
+              extra_info: {
                 deprecated: false,
                 items: {
                   additionalProperties: false,
                   properties: {
-                    'multiple_option': {
+                    multiple_option: {
                       deprecated: false,
                       description: 'This is a description',
                       title: 'Multiple option',
@@ -1106,43 +1106,39 @@ const choiceLists = {
                         type: 'string',
                         anyOf: [
                           {
-                            oneOf: choicesOptions
-                          }
-                        ]
-                      }
+                            oneOf: choicesOptions,
+                          },
+                        ],
+                      },
                     },
-                    'record_name': {
+                    record_name: {
                       default: '',
                       deprecated: false,
                       description: '',
                       title: 'Record name',
-                      type: 'string'
-                    }
+                      type: 'string',
+                    },
                   },
-                  required: [
-                    'multiple_option'
-                  ],
-                  type: 'object'
+                  required: ['multiple_option'],
+                  type: 'object',
                 },
                 title: 'Extra info',
                 type: 'array',
-                unevaluatedItems: false
-              }
+                unevaluatedItems: false,
+              },
             },
-            required: [
-              'single_option'
-            ],
-            type: 'object'
+            required: ['single_option'],
+            type: 'object',
           },
           title: 'A collection of data',
           type: 'array',
-          unevaluatedItems: false
+          unevaluatedItems: false,
         },
-        'optional_numeric_stuff': {
+        optional_numeric_stuff: {
           deprecated: false,
           description: '',
           title: 'Optional numeric stuff',
-          type: 'number'
+          type: 'number',
         },
         'single-option': {
           deprecated: false,
@@ -1151,11 +1147,11 @@ const choiceLists = {
           type: 'string',
           anyOf: [
             {
-              oneOf: choicesOptions
-            }
-          ]
+              oneOf: choicesOptions,
+            },
+          ],
         },
-        'multioption': {
+        multioption: {
           deprecated: false,
           description: 'This is a description',
           title: 'Multi-option',
@@ -1165,25 +1161,21 @@ const choiceLists = {
             type: 'string',
             anyOf: [
               {
-                oneOf: choicesOptions
-              }
-            ]
-          }
+                oneOf: choicesOptions,
+              },
+            ],
+          },
         },
-        'a_text_field': {
+        a_text_field: {
           default: '',
           deprecated: true,
           description: '',
           title: 'A text field',
-          type: 'string'
-        }
+          type: 'string',
+        },
       },
-      required: [
-        'required_multi-option',
-        'single-option',
-        'multioption'
-      ],
-      type: 'object'
+      required: ['required_multi-option', 'single-option', 'multioption'],
+      type: 'object',
     },
     ui: {
       fields: {
@@ -1193,105 +1185,90 @@ const choiceLists = {
             existingChoiceList: [],
             featureCategories: [],
             myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
-            subjectGroups: [
-              '5bf8761c-0c87-4756-8282-23fa11d72433'
-            ],
+            subjectGroups: ['5bf8761c-0c87-4756-8282-23fa11d72433'],
             subjectSubtypes: [],
-            type: 'MY_DATA'
+            type: 'MY_DATA',
           },
           inputType: 'LIST',
           placeholder: 'This is a placeholder',
           type: 'CHOICE_LIST',
-          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
+          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2',
         },
-        'optional_single_choice': {
+        optional_single_choice: {
           choices: {
             eventTypeCategories: [],
-            existingChoiceList: [
-              'contactrep_whoinitiatedcontact'
-            ],
+            existingChoiceList: ['contactrep_whoinitiatedcontact'],
             featureCategories: [],
             myDataType: '',
             subjectGroups: [],
             subjectSubtypes: [],
-            type: 'EXISTING_CHOICE_LIST'
+            type: 'EXISTING_CHOICE_LIST',
           },
           inputType: 'DROPDOWN',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
-          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
+          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2',
         },
-        'a_collection_of_data': {
+        a_collection_of_data: {
           buttonText: 'add more',
           columns: 1,
           itemIdentifier: '',
           itemName: 'people',
-          leftColumn: [
-            'single_option',
-            'extra_info'
-          ],
+          leftColumn: ['single_option', 'extra_info'],
           rightColumn: [],
           type: 'COLLECTION',
-          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
+          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2',
         },
-        'single_option': {
+        single_option: {
           choices: {
             eventTypeCategories: [],
             existingChoiceList: [],
             featureCategories: [],
             myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
-            subjectGroups: [
-              '5bf8761c-0c87-4756-8282-23fa11d72433'
-            ],
+            subjectGroups: ['5bf8761c-0c87-4756-8282-23fa11d72433'],
             subjectSubtypes: [],
-            type: 'MY_DATA'
+            type: 'MY_DATA',
           },
           inputType: 'LIST',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
-          parent: 'a_collection_of_data'
+          parent: 'a_collection_of_data',
         },
-        'extra_info': {
+        extra_info: {
           buttonText: 'add record',
           columns: 1,
           itemIdentifier: '',
           itemName: 'record',
-          leftColumn: [
-            'multiple_option',
-            'record_name'
-          ],
+          leftColumn: ['multiple_option', 'record_name'],
           rightColumn: [],
           type: 'COLLECTION',
-          parent: 'a_collection_of_data'
+          parent: 'a_collection_of_data',
         },
-        'multiple_option': {
+        multiple_option: {
           choices: {
             eventTypeCategories: [],
             existingChoiceList: [],
             featureCategories: [],
             myDataType: 'SUBJECTS_FROM_SUBJECT_SUBTYPE',
             subjectGroups: [],
-            subjectSubtypes: [
-              'bighorn_sheep_desert',
-              'pronghorn'
-            ],
-            type: 'MY_DATA'
+            subjectSubtypes: ['bighorn_sheep_desert', 'pronghorn'],
+            type: 'MY_DATA',
           },
           inputType: 'LIST',
           placeholder: 'This is a hint',
           type: 'CHOICE_LIST',
-          parent: 'extra_info'
+          parent: 'extra_info',
         },
-        'record_name': {
+        record_name: {
           inputType: 'SHORT_TEXT',
           placeholder: 'Record example',
           type: 'TEXT',
-          parent: 'extra_info'
+          parent: 'extra_info',
         },
-        'optional_numeric_stuff': {
+        optional_numeric_stuff: {
           placeholder: 'Some numeric data example',
           type: 'NUMERIC',
-          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2'
+          parent: 'section-75Vs8Xv8lrjuUoZuIaTN2',
         },
         'single-option': {
           choices: {
@@ -1299,18 +1276,16 @@ const choiceLists = {
             existingChoiceList: [],
             featureCategories: [],
             myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
-            subjectGroups: [
-              '5bf8761c-0c87-4756-8282-23fa11d72433'
-            ],
+            subjectGroups: ['5bf8761c-0c87-4756-8282-23fa11d72433'],
             subjectSubtypes: [],
-            type: 'MY_DATA'
+            type: 'MY_DATA',
           },
           inputType: 'LIST',
           placeholder: 'A placeholder',
           type: 'CHOICE_LIST',
-          parent: 'section-7FilZuXOYsniOsN5oAclf'
+          parent: 'section-7FilZuXOYsniOsN5oAclf',
         },
-        'multioption': {
+        multioption: {
           choices: {
             eventTypeCategories: [],
             existingChoiceList: [],
@@ -1318,26 +1293,25 @@ const choiceLists = {
             myDataType: 'SUBJECTS_FROM_SUBJECT_GROUP',
             subjectGroups: [],
             subjectSubtypes: [],
-            type: 'MY_DATA'
+            type: 'MY_DATA',
           },
           inputType: 'DROPDOWN',
           placeholder: 'A placeholder',
           type: 'CHOICE_LIST',
-          parent: 'section-7FilZuXOYsniOsN5oAclf'
+          parent: 'section-7FilZuXOYsniOsN5oAclf',
         },
-        'a_text_field': {
+        a_text_field: {
           inputType: 'SHORT_TEXT',
           placeholder: 'This is a placeholder',
           type: 'TEXT',
-          parent: 'section-puA6GAI1Vc3sCyIwi73Pu'
-        }
-
+          parent: 'section-puA6GAI1Vc3sCyIwi73Pu',
+        },
       },
       headers: {},
       order: [
         'section-75Vs8Xv8lrjuUoZuIaTN2',
         'section-7FilZuXOYsniOsN5oAclf',
-        'section-puA6GAI1Vc3sCyIwi73Pu'
+        'section-puA6GAI1Vc3sCyIwi73Pu',
       ],
       sections: {
         'section-75Vs8Xv8lrjuUoZuIaTN2': {
@@ -1347,22 +1321,22 @@ const choiceLists = {
           leftColumn: [
             {
               name: 'required_multi-option',
-              type: 'field'
+              type: 'field',
             },
             {
               name: 'optional_single_choice',
-              type: 'field'
+              type: 'field',
             },
             {
               name: 'optional_numeric_stuff',
-              type: 'field'
+              type: 'field',
             },
             {
               name: 'a_collection_of_data',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          rightColumn: []
+          rightColumn: [],
         },
         'section-7FilZuXOYsniOsN5oAclf': {
           columns: 2,
@@ -1371,15 +1345,15 @@ const choiceLists = {
           leftColumn: [
             {
               name: 'multioption',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
           rightColumn: [
             {
               name: 'single-option',
-              type: 'field'
-            }
-          ]
+              type: 'field',
+            },
+          ],
         },
         'section-puA6GAI1Vc3sCyIwi73Pu': {
           columns: 1,
@@ -1388,16 +1362,191 @@ const choiceLists = {
           leftColumn: [
             {
               name: 'a_text_field',
-              type: 'field'
-            }
+              type: 'field',
+            },
           ],
-          rightColumn: []
-        }
-      }
-    }
-  }
+          rightColumn: [],
+        },
+      },
+    },
+  },
 };
 
-const schemas = [texts, sections, dateTimes, headers, numerics, choiceLists, collections];
+const locations = {
+  label: 'Example for locations',
+  schema: {
+    json: {
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      additionalProperties: false,
+      properties: {
+        required_location_field: {
+          deprecated: false,
+          description: '',
+          properties: {
+            latitude: {
+              maximum: 90,
+              minimum: -90,
+              type: 'number',
+            },
+            longitude: {
+              maximum: 180,
+              minimum: -180,
+              type: 'number',
+            },
+          },
+          title: 'Required location field',
+          type: 'object',
+        },
+        location_field_with_description: {
+          deprecated: false,
+          description: 'Description of the location field',
+          properties: {
+            latitude: {
+              maximum: 90,
+              minimum: -90,
+              type: 'number',
+            },
+            longitude: {
+              maximum: 180,
+              minimum: -180,
+              type: 'number',
+            },
+          },
+          title: 'Location field with description',
+          type: 'object',
+        },
+        hidden_location_field: {
+          deprecated: true,
+          description: '',
+          properties: {
+            latitude: {
+              maximum: 90,
+              minimum: -90,
+              type: 'number',
+            },
+            longitude: {
+              maximum: 180,
+              minimum: -180,
+              type: 'number',
+            },
+          },
+          title: 'Hidden location field',
+          type: 'object',
+        },
+        collection_with_a_location_field: {
+          deprecated: false,
+          items: {
+            additionalProperties: false,
+            properties: {
+              location_inside_collection: {
+                deprecated: false,
+                description: '',
+                properties: {
+                  latitude: {
+                    maximum: 90,
+                    minimum: -90,
+                    type: 'number',
+                  },
+                  longitude: {
+                    maximum: 180,
+                    minimum: -180,
+                    type: 'number',
+                  },
+                },
+                title: 'Location inside collection',
+                type: 'object',
+              },
+            },
+            required: [],
+            type: 'object',
+          },
+          title: 'Collection with a location field',
+          type: 'array',
+          unevaluatedItems: false,
+        },
+      },
+      required: ['required_location_field'],
+      type: 'object',
+    },
+    ui: {
+      fields: {
+        required_location_field: {
+          type: 'LOCATION',
+          parent: 'section-RU8lhz4s4UZM63bL4RO62',
+        },
+        location_field_with_description: {
+          type: 'LOCATION',
+          parent: 'section-5cyJZtWFpxZhUG8tM2TS6',
+        },
+        hidden_location_field: {
+          type: 'LOCATION',
+          parent: 'section-5cyJZtWFpxZhUG8tM2TS6',
+        },
+        location_inside_collection: {
+          type: 'LOCATION',
+          parent: 'collection_with_a_location_field',
+        },
+        collection_with_a_location_field: {
+          buttonText: '',
+          columns: 1,
+          itemIdentifier: 'location_inside_collection',
+          itemName: 'Locations',
+          leftColumn: ['location_inside_collection'],
+          rightColumn: [],
+          type: 'COLLECTION',
+          parent: 'section-5cyJZtWFpxZhUG8tM2TS6',
+        },
+      },
+      headers: {},
+      order: ['section-RU8lhz4s4UZM63bL4RO62', 'section-5cyJZtWFpxZhUG8tM2TS6'],
+      sections: {
+        'section-RU8lhz4s4UZM63bL4RO62': {
+          columns: 1,
+          isActive: true,
+          label: 'Section with one column',
+          leftColumn: [
+            {
+              type: 'field',
+              name: 'required_location_field',
+            },
+          ],
+          rightColumn: [],
+        },
+        'section-5cyJZtWFpxZhUG8tM2TS6': {
+          columns: 2,
+          isActive: true,
+          label: 'Section with two columns',
+          leftColumn: [
+            {
+              name: 'location_field_with_description',
+              type: 'field',
+            },
+          ],
+          rightColumn: [
+            {
+              name: 'hidden_location_field',
+              type: 'field',
+            },
+            {
+              name: 'collection_with_a_location_field',
+              type: 'field',
+            },
+          ],
+        },
+      },
+    },
+  },
+};
+
+const schemas = [
+  texts,
+  sections,
+  dateTimes,
+  headers,
+  numerics,
+  choiceLists,
+  collections,
+  locations,
+];
 
 export default schemas;

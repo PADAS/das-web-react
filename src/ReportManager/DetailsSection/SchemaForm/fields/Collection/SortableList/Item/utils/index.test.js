@@ -2,6 +2,7 @@ import { format, parseISO } from 'date-fns';
 
 import { choicesListOptions } from '../../../../../fixtures';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
+import { GPS_FORMATS } from '../../../../../../../../utils/location';
 
 import { getHumanizedValue, getItemTitle } from './';
 
@@ -10,7 +11,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     const t = (_, { collectionLength }) => `${collectionLength} items`;
 
     test('returns the default value if no value is provided', () => {
-      expect(getHumanizedValue({ type: FORM_ELEMENT_TYPES.TEXT }, undefined, 'default', 'en-US', t)).toBe('default');
+      expect(getHumanizedValue({ type: FORM_ELEMENT_TYPES.TEXT }, undefined, 'default', 'en-US', GPS_FORMATS.DEG, t)).toBe('default');
     });
 
     test('returns the length of a collection', () => {
@@ -19,6 +20,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         [{}, {}],
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('2 items');
     });
@@ -35,6 +37,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         ['17e67b22-0e4a-4fcb-aeee-903b51a7a2e0', '223ab492-0ea7-4ff2-b8b8-cb6504c943b6'],
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('Desert Bighorn Sheep, Ranger Cruz');
     });
@@ -51,6 +54,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         '0d553bb7-5c4f-43d7-9b82-a561a668ae64',
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('EarthRanger System');
     });
@@ -61,6 +65,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         '2020-01-01',
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('2020/01/01');
     });
@@ -72,6 +77,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         utcValue,
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe(format(parseISO(utcValue), 'yyyy/MM/dd hh:mm a'));
     });
@@ -83,6 +89,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         utcValue,
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe(format(parseISO(`2000-01-01T${utcValue}`), 'hh:mm a'));
     });
@@ -93,18 +100,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'invalid',
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('default');
     });
 
-    test('returns the coordinates from a location', () => {
+    test('returns the coordinates from a location in the provided GPS format', () => {
       expect(getHumanizedValue(
         { type: FORM_ELEMENT_TYPES.LOCATION },
         { latitude: 10.1234, longitude: 30.987 },
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
-      )).toBe('10.1234°, 30.987°');
+      )).toBe('10.123400°,  30.987000°');
     });
 
     test('returns the plain value for other element types', () => {
@@ -113,6 +122,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'Value',
         'default',
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('Value');
     });
@@ -128,6 +138,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('default');
     });
@@ -139,6 +150,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('default');
     });
@@ -150,6 +162,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         'default',
         { type: FORM_ELEMENT_TYPES.TEXT },
         'en-US',
+        GPS_FORMATS.DEG,
         t
       )).toBe('identifier value');
     });

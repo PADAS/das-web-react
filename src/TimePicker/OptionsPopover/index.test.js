@@ -9,6 +9,7 @@ import OptionsPopover from '.';
 describe('TimePicker - OptionsPopover', () => {
   const onChange = jest.fn();
   const onClose = jest.fn();
+  const optionsPopoverButtonFocus = jest.fn();
 
   const renderOptionsPopover = (props) => render(<OptionsPopover
     className="className"
@@ -18,7 +19,11 @@ describe('TimePicker - OptionsPopover', () => {
     minutesInterval={30}
     onChange={onChange}
     onClose={onClose}
-    optionsPopoverButtonRef={{ current: {} }}
+    optionsPopoverButtonRef={{
+      current: {
+        focus: optionsPopoverButtonFocus,
+      },
+    }}
     showDurationFromMin={false}
     style={{}}
     target={{ current: {} }}
@@ -94,45 +99,59 @@ describe('TimePicker - OptionsPopover', () => {
     renderOptionsPopover();
 
     expect(onChange).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(optionsPopoverButtonFocus).not.toHaveBeenCalled();
 
     userEvent.keyboard('[ArrowDown]');
     userEvent.keyboard('{Enter}');
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('00:30');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
   });
 
   test('changes to the option selected by pressing space', () => {
     renderOptionsPopover();
 
     expect(onChange).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(optionsPopoverButtonFocus).not.toHaveBeenCalled();
 
     userEvent.keyboard('[ArrowDown]');
     userEvent.keyboard('[Space]');
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('00:30');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
   });
 
   test('changes to the option selected by clicking', () => {
     renderOptionsPopover();
 
     expect(onChange).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(optionsPopoverButtonFocus).not.toHaveBeenCalled();
 
     userEvent.click(screen.getByText('12:30 AM'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('00:30');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('closes the popover when user presses escape', () => {
+  test('closes the popover when user presses escape and focuses the options popover button', () => {
     renderOptionsPopover();
 
     expect(onClose).not.toHaveBeenCalled();
+    expect(optionsPopoverButtonFocus).not.toHaveBeenCalled();
 
     userEvent.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(optionsPopoverButtonFocus).toHaveBeenCalledTimes(1);
   });
 
   test('closes the popover when user clicks outside of it', () => {

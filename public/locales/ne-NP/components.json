@@ -56,26 +56,45 @@
         "shareLocationToastMessage": "भू–अनुमतिबाट डाटा हेर्न तपाईंको लोकेसन सेयर गर्नुहोस्",
         "shareLocationToastTitle": "कसरी भनेर जान्नुहोस्"
     },
+    "getUserLocationButton": {
+        "errorToastMessage": "तपाईंको हालको स्थान प्राप्त गर्न सकिएन: {{errorMessage}}",
+        "loadingOverlayMessage": "तपाईंको स्थान प्राप्त गर्ने प्रयास गर्दैछ...",
+        "userLocationButtonLabel": "हालको स्थान प्राप्त गर्नुहोस्"
+    },
+    "gpsFormatToggle": {
+        "fieldsetLegend": "GPS ढाँचा",
+        "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
+    },
     "gpsInput": {
-        "gpsFormats": {
+        "defaultPlaceholder": "लोकेसन",
+        "errorMessage": "अमान्य लोकेसन",
+        "inputDescription": "उदाहरण: {{gpsFormat}}",
+        "inputLabel": "GPS स्थान",
+        "placeholders": {
             "DDM": "डिग्री, दशमलव, मिनेट",
             "DEG": "आक्षांश, देशान्तर",
             "DMS": "डिग्री, मिनेट, सेकेन्ड",
             "UTM": "विश्वव्यापी अनुप्रस्थ मर्केटर",
             "MGRS": "सैन्य ग्रिड सन्दर्भ सिस्टम"
-        },
-        "defaultPlaceholder": "लोकेसन",
-        "inputExample": "उदाहरण: {{gpsFormat}}",
-        "invalidLocation": "अमान्य लोकेसन"
+        }
     },
     "locationJumpButton": {
         "title": "यो स्थानमा जानुहोस्"
     },
-    "mapLocationPicker": {
-        "cancelButton": "रद्द गर्नुहोस्",
-        "popupLabel": "क्लिक गरि स्थान छन्नुहोस्",
-        "selectLocationButtonLabel": "नक्सामा छान्नुहोस्",
-        "selectLocationButtonTitle": "नक्सामा चिन्ह राख्नुहोस्"
+    "locationPicker": {
+        "defaultPlaceholder": "स्थान सेट गर्नुहोस्",
+        "inputDescription": "स्थान चयन मेनुबाट मान सेट गर्न बटन क्लिक गर्नुहोस्।",
+        "inputLabel": "स्थान",
+        "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
+        "menuPopover": {
+            "getUserLocationButton": "मेरो स्थान प्रयोग गर्नुहोस्",
+            "pickMapLocationButton": "नक्सामा सेट गर्नुहोस्"
+        },
+        "setLocationButtonLabel": {
+            "closed": "मान सेट गर्न स्थान चयन मेनु खोल्नुहोस्",
+            "open": "स्थान चयन मेनु बन्द गर्नुहोस्"
+        },
+        "textCopyButtonLabel": "स्थान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
     },
     "mapLocationSelectionOverview": {
         "chooseLocationHeader": {
@@ -109,6 +128,10 @@
         "senderDetails": {
             "radioIconTitle": "{{subjectName}}का लागि रेडियो आइकन"
         }
+    },
+    "pickMapLocationButton": {
+        "instructionsPopupLabel": "स्थान चयन गर्न क्लिक गर्नुहोस्",
+        "pickLocationButtonLabel": "नक्सामा स्थान चयन गर्नुहोस्"
     },
     "priorityPicker": {
         "amber": "पहेँलो",
@@ -205,7 +228,8 @@
         "alarmRadioStateToastMessage": "{{subjectName}} लाई तत्काल ध्यान दिन आवश्यक छ"
     },
     "textCopyBtn": {
-        "defaultToastMessage": "क्लिपबोर्डमा कपि गरियो"
+        "buttonLabel": "क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
+        "defaultToastMessage": "क्लिपबोर्डमा प्रतिलिपि गरियो"
     },
     "toastBody": {
         "defaultLinkTitle": "यहाँ क्लिक गर्नुहोस्",

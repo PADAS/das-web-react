@@ -1,6 +1,7 @@
 import React from 'react';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Modal from 'react-bootstrap/Modal';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as TrashCanIcon } from '../../../../../../../../common/images/icons/trash-can.svg';
@@ -27,6 +28,8 @@ const FormModal = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item.formModal',
   });
 
+  const canShowModals = useSelector((state) => state.view.modals.canShowModals);
+
   // If there are breadcrumbs, we know that we are in a nested modal (nested collection) so we disable modal animations
   // and remove the background opacity.
   const isNestedModal = breadcrumbs.length > 0;
@@ -36,7 +39,7 @@ const FormModal = ({
       aria-labelledby="formModal-title"
       backdrop={false}
       centered
-      className={isNestedModal ? styles.noBackground : ''}
+      className={`${styles.formModal} ${isNestedModal ? styles.noBackground : ''} ${!canShowModals ? styles.hide : ''}`}
       // It's a good practice to add a focus trap in modals but since some widgets like selects or time pickers use
       // popovers to render their menus, they get impossible to access.
       enforceFocus={false}

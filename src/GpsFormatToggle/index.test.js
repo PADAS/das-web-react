@@ -1,14 +1,13 @@
 import React from 'react';
-import merge from 'lodash/merge';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { cleanup, render, screen } from '../test-utils';
+import { render, screen } from '../test-utils';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import GpsFormatToggle from '../GpsFormatToggle';
+import GpsFormatToggle from './';
 
 jest.mock('../ducks/user-preferences', () => ({
   ...jest.requireActual('../ducks/user-preferences'),
@@ -17,87 +16,74 @@ jest.mock('../ducks/user-preferences', () => ({
 
 describe('GpsFormatToggle', () => {
   let store, updateUserPreferencesMock;
-
-  const renderGpsFormatToggle = (props = {}, overrideStore = {}) => render(
-    <Provider store={mockStore(merge(store, overrideStore))}>
-      <GpsFormatToggle lat={11.666666} lng={10.012657} {...props} />
-    </Provider>
-  );
-
   beforeEach(() => {
     updateUserPreferencesMock = jest.fn(() => () => {});
     updateUserPreferences.mockImplementation(updateUserPreferencesMock);
 
     store = {
-      data: {},
       view: {
         userPreferences: {
-          gpsFormat: Object.values(GPS_FORMATS)[0],
+          gpsFormat: GPS_FORMATS.DEG,
         },
       },
     };
   });
 
-  test('updates the GPS format in the user preferences when clicking one', () => {
+  const renderGpsFormatToggle = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <GpsFormatToggle lat={11.666666} lng={10.012657} name="name" {...props} />
+    </Provider>
+  );
+
+  test('checks the GPS format option that is currently selected', () => {
+    renderGpsFormatToggle();
+
+    expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DEG)).toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DDM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DDM)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.DMS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.DMS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.MGRS)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.MGRS)).not.toHaveClass('active');
+    expect(screen.getByLabelText(GPS_FORMATS.UTM)).not.toBeChecked();
+    expect(screen.getByText(GPS_FORMATS.UTM)).not.toHaveClass('active');
+  });
+
+  test('updates the GPS format when clicking an option', () => {
     renderGpsFormatToggle();
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(0);
 
-    const gpsDMSFormatItem = screen.getByText('DMS');
-    userEvent.click(gpsDMSFormatItem);
+    userEvent.click(screen.getByLabelText('DMS'));
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(1);
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DMS });
 
-    const gpsUTMFormatItem = screen.getByText('UTM');
-    userEvent.click(gpsUTMFormatItem);
+    userEvent.click(screen.getByLabelText('UTM'));
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(2);
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.UTM });
   });
 
-  test('does not show the GPS string', () => {
+  test('shows the GPS string and the copy button if there are valid lat and lng values', () => {
+    renderGpsFormatToggle();
+
+    expect(screen.getByText('11.666666°, 10.012657°')).toBeVisible();
+    expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
+  });
+
+  test('does not show either the GPS string nor the copy button if there are not valid lat and lng values set', () => {
+    renderGpsFormatToggle({ lat: null, lng: null });
+
+    expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
+    expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();
+  });
+
+  test('does not show either the GPS string nor the copy button if the showGpsString is false', () => {
     renderGpsFormatToggle({ showGpsString: false });
 
-    const gpsString = screen.queryByTestId('gpsFormatToggle-gpsString');
-
-    expect(gpsString).toBeNull();
-  });
-
-  test('shows the GPS string with the given coordinates in the specified format', () => {
-    renderGpsFormatToggle();
-
-    let gpsString = screen.getByTestId('gpsFormatToggle-gpsString');
-
-    expect(gpsString).toHaveTextContent('11.666666°, 10.012657°');
-
-    cleanup();
-    renderGpsFormatToggle(undefined, {
-      view: {
-        userPreferences: {
-          gpsFormat: Object.values(GPS_FORMATS)[2],
-        },
-      },
-    });
-
-    gpsString = screen.getByTestId('gpsFormatToggle-gpsString');
-
-    expect(gpsString).toHaveTextContent('11° 39.999960′ N, 010° 00.759420′ E');
-  });
-
-  test('does not show the copy button', () => {
-    renderGpsFormatToggle({ showCopyControl: false });
-
-    const copyButton = screen.queryByTestId('textCopyBtn');
-
-    expect(copyButton).toBeNull();
-  });
-
-  test('shows the copy button', () => {
-    renderGpsFormatToggle();
-
-    const copyButton = screen.getByTestId('textCopyBtn');
-
-    expect(copyButton).toBeDefined();
+    expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
+    expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();
   });
 });

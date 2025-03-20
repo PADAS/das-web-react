@@ -8,6 +8,7 @@ import Collection from './fields/Collection';
 import ChoiceList from './fields/ChoiceList';
 import DateTime from './fields/DateTime';
 import Header from './fields/Header';
+import Location from './fields/Location';
 import Numeric from './fields/Numeric';
 import Section from './fields/Section';
 import Text from './fields/Text';
@@ -15,9 +16,9 @@ import Text from './fields/Text';
 export const FIELDS = {
   [FORM_ELEMENT_TYPES.CHOICE_LIST]: ChoiceList,
   [FORM_ELEMENT_TYPES.DATE_TIME]: DateTime,
-  [FORM_ELEMENT_TYPES.SECTION]: Section,
-  [FORM_ELEMENT_TYPES.TEXT]: Text,
+  [FORM_ELEMENT_TYPES.LOCATION]: Location,
   [FORM_ELEMENT_TYPES.NUMERIC]: Numeric,
+  [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
 const SchemaForm = ({
