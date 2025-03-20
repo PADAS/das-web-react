@@ -163,6 +163,14 @@ describe('LocationPicker', () => {
     expect(screen.getByLabelText('Location')).toBeRequired();
   });
 
+  test('forwards the focusing of the input to the set location button', () => {
+    renderLocationPicker();
+
+    fireEvent.focus(screen.getByLabelText('Location'));
+
+    expect(screen.getByLabelText('Open the location picker menu to set a value')).toHaveFocus();
+  });
+
   test('shows a display value in the input', () => {
     renderLocationPicker({
       value: {

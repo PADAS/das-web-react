@@ -77,7 +77,6 @@ const SchemaForm = ({
       // collection).
       const idOfFirstErroneousField = Object.keys(fieldErrors)[0];
       const elementWithError = document.getElementById(idOfFirstErroneousField);
-      elementWithError?.scrollIntoView?.();
       elementWithError?.focus();
     } else {
       onFormSubmit();

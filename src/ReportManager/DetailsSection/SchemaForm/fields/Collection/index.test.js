@@ -10,6 +10,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import Collection from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', () => {
+  const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const renderField = jest.fn();
 
@@ -61,6 +62,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
+        focusLocationMarker={focusLocationMarker}
         id="collection-1"
         onFieldChange={onFieldChange}
         renderField={renderField}
@@ -153,6 +155,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(screen.getAllByTestId('schema-form-collection-item')).toHaveLength(2);
     expect(screen.queryByTestId('schema-form-collection-list-empty-state')).toBeNull();
+  });
+
+  test('focuses a location marker prefixed with the collection value and the item index', () => {
+    renderField.mockImplementation((_id, _value, _onChange, _error, focusLocationMarker) => {
+      focusLocationMarker('location-1');
+
+      return null;
+    });
+    renderCollectionField({ value: [{}] });
+
+    userEvent.click(screen.getByLabelText('Edit Item 1'));
+
+    expect(focusLocationMarker).toHaveBeenCalled();
+    expect(focusLocationMarker).toHaveBeenCalledWith('collection-1.0.location-1');
   });
 
   test('opens and closes the form preview of an item', () => {

@@ -10,6 +10,7 @@ import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 import Item from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item', () => {
+  const focusLocationMarker = jest.fn();
   const onChange = jest.fn();
   const onDelete = jest.fn();
   const renderField = jest.fn();
@@ -24,6 +25,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       itemName: 'Collection 1',
       leftColumn: ['field-1', 'field-2'],
       rightColumn: [],
+      value: 'collection-1',
     };
 
     store = {
@@ -58,8 +60,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
             type: FORM_ELEMENT_TYPES.TEXT,
           },
         }}
+        focusLocationMarker={focusLocationMarker}
         formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         id={1}
+        index={0}
         isDragging={false}
         isDragOverlay={false}
         isFormModalOpen={false}
@@ -134,6 +138,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
 
     expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+  });
+
+  test('assigns an id to the item based on its position in the form data', () => {
+    renderItem();
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveAttribute('id', 'collection-1.0');
   });
 
   test('opens the form preview when the user clicks the title', () => {
