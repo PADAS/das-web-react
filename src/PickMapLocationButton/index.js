@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useContext, useEffect, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -28,13 +28,15 @@ const PickMapLocationButton = ({
 
   const [isPickingMapLocation, setIsPickingMapLocation] = useState(false);
 
-  const onButtonClick = () => {
-    // Update the store so the application is aware that user is picking a location in the map, it hides the modals and
-    // the sidebar.
-    dispatch(setIsPickingLocation(true));
-    dispatch(setModalVisibilityState(false));
-    dispatch(hideSideBar());
+  // Update the store so the application shows or hides the views over the map so the user can pick a location in it.
+  const setAppToShowMapMode = useCallback((showMapMode = true) => {
+    dispatch(setIsPickingLocation(showMapMode));
+    dispatch(setModalVisibilityState(!showMapMode));
+    dispatch(showMapMode ? hideSideBar() : showSideBar());
+  }, [dispatch]);
 
+  const onButtonClick = () => {
+    setAppToShowMapMode();
     setIsPickingMapLocation(true);
 
     onClick?.();
@@ -45,10 +47,7 @@ const PickMapLocationButton = ({
     // operation and make sure to clean the listeners.
     if (isPickingMapLocation) {
       const onMapClick = (event) => {
-        dispatch(setIsPickingLocation(false));
-        dispatch(setModalVisibilityState(true));
-        dispatch(showSideBar());
-
+        setAppToShowMapMode(false);
         setIsPickingMapLocation(false);
 
         onPick(event);
@@ -58,10 +57,7 @@ const PickMapLocationButton = ({
         event.preventDefault();
         event.stopPropagation();
 
-        dispatch(setIsPickingLocation(false));
-        dispatch(setModalVisibilityState(true));
-        dispatch(showSideBar());
-
+        setAppToShowMapMode(false);
         setIsPickingMapLocation(false);
 
         onCancel?.();
@@ -75,7 +71,7 @@ const PickMapLocationButton = ({
         document.removeEventListener('keydown', onKeyDown);
       };
     }
-  }, [dispatch, isPickingMapLocation, map, onCancel, onPick]);
+  }, [isPickingMapLocation, map, onCancel, onPick, setAppToShowMapMode]);
 
   return <>
     <button

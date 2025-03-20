@@ -51,12 +51,11 @@ const GpsInput = ({
       try {
         const locationObject = calcActualGpsPositionForRawText(event.target.value, gpsFormat);
         const isLocationValid = validateLngLat(locationObject.longitude, locationObject.latitude);
-        if (!isLocationValid) {
-          // If the input is an invalid location in the selected GPS format, we set it as invalid.
-          setIsValid(false);
-        } else {
-          // If the input is a valid location in the selected GPS format, we set it as valid and call onChange.
-          setIsValid(true);
+
+        setIsValid(isLocationValid);
+
+        if (isLocationValid) {
+          // Call onChange for valid locations.
           onChange({
             latitude: (parseFloat(locationObject.latitude) * 10) / 10,
             longitude: (parseFloat(locationObject.longitude) * 10) / 10,
