@@ -37,15 +37,21 @@ const MessageMenu = () => {
     [state.results.length, subjects]
   );
 
-  const fetchMenuMessages = useCallback(() => {
-    fetchAllMessages({ page_size: 100 })
-      .then((results = []) => dispatch(fetchMessagesSuccess({ results })))
+  const fetchMenuMessages = useCallback((getUnreadMessagesOnly = false) => {
+    const page_size = 100;
+    const params = !getUnreadMessagesOnly ? { page_size } : { page_size, read: false };
+    fetchAllMessages(params)
+      .then((results = []) => {
+        dispatch(fetchMessagesSuccess({ results }));
+      })
       .catch((error) => console.warn('error fetching messages', { error }));
   }, [dispatch]);
 
   useEffect(() => {
-    fetchMenuMessages();
-  }, [dispatch, fetchMenuMessages]);
+    if (subjects.length > 0){
+      fetchMenuMessages(true);
+    }
+  }, [dispatch, fetchMenuMessages, subjects]);
 
   return canShowMessageMenu ? <Dropdown
       align="end"
