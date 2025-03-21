@@ -23,6 +23,7 @@ jest.mock('mapbox-gl', () => ({
 }));
 
 describe('LocationPicker - MenuPopover', () => {
+  const onBlur = jest.fn();
   const onChange = jest.fn();
   const onClose = jest.fn();
   const setLocationButtonRefFocus = jest.fn();
@@ -48,6 +49,7 @@ describe('LocationPicker - MenuPopover', () => {
         <MenuPopover
           className="className"
           id="locationPicker"
+          onBlur={onBlur}
           onChange={onChange}
           onClose={onClose}
           setLocationButtonRef={{
@@ -59,6 +61,7 @@ describe('LocationPicker - MenuPopover', () => {
           style={{}}
           target={{
             current: {
+              contains: () => false,
               offsetWidth: 100,
             },
           }}
@@ -166,7 +169,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('closes the menu if the user clicks outside', () => {
+  test('closes the menu if the user clicks outside and triggers the blur callback if the click was outside of the picker', () => {
     render(<>
       <div data-testid="outside" />
 
@@ -175,6 +178,7 @@ describe('LocationPicker - MenuPopover', () => {
           <MenuPopover
             className="className"
             id="locationPicker"
+            onBlur={onBlur}
             onChange={onChange}
             onClose={onClose}
             setLocationButtonRef={{
@@ -186,6 +190,47 @@ describe('LocationPicker - MenuPopover', () => {
             style={{}}
             target={{
               current: {
+                contains: () => false,
+                offsetWidth: 100,
+              },
+            }}
+            value={null}
+          />
+        </MapContext.Provider>
+      </Provider>
+    </>);
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onBlur).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByTestId('outside'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  test('closes the menu if the user clicks outside but does not trigger the blur callback if the click was inside the picker', () => {
+    render(<>
+      <div data-testid="outside" />
+
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MenuPopover
+            className="className"
+            id="locationPicker"
+            onBlur={onBlur}
+            onChange={onChange}
+            onClose={onClose}
+            setLocationButtonRef={{
+              current: {
+                contains: () => false,
+                focus: setLocationButtonRefFocus,
+              },
+            }}
+            style={{}}
+            target={{
+              current: {
+                contains: () => true,
                 offsetWidth: 100,
               },
             }}
@@ -200,5 +245,6 @@ describe('LocationPicker - MenuPopover', () => {
     userEvent.click(screen.getByTestId('outside'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onBlur).not.toHaveBeenCalled();
   });
 });

@@ -229,7 +229,24 @@ describe('LocationPicker', () => {
     userEvent.click(screen.getByLabelText('Jump to location'));
 
     expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
-    expect(jumpToLocationMock).toHaveBeenCalledWith([10, 15]);
+    expect(jumpToLocationMock).toHaveBeenCalledWith([10, 15], undefined);
+  });
+
+  test('jumps to the location with a custom zoom', () => {
+    renderLocationPicker({
+      jumpToLocationButtonZoom: 20,
+      value: {
+        latitude: 15,
+        longitude: 10,
+      },
+    });
+
+    expect(jumpToLocationMock).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByLabelText('Jump to location'));
+
+    expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
+    expect(jumpToLocationMock).toHaveBeenCalledWith([10, 15], 20);
   });
 
   test('opens the menu popover', () => {

@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
+import { JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../constants';
 import LocationPicker from '../../../../../LocationPicker';
 
 import styles from './styles.module.scss';
@@ -32,6 +33,7 @@ const Location = ({
         'aria-invalid': hasError,
         'aria-required': details.isRequired,
       }}
+      jumpToLocationButtonZoom={JUMP_TO_LOCATION_BUTTON_ZOOM}
       onBlur={() => blurLocationMarker()}
       onChange={(newLocation) => onFieldChange(id, newLocation || undefined)}
       onFocus={() => focusLocationMarker(id)}

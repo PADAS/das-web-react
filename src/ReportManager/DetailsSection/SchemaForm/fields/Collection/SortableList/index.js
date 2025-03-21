@@ -38,6 +38,7 @@ const customKeyboardCoordinateGetter = (event, args) => {
 };
 
 const SortableList = ({
+  blurLocationMarker,
   breadcrumbs,
   collectionDetails,
   fields,
@@ -141,6 +142,7 @@ const SortableList = ({
     >
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => <SortableItem
+          blurLocationMarker={blurLocationMarker}
           breadcrumbs={breadcrumbs}
           collectionDetails={collectionDetails}
           errors={item.error}

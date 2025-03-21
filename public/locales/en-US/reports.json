@@ -173,7 +173,8 @@
                   "doneButton": "Done"
                 },
                 "formPreview": {
-                  "collectionHumanizedValue": "{{collectionLength}} items"
+                  "collectionHumanizedValue": "{{collectionLength}} items",
+                  "jumpToLocationButtonLabel": "Jump to {{field}} location"
                 },
                 "chevronButtonLabel": {
                   "closed": "Open the {{itemTitle}} form preview",

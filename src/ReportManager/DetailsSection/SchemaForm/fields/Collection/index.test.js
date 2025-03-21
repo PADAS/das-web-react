@@ -10,6 +10,7 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 import Collection from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', () => {
+  const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const renderField = jest.fn();
@@ -45,6 +46,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
   const renderCollectionField = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <Collection
+        blurLocationMarker={blurLocationMarker}
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         details={details}
         error={undefined}
@@ -297,6 +299,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     rerender(
       <Provider store={mockStore(store)}>
         <Collection
+          blurLocationMarker={blurLocationMarker}
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           details={details}
           error={{ 0: { 'field-1': { message: 'Error' } } }}

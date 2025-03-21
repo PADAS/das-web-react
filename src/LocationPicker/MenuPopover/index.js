@@ -22,6 +22,7 @@ const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 const MenuPopover = ({
   className,
   id,
+  onBlur,
   onChange,
   onClose,
   setLocationButtonRef,
@@ -104,14 +105,34 @@ const MenuPopover = ({
   }, []);
 
   useEffect(() => {
-    const onMouseDown = (event) => !wrapperRef.current.contains(event.target)
-      && !setLocationButtonRef.current.contains(event.target)
-      && onClose();
+    const onMouseDown = (event) => {
+      if (!wrapperRef.current.contains(event.target) && !setLocationButtonRef.current.contains(event.target)) {
+        onClose(event);
+
+        if (!target.current.contains(event.target)) {
+          // Clicking away from our picker when the menu is open doesn't trigger the wrapper's blur event, so we need
+          // to trigger the onBlur callback manually.
+          const blurEvent = new FocusEvent('blur', {
+            bubbles: true,
+            cancelable: false,
+            relatedTarget: event.target,
+          });
+
+          Object.defineProperties(blurEvent, {
+            target: {
+              value: target.current,
+            },
+          });
+
+          onBlur(blurEvent);
+        }
+      }
+    };
 
     document.addEventListener('mousedown', onMouseDown);
 
     return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [onClose, setLocationButtonRef]);
+  }, [onBlur, onClose, setLocationButtonRef, target]);
 
   return <Popover
       className={`${className} ${styles.menuPopover}`}

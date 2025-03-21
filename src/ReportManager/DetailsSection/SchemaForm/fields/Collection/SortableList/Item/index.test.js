@@ -10,6 +10,7 @@ import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 import Item from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item', () => {
+  const blurLocationMarker = jest.fn();
   const focusLocationMarker = jest.fn();
   const onChange = jest.fn();
   const onDelete = jest.fn();
@@ -43,6 +44,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   const renderItem = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <Item
+        blurLocationMarker={blurLocationMarker}
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         collectionDetails={collectionDetails}
         errors={undefined}
@@ -144,6 +146,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     renderItem();
 
     expect(screen.getByTestId('schema-form-collection-item')).toHaveAttribute('id', 'collection-1.0');
+  });
+
+  test('does not assign an id to the item if the position index is not provided', () => {
+    renderItem({ index: undefined });
+
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveAttribute('id');
   });
 
   test('opens the form preview when the user clicks the title', () => {
@@ -283,6 +291,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     rerender(
       <Provider store={mockStore(store)}>
         <Item
+          blurLocationMarker={blurLocationMarker}
           breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
           collectionDetails={collectionDetails}
           errors={undefined}

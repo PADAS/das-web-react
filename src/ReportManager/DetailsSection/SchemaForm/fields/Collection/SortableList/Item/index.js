@@ -17,14 +17,15 @@ import FormPreview from './FormPreview';
 import styles from './styles.module.scss';
 
 const Item = ({
+  blurLocationMarker = null,
   breadcrumbs = null,
   collectionDetails,
   errors,
   fields,
-  focusLocationMarker,
+  focusLocationMarker = null,
   formData,
   id,
-  index,
+  index = null,
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
@@ -125,7 +126,7 @@ const Item = ({
       data-testid="schema-form-collection-item"
       // We use the index and not the item id because the id is internal for having a constant default title, while the
       // index corresponds directly to the position of the item in the form data object.
-      id={`${collectionDetails.value}.${index}`}
+      id={index !== null ? `${collectionDetails.value}.${index}` : undefined}
       ref={ref}
       {...otherProps}
     >
@@ -187,7 +188,9 @@ const Item = ({
     <Collapse in={isFormPreviewOpen}>
       <div id={`collectionForm-${title}`}>
         <FormPreview
+          blurLocationMarker={blurLocationMarker}
           errors={errors}
+          focusLocationMarker={focusLocationMarker}
           formData={formData}
           fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           fields={fields}

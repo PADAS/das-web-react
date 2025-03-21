@@ -16,6 +16,7 @@ import styles from './styles.module.scss';
 // within other collections, so we propagate values, errors and breadcrumbs and their changes to the parent and the
 // children.
 const Collection = ({
+  blurLocationMarker,
   breadcrumbs,
   details,
   error,
@@ -171,6 +172,7 @@ const Collection = ({
         {value.length === 0
           ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
           : <SortableList
+            blurLocationMarker={blurLocationMarker}
             breadcrumbs={breadcrumbs}
             collectionDetails={details}
             fields={fields}

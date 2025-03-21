@@ -93,6 +93,7 @@ const SchemaForm = ({
 
     case FORM_ELEMENT_TYPES.COLLECTION:
       return <Collection
+        blurLocationMarker={blurLocationMarker}
         breadcrumbs={breadcrumbs}
         details={fields[id].details}
         error={error}

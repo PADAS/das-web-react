@@ -32,6 +32,8 @@ export const HEADER_ELEMENT_SIZES = {
   SMALL: 'SMALL',
 };
 
+export const JUMP_TO_LOCATION_BUTTON_ZOOM = 20;
+
 export const ROOT_CANVAS_ID = 'root';
 
 export const TEXT_ELEMENT_INPUT_TYPES = {
