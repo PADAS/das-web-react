@@ -1,4 +1,4 @@
-FROM node:20-alpine as build
+FROM node:22-alpine as build
 WORKDIR /app
 
 RUN apk add --no-cache git alpine-sdk python3
@@ -11,7 +11,7 @@ COPY . .
 RUN ls -la && yarn build
 
 
-FROM nginx:1.25-alpine
+FROM nginx:1.27-alpine
 
 RUN rm -R /usr/share/nginx/html
 COPY --from=build /app/build /usr/share/nginx/html
