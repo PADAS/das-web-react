@@ -12,6 +12,7 @@ const FormModal = ({
   breadcrumbs,
   columns,
   errors,
+  focusLocationMarker,
   formData,
   isOpen,
   itemName,
@@ -74,6 +75,7 @@ const FormModal = ({
             formData[fieldId],
             onFieldChange,
             errors?.[fieldId],
+            focusLocationMarker,
             [...breadcrumbs, { display: title, id: fieldId }]
           ))}
         </div>
@@ -87,6 +89,7 @@ const FormModal = ({
             formData[fieldId],
             onFieldChange,
             errors?.[fieldId],
+            focusLocationMarker,
             [...breadcrumbs, { display: title, id: fieldId }]
           ))}
         </div>}

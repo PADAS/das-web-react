@@ -59,6 +59,12 @@ const MenuPopover = ({ buttonRef, className, onClose, ...otherProps }, ref) => {
     }
   };
 
+  const onGpsInputButtonClick = (event) => {
+    event.stopPropagation();
+
+    onJumpToCoordinates();
+  };
+
   useEffect(() => {
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
@@ -115,7 +121,7 @@ const MenuPopover = ({ buttonRef, className, onClose, ...otherProps }, ref) => {
         aria-label={t('gpsInputButtonLabel')}
         className={styles.gpsInputButton}
         disabled={!gpsInputValue}
-        onClick={() => onJumpToCoordinates()}
+        onClick={onGpsInputButtonClick}
         ref={gpsInputButtonRef}
         title={t('gpsInputButtonLabel')}
         type="button"

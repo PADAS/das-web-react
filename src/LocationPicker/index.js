@@ -18,6 +18,7 @@ const LocationPicker = ({
   disabled = false,
   id,
   inputProps = {},
+  jumpToLocationButtonZoom = undefined,
   name = '',
   onBlur = null,
   onChange,
@@ -71,6 +72,7 @@ const LocationPicker = ({
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
           id={id}
+          onFocus={() => setLocationButtonRef.current.focus()}
           placeholder={placeholder || t('defaultPlaceholder')}
           readOnly
           required={required}
@@ -97,7 +99,7 @@ const LocationPicker = ({
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
         disabled={!value || disabled}
-        onClick={() => jumpToLocation([value.longitude, value.latitude])}
+        onClick={() => jumpToLocation([value.longitude, value.latitude], jumpToLocationButtonZoom)}
         title={t('jumpToLocationButtonLabel')}
         type="button"
       >
@@ -116,6 +118,7 @@ const LocationPicker = ({
       <MenuPopover
         id={id}
         onChange={onChange}
+        onBlur={onBlur}
         onClose={() => setIsMenuPopoverOpen(false)}
         setLocationButtonRef={setLocationButtonRef}
         target={innerRef}

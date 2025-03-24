@@ -291,6 +291,7 @@ const DetailsSection = ({
 
     {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
       autofillDefaultInputs={isNewEvent}
+      eventLocation={reportForm.location}
       initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}

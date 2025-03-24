@@ -8,6 +8,7 @@ import { mockStore } from '../../../../../../../../__test-helpers/MockStore';
 import FormModal from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormModal', () => {
+  const focusLocationMarker = jest.fn();
   const onCancel = jest.fn();
   const onDeleteItem = jest.fn();
   const onDone = jest.fn();
@@ -31,6 +32,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
         columns={1}
         errors={{}}
+        focusLocationMarker={focusLocationMarker}
         formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
         isOpen
         itemName="Item"
@@ -115,6 +117,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       'Value 1',
       onFieldChange,
       undefined,
+      focusLocationMarker,
       [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-1', display: 'Item 3' }]
     );
     expect(renderField).toHaveBeenCalledWith(
@@ -122,6 +125,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       'Value 2',
       onFieldChange,
       undefined,
+      focusLocationMarker,
       [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-2', display: 'Item 3' }]
     );
   });

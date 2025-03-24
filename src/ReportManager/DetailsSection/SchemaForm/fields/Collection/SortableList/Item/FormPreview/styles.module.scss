@@ -17,22 +17,54 @@
     border-color: colors.$bright-red;
   }
 
-  .summaryLabel {
-    font-size: 0.875rem;
-    color: colors.$secondary-medium-gray;
-    margin: 0;
-
-    &.error {
-      color: colors.$bright-red;
-    }
-  }
-
-  .summaryValue {
-    color: black;
+  .fieldSummary {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 0.5rem;
 
-    &.error {
-      color: colors.$bright-red;
+    .label {
+      font-size: 0.875rem;
+      color: colors.$secondary-medium-gray;
+      margin: 0;
+  
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+  
+    .value {
+      color: black;
+      margin: 0;
+  
+      &.error {
+        color: colors.$bright-red;
+      }
+    }
+  
+    .jumpToLocationButton {
+      background: none;
+      border: none;
+      border-radius: 0.1875rem;
+      color: colors.$secondary-medium-gray;
+      outline: none;
+  
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+  
+      &:focus-visible {
+        border: 2px solid colors.$bright-blue;
+        color: colors.$bright-blue;
+      }
+
+      &.dragOverlay {
+        cursor: grabbing;
+
+        &:hover {
+          background: unset;
+        }
+      }
     }
   }
 }

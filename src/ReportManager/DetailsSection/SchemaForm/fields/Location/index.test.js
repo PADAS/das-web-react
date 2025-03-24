@@ -8,7 +8,11 @@ import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Location from './';
 
+jest.mock('../../../../../hooks/useJumpToLocation', () => () => () => {});
+
 describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () => {
+  const blurLocationMarker = jest.fn();
+  const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
 
   let details, store;
@@ -34,8 +38,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
   const renderLocationField = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <Location
+        blurLocationMarker={blurLocationMarker}
         details={details}
         error={undefined}
+        focusLocationMarker={focusLocationMarker}
         id="location-1"
         onFieldChange={onFieldChange}
         value={undefined}
@@ -112,6 +118,22 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
     expect(description).toHaveClass('error');
   });
 
+  test('focuses the corresponding location marker when the user focuses the location picker', async () => {
+    renderLocationField({
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
+    });
+
+    expect(focusLocationMarker).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByLabelText('Jump to location'));
+
+    expect(focusLocationMarker).toHaveBeenCalledTimes(1);
+    expect(focusLocationMarker).toHaveBeenCalledWith('location-1');
+  });
+
   test('updates the form data when the user does changes to the input', async () => {
     details.defaultInput = '';
     renderLocationField();
@@ -121,5 +143,37 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
     expect(onFieldChange).toHaveBeenCalledWith('location-1', { latitude: 10, longitude: 10 });
+  });
+
+  test('blurs the location marker when the user blurs the location picker', async () => {
+    renderLocationField({
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
+    });
+
+    await userEvent.click(screen.getByLabelText('Jump to location'));
+
+    expect(blurLocationMarker).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByText('Location 1 Description'));
+
+    expect(blurLocationMarker).toHaveBeenCalledTimes(1);
+  });
+
+  test('blurs the location marker when component unmounts', async () => {
+    const { unmount } = renderLocationField({
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
+    });
+
+    expect(blurLocationMarker).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(blurLocationMarker).toHaveBeenCalledTimes(1);
   });
 });
