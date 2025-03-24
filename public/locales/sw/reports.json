@@ -173,7 +173,8 @@
                   "doneButton": "Imekamilika"
                 },
                 "formPreview": {
-                    "collectionHumanizedValue": "{{collectionLength}} vitu"
+                    "collectionHumanizedValue": "{{collectionLength}} vitu",
+                    "jumpToLocationButtonLabel": "Ruka kwenye eneo la {{field}}"
                 },
                 "chevronButtonLabel": {
                   "closed": "Fungua muhtasari wa fomu ya {{itemTitle}}",

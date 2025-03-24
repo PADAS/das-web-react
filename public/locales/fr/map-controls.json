@@ -1,13 +1,19 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Appuyez sur la barre d'entrée pour rechercher",
-    "titleIconSearch": "Recherche"
+    "buttonLabel": {
+      "closed": "Ouvrir le menu d'affichage du GPS",
+      "open": "Fermer le menu d'affichage du GPS"
+    },
+    "menuPopover": {
+      "gpsDisplayTooltip": "Appuyez sur Entrée pour aller aux coordonnées",
+      "gpsInputButtonLabel": "Aller aux coordonnées"
+    }
   },
   "baseLayer": {
     "popoverButton": "Définir la Carte d'Arrière Plan",
     "popoverTitle": "Cartes de Fond",
     "logoAlt": "Logo {{logoName}} ",
-    "defaultMapLayerName": "Carte EarthRanger du Relief",
+    "defaultMapLayerName": "Carte EarthRanger du Relief"
   },
   "earthRangerMap": {
     "mapTitle": "Carte",

@@ -1,15 +1,15 @@
 import { format, isValid, parseISO } from 'date-fns';
 
+import { calcGpsDisplayString } from '../../../../../../../../utils/location';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../../../../../constants';
 import { shouldUse12HourFormat } from '../../../../../../../../utils/datetime';
 
-const getChoiceListOptionLabel = (value, field) => {
-  return field.details.options.find((option) => option.const === value)?.title;
-};
+const getChoiceListOptionLabel = (value, field) => field.details.options
+  .find((option) => option.const === value)?.title;
 
 // Utility to calculate a human readable version of the field values. For example, render a date-time like
 // 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
-export const getHumanizedValue = (field, value, defaultHumanizedValue, language, t) => {
+export const getHumanizedValue = (field, value, defaultHumanizedValue, language, gpsFormat, t) => {
   if (!value) {
     return defaultHumanizedValue;
   }
@@ -54,14 +54,14 @@ export const getHumanizedValue = (field, value, defaultHumanizedValue, language,
     return isValid(parsedDate) ? format(parsedDate, formatStr) : defaultHumanizedValue;
 
   case FORM_ELEMENT_TYPES.LOCATION:
-    return `${value.latitude}°, ${value.longitude}°`;
+    return calcGpsDisplayString(value.latitude, value.longitude, gpsFormat);
 
   default:
     return value;
   };
 };
 
-export const getItemTitle = (formData, identifier, defaultTitle, identifierField, language, t) =>
+export const getItemTitle = (formData, identifier, defaultTitle, identifierField, language, gpsFormat, t) =>
   !identifier || !formData[identifier]
     ? defaultTitle
-    : getHumanizedValue(identifierField, formData[identifier], defaultTitle, language, t);
+    : getHumanizedValue(identifierField, formData[identifier], defaultTitle, language, gpsFormat, t);

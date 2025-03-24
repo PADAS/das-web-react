@@ -34,7 +34,7 @@ import {
 import AreaSelectorInput from './AreaSelectorInput';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
 import GeometryPreview from './AreaSelectorInput/GeometryPreview';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
@@ -75,7 +75,7 @@ const DetailsSection = ({
   const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
   // Schema from schema selector, it is stored in redux.
   const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema.schema : null
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema?.schema : null
   );
   // Override to the schema.
   const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
@@ -91,7 +91,6 @@ const DetailsSection = ({
 
   const geometryType = eventType?.geometry_type;
   const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
-  const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -220,10 +219,10 @@ const DetailsSection = ({
                 onGeometryChange={onReportGeometryChange}
                 originalEvent={originalReport}
               />
-              : <LocationSelectorInput
-                label={null}
-                location={reportLocation}
-                onLocationChange={onReportLocationChange}
+              : <LocationPicker
+                id="reportManager-detailsSection-locationPicker"
+                onChange={onReportLocationChange}
+                value={reportForm.location || null}
               />
             }
           </label>
@@ -292,6 +291,7 @@ const DetailsSection = ({
 
     {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
       autofillDefaultInputs={isNewEvent}
+      eventLocation={reportForm.location}
       initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}

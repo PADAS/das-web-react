@@ -29,12 +29,24 @@ import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
 import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
-jest.mock('../../AddItemButton', () => jest.fn());
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useNavigate: () => () => null, /* eslint-disable-line react/display-name */
 }));
+
+jest.mock('../../AddItemButton', () => jest.fn());
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
@@ -241,20 +253,19 @@ describe('ReportManager - ReportDetailView', () => {
   test('sets the location when user changes it', async () => {
     renderWithWrapper(
       <ReportDetailView
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="1234"
-            />
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+        reportId="1234"
+      />
     );
 
-    const setLocationButton = await screen.findByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    const locationPickerButton = screen.getByLabelText('Event Location');
+    userEvent.click(locationPickerButton);
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
-    expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+    expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
   });
 
   test('sets the date when user changes it', async () => {
@@ -854,7 +865,7 @@ describe('ReportManager - ReportDetailView', () => {
     userEvent.tab();
 
 
-    const saveButtonGroup = (await screen.findAllByRole('group'))[2];
+    const saveButtonGroup = (await screen.findAllByRole('group'))[3];
     expect(saveButtonGroup).toHaveTextContent('Save');
 
     const saveBtnDropdownToggle = saveButtonGroup.querySelector('.dropdown-toggle');

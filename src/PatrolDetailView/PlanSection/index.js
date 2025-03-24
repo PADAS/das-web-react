@@ -20,7 +20,7 @@ import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
@@ -58,18 +58,6 @@ const PlanSection = ({
   const [endTime, setEndTime] = useState(getHoursAndMinutesString(displayEndDate));
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
-
-  const startLocation = useMemo(() => {
-    const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
-
-    return startLocation ? [startLocation.longitude, startLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
-
-  const endLocation = useMemo(() => {
-    const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
-
-    return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
 
   const handleEndDateChange = useCallback((date) => {
     setEndDate(date);
@@ -222,11 +210,11 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={startLocation}
-            onLocationChange={onPatrolStartLocationChange}
+          <LocationPicker
+            id="patrolDetailView-planSection-startLocationPicker"
+            onChange={onPatrolStartLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={patrolForm.patrol_segments?.[0]?.start_location || null}
           />
         </label>
       </div>
@@ -278,11 +266,11 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={endLocation}
-            onLocationChange={onPatrolEndLocationChange}
+          <LocationPicker
+            id="patrolDetailView-planSection-endLocationPicker"
+            onChange={onPatrolEndLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={patrolForm.patrol_segments?.[0]?.end_location || null}
           />
         </label>
       </div>

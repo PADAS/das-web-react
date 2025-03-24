@@ -1,0 +1,61 @@
+@use 'sass:color';
+
+@use '../../common/styles/vars/colors';
+@use '../../common/styles/inputs';
+
+.menuPopover {
+  @include inputs.boxShadow;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  width: 18rem;
+
+  [class*=popover-arrow] {
+    display: none;
+  }
+
+  .gpsInput {
+    input[type=text] {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
+  .gpsInputButton {
+    background-color: colors.$light-gray-background;
+    border: 1px solid #d8d9d9;
+    border-left: none;
+    border-radius: 0 .2rem .2rem 0;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    outline: none;
+    width: 2.5rem;
+
+    &:disabled {
+      background-color: colors.$disabled-field-gray;
+    }
+
+    &:focus-visible:not(:disabled) {
+      border: 2px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+
+    .searchIcon {
+      height: 0.875rem;
+      width: 0.875rem;
+
+      circle {
+        fill: none;
+        stroke: colors.$secondary-medium-gray;
+        stroke-width: 1rem;
+      }
+
+      path {
+        fill: colors.$secondary-medium-gray;
+      }
+    }
+  }
+}

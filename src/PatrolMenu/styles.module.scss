@@ -2,5 +2,9 @@
   button {
     padding-left: 0;
     color: var(--bs-dropdown-link-color);
+
+    &:hover:not(:disabled) {
+      background-color: unset;
+    }
   }
 }

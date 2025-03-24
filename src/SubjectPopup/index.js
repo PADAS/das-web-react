@@ -90,7 +90,12 @@ const SubjectPopup = ({ data }) => {
       </div>}
     </div>
 
-    <GpsFormatToggle className={styles.gpsFormatToggle} lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />
+    <GpsFormatToggle
+      className={styles.gpsFormatToggle}
+      lat={geometry.coordinates[1]}
+      lng={geometry.coordinates[0]}
+      name="subjectPopup-gpsFormatToggle"
+    />
 
     {radioWithRecentMicActivity && <div className={styles.micActivity}>
       <h5>{t('micActivityHeader')}</h5>

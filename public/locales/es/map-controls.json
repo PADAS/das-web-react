@@ -1,7 +1,13 @@
 {
   "cursorGPSDisplay": {
-    "gpsDisplayTooltip": "Presione enter para buscar",
-    "titleIconSearch": "Buscar"
+    "buttonLabel": {
+      "closed": "Abrir el menú de visualización del GPS",
+      "open": "Cerrar el menú de visualización del GPS"
+    },
+    "menuPopover": {
+      "gpsDisplayTooltip": "Presiona enter para saltar a las coordenadas",
+      "gpsInputButtonLabel": "Saltar a las coordenadas"
+    }
   },
   "baseLayer": {
     "popoverButton": "Configurar capa base del mapa",

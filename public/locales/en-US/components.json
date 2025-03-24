@@ -61,26 +61,45 @@
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",
     "shareLocationToastTitle": "Learn how"
   },
+  "getUserLocationButton": {
+    "errorToastMessage": "Could not read your current location: {{errorMessage}}",
+    "loadingOverlayMessage": "Trying to read your location...",
+    "userLocationButtonLabel": "Get current position"
+  },
+  "gpsFormatToggle": {
+    "fieldsetLegend": "GPS format",
+    "textCopyButtonLabel": "Copy GPS value to clipboard"
+  },
   "gpsInput": {
-    "gpsFormats": {
+    "defaultPlaceholder": "Location",
+    "errorMessage": "Invalid location",
+    "inputDescription": "Example: {{gpsFormat}}",
+    "inputLabel": "GPS location",
+    "placeholders": {
       "DDM": "Degrees, Decimals, Minutes",
       "DEG": "Latitude, Longitude",
       "DMS": "Degrees, Minutes, Seconds",
       "UTM": "Universal Transverse Mercator",
       "MGRS": "Military Grid Reference System"
-    },
-    "defaultPlaceholder": "Location",
-    "inputExample": "Example: {{gpsFormat}}",
-    "invalidLocation": "Invalid location"
+    }
   },
   "locationJumpButton": {
     "title": "Jump to this location"
   },
-  "mapLocationPicker": {
-    "cancelButton": "Cancel",
-    "popupLabel": "Click to select a location",
-    "selectLocationButtonLabel": "Choose on map",
-    "selectLocationButtonTitle": "Place marker on map"
+  "locationPicker": {
+    "defaultPlaceholder": "Set Location",
+    "inputDescription": "Click the button to set a value from the location picker menu.",
+    "inputLabel": "Location",
+    "jumpToLocationButtonLabel": "Jump to location",
+    "menuPopover": {
+      "getUserLocationButton": "Use my location",
+      "pickMapLocationButton": "Set on map"
+    },
+    "setLocationButtonLabel": {
+      "closed": "Open the location picker menu to set a value",
+      "open": "Close the location picker menu"
+    },
+    "textCopyButtonLabel": "Copy location to clipboard"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -119,6 +138,10 @@
     "numericInputLabel": "Numeric field",
     "incrementValueNumericInputButtonLabel": "Increment numeric value button",
     "decrementValueNumericInputButtonLabel": "Decrement numeric value button"
+  },
+  "pickMapLocationButton": {
+    "instructionsPopupLabel": "Click to select a location",
+    "pickLocationButtonLabel": "Pick a location on the map"
   },
   "priorityPicker": {
     "amber": "Amber",
@@ -216,6 +239,7 @@
     "alarmRadioStateToastMessage": "{{subjectName}} needs immediate attention"
   },
   "textCopyBtn": {
+    "buttonLabel": "Copy to clipboard",
     "defaultToastMessage": "Copied to clipboard"
   },
   "timePicker": {

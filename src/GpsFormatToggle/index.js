@@ -1,6 +1,6 @@
-import React, { memo, useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
@@ -12,55 +12,73 @@ import styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatChoice = ({ currentFormat, format }) => {
+const GpsFormatToggle = ({ lat = null, lng = null, name, showGpsString = true, ...otherProps }, ref) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
-  const onClick = useCallback(() => {
-    dispatch(updateUserPreferences({ gpsFormat: format }));
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-    gpsFormatTracker.track('Change GPS Format', `GPS Format:${format}`);
-  }, [dispatch, format]);
+  const fieldsetRef = useRef();
+  const innerRef = useRef();
 
-  return <li className={format === currentFormat ? styles.active : ''} onClick={onClick}>
-    {format}
-  </li>;
-};
+  useImperativeHandle(ref, () => innerRef.current);
 
-const GpsFormatToggle = ({ lat, lng, showGpsString, showCopyControl, ...rest }) => {
-  const currentGPSFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const gpsString = showGpsString && lat !== null && lng !== null ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
 
-  const gpsString = showGpsString ? calcGpsDisplayString(lat, lng, currentGPSFormat) : null;
-  const shouldShowCopyControl = showCopyControl ?? showGpsString;
+  const onGpsFormatChange = (gpsFormat) => {
+    dispatch(updateUserPreferences({ gpsFormat }));
 
-  return <div {...rest}>
-    <ul className={styles.choices}>
-      {Object.values(GPS_FORMATS).map((gpsFormat) => <GpsFormatChoice
-        currentFormat={currentGPSFormat}
-        format={gpsFormat}
-        key={gpsFormat}
-      />)}
-    </ul>
+    gpsFormatTracker.track('Change GPS Format', `GPS Format:${gpsFormat}`);
+  };
+
+  useEffect(() => {
+    // Fixes a bug in when mounting map popups where the browser automatically focuses the first input and not the
+    // one that is checked.
+    setTimeout(() => {
+      if (fieldsetRef.current?.contains(document.activeElement) && document.activeElement !== innerRef.current) {
+        innerRef.current.focus();
+      }
+    });
+  }, []);
+
+  return <div {...otherProps}>
+    <fieldset className={styles.fieldset} ref={fieldsetRef}>
+      <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
+
+      {Object.values(GPS_FORMATS).map((itemGpsFormat) =>
+        <label
+          className={`${styles.label} ${gpsFormat === itemGpsFormat ? styles.active : ''}`}
+          key={itemGpsFormat}
+        >
+          <input
+            checked={gpsFormat === itemGpsFormat}
+            className={styles.radioInput}
+            name={name}
+            onChange={() => onGpsFormatChange(itemGpsFormat)}
+            ref={(element) => {
+              if (gpsFormat === itemGpsFormat) {
+                innerRef.current = element;
+              }
+            }}
+            type="radio"
+            value={itemGpsFormat}
+          />
+
+          {itemGpsFormat}
+        </label>)}
+    </fieldset>
 
     {gpsString && <div className={styles.gpsStringWrapper}>
-      <span className={styles.value} data-testid="gpsFormatToggle-gpsString">{gpsString}</span>
+      <span className={styles.value}>{gpsString}</span>
 
-      {shouldShowCopyControl && <TextCopyBtn text={gpsString} />}
+      <TextCopyBtn
+        aria-label={t('textCopyButtonLabel')}
+        className={styles.textCopyButton}
+        text={gpsString}
+        title={t('textCopyButtonLabel')}
+      />
     </div>}
   </div>;
 };
 
-GpsFormatToggle.defaultProps = {
-  lat: null,
-  lng: null,
-  showCopyControl: null,
-  showGpsString: true,
-};
-
-GpsFormatToggle.propTypes = {
-  lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  showCopyControl: PropTypes.bool,
-  showGpsString: PropTypes.bool,
-};
-
-export default memo(GpsFormatToggle);
+export default memo(forwardRef(GpsFormatToggle));

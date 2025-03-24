@@ -7,6 +7,11 @@
   background: none !important;
 }
 
+// So much detail is needed to override the App.scss .modal[role=dialog] display: flex !important
+.hide[class*=modal][role=dialog] {
+  display: none !important;
+}
+
 .header {
   background-color: white;
   flex-direction: column;

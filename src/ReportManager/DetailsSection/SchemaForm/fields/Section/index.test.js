@@ -6,6 +6,7 @@ import { render, screen } from '../../../../../test-utils';
 import Section from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () => {
+  const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const onFieldErrorsChange = jest.fn();
   const renderField = jest.fn();
@@ -23,6 +24,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
   const renderSectionField = (props) => render(<Section
     details={details}
     fieldErrors={{}}
+    focusLocationMarker={focusLocationMarker}
     formData={{ 'text-1': 'Value 1' }}
     id="section-1"
     onFieldChange={onFieldChange}
@@ -83,6 +85,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     expect(renderField.mock.calls[0][0]).toBe('text-1');
     expect(renderField.mock.calls[0][1]).toBe('Value 1');
     expect(renderField.mock.calls[0][3]).toBe(undefined);
+    expect(renderField.mock.calls[0][4]).toBe(focusLocationMarker);
   });
 
   test('applies changes in values and errors from the children', () => {

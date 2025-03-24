@@ -1,8 +1,28 @@
-@import '../common/styles/buttons';
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
 
-.clipboardWrapper {
-  position: relative;
-  button {
-    @include unstyledButton;
+.textCopyButton {
+  background: none;
+  border: none;
+  border-radius: 0.1875rem;
+  color: colors.$secondary-medium-gray;
+  outline: none;
+
+  &:disabled {
+    background-color: colors.$disabled-field-gray;
+    color: colors.$secondary-medium-gray;
+  }
+
+  &:focus-visible:not(:disabled) {
+    border: 2px solid colors.$bright-blue;
+    color: colors.$bright-blue;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: colors.$light-gray-background;
+  }
+
+  .text {
+    color: black;
   }
 }

@@ -1,19 +1,24 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, within } from '../../../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { GPS_FORMATS } from '../../../../../../../utils/location';
+import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 
 import Item from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item', () => {
+  const blurLocationMarker = jest.fn();
+  const focusLocationMarker = jest.fn();
   const onChange = jest.fn();
   const onDelete = jest.fn();
   const renderField = jest.fn();
   const setIsFormModalOpen = jest.fn();
   const setIsFormPreviewOpen = jest.fn();
 
-  let collectionDetails;
+  let collectionDetails, store;
   beforeEach(() => {
     collectionDetails = {
       columns: 1,
@@ -21,40 +26,59 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       itemName: 'Collection 1',
       leftColumn: ['field-1', 'field-2'],
       rightColumn: [],
+      value: 'collection-1',
+    };
+
+    store = {
+      view: {
+        modals: {
+          canShowModals: true,
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
     };
   });
 
-  const renderItem = (props) => render(<Item
-    breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-    collectionDetails={collectionDetails}
-    errors={undefined}
-    fields={{
-      'field-1': {
-        details: {
-          label: 'Field 1',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-      'field-2': {
-        details: {
-          label: 'Field 2',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-    }}
-    formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
-    id={1}
-    isDragging={false}
-    isDragOverlay={false}
-    isFormModalOpen={false}
-    isFormPreviewOpen={false}
-    onChange={onChange}
-    onDelete={onDelete}
-    renderField={renderField}
-    setIsFormModalOpen={setIsFormModalOpen}
-    setIsFormPreviewOpen={setIsFormPreviewOpen}
-    {...props}
-  />);
+  const renderItem = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <Item
+        blurLocationMarker={blurLocationMarker}
+        breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+        collectionDetails={collectionDetails}
+        errors={undefined}
+        fields={{
+          'field-1': {
+            details: {
+              label: 'Field 1',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+          'field-2': {
+            details: {
+              label: 'Field 2',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+        }}
+        focusLocationMarker={focusLocationMarker}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        id={1}
+        index={0}
+        isDragging={false}
+        isDragOverlay={false}
+        isFormModalOpen={false}
+        isFormPreviewOpen={false}
+        onChange={onChange}
+        onDelete={onDelete}
+        renderField={renderField}
+        setIsFormModalOpen={setIsFormModalOpen}
+        setIsFormPreviewOpen={setIsFormPreviewOpen}
+        {...props}
+      />
+    </Provider>
+  );
 
   test('shows the item with the form preview open', () => {
     renderItem({ isFormPreviewOpen: true });
@@ -116,6 +140,18 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     userEvent.click(screen.getAllByLabelText('Open the Value 1 form preview')[1]);
 
     expect(setIsFormPreviewOpen).toHaveBeenCalledTimes(1);
+  });
+
+  test('assigns an id to the item based on its position in the form data', () => {
+    renderItem();
+
+    expect(screen.getByTestId('schema-form-collection-item')).toHaveAttribute('id', 'collection-1.0');
+  });
+
+  test('does not assign an id to the item if the position index is not provided', () => {
+    renderItem({ index: undefined });
+
+    expect(screen.getByTestId('schema-form-collection-item')).not.toHaveAttribute('id');
   });
 
   test('opens the form preview when the user clicks the title', () => {
@@ -252,36 +288,41 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
   test('resets the initial values of the form and closes the form modal after editing it if the user clicks Cancel', async () => {
     const { rerender } = renderItem({ isFormModalOpen: true });
 
-    rerender(<Item
-      breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-      collectionDetails={collectionDetails}
-      errors={undefined}
-      fields={{
-        'field-1': {
-          details: {
-            label: 'Field 1',
-          },
-          type: FORM_ELEMENT_TYPES.TEXT,
-        },
-        'field-2': {
-          details: {
-            label: 'Field 2',
-          },
-          type: FORM_ELEMENT_TYPES.TEXT,
-        },
-      }}
-      formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
-      id={1}
-      isDragging={false}
-      isDragOverlay={false}
-      isFormModalOpen={true}
-      isFormPreviewOpen={false}
-      onChange={onChange}
-      onDelete={onDelete}
-      renderField={renderField}
-      setIsFormModalOpen={setIsFormModalOpen}
-      setIsFormPreviewOpen={setIsFormPreviewOpen}
-    />);
+    rerender(
+      <Provider store={mockStore(store)}>
+        <Item
+          blurLocationMarker={blurLocationMarker}
+          breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+          collectionDetails={collectionDetails}
+          errors={undefined}
+          fields={{
+            'field-1': {
+              details: {
+                label: 'Field 1',
+              },
+              type: FORM_ELEMENT_TYPES.TEXT,
+            },
+            'field-2': {
+              details: {
+                label: 'Field 2',
+              },
+              type: FORM_ELEMENT_TYPES.TEXT,
+            },
+          }}
+          formData={{ 'field-1': 'New value 1', 'field-2': 'Value 2' }}
+          id={1}
+          isDragging={false}
+          isDragOverlay={false}
+          isFormModalOpen={true}
+          isFormPreviewOpen={false}
+          onChange={onChange}
+          onDelete={onDelete}
+          renderField={renderField}
+          setIsFormModalOpen={setIsFormModalOpen}
+          setIsFormPreviewOpen={setIsFormPreviewOpen}
+        />
+      </Provider>
+    );
 
     expect(onChange).not.toHaveBeenCalled();
     expect(setIsFormModalOpen).not.toHaveBeenCalled();

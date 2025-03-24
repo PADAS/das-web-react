@@ -107,10 +107,30 @@ describe('TimePicker', () => {
   test('sets the time picker as read only', () => {
     renderTimePicker({ readOnly: true });
 
-    expect(screen.getByLabelText('Hour')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Minute')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Time period')).toHaveAttribute('readonly');
+    const hourInput = screen.getByLabelText('Hour');
+    const minuteInput = screen.getByLabelText('Minute');
+    const timePeriodInput = screen.getByLabelText('Time period');
+
+    expect(hourInput).toHaveAttribute('readonly');
+    expect(minuteInput).toHaveAttribute('readonly');
+    expect(timePeriodInput).toHaveAttribute('readonly');
     expect(screen.getByLabelText('Open time options')).toBeDisabled();
+
+    userEvent.click(hourInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+
+    userEvent.click(minuteInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+
+    userEvent.click(timePeriodInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+    userEvent.type(timePeriodInput, 'a');
+    userEvent.type(timePeriodInput, 'p');
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   test('does not set the time picker as required', () => {
@@ -183,6 +203,14 @@ describe('TimePicker', () => {
     expect(onChange).toHaveBeenCalledWith('01:');
   });
 
+  test('does not autofill the first digit when the hour input is blurred and it has a digit below 2 for 12 hour format if the field is readonly', () => {
+    renderTimePicker({ readOnly: true, value: '1:' });
+
+    fireEvent.blur(screen.getByLabelText('Hour'));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('autofills the first digit when the hour input is blurred and it has a digit below 3 for 24 hour format', () => {
     shouldUse12HourFormat.mockImplementation(() => false);
 
@@ -194,6 +222,16 @@ describe('TimePicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('02:');
+  });
+
+  test('does not autofill the first digit when the hour input is blurred and it has a digit below 3 for 24 hour format if the field is readonly', () => {
+    shouldUse12HourFormat.mockImplementation(() => false);
+
+    renderTimePicker({ readOnly: true, value: '2:' });
+
+    fireEvent.blur(screen.getByLabelText('Hour'));
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   test('changes when the user modifies the hour input with a valid value', () => {
@@ -509,6 +547,14 @@ describe('TimePicker', () => {
     expect(onChange).toHaveBeenCalledWith(':05');
   });
 
+  test('does not autofill the first digit when the minute input is blurred and it has a digit below 6 if the field is readonly', () => {
+    renderTimePicker({ readOnly: true, value: ':5' });
+
+    fireEvent.blur(screen.getByLabelText('Minute'));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('changes when the user modifies the minute input with a valid value', () => {
     renderTimePicker();
 
@@ -776,7 +822,7 @@ describe('TimePicker', () => {
     expect(openTimeOptionsButton).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('closes the calendar', () => {
+  test('closes the time options', async () => {
     renderTimePicker();
 
     const openTimeOptionsButton = screen.getByLabelText('Open time options');
@@ -790,7 +836,7 @@ describe('TimePicker', () => {
 
     expect(openTimeOptionsButton).toHaveAttribute('aria-expanded', 'false');
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(timeOptions).not.toBeVisible();
     });
   });
