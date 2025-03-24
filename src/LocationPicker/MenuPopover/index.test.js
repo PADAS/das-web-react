@@ -32,6 +32,9 @@ describe('LocationPicker - MenuPopover', () => {
   beforeEach(() => {
     store = {
       view: {
+        mapLocationSelection: {
+          isPickingLocation: false,
+        },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {
@@ -245,6 +248,45 @@ describe('LocationPicker - MenuPopover', () => {
     userEvent.click(screen.getByTestId('outside'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onBlur).not.toHaveBeenCalled();
+  });
+
+  test('does not close the menu if the user clicks outside while picking a location', () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+
+    render(<>
+      <div data-testid="outside" />
+
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <MenuPopover
+            className="className"
+            id="locationPicker"
+            onBlur={onBlur}
+            onChange={onChange}
+            onClose={onClose}
+            setLocationButtonRef={{
+              current: {
+                contains: () => false,
+                focus: setLocationButtonRefFocus,
+              },
+            }}
+            style={{}}
+            target={{
+              current: {
+                contains: () => false,
+                offsetWidth: 100,
+              },
+            }}
+            value={null}
+          />
+        </MapContext.Provider>
+      </Provider>
+    </>);
+
+    userEvent.click(screen.getByTestId('outside'));
+
+    expect(onClose).not.toHaveBeenCalled();
     expect(onBlur).not.toHaveBeenCalled();
   });
 });

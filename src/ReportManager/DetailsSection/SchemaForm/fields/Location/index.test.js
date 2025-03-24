@@ -26,6 +26,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     store = {
       view: {
+        mapLocationSelection: {
+          isPickingLocation: false,
+        },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {

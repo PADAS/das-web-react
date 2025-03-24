@@ -34,18 +34,15 @@ const useLocationMarkersLayer = (eventLocation, onMarkerClickCallback) => {
     ))
   ), [markers]);
 
-  // GeoJSON feature collection with line strings connecting each marker to the event location.
-  const markerConnectingLinesFeatureCollection = useMemo(() => {
-    if (eventLocation?.latitude && eventLocation?.longitude) {
-      return featureCollection(
-        Object.values(markers).map((markerLocation) => lineString([
-          [markerLocation.longitude, markerLocation.latitude],
-          [eventLocation.longitude, eventLocation.latitude],
-        ]))
-      );
-    }
-    return null;
-  }, [eventLocation?.latitude, eventLocation?.longitude, markers]);
+  // GeoJSON feature collection with line strings connecting each marker to the event location if it is defined.
+  const markerConnectingLinesFeatureCollection = useMemo(() => featureCollection(
+    eventLocation?.latitude && eventLocation?.longitude
+      ? Object.values(markers).map((markerLocation) => lineString([
+        [markerLocation.longitude, markerLocation.latitude],
+        [eventLocation.longitude, eventLocation.latitude],
+      ]))
+      : []
+  ), [eventLocation?.latitude, eventLocation?.longitude, markers]);
 
   // Map sources for the marker points and connecting lines.
   useMapSources([{ data: markerPointsFeatureCollection, id: MARKERS_SOURCE_ID }]);

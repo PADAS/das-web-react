@@ -35,6 +35,47 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useLocationMarke
     expect(onMarkerClickCallback).toHaveBeenCalledWith('clicked-marker');
   });
 
+  it('adds the location markers source to the map', () => {
+    renderHook(() =>
+      useLocationMarkersLayer(
+        { latitude: 10, longitude: 10 },
+        onMarkerClickCallback
+      )
+    );
+
+    expect(useMapSources).toHaveBeenCalledTimes(2);
+    expect(useMapSources).toHaveBeenCalledWith([
+      {
+        data: { features: [], type: 'FeatureCollection' },
+        id: 'event-location-markers-source',
+      },
+    ]);
+    expect(useMapSources).toHaveBeenCalledWith([
+      {
+        data: { features: [], type: 'FeatureCollection' },
+        id: 'event-location-markers-source-lines',
+      },
+    ]);
+  });
+
+  it('adds the location markers source to the map for an event without location', () => {
+    renderHook(() => useLocationMarkersLayer(null, onMarkerClickCallback));
+
+    expect(useMapSources).toHaveBeenCalledTimes(2);
+    expect(useMapSources).toHaveBeenCalledWith([
+      {
+        data: { features: [], type: 'FeatureCollection' },
+        id: 'event-location-markers-source',
+      },
+    ]);
+    expect(useMapSources).toHaveBeenCalledWith([
+      {
+        data: { features: [], type: 'FeatureCollection' },
+        id: 'event-location-markers-source-lines',
+      },
+    ]);
+  });
+
   it('updates the markers in the map', () => {
     const { result } = renderHook(() =>
       useLocationMarkersLayer(
@@ -190,7 +231,8 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - useLocationMarke
       )
     );
 
-    const { blurLocationMarker, focusLocationMarker, updateLocationMarkers } = result.current;
+    const { blurLocationMarker, focusLocationMarker, updateLocationMarkers } =
+      result.current;
 
     updateLocationMarkers({
       'location-1': {
