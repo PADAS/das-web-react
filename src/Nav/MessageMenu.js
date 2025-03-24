@@ -6,7 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
 import { allSubjects } from '../selectors/subjects';
-import { fetchAllMessages, fetchMessagesSuccess, updateMessageFromRealtime } from '../ducks/messaging';
+import {
+  fetchAllMessages,
+  fetchMessagesSuccess,
+  getUnreadMessagesCount,
+  updateMessageFromRealtime,
+  updateUnreadMessagesCount
+} from '../ducks/messaging';
 import MessageContext from '../InReach/context';
 
 import Badge from '../Badge';
@@ -19,6 +25,7 @@ import styles from './styles.module.scss';
 
 const RADIO_MESSAGE_REALTIME = 'radio_message';
 const SLEEP_DETECTION_INTERVAL = 60000;
+const MENU_MESSAGES_PAGE_SIZE = 100;
 
 const MessageMenu = () => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'nav.messageMenu' });
@@ -29,18 +36,27 @@ const MessageMenu = () => {
 
   const [selectedSubject, setSelectedSubject] = useState(null);
 
-  const unreads = state.results.filter((message) => !message.read);
-  const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
+  const { unreadMessagesCount } = state;
+  const badgeCount = unreadMessagesCount > 9 ? '9+' : unreadMessagesCount;
 
   const canShowMessageMenu = useMemo(
     () => !!state.results.length || !!subjects.filter((subject) => !!subject?.messaging?.length).length,
     [state.results.length, subjects]
   );
 
-  const fetchMenuMessages = useCallback((getUnreadMessagesOnly = false) => {
-    const page_size = 100;
-    const params = !getUnreadMessagesOnly ? { page_size } : { page_size, read: false };
-    fetchAllMessages(params)
+  const onMessagesRead = useCallback(() => dispatch(updateUnreadMessagesCount(0)), [dispatch]);
+
+  const checkForUnreadMessages = useCallback(() => {
+    getUnreadMessagesCount()
+      .then((response) => {
+        const { data: { data } } = response;
+        dispatch(updateUnreadMessagesCount(data.count));
+      })
+      .catch((error) => console.warn('error checking for unread messages', { error }));
+  }, [dispatch]);
+
+  const fetchMenuMessages = useCallback(() => {
+    fetchAllMessages({ page_size: MENU_MESSAGES_PAGE_SIZE })
       .then((results = []) => {
         dispatch(fetchMessagesSuccess({ results }));
       })
@@ -48,10 +64,8 @@ const MessageMenu = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (subjects.length > 0){
-      fetchMenuMessages(true);
-    }
-  }, [dispatch, fetchMenuMessages, subjects]);
+    checkForUnreadMessages();
+  }, [checkForUnreadMessages]);
 
   return canShowMessageMenu ? <Dropdown
       align="end"
@@ -61,11 +75,13 @@ const MessageMenu = () => {
     <Dropdown.Toggle aria-label={t('messageMenuToggleLabel')} title={t('messageMenuToggleTitle')}>
       <ChatIcon className={styles.messageIcon} />
 
-      {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
+      {!!unreadMessagesCount && <Badge className={styles.badge} count={badgeCount} />}
     </Dropdown.Toggle>
 
     <Dropdown.Menu>
-      <MessagesModal onSelectSubject={(subject) => setSelectedSubject(subject)} selectedSubject={selectedSubject} />
+      <MessagesModal onSelectSubject={(subject) => setSelectedSubject(subject)}
+                     selectedSubject={selectedSubject}
+                     onMessagesRead={onMessagesRead} />
     </Dropdown.Menu>
 
     <StateManagedSocketConsumer

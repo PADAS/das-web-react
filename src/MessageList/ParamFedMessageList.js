@@ -9,7 +9,7 @@ import {
   fetchMessagesSuccess,
   INITIAL_MESSAGE_LIST_STATE,
   messageListReducer,
-  updateMessageFromRealtime,
+  updateMessageFromRealtime
 } from '../ducks/messaging';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import { SocketContext } from '../withSocketConnection';
@@ -19,7 +19,7 @@ import MessageList from './';
 
 import styles from './styles.module.scss';
 
-const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
+const ParamFedMessageList = ({ isReverse, params, onMessageRead, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.paramFedMessageList' });
 
   const socket = useContext(SocketContext);
@@ -84,9 +84,10 @@ const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
 
   useEffect(() => {
     if (!!unreads.length) {
-      bulkReadMessages(unreads.map(({ id }) => id));
+      bulkReadMessages(unreads.map(({ id }) => id))
+        .then(() => onMessageRead?.());
     }
-  }, [unreads]);
+  }, [unreads, dispatch, onMessageRead]);
 
   return <div className={styles.scrollContainer} ref={containerRef}>
     <MessageList
