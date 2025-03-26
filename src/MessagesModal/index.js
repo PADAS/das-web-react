@@ -24,7 +24,7 @@ const BODY_STYLES ={
   width: '100vw',
 };
 
-const MessagesModal = ({ onSelectSubject, selectedSubject, onMessagesRead }) => {
+const MessagesModal = ({ onSelectSubject, selectedSubject }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'messagesModal' });
 
   const subjectStore = useSelector((state) => state.data.subjectStore);
@@ -73,7 +73,7 @@ const MessagesModal = ({ onSelectSubject, selectedSubject, onMessagesRead }) => 
     </Modal.Body>
 
     {selectedSubject && <Modal.Body style={BODY_STYLES}>
-      <ParamFedMessageList isReverse params={params} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} onMessageRead={onMessagesRead} />
+      <ParamFedMessageList isReverse params={params} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
     </Modal.Body>}
 
     {!selectingRecipient && <>

@@ -19,7 +19,7 @@ import MessageList from './';
 
 import styles from './styles.module.scss';
 
-const ParamFedMessageList = ({ isReverse, params, onMessageRead, ...restProps }) => {
+const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.paramFedMessageList' });
 
   const socket = useContext(SocketContext);
@@ -84,10 +84,9 @@ const ParamFedMessageList = ({ isReverse, params, onMessageRead, ...restProps })
 
   useEffect(() => {
     if (!!unreads.length) {
-      bulkReadMessages(unreads.map(({ id }) => id))
-        .then(() => onMessageRead?.());
+      bulkReadMessages(unreads.map(({ id }) => id));
     }
-  }, [unreads, dispatch, onMessageRead]);
+  }, [unreads, dispatch]);
 
   return <div className={styles.scrollContainer} ref={containerRef}>
     <MessageList

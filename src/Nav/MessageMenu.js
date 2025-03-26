@@ -9,9 +9,8 @@ import { allSubjects } from '../selectors/subjects';
 import {
   fetchAllMessages,
   fetchMessagesSuccess,
-  getUnreadMessagesCount,
-  updateMessageFromRealtime,
-  updateUnreadMessagesCount
+  fetchUnreadMessagesCount,
+  updateMessageFromRealtime, updateUnreadMessagesCount
 } from '../ducks/messaging';
 import MessageContext from '../InReach/context';
 
@@ -44,14 +43,9 @@ const MessageMenu = () => {
     [state.results.length, subjects]
   );
 
-  const onMessagesRead = useCallback(() => dispatch(updateUnreadMessagesCount(0)), [dispatch]);
-
   const checkForUnreadMessages = useCallback(() => {
-    getUnreadMessagesCount()
-      .then((response) => {
-        const { data: { data } } = response;
-        dispatch(updateUnreadMessagesCount(data.count));
-      })
+    fetchUnreadMessagesCount()
+      .then(({ data: { data: { count } } }) => dispatch(updateUnreadMessagesCount(count)))
       .catch((error) => console.warn('error checking for unread messages', { error }));
   }, [dispatch]);
 
@@ -65,7 +59,7 @@ const MessageMenu = () => {
 
   useEffect(() => {
     checkForUnreadMessages();
-  }, [checkForUnreadMessages]);
+  }, [checkForUnreadMessages, state.results]);
 
   return canShowMessageMenu ? <Dropdown
       align="end"
@@ -80,8 +74,7 @@ const MessageMenu = () => {
 
     <Dropdown.Menu>
       <MessagesModal onSelectSubject={(subject) => setSelectedSubject(subject)}
-                     selectedSubject={selectedSubject}
-                     onMessagesRead={onMessagesRead} />
+                     selectedSubject={selectedSubject} />
     </Dropdown.Menu>
 
     <StateManagedSocketConsumer
