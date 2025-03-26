@@ -11,6 +11,7 @@ import { objectToParamString, recursivePaginatedQuery } from '../utils/query';
 import { messageIsValidForDisplay } from '../utils/messaging';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
+const UPDATE_UNREAD_MESSAGES_COUNT = 'UPDATE_UNREAD_MESSAGES_COUNT';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
 
@@ -22,7 +23,6 @@ export const fetchMessagesSuccess = (payload, refresh = false) => ({
   refresh,
 });
 
-
 export const updateMessageFromRealtime = payload => ({
   type: SOCKET_MESSAGE_UPDATE,
   payload,
@@ -33,7 +33,14 @@ export const removeMessageById = id => ({
   payload: id,
 });
 
+export const updateUnreadMessagesCount = (payload) => ({
+  type: UPDATE_UNREAD_MESSAGES_COUNT,
+  payload,
+});
+
 const { get, post } = axios;
+
+export const fetchUnreadMessagesCount = () => axios.get(`${MESSAGING_API_URL}?include_additional_data=false&page_size=0&read=false`);
 
 export const fetchMessages = (params = {}) => {
   const paramString = objectToParamString(
@@ -67,6 +74,7 @@ export const INITIAL_MESSAGE_LIST_STATE = {
   next: null,
   previous: null,
   count: 0,
+  unreadMessagesCount: 0,
 };
 export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) => {
   const { refresh, type, payload } = action;
@@ -92,6 +100,13 @@ export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) =
     return {
       ...state,
       results: unionBy([payload], state.results || [], 'id'),
+    };
+  }
+
+  if (type === UPDATE_UNREAD_MESSAGES_COUNT) {
+    return {
+      ...state,
+      unreadMessagesCount: payload,
     };
   }
 
