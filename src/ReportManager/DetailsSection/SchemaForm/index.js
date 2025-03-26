@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
 import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
-import useLocationMarkersLayer from './utils/useLocationMarkersLayer';
+import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
 import Collection from './fields/Collection';
@@ -23,7 +23,9 @@ export const FIELDS = {
 
 const SchemaForm = ({
   autofillDefaultInputs,
+  eventId,
   eventLocation,
+  hideMapLocationMarkers,
   initialFormData,
   onFormDataChange,
   onFormSubmit,
@@ -48,8 +50,8 @@ const SchemaForm = ({
   const {
     blurLocationMarker,
     focusLocationMarker,
-    updateLocationMarkers
-  } = useLocationMarkersLayer(eventLocation, onLocationMarkerClick);
+    setLocationMarkers,
+  } = useMapLocationMarkers(eventId, eventLocation, onLocationMarkerClick, hideMapLocationMarkers);
 
   // This ref works as a flag to trigger a useEffect and call onFormDataChange asynchronously when there are changes in
   // the form data, so we can keep the onSectionFieldChange dependency array empty.
@@ -160,8 +162,8 @@ const SchemaForm = ({
     };
     addLocationMarkersFromFormDataRecursively(formData);
 
-    updateLocationMarkers(locationMarkers);
-  }, [fields, formData, updateLocationMarkers]);
+    setLocationMarkers(locationMarkers);
+  }, [fields, formData, setLocationMarkers]);
 
   return <form onSubmit={onSubmit}>
     {fields[ROOT_CANVAS_ID]?.details.fields.map((sectionId) => <Section

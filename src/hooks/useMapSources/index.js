@@ -2,51 +2,54 @@ import { useContext, useEffect, useRef } from 'react';
 
 import { MapContext } from '../../App';
 
-const DEFAULT_CONFIGURATION = { type: 'geojson' };
 
-const useMapSources = (sourceConfigurations = [], defaultConfiguration = DEFAULT_CONFIGURATION) => {
+const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson' }) => {
   const map = useContext(MapContext);
-
-  const idsOfSourcesAddedToMapRef = useRef([]);
+  const sourceIdsRef = useRef([]);
 
   useEffect(() => {
     if (map) {
-      sourceConfigurations.forEach((sourceConfiguration) => {
-        const source = map.getSource(sourceConfiguration.id);
-        if (source) {
-          // If the source is already in the map, update its data.
-          source.setData(sourceConfiguration.data);
-        } else {
-          // If the source is not in the map yet, add it.
-          map.addSource(sourceConfiguration.id, {
-            ...defaultConfiguration,
-            ...sourceConfiguration.options,
-            data: sourceConfiguration.data,
+      sourceConfigsBatch.forEach(sourceConfig => {
+        if (sourceConfig?.id && !map.getSource(sourceConfig.id)){
+          const { id, data = {}, options = {} } = sourceConfig;
+          const fullSourceConfig = { ...defaultConfig, ...options };
+          map.addSource(id, {
+            ...fullSourceConfig,
+            data,
           });
-
-          idsOfSourcesAddedToMapRef.current = [...idsOfSourcesAddedToMapRef.current, sourceConfiguration.id];
+          sourceIdsRef.current.push(id);
         }
       });
     }
-  }, [defaultConfiguration, map, sourceConfigurations]);
+  }, [map, sourceConfigsBatch, defaultConfig]);
 
   useEffect(() => {
-    if (map) {
-      const idsOfSourcesAddedToMap = idsOfSourcesAddedToMapRef.current;
+    sourceConfigsBatch.forEach(sourceConfig => {
+      const source = map?.getSource?.(sourceConfig?.id);
+      if (sourceConfig?.id && sourceConfig?.data && source){
+        source.setData?.(sourceConfig.data);
+      }
+    });
+  }, [map, sourceConfigsBatch]);
 
-      // Remove the sources from the map on unmount.
-      return () => setTimeout(() => idsOfSourcesAddedToMap.forEach((sourceId) => {
-        if (map.getSource(sourceId)) {
-          map.removeSource(sourceId);
-        }
-      }));
-    }
+  useEffect(() => {
+    const refs = sourceIdsRef?.current;
+    return () => {
+      if (map) {
+        setTimeout(() => {
+          refs.forEach(id => {
+            if (map?.getSource(id)) {
+              map.removeSource(id);
+            }
+          });
+        });
+      }
+    };
   }, [map]);
 
-  // Return the sources that are already defined in the map.
-  return sourceConfigurations
-    .map((sourceConfiguration) => map?.getSource(sourceConfiguration.id))
-    .filter((source) => !!source);
+  return sourceConfigsBatch
+    .map((sourceConfig) => sourceConfig.id ? map?.getSource(sourceConfig.id) : null)
+    .filter(sourceConfig => !!sourceConfig);
 };
 
 export default useMapSources;
