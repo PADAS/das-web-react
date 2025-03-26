@@ -9,7 +9,7 @@ import {
   fetchMessagesSuccess,
   INITIAL_MESSAGE_LIST_STATE,
   messageListReducer,
-  updateMessageFromRealtime
+  updateMessageFromRealtime,
 } from '../ducks/messaging';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import { SocketContext } from '../withSocketConnection';
@@ -86,7 +86,7 @@ const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
     if (!!unreads.length) {
       bulkReadMessages(unreads.map(({ id }) => id));
     }
-  }, [unreads, dispatch]);
+  }, [unreads]);
 
   return <div className={styles.scrollContainer} ref={containerRef}>
     <MessageList

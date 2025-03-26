@@ -42,15 +42,6 @@ const { get, post } = axios;
 
 export const fetchUnreadMessagesCount = () => axios.get(`${MESSAGING_API_URL}?include_additional_data=false&page_size=0&read=false`);
 
-/*export const fetchUnreadMessagesCount = async () => {
-  try {
-    const response = await ;
-    dispatch({ payload: response.data.data.count, type: UPDATE_UNREAD_MESSAGES_COUNT });
-  } catch (error){
-    ;
-  }
-};*/
-
 export const fetchMessages = (params = {}) => {
   const paramString = objectToParamString(
     { include_additional_data: false, page_size: 25, ...params },
