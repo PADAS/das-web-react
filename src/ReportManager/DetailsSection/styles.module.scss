@@ -197,3 +197,10 @@
 .schemaFormSubmitButton {
   display: none;
 }
+
+.loaderWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 1rem;
+  width: 100%;
+}

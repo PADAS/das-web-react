@@ -17,8 +17,12 @@ div.scrollContainer {
   position: relative;
 }
 
-.loadingOverlay {
-  background: none;
+.loaderWrapper {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-top: 7rem;
+  width: 100%;
 }
 
 .contextMenu {

@@ -1,20 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { SpinLoader } from 'react-css-loaders';
+import MoonLoader from 'react-spinners/MoonLoader';
 
 import styles from './styles.module.scss';
 
-const LoadingOverlay = props => {
-  const { style = {}, className = '', message = '', ...rest } = props;
+const LOADER_SIZE = 50;
 
-  return <div style={style} className={`${styles.background} ${className}`} {...rest}>
-    <SpinLoader className={styles.spinner} />
-    {message && <span>{message}</span>}
-  </div>;
-};
+const LoadingOverlay = ({ className = '', message = '', style = {}, ...otherProps }) => <div
+    className={`${styles.overlay} ${className}`}
+    style={style}
+    {...otherProps}
+  >
+  <MoonLoader color="white" size={LOADER_SIZE} />
+
+  {message && <span className={styles.message}>{message}</span>}
+</div>;
 
 export default LoadingOverlay;
-
-LoadingOverlay.propTypes = {
-  message: PropTypes.string,
-};

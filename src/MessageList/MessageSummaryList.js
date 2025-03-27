@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
@@ -13,7 +14,6 @@ import { SENDER_DETAIL_STYLES } from './SenderDetails';
 import { SocketContext } from '../withSocketConnection';
 import WithMessageContext from '../InReach';
 
-import LoadingOverlay from '../LoadingOverlay';
 import MessageList, { MESSAGE_LIST_TYPES } from './';
 
 import styles from './styles.module.scss';
@@ -73,19 +73,21 @@ const MessageSummaryList = (props) => {
   }, [dispatch]);
 
   return <div ref={containerRef} className={styles.scrollContainer}>
-    {loading && <LoadingOverlay className={styles.summaryLoadingOverlay} />}
-
-    <MessageList
-      className={styles.summaryList}
-      containerRef={containerRef}
-      emptyMessage={loading ? t('loadingEmptyMessage') : undefined}
-      hasMore={!!state.next}
-      messages={mostRecentMessagesPerSubject}
-      onScroll={loadMoreMessages}
-      senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT}
-      type={MESSAGE_LIST_TYPES.SUMMARY}
-      {...props}
-    />
+    {loading
+      ? <div className={styles.loaderWrapper}>
+        <MoonLoader />
+      </div>
+      : <MessageList
+        className={styles.summaryList}
+        containerRef={containerRef}
+        emptyMessage={loading ? t('loadingEmptyMessage') : undefined}
+        hasMore={!!state.next}
+        messages={mostRecentMessagesPerSubject}
+        onScroll={loadMoreMessages}
+        senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT}
+        type={MESSAGE_LIST_TYPES.SUMMARY}
+        {...props}
+      />}
   </div>;
 };
 
