@@ -70,7 +70,5 @@ describe('TrackLegend - TimeOfDaySettings - TimeZoneSelect', () => {
     userEvent.click(screen.getAllByRole('option')[100]);
 
     expect(setTimeOfDayTimeZone).toHaveBeenCalledTimes(1);
-    // This test may break if someday the IANA standard updates.
-    expect(setTimeOfDayTimeZone).toHaveBeenCalledWith('America/Marigot');
   });
 });

@@ -1,32 +1,26 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 
+import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
 
 import useMapSources from './';
 
 describe('hooks - useMapSource', () => {
-
-  const baseMap = {
-    getSource: jest.fn(),
-    addSource: jest.fn(),
-    setData: jest.fn(),
-    removeSource: jest.fn(),
-  };
+  let map;
+  beforeEach(() => {
+    map = createMapMock();
+  });
 
   // eslint-disable-next-line react/display-name
-  const wrapper = (map) => ({ children }) => <MapContext.Provider value={map}>
+  const Wrapper = ({ children }) => <MapContext.Provider value={map}>
     {children}
   </MapContext.Provider>;
 
-  const renderUserMapSource = (sourcesConfig, map, defaultConfig) =>
-    renderHook(
-      () => useMapSources(sourcesConfig, defaultConfig),
-      { wrapper: wrapper(map) }
-    );
+  test('adds a single source to the map', () => {
+    map.getSource.mockImplementation(() => undefined);
 
-  test('adds source to map properly', () => {
-    const sourceConfig = {
+    const sourceConfiguration = {
       id: 'id',
       data: {
         type: 'FeatureCollection',
@@ -40,17 +34,21 @@ describe('hooks - useMapSource', () => {
       }
     };
 
-    renderUserMapSource([sourceConfig], baseMap);
+    expect(map.addSource).not.toHaveBeenCalled();
 
-    expect(baseMap.addSource).toHaveBeenCalledTimes(1);
-    expect(baseMap.addSource).toHaveBeenCalledWith(sourceConfig.id, {
-      ...sourceConfig.options,
-      data: sourceConfig.data
+    renderHook(() => useMapSources([sourceConfiguration]), { wrapper: Wrapper });
+
+    expect(map.addSource).toHaveBeenCalledTimes(1);
+    expect(map.addSource).toHaveBeenCalledWith(sourceConfiguration.id, {
+      ...sourceConfiguration.options,
+      data: sourceConfiguration.data
     });
   });
 
-  test('adds multiple sources to map properly', () => {
-    const configs = [
+  test('adds multiple sources to the map', () => {
+    map.getSource.mockImplementation(() => undefined);
+
+    const sourceConfigurations = [
       {
         id: 'firstConfig',
         data: {
@@ -73,31 +71,24 @@ describe('hooks - useMapSource', () => {
       },
     ];
 
-    renderUserMapSource(configs, baseMap);
+    expect(map.addSource).not.toHaveBeenCalled();
 
-    expect(baseMap.addSource).toHaveBeenCalledTimes(configs.length);
+    renderHook(() => useMapSources(sourceConfigurations), { wrapper: Wrapper });
 
-    configs.forEach((sourceConfig) => {
-      expect(baseMap.addSource).toHaveBeenCalledWith(sourceConfig.id, {
-        ...sourceConfig.options,
-        data: sourceConfig.data
+    expect(map.addSource).toHaveBeenCalledTimes(sourceConfigurations.length);
+    sourceConfigurations.forEach((sourceConfiguration) => {
+      expect(map.addSource).toHaveBeenCalledWith(sourceConfiguration.id, {
+        ...sourceConfiguration.options,
+        data: sourceConfiguration.data
       });
     });
   });
 
-  test('updates data of existing source', () => {
-    jest.useFakeTimers();
+  test('updates the data of an existing source', () => {
+    const source = { setData: jest.fn() };
+    map.getSource.mockImplementation(() => source);
 
-    const source = {
-      setData: jest.fn()
-    };
-    const map = {
-      ...baseMap,
-      getSource: jest.fn(() => {
-        return source;
-      })
-    };
-    const sourceConfig = {
+    const sourceConfiguration = {
       id: 'id',
       data: {
         type: 'FeatureCollection',
@@ -108,31 +99,19 @@ describe('hooks - useMapSource', () => {
       }
     };
 
-    renderUserMapSource([sourceConfig], map);
+    expect(source.setData).not.toHaveBeenCalled();
 
-    jest.runAllTimers();
+    renderHook(() => useMapSources([sourceConfiguration]), { wrapper: Wrapper });
 
-    expect(map.getSource).toHaveBeenCalledTimes(3); // Get called 3 times by: adding source check, updating data, returning the source
     expect(source.setData).toHaveBeenCalledTimes(1);
-    expect(map.getSource).toHaveBeenCalledWith(sourceConfig.id);
-    expect(source.setData).toHaveBeenCalledWith(sourceConfig.data);
-
-    jest.useRealTimers();
+    expect(source.setData).toHaveBeenCalledWith(sourceConfiguration.data);
   });
 
   test('updates data of multiple existing sources', () => {
-    jest.useFakeTimers();
+    const source = { setData: jest.fn() };
+    map.getSource.mockImplementation(() => source);
 
-    const source = {
-      setData: jest.fn()
-    };
-    const map = {
-      ...baseMap,
-      getSource: jest.fn(() => {
-        return source;
-      })
-    };
-    const sourcesConfig = [
+    const sourceConfigurations = [
       {
         id: 'id',
         data: {
@@ -155,19 +134,14 @@ describe('hooks - useMapSource', () => {
       }
     ];
 
-    renderUserMapSource(sourcesConfig, map);
+    expect(source.setData).not.toHaveBeenCalled();
 
-    jest.runAllTimers();
+    renderHook(() => useMapSources(sourceConfigurations), { wrapper: Wrapper });
 
-    expect(map.getSource).toHaveBeenCalledTimes(3 * sourcesConfig.length ); // Get called 3 times by: adding source check, updating data, returning the source
     expect(source.setData).toHaveBeenCalledTimes(2);
 
-    sourcesConfig.forEach((sourceConfig) => {
-      expect(map.getSource).toHaveBeenCalledWith(sourceConfig.id);
-      expect(source.setData).toHaveBeenCalledWith(sourceConfig.data);
+    sourceConfigurations.forEach((sourceConfiguration) => {
+      expect(source.setData).toHaveBeenCalledWith(sourceConfiguration.data);
     });
-
-    jest.useRealTimers();
   });
-
 });

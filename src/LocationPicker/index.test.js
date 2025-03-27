@@ -21,6 +21,9 @@ describe('LocationPicker', () => {
 
     store = {
       view: {
+        mapLocationSelection: {
+          isPickingLocation: false,
+        },
         showUserLocation: false,
         userLocation: null,
         userPreferences: {

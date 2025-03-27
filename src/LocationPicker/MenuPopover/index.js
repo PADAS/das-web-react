@@ -33,6 +33,7 @@ const MenuPopover = ({
 }, ref) => {
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker.menuPopover' });
 
+  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const showUserLocation = useSelector((state) => state.view.showUserLocation);
 
   const gpsFormatToggleRef = useRef();
@@ -105,34 +106,38 @@ const MenuPopover = ({
   }, []);
 
   useEffect(() => {
-    const onMouseDown = (event) => {
-      if (!wrapperRef.current.contains(event.target) && !setLocationButtonRef.current.contains(event.target)) {
-        onClose(event);
+    // Add a mouse down event to close the menu if the user clicks outside only if the user is not picking a location
+    // from the map.
+    if (!isPickingLocation) {
+      const onMouseDown = (event) => {
+        if (!wrapperRef.current.contains(event.target) && !setLocationButtonRef.current.contains(event.target)) {
+          onClose(event);
 
-        if (!target.current.contains(event.target)) {
-          // Clicking away from our picker when the menu is open doesn't trigger the wrapper's blur event, so we need
-          // to trigger the onBlur callback manually.
-          const blurEvent = new FocusEvent('blur', {
-            bubbles: true,
-            cancelable: false,
-            relatedTarget: event.target,
-          });
+          if (onBlur && !target.current.contains(event.target)) {
+            // Clicking away from our picker when the menu is open doesn't trigger the wrapper's blur event, so we need
+            // to trigger the onBlur callback manually.
+            const blurEvent = new FocusEvent('blur', {
+              bubbles: true,
+              cancelable: false,
+              relatedTarget: event.target,
+            });
 
-          Object.defineProperties(blurEvent, {
-            target: {
-              value: target.current,
-            },
-          });
+            Object.defineProperties(blurEvent, {
+              target: {
+                value: target.current,
+              },
+            });
 
-          onBlur(blurEvent);
+            onBlur(blurEvent);
+          }
         }
-      }
-    };
+      };
 
-    document.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mousedown', onMouseDown);
 
-    return () => document.removeEventListener('mousedown', onMouseDown);
-  }, [onBlur, onClose, setLocationButtonRef, target]);
+      return () => document.removeEventListener('mousedown', onMouseDown);
+    }
+  }, [isPickingLocation, onBlur, onClose, setLocationButtonRef, target]);
 
   return <Popover
       className={`${className} ${styles.menuPopover}`}
