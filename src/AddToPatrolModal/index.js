@@ -2,7 +2,6 @@ import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallb
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { findDOMNode } from 'react-dom';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -179,7 +178,7 @@ const AddToPatrolModal = (props) => {
             hasMore={hasMore}
             loadMore={onScroll}
             useWindow={false}
-            getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
+            getScrollParent={() => scrollRef.current}>
 
             {listPatrols.map((patrol, index) => {
 

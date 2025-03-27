@@ -1,5 +1,4 @@
 import React, { memo, useContext, useMemo } from 'react';
-import { findDOMNode } from 'react-dom';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
@@ -32,7 +31,7 @@ const EventFeed = ({ className = '', events = [], hasMore, loading, onScroll, on
   return <ScrollRestoration className={`${className} ${styles.scrollContainer}`} namespace={TAB_KEYS.EVENTS}>
     <InfiniteScroll
       element="ul"
-      getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
+      getScrollParent={() => scrollRef.current}
       hasMore={hasMore}
       loadMore={onScroll}
       useWindow={false}

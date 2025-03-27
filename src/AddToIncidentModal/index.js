@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { findDOMNode } from 'react-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
@@ -78,7 +77,7 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
       <div ref={scrollRef} className={styles.incidentScrollList}>
         <InfiniteScroll
           element="ul"
-          getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
+          getScrollParent={() => scrollRef.current}
           hasMore={hasMore}
           loadMore={onScroll}
           useWindow={false}
