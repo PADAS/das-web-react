@@ -111,7 +111,6 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
       onClick={startMovingReportMarker}
       onPick={onLocationSelect}
       showInstructionsPopup={false}
-      wrapperClassName={styles.buttons}
     />
 
     {shouldShowMarkerLayer && <>
