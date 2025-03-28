@@ -17,7 +17,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -118,8 +118,6 @@ const ContentComponent = (props) => {
   };
 
   return <Collapsible
-    className={listStyles.collapsed}
-    openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     trigger={<TriggerComponent {...triggerProps} />}
     triggerElementProps={{

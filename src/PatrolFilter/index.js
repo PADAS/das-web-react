@@ -23,7 +23,7 @@ import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-ic
 
 import SearchBar from '../SearchBar';
 
-import patrolFilterStyles from './styles.module.scss';
+import * as patrolFilterStyles from './styles.module.scss';
 import * as styles from '../EventFilter/styles.module.scss';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;

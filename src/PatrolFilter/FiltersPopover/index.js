@@ -18,7 +18,7 @@ import DasIcon from '../../DasIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
 import * as colorVariables from '../../common/styles/vars/colors.module.scss';
-import patrolFiltersPopoverStyles from './styles.module.scss';
+import * as patrolFiltersPopoverStyles from './styles.module.scss';
 import * as styles from '../../EventFilter/styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);

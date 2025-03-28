@@ -6,7 +6,7 @@ const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMi
 const ignoredFiles = require('react-dev-utils/ignoredFiles');
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
 const paths = require('./paths');
-const getHttpsConfig = require('./getHttpsConfig');
+const getServerConfig = require('./getServerConfig');
 
 const host = process.env.HOST || '0.0.0.0';
 const sockHost = process.env.WDS_SOCKET_HOST;
@@ -33,7 +33,7 @@ module.exports = function (proxy, allowedHost) {
     // So we will disable the host check normally, but enable it if you have
     // specified the `proxy` setting. Finally, we let you override it if you
     // really know what you're doing with a special environment variable.
-    // Note: ["localhost", ".localhost"] will support subdomains - but we might
+    // Note: ['localhost', '.localhost'] will support subdomains - but we might
     // want to allow setting the allowedHosts manually for more complex setups
     allowedHosts: disableFirewall ? 'all' : [allowedHost],
     headers: {
@@ -52,7 +52,7 @@ module.exports = function (proxy, allowedHost) {
       // Instead, we establish a convention that only files in `public` directory
       // get served. Our build script will copy `public` into the `build` folder.
       // In `index.html`, you can get URL of `public` folder with %PUBLIC_URL%:
-      // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
+      // <link rel='icon' href='%PUBLIC_URL%/favicon.ico'>
       // In JavaScript code, you can access it with `process.env.PUBLIC_URL`.
       // Note that we only recommend to use `public` folder as an escape hatch
       // for files like `favicon.ico`, `manifest.json`, and libraries that are
@@ -84,14 +84,16 @@ module.exports = function (proxy, allowedHost) {
       },
     },
     devMiddleware: {
-      // It is important to tell WebpackDevServer to use the same "publicPath" path as
+      // It is important to tell WebpackDevServer to use the same 'publicPath' path as
       // we specified in the webpack config. When homepage is '.', default to serving
       // from the root.
       // remove last slash so user can land on `/test` instead of `/test/`
       publicPath: paths.publicUrlOrPath.slice(0, -1),
     },
 
-    https: getHttpsConfig(),
+    // https is deprecated from webpack-dev-server v4.4.0+ in favor of server option.
+    // see https://github.com/webpack/webpack-dev-server/blob/master/CHANGELOG.md#440-2021-10-27
+    server: getServerConfig(),
     host,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
@@ -101,27 +103,22 @@ module.exports = function (proxy, allowedHost) {
     },
     // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
     proxy,
-    onBeforeSetupMiddleware(devServer) {
-      // Keep `evalSourceMapMiddleware`
-      // middlewares before `redirectServedPath` otherwise will not have any effect
-      // This lets us fetch source contents from webpack for the error overlay
-      devServer.app.use(evalSourceMapMiddleware(devServer));
+    setupMiddlewares: (middlewares, devServer) => {
+      if (!devServer){
+        throw new Error('webpack-dev-server is not defined');
+      }
 
       if (fs.existsSync(paths.proxySetup)) {
-        // This registers user provided middleware for proxy reasons
         require(paths.proxySetup)(devServer.app);
       }
-    },
-    onAfterSetupMiddleware(devServer) {
-      // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
-      devServer.app.use(redirectServedPath(paths.publicUrlOrPath));
 
-      // This service worker file is effectively a 'no-op' that will reset any
-      // previous service worker registered for the same host:port combination.
-      // We do this in development to avoid hitting the production cache if
-      // it used the same host and port.
-      // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
-      devServer.app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath));
+      middlewares.push(
+        evalSourceMapMiddleware(devServer),
+        redirectServedPath(paths.publicUrlOrPath),
+        noopServiceWorkerMiddleware(paths.publicUrlOrPath)
+      );
+
+      return middlewares;
     },
   };
 };

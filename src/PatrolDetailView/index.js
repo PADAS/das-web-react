@@ -52,7 +52,7 @@ import QuickLinks from '../QuickLinks';
 
 import * as styles from './styles.module.scss';
 
-import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
+import * as activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
 import { SidebarScrollContext } from '../SidebarScrollContext';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';

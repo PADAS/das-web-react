@@ -16,7 +16,7 @@ const TrackToggleButton = ({ className, trackVisible, trackPinned, showTranspare
     containerClasses += ' visible';
   }
 
-  let buttonClasses = `${styles.button} ${showTransparentIcon ? styles.defaultTransparent : styles.default} ${className}`;
+  let buttonClasses = `${styles.button} ${showTransparentIcon ? styles.transparent : styles.normal} ${className}`;
   if (trackPinned) {
     buttonClasses += ` ${styles.pinned}`;
   } else if (trackVisible) {

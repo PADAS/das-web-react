@@ -13,7 +13,7 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
