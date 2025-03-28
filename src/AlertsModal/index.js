@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { DAS_HOST } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ALERTS_URL = `${DAS_HOST}/alerts`;
 

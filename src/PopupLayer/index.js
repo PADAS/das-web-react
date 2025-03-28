@@ -15,10 +15,10 @@ import SubjectMessagesPopup from '../SubjectMessagesPopup';
 import TimepointPopup from '../TimepointPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 
-import droppedMarkerPopupStyles from '../DroppedMarkerPopup/styles.module.scss';
-import layerSelectorPopupStyles from '../LayerSelectorPopup/styles.module.scss';
-import subjectMessagesPopupStyles from '../SubjectMessagesPopup/styles.module.scss';
-import userCurrentLocationPopupStyles from '../UserCurrentLocationPopup/styles.module.scss';
+import * as droppedMarkerPopupStyles from '../DroppedMarkerPopup/styles.module.scss';
+import * as layerSelectorPopupStyles from '../LayerSelectorPopup/styles.module.scss';
+import * as subjectMessagesPopupStyles from '../SubjectMessagesPopup/styles.module.scss';
+import * as userCurrentLocationPopupStyles from '../UserCurrentLocationPopup/styles.module.scss';
 
 const TEMPLATES = {
   subject: {

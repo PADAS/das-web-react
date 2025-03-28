@@ -18,7 +18,7 @@ import { useEventGeoMeasurementDisplayStrings } from '../../../hooks/geometry';
 import GeometryPreview from './GeometryPreview';
 import TextCopyBtn from '../../../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -170,7 +170,7 @@ const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
       target={locationInputAnchorRef.current}
     >
       <Popover className={styles.gpsPopover} placement="bottom">
-        {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
+        {isPopoverOpen && <div ref={popoverContentRef}>
           <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
         </div>}
       </Popover>

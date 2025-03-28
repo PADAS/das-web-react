@@ -19,7 +19,7 @@ import { basePrintingStyles } from '../utils/styles';
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 

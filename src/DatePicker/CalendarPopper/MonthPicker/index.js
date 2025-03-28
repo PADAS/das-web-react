@@ -8,7 +8,7 @@ import { ReactComponent as ChevronRight } from '../../../common/images/icons/che
 
 import { getCurrentLocale } from '../../../utils/datetime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const Input = forwardRef(({

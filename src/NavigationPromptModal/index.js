@@ -9,7 +9,7 @@ import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can
 import { BLOCKER_STATES } from '../NavigationContextProvider';
 import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const NavigationPromptModal = ({
   onCancel,

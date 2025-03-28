@@ -10,7 +10,7 @@ import { setTrackLength, setTrackLengthOrigin, TRACK_LENGTH_ORIGINS } from '../.
 
 import NumericInput from '../../NumericInput';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

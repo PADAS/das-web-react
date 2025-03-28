@@ -11,7 +11,7 @@ import CheckableList from '../CheckableList';
 import EventTypeListItem from '../EventTypeListItem';
 import SearchBar from '../SearchBar';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const filterProps = ['display', 'value', 'category.display'];
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
@@ -105,7 +105,7 @@ const ReportTypeMultiSelect = ({
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
-      <SearchBar className={styles.search} placeholder={t('placeholder')} value={filter}
+      <SearchBar placeholder={t('placeholder')} value={filter}
         onChange={onSearchValueChange} onClear={onFilterClear} />
       {!!filter.length
         && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>

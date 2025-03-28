@@ -15,7 +15,7 @@ import { fetchObservationsForSubject } from '../ducks/observations';
 import DateTime from '../DateTime';
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const DISPLAYED_PAGES_LIMIT = 5;
 export const ITEMS_PER_PAGE = 10;

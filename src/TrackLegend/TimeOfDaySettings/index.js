@@ -12,7 +12,7 @@ import TimeZoneSelect from './TimeZoneSelect';
 
 import { TIME_OF_DAY_PERIODS } from '../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const COLORED_TIME_ITEMS = [
   {

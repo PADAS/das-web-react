@@ -14,7 +14,7 @@ import ContainedReportListItem from './ContainedReportListItem';
 import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { areCardsEquals } from '../utils';
 
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';

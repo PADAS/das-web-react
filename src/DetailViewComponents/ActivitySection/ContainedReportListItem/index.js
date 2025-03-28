@@ -20,7 +20,7 @@ import ReportFormSummary from '../../../ReportFormSummary';
 import ReportListItem from '../../../ReportListItem';
 
 import activitySectionStyles from '../styles.module.scss';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 30;

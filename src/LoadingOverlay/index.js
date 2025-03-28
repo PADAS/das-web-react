@@ -1,7 +1,7 @@
 import React from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 50;
 

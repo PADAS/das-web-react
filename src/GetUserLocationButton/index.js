@@ -10,7 +10,7 @@ import { setCurrentUserLocation } from '../ducks/location';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const GetUserLocationButton = ({ onClick = null, onGet, renderContent = null, ...otherProps }, ref) => {
   const dispatch = useDispatch();

@@ -50,7 +50,7 @@ import NavigationPromptModal from '../NavigationPromptModal';
 import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';

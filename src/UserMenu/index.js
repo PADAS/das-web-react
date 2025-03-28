@@ -7,7 +7,7 @@ import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.
 
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 

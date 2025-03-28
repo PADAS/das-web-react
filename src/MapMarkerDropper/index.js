@@ -13,7 +13,7 @@ import PickMapLocationButton from '../PickMapLocationButton';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

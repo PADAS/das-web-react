@@ -11,7 +11,7 @@ import CheckableList from '../CheckableList';
 import FeatureListItem from './FeatureListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,

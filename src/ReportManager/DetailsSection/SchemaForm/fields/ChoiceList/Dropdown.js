@@ -4,7 +4,7 @@ import ReactSelect, { components as SelectComponent } from 'react-select';
 
 import { ReactComponent as CheckIcon } from '../../../../../common/images/icons/check-light.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const IndicatorSeparator = () => null;
 

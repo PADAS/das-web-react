@@ -10,7 +10,7 @@ import { usePermissions } from '../hooks';
 import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const SubjectMessagesPopup = ({ data }) => {
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);

@@ -6,7 +6,7 @@ import { ReactComponent as DocumentIcon } from '../../common/images/icons/docume
 
 import AddItemButton from '../../AddItemButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const AddReportButton = ({ className, ...rest }) => {
   const { t } = useTranslation('details-view');

@@ -22,7 +22,7 @@ import DateTime from '../../../DateTime';
 import ImageModal from '../../../ImageModal';
 import ItemActionButton from '../ItemActionButton';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref) => {
   const dispatch = useDispatch();

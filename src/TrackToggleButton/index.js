@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import SubjectControlButton from '../SubjectControls/button';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TrackToggleButton = ({ className, trackVisible, trackPinned, showTransparentIcon, ...restProps }, ref) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'trackToggleButton' });

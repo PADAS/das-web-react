@@ -15,7 +15,7 @@ import { TrackerContext } from '../../../utils/analytics';
 import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 import { areCardsEquals } from '../../utils';
 
 const NoteListItem = ({

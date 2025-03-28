@@ -13,7 +13,7 @@ import { getGlobalSchemaReportedBy } from '../selectors';
 import TimeAgo from '../TimeAgo';
 import Select from '../Select';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LIST_ITEM_HEIGHT = 37;
 const MENU_OVERSCAN_COUNT = 30;

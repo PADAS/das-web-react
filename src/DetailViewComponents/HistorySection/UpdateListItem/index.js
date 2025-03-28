@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import DateTime from '../../../DateTime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const UpdateListItem = ({ message, time, user }) => <li className={styles.historyListItem}>
   <div>

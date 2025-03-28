@@ -13,7 +13,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from '../PatrolMenu';
 import PatrolTrackControls from '../PatrolTrackControls';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { useTranslation } from 'react-i18next';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);

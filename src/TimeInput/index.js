@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState, forwardRef } from 'react';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MIN_VALUE = 0;
 const MAX_HOUR = 23;

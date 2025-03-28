@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import TimeAgo from '../TimeAgo';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, format } from '../utils/datetime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DateTime = ({ date, showElapsed, className, ...rest }) => {
 

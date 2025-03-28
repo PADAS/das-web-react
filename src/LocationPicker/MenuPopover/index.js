@@ -12,7 +12,7 @@ import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
 import PickMapLocationButton from '../../PickMapLocationButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MAX_POPOVER_WIDTH = 380;
 

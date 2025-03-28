@@ -18,7 +18,7 @@ import { ReactComponent as SentIcon } from '../common/images/icons/sent-message-
 import { ReactComponent as ReceivedIcon } from '../common/images/icons/received-message-icon.svg';
 import { ReactComponent as FailedIcon } from '../common/images/icons/failed-message-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MESSAGE_STATUSES = {
   RECEIVED: 'received',
@@ -44,7 +44,7 @@ const MessageListItem = (props) => {
 
   const isOutgoing = messageGroup[0].message_type === 'outbox';
 
-  return <li className={isOutgoing ? styles.outgoingMessage: styles.incomingMessage}>
+  return <li className={isOutgoing ? styles.outgoingMessage : ''}>
     <SenderDetails subject={subject} message={messageGroup[0]} senderDetailStyle={senderDetailStyle} onMessageSubjectClick={onMessageSubjectClick} />
     <ul>
       {messageGroup.map((message) => {

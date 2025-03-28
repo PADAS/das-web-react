@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { generateNewMessage } from '../utils/messaging';
 import { sendMessage } from '../ducks/messaging';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TEXT_MAX_LENGTH = 160;
 

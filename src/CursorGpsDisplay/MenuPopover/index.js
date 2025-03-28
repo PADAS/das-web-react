@@ -10,7 +10,7 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 
 import GpsInput from '../../GpsInput';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MenuPopover = ({ buttonRef, className, onClose, ...otherProps }, ref) => {
   const dispatch = useDispatch();

@@ -20,7 +20,7 @@ import SleepDetector from '../SleepDetector';
 import StateManagedSocketConsumer from '../StateManagedSocketConsumer';
 import WithMessageContext from '../InReach';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const RADIO_MESSAGE_REALTIME = 'radio_message';
 const SLEEP_DETECTION_INTERVAL = 60000;

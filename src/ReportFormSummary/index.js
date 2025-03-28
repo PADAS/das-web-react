@@ -18,7 +18,7 @@ import {
 } from '../SchemaFields';
 import { formValidator } from '../utils/events';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });

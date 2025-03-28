@@ -14,29 +14,29 @@
     "@rjsf/core": "^5.24.8",
     "@rjsf/utils": "^5.24.8",
     "@rjsf/validator-ajv6": "^5.24.8",
-    "@svgr/webpack": "^5.5.0",
+    "@svgr/webpack": "^8.1.0",
     "@turf/turf": "^7.1.0",
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "axios": "1.8.4",
     "axios-progress-bar": "^1.2.0",
-    "babel-jest": "^27.4.2",
-    "babel-loader": "^8.2.3",
+    "babel-jest": "^29.7.0",
+    "babel-loader": "^10.0.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
-    "bfj": "^7.0.2",
+    "bfj": "^9.1.2",
     "bootstrap": "5.3.3",
     "browserslist": "^4.18.1",
     "buffer": "^6.0.3",
-    "camelcase": "^6.2.1",
+    "camelcase": "^8.0.0",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
-    "css-loader": "^6.5.1",
+    "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^3.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^10.0.0",
     "dotenv-expand": "^5.1.0",
-    "eslint": "^8.3.0",
+    "eslint": "^8.10.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-webpack-plugin": "^3.1.1",
     "file-loader": "^6.2.0",
@@ -133,7 +133,6 @@
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^13.0.16",
-    "eslint": "^8.10.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -225,8 +224,5 @@
     "presets": [
       "react-app"
     ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }

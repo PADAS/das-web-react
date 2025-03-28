@@ -1,5 +1,5 @@
 import * as packageJson from '../../package.json';
-import layoutVariables from '../common/styles/layout.module.scss';
+import * as layoutVariables from '../common/styles/layout.module.scss';
 
 const { buildbranch, buildnum } = packageJson;
 

@@ -11,7 +11,7 @@ import {
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const GpsInput = ({
   gpsFormatToggleRef = null,

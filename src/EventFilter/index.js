@@ -24,7 +24,7 @@ import FriendlyFilterString from '../FriendlyFilterString';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import DateFilter from './DateFilter';
 import Filters from './Filters';
 import { useTranslation } from 'react-i18next';
@@ -198,7 +198,7 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='filter-btn'
           >
-            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} title={t('filtersButton')} />
+            <FilterIcon onClick={onEventFilterIconClicked} title={t('filtersButton')} />
             <span>{t('filtersButton')}</span>
           </Button>
         </OverlayTrigger>
@@ -209,7 +209,7 @@ const EventFilter = ({
             className={styles.popoverTrigger}
             data-testid='date-filter-btn'
           >
-            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked} title={t('datesButton')} />
+            <ClockIcon onClick={onDateFilterIconClicked} title={t('datesButton')} />
             <span>{t('datesButton')}</span>
           </Button>
         </OverlayTrigger>

@@ -3,7 +3,7 @@ import React, { memo, useEffect } from 'react';
 import { JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../constants';
 import LocationPicker from '../../../../../LocationPicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Location = ({
   blurLocationMarker,

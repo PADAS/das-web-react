@@ -14,7 +14,7 @@ import { userLocationCanBeShown as userLocationCanBeShownSelector } from '../../
 
 import NavHomeItem from '../NavHomeItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 

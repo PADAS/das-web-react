@@ -9,7 +9,7 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../common/image
 
 import SortableList from './SortableList';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // Collections have an array of objects as their value in the form data object. Each of the objects is a collection
 // item and it contains the values of the fields rendered by a collection item. They can be nested within sections and

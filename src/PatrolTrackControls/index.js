@@ -8,7 +8,7 @@ import usePatrol from '../hooks/usePatrol';
 import LocationJumpButton from '../LocationJumpButton';
 import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PatrolTrackControls = ({ className, onLocationClick, patrol }) => {
   const {

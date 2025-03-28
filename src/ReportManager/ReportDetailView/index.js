@@ -52,7 +52,7 @@ import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;

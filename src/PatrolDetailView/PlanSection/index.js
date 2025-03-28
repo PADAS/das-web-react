@@ -24,7 +24,7 @@ import LocationPicker from '../../LocationPicker';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { selectPatrolLeadersWithLastPosition } from '../../selectors/patrols';
 import { useTranslation } from 'react-i18next';
 
@@ -234,7 +234,7 @@ const PlanSection = ({
         <div className={styles.dateTimeContainer}>
           <label
             data-testid="patrolDetailView-endDatePicker"
-            className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
+            className={styles.fieldLabel}
           >
             {t('endDateLabel')}
             <DatePicker

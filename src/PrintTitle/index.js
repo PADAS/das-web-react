@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PrintTitle = () => {
   const printTitle = useSelector((state) => state.view.printTitle);

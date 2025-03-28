@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const InformationModal = ({ onHide, show }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportGeometryDrawer.informationModal' });

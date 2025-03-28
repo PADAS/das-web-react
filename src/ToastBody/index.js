@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ToastBody = ({ details, link, message, showDetailsByDefault }) => {
   const { t } = useTranslation('components', { keyPrefix: 'toastBody' });
@@ -19,7 +19,7 @@ const ToastBody = ({ details, link, message, showDetailsByDefault }) => {
 
   return <>
     <div className={styles.summary}>
-      <h6 className={styles.header}>
+      <h6>
         {message || t('defaultMessage')}
 
         {details && <Button className={styles.detailsButton} onClick={toggleShowDetails} variant="link">

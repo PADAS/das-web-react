@@ -38,7 +38,7 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CLOSE_BUTTON_LABEL_KEY = {
   [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',

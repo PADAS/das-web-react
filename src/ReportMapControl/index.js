@@ -10,7 +10,7 @@ import CheckMark from '../Checkmark';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 
 import listStyles from '../SideBar/styles.module.scss';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);

@@ -8,7 +8,7 @@ import { LINK_TYPES, TAB_KEYS } from '../../constants';
 
 import LinkItem from './LinkItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LinksSection = ({ linkedPatrols, linkedReports }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });

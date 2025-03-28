@@ -11,7 +11,7 @@ import { EVENT_FORM_STATES } from '../constants';
 import { getEventReporters } from '../selectors';
 import store from '../store';
 
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[0];

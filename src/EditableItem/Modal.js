@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EditableItemModal = (props) => {
   const { children, readonly } = props;

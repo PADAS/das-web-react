@@ -17,7 +17,7 @@ import { useMapEventBinding } from '../hooks';
 import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

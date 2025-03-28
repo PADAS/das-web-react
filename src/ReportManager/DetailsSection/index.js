@@ -40,7 +40,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
@@ -234,7 +234,6 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
-                className={styles.datePicker}
                 data-testid="reportManager-detailsSection-datePicker"
                 disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}

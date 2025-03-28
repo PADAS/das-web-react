@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import EventTypeListItem from '../../../EventTypeListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CategoryList = ({ category, onClickType, showTitle }) => <div>
   {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}

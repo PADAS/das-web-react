@@ -9,7 +9,7 @@ import { MapContext } from '../App';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);

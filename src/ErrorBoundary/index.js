@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import ErrorMessage from '../ErrorMessage';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ErrorBoundaryComponent = ({ children }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorBoundary' });

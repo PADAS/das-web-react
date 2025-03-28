@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import useOnScreen from '../hooks/useOnScreen';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const QuickLinksContext = createContext();
 

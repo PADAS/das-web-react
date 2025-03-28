@@ -24,7 +24,7 @@ import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-ic
 import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
-import styles from '../EventFilter/styles.module.scss';
+import * as styles from '../EventFilter/styles.module.scss';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
@@ -129,7 +129,7 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
-          <FilterIcon className={styles.filterIcon} title={t('filtersTitle')} />
+          <FilterIcon title={t('filtersTitle')} />
           <span>{t('filtersTitle')}</span>
         </Button>
       </OverlayTrigger>
@@ -149,7 +149,7 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
           data-testid="patrolFilter-dateRangeButton"
         >
-          <ClockIcon className={styles.clockIcon} title={t('datesTitle')} />
+          <ClockIcon title={t('datesTitle')} />
           <span>{t('datesTitle')}</span>
         </Button>
       </OverlayTrigger>
