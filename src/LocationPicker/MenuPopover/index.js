@@ -84,26 +84,31 @@ const MenuPopover = ({
   useEffect(() => {
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
-
-    // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab.
-    const onKeyDown = (event) => {
-      if (event.key === 'Tab') {
-        if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
-          event.preventDefault();
-
-          lastFocusableElementRef.current.focus();
-        } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
-          event.preventDefault();
-
-          gpsFormatToggleRef.current.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  useEffect(() => {
+    // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab only
+    // if the user is not picking a location from the map.
+    if (!isPickingLocation) {
+      const onKeyDown = (event) => {
+        if (event.key === 'Tab') {
+          if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
+            event.preventDefault();
+
+            lastFocusableElementRef.current.focus();
+          } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
+            event.preventDefault();
+
+            gpsFormatToggleRef.current.focus();
+          }
+        }
+      };
+
+      document.addEventListener('keydown', onKeyDown);
+
+      return () => document.removeEventListener('keydown', onKeyDown);
+    }
+  }, [isPickingLocation]);
 
   useEffect(() => {
     // Add a mouse down event to close the menu if the user clicks outside only if the user is not picking a location
@@ -147,12 +152,12 @@ const MenuPopover = ({
       style={{ ...style, minWidth: popoverWidth, width: popoverWidth }}
       {...otherProps}
     >
-    <div className={styles.wrapper} onKeyDown={onWrapperKeyDown} ref={wrapperRef}>
+    <div className={styles.wrapper} onKeyDown={isPickingLocation ? undefined : onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
         gpsFormatToggleRef={gpsFormatToggleRef}
         id={`${id}-menuPopover-gpsInput`}
         inputRef={gpsInputRef}
-        onKeyDown={onGpsInputKeyDown}
+        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         onChange={onChange}
         value={value}
       />
