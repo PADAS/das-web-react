@@ -10,7 +10,8 @@ import {
   fetchAllMessages,
   fetchMessagesSuccess,
   fetchUnreadMessagesCount,
-  updateMessageFromRealtime, updateUnreadMessagesCount
+  updateMessageFromRealtime,
+  updateUnreadMessagesCount
 } from '../ducks/messaging';
 import MessageContext from '../InReach/context';
 
@@ -45,7 +46,7 @@ const MessageMenu = () => {
 
   const checkForUnreadMessages = useCallback(() => {
     fetchUnreadMessagesCount()
-      .then(({ data: { data: { count } } }) => dispatch(updateUnreadMessagesCount(count)))
+      .then(({ data: { data: { results } } }) => dispatch(updateUnreadMessagesCount({ results }) ))
       .catch((error) => console.warn('error checking for unread messages', { error }));
   }, [dispatch]);
 
@@ -58,8 +59,10 @@ const MessageMenu = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    checkForUnreadMessages();
-  }, [checkForUnreadMessages, state.results]);
+    if (subjects.length > 0){
+      checkForUnreadMessages();
+    }
+  }, [checkForUnreadMessages, state.results, subjects]);
 
   return canShowMessageMenu ? <Dropdown
       align="end"

@@ -40,7 +40,7 @@ export const updateUnreadMessagesCount = (payload) => ({
 
 const { get, post } = axios;
 
-export const fetchUnreadMessagesCount = () => axios.get(`${MESSAGING_API_URL}?include_additional_data=false&page_size=0&read=false`);
+export const fetchUnreadMessagesCount = () => axios.get(`${MESSAGING_API_URL}?include_additional_data=false&page_size=10&read=false`);
 
 export const fetchMessages = (params = {}) => {
   const paramString = objectToParamString(
@@ -106,7 +106,7 @@ export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) =
   if (type === UPDATE_UNREAD_MESSAGES_COUNT) {
     return {
       ...state,
-      unreadMessagesCount: payload,
+      unreadMessagesCount: payload.results.filter(msg => messageIsValidForDisplay(msg, store.getState().data.subjectStore)).length,
     };
   }
 
