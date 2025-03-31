@@ -65,7 +65,7 @@ describe('LocationPicker - MenuPopover', () => {
           target={{
             current: {
               contains: () => false,
-              offsetWidth: 100,
+              offsetWidth: 320,
             },
           }}
           value={null}
@@ -79,13 +79,45 @@ describe('LocationPicker - MenuPopover', () => {
     jest.restoreAllMocks();
   });
 
-  test('matches the width of the target while is less than 380', () => {
+  test('matches the width of the target while is less than 380 and more than 280', () => {
     renderMenuPopover();
 
     const menuPopover = screen.getByRole('presentation');
 
-    expect(menuPopover).toHaveStyle('min-width: 100px;');
-    expect(menuPopover).toHaveStyle('width: 100px;');
+    expect(menuPopover).toHaveStyle('min-width: 320px;');
+    expect(menuPopover).toHaveStyle('width: 320px;');
+  });
+
+  test('sets the popover width to 280 if the target is smaller', () => {
+    renderMenuPopover({
+      target: {
+        current: {
+          contains: () => false,
+          offsetWidth: 150,
+        },
+      },
+    });
+
+    const menuPopover = screen.getByRole('presentation');
+
+    expect(menuPopover).toHaveStyle('min-width: 280px;');
+    expect(menuPopover).toHaveStyle('width: 280px;');
+  });
+
+  test('sets the popover width to 380 if the target is bigger', () => {
+    renderMenuPopover({
+      target: {
+        current: {
+          contains: () => false,
+          offsetWidth: 600,
+        },
+      },
+    });
+
+    const menuPopover = screen.getByRole('presentation');
+
+    expect(menuPopover).toHaveStyle('min-width: 380px;');
+    expect(menuPopover).toHaveStyle('width: 380px;');
   });
 
   test('changes the location when the user types in the GPS input', () => {
