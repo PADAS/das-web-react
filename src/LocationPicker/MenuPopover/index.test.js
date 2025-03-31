@@ -112,6 +112,17 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
+  test('does neither close the menu nor focuse the set location button if the user presses enter while picking a location', () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+    renderMenuPopover();
+
+    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    userEvent.keyboard('{Enter}');
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
+  });
+
   test('closes the menu and focuses the set location button if the user presses escape', () => {
     renderMenuPopover();
 
@@ -123,6 +134,17 @@ describe('LocationPicker - MenuPopover', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('does neither close the menu nor focuse the set location button if the user presses escape while picking a location', () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+    renderMenuPopover();
+
+    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    userEvent.keyboard('{Escape}');
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
   });
 
   test('changes the location when the user picks a location in the map', () => {
