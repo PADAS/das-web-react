@@ -45,6 +45,7 @@ const SortableList = ({
   focusLocationMarker,
   items,
   onItemChange,
+  onItemCancel,
   onItemDelete,
   onItemMove,
   renderField,
@@ -155,6 +156,7 @@ const SortableList = ({
           isFormPreviewOpen={item.isFormPreviewOpen}
           key={item.id}
           onChange={onItemChange(index)}
+          onCancel={onItemCancel(index)}
           onDelete={onItemDelete(index)}
           setIsFormModalOpen={setIsItemFormModalOpen(index)}
           setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}

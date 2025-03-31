@@ -32,6 +32,7 @@ const Item = ({
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  onCancel = null,
   renderField = null,
   setIsFormModalOpen = null,
   setIsFormPreviewOpen = null,
@@ -77,6 +78,7 @@ const Item = ({
   const onFormModalCancel = () => {
     onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
     setIsFormModalOpen(false);
+    onCancel?.(id);
   };
 
   const onFieldChange = (fieldId, value, error) => {

@@ -128,9 +128,32 @@ const Collection = ({
       updatedError = undefined;
     }
 
+   /* console.log(items);
+    console.log(value);*/
+
     lastAddedItemIdRef.current += 1;
     onFieldChange(id, [...value, {}], updatedError);
     setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
+  };
+
+  const onItemCancel = (itemIndex) => (itemId) => {
+    /*console.log('Cancelled item id', itemId);
+    console.log('Cancelled item index', itemIndex);*/
+
+    const isNewItem = Object.keys(value[itemIndex]).length === 0;
+    console.log(isNewItem);
+
+    const newItems = items.filter((_, index) => itemIndex !== index);
+    const newValue = value.filter((_, index) => itemIndex !== index);
+
+  /*  console.log(newItems);
+    console.log(newValue);*/
+
+    lastAddedItemIdRef.current -= 1;
+    setItems(newItems);
+    onFieldChange(id, newValue);
+    // se necesita reiniciar el contador de items
+    // se necesita remover el objeto vacio de value
   };
 
   // If a location field from an item requests to focus its location marker, prefix the marker id with the collection
@@ -184,6 +207,7 @@ const Collection = ({
             onItemChange={onItemChange}
             onItemDelete={onItemDelete}
             onItemMove={onItemMove}
+            onItemCancel={onItemCancel}
             setIsItemFormModalOpen={setIsItemFormModalOpen}
             setIsItemFormPreviewOpen={setIsItemFormPreviewOpen}
             renderField={renderField}
