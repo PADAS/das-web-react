@@ -78,7 +78,7 @@ const Item = ({
   const onFormModalCancel = () => {
     onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
     setIsFormModalOpen(false);
-    onCancel?.(id);
+    onCancel?.();
   };
 
   const onFieldChange = (fieldId, value, error) => {
