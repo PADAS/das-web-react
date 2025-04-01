@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -29,11 +28,11 @@ const TOOLTIP_SHOW_TIME = 500;
 const TOOLTIP_HIDE_TIME = 150;
 
 const MapLocationSelectionOverview = ({
-  isDiscardButtonDisabled,
-  isUndoButtonDisabled,
-  onClickDiscard: onClickDiscardCallback,
-  onClickUndo: onClickUndoCallback,
-  onShowInformation,
+  isDiscardButtonDisabled = false,
+  isUndoButtonDisabled = false,
+  onClickDiscard: onClickDiscardCallback = null,
+  onClickUndo: onClickUndoCallback = null,
+  onShowInformation = null,
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'mapLocationSelectionOverview' });
 
@@ -156,22 +155,6 @@ const MapLocationSelectionOverview = ({
       </div>
     </Collapse>
   </div>;
-};
-
-MapLocationSelectionOverview.defaultProps = {
-  isDiscardButtonDisabled: false,
-  isUndoButtonDisabled: false,
-  onClickDiscard: null,
-  onClickUndo: null,
-  onShowInformation: null,
-};
-
-MapLocationSelectionOverview.propTypes = {
-  isDiscardButtonDisabled: PropTypes.bool,
-  isUndoButtonDisabled: PropTypes.bool,
-  onClickDiscard: PropTypes.func,
-  onClickUndo: PropTypes.func,
-  onShowInformation: PropTypes.func,
 };
 
 export default memo(MapLocationSelectionOverview);

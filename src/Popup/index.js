@@ -1,14 +1,11 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import { withMap } from '../EarthRangerMap';
 import { createPortal } from 'react-dom';
-import PropTypes from 'prop-types';
 import mapboxgl from 'mapbox-gl';
 
 import xor from 'lodash/xor';
 
-const Popup = (props) => {
-  const { className, trackPointer, offset, coordinates, anchor, children, map } = props;
-
+const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children, map }) => {
   const classNameRef = useRef('');
 
   const popupRef = useRef(null);
@@ -79,28 +76,6 @@ const Popup = (props) => {
     <Fragment>{children}</Fragment>,
     popupContainerRef.current
   );
-};
-
-Popup.propTypes = {
-  anchor: PropTypes.string,
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-    PropTypes.exact(null),
-  ]),
-  className: PropTypes.string,
-  coordinates: PropTypes.array.isRequired,
-  map: PropTypes.object.isRequired,
-  offset: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.object,
-  ]),
-  trackPointer: PropTypes.bool,
-};
-
-Popup.defaultProps = {
-  clasName: '',
-  trackPointer: false,
 };
 
 export default withMap(Popup);

@@ -1,10 +1,9 @@
 import React, { forwardRef, memo } from 'react';
-import PropTypes from 'prop-types';
 
 import * as styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
-const KebabMenuIcon = forwardRef(({ isOpen, className, ...rest }, ref) => <div
+const KebabMenuIcon = forwardRef(({ isOpen = false, className = '', ...rest }, ref) => <div
     ref={ref}
     className={`${styles.kebab}${className ? ` ${className}` : ''}${isOpen ? ` ${styles.open}` : ''}`}
     {...rest}
@@ -12,15 +11,5 @@ const KebabMenuIcon = forwardRef(({ isOpen, className, ...rest }, ref) => <div
   <span></span>
 </div>
 );
-
-KebabMenuIcon.defaultProps = {
-  className: '',
-  isOpen: false,
-};
-
-KebabMenuIcon.propTypes = {
-  className: PropTypes.string,
-  isOpen: PropTypes.bool,
-};
 
 export default memo(KebabMenuIcon);

@@ -1,9 +1,8 @@
 import React, { forwardRef } from 'react';
-import PropTypes from 'prop-types';
 
 import * as styles from './styles.module.scss';
 
-const HamburgerMenuIcon = ({ className, isOpen, ...restProps }, ref) => <button
+const HamburgerMenuIcon = ({ className = '', isOpen = false, ...restProps }, ref) => <button
     ref={ref}
     className={`${styles.hamburger}${className ? ` ${className}` : ''}${isOpen ? ` ${styles.open}` : ''}`}
     {...restProps}
@@ -12,15 +11,5 @@ const HamburgerMenuIcon = ({ className, isOpen, ...restProps }, ref) => <button
 </button>;
 
 const HamburgerMenuIconForwardRef = forwardRef(HamburgerMenuIcon);
-
-HamburgerMenuIconForwardRef.defaultProps = {
-  className: '',
-  isOpen: false,
-};
-
-HamburgerMenuIconForwardRef.propTypes = {
-  className: PropTypes.string,
-  isOpen: PropTypes.bool,
-};
 
 export default HamburgerMenuIconForwardRef;

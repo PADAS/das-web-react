@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
 import { useLocation, useSearchParams } from 'react-router';
 
 import {
@@ -31,7 +30,7 @@ const shouldFetchEventDetails = (eventId, eventStore) =>
   || !eventStore[eventId].notes
   || !eventStore[eventId].updates;
 
-const ReportManager = ({ onReportBeingAdded }) => {
+const ReportManager = ({ onReportBeingAdded = null }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -146,14 +145,6 @@ const ReportManager = ({ onReportBeingAdded }) => {
       />
     </DelayedUnmount>
   </TrackerContext.Provider>;
-};
-
-ReportManager.defaultProps = {
-  onReportBeingAdded: null,
-};
-
-ReportManager.propTypes = {
-  onReportBeingAdded: PropTypes.func,
 };
 
 export default memo(ReportManager);

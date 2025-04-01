@@ -1,6 +1,5 @@
 import React, { forwardRef, useCallback, useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
-import PropTypes from 'prop-types';
 
 import KebabMenuIcon from '../KebabMenuIcon';
 
@@ -12,7 +11,7 @@ const Option = ({ className = '', children, ...rest }) => (
   </Dropdown.Item>
 );
 
-const Menu = ({ children, className, defaultShow, ...rest }, ref) => {
+const Menu = ({ children, className = '', defaultShow = false, ...rest }, ref) => {
   const [show, setShow] = useState(defaultShow);
 
   const onKeyDown = useCallback((event) => {
@@ -42,17 +41,6 @@ const Menu = ({ children, className, defaultShow, ...rest }, ref) => {
 };
 
 const MenuForwardRef = forwardRef(Menu);
-
-MenuForwardRef.defaultProps = {
-  className: '',
-  defaultShow: false,
-};
-
-MenuForwardRef.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.array, PropTypes.element]).isRequired,
-  defaultShow: PropTypes.bool,
-  className: PropTypes.string,
-};
 
 const KebabMenu = {
   ...MenuForwardRef,

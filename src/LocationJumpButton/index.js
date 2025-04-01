@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
@@ -13,13 +12,13 @@ import { validateLngLat } from '../utils/location';
 import * as styles from './styles.module.scss';
 
 const LocationJumpButton = ({
-  bypassLocationValidation,
-  className,
-  clickAnalytics,
-  coordinates,
-  isMulti,
-  onClick,
-  zoom,
+  bypassLocationValidation = false,
+  className = '',
+  clickAnalytics = null,
+  coordinates = null,
+  isMulti = false,
+  onClick = null,
+  zoom = 14,
   ...restProps
 }) => {
   const jumpToLocation = useJumpToLocation();
@@ -81,26 +80,6 @@ const LocationJumpButton = ({
     >
     {icon}
   </button>;
-};
-
-LocationJumpButton.defaultProps = {
-  bypassLocationValidation: false,
-  className: '',
-  clickAnalytics: null,
-  coordinates: null,
-  isMulti: false,
-  onClick: null,
-  zoom: 14,
-};
-
-LocationJumpButton.propTypes = {
-  bypassLocationValidation: PropTypes.bool,
-  className: PropTypes.string,
-  clickAnalytics: PropTypes.arrayOf(PropTypes.string),
-  coordinates: PropTypes.array,
-  isMulti: PropTypes.bool,
-  onClick: PropTypes.func,
-  zoom: PropTypes.number,
 };
 
 export default memo(LocationJumpButton);

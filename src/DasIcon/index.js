@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 
 const spriteMappings = {
   events: {
@@ -37,13 +36,3 @@ const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className,
 };
 
 export default memo(DasIcon);
-
-DasIcon.defaultProps = {
-  color: 'white',
-};
-
-DasIcon.propTypes = {
-  type: PropTypes.string.isRequired,
-  iconId: PropTypes.string.isRequired,
-  color: PropTypes.string,
-};

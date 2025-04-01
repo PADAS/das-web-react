@@ -47,8 +47,4 @@ const FilterSettingsControl = forwardRef(({ isOpen, hideFilterSettings, target, 
   </div>;
 });
 
-FilterSettingsControl.defaultProps = {
-  defaultSearchSetting: 'start_dates',
-};
-
 export default (memo(FilterSettingsControl));

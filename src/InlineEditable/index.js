@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import Checkmark from '../Checkmark';
 
@@ -12,7 +11,7 @@ const InlineEditable = ({
   onClick,
   onEsc,
   onSave,
-  showCancel,
+  showCancel = true,
   value: originalValue,
   ...restProps
 }) => {
@@ -74,24 +73,6 @@ const InlineEditable = ({
       </button>
     </form>
     : <span className={styles.editable} onClick={onClick} {...restProps}>{originalValue}</span>;
-};
-
-InlineEditable.defaultProps = {
-  showCancel: true,
-};
-
-InlineEditable.propTypes = {
-  editing: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onClick: PropTypes.func.isRequired,
-  onEsc: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
-  showCancel: PropTypes.bool,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
 };
 
 export default memo(InlineEditable);

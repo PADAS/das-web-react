@@ -1,6 +1,5 @@
 import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +23,13 @@ import ItemActionButton from '../ItemActionButton';
 
 import * as styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref) => {
+const AttachmentListItem = ({
+  attachment,
+  cardsExpanded = [],
+  onCollapse = null,
+  onDelete = null,
+  onExpand = null,
+}, ref) => {
   const dispatch = useDispatch();
 
   const tracker = useContext(TrackerContext);
@@ -183,28 +188,5 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 };
 
 const AttachmentListItemForwardRef = forwardRef(AttachmentListItem);
-
-AttachmentListItemForwardRef.defaultProps = {
-  cardsExpanded: [],
-  onCollapse: null,
-  onDelete: null,
-  onExpand: null,
-};
-
-AttachmentListItemForwardRef.propTypes = {
-  attachment: PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-    url: PropTypes.string,
-    filename: PropTypes.string,
-    updates: PropTypes.arrayOf(PropTypes.shape({
-      time: PropTypes.string,
-    })),
-  }).isRequired,
-  cardsExpanded: PropTypes.array,
-  onCollapse: PropTypes.func,
-  onDelete: PropTypes.func,
-  onExpand: PropTypes.func,
-};
 
 export default AttachmentListItemForwardRef;

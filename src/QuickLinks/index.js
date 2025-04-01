@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import useOnScreen from '../hooks/useOnScreen';
 
@@ -7,7 +6,7 @@ import * as styles from './styles.module.scss';
 
 export const QuickLinksContext = createContext();
 
-const QuickLinks = ({ children, scrollTopOffset }) => {
+const QuickLinks = ({ children, scrollTopOffset = 0 }) => {
   const sectionsWrapperRef = useRef();
 
   const [sectionElements, setSectionElements] = useState({});
@@ -34,32 +33,13 @@ const QuickLinks = ({ children, scrollTopOffset }) => {
   </QuickLinksContext.Provider>;
 };
 
-QuickLinks.defaultProps = { scrollTopOffset: 0, sectionWrapperRef: null };
 
-QuickLinks.propTypes = {
-  children: PropTypes.node.isRequired,
-  scrollTopOffset: PropTypes.number,
-  sectionWrapperRef: PropTypes.shape({
-    current: PropTypes.any,
-  }),
-};
-
-
-const NavigationBar = ({ children, className }) => <div
+const NavigationBar = ({ children, className = '' }) => <div
   className={`${styles.navigationBar} ${className}`}
   data-testid="quickLinks-navigationBar"
   >
   {children}
 </div>;
-
-NavigationBar.defaultProps = {
-  clasName: '',
-};
-
-NavigationBar.propTypes = {
-  clasName: PropTypes.string,
-  children: PropTypes.node.isRequired,
-};
 
 QuickLinks.NavigationBar = NavigationBar;
 
@@ -87,12 +67,10 @@ const Anchor = ({ anchorTitle, onClick: onClickCallback = null, iconComponent })
   </div> : null;
 };
 
-Anchor.propTypes = { anchorTitle: PropTypes.string.isRequired, iconComponent: PropTypes.node.isRequired };
-
 QuickLinks.Anchor = Anchor;
 
 
-const SectionsWrapper = ({ className, children }) => {
+const SectionsWrapper = ({ className = '', children }) => {
   const { sectionsWrapperRef } = useContext(QuickLinksContext);
 
   return <div
@@ -104,19 +82,10 @@ const SectionsWrapper = ({ className, children }) => {
   </div>;
 };
 
-SectionsWrapper.defaultProps = {
-  clasName: ''
-};
-
-SectionsWrapper.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired
-};
-
 QuickLinks.SectionsWrapper = SectionsWrapper;
 
 
-const Section = ({ anchorTitle, className, children, hidden }) => {
+const Section = ({ anchorTitle, className = '', children, hidden = false }) => {
   const { getSectionElement, onSectionElementChange } = useContext(QuickLinksContext);
 
   const [sectionElement, setSectionElement] = useState();
@@ -132,18 +101,6 @@ const Section = ({ anchorTitle, className, children, hidden }) => {
   return !hidden ? <div className={className} data-testid={`quickLinks-section-${anchorTitle}`} ref={sectionRef}>
     {children}
   </div> : null;
-};
-
-Section.defaultProps = {
-  className: '',
-  hidden: false,
-};
-
-Section.propTypes = {
-  anchorTitle: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  hidden: PropTypes.bool,
 };
 
 QuickLinks.Section = Section;

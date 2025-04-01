@@ -56,10 +56,10 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
             length={PIN_LENGTH}
             onChange={onChange}
             onComplete={onComplete}
+            pattern={PIN_VALIDATION_RULES}
             ref={pinInputsRef}
             role="input"
             type="password"
-            validate={PIN_VALIDATION_RULES}
           />
 
           {success && <ConfirmationCheck />}
