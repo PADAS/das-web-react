@@ -116,7 +116,7 @@ const Collection = ({
 
   const setIsItemFormPreviewOpen = (itemIndex) => (isItemFormPreviewOpen) => setItems([
     ...items.slice(0, itemIndex),
-    { ...items[itemIndex], isFormPreviewOpen: isItemFormPreviewOpen },
+    { ...items[itemIndex], isFormPreviewOpen: isItemFormPreviewOpen, isRecentAdded: false },
     ...items.slice(itemIndex + 1),
   ]);
 
@@ -130,7 +130,15 @@ const Collection = ({
 
     lastAddedItemIdRef.current += 1;
     onFieldChange(id, [...value, {}], updatedError);
-    setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
+    setItems([
+      ...items,
+      {
+        id: lastAddedItemIdRef.current,
+        isFormModalOpen: true,
+        isFormPreviewOpen: false,
+        isRecentAdded: true
+      }
+    ]);
   };
 
   // If a location field from an item requests to focus its location marker, prefix the marker id with the collection

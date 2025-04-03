@@ -44,6 +44,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         renderField={renderField}
         rightColumn={[]}
         title="Item 3"
+        isDeletable
         {...props}
       />
     </Provider>
