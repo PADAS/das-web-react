@@ -24,11 +24,13 @@ const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
       .map(feature =>
-        ({ feature, messages: messages
-          .filter(msg =>
-            extractSubjectFromMessage(msg)?.id === feature.properties.id
-          )
-          .filter(msg => !msg.read) }))
+        ({
+          feature, messages: messages
+            .filter(msg =>
+              extractSubjectFromMessage(msg)?.id === feature.properties.id
+            )
+            .filter(msg => !msg.read)
+        }))
       .filter(item => !!item.messages.length);
 
   return featureCollection(
@@ -48,6 +50,8 @@ const LAYER_ID = `${SOURCE_ID}_LAYER`;
 
 const messageBadgeLayout = {
   'icon-anchor': 'bottom-left',
+  'icon-ignore-placement': true,
+  'icon-allow-overlap': true,
   'icon-image': 'message-badge',
   'icon-offset': [2, -0.35],
   'icon-size': 0.5,
@@ -64,7 +68,7 @@ const messageBadgePaint = {
 
 const MessageBadgeLayer = (props) => {
   /* "messages" prop needs to be replaced by a FETCH that retrieves only unread messages and has a huge page size to guarantee full retrieval */
-  const { map, onBadgeClick, subjectFeatureCollection }  = props;
+  const { map, onBadgeClick, subjectFeatureCollection } = props;
 
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
@@ -77,7 +81,7 @@ const MessageBadgeLayer = (props) => {
     if (!!canViewMessages) {
       const handleRealtimeMessage = ({ data: msg }) => {
         if (!!lastRequestedSubjectIdList.current &&
-        lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
+          lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
         ) {
           if (msg.read) {
             dispatch(removeMessageById(msg.id));
