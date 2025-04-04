@@ -91,14 +91,14 @@ const Item = ({
     onChange({ ...formData, [fieldId]: value }, updatedErrors);
   };
 
-  const onDeleteItem = () => {
-    onDelete();
+  const onDeleteItem = (wasRecentAddedItemCanceled = false) => {
+    onDelete(wasRecentAddedItemCanceled);
     setIsFormModalOpen(false);
   };
 
   const onFormModalCancel = () => {
     if (shouldDeleteOnCancelRef.current) {
-      onDeleteItem();
+      onDeleteItem(true);
     } else {
       onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
       setIsFormModalOpen(false);
