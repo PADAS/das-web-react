@@ -14,8 +14,8 @@ const FormModal = ({
   errors,
   focusLocationMarker,
   formData,
+  hideDeleteButton,
   isOpen,
-  isDeletable,
   itemName,
   leftColumn,
   onCancel,
@@ -97,9 +97,9 @@ const FormModal = ({
       </div>
     </Modal.Body>
 
-    <Modal.Footer className={`${styles.footer} ${isDeletable ? styles.alignEvenly : styles.alignRight}`}>
+    <Modal.Footer className={`${styles.footer} ${!hideDeleteButton ? styles.alignEvenly : styles.alignRight}`}>
       {
-        isDeletable &&
+          !hideDeleteButton &&
           <button
               aria-label={t('deleteButton', { itemTitle: title } )}
               className={styles.deleteButton}

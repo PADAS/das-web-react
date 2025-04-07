@@ -44,7 +44,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
         renderField={renderField}
         rightColumn={[]}
         title="Item 3"
-        isDeletable
+        hideDeleteButton={false}
         {...props}
       />
     </Provider>
@@ -139,6 +139,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     userEvent.click(screen.getByLabelText('Delete Item 3'));
 
     expect(onDeleteItem).toHaveBeenCalledTimes(1);
+  });
+
+  test('hides trash icon based on hideDeleteButton prop', () => {
+    renderFormModal({ hideDeleteButton: true });
+
+    expect(screen.queryByLabelText('Delete Item 3')).not.toBeInTheDocument();
   });
 
   test('cancels the edition of the form when user clicks Cancel', () => {

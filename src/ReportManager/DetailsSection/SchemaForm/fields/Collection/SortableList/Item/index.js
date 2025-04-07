@@ -29,7 +29,7 @@ const Item = ({
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
-  isItemRecentAdded = false,
+  wasItemRecentlyAdded = false,
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
@@ -48,7 +48,7 @@ const Item = ({
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
   const formDataBeforeEditingRef = useRef(null);
-  const shouldDeleteOnCancelRef = useRef(isItemRecentAdded);
+  const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
   const hasError = !!errors;
   const title = getItemTitle(
@@ -91,14 +91,14 @@ const Item = ({
     onChange({ ...formData, [fieldId]: value }, updatedErrors);
   };
 
-  const onDeleteItem = (wasRecentAddedItemCanceled = false) => {
-    onDelete(wasRecentAddedItemCanceled);
+  const onDeleteItem = () => {
+    onDelete(shouldDeleteOnCancelRef.current);
     setIsFormModalOpen(false);
   };
 
   const onFormModalCancel = () => {
     if (shouldDeleteOnCancelRef.current) {
-      onDeleteItem(true);
+      onDeleteItem();
     } else {
       onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
       setIsFormModalOpen(false);
@@ -223,7 +223,7 @@ const Item = ({
       onDeleteItem={onDeleteItem}
       onDone={onFormModalDone}
       onFieldChange={onFieldChange}
-      isDeletable={!shouldDeleteOnCancelRef.current}
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
       renderField={renderField}
       rightColumn={collectionDetails.rightColumn}
       title={title}

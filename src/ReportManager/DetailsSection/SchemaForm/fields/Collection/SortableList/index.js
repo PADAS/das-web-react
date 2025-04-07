@@ -142,25 +142,25 @@ const SortableList = ({
     >
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => <SortableItem
-              blurLocationMarker={blurLocationMarker}
-              breadcrumbs={breadcrumbs}
-              collectionDetails={collectionDetails}
-              errors={item.error}
-              fields={fields}
-              focusLocationMarker={focusLocationMarker(index)}
-              formData={item.formData}
-              id={item.id}
-              index={index}
-              isFormModalOpen={item.isFormModalOpen}
-              isFormPreviewOpen={item.isFormPreviewOpen}
-              isItemRecentAdded={item.isRecentAdded}
-              key={item.id}
-              onChange={onItemChange(index)}
-              onDelete={onItemDelete(index)}
-              setIsFormModalOpen={setIsItemFormModalOpen(index)}
-              setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
-              renderField={renderField}
-          />)}
+          blurLocationMarker={blurLocationMarker}
+          breadcrumbs={breadcrumbs}
+          collectionDetails={collectionDetails}
+          errors={item.error}
+          fields={fields}
+          focusLocationMarker={focusLocationMarker(index)}
+          formData={item.formData}
+          id={item.id}
+          index={index}
+          isFormModalOpen={item.isFormModalOpen}
+          isFormPreviewOpen={item.isFormPreviewOpen}
+          wasItemRecentlyAdded={item.wasItemRecentlyAdded}
+          key={item.id}
+          onChange={onItemChange(index)}
+          onDelete={onItemDelete(index)}
+          setIsFormModalOpen={setIsItemFormModalOpen(index)}
+          setIsFormPreviewOpen={setIsItemFormPreviewOpen(index)}
+          renderField={renderField}
+        />)}
       </SortableContext>
 
       {createPortal(

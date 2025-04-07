@@ -66,7 +66,7 @@ const Collection = ({
     );
   };
 
-  const onItemDelete = (itemIndex) => (wasRecentAddedItemCanceled) => {
+  const onItemDelete = (itemIndex) => (decreaseLastAddedItemId = false) => {
     // We clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
@@ -84,7 +84,7 @@ const Collection = ({
       });
     }
 
-    if (wasRecentAddedItemCanceled){
+    if (decreaseLastAddedItemId){
       lastAddedItemIdRef.current -= 1;
     }
 
@@ -119,7 +119,7 @@ const Collection = ({
         ? currentItems
         : [
           ...currentItems.slice(0, itemIndex),
-          { ...itemToUpdate, isFormModalOpen: isItemFormModalOpen },
+          { ...itemToUpdate, isFormModalOpen: isItemFormModalOpen, wasItemRecentlyAdded: false },
           ...currentItems.slice(itemIndex + 1)
         ];
     });
@@ -127,7 +127,7 @@ const Collection = ({
 
   const setIsItemFormPreviewOpen = (itemIndex) => (isItemFormPreviewOpen) => setItems([
     ...items.slice(0, itemIndex),
-    { ...items[itemIndex], isFormPreviewOpen: isItemFormPreviewOpen, isRecentAdded: false },
+    { ...items[itemIndex], isFormPreviewOpen: isItemFormPreviewOpen },
     ...items.slice(itemIndex + 1),
   ]);
 
@@ -147,7 +147,7 @@ const Collection = ({
         id: lastAddedItemIdRef.current,
         isFormModalOpen: true,
         isFormPreviewOpen: false,
-        isRecentAdded: true
+        wasItemRecentlyAdded: true
       }
     ]);
   };
