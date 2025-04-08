@@ -11,18 +11,13 @@ import {
   errorHandlersBounding as errorHandlersBoundingLatest,
   eventsBounding as latestEventBounding
 } from './implementations/latest';
-import {
-  errorHandlersBounding as errorHandlersBoundingLegacy,
-  eventsBounding as legacyEventBounding
-} from './implementations/legacy';
 
-const LEGACY_RT_ENABLED = DEVELOPMENT_FEATURE_FLAGS[FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED];
 const SOCKET_URL = `${DAS_HOST}/das`;
 
 // This object should be removed/updated when single-tenant are no longer supported
 const RTImplementation = {
-  eventsBounding: LEGACY_RT_ENABLED ? legacyEventBounding : latestEventBounding,
-  errorHandlersBounding: LEGACY_RT_ENABLED ? errorHandlersBoundingLegacy: errorHandlersBoundingLatest,
+  eventsBounding: latestEventBounding,
+  errorHandlersBounding: errorHandlersBoundingLatest,
 };
 
 const useRealTimeImplementation = () => {
@@ -98,7 +93,7 @@ const useRealTimeImplementation = () => {
   const unbindSocketEvents = useCallback((socket) => socket.removeAllListeners(), []);
 
   const createSocket = useCallback((url = SOCKET_URL) => {
-    if (!socketIOPackage){
+    if (!socketIOPackage) {
       return;
     }
 
@@ -126,11 +121,7 @@ const useRealTimeImplementation = () => {
   useEffect(() => {
     const importSocketIOPackage = async () => {
       let socketIO = null;
-      if (LEGACY_RT_ENABLED){
-        socketIO = await import('legacy-socket.io-client');
-      } else {
-        socketIO = await import('socket.io-client');
-      }
+      socketIO = await import('socket.io-client');
       setSocketIOPackage({
         io: (...args) => socketIO.default(...args)
       });

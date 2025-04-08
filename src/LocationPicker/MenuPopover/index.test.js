@@ -65,7 +65,7 @@ describe('LocationPicker - MenuPopover', () => {
           target={{
             current: {
               contains: () => false,
-              offsetWidth: 100,
+              offsetWidth: 320,
             },
           }}
           value={null}
@@ -79,13 +79,45 @@ describe('LocationPicker - MenuPopover', () => {
     jest.restoreAllMocks();
   });
 
-  test('matches the width of the target while is less than 380', () => {
+  test('matches the width of the target while is less than 380 and more than 280', () => {
     renderMenuPopover();
 
     const menuPopover = screen.getByRole('presentation');
 
-    expect(menuPopover).toHaveStyle('min-width: 100px;');
-    expect(menuPopover).toHaveStyle('width: 100px;');
+    expect(menuPopover).toHaveStyle('min-width: 320px;');
+    expect(menuPopover).toHaveStyle('width: 320px;');
+  });
+
+  test('sets the popover width to 280 if the target is smaller', () => {
+    renderMenuPopover({
+      target: {
+        current: {
+          contains: () => false,
+          offsetWidth: 150,
+        },
+      },
+    });
+
+    const menuPopover = screen.getByRole('presentation');
+
+    expect(menuPopover).toHaveStyle('min-width: 280px;');
+    expect(menuPopover).toHaveStyle('width: 280px;');
+  });
+
+  test('sets the popover width to 380 if the target is bigger', () => {
+    renderMenuPopover({
+      target: {
+        current: {
+          contains: () => false,
+          offsetWidth: 600,
+        },
+      },
+    });
+
+    const menuPopover = screen.getByRole('presentation');
+
+    expect(menuPopover).toHaveStyle('min-width: 380px;');
+    expect(menuPopover).toHaveStyle('width: 380px;');
   });
 
   test('changes the location when the user types in the GPS input', () => {
@@ -112,6 +144,17 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
+  test('does neither close the menu nor focuse the set location button if the user presses enter while picking a location', () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+    renderMenuPopover();
+
+    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    userEvent.keyboard('{Enter}');
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
+  });
+
   test('closes the menu and focuses the set location button if the user presses escape', () => {
     renderMenuPopover();
 
@@ -123,6 +166,17 @@ describe('LocationPicker - MenuPopover', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
+  });
+
+  test('does neither close the menu nor focuse the set location button if the user presses escape while picking a location', () => {
+    store.view.mapLocationSelection.isPickingLocation = true;
+    renderMenuPopover();
+
+    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    userEvent.keyboard('{Escape}');
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
   });
 
   test('changes the location when the user picks a location in the map', () => {

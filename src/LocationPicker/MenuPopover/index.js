@@ -15,6 +15,7 @@ import PickMapLocationButton from '../../PickMapLocationButton';
 import styles from './styles.module.scss';
 
 const MAX_POPOVER_WIDTH = 380;
+const MIN_POPOVER_WIDTH = 280;
 
 // TODO: This is a common component and its events shouldn't be linked to the event report track category.
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
@@ -39,9 +40,12 @@ const MenuPopover = ({
   const gpsFormatToggleRef = useRef();
   const gpsInputRef = useRef();
   const lastFocusableElementRef = useRef();
+  // Set the popover width equal to the location picker's width if it's between the min and max boundaries and store it
+  // in a ref so it doesn't change.
+  const popoverWidthRef = useRef(
+    Math.min(MAX_POPOVER_WIDTH, Math.max(MIN_POPOVER_WIDTH, target.current?.offsetWidth))
+  );
   const wrapperRef = useRef();
-
-  const popoverWidth = Math.min(target.current?.offsetWidth, MAX_POPOVER_WIDTH);
 
   const onWrapperKeyDown = (event) => {
     if (event.key === 'Escape') {
@@ -84,26 +88,31 @@ const MenuPopover = ({
   useEffect(() => {
     // Select the GPS input on mount so user can type away or navigate.
     gpsInputRef.current.select();
-
-    // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab.
-    const onKeyDown = (event) => {
-      if (event.key === 'Tab') {
-        if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
-          event.preventDefault();
-
-          lastFocusableElementRef.current.focus();
-        } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
-          event.preventDefault();
-
-          gpsFormatToggleRef.current.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  useEffect(() => {
+    // Create a focus trap while the component is mounted so only internal elements are focused when pressing tab only
+    // if the user is not picking a location from the map.
+    if (!isPickingLocation) {
+      const onKeyDown = (event) => {
+        if (event.key === 'Tab') {
+          if (event.shiftKey && document.activeElement === gpsFormatToggleRef.current) {
+            event.preventDefault();
+
+            lastFocusableElementRef.current.focus();
+          } else if (!event.shiftKey && document.activeElement === lastFocusableElementRef.current) {
+            event.preventDefault();
+
+            gpsFormatToggleRef.current.focus();
+          }
+        }
+      };
+
+      document.addEventListener('keydown', onKeyDown);
+
+      return () => document.removeEventListener('keydown', onKeyDown);
+    }
+  }, [isPickingLocation]);
 
   useEffect(() => {
     // Add a mouse down event to close the menu if the user clicks outside only if the user is not picking a location
@@ -144,15 +153,15 @@ const MenuPopover = ({
       id={`${id}-menuPopover`}
       ref={ref}
       role="presentation"
-      style={{ ...style, minWidth: popoverWidth, width: popoverWidth }}
+      style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
       {...otherProps}
     >
-    <div className={styles.wrapper} onKeyDown={onWrapperKeyDown} ref={wrapperRef}>
+    <div className={styles.wrapper} onKeyDown={isPickingLocation ? undefined : onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
         gpsFormatToggleRef={gpsFormatToggleRef}
         id={`${id}-menuPopover-gpsInput`}
         inputRef={gpsInputRef}
-        onKeyDown={onGpsInputKeyDown}
+        onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         onChange={onChange}
         value={value}
       />

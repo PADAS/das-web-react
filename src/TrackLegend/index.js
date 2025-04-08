@@ -36,8 +36,6 @@ const TrackLegend = ({
   const dispatch = useDispatch();
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend' });
 
-  const timeOfDayTrackingEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.TIME_OF_DAY_TRACKING);
-
   const isTimeOfDayColoringActive = useSelector((state) => state.view.trackSettings.isTimeOfDayColoringActive);
 
   // This variable tracks if a menu is expanded, which one it is. There can be only one menu expanded at a time.
@@ -96,8 +94,8 @@ const TrackLegend = ({
   }, [items.length, show]);
 
   return <div
-      className={`${styles.trackLegendWrapper} ${show ? styles.show : ''}`}
-      data-testid="trackLegend"
+    className={`${styles.trackLegendWrapper} ${show ? styles.show : ''}`}
+    data-testid="trackLegend"
     >
     <div className={styles.trackLegend}>
       <div className={styles.row}>
@@ -126,7 +124,7 @@ const TrackLegend = ({
         </div>
 
         <div>
-          {timeOfDayTrackingEnabled && showTimeOfDaySettings && <button
+          {showTimeOfDaySettings && <button
             aria-controls="timeOfDaySettings"
             aria-expanded={isTimeOfDayColoringActive}
             aria-label={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
@@ -178,7 +176,7 @@ const TrackLegend = ({
       </div>
     </Collapse>}
 
-    {timeOfDayTrackingEnabled && showTimeOfDaySettings && <Collapse
+    {showTimeOfDaySettings && <Collapse
       id="timeOfDaySettings"
       in={isTimeOfDayColoringActive}
     >
@@ -195,8 +193,8 @@ const TrackLegend = ({
 
 // Wrap the component with a delayed unmount so the slide out transition ends before unmounting.
 const TrackLegendDelayedUnmount = ({ items, ...otherProps }) => <DelayedUnmount
-    delay={BOOTSTRAP_DEFAULTS.COLLAPSE_TRANSITION_TIME}
-    isMounted={items.length > 0}
+  delay={BOOTSTRAP_DEFAULTS.COLLAPSE_TRANSITION_TIME}
+  isMounted={items.length > 0}
   >
   <TrackLegend items={items} {...otherProps} />
 </DelayedUnmount>;
