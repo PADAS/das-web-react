@@ -1,10 +1,10 @@
 import React, { forwardRef, memo, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { TAB_KEYS } from '../constants';
-import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -35,7 +35,12 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolList' });
-  if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
+
+  if (loading) {
+    return <div className={styles.loaderWrapper}>
+      <MoonLoader />
+    </div>;
+  }
 
   return <>
     {!!patrols.length && <ScrollRestoration

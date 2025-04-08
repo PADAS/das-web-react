@@ -1,21 +1,19 @@
 import React, { memo, useContext, useMemo } from 'react';
-import { findDOMNode } from 'react-dom';
 import { Flipped, Flipper } from 'react-flip-toolkit';
 import InfiniteScroll from 'react-infinite-scroller';
-import PropTypes from 'prop-types';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
 import { TAB_KEYS } from '../constants';
 
 import EventItemContextMenu from '../EventItemContextMenu';
-import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 import { ScrollRestoration, SidebarScrollContext } from '../SidebarScrollContext';
 
 import styles from './styles.module.scss';
 
-const EventFeed = ({ className, events, hasMore, loading, onScroll, onTitleClick, sortConfig }) => {
+const EventFeed = ({ className = '', events = [], hasMore, loading, onScroll, onTitleClick, sortConfig }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventFeed' });
 
   const { scrollRef } = useContext(SidebarScrollContext);
@@ -25,13 +23,15 @@ const EventFeed = ({ className, events, hasMore, loading, onScroll, onTitleClick
   const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
 
   if (loading) {
-    return <LoadingOverlay className={styles.loadingOverlay} />;
+    return <div className={styles.loaderWrapper}>
+      <MoonLoader />
+    </div>;
   }
 
   return <ScrollRestoration className={`${className} ${styles.scrollContainer}`} namespace={TAB_KEYS.EVENTS}>
     <InfiniteScroll
       element="ul"
-      getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
+      getScrollParent={() => scrollRef.current}
       hasMore={hasMore}
       loadMore={onScroll}
       useWindow={false}
@@ -64,21 +64,6 @@ const EventFeed = ({ className, events, hasMore, loading, onScroll, onTitleClick
       </Flipper>
     </InfiniteScroll>
   </ScrollRestoration>;
-};
-
-EventFeed.defaultProps = {
-  className: '',
-  events: [],
-};
-
-EventFeed.propTypes = {
-  className: PropTypes.string,
-  events: PropTypes.array,
-  hasMore: PropTypes.bool.isRequired,
-  loading: PropTypes.bool.isRequired,
-  onScroll: PropTypes.func.isRequired,
-  onTitleClick: PropTypes.func.isRequired,
-  sortConfig: PropTypes.array.isRequired,
 };
 
 export default memo(EventFeed);
