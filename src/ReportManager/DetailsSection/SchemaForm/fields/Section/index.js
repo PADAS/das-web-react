@@ -4,7 +4,16 @@ import styles from './styles.module.scss';
 
 // Sections are just visual elements that are not present in the form data structure. Thus, fields contained by
 // sections are in the root objects of form data and field errors.
-const Section = ({ details, fieldErrors, formData, id, onFieldChange, onFieldErrorsChange, renderField }) => {
+const Section = ({
+  details,
+  fieldErrors,
+  focusLocationMarker,
+  formData,
+  id,
+  onFieldChange,
+  onFieldErrorsChange,
+  renderField,
+}) => {
   const onColumnFieldChange = (fieldId, value, error) => {
     onFieldChange(fieldId, value);
     onFieldErrorsChange({ ...fieldErrors, [fieldId]: error });
@@ -25,7 +34,8 @@ const Section = ({ details, fieldErrors, formData, id, onFieldChange, onFieldErr
           fieldId,
           formData[fieldId],
           onColumnFieldChange,
-          fieldErrors[fieldId]
+          fieldErrors[fieldId],
+          focusLocationMarker
         ))}
       </div>
 
@@ -37,7 +47,8 @@ const Section = ({ details, fieldErrors, formData, id, onFieldChange, onFieldErr
           fieldId,
           formData[fieldId],
           onColumnFieldChange,
-          fieldErrors[fieldId]
+          fieldErrors[fieldId],
+          focusLocationMarker
         ))}
       </div>}
     </div>

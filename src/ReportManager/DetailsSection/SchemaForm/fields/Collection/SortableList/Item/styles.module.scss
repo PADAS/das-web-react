@@ -21,7 +21,7 @@
     }
   }
 
-  &:focus-visible:not(.isDragging) {
+  &:focus:not(.isDragging) {
     outline: colors.$bright-blue auto 1px;
 
     .header {

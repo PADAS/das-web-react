@@ -18,6 +18,18 @@ import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 
 import DetailsSection from './';
 
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
+
 describe('ReportManager - DetailsSection', () => {
   const onFormDataChange = jest.fn(),
     onFormError = jest.fn(),
@@ -79,8 +91,10 @@ describe('ReportManager - DetailsSection', () => {
         <MapDrawingToolsContext.Provider value={{ ...mapDrawingToolsContextValue }}>
           <TrackerContext.Provider value={{ track: jest.fn() }}>
             <DetailsSection
+              eventId="event-id"
               eventSchema={eventSchemas.accident_rep.base}
               formValidator={formValidator}
+              isBehindAddedEvent={false}
               isCollection={false}
               isNewEvent={false}
               loadingSchema={false}
@@ -262,22 +276,22 @@ describe('ReportManager - DetailsSection', () => {
   test('shows the location selector input if the geometry type of the event is polygon', async () => {
     renderDetailsSection();
 
-    expect(screen.getByTestId('set-location-button')).toBeVisible();
+    expect(screen.getByLabelText('Event Location')).toBeVisible();
     expect(screen.queryByText('Set event area')).toBeNull();
   });
 
   test('changes the location of the event when selecting a location from the location selector input', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByTestId('set-location-button'));
-    userEvent.click(screen.getByTitle('Place marker on map'));
+    userEvent.click(screen.getByLabelText('Event Location'));
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onReportLocationChange).toHaveBeenCalledTimes(0);
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect(onReportLocationChange).toHaveBeenCalledTimes(1);
-    expect(onReportLocationChange).toHaveBeenCalledWith([88, 55]);
+    expect(onReportLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
   });
 
   test('does not show the date picker if the event is a collection', async () => {

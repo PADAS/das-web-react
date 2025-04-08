@@ -3,16 +3,19 @@ import throttle from 'lodash/throttle';
 import PropTypes from 'prop-types';
 
 import { addMapImage } from '../utils/map';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { validateLocation } from '../utils/location';
 import { withMap } from '../EarthRangerMap';
 
-import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
 import MouseMarkerPopup from '../MouseMarkerPopup';
+import PickMapLocationButton from '../PickMapLocationButton';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
   const [moving, setMovingState] = useState(false);
@@ -30,6 +33,8 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   const hideMarker = () => {
     setMarkerLocation({});
     stopMovingReportMarker();
+
+    mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
   const onMouseMove = throttle((e) => {
@@ -66,11 +71,15 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   const startMovingReportMarker = () => {
     setMovingState(true);
     map.on('mousemove', mouseMoveFunc.current);
+
+    mapInteractionTracker.track('Click \'Drop Marker\' button');
   };
 
   const onLocationSelect = () => {
     stopMovingReportMarker();
     setCleanupState(true);
+
+    mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
 
@@ -95,15 +104,15 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 
 
   return <Fragment>
-    <MapLocationPicker
-      showPopup={false}
-      disabled={isValidLocation || moving}
-      showCancelButton={moving}
+    <PickMapLocationButton
       className={styles.mapControl}
+      disabled={isValidLocation || moving}
+      onCancel={hideMarker}
+      onClick={startMovingReportMarker}
+      onPick={onLocationSelect}
+      showInstructionsPopup={false}
       wrapperClassName={styles.buttons}
-      onLocationSelectCancel={hideMarker}
-      onLocationSelectStart={startMovingReportMarker}
-      onLocationSelect={onLocationSelect} />
+    />
 
     {shouldShowMarkerLayer && <>
       <MouseMarkerLayer location={location} {...rest} />

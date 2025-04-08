@@ -22,7 +22,11 @@ const SubjectMessagePopup = ({ data }) => {
 
     <DateTime date={message.message_time} />
 
-    <GpsFormatToggle lat={message.device_location.latitude} lng={message.device_location.longitude} />
+    <GpsFormatToggle
+      lat={message.device_location.latitude}
+      lng={message.device_location.longitude}
+      name="subjectMessagePopup-gpsFormatToggle"
+    />
   </>;
 };
 

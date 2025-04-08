@@ -12,6 +12,18 @@ import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
 
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
+
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({ pathname: '/patrols' }),
@@ -374,33 +386,29 @@ describe('PatrolDetailView - PlanSection', () => {
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {
     renderPlanSectionWithWrapper();
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[0];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    userEvent.click(screen.getByLabelText('Start Location'));
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(0);
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(1);
-    expect(onPatrolStartLocationChange).toHaveBeenCalledWith([88, 55]);
+    expect(onPatrolStartLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
   });
 
   test('triggers the onPatrolEndLocationChange callback when the user chooses a location in map', async () => {
     renderPlanSectionWithWrapper();
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[1];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    userEvent.click(screen.getByLabelText('End Location'));
+    userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(0);
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(1);
-    expect(onPatrolEndLocationChange).toHaveBeenCalledWith([88, 55]);
+    expect(onPatrolEndLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
   });
 
   test('it should show the placeholder for empty values', async () => {

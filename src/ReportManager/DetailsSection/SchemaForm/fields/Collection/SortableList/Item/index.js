@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../../common/images/icons/arrow-down-simple.svg';
@@ -16,12 +17,15 @@ import FormPreview from './FormPreview';
 import styles from './styles.module.scss';
 
 const Item = ({
+  blurLocationMarker = null,
   breadcrumbs = null,
   collectionDetails,
   errors,
   fields,
+  focusLocationMarker = null,
   formData,
   id,
+  index = null,
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
@@ -37,6 +41,8 @@ const Item = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
 
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
@@ -49,6 +55,7 @@ const Item = ({
     `${collectionDetails.itemName} ${id + 1}`,
     fields[collectionDetails.itemIdentifier],
     i18n.language,
+    gpsFormat,
     t
   );
 
@@ -114,7 +121,15 @@ const Item = ({
     + (isDragging ? ` ${styles.isDragging}` : '')
     + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
     + (hasError ? ` ${styles.error}` : '');
-  return <li className={itemClassName} data-testid="schema-form-collection-item" ref={ref} {...otherProps}>
+  return <li
+      className={itemClassName}
+      data-testid="schema-form-collection-item"
+      // We use the index and not the item id because the id is internal for having a constant default title, while the
+      // index corresponds directly to the position of the item in the form data object.
+      id={index !== null ? `${collectionDetails.value}.${index}` : undefined}
+      ref={ref}
+      {...otherProps}
+    >
     <div className={styles.header}>
       <div
         aria-controls={`collectionForm-${title}`}
@@ -173,7 +188,9 @@ const Item = ({
     <Collapse in={isFormPreviewOpen}>
       <div id={`collectionForm-${title}`}>
         <FormPreview
+          blurLocationMarker={blurLocationMarker}
           errors={errors}
+          focusLocationMarker={focusLocationMarker}
           formData={formData}
           fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           fields={fields}
@@ -185,6 +202,7 @@ const Item = ({
     {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
       columns={collectionDetails.columns}
+      focusLocationMarker={focusLocationMarker}
       formData={formData}
       errors={errors}
       isOpen={isFormModalOpen}

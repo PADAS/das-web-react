@@ -170,8 +170,9 @@
                           "doneButton": "सम्पन्न"
                         },
                         "formPreview": {
-                          "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
-                          },
+                          "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू",
+                          "jumpToLocationButtonLabel": "{{field}} स्थानमा जानुहोस्"
+                        },
                         "chevronButtonLabel": {
                           "closed": "{{itemTitle}} फारमको पूर्वावलोकन खोल्नुहोस्",
                           "open": "{{itemTitle}} फारमको पूर्वावलोकन बन्द गर्नुहोस्"

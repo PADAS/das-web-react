@@ -1,8 +1,13 @@
 {
     "cursorGPSDisplay": {
-        "gpsDisplayTooltip": "खोज्नका लागि enter थिच्नुहोस",
-        "titleIconSearch": "खोज्नुहोस्",
-        "toggleTitle": "कोअर्डिनेट सेटिङ"
+        "buttonLabel": {
+            "closed": "GPS प्रदर्शन मेनु खोल्नुहोस्",
+            "open": "GPS प्रदर्शन मेनु बन्द गर्नुहोस्"
+        },
+        "menuPopover": {
+            "gpsDisplayTooltip": "निर्देशांकमा जान Enter थिच्नुहोस्",
+            "gpsInputButtonLabel": "निर्देशांकमा जानुहोस्"
+        }
     },
     "baseLayer": {
         "popoverButton": "नक्साको आधार तह सेट गर्नुहोस्",

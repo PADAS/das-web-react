@@ -155,7 +155,7 @@ describe('EventItemContextMenu', () => {
 
     expect(writeText).toHaveBeenCalledTimes(0);
 
-    const copyButton = screen.getByTestId('textCopyBtn');
+    const copyButton = screen.getByLabelText('Copy to clipboard');
     userEvent.click(copyButton);
 
     await waitFor(() => {

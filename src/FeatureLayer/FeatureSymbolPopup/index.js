@@ -20,7 +20,11 @@ const FeatureSymbolPopup = ({ data, id }) => {
   return (
     <>
       <h4>{data.properties.title || data.properties.name}</h4>
-      <GpsFormatToggle lng={coordinates[0]} lat={coordinates[1]} />
+      <GpsFormatToggle
+        lng={coordinates[0]}
+        lat={coordinates[1]}
+        name="featureLayer-featureSymbolPopup-gpsFormatToggle"
+      />
       <hr />
       <AddItemButton
         analyticsMetadata={{ category: MAP_INTERACTION_CATEGORY, location: 'feature popup' }}

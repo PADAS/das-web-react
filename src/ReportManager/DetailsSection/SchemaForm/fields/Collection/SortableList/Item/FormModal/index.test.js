@@ -1,33 +1,73 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../../../../test-utils';
+import { mockStore } from '../../../../../../../../__test-helpers/MockStore';
 
 import FormModal from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - SortableList - Item - FormModal', () => {
+  const focusLocationMarker = jest.fn();
   const onCancel = jest.fn();
   const onDeleteItem = jest.fn();
   const onDone = jest.fn();
   const onFieldChange = jest.fn();
   const renderField = jest.fn();
 
-  const renderFormModal = (props) => render(<FormModal
-    breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-    columns={1}
-    errors={{}}
-    formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
-    isOpen
-    leftColumn={['field-1', 'field-2']}
-    onCancel={onCancel}
-    onDeleteItem={onDeleteItem}
-    onDone={onDone}
-    onFieldChange={onFieldChange}
-    renderField={renderField}
-    rightColumn={[]}
-    title="Item 3"
-    {...props}
-  />);
+  let store;
+  beforeEach(() => {
+    store = {
+      view: {
+        modals: {
+          canShowModals: true,
+        },
+      },
+    };
+  });
+
+  const renderFormModal = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <FormModal
+        breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+        columns={1}
+        errors={{}}
+        focusLocationMarker={focusLocationMarker}
+        formData={{ 'field-1': 'Value 1', 'field-2': 'Value 2' }}
+        isOpen
+        itemName="Item"
+        leftColumn={['field-1', 'field-2']}
+        onCancel={onCancel}
+        onDeleteItem={onDeleteItem}
+        onDone={onDone}
+        onFieldChange={onFieldChange}
+        renderField={renderField}
+        rightColumn={[]}
+        title="Item 3"
+        {...props}
+      />
+    </Provider>
+  );
+
+  test('shows the modal', () => {
+    renderFormModal({ breadcrumbs: [] });
+
+    expect(screen.getByLabelText('Item')).not.toHaveClass('noBackground');
+    expect(screen.getByLabelText('Item')).not.toHaveClass('hide');
+  });
+
+  test('does not show the modal background if it is nested', () => {
+    renderFormModal();
+
+    expect(screen.getByLabelText('Item')).toHaveClass('noBackground');
+  });
+
+  test('hides the modal if they are disabled by the modals reducer', () => {
+    store.view.modals.canShowModals = false;
+    renderFormModal();
+
+    expect(screen.getByLabelText('Item')).toHaveClass('hide');
+  });
 
   test('shows the breadcrumbs', () => {
     renderFormModal();
@@ -77,6 +117,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       'Value 1',
       onFieldChange,
       undefined,
+      focusLocationMarker,
       [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-1', display: 'Item 3' }]
     );
     expect(renderField).toHaveBeenCalledWith(
@@ -84,6 +125,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       'Value 2',
       onFieldChange,
       undefined,
+      focusLocationMarker,
       [{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }, { id: 'field-2', display: 'Item 3' }]
     );
   });

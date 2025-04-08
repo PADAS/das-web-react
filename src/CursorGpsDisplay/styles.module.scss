@@ -1,47 +1,51 @@
-@import '../common/styles/buttons';
-@import '../common/styles/vars/colors';
+@use 'sass:color';
 
-.container {
-  @include mapboxControlButton;
+@use '../common/styles/vars/colors';
+@use '../common/styles/inputs';
 
+.button {
   align-items: center;
-  background: $mapbox-control-bg-color !important;
-  color: $primary-font-color !important;
-  cursor: unset; 
+  background: colors.$mapbox-control-bg-color;
+  border: none;
+  border-radius: 0.125rem;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px;
+  color: colors.$primary-font-color;
   display: flex;
   font-size: 0.75rem;
   height: 2.25rem;
-  justify-content: center;
   line-height: normal;
   margin-top: 0.5rem;
-  padding: 0 0.5rem;
-  position: relative;
-  transition: none;
-  white-space: unset;
-  width: unset;
+  padding: 0.5rem;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+  }
+
+  &:hover {
+    background-color: color.adjust(colors.$light-gray-background, $lightness: 2%);
+  }
 
   &[aria-expanded="true"] {
-    color: $bright-blue !important;
+    color: colors.$bright-blue;
 
     .searchIcon {
       circle {
-        stroke: $bright-blue;
+        stroke: colors.$bright-blue;
       }
   
       path {
-        fill: $bright-blue;
+        fill: colors.$bright-blue;
       }
     }
 
-    &:after {
-      color: $bright-blue;
-      transform: rotate(180deg); 
+    .caret {
+      border-top-color: colors.$bright-blue;
     }
   }
 
   .searchIcon {
     height: 1rem;
-    margin-right: 0.25rem;
+    margin-right: 0.5rem;
     width: 1rem;
     
     svg {
@@ -50,38 +54,26 @@
 
       circle {
         fill: none;
-        stroke: $secondary-medium-gray;
+        stroke: colors.$secondary-medium-gray;
         stroke-width: 1rem;
       }
   
       path {
-        fill: $secondary-medium-gray;
+        fill: colors.$secondary-medium-gray;
       }
     }
   }
 
-  &:hover {
-    background: white !important;
-  }
-}
+  .caret {
+    @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+    margin-left: 0.25rem;
 
-.menu {
-  font-size: 0.875rem;
-  padding: 0.25rem;
-  width: 18rem;
-
-  .searchButton {
-    height: 0.875rem;
-    width: 0.875rem;
-
-    circle {
-      fill: none;
-      stroke: $bright-blue;
-      stroke-width: 1rem;
+    &.open {
+      transform: rotate(180deg);
     }
 
-    path {
-      fill: $bright-blue;
+    @media print {
+      display: none;
     }
   }
 }

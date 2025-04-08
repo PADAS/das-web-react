@@ -27,6 +27,8 @@ import AddToPatrolModal from '../../../AddToPatrolModal';
 import TextCopyBtn from '../../../TextCopyBtn';
 import KebabMenu from '../../../KebabMenu';
 
+import styles from './styles.module.scss';
+
 const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
@@ -111,6 +113,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     { !!report.id &&
       <KebabMenu.Option as="div">
         <TextCopyBtn
+          className={styles.textCopyButton}
           getText={() => getReportLink(report)}
           icon={<ClipIcon />}
           label={t('header.reportMenu.textCopyButtonLabel')}

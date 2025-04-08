@@ -115,12 +115,30 @@ describe('DatePicker', () => {
   });
 
   test('sets the date picker as read only', () => {
-    renderDatePicker({ readOnly: true });
+    renderDatePicker({ readOnly: true, value: '2020-01-01' });
 
-    expect(screen.getByLabelText('Year')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Month')).toHaveAttribute('readonly');
-    expect(screen.getByLabelText('Day')).toHaveAttribute('readonly');
+    const yearInput = screen.getByLabelText('Year');
+    const montInput = screen.getByLabelText('Month');
+    const dayInput = screen.getByLabelText('Day');
+
+    expect(yearInput).toHaveAttribute('readonly');
+    expect(montInput).toHaveAttribute('readonly');
+    expect(dayInput).toHaveAttribute('readonly');
     expect(screen.getByLabelText('Open calendar')).toBeDisabled();
+
+    userEvent.click(yearInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+
+    userEvent.click(montInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+
+    userEvent.click(dayInput);
+    userEvent.keyboard('[ArrowDown]');
+    userEvent.keyboard('[ArrowUp]');
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   test('does not set the date picker as required', () => {
@@ -414,6 +432,14 @@ describe('DatePicker', () => {
     expect(onChange).toHaveBeenCalledWith('-01-');
   });
 
+  test('does not autofill the first digit when the month input is blurred and it has a digit below 2 if the field is readonly', () => {
+    renderDatePicker({ readOnly: true, value: '-1-' });
+
+    fireEvent.blur(screen.getByLabelText('Month'));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('changes when the user modifies the month input with a valid value', () => {
     renderDatePicker();
 
@@ -664,6 +690,14 @@ describe('DatePicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('--03');
+  });
+
+  test('does not autofill the first digit when the day input is blurred and it has a digit below 4 if the field is readonly', () => {
+    renderDatePicker({ readOnly: true, value: '--3' });
+
+    fireEvent.blur(screen.getByLabelText('Day'));
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   test('changes when the user modifies the day input with a valid value', () => {

@@ -16,10 +16,12 @@ import styles from './styles.module.scss';
 // within other collections, so we propagate values, errors and breadcrumbs and their changes to the parent and the
 // children.
 const Collection = ({
+  blurLocationMarker,
   breadcrumbs,
   details,
   error,
   fields,
+  focusLocationMarker,
   id,
   onFieldChange,
   renderField,
@@ -131,6 +133,11 @@ const Collection = ({
     setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
   };
 
+  // If a location field from an item requests to focus its location marker, prefix the marker id with the collection
+  // id and the item index.
+  const focusLocationMarkerFromItem = (itemIndex) => (markerId) =>
+    focusLocationMarker(`${id}.${itemIndex}.${markerId}`);
+
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
       aria-labelledby={`${id}-label`}
@@ -165,9 +172,11 @@ const Collection = ({
         {value.length === 0
           ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
           : <SortableList
+            blurLocationMarker={blurLocationMarker}
             breadcrumbs={breadcrumbs}
             collectionDetails={details}
             fields={fields}
+            focusLocationMarker={focusLocationMarkerFromItem}
             // Merge the value, error and items array into a single array of item objects.
             items={items
               .filter((_, index) => !!value[index])

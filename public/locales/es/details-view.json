@@ -27,11 +27,6 @@
     "stateResolveButton": "Guardar y resolver",
     "stateReopenButton": "Guardar y reabrir"
   },
-  "geoLocator": {
-    "buttonLabel": "Usar mi ubicación",
-    "loadingMessage": "Obteniendo tu ubicación...",
-    "readingLocationError": "No fue posible obtener tu ubicación: {{locationErrorMessage}}"
-  },
   "goToReportButtonTooltip": "Ir a evento",
   "header": {
     "historyLinkCreated": "Creado",
@@ -46,10 +41,6 @@
   "imageModal": {
     "errorTitle": "Error al cargar la imagen.",
     "errorMessage": "Si subió esta imagen recientemente, espere un minuto y vuelva a intentarlo, por favor."
-  },
-  "locationSelector": {
-    "inputLabel": "Ubicación:",
-    "inputPlaceHolder": "Seleccionar la ubicación"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Regresar",

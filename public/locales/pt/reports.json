@@ -162,7 +162,8 @@
                           "doneButton": "Concluído"
                         },
                         "formPreview": {
-                          "collectionHumanizedValue": "{{collectionLength}} itens"
+                          "collectionHumanizedValue": "{{collectionLength}} itens",
+                          "jumpToLocationButtonLabel": "Ir para a localização de {{field}}"
                         },
                         "chevronButtonLabel": {
                           "closed": "Abrir a visualização do formulário {{itemTitle}}",

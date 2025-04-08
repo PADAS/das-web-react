@@ -1,16 +1,21 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, within } from '../../../../../test-utils';
 import { FORM_ELEMENT_TYPES } from '../../constants';
+import { GPS_FORMATS } from '../../../../../utils/location';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
 
 import Collection from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', () => {
+  const blurLocationMarker = jest.fn();
+  const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const renderField = jest.fn();
 
-  let details;
+  let details, store;
   beforeEach(() => {
     details = {
       buttonText: 'Add button text',
@@ -25,32 +30,49 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       rightColumn: [],
       value: 'collection-1',
     };
+
+    store = {
+      view: {
+        modals: {
+          canShowModals: true,
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
+    };
   });
 
-  const renderCollectionField = (props) => render(<Collection
-    breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-    details={details}
-    error={undefined}
-    fields={{
-      'field-1': {
-        details: {
-          label: 'Field 1',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-      'field-2': {
-        details: {
-          label: 'Field 2',
-        },
-        type: FORM_ELEMENT_TYPES.TEXT,
-      },
-    }}
-    id="collection-1"
-    onFieldChange={onFieldChange}
-    renderField={renderField}
-    value={undefined}
-    {...props}
-  />);
+  const renderCollectionField = (props, overrideStore) => render(
+    <Provider store={mockStore({ ...store, ...overrideStore })}>
+      <Collection
+        blurLocationMarker={blurLocationMarker}
+        breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+        details={details}
+        error={undefined}
+        fields={{
+          'field-1': {
+            details: {
+              label: 'Field 1',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+          'field-2': {
+            details: {
+              label: 'Field 2',
+            },
+            type: FORM_ELEMENT_TYPES.TEXT,
+          },
+        }}
+        focusLocationMarker={focusLocationMarker}
+        id="collection-1"
+        onFieldChange={onFieldChange}
+        renderField={renderField}
+        value={undefined}
+        {...props}
+      />
+    </Provider>
+  );
 
   test('shows a valid collection when there are no errors', () => {
     renderCollectionField();
@@ -135,6 +157,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     expect(screen.getAllByTestId('schema-form-collection-item')).toHaveLength(2);
     expect(screen.queryByTestId('schema-form-collection-list-empty-state')).toBeNull();
+  });
+
+  test('focuses a location marker prefixed with the collection value and the item index', () => {
+    renderField.mockImplementation((_id, _value, _onChange, _error, focusLocationMarker) => {
+      focusLocationMarker('location-1');
+
+      return null;
+    });
+    renderCollectionField({ value: [{}] });
+
+    userEvent.click(screen.getByLabelText('Edit Item 1'));
+
+    expect(focusLocationMarker).toHaveBeenCalled();
+    expect(focusLocationMarker).toHaveBeenCalledWith('collection-1.0.location-1');
   });
 
   test('opens and closes the form preview of an item', () => {
@@ -260,29 +296,34 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
       { 0: { 'field-1': { message: 'Error' } } }
     );
 
-    rerender(<Collection
-      breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
-      details={details}
-      error={{ 0: { 'field-1': { message: 'Error' } } }}
-      fields={{
-        'field-1': {
-          details: {
-            label: 'Field 1',
-          },
-          type: FORM_ELEMENT_TYPES.TEXT,
-        },
-        'field-2': {
-          details: {
-            label: 'Field 2',
-          },
-          type: FORM_ELEMENT_TYPES.TEXT,
-        },
-      }}
-      id="collection-1"
-      onFieldChange={onFieldChange}
-      renderField={renderField}
-      value={[{}, {}, {}]}
-    />);
+    rerender(
+      <Provider store={mockStore(store)}>
+        <Collection
+          blurLocationMarker={blurLocationMarker}
+          breadcrumbs={[{ id: '1', display: 'Item 1' }, { id: '2', display: 'Item 2' }]}
+          details={details}
+          error={{ 0: { 'field-1': { message: 'Error' } } }}
+          fields={{
+            'field-1': {
+              details: {
+                label: 'Field 1',
+              },
+              type: FORM_ELEMENT_TYPES.TEXT,
+            },
+            'field-2': {
+              details: {
+                label: 'Field 2',
+              },
+              type: FORM_ELEMENT_TYPES.TEXT,
+            },
+          }}
+          id="collection-1"
+          onFieldChange={onFieldChange}
+          renderField={renderField}
+          value={[{}, {}, {}]}
+        />
+      </Provider>
+    );
 
     expect(screen.getByRole('dialog')).toBeVisible();
   });

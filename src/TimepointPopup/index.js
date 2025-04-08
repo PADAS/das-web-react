@@ -12,7 +12,11 @@ const TimepointPopup = ({ data }) => <>
 
   {data.properties.time && <DateTime date={data.properties.time} />}
 
-  <GpsFormatToggle lat={data.geometry.coordinates[1]} lng={data.geometry.coordinates[0]} />
+  <GpsFormatToggle
+    lat={data.geometry.coordinates[1]}
+    lng={data.geometry.coordinates[0]}
+    name="timepointPopup-gpsFormatToggle"
+  />
 
   <hr />
 
