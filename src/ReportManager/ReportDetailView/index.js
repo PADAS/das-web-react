@@ -109,6 +109,7 @@ const ReportDetailView = ({
   className = '',
   formProps = {},
   isAddedReport = false,
+  isBehindAddedEvent = false,
   isNewReport,
   newReportTypeId = null,
   onAddReport = null,
@@ -791,7 +792,9 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
+                eventId={reportId}
                 eventSchema={reportSchemas}
+                isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
                 loadingSchema={isLoadingSchemas}

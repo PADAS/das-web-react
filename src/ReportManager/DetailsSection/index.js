@@ -46,8 +46,10 @@ const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 4;
 
 const DetailsSection = ({
+  eventId,
   eventSchema = null,
   formValidator,
+  isBehindAddedEvent,
   isCollection,
   isNewEvent,
   loadingSchema,
@@ -291,7 +293,9 @@ const DetailsSection = ({
 
     {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
       autofillDefaultInputs={isNewEvent}
+      eventId={eventId}
       eventLocation={reportForm.location}
+      hideMapLocationMarkers={isBehindAddedEvent}
       initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}

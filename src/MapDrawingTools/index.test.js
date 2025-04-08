@@ -100,8 +100,6 @@ describe('MapDrawingTools', () => {
     });
 
     test('adding a layer if the source exists', () => {
-      map.getSource.mockReturnValue({ whatever: 'yes' });
-
       render(
         <MapContext.Provider value={map}>
           <MapDrawingToolsContextProvider>

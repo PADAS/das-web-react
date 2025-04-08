@@ -124,6 +124,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView
       formProps={navigationData?.formProps}
+      isBehindAddedEvent={showAddedReport}
       isNewReport={isNewReport}
       key={reportId} // This resets component state when the id changes
       newReportTypeId={newReportTypeId}

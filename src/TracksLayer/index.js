@@ -35,12 +35,13 @@ const TracksLayer = ({ onPointClick, showTimepoints }) => {
 
   return subjectTracksWithPatrolTrackShownFlag.length > 0
     ? subjectTracksWithPatrolTrackShownFlag.map((subjectTracks) => <TrackLayer
-        key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
-        linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
-        onPointClick={onTimepointClick}
-        showTimepoints={showTimepoints}
-        trackData={subjectTracks}
-      />)
+      id={subjectTracks.track.features[0].properties.id}
+      key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
+      linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
+      onPointClick={onTimepointClick}
+      showTimepoints={showTimepoints}
+      trackData={subjectTracks}
+    />)
     : null;
 };
 
