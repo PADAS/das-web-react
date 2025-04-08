@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { lineString } from '@turf/turf';
 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { lineString } from '@turf/turf';
 import useMapLayers from '../hooks/useMapLayers';
 import useMapSources from '../hooks/useMapSources';
 
