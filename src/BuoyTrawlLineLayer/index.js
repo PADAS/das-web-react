@@ -39,7 +39,7 @@ const subjectIsBuoyLineEligible = (subjectFeature = {}, _index, allSubjects = []
 
 const createTrawlLineGeoJSON = (buoySubjectFeatures) => {
   return buoySubjectFeatures.reduce((accumulator, { properties }) => {
-    const coordinates =
+    const coordinates = // build the coordinates from each subject's location
       properties.additional.devices.map(({ device_id }) =>
         buoySubjectFeatures.find(({ properties }) =>
           properties.name === device_id)?.geometry?.coordinates ?? []
