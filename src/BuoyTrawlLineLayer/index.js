@@ -18,20 +18,23 @@ const linePaint = {
   'line-width': 2,
 };
 
+const TRAWL_SOURCE_ID = 'trawl-lines-source';
+const TRAWL_LAYER_ID = 'trawl-lines-layer';
+
 const subjectIsBuoyLineEligible = (subjectFeature = {}, _index, allSubjects = []) => {
   const subject = subjectFeature.properties;
 
-  const is_buoy = subject.subject_subtype === 'ropeless_buoy_device';
-  if (!is_buoy) return false;
+  const isBuoy = subject.subject_subtype === 'ropeless_buoy_device';
+  if (!isBuoy) return false;
 
   const devices = subject.additional?.devices ?? [];
-  const is_line = devices.length > 1;
+  const isLine = devices.length > 1;
 
-  if (!is_line) return false;
+  if (!isLine) return false;
 
-  const line_contains_valid_subjects = devices.every(({ device_id }) => allSubjects.find(({ properties }) => properties.name === device_id));
+  const lineContainsValidSubjects = devices.every(({ device_id }) => allSubjects.find(({ properties }) => properties.name === device_id));
 
-  return line_contains_valid_subjects;
+  return lineContainsValidSubjects;
 };
 
 const createTrawlLineGeoJSON = (buoySubjectFeatures) => {
@@ -54,11 +57,11 @@ const BuoyLineLayer = (_props) => {
   const buoySubjects = mapSubjects.features.filter(subjectIsBuoyLineEligible);
   const trawlLineGeoJSON = createTrawlLineGeoJSON(buoySubjects);
 
-  useMapSources([{ id: 'trawl-lines-source', data: trawlLineGeoJSON }]);
+  useMapSources([{ id: TRAWL_SOURCE_ID, data: trawlLineGeoJSON }]);
   useMapLayers([{
-    id: 'trawl-lines-layer',
+    id: TRAWL_LAYER_ID,
     type: 'line',
-    sourceId: 'trawl-lines-source',
+    sourceId: TRAWL_SOURCE_ID,
     layout: lineLayout,
     paint: linePaint,
   }]);
