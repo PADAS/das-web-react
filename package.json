@@ -113,14 +113,14 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node react-scripts/start.js",
     "build-sw": "node ./src/sw-build.js",
     "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
-    "build": "GENERATE_SOURCEMAP=false node scripts/build.js && npm run build-sw && npm run clean-cra-sw",
-    "test": "node scripts/test.js --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "build": "GENERATE_SOURCEMAP=false node react-scripts/build.js && yarn build-sw && yarn clean-cra-sw",
+    "test": "node react-scripts/test.js --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true node scripts/test.js --silent --detectOpenHandles --forceExit --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
     "test-cov": "yarn test-ci --coverage",
     "posttest-cov": "jest-coverage-thresholds-bumper --margin=1",
     "postinstall": "sh setUpLocalGitConfig.sh"
@@ -170,9 +170,9 @@
     ],
     "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/react-app-config/jest/babelTransform.js",
+      "^.+\\.css$": "<rootDir>/react-app-config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/react-app-config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
