@@ -39,7 +39,7 @@ import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));

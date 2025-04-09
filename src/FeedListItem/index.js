@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;

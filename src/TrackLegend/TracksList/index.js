@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CrossIcon } from '../../common/images/icons/cross.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TracksItem = ({ item, onRemove }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLegend.tracksList.tracksItem' });

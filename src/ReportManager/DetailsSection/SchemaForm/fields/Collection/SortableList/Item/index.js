@@ -14,7 +14,7 @@ import { getItemTitle } from './utils';
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Item = ({
   blurLocationMarker = null,

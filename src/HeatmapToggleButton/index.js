@@ -3,7 +3,7 @@ import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 import SubjectControlButton from '../SubjectControls/button';
 

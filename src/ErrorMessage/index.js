@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ErrorMessage = ({ details, message }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorMessage' });

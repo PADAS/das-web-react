@@ -24,7 +24,7 @@ import SchemaSelector from './SchemaSelector';
 import Select from '../../Select';
 import UserLocationMapControl from '../../UserLocationMapControl';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ALERTS_URL = `${DAS_HOST}/alerts`;
 
@@ -192,7 +192,7 @@ const SettingsPane = () => {
         </ul>
       </section>
 
-      <ul className={styles.mapSettingsList}>
+      <ul>
         {hasUserLocation && <li><UserLocationMapControl /></li>}
       </ul>
     </Tab>
@@ -204,7 +204,6 @@ const SettingsPane = () => {
       title={t('alertsTabTitle')}
     >
       <iframe
-        className={styles.alerts}
         data-testid="settings-alertsIframe"
         src={ALERTS_URL}
         style={{ width: '100%', height: '100vh' }}

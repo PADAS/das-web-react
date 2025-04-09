@@ -11,7 +11,7 @@ import { calcGpsDisplayString, validateLocation } from '../utils/location';
 import { MapContext } from '../App';
 import MenuPopover from './MenuPopover';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CursorGpsDisplay = () => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'cursorGPSDisplay' });

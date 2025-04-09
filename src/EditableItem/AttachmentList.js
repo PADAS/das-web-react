@@ -6,7 +6,7 @@ import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachm
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 
 const AttachmentList = (props) => {

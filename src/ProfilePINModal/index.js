@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import ConfirmationCheck from '../ConfirmationCheck';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PIN_LENGTH = 4;
 const PIN_VALIDATION_RULES = /^[0-9]$/;

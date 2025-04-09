@@ -28,7 +28,7 @@ import { shouldUse12HourFormat } from '../utils/datetime';
 
 import OptionsPopover from './OptionsPopover';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const HOUR_INPUT_PLACEHOLDER = '--';
 const MINUTE_INPUT_PLACEHOLDER = '--';

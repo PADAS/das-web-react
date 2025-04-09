@@ -7,7 +7,7 @@ import { ReactComponent as CheckLightIcon } from '../../../common/images/icons/c
 
 import { setTimeOfDayTimeZone } from '../../../ducks/tracks';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TIMEZONE_OFFSET_REGEX = /^(?:UTC|GMT)([+-])(\d{1,2})(?::(\d{2}))?$/;
 

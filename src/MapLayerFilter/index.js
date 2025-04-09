@@ -6,7 +6,7 @@ import { updateMapLayerFilter } from '../ducks/map-layer-filter';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import SearchBar from '../SearchBar';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;

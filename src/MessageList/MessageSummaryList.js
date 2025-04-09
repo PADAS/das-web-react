@@ -16,7 +16,7 @@ import WithMessageContext from '../InReach';
 
 import MessageList, { MESSAGE_LIST_TYPES } from './';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MessageSummaryList = (props) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.messageSummaryList' });

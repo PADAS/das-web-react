@@ -13,10 +13,10 @@
   }
 
   .button {
-    &.default {
+    &.normal {
       @include buttonBackground('tracks_off');
     }
-    &.defaultTransparent {
+    &.transparent {
       @include buttonBackground('tracks_off_transparent');
     }
     &.visible {

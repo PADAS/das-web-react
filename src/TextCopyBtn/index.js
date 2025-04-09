@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipboardIcon } from '../common/images/icons/clipboard-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TOAST_AUTOCLOSE_TIME = 2000;
 

@@ -16,7 +16,7 @@ import { trackEvent } from '../utils/analytics';
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title={title} type='button' {...rest}>  {/* eslint-disable-line react/display-name */}
   <Icon />

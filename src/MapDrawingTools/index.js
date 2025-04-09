@@ -16,7 +16,7 @@ import { useMapEventBinding, useMatchMedia } from '../hooks';
 import MapLayers from './MapLayers';
 import Popup from '../Popup';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const DRAWING_MODES = {
   POLYGON: 'polygon',

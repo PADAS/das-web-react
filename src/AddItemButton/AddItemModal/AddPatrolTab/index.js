@@ -15,7 +15,7 @@ import { uuid } from '../../../utils/string';
 import SearchBar from '../../../SearchBar';
 import TypesList from '../TypesList';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const AddPatrolTab = ({ onHideModal }) => {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef } from 'react';
 
 import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ShortTextInput = (props) => <input type="text" {...props} />;
 

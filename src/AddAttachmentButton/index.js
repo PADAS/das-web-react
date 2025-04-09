@@ -7,7 +7,7 @@ import { TrackerContext } from '../utils/analytics';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   'application/msword',

@@ -11,7 +11,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LocationPicker = ({
   className = '',

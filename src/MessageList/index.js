@@ -14,7 +14,7 @@ import dateLocales from '../utils/locales';
 import MessageListItem from './MessageListItem';
 import MessageSummaryListItem from './MessageSummaryListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const calcMessageGroupTitle = (date, i18n, t) => {
   if (isToday(date)) {

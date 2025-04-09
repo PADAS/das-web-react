@@ -2,7 +2,7 @@ import React, { forwardRef, memo } from 'react';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import LoadingOverlay from '../LoadingOverlay';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const SubjectControlButton = (props, ref) => {
   const { buttonClassName = '', containerClassName = '', disabled = false, labelText, onClick, showLabel, loading, ...rest } = props;

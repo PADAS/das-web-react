@@ -14,7 +14,7 @@ import PatrolTrackControls from '../../PatrolTrackControls';
 import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 

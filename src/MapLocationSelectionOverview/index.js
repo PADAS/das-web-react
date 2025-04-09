@@ -21,7 +21,7 @@ import { useEventGeoMeasurementDisplayStrings } from '../hooks/geometry';
 import PatrolListItem from '../PatrolListItem';
 import ReportListItem from '../ReportListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 

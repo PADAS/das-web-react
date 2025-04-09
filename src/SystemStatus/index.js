@@ -12,7 +12,7 @@ import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
 import Badge from '../Badge';
 import TimeAgo from '../TimeAgo';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
@@ -87,7 +87,7 @@ const SystemStatus = () => {
 
   return (
     <Dropdown align="end" onToggle={onDropdownToggle}>
-      <Dropdown.Toggle id="system-status" className={styles.toggle}>
+      <Dropdown.Toggle id="system-status">
         <div className={`${styles.indicator} ${isOpen ? 'open' : ''}`} data-testid="systemStatus-indicator">
           <Badge status={statusSummary} />
 

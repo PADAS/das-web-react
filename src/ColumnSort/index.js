@@ -13,7 +13,7 @@ import { ReactComponent as SortLines } from '../common/images/icons/sort-lines.s
 
 import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'columnSort' });

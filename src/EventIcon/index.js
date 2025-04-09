@@ -8,7 +8,7 @@ import { selectDisplayEventTypes } from '../selectors/event-types';
 
 import DasIcon from '../DasIcon';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EventIcon = ({ report, ...rest }, ref) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventIcon' });

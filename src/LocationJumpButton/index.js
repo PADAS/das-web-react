@@ -10,7 +10,7 @@ import useJumpToLocation from '../hooks/useJumpToLocation';
 import useNavigate from '../hooks/useNavigate';
 import { validateLngLat } from '../utils/location';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LocationJumpButton = ({
   bypassLocationValidation,

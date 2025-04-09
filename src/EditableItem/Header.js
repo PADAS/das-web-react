@@ -15,7 +15,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import InlineEditable from '../InlineEditable';
 import TimeAgo from '../TimeAgo';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EditableItemHeader = ({
   afterMenuToggle,

@@ -6,7 +6,7 @@ import ImageModal from '../ImageModal';
 import { MapContext } from '../App';
 import { removeModal } from '../ducks/modals';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ModalRenderer = () => {
   const dispatch = useDispatch();
@@ -17,10 +17,7 @@ const ModalRenderer = () => {
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const modals = useSelector((state) => state.view.modals.modals);
 
-  return !!modals.length && <div
-    className={styles.modalBackdrop}
-    data-testid='modalsRenderer-container'
-    >
+  return !!modals.length && <div data-testid="modalsRenderer-container">
     <Suspense fallback={null}>
       {modals.map((item) => {
         const { content: ContentComponent, backdrop = 'static', id, modalProps, ...rest } = item;
@@ -33,9 +30,9 @@ const ModalRenderer = () => {
 
         return !!ContentComponent && <Modal
           backdrop={backdrop}
-          backdropClassName={canShowModals ? styles.show : styles.hide}
+          backdropClassName={canShowModals ? '' : styles.hide}
           centered
-          dialogClassName={canShowModals ? styles.show : styles.hide}
+          dialogClassName={canShowModals ? '' : styles.hide}
           enforceFocus={false}
           key={id}
           show

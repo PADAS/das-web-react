@@ -27,7 +27,7 @@ import AddToPatrolModal from '../../../AddToPatrolModal';
 import TextCopyBtn from '../../../TextCopyBtn';
 import KebabMenu from '../../../KebabMenu';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
   const dispatch = useDispatch();

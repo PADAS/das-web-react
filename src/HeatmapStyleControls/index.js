@@ -8,7 +8,7 @@ import { updateHeatmapConfig } from '../ducks/map-ui';
 import InlineEditable from '../InlineEditable';
 import LogarithmicSlider from '../LogarithmicSlider';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -93,7 +93,6 @@ const HeatmapStyleControls = () => {
       {t('sensitivityLowIndicator')}
 
       <input
-        className={styles.sensitivity}
         id="heatmap-sensitivity-input"
         max={MAXIUMUM_SENSITIVITY}
         min={MINIMUM_SENSITIVITY}

@@ -20,7 +20,7 @@ import DelayedUnmount from '../DelayedUnmount';
 import LoadingOverlay from '../LoadingOverlay';
 import ReportDetailView from './ReportDetailView';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 

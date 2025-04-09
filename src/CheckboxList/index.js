@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { InputGroup } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CheckboxList = ({ onItemChange, options, values }) => {
   const renderedOptions = options.map((item, index) => <li key={item.id}>

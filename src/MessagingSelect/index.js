@@ -8,8 +8,6 @@ import { allSubjects } from '../selectors/subjects';
 
 import Select from '../Select';
 
-import styles from './styles.module.scss';
-
 const getOptionLabel = (t) => (option) => {
   if (option.hidden) {
     return t('restrictedOptionLabel');
@@ -20,7 +18,7 @@ const getOptionLabel = (t) => (option) => {
 const Option = ({ data, ...props }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'messagingSelect' });
 
-  return <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`}>
+  return <div>
     <components.Option {...props}>
       <span>{getOptionLabel(t)(data)}</span>
     </components.Option>

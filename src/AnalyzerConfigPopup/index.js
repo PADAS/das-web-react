@@ -5,7 +5,7 @@ import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CATEGORY_ICONS = {
   'geofence': <GeofenceIcon className={styles.typeIcon} />,

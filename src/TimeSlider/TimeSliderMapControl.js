@@ -7,7 +7,7 @@ import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timesli
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { setTimeSliderState } from '../ducks/timeslider';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

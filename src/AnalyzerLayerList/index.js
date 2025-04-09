@@ -15,7 +15,7 @@ import { getAnalyzerListState } from './selectors';
 import { analyzerFeatures } from '../selectors';
 import AnalyzerListItem from './AnalyzerListItem';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -117,8 +117,6 @@ const AnalyzerLayerList = memo(({
 
   return !!analyzers.length && <ul className={listStyles.list}>
     <li><Collapsible
-      className={listStyles.collapsed}
-      openedClassName={listStyles.opened}
       {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
       trigger={trigger}
       triggerElementProps={{
