@@ -349,4 +349,19 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
     expect(setIsFormModalOpen).toHaveBeenCalledWith(false);
   });
+
+  test('canceling the addition of a recent added item deletes the item and closes the modal', async () => {
+    renderItem({ isFormModalOpen: true, wasItemRecentlyAdded: true });
+
+    const formModal = screen.getByRole('dialog');
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(setIsFormModalOpen).not.toHaveBeenCalled();
+
+    userEvent.click(within(formModal).getByRole('button', { name: 'Cancel' }));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
+    expect(setIsFormModalOpen).toHaveBeenCalledWith(false);
+  });
 });
