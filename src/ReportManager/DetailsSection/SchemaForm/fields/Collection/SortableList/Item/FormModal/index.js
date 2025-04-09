@@ -97,7 +97,7 @@ const FormModal = ({
       </div>
     </Modal.Body>
 
-    <Modal.Footer className={`${styles.footer} ${!hideDeleteButton ? styles.alignEvenly : styles.alignRight}`}>
+    <Modal.Footer className={`${styles.footer} ${hideDeleteButton ? styles.alignRight : styles.alignEvenly}`}>
       {
           !hideDeleteButton &&
           <button
