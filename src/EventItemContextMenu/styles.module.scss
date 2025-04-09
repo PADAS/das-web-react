@@ -1,6 +1,9 @@
 @import '../common/styles/vars/colors';
 
 .loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
   width: 100%;
   height: 3.85rem;
   position: absolute;

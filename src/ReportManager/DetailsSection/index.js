@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useCallback, useContext, useEffect, useState }
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
-import { ResizeSpinLoader } from 'react-css-loaders';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -43,7 +43,7 @@ import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 import styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
-const LOADER_SIZE = 4;
+const LOADER_SIZE = 50;
 
 const DetailsSection = ({
   eventId,
@@ -307,11 +307,13 @@ const DetailsSection = ({
       schema={eventSchemaOverride}
     />}
 
-    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
-      color={LOADER_COLOR}
-      data-testid="reportManager-detailsSection-loader"
-      size={LOADER_SIZE}
-    />}
+    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+      <MoonLoader
+        color={LOADER_COLOR}
+        data-testid="reportManager-detailsSection-loader"
+        size={LOADER_SIZE}
+      />
+    </div>}
   </div>;
 };
 

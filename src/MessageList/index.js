@@ -1,5 +1,4 @@
 import React, { memo, useMemo, useState } from 'react';
-import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import { isSameDay, isToday, isYesterday  } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -82,7 +81,7 @@ const MessageList = ({
   return <InfiniteScroll
       className={`${styles.messageHistory} ${className}`}
       element="ul"
-      getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node
+      getScrollParent={() => containerRef ? containerRef.current : null}
       hasMore={hasMore}
       isReverse={isReverse}
       loadMore={onScroll}
