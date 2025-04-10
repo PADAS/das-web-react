@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { useTranslation } from 'react-i18next';
 
@@ -10,16 +10,16 @@ import MonthPicker from './MonthPicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import * as styles from './styles.module.scss';
 
-// eslint-disable-next-line react/display-name
-const Input = forwardRef(({
+const Input = ({
   className,
   isOpen,
   onClick,
   // We ignore the react-datepicker internals for the keydown event and just handle the Escape ourselves.
   onKeyDown: _onKeyDown,
+  ref,
   setIsOpen,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('components', { keyPrefix: 'datePicker.calendarPopper' });
 
   const onButtonClick = (event) => {
@@ -49,7 +49,7 @@ const Input = forwardRef(({
     >
     <div className={`${styles.caret} ${isOpen ? styles.open : ''}`} role="img" />
   </button>;
-});
+};
 
 // eslint-disable-next-line react/display-name
 const getRenderCustomHeader = (maxDate, minDate, onKeyDown) => ({

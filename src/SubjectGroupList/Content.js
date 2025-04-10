@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
@@ -151,16 +150,3 @@ const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(sta
 
 const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(memo(ContentComponent));
 export default ConnectedComponent;
-
-
-ContentComponent.defaultProps = {
-  itemProps: {},
-};
-
-ContentComponent.propTypes = {
-  subgroups: PropTypes.array.isRequired,
-  itemProps: PropTypes.object,
-  subjects: PropTypes.array.isRequired,
-  name: PropTypes.string.isRequired,
-  hiddenSubjectIDs: PropTypes.array,
-};

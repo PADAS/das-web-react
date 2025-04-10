@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as DocumentIcon } from '../../common/images/icons/document.svg';
@@ -20,7 +19,5 @@ const AddReportButton = ({ className, ...rest }) => {
         {...rest}
     />;
 };
-
-AddReportButton.propTypes = { className: PropTypes.string };
 
 export default memo(AddReportButton);

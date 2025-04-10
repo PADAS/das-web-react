@@ -1,7 +1,6 @@
 import { useContext }  from 'react';
 import { featureCollection } from '@turf/turf';
 import { MapContext } from '../App';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { getMapEventFeatureCollectionByTypeWithVirtualDate } from '../selectors/events';
@@ -79,10 +78,6 @@ const EventGeometryLayer = ({ onClick }) => {
   useMapEventBinding('mouseleave', onMouseLeave, EVENT_GEOMETRY_LAYER);
 
   return null;
-};
-
-EventGeometryLayer.propTypes = {
-  onClick: PropTypes.func.isRequired,
 };
 
 export default EventGeometryLayer;

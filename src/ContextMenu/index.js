@@ -1,10 +1,9 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import PropTypes from 'prop-types';
 
 import * as styles from './styles.module.scss';
 
-const ContextMenu = ({ children, className, disabled, options }) => {
+const ContextMenu = ({ children, className = '', disabled = false, options }) => {
   const areaRef = useRef();
 
   const [contextMenuPosition, setContextMenuPosition] = useState(null);
@@ -60,18 +59,6 @@ const ContextMenu = ({ children, className, disabled, options }) => {
 
     {children}
   </div>;
-};
-
-ContextMenu.defaultProps = {
-  className: '',
-  disabled: false,
-};
-
-ContextMenu.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
-  options: PropTypes.element.isRequired,
 };
 
 export default memo(ContextMenu);

@@ -2,7 +2,6 @@ import React, { memo, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { CancelToken } from 'axios';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +14,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
-const DataExportModal = ({ children, id, params, paramString, title, url }) => {
+const DataExportModal = ({ children = null, id, params = {}, paramString = '', title, url }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'dataExportModal' });
 
@@ -70,21 +69,6 @@ const DataExportModal = ({ children, id, params, paramString, title, url }) => {
       </Modal.Footer>
     </div>
   </>;
-};
-
-DataExportModal.defaultProps = {
-  children: null,
-  params: {},
-  paramString: '',
-};
-
-DataExportModal.propTypes = {
-  children: PropTypes.node,
-  id: PropTypes.string.isRequired,
-  params: PropTypes.object,
-  paramString: PropTypes.string,
-  title: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
 };
 
 export default memo(DataExportModal);

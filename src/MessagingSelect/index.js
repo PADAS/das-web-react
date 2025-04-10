@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -56,10 +55,6 @@ const MessagingSelect = ({ onChange }) => {
     ref={selectRef}
     styles={{ container: (styles) => ({ ...styles, flexGrow: 1 }) }}
   />;
-};
-
-MessagingSelect.propTypes = {
-  onChange: PropTypes.func.isRequired,
 };
 
 export default memo(MessagingSelect);

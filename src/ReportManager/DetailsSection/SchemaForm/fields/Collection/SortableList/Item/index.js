@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -32,11 +32,12 @@ const Item = ({
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  ref,
   renderField = null,
   setIsFormModalOpen = null,
   setIsFormPreviewOpen = null,
   ...otherProps
-}, ref) => {
+}) => {
   const { i18n, t } = useTranslation('reports', {
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
@@ -219,4 +220,4 @@ const Item = ({
   </li>;
 };
 
-export default forwardRef(Item);
+export default Item;

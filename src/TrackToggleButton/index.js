@@ -1,12 +1,18 @@
-import React, { forwardRef, memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import SubjectControlButton from '../SubjectControls/button';
 
 import * as styles from './styles.module.scss';
 
-const TrackToggleButton = ({ className, trackVisible, trackPinned, showTransparentIcon, ...restProps }, ref) => {
+const TrackToggleButton = ({
+  className = '',
+  ref,
+  showTransparentIcon = false,
+  trackPinned,
+  trackVisible,
+  ...restProps
+}) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'trackToggleButton' });
 
   let containerClasses = styles.container;
@@ -32,18 +38,4 @@ const TrackToggleButton = ({ className, trackVisible, trackPinned, showTranspare
   />;
 };
 
-const TrackToggleButtonForwardRef = forwardRef(TrackToggleButton);
-
-TrackToggleButtonForwardRef.defaultProps = {
-  className: '',
-  showTransparentIcon: false,
-};
-
-TrackToggleButtonForwardRef.propTypes = {
-  className: PropTypes.string,
-  showTransparentIcon: PropTypes.bool,
-  trackPinned: PropTypes.bool.isRequired,
-  trackVisible: PropTypes.bool.isRequired,
-};
-
-export default memo(TrackToggleButtonForwardRef);
+export default memo(TrackToggleButton);

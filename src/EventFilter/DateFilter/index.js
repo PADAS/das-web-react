@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClockIcon } from '../../common/images/icons/clock-icon.svg';
@@ -25,11 +24,6 @@ const DateFilter = ({ onClearDateRange, isDateRangeModified }) => {
       <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
     </Popover.Body>
   </>;
-};
-
-DateFilter.propTypes = {
-  onClearDateRange: PropTypes.func.isRequired,
-  isDateRangeModified: PropTypes.bool.isRequired
 };
 
 export default memo(DateFilter);

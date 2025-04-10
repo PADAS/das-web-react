@@ -1,12 +1,13 @@
-import React, { createContext, useContext, forwardRef } from 'react';
+import React, { createContext, useContext } from 'react';
 
 const FormDataContext = createContext();
 
-const withFormDataContext = Component => forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+// eslint-disable-next-line react/display-name
+const withFormDataContext = Component => ({ ref, ...otherProps }) => {
   const data = useContext(FormDataContext);
   const optionalProps = {};
   if (ref) optionalProps.ref = ref;
-  return <Component {...props} {...optionalProps} data={data} />;
-});
+  return <Component {...otherProps} {...optionalProps} data={data} />;
+};
 
 export { FormDataContext, withFormDataContext };

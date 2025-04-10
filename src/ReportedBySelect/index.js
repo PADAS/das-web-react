@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { components } from 'react-select';
 import { FixedSizeList } from 'react-window';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -137,15 +136,15 @@ const MenuList = ({ options, children, maxHeight, getValue }) => {
 };
 
 const ReportedBySelect = ({
-  className,
-  isDisabled,
-  isMulti,
-  menuRef,
-  numberOfRecentRadiosToShow,
+  className = '',
+  isDisabled = false,
+  isMulti = false,
+  menuRef = null,
+  numberOfRecentRadiosToShow = 5,
   onChange,
-  options: optionsFromProps,
-  placeholder,
-  value,
+  options: optionsFromProps = null,
+  placeholder = null,
+  value = null,
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'reportedBySelect' });
 
@@ -250,36 +249,6 @@ const ReportedBySelect = ({
     value={selected}
     {...optionalProps}
   />;
-};
-
-ReportedBySelect.defaultProps = {
-  className: '',
-  isDisabled: false,
-  isMulti: false,
-  menuRef: null,
-  numberOfRecentRadiosToShow: 5,
-  options: null,
-  placeholder: null,
-  value: null,
-};
-
-ReportedBySelect.propTypes = {
-  className: PropTypes.string,
-  isDisabled: PropTypes.bool,
-  isMulti: PropTypes.bool,
-  menuRef: PropTypes.shape({
-    current: PropTypes.any,
-  }),
-  numberOfRecentRadiosToShow: PropTypes.number,
-  onChange: PropTypes.func.isRequired,
-  options: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-  })),
-  placeholder: PropTypes.string,
-  value: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.array,
-  ]),
 };
 
 export default memo(ReportedBySelect);

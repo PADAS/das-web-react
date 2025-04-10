@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import * as styles from './styles.module.scss';
@@ -30,11 +29,6 @@ const InformationModal = ({ onHide, show }) => {
       <p>{t('addingPointsToExistingAreaContent')}</p>
     </Modal.Body>
   </Modal>;
-};
-
-InformationModal.propTypes = {
-  onHide: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };
 
 export default memo(InformationModal);

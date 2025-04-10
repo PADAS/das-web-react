@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import Button from 'react-bootstrap/Button';
@@ -47,12 +46,3 @@ const Footer = ({
 };
 
 export default memo(Footer);
-
-Footer.propTypes = {
-  cancelTitle: PropTypes.string,
-  onCancel: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
-  onStateToggle: PropTypes.func,
-  data: PropTypes.object.isRequired,
-  isActiveState: PropTypes.bool.isRequired,
-};

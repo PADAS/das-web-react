@@ -1,6 +1,5 @@
 import React, { memo, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { DAS_HOST } from '../constants';
@@ -34,7 +33,5 @@ const AlertsModal = ({ title }) => {
     </Modal.Body>
   </>;
 };
-
-AlertsModal.propTypes = { title: PropTypes.string.isRequired };
 
 export default memo(AlertsModal);

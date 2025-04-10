@@ -2,7 +2,6 @@ import React, { memo, useEffect, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
 import Pagination from 'react-js-pagination';
-import PropTypes from 'prop-types';
 import startCase from 'lodash/startCase';
 import Table from 'react-bootstrap/Table';
 import unionBy from 'lodash/unionBy';
@@ -123,12 +122,6 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
       />}
     </Modal.Body>
   </>;
-};
-
-SubjectHistoricalDataModal.propTypes = {
-  subjectId: PropTypes.string.isRequired,
-  subjectIsStatic: PropTypes.bool.isRequired,
-  title: PropTypes.string.isRequired,
 };
 
 export default memo(SubjectHistoricalDataModal);

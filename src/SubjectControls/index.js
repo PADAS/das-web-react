@@ -1,5 +1,4 @@
 import React, { lazy, memo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -26,15 +25,15 @@ const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataMo
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const SubjectControls = ({
-  children,
-  className,
-  showHeatmapButton,
-  showHistoryButton,
-  showJumpButton,
-  showLabels,
-  showMessageButton,
-  showTitles,
-  showTrackButton,
+  children = null,
+  className = '',
+  showHeatmapButton = true,
+  showHistoryButton = false,
+  showJumpButton = true,
+  showLabels = true,
+  showMessageButton = true,
+  showTitles = true,
+  showTrackButton = true,
   subject,
   ...restProps
 }) => {
@@ -137,37 +136,6 @@ const SubjectControls = ({
 
     {children}
   </div> : null;
-};
-
-SubjectControls.defaultProps = {
-  children: null,
-  className: '',
-  showHeatmapButton: true,
-  showHistoryButton: false,
-  showJumpButton: true,
-  showLabels: true,
-  showMessageButton: true,
-  showTitles: true,
-  showTrackButton: true,
-};
-
-SubjectControls.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  showHeatmapButton: PropTypes.bool,
-  showHistoryButton: PropTypes.bool,
-  showJumpButton: PropTypes.bool,
-  showLabels: PropTypes.bool,
-  showMessageButton: PropTypes.bool,
-  showTitles: PropTypes.bool,
-  showTrackButton: PropTypes.bool,
-  subject: PropTypes.shape({
-    device_status_properties: PropTypes.array,
-    id: PropTypes.string,
-    messaging: PropTypes.array,
-    name: PropTypes.string,
-    subject_type: PropTypes.string,
-  }).isRequired,
 };
 
 export default memo(SubjectControls);

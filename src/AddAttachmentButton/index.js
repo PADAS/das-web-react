@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../utils/analytics';
@@ -36,7 +35,7 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   '.wmv'
 ];
 
-const AddAttachmentButton = ({ className, onAddAttachments }) => {
+const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
   const fileInputRef = useRef();
   const { t } = useTranslation('details-view');
 
@@ -109,15 +108,6 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
       <label>{t('addAttachmentButton')}</label>
     </Button>
   </>;
-};
-
-AddAttachmentButton.defaultProps = {
-  className: '',
-};
-
-AddAttachmentButton.propTypes = {
-  className: PropTypes.string,
-  onAddAttachments: PropTypes.func.isRequired,
 };
 
 export default memo(AddAttachmentButton);

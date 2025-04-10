@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import ReactSelect, { components } from 'react-select';
 
 import * as colorVars from '../common/styles/vars/colors.module.scss';
@@ -15,7 +15,7 @@ const IndicatorsContainer = ({ className, ...rest }) => <components.IndicatorsCo
   {...rest}
 />;
 
-const Select = ({ styles: customStyles, components, ...rest }, ref) => {
+const Select = ({ styles: customStyles, components, ref, ...rest }) => {
   const selectStyles = useMemo(() => ({
     ...customStyles,
     option: (styles, state) => {
@@ -51,6 +51,4 @@ const Select = ({ styles: customStyles, components, ...rest }, ref) => {
   />;
 };
 
-const SelectForwardRef = forwardRef(Select);
-
-export default SelectForwardRef;
+export default Select;

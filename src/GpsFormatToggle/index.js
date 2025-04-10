@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatToggle = ({ lat = null, lng = null, name, showGpsString = true, ...otherProps }, ref) => {
+const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = true, ...otherProps }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
@@ -81,4 +81,4 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, showGpsString = true, .
   </div>;
 };
 
-export default memo(forwardRef(GpsFormatToggle));
+export default memo(GpsFormatToggle);

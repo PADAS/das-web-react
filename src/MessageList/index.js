@@ -1,8 +1,6 @@
 import React, { memo, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { isSameDay, isToday, isYesterday  } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import noop from 'lodash/noop';
 import InfiniteScroll from 'react-infinite-scroller';
 
 
@@ -32,19 +30,19 @@ export const MESSAGE_LIST_TYPES = {
 };
 
 const MessageList = ({
-  className,
-  containerRef,
-  emptyMessage,
-  hasMore,
-  isReverse,
+  className = '',
+  containerRef = null,
+  emptyMessage = null,
+  hasMore = false,
+  isReverse = false,
   messages,
-  onMessageClick,
-  onMessageSubjectClick,
-  onScroll,
-  readMessageClassName,
-  senderDetailStyle,
-  type,
-  unreadMessageClassName,
+  onMessageClick = null,
+  onMessageSubjectClick = null,
+  onScroll = null,
+  readMessageClassName = '',
+  senderDetailStyle = SENDER_DETAIL_STYLES.FULL,
+  type = MESSAGE_LIST_TYPES.GENERAL,
+  unreadMessageClassName = '',
 }) => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'messageList' });
 
@@ -111,42 +109,6 @@ const MessageList = ({
 
     {!groupedByDate.length && <li className={styles.emptyMessage}>{emptyMessage || t('defaultEmptyMessage')}</li>}
   </InfiniteScroll>;
-};
-
-MessageList.defaultProps = {
-  className: '',
-  containerRef: null,
-  emptyMessage: null,
-  hasMore: false,
-  isReverse: false,
-  onMessageClick: noop,
-  onMessageSubjectClick: noop,
-  onScroll: noop,
-  readMessageClassName: '',
-  senderDetailStyle: SENDER_DETAIL_STYLES.FULL,
-  type: MESSAGE_LIST_TYPES.GENERAL,
-  unreadMessageClassName: '',
-};
-
-MessageList.propTypes = {
-  className: PropTypes.string,
-  containerRef: PropTypes.shape({
-    current: PropTypes.any,
-  }),
-  emptyMessage: PropTypes.string,
-  hasMore: PropTypes.bool,
-  isReverse: PropTypes.bool,
-  messages: PropTypes.arrayOf(PropTypes.shape({
-    message_time: PropTypes.string,
-    sender: PropTypes.object,
-  })).isRequired,
-  onMessageClick: PropTypes.func,
-  onMessageSubjectClick: PropTypes.func,
-  onScroll: PropTypes.func,
-  readMessageClassName: PropTypes.string,
-  senderDetailStyle: PropTypes.oneOf(Object.values(SENDER_DETAIL_STYLES)),
-  type: PropTypes.oneOf(Object.values(MESSAGE_LIST_TYPES)),
-  unreadMessageClassName: PropTypes.string,
 };
 
 export default memo(MessageList);

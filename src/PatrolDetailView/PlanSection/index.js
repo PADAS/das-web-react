@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { format, isFuture, isValid, parseISO } from 'date-fns';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as CalendarIcon } from '../../common/images/icons/calendar.svg';
@@ -287,16 +286,6 @@ const PlanSection = ({
       </label>
     </div>
   </>;
-};
-
-PlanSection.propTypes = {
-  onPatrolEndDateChange: PropTypes.func.isRequired,
-  onPatrolEndLocationChange: PropTypes.func.isRequired,
-  onPatrolObjectiveChange: PropTypes.func.isRequired,
-  onPatrolReportedByChange: PropTypes.func.isRequired,
-  onPatrolStartDateChange: PropTypes.func.isRequired,
-  onPatrolStartLocationChange: PropTypes.func.isRequired,
-  patrolForm: PropTypes.object.isRequired,
 };
 
 export default memo(PlanSection);

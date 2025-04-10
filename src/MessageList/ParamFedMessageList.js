@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -19,7 +18,7 @@ import MessageList from './';
 
 import * as styles from './styles.module.scss';
 
-const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
+const ParamFedMessageList = ({ isReverse = false, params = null, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.paramFedMessageList' });
 
   const socket = useContext(SocketContext);
@@ -99,18 +98,6 @@ const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
       {...restProps}
     />
   </div>;
-};
-
-ParamFedMessageList.defaultProps = {
-  isReverse: false,
-  params: null,
-};
-
-ParamFedMessageList.propTypes = {
-  isReverse: PropTypes.bool,
-  params: PropTypes.shape({
-    subject_id: PropTypes.string,
-  }),
 };
 
 export default memo(ParamFedMessageList);

@@ -1,5 +1,4 @@
 import { memo, useRef, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 
 const DelayedUnmount = (props) => {
   const { children, isMounted, delay = 400 } = props;
@@ -24,11 +23,6 @@ const DelayedUnmount = (props) => {
 
   return mounted && children;
 
-};
-
-DelayedUnmount.propTypes = {
-  isMounted: PropTypes.bool,
-  delay: PropTypes.number,
 };
 
 export default memo(DelayedUnmount);

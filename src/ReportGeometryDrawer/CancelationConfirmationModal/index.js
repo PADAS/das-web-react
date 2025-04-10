@@ -1,7 +1,6 @@
 import React, { memo, useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -54,11 +53,6 @@ const CancelationConfirmationModal = ({ onHide, show }) => {
       </div>
     </Modal.Body>
   </Modal>;
-};
-
-CancelationConfirmationModal.propTypes = {
-  onHide: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };
 
 export default memo(CancelationConfirmationModal);

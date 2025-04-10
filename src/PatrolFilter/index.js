@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { caseInsensitiveCompare } from '../utils/string';
@@ -30,7 +29,7 @@ export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({ className }) => {
+const PatrolFilter = ({ className = '' }) => {
   const containerRef = useRef(null);
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
@@ -172,14 +171,6 @@ const PatrolFilter = ({ className }) => {
       }
     </div>
   </>;
-};
-
-PatrolFilter.defaultProps = {
-  className: '',
-};
-
-PatrolFilter.propTypes = {
-  className: PropTypes.string,
 };
 
 export default PatrolFilter;

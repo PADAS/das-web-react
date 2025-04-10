@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { featureCollection } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
@@ -32,7 +31,7 @@ const UNCLUSTERED_FILTER = [
 const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
 const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 
-const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
+const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   const map = useContext(MapContext);
 
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
@@ -95,15 +94,6 @@ const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
       type="symbol"
     />}
   </>;
-};
-
-SubjectsLayer.defaultProps = {
-  mapImages: {},
-};
-
-SubjectsLayer.propTypes = {
-  mapImages: PropTypes.object,
-  onSubjectClick: PropTypes.func.isRequired,
 };
 
 export default memo(withMapViewConfig(SubjectsLayer));

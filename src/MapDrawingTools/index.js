@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import noop from 'lodash/noop';
 import isEqual from 'react-fast-compare';
@@ -7,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS } from '../constants';
 import { calcPositiveBearing } from '../utils/location';
-import { childrenPropType, mapDrawToolsDisplayConfigPropType } from '../proptypes';
 import { LAYER_IDS, SOURCE_IDS } from './MapLayers';
 import { MapContext } from '../App';
 import { useDrawToolGeoJson } from './hooks';
@@ -198,20 +196,6 @@ const MapDrawingTools = ({
 };
 
 export default memo(MapDrawingTools);
-
-PropTypes.propTypes = {
-  displayConfig: mapDrawToolsDisplayConfigPropType,
-  children: childrenPropType,
-  drawing: PropTypes.bool,
-  drawingMode: PropTypes.oneOf(Object.values(DRAWING_MODES)),
-  onChange: PropTypes.func,
-  onClickFill: PropTypes.func,
-  onClickLabel: PropTypes.func,
-  onClickLine: PropTypes.func,
-  onClickPoint: PropTypes.func,
-  points: PropTypes.array,
-  renderCursorPopup: PropTypes.func,
-};
 
 const DefaultCursorPopup = ({ coords, drawing, isHoveringMidpoint, lineLength, points }) => {
   const map = useContext(MapContext);

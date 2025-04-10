@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -154,12 +153,6 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   useMapEventBinding('mousedown', removeFeatureHighlightOnMapClick);
 
   return null;
-};
-
-FeatureLayer.propTypes = {
-  symbols: PropTypes.object.isRequired,
-  lines: PropTypes.object.isRequired,
-  polygons: PropTypes.object.isRequired,
 };
 
 export default memo(withMap(withMapViewConfig(FeatureLayer)));

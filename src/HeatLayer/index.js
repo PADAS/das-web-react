@@ -1,6 +1,5 @@
 import { memo, useMemo, useRef } from 'react';
 import { centroid } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { LAYER_IDS, MAX_ZOOM } from '../constants';
@@ -43,10 +42,6 @@ const HeatLayer = ({ points }) => {
   }]);
 
   return null;
-};
-
-HeatLayer.propTypes = {
-  points: PropTypes.object.isRequired,
 };
 
 export default memo(HeatLayer);

@@ -1,7 +1,6 @@
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
@@ -23,11 +22,12 @@ const NoteListItem = ({
   note,
   onCollapse,
   onChange,
-  onDelete,
+  onDelete = null,
   onCancel,
   onDone,
   onExpand,
-}, ref) => {
+  ref,
+}) => {
   const textareaRef = useRef();
   const tracker = useContext(TrackerContext);
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -178,27 +178,4 @@ const NoteListItem = ({
   </li>;
 };
 
-const NoteListItemForwardRef = forwardRef(NoteListItem);
-
-NoteListItemForwardRef.defaultProps = {
-  onDelete: null,
-};
-
-NoteListItemForwardRef.propTypes = {
-  cardsExpanded: PropTypes.array.isRequired,
-  note: PropTypes.shape({
-    id: PropTypes.string,
-    text: PropTypes.string,
-    updates: PropTypes.arrayOf(PropTypes.shape({
-      time: PropTypes.string,
-    })),
-  }).isRequired,
-  onCollapse: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
-  onDone: PropTypes.func.isRequired,
-  onExpand: PropTypes.func.isRequired,
-};
-
-export default NoteListItemForwardRef;
+export default NoteListItem;

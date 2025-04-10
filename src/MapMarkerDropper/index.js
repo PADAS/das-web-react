@@ -1,6 +1,5 @@
 import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
 import throttle from 'lodash/throttle';
-import PropTypes from 'prop-types';
 
 import { addMapImage } from '../utils/map';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
@@ -17,7 +16,7 @@ import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
+const MapMarkerDropper = ({ map, onMarkerDropped = null, showMarkerPopup = true, ...rest }) => {
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
@@ -59,7 +58,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   }, [map]);
 
   useEffect(() => {
-    if (!moving && isValidLocation) {
+    if (onMarkerDropped && !moving && isValidLocation) {
       onMarkerDropped(location);
     }
   }, [isValidLocation, location, moving, onMarkerDropped]);
@@ -121,12 +120,3 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 };
 
 export default memo(withMap(MapMarkerDropper));
-
-MapMarkerDropper.defaultProps = {
-  onMarkerDropped() {
-  },
-};
-
-MapMarkerDropper.propTypes = {
-  onMarkerDropped: PropTypes.func,
-};

@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down.svg';
@@ -15,7 +14,7 @@ import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import * as styles from './styles.module.scss';
 
-const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) => {
+const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'columnSort' });
 
   const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
@@ -115,22 +114,6 @@ const ColumnSort = ({ className, sortOptions, orderOptions, value, onChange }) =
       {isSortUp ? <ArrowUp /> : <ArrowDown />}
     </Button>
   </span>;
-};
-
-ColumnSort.defaultProps= {
-  className: '',
-};
-
-ColumnSort.propTypes= {
-  className: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  orderOptions: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.string,
-  })).isRequired,
-  sortOptions: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.string,
-  })).isRequired,
-  value: PropTypes.array.isRequired,
 };
 
 export default ColumnSort;

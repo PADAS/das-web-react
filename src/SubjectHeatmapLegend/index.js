@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -98,10 +97,6 @@ const SubjectHeatmapLegend = ({ onClose }) => {
       trackData={trackData}
     />}
   />;
-};
-
-SubjectHeatmapLegend.propTypes = {
-  onClose: PropTypes.func.isRequired,
 };
 
 export default memo(SubjectHeatmapLegend);

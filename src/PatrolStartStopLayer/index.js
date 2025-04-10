@@ -26,9 +26,3 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, null)(withMap(
   memo(PatrolStartStopLayer),
 ));
-
-PatrolStartStopLayer.defaultProps = {
-  onPointClick(_layer) {
-  },
-  showTimepoints: true,
-};

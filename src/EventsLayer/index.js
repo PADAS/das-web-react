@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
@@ -61,8 +60,8 @@ const SYMBOL_LAYER_FILTER = [
 ];
 
 const EventsLayer = ({
-  bounceEventIDs,
-  mapImages,
+  bounceEventIDs = [],
+  mapImages = {},
   mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
@@ -284,20 +283,6 @@ const EventsLayer = ({
       reportFeatureCollection={eventPointFeatureCollection}
     />}
   </>;
-};
-
-EventsLayer.defaultProps = {
-  bounceEventIDs: [],
-  mapImages: {},
-};
-
-EventsLayer.propTypes = {
-  bounceEventIDs: PropTypes.string,
-  mapImages: PropTypes.object,
-  mapUserLayoutConfig: PropTypes.object.isRequired,
-  mapUserLayoutConfigByLayerId: PropTypes.func.isRequired,
-  minZoom: PropTypes.number.isRequired,
-  onEventClick: PropTypes.func.isRequired,
 };
 
 export default memo(withMapViewConfig(EventsLayer));

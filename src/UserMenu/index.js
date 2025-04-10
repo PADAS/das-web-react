@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
@@ -11,7 +10,14 @@ import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-const UserMenu = ({ onLogOutClick, onProfileClick, selectedUserProfile, user, userProfiles, ...restProps }) => {
+const UserMenu = ({
+  onLogOutClick,
+  onProfileClick,
+  selectedUserProfile = null,
+  user,
+  userProfiles = [],
+  ...restProps
+}) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'userMenu' });
 
   const cookieSettingsRef = useRef();
@@ -59,27 +65,6 @@ const UserMenu = ({ onLogOutClick, onProfileClick, selectedUserProfile, user, us
       </Dropdown.Menu>
     </Dropdown>
   </>;
-};
-
-UserMenu.defaultProps = {
-  userProfiles: [],
-  selectedUserProfile: null,
-};
-
-UserMenu.propTypes = {
-  onLogOutClick: PropTypes.func.isRequired,
-  onProfileClick: PropTypes.func.isRequired,
-  selectedUserProfile: PropTypes.shape({
-    username: PropTypes.string,
-  }),
-  user: PropTypes.shape({
-    id: PropTypes.string,
-    username: PropTypes.string,
-  }).isRequired,
-  userProfiles: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    username: PropTypes.string,
-  })),
 };
 
 export default UserMenu;

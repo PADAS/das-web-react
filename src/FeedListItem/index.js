@@ -1,5 +1,4 @@
 import React, { memo, useMemo } from 'react';
-import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
 
@@ -36,13 +35,3 @@ const FeedListItem = (props) => {
 };
 
 export default memo(FeedListItem);
-
-FeedListItem.propTypes = {
-  className: PropTypes.string,
-  themeColor: PropTypes.string.isRequired,
-  themeBgColor: PropTypes.string,
-  IconComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
-  TitleComponent: PropTypes.element.isRequired,
-  DateComponent: PropTypes.element,
-  ControlsComponent: PropTypes.element,
-};
