@@ -9,7 +9,7 @@ import ConfirmationCheck from '../ConfirmationCheck';
 import * as styles from './styles.module.scss';
 
 const PIN_LENGTH = 4;
-const PIN_VALIDATION_RULES = /^[0-9]$/;
+const PIN_VALIDATION_RULES = '[0-9]';
 
 const ProfilePINModal = ({ onSuccess, profile }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'profilePINModal' });

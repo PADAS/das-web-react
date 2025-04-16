@@ -1,6 +1,6 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 
+import { renderHook } from '../../test-utils';
 import { NavigationContext } from '../../NavigationContextProvider';
 import useBlockNavigation from '.';
 

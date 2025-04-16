@@ -82,7 +82,7 @@ describe('EventFilter', () => {
       renderEventFilter(mockStore(initialState));
 
       const filterBtn = screen.getByTestId('filter-btn');
-      filterBtn.click();
+      await userEvent.click(filterBtn);
 
       const filterPopover = screen.getByTestId('filter-popover');
       expect(filterPopover).toBeDefined();
@@ -92,7 +92,7 @@ describe('EventFilter', () => {
       renderEventFilter(mockStore(initialState));
 
       const dateFilterBtn = screen.getByTestId('date-filter-btn');
-      dateFilterBtn.click();
+      await userEvent.click(dateFilterBtn);
 
       const dateFilterPopover = screen.getByTestId('filter-date-popover');
       expect(dateFilterPopover).toBeDefined();
@@ -152,14 +152,12 @@ describe('EventFilter', () => {
 
       const resetWrapper = await screen.getByTestId('general-reset-wrapper');
       const resetButton = within(resetWrapper).queryByText('Reset');
-      userEvent.click(resetButton);
+      await userEvent.click(resetButton);
 
       expect(resetMock).toHaveBeenCalledTimes(1);
     });
 
     test('clicking on reset button should erase the search text value', async () => {
-      jest.useFakeTimers();
-
       initialState.data.eventFilter.filter.text = 'text';
       const mockedStore = mockStore(initialState);
       renderEventFilter(mockedStore);
@@ -167,7 +165,7 @@ describe('EventFilter', () => {
       const resetWrapper = await screen.getByTestId('general-reset-wrapper');
 
       const resetButton = await within(resetWrapper).queryByText('Reset');
-      userEvent.click(resetButton);
+      await userEvent.click(resetButton);
 
       await waitFor(() => {
         const actions = mockedStore.getActions();
@@ -175,8 +173,6 @@ describe('EventFilter', () => {
         expect(actions[0].type).toBe(UPDATE_EVENT_FILTER);
         expect(actions[0].payload.filter.text).toBe('');
       });
-
-      jest.useRealTimers();
     });
   });
 });

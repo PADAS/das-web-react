@@ -89,7 +89,7 @@ describe('SubjectPopup', () => {
     test('toggling multiple device properties', async () => {
       const additionalPropsToggleBtn = await screen.getByTestId('additional-props-toggle-btn');
 
-      userEvent.click(additionalPropsToggleBtn);
+      await userEvent.click(additionalPropsToggleBtn);
 
       const additionalProps = await screen.findByTestId('additional-props');
       const deviceStatusProps = subjectFeatureWithMultipleDeviceProps.properties.device_status_properties;
@@ -99,7 +99,7 @@ describe('SubjectPopup', () => {
         if (value.length) expect(additionalProps).toHaveTextContent(value);
       });
 
-      userEvent.click(additionalPropsToggleBtn);
+      await userEvent.click(additionalPropsToggleBtn);
       expect(additionalProps).not.toBeInTheDocument();
     });
 

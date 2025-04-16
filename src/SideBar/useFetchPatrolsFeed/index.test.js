@@ -1,10 +1,9 @@
 import React from 'react';
 import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { renderHook } from '@testing-library/react-hooks';
 import { setupServer } from 'msw/node';
-import { waitFor } from '@testing-library/react';
 
+import { renderHook, waitFor } from '../../test-utils';
 import { INITIAL_FILTER_STATE as INITIAL_PATROL_FILTER_STATE } from '../../ducks/patrol-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrols from '../../__test-helpers/fixtures/patrols';

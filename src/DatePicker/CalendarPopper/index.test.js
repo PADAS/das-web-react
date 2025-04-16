@@ -26,58 +26,58 @@ describe('DatePicker - CalendarPopper', () => {
     jest.restoreAllMocks();
   });
 
-  test('does not disable the calendar popper', () => {
+  test('does not disable the calendar popper', async () => {
     renderCalendarPopper();
 
     expect(screen.getByLabelText('Open calendar')).not.toBeDisabled();
   });
 
-  test('disables the calendar popper', () => {
+  test('disables the calendar popper', async () => {
     renderCalendarPopper({ disabled: true });
 
     expect(screen.getByLabelText('Open calendar')).toBeDisabled();
   });
 
-  test('opens the calendar', () => {
+  test('opens the calendar', async () => {
     renderCalendarPopper();
 
     expect(setIsOpen).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Open calendar'));
+    await userEvent.click(screen.getByLabelText('Open calendar'));
 
     expect(setIsOpen).toHaveBeenCalledTimes(1);
     expect(setIsOpen).toHaveBeenCalledWith(true);
   });
 
-  test('closes the calendar by clicking the button', () => {
+  test('closes the calendar by clicking the button', async () => {
     renderCalendarPopper({ isOpen: true });
 
     expect(setIsOpen).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Open calendar'));
+    await userEvent.click(screen.getByLabelText('Open calendar'));
 
     expect(setIsOpen).toHaveBeenCalledTimes(1);
     expect(setIsOpen).toHaveBeenCalledWith(false);
   });
 
-  test('closes the calendar by pressing escape', () => {
+  test('closes the calendar by pressing escape', async () => {
     renderCalendarPopper({ isOpen: true });
 
     expect(setIsOpen).not.toHaveBeenCalled();
 
-    userEvent.keyboard('{escape}');
+    await userEvent.keyboard('{escape}');
 
     expect(setIsOpen).toHaveBeenCalledTimes(1);
     expect(setIsOpen).toHaveBeenCalledWith(false);
   });
 
-  test('changes the date when the user clicks an option from the calendar', () => {
+  test('changes the date when the user clicks an option from the calendar', async () => {
     renderCalendarPopper({ isOpen: true,  value: '2020-01-01' });
 
     expect(onChange).not.toHaveBeenCalled();
     expect(setIsOpen).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
+    await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('2020-01-13');

@@ -1,18 +1,16 @@
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect } from 'react';
+
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
-
-import { withMap } from '../EarthRangerMap';
-import withMapViewConfig from '../WithMapViewConfig';
-
+import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
+import withMapViewConfig from '../WithMapViewConfig';
 
 const LabeledSymbolLayer = ({
   before,
   filter,
   id,
   layout,
-  map,
   mapUserLayoutConfigByLayerId,
   onClick,
   onInit = null,
@@ -23,6 +21,8 @@ const LabeledSymbolLayer = ({
   textLayout,
   textPaint,
 }) => {
+  const map = useContext(MapContext);
+
   const textLayerId = `${id}-labels`;
 
   const handleMouseEnter = (e) => {
@@ -110,4 +110,4 @@ const LabeledSymbolLayer = ({
   return null;
 };
 
-export default memo(withMapViewConfig(withMap(LabeledSymbolLayer)));
+export default memo(withMapViewConfig(LabeledSymbolLayer));

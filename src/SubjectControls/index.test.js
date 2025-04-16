@@ -69,7 +69,7 @@ describe('SubjectControls', () => {
       );
 
       const button = await screen.findByTestId(buttonTestId);
-      userEvent.click(button);
+      await userEvent.click(button);
 
       expect(addModal).toHaveBeenCalledWith(expect.objectContaining({ subjectId: subject.id, subjectIsStatic: subjectIsStatic(subject), title: `Historical Data: ${subject.name}` }));
     });

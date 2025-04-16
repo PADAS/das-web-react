@@ -64,7 +64,7 @@ describe('ModalRenderer', () => {
   test('removes the modal when pressing escape', async () => {
     expect(removeModal).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(removeModal).toHaveBeenCalledTimes(1);
   });
@@ -79,7 +79,7 @@ describe('ModalRenderer', () => {
       </Provider>
     );
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(removeModal).toHaveBeenCalledTimes(0);
   });

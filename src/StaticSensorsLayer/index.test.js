@@ -1,9 +1,8 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import { runAllTimers } from '../__test-helpers/timers.js';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { MapContext } from '../App';
@@ -161,7 +160,7 @@ describe('adding layers to the map', () => {
       map.queryRenderedFeatures.mockReturnValue([staticSubjectFeature]);
 
       map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
-      await runAllTimers();
+      jest.runAllTimers();
     });
 
     test('showing the subject popup', async () => {
@@ -173,7 +172,7 @@ describe('adding layers to the map', () => {
     test('setting the map filter to hide the selected subject\'s marker', async () => {
       map.__test__.fireHandlers('click', { preventDefault() {}, point: { latitude: 66, longitude: 66 } });
 
-      await runAllTimers();
+      act(() => jest.runAllTimers());
 
       expect(map.setFilter).toHaveBeenCalledTimes(4);
 

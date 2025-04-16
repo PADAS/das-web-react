@@ -95,7 +95,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(reportCollapse).toHaveClass('collapse');
 
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
 
     await waitFor(() => {
       expect(reportCollapse).toHaveClass('show');
@@ -108,9 +108,9 @@ describe('DetailViewComponents - ActivitySection', () => {
     const { id } = containedReports[0];
 
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
     const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${id}`);
-    userEvent.click(collapseButton);
+    await userEvent.click(collapseButton);
 
     const reportCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
@@ -129,7 +129,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(imageCollapse).toHaveClass('collapse');
 
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
 
     await waitFor(() => {
       expect(imageCollapse).toHaveClass('show');
@@ -143,9 +143,9 @@ describe('DetailViewComponents - ActivitySection', () => {
     const { id } = imageAttachment;
 
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${id}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
     const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${id}`);
-    userEvent.click(collapseButton);
+    await userEvent.click(collapseButton);
 
     const imageCollapse = await screen.findByTestId(`activitySection-collapse-${id}`);
 
@@ -160,7 +160,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onDeleteAttachment).toHaveBeenCalledTimes(0);
 
     const deleteNewAttachmentButton = await screen.findByTestId('activitySection-trashCan-newFile1.pdf');
-    userEvent.click(deleteNewAttachmentButton);
+    await userEvent.click(deleteNewAttachmentButton);
 
     expect(onDeleteAttachment).toHaveBeenCalledTimes(1);
   });
@@ -175,7 +175,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(noteCollapse).toHaveClass('collapse');
 
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${noteId}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('show');
@@ -188,9 +188,9 @@ describe('DetailViewComponents - ActivitySection', () => {
     const [ note ] = notes;
     const { id: noteId } = note;
     const expandButton = await screen.findByTestId(`activitySection-arrowDown-${noteId}`);
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
     const collapseButton = await screen.findByTestId(`activitySection-arrowUp-${noteId}`);
-    userEvent.click(collapseButton);
+    await userEvent.click(collapseButton);
 
     const noteCollapse = await screen.findByTestId(`activitySection-collapse-${noteId}`);
 
@@ -207,7 +207,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(noteCollapse).toHaveClass('collapse');
 
     const expandButton = await screen.findByTestId('activitySection-arrowDown-noteToAdd1');
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
 
     await waitFor(() => {
       expect(noteCollapse).toHaveClass('show');
@@ -218,9 +218,9 @@ describe('DetailViewComponents - ActivitySection', () => {
     renderActivitySection();
 
     const expandButton = await screen.findByTestId('activitySection-arrowDown-noteToAdd1');
-    userEvent.click(expandButton);
+    await userEvent.click(expandButton);
     const collapseButton = await screen.findByTestId('activitySection-arrowUp-noteToAdd1');
-    userEvent.click(collapseButton);
+    await userEvent.click(collapseButton);
 
     const noteCollapse = await screen.findByTestId('activitySection-collapse-noteToAdd1');
 
@@ -235,7 +235,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onDeleteNote).toHaveBeenCalledTimes(0);
 
     const deleteButton = await screen.findByTestId('activitySection-deleteIcon-noteToAdd1');
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     expect(onDeleteNote).toHaveBeenCalledTimes(1);
   });
@@ -250,13 +250,13 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onChangeNote).toHaveBeenCalledTimes(0);
 
     const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${text}`);
-    userEvent.click(editNoteIcon);
+    await userEvent.click(editNoteIcon);
     const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${text}`);
-    userEvent.type(noteTextArea, updatedText);
+    await userEvent.type(noteTextArea, updatedText);
     expect(onChangeNote).toHaveBeenCalledTimes(updatedText.length);
 
     const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${text}`);
-    userEvent.click(doneNoteButton);
+    await userEvent.click(doneNoteButton);
 
     expect(onDoneNote).toHaveBeenCalledWith(note);
   });
@@ -270,13 +270,13 @@ describe('DetailViewComponents - ActivitySection', () => {
     expect(onDoneNote).toHaveBeenCalledTimes(0);
 
     const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${note.id}`);
-    userEvent.click(editNoteIcon);
+    await userEvent.click(editNoteIcon);
 
     const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${note.id}`);
-    userEvent.type(noteTextArea, updatedText);
+    await userEvent.type(noteTextArea, updatedText);
 
     const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${note.id}`);
-    userEvent.click(doneNoteButton);
+    await userEvent.click(doneNoteButton);
 
     expect(onDoneNote).toHaveBeenCalledTimes(1);
     expect(onDoneNote).toHaveBeenCalledWith(expect.objectContaining(note));
@@ -299,7 +299,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     renderActivitySection();
 
     const timeSortButton = await screen.findByTestId('time-sort-btn');
-    userEvent.click(timeSortButton);
+    await userEvent.click(timeSortButton);
 
     const items = await screen.findAllByRole('listitem');
 
@@ -314,7 +314,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     renderActivitySection();
 
     const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
-    userEvent.click(expandCollapseButton);
+    await userEvent.click(expandCollapseButton);
 
     const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
@@ -327,7 +327,7 @@ describe('DetailViewComponents - ActivitySection', () => {
     renderActivitySection();
 
     const expandCollapseButton = await screen.findByTestId('detailView-activitySection-expandCollapseButton');
-    userEvent.click(expandCollapseButton);
+    await userEvent.click(expandCollapseButton);
 
     const collapses = await screen.findAllByTestId((content) => content.startsWith('activitySection-collapse'));
 
@@ -335,7 +335,7 @@ describe('DetailViewComponents - ActivitySection', () => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('show'));
     });
 
-    userEvent.click(expandCollapseButton);
+    await userEvent.click(expandCollapseButton);
 
     await waitFor(() => {
       collapses.forEach((collapse) => expect(collapse).toHaveClass('collapse'));

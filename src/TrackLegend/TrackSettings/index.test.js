@@ -54,40 +54,40 @@ describe('TrackLegend - TrackSettings', () => {
     jest.restoreAllMocks();
   });
 
-  test('closes the track settings', () => {
+  test('closes the track settings', async () => {
     renderTrackSettings();
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Close the track settings'));
+    await userEvent.click(screen.getByLabelText('Close the track settings'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('changes the track length origin to the lower event filter date range', () => {
+  test('changes the track length origin to the lower event filter date range', async () => {
     renderTrackSettings();
 
     expect(setTrackLengthOrigin).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getAllByRole('radio')[0]);
+    await userEvent.click(screen.getAllByRole('radio')[0]);
 
     expect(setTrackLengthOrigin).toHaveBeenCalledTimes(1);
     expect(setTrackLengthOrigin).toHaveBeenCalledWith(TRACK_LENGTH_ORIGINS.EVENT_FILTER);
   });
 
-  test('changes the track length origin to a custom length', () => {
+  test('changes the track length origin to a custom length', async () => {
     store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
     renderTrackSettings();
 
     expect(setTrackLengthOrigin).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getAllByRole('radio')[1]);
+    await userEvent.click(screen.getAllByRole('radio')[1]);
 
     expect(setTrackLengthOrigin).toHaveBeenCalledTimes(1);
     expect(setTrackLengthOrigin).toHaveBeenCalledWith(TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH);
   });
 
-  test('disables the track length inputs if the track length origin is the event filter', () => {
+  test('disables the track length inputs if the track length origin is the event filter', async () => {
     store.view.trackSettings.origin = TRACK_LENGTH_ORIGINS.EVENT_FILTER;
     renderTrackSettings();
 
@@ -95,14 +95,14 @@ describe('TrackLegend - TrackSettings', () => {
     expect(screen.getAllByLabelText('Track length in days')[1]).toBeDisabled();
   });
 
-  test('does not disable the track length inputs if the track length origin is a custom length', () => {
+  test('does not disable the track length inputs if the track length origin is a custom length', async () => {
     renderTrackSettings();
 
     expect(screen.getByRole('slider')).toBeEnabled();
     expect(screen.getAllByLabelText('Track length in days')[1]).toBeEnabled();
   });
 
-  test('changes the track length when the user interacts with the slider', () => {
+  test('changes the track length when the user interacts with the slider', async () => {
     renderTrackSettings();
 
     expect(setTrackLength).toHaveBeenCalledTimes(1);
@@ -114,19 +114,19 @@ describe('TrackLegend - TrackSettings', () => {
     expect(setTrackLength).toHaveBeenCalledWith(60);
   });
 
-  test('changes the track length when the user interacts with the numeric input', () => {
+  test('changes the track length when the user interacts with the numeric input', async () => {
     renderTrackSettings();
 
     expect(setTrackLength).toHaveBeenCalledTimes(1);
     expect(setTrackLength).toHaveBeenCalledWith(21);
 
-    userEvent.type(screen.getAllByLabelText('Track length in days')[1], '{backspace}');
+    await userEvent.type(screen.getAllByLabelText('Track length in days')[1], '{backspace}');
 
     expect(setTrackLength).toHaveBeenCalledTimes(2);
     expect(setTrackLength).toHaveBeenCalledWith(2);
   });
 
-  test('shows an error if the custom length inputs have an invalid value', () => {
+  test('shows an error if the custom length inputs have an invalid value', async () => {
     renderTrackSettings();
 
     fireEvent.change(screen.getAllByLabelText('Track length in days')[1], { target: { value: 0 } });
@@ -140,7 +140,7 @@ describe('TrackLegend - TrackSettings', () => {
     expect(customLenghtNumericInput).toHaveAttribute('aria-errormessage', 'customLengthErrorMessage');
   });
 
-  test('does not show an error if the custom length inputs have a valid value', () => {
+  test('does not show an error if the custom length inputs have a valid value', async () => {
     renderTrackSettings();
 
     const customLenghtSlider = screen.getByRole('slider');

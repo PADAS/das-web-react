@@ -115,14 +115,14 @@ const PatrolMenu = ({
     >
     { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
       <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
-        { canEnd ? <StopIcon /> : <PlayIcon /> }
+        { canEnd ? <StopIcon /> : <PlayIcon data-testid="play-icon" /> }
         {patrolStartStopTitle}
       </KebabMenu.Option>
     }
 
     { canEditPatrol &&
       <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
-        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon /> }
+        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon data-testid="close-icon" /> }
         {patrolCancelRestoreTitle}
       </KebabMenu.Option>
     }
@@ -132,7 +132,7 @@ const PatrolMenu = ({
         <TextCopyBtn
           label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}
-          icon={<ClipIcon />}
+          icon={<ClipIcon data-testid="clip-icon" />}
           successMessage={t('copyButtonMessage')}
           permitPropagation />
       </KebabMenu.Option>
@@ -140,7 +140,7 @@ const PatrolMenu = ({
 
     { showPatrolPrintOption &&
       <KebabMenu.Option onClick={handlePrint}>
-        <PrinterIcon />
+        <PrinterIcon data-testid="printer-icon" />
         {t('printPatrolButton')}
       </KebabMenu.Option>
     }

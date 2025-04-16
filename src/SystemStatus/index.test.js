@@ -83,7 +83,7 @@ describe('SystemStatus', () => {
     expect((await screen.queryByText('EarthRanger Realtime'))).toBeNull();
 
     const statusIndicatorToggle = await screen.findByRole('button');
-    userEvent.click(statusIndicatorToggle);
+    await userEvent.click(statusIndicatorToggle);
 
     expect((await screen.findByText('Network'))).toBeDefined();
     expect((await screen.findByText('EarthRanger Server 2.43.1-dev.30033'))).toBeDefined();
@@ -97,15 +97,15 @@ describe('SystemStatus', () => {
       </Provider>
     );
 
-    expect((await screen.findByText('arrow-down-small.svg'))).toBeDefined();
-    expect((await screen.queryByText('arrow-up-small.svg'))).toBeNull();
+    expect((await screen.findByTestId('arrow-down-small-icon'))).toBeDefined();
+    expect((await screen.queryByTestId('arrow-up-small-icon'))).toBeNull();
     expect((await screen.findByTestId('systemStatus-indicator'))).not.toHaveClass('open');
 
     const statusIndicatorToggle = await screen.findByRole('button');
-    userEvent.click(statusIndicatorToggle);
+    await userEvent.click(statusIndicatorToggle);
 
-    expect((await screen.queryByText('arrow-down-small.svg'))).toBeNull();
-    expect((await screen.findByText('arrow-up-small.svg'))).toBeDefined();
+    expect((await screen.queryByTestId('arrow-down-small-icon'))).toBeNull();
+    expect((await screen.findByTestId('arrow-up-small-icon'))).toBeDefined();
     expect((await screen.findByTestId('systemStatus-indicator'))).toHaveClass('open');
   });
 });

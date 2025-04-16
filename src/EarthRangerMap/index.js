@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -23,13 +23,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '../Map/Map.scss';
 
 mapboxgl.accessToken = REACT_APP_MAPBOX_TOKEN;
-
-// eslint-disable-next-line react/display-name
-export const withMap = (Component) => (props) => {
-  const map = useContext(MapContext);
-
-  return <Component map={map} {...props} />;
-};
 
 const getStartingMapPositionValues = (mapPosition) => mapPosition?.center && mapPosition.zoom
   ? { bearing: mapPosition.bearing, center: mapPosition.center, pitch: mapPosition.pitch, zoom: mapPosition.zoom }

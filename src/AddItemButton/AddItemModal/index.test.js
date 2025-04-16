@@ -114,7 +114,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_PATROL);
 
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
 
     expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).not.toHaveClass('active');
@@ -125,7 +125,7 @@ describe('AddItemButton - AddItemModal', () => {
 
     getStoredTab.mockImplementation(() => ADD_TAB_KEYS.ADD_REPORT);
 
-    userEvent.click(tabs[0]);
+    await userEvent.click(tabs[0]);
 
     expect(tabs[0]).toHaveTextContent('Add Event');
     expect(tabs[0]).toHaveClass('active');
@@ -181,7 +181,7 @@ describe('AddItemButton - AddItemModal', () => {
     expect(onHide).toHaveBeenCalledTimes(0);
 
     const closeButton = await screen.findByLabelText('Close');
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     expect(onHide).toHaveBeenCalledTimes(1);
   });
@@ -194,7 +194,7 @@ describe('AddItemButton - AddItemModal', () => {
     expect(onAddReport).toHaveBeenCalledTimes(0);
 
     const reportTypeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
-    userEvent.click(reportTypeButton);
+    await userEvent.click(reportTypeButton);
 
     expect(onAddReport).toHaveBeenCalledTimes(1);
     expect(onAddReport.mock.calls[0][2]).toBe('74941f0d-4b89-48be-a62a-a74c78db8383');
@@ -208,9 +208,9 @@ describe('AddItemButton - AddItemModal', () => {
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 
     const addPatrolTab = (await screen.findAllByRole('tab'))[1];
-    userEvent.click(addPatrolTab);
+    await userEvent.click(addPatrolTab);
     const patrolTypeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
-    userEvent.click(patrolTypeButton);
+    await userEvent.click(patrolTypeButton);
 
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
     expect(onAddPatrol.mock.calls[0][2]).toBe('c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');

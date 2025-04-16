@@ -1,6 +1,5 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useContext, useEffect } from 'react';
 
-import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
@@ -11,6 +10,7 @@ import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
+import { MapContext } from '../App';
 import useMapLayers from '../hooks/useMapLayers';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SKY_LAYER } = LAYER_IDS;
@@ -78,7 +78,9 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserLayoutConfig, minZoom, map }) => {
+const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserLayoutConfig, minZoom }) => {
+  const map = useContext(MapContext);
+
   const layout = {
     ...symbolLayout,
     ...mapUserLayoutConfig,
@@ -155,4 +157,4 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   return null;
 };
 
-export default memo(withMap(withMapViewConfig(FeatureLayer)));
+export default memo(withMapViewConfig(FeatureLayer));

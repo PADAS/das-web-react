@@ -25,7 +25,7 @@ describe('#showToast', () => {
 
     expect(toast).toHaveBeenCalled();
     expect(toast.mock.calls[0]).toEqual(
-      [<ToastBody {...toastObject} />, { ...DEFAULT_TOAST_CONFIG }], /* eslint-disable-line */
+      [<ToastBody showDetailsByDefault={false} {...toastObject} />, { ...DEFAULT_TOAST_CONFIG }], /* eslint-disable-line */
     );
   });
 });

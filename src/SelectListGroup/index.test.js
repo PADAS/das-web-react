@@ -38,7 +38,7 @@ describe('SelectListGroup', () => {
     <SelectListGroup {...props} />
   );
 
-  test('shows a proper list of checkboxes', () => {
+  test('shows a proper list of checkboxes', async () => {
     renderSelectListGroup();
 
     options.forEach((option) => {
@@ -49,7 +49,7 @@ describe('SelectListGroup', () => {
     });
   });
 
-  test('shows a proper list of radio buttons', () => {
+  test('shows a proper list of radio buttons', async () => {
     renderSelectListGroup({
       ...initialProps,
       isMulti: false
@@ -63,7 +63,7 @@ describe('SelectListGroup', () => {
     });
   });
 
-  test('allows to select multiple options', () => {
+  test('allows to select multiple options', async () => {
     const onChange = jest.fn();
 
     renderSelectListGroup({
@@ -74,13 +74,13 @@ describe('SelectListGroup', () => {
 
     expect(onChange).not.toHaveBeenCalled();
 
-    userEvent.click( screen.getByText('The option') );
+    await userEvent.click( screen.getByText('The option') );
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith([124, 32409]);
   });
 
-  test('allows to select only one option', () => {
+  test('allows to select only one option', async () => {
     const onChange = jest.fn();
 
     renderSelectListGroup({
@@ -92,13 +92,13 @@ describe('SelectListGroup', () => {
 
     expect(onChange).not.toHaveBeenCalled();
 
-    userEvent.click( screen.getByText('The option') );
+    await userEvent.click( screen.getByText('The option') );
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(32409);
   });
 
-  test('shows a proper selectable item with custom option object', () => {
+  test('shows a proper selectable item with custom option object', async () => {
     const options = [
       {
         title: 'A custom product',
@@ -115,7 +115,7 @@ describe('SelectListGroup', () => {
     expect( screen.getByText('A custom product') ).toBeVisible();
   });
 
-  test('shows a disabled list of checkboxes', () => {
+  test('shows a disabled list of checkboxes', async () => {
     renderSelectListGroup({
       ...initialProps,
       disabled: true
@@ -132,7 +132,7 @@ describe('SelectListGroup', () => {
     });
   });
 
-  test('shows a disabled list of radios', () => {
+  test('shows a disabled list of radios', async () => {
     renderSelectListGroup({
       ...initialProps,
       disabled: true,
@@ -150,7 +150,7 @@ describe('SelectListGroup', () => {
     });
   });
 
-  test('shows an invalid list', () => {
+  test('shows an invalid list', async () => {
     renderSelectListGroup({
       ...initialProps,
       invalid: true,

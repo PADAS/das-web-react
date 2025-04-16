@@ -65,7 +65,7 @@ describe('TrackLegend', () => {
     jest.restoreAllMocks();
   });
 
-  test('shows the track legend if there is at least one item', () => {
+  test('shows the track legend if there is at least one item', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -78,13 +78,13 @@ describe('TrackLegend', () => {
     expect(screen.getByTestId('trackLegend')).toHaveClass('show');
   });
 
-  test('does not show the track legend if there are no items', () => {
+  test('does not show the track legend if there are no items', async () => {
     renderTrackLegend();
 
     expect(screen.queryByTestId('trackLegend')).toBeNull();
   });
 
-  test('shows the icon and title of the item if there is only one item', () => {
+  test('shows the icon and title of the item if there is only one item', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -100,7 +100,7 @@ describe('TrackLegend', () => {
     expect(titleWrapper).toHaveTextContent('Item title');
   });
 
-  test('shows the tracks icon and a button with the amount of items if there are zero or multiple items', () => {
+  test('shows the tracks icon and a button with the amount of items if there are zero or multiple items', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item 1 description',
@@ -117,11 +117,11 @@ describe('TrackLegend', () => {
 
     const titleWrapper = screen.getByTestId('trackLegend-titleWrapper');
 
-    expect(within(titleWrapper).getByText('tracks_off.svg')).toBeVisible();
+    expect(within(titleWrapper).getByTestId('tracks-off-icon')).toBeVisible();
     expect(titleWrapper).toHaveTextContent('2 items');
   });
 
-  test('opens and closes the tracks list when clicking the button in the title', () => {
+  test('opens and closes the tracks list when clicking the button in the title', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item 1 description',
@@ -140,18 +140,18 @@ describe('TrackLegend', () => {
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
 
-    userEvent.click(tracksListButton);
+    await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
     expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
-    userEvent.click(tracksListButton);
+    await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
     expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
   });
 
-  test('closes the tracks list from the close button in the menu', () => {
+  test('closes the tracks list from the close button in the menu', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item 1 description',
@@ -167,18 +167,18 @@ describe('TrackLegend', () => {
     });
 
     const tracksListButton = screen.getByLabelText('Open the list of items');
-    userEvent.click(tracksListButton);
+    await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
     expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
-    userEvent.click(screen.getAllByLabelText('Close the list of items')[1]);
+    await userEvent.click(screen.getAllByLabelText('Close the list of items')[1]);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
     expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
   });
 
-  test('removes the tracks of an item from the tracks list', () => {
+  test('removes the tracks of an item from the tracks list', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item 1 description',
@@ -193,17 +193,17 @@ describe('TrackLegend', () => {
       }],
     });
 
-    userEvent.click(screen.getByLabelText('Open the list of items'));
+    await userEvent.click(screen.getByLabelText('Open the list of items'));
 
     expect(onRemoveItemTracks).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Remove Item 2 title'));
+    await userEvent.click(screen.getByLabelText('Remove Item 2 title'));
 
     expect(onRemoveItemTracks).toHaveBeenCalledTimes(1);
     expect(onRemoveItemTracks).toHaveBeenCalledWith('2');
   });
 
-  test('doest not show the time of day settings button', () => {
+  test('doest not show the time of day settings button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -217,7 +217,7 @@ describe('TrackLegend', () => {
     expect(screen.queryByLabelText('Activate the time of day coloring')).toBeNull();
   });
 
-  test('shows the time of day settings button', () => {
+  test('shows the time of day settings button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -230,7 +230,7 @@ describe('TrackLegend', () => {
     expect(screen.getByLabelText('Activate the time of day coloring')).toBeVisible();
   });
 
-  test('activates the time of day coloring when clicking the time of day settings button', () => {
+  test('activates the time of day coloring when clicking the time of day settings button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -246,13 +246,13 @@ describe('TrackLegend', () => {
     expect(timeOfDaySettingsButton).not.toHaveClass('open');
     expect(setIsTimeOfDayColoringActive).not.toHaveBeenCalled();
 
-    userEvent.click(timeOfDaySettingsButton);
+    await userEvent.click(timeOfDaySettingsButton);
 
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledTimes(1);
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledWith(true);
   });
 
-  test('expands and collapses the time of day settings menu when clicking the chevron', () => {
+  test('expands and collapses the time of day settings menu when clicking the chevron', async () => {
     store.view.trackSettings.isTimeOfDayColoringActive = true;
     renderTrackLegend({
       items: [{
@@ -267,18 +267,18 @@ describe('TrackLegend', () => {
 
     expect(timeOfDaySettingsChevronButton).toHaveAttribute('aria-expanded', 'false');
 
-    userEvent.click(timeOfDaySettingsChevronButton);
+    await userEvent.click(timeOfDaySettingsChevronButton);
 
     expect(timeOfDaySettingsChevronButton).toHaveAttribute('aria-expanded', 'true');
     expect(timeOfDaySettingsChevronButton).toHaveAttribute('aria-label', 'Collapse the time of day settings');
 
-    userEvent.click(timeOfDaySettingsChevronButton);
+    await userEvent.click(timeOfDaySettingsChevronButton);
 
     expect(timeOfDaySettingsChevronButton).toHaveAttribute('aria-expanded', 'false');
     expect(timeOfDaySettingsChevronButton).toHaveAttribute('aria-label', 'Expand the time of day settings');
   });
 
-  test('deactivates the time of day coloring when clicking the day night button', () => {
+  test('deactivates the time of day coloring when clicking the day night button', async () => {
     store.view.trackSettings.isTimeOfDayColoringActive = true;
     renderTrackLegend({
       items: [{
@@ -295,13 +295,13 @@ describe('TrackLegend', () => {
     expect(timeOfDaySettingsButton).toHaveClass('open');
     expect(setIsTimeOfDayColoringActive).not.toHaveBeenCalled();
 
-    userEvent.click(timeOfDaySettingsButton);
+    await userEvent.click(timeOfDaySettingsButton);
 
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledTimes(1);
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledWith(false);
   });
 
-  test('doest not show the track settings button', () => {
+  test('doest not show the track settings button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -315,7 +315,7 @@ describe('TrackLegend', () => {
     expect(screen.queryByLabelText('Open the track settings')).toBeNull();
   });
 
-  test('shows the track settings button', () => {
+  test('shows the track settings button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -328,7 +328,7 @@ describe('TrackLegend', () => {
     expect(screen.getByLabelText('Open the track settings')).toBeVisible();
   });
 
-  test('opens and closes the track settings when clicking the gear button', () => {
+  test('opens and closes the track settings when clicking the gear button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -343,20 +343,20 @@ describe('TrackLegend', () => {
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
     expect(trackSettingsButton).not.toHaveClass('open');
 
-    userEvent.click(trackSettingsButton);
+    await userEvent.click(trackSettingsButton);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'true');
     expect(trackSettingsButton).toHaveAttribute('aria-label', 'Close the track settings');
     expect(trackSettingsButton).toHaveClass('open');
 
-    userEvent.click(trackSettingsButton);
+    await userEvent.click(trackSettingsButton);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
     expect(trackSettingsButton).toHaveAttribute('aria-label', 'Open the track settings');
     expect(trackSettingsButton).not.toHaveClass('open');
   });
 
-  test('closes the track settings from the close button in the menu', () => {
+  test('closes the track settings from the close button in the menu', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -367,18 +367,18 @@ describe('TrackLegend', () => {
     });
 
     const trackSettingsButton = screen.getByLabelText('Open the track settings');
-    userEvent.click(trackSettingsButton);
+    await userEvent.click(trackSettingsButton);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'true');
     expect(trackSettingsButton).toHaveAttribute('aria-label', 'Close the track settings');
 
-    userEvent.click(screen.getAllByLabelText('Close the track settings')[1]);
+    await userEvent.click(screen.getAllByLabelText('Close the track settings')[1]);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
     expect(trackSettingsButton).toHaveAttribute('aria-label', 'Open the track settings');
   });
 
-  test('clears the tracks when clicking the clear tracks button', () => {
+  test('clears the tracks when clicking the clear tracks button', async () => {
     renderTrackLegend({
       items: [{
         description: 'Item description',
@@ -390,7 +390,7 @@ describe('TrackLegend', () => {
 
     expect(onClickClearTracks).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByText('Clear Tracks'));
+    await userEvent.click(screen.getByText('Clear Tracks'));
 
     expect(onClickClearTracks).toHaveBeenCalledTimes(1);
   });

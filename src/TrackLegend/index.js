@@ -106,7 +106,7 @@ const TrackLegend = ({
               <p className={styles.title} title={items[0].title}>{items[0].title}</p>
             </>
             : <>
-              <TracksOffIcon className={styles.tracksOffIcon} />
+              <TracksOffIcon className={styles.tracksOffIcon} data-testid="tracks-off-icon" />
 
               <button
                 aria-controls="tracksListCollapse"

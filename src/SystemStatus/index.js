@@ -93,7 +93,9 @@ const SystemStatus = () => {
 
           <span data-testid="systemStatus-statusLabel">{t(statusSummary || 'UNHEALTHY' )}</span>
 
-          {isOpen ? <ArrowUpSmallIcon /> : <ArrowDownSmallIcon />}
+          {isOpen
+            ? <ArrowUpSmallIcon data-testid="arrow-up-small-icon" />
+            : <ArrowDownSmallIcon data-testid="arrow-down-small-icon" />}
         </div>
       </Dropdown.Toggle>
 

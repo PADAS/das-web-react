@@ -70,7 +70,7 @@ describe('SubjectHistoricalDataModal', () => {
       const table = await screen.getByRole('table');
       expect(table).toBeDefined();
 
-      const pagination = await screen.getByRole('list');
+      const pagination = await screen.findByRole('list');
       expect(pagination).toBeDefined();
     });
 
@@ -104,11 +104,11 @@ describe('SubjectHistoricalDataModal', () => {
 
       await waitFor(() => {
         paginationListItems = screen.getAllByRole('listitem');
-        pageLink = within(paginationListItems[3]).getByRole('link');
+        pageLink = within(paginationListItems[3]).getByRole('button');
       });
 
       expect(pageLink).toHaveTextContent('2');
-      userEvent.click(pageLink);
+      await userEvent.click(pageLink);
 
       expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 2, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id', sort_by: SORT_BY });
     });

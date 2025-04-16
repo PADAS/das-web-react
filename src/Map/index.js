@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -33,7 +33,9 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
+import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
+import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import {
@@ -42,7 +44,7 @@ import {
 } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
-import EarthRangerMap, { withMap } from '../EarthRangerMap';
+import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
@@ -78,7 +80,6 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
-import { useMapEventBinding } from '../hooks';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -101,16 +102,13 @@ const replaceLayoutTextFieldLanguage = (textField, language) => {
   return textField.map((textField) => replaceLayoutTextFieldLanguage(textField, language));
 };
 
-const Map = ({
-  children,
-  map,
-  onMapLoad,
-  socket,
-}) => {
+const Map = ({ children, onMapLoad, socket }) => {
   const dispatch = useDispatch();
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const map = useContext(MapContext);
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
@@ -690,4 +688,4 @@ const Map = ({
 };
 
 
-export default withMap(Map);
+export default Map;

@@ -1,5 +1,6 @@
 import { waitFor } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+
+import { renderHook } from '../test-utils';
 import { useOptionalPersistence } from './storage-config';
 
 describe('useOptionalPersistence', () => {

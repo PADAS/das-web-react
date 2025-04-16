@@ -19,7 +19,7 @@ describe('ReportManager - AddAttachmentButton', () => {
 
     const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
+    await userEvent.upload(addAttachmentButton, fakeFile);
 
     expect(onAddAttachments).toHaveBeenCalledTimes(1);
     expect(onAddAttachments.mock.calls[0][0][0].name).toBe('fake.txt');

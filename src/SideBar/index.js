@@ -151,7 +151,7 @@ const SideBar = () => {
   // NOTE: This is getting unmaintainable. Is it really a good practice to use escape like a navigation key?
   useEffect(() => {
     const onKeydown = (event) => {
-      const wasEscapePressed = event.keyCode === 27;
+      const wasEscapePressed = event.key === 'Escape';
       const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
       const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
       if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {

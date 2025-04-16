@@ -68,7 +68,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip={t('goToReportButtonTooltip')}>
-          <ArrowIntoIcon />
+          <ArrowIntoIcon data-testid="arrow-into-icon" />
         </ItemActionButton>}
       </div>
 
