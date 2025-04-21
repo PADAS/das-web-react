@@ -1,13 +1,11 @@
 import React, { memo, useImperativeHandle, useRef } from 'react';
 
-import { getMaxDateAndTime, getMinDateAndTime } from './utils';
+import { EMPTY_DATE_TIME_VALUE, getMaxDateAndTime, getMinDateAndTime } from './utils';
 
-import DatePicker, { EMPTY_DATE_VALUE } from '../DatePicker';
+import DatePicker from '../DatePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../TimePicker';
 
 import * as styles from './styles.module.scss';
-
-export const EMPTY_DATE_TIME_VALUE = `${EMPTY_DATE_VALUE}T${EMPTY_TIME_VALUE}`;
 
 const DateTimePicker = ({
   className = '',
@@ -76,5 +74,7 @@ const DateTimePicker = ({
     <input data-testid="dateTimePicker-input" name={name} type="hidden" value={value} />
   </div>;
 };
+
+export { EMPTY_DATE_TIME_VALUE };
 
 export default memo(DateTimePicker);

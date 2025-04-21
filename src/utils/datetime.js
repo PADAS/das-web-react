@@ -141,16 +141,6 @@ export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(
 
 export const isGreaterThan = (date1, date2) => date1.getTime() > date2.getTime();
 
-export const getTimezoneOffsetString = () => {
-  const offsetMinutes = new Date().getTimezoneOffset();
-  const absoluteMinutes = Math.abs(offsetMinutes);
-
-  const sign = offsetMinutes > 0 ? '-' : '+';
-  const hours = String(Math.floor(absoluteMinutes / 60)).padStart(2, '0');
-  const minutes = String(absoluteMinutes % 60).padStart(2, '0');
-  return `${sign}${hours}:${minutes}`;
-};
-
 export const formatDateToLocalISO = (date) => format(date, 'yyyy-MM-dd\'T\'HH:mm');
 
 export const shouldUse12HourFormat = (locale) => {

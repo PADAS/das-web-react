@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
-import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
+import { format, isToday, isValid, parseISO } from 'date-fns';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -106,13 +106,9 @@ const DetailsSection = ({
   const onDatePickerChange = (newDate) => {
     setDate(newDate);
 
-    const parsedDate = parseISO(newDate);
-    if (isValidDate(parsedDate)) {
-      if (isValidTime(time)) {
-        const [hour, minute] = time.split(':');
-        parsedDate.setHours(hour, minute, '00');
-      }
-      onReportDateChange(parsedDate);
+    const parsedNewDate = parseISO(`${newDate}T${isValidTime(time) ? time : '00:00'}`);
+    if (isValid(parsedNewDate)) {
+      onReportDateChange(parsedNewDate);
     } else {
       onReportDateChange(undefined);
     }
@@ -123,13 +119,11 @@ const DetailsSection = ({
   const onTimePickerChange = (newTime) => {
     setTime(newTime);
 
-    const parsedDate = parseISO(date);
-    if (isValidDate(parsedDate)) {
-      if (isValidTime(newTime)) {
-        const [newHour, newMinute] = newTime.split(':');
-        parsedDate.setHours(newHour, newMinute, '00');
-      }
-      onReportDateChange(parsedDate);
+    const parsedNewDate = parseISO(`${date}T${newTime}`);
+    if (isValid(parsedNewDate)) {
+      onReportDateChange(parsedNewDate);
+    } else {
+      onReportDateChange(undefined);
     }
 
     reportTracker.track('Change Report Time');
