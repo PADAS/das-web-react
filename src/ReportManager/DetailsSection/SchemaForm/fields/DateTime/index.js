@@ -8,7 +8,7 @@ import DatePicker, { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../../../../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DateInput = ({ onChange, value, ...otherProps }) => <DatePicker
   onChange={(newDate) => onChange(newDate === EMPTY_DATE_VALUE ? undefined : newDate)}

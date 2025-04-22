@@ -11,7 +11,7 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PointPopup = (props) => {
   const { drawing, onClickFinish, pointIndex, points } = props;

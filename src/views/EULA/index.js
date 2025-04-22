@@ -14,7 +14,7 @@ import { fetchCurrentUser } from '../../ducks/user';
 import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EulaPage = ({ temporaryAccessToken }) => {
   const dispatch = useDispatch();
@@ -129,7 +129,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
       </Modal.Header>
 
       <Form onSubmit={onSubmit}>
-        <Modal.Body className={styles.modalBody}>
+        <Modal.Body>
           <p>
             {t('modalBody.eulaLink.0')}
             <a download={`${eula.version}.pdf`} href={eula.eula_url} rel="noopener noreferrer" target="_blank">

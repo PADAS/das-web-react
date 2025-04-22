@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Footer = ({ isDrawing, isGeometryAValidPolygon, onCancel, onSave }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportGeometryDrawer' });

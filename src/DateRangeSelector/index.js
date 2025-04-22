@@ -6,7 +6,7 @@ import { isValid, parseISO, subSeconds } from 'date-fns';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
 import FilterSettingsControl from '../FilterSettingsControl';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import {
   formatDateToLocalISO,
@@ -202,7 +202,7 @@ const DateRangeSelector = ({
         <GearIcon title={t('settingsTitle')} />
       </button>
       <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
-        container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
+        container={containerRef} popoverClassName={popoverClassName || ''}>
         {filterSettings}
       </FilterSettingsControl>
     </div>}

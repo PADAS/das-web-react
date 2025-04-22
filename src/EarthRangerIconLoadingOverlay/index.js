@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Loader = ({ message }) => {
   return <div className={styles.wrapper}>

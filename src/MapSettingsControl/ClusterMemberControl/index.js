@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { setMapClusterConfig } from '../../ducks/map-ui';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const groupTranslationKeys = {
   reports: 'reports',

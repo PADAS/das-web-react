@@ -14,7 +14,7 @@ import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import SubjectControlButton from '../SubjectControls/button';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const SubjectMessagesPopover = ({ className, subject, ...restProps }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });

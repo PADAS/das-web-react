@@ -10,7 +10,7 @@ import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-ic
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { setPrintTitle } from '../ducks/map-ui';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

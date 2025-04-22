@@ -15,7 +15,7 @@ import TimeOfDaySettings from './TimeOfDaySettings';
 import TrackSettings from './TrackSettings';
 import TracksList from './TracksList';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MENUS = {
   TIME_OF_DAY_SETTINGS: 'TIME_OF_DAY_SETTINGS',

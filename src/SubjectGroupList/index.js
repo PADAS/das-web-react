@@ -9,7 +9,7 @@ import { getSubjectGroups } from '../selectors/subjects';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 

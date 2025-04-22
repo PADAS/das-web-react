@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import SplitButton from 'react-bootstrap/SplitButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const StateButton = (props) => {
   const { isActive, label, onStateToggle, ...rest } = props;

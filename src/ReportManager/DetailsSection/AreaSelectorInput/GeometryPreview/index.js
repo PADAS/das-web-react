@@ -11,7 +11,7 @@ import { ReactComponent as TrashCanIcon } from '../../../../common/images/icons/
 import { REACT_APP_MAPBOX_TOKEN } from '../../../../constants';
 import { useEventGeoMeasurementDisplayStrings } from '../../../../hooks/geometry';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MAPBOX_STATIC_IMAGES_API_URL = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static';
 

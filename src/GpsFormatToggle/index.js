@@ -8,7 +8,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 
 import TextCopyBtn from '../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 

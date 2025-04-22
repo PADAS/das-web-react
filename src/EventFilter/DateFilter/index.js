@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClockIcon } from '../../common/images/icons/clock-icon.svg';
 import EventFilterDateRangeSelector from '../DateRange';
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const DateFilter = ({ onClearDateRange, isDateRangeModified }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'dateFilter' });

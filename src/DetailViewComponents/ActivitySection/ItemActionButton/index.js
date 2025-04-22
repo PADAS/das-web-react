@@ -3,7 +3,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TOOLTIP_SHOW_TIME = 400;
 const TOOLTIP_HIDE_TIME = 200;

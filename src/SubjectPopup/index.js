@@ -15,7 +15,7 @@ import SubjectControls from '../SubjectControls';
 import TimeAgo from '../TimeAgo';
 import TrackLength from '../TrackLength';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
@@ -129,7 +129,7 @@ const SubjectPopup = ({ data }) => {
         {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
           {deviceStatusProperty.value.toString()}
 
-          <span className={styles.unit}> {deviceStatusProperty.units}</span>
+          <span> {deviceStatusProperty.units}</span>
         </span>}
       </li>)}
     </ul>}

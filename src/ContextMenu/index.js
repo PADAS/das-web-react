@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ContextMenu = ({ children, className, disabled, options }) => {
   const areaRef = useRef();

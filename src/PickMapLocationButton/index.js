@@ -11,7 +11,7 @@ import { setModalVisibilityState } from '../ducks/modals';
 
 import Popup from '../Popup';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PickMapLocationButton = ({
   onCancel = null,

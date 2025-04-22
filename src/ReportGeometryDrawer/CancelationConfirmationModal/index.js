@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../../ducks/map-ui';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CancelationConfirmationModal = ({ onHide, show }) => {
   const dispatch = useDispatch();

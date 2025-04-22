@@ -11,7 +11,7 @@ import {
   HUMANIZED_DURATION_CONFIGS,
 } from '../../utils/datetime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MINUTES_IN_AN_HOUR = 60;
 const HOURS_IN_A_DAY = 24;

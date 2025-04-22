@@ -19,7 +19,7 @@ import LocationJumpButton from '../LocationJumpButton';
 import SubjectHistoryButton from '../SubjectHistoryButton';
 import SubjectMessagesPopover from '../SubjectMessagesPopover';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
 
@@ -113,11 +113,7 @@ const SubjectControls = ({
       showLabel={showLabels}
     />}
 
-    {isMessageable && <SubjectMessagesPopover
-      className={styles.messagingButton}
-      showLabel={showLabels}
-      subject={subject}
-    />}
+    {isMessageable && <SubjectMessagesPopover showLabel={showLabels} subject={subject} />}
 
     {canShowHistoryButton && <SubjectHistoryButton
       data-testid={`history-button-${subject.id}`}

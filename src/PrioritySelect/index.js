@@ -12,7 +12,7 @@ import {
 
 import Select from '../Select';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PRIORITY_STYLES = {
   [REPORT_PRIORITY_HIGH.value]: styles.highPriority,

@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useCallback, useEffect } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const FilterSettingsControl = forwardRef(({ isOpen, hideFilterSettings, target, container, children }, ref) => {

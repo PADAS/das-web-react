@@ -8,7 +8,7 @@ import { FORM_ELEMENT_TYPES, JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../../../..
 import { getHumanizedValue } from '../utils';
 import useJumpToLocation from '../../../../../../../../hooks/useJumpToLocation';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const FormPreview = ({
   blurLocationMarker,

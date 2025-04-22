@@ -13,7 +13,7 @@ import { getFeatureLayerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -113,8 +113,6 @@ const FeatureLayerList = ({
   return <ul className={listStyles.list}>
     <li>
       <Collapsible
-        className={listStyles.collapsed}
-        openedClassName={listStyles.opened}
         {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
         trigger={trigger}
         triggerElementProps={{

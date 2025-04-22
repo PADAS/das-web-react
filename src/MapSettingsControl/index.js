@@ -16,7 +16,7 @@ import MapNamesControl from '../MapNamesControl';
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import UserLocationMapControl from '../UserLocationMapControl';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

@@ -5,7 +5,7 @@ import { HEADER_ELEMENT_SIZES } from '../../constants';
 
 import Header from './';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Header', () => {
 

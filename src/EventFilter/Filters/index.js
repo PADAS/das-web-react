@@ -15,7 +15,7 @@ import ReportTypeMultiSelect from '../../ReportTypeMultiSelect';
 import { EVENT_STATE_CHOICES } from '../../constants';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const StateSelector = ({ onStateSelect, state, t }) => (
   <ul className={styles.stateList} data-testid="state-filter-options">
@@ -219,7 +219,7 @@ const Filters = ({
             <span>{t('reportTypesAllLabel')}</span>
           </div>
           {t('reportTypesLabel')}
-          <small className={!isEventTypeFilterEmpty ? styles.modified : ''}>
+          <small>
             {appliedFilterLabel}
           </small>
           <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes} text={t('restButton')} />

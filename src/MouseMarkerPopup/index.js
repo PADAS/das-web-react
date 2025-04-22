@@ -8,7 +8,7 @@ import { validateLngLat } from '../utils/location';
 
 import Popup from '../Popup';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MouseMarkerPopup = ({ location, ...rest }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'mouseMarkerPopup' });

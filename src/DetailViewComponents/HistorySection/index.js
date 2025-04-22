@@ -9,7 +9,7 @@ import { useSortedNodesWithToggleBtn } from '../../hooks/useSortedNodes';
 
 import UpdateListItem from './UpdateListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 

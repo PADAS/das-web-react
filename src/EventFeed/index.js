@@ -11,7 +11,7 @@ import EventItemContextMenu from '../EventItemContextMenu';
 import ReportListItem from '../ReportListItem';
 import { ScrollRestoration, SidebarScrollContext } from '../SidebarScrollContext';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EventFeed = ({ className = '', events = [], hasMore, loading, onScroll, onTitleClick, sortConfig }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventFeed' });
@@ -47,18 +47,18 @@ const EventFeed = ({ className = '', events = [], hasMore, loading, onScroll, on
           </EventItemContextMenu>
         </Flipped>)}
 
-        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+        {hasMore && <li className={styles.loadMessage} key={0}>
           {t('loadingMoreReportsItem')}
         </li>}
 
         {!!feedEvents.length && !hasMore && <li
-          className={`${styles.listItem} ${styles.loadMessage}`}
+          className={styles.loadMessage}
           key="no-more-events-to-load"
         >
           {t('noMoreReportsItem')}
         </li>}
 
-        {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key="no-events-to-display">
+        {!feedEvents.length && <li className={styles.loadMessage} key="no-events-to-display">
           {t('noReportsItem')}
         </li>}
       </Flipper>

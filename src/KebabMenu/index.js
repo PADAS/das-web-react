@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import KebabMenuIcon from '../KebabMenuIcon';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Option = ({ className = '', children, ...rest }) => (
   <Dropdown.Item className={`${styles.itemBtn} ${className}`} {...rest}>

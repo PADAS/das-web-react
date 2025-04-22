@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CheckMark = ({ fullyChecked, partiallyChecked, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'checkMark' });

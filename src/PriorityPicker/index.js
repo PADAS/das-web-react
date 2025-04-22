@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { REPORT_PRIORITIES } from '../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PRIORITY_CLASSNAMES = {
   100: 'lowPriority',

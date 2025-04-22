@@ -21,7 +21,7 @@ import { PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const INITIAL_PATROLS_STATE = {
   count: null,
@@ -183,17 +183,16 @@ const AddToPatrolModal = (props) => {
             {listPatrols.map((patrol, index) => {
 
               return <PatrolListItem
-                className={styles.listItem}
                 patrol={patrol}
                 data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 showControls={false}
                 onClick={onClickPatrol} />;
             })}
-            {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+            {hasMore && <li key={0}>
               {t('loading')}
             </li>}
-            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
+            {!!loaded && !hasMore && <li style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
               {t('noMorePatrols')}
             </li>}
           </InfiniteScroll>

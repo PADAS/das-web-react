@@ -8,7 +8,7 @@ import PatrolListItem from '../../../PatrolListItem';
 import ReportListItem from '../../../ReportListItem';
 import { LINK_TYPES, TAB_KEYS } from '../../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LinkItem = ({ item, to, type }) => {
   const analytics = useContext(TrackerContext);

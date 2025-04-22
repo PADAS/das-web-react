@@ -24,7 +24,7 @@ import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
 
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),

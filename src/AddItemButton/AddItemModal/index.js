@@ -14,7 +14,7 @@ import { usePermissions, useSystemConfigFlag } from '../../hooks';
 import AddPatrolTab from './AddPatrolTab';
 import AddReportTab from './AddReportTab';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const ADD_TAB_KEYS = { ADD_REPORT: 'reports', ADD_PATROL: 'patrols' };
 

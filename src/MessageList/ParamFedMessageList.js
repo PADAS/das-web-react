@@ -17,7 +17,7 @@ import { SocketContext } from '../withSocketConnection';
 import LoadingOverlay from '../LoadingOverlay';
 import MessageList from './';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ParamFedMessageList = ({ isReverse, params, ...restProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'messageList.paramFedMessageList' });

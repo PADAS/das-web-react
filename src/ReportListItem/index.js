@@ -18,7 +18,7 @@ import EventIcon from '../EventIcon';
 import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const HOVER_EFFECTS = {
   300: styles.highPriority,

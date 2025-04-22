@@ -12,7 +12,7 @@ import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 import FeatureTypeListItem from './FeatureTypeListItem';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -56,8 +56,6 @@ const Content = (props) => {
 
   return <Collapsible
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-    className={listStyles.collapsed}
-    openedClassName={listStyles.opened}
     trigger={trigger}
     triggerElementProps={{
       label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),

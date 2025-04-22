@@ -11,7 +11,7 @@ import { removeModal } from '../ducks/modals';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 

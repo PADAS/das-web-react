@@ -10,7 +10,7 @@ import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LayerSelectorPopup = ({ data, id }) => {
   const dispatch = useDispatch();

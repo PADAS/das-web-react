@@ -8,7 +8,7 @@ import { isValidDate } from '../utils';
 import MonthPicker from './MonthPicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const Input = forwardRef(({

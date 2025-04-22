@@ -8,7 +8,7 @@ import { ReactComponent as ArrowUpIcon } from '../../common/images/icons/arrow-u
 import { ASCENDING_SORT_ORDER, DESCENDING_SORT_ORDER } from '../../constants';
 import isFunction from 'lodash/isFunction';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const sortAscending = (a, b) => a.sortDate > b.sortDate ? 1 : -1;
 

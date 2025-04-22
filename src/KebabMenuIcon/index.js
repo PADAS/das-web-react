@@ -1,7 +1,7 @@
 import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const KebabMenuIcon = forwardRef(({ isOpen, className, ...rest }, ref) => <div
