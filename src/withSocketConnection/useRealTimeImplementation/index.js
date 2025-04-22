@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { DAS_HOST, DEVELOPMENT_FEATURE_FLAGS, FEATURE_FLAG_LABELS } from '../../constants';
+import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
 import { clearAuth } from '../../ducks/auth';

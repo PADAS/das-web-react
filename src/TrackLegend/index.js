@@ -7,9 +7,8 @@ import { ReactComponent as DayNightIcon } from '../common/images/icons/day-night
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_off.svg';
 
-import { BOOTSTRAP_DEFAULTS, FEATURE_FLAG_LABELS } from '../constants';
+import { BOOTSTRAP_DEFAULTS } from '../constants';
 import { setIsTimeOfDayColoringActive } from '../ducks/tracks';
-import { useFeatureFlag } from '../hooks';
 
 import DelayedUnmount from '../DelayedUnmount';
 import TimeOfDaySettings from './TimeOfDaySettings';
