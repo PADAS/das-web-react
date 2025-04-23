@@ -45,6 +45,7 @@ import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
+import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
@@ -150,7 +151,7 @@ const Map = ({
   const timeSliderActive = timeSliderState.active;
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
-    && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+    && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const isSelectingEventLocation = mapLocationSelection.isPickingLocation
     && mapLocationSelection.event
@@ -216,7 +217,7 @@ const Map = ({
       .then((latestMapSubjects) => timeSliderActive
         ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
         : Promise.resolve(latestMapSubjects))
-      .catch(() => {});
+      .catch(() => { });
   },
   [
     dispatch,
@@ -363,8 +364,8 @@ const Map = ({
     );
   }, [dispatch]);
 
-  const onCloseReportHeatmap = useCallback(()  => {
-    dispatch (
+  const onCloseReportHeatmap = useCallback(() => {
+    dispatch(
       setReportHeatmapVisibility(false)
     );
   }, [dispatch]);
@@ -547,7 +548,7 @@ const Map = ({
         hidePopup(popup.id);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, timeSliderState.virtualDate]);
 
   useEffect(() => {
@@ -612,10 +613,10 @@ const Map = ({
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
       <EventsLayer
-          mapImages={mapImages}
-          onEventClick={onSelectEvent}
-          bounceEventIDs={bounceEventIDs}
-        />
+        mapImages={mapImages}
+        onEventClick={onSelectEvent}
+        bounceEventIDs={bounceEventIDs}
+      />
 
       <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
 
@@ -629,7 +630,7 @@ const Map = ({
 
       <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
-          <EventFilter className='report-filter'/>
+          <EventFilter className='report-filter' />
         </div>
       </DelayedUnmount>
 
@@ -656,6 +657,8 @@ const Map = ({
 
       {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
+
+      <BuoyTrawlLineLayer />
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
