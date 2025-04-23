@@ -358,7 +358,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(onDelete).not.toHaveBeenCalled();
     expect(setIsFormModalOpen).not.toHaveBeenCalled();
 
-    userEvent.click(within(formModal).getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(within(formModal).getByRole('button', { name: 'Cancel' }));
 
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(setIsFormModalOpen).toHaveBeenCalledTimes(1);
