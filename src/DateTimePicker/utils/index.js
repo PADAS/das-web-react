@@ -1,3 +1,8 @@
+import { EMPTY_DATE_VALUE } from '../../DatePicker';
+import { EMPTY_TIME_VALUE } from '../../TimePicker';
+
+export const EMPTY_DATE_TIME_VALUE = `${EMPTY_DATE_VALUE}T${EMPTY_TIME_VALUE}`;
+
 export const getMaxDateAndTime = (max, value) => {
   const [dateValue] = value.split('T');
   const [maxDate, maxTime] = max.split('T');

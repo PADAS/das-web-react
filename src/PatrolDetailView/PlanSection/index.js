@@ -13,7 +13,7 @@ import {
   displayStartTimeForPatrol
 } from '../../utils/patrols';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
-import { getHoursAndMinutesString, getTimezoneOffsetString } from '../../utils/datetime';
+import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
@@ -58,55 +58,49 @@ const PlanSection = ({
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
 
-  const handleEndDateChange = useCallback((date) => {
-    setEndDate(date);
+  const handleEndDateChange = useCallback((newEndDate) => {
+    setEndDate(newEndDate);
 
-    let dateISO = `${date}T`;
-    dateISO += isValidTime(endTime) ? endTime : '00:00';
-    dateISO += `:00${getTimezoneOffsetString()}`;
-
-    const parsedDate = parseISO(dateISO);
-    if (isValid(parsedDate)) {
-      onPatrolEndDateChange(parsedDate, shouldScheduleDate(parsedDate, isAutoEnd));
+    const parsedNewEndDate = parseISO(`${newEndDate}T${isValidTime(endTime) ? endTime : '00:00'}`);
+    if (isValid(parsedNewEndDate)) {
+      onPatrolEndDateChange(parsedNewEndDate, shouldScheduleDate(parsedNewEndDate, isAutoEnd));
     } else {
       onPatrolEndDateChange(undefined);
     }
   }, [endTime, isAutoEnd, onPatrolEndDateChange]);
 
-  const handleStartDateChange = useCallback((date) => {
-    setStartDate(date);
+  const handleStartDateChange = useCallback((newStartDate) => {
+    setStartDate(newStartDate);
 
-    let dateISO = `${date}T`;
-    dateISO += isValidTime(startTime) ? startTime : '00:00';
-    dateISO += `:00${getTimezoneOffsetString()}`;
-
-    const parsedDate = parseISO(dateISO);
-    if (isValid(parsedDate)) {
-      onPatrolStartDateChange(parsedDate, shouldScheduleDate(parsedDate, isAutoStart));
+    const parsedNewStartDate = parseISO(`${newStartDate}T${isValidTime(startTime) ? startTime : '00:00'}`);
+    if (isValid(parsedNewStartDate)) {
+      onPatrolStartDateChange(parsedNewStartDate, shouldScheduleDate(parsedNewStartDate, isAutoStart));
     } else {
       onPatrolStartDateChange(undefined);
     }
   }, [isAutoStart, onPatrolStartDateChange, startTime]);
 
-  const handleEndTimeChange = useCallback((endTime) => {
-    setEndTime(endTime);
+  const handleEndTimeChange = useCallback((newEndTime) => {
+    setEndTime(newEndTime);
 
-    const newEndTimeParts = endTime.split(':');
-    const updatedEndDateTime = displayEndDate ? new Date(displayEndDate) : new Date();
-    updatedEndDateTime.setHours(newEndTimeParts[0], newEndTimeParts[1], '00');
+    const parsedNewEndDate = parseISO(`${endDate}T${newEndTime}`);
+    if (isValid(parsedNewEndDate)) {
+      onPatrolEndDateChange(parsedNewEndDate, shouldScheduleDate(parsedNewEndDate, isAutoEnd));
+    } else {
+      onPatrolEndDateChange(undefined);
+    }
+  }, [endDate, isAutoEnd, onPatrolEndDateChange]);
 
-    onPatrolEndDateChange(updatedEndDateTime, shouldScheduleDate(updatedEndDateTime, isAutoEnd));
-  }, [displayEndDate, isAutoEnd, onPatrolEndDateChange]);
+  const handleStartTimeChange = useCallback((newStartTime) => {
+    setStartTime(newStartTime);
 
-  const handleStartTimeChange = useCallback((startTime) => {
-    setStartTime(startTime);
-
-    const newStartTimeParts = startTime.split(':');
-    const updatedStartDateTime = displayStartDate ? new Date(displayStartDate) : new Date();
-    updatedStartDateTime.setHours(newStartTimeParts[0], newStartTimeParts[1], '00');
-
-    onPatrolStartDateChange(updatedStartDateTime, shouldScheduleDate(updatedStartDateTime, isAutoStart));
-  }, [displayStartDate, isAutoStart, onPatrolStartDateChange]);
+    const parsedNewStartDate = parseISO(`${startDate}T${newStartTime}`);
+    if (isValid(parsedNewStartDate)) {
+      onPatrolStartDateChange(parsedNewStartDate, shouldScheduleDate(parsedNewStartDate, isAutoStart));
+    } else {
+      onPatrolStartDateChange(undefined);
+    }
+  }, [isAutoStart, onPatrolStartDateChange, startDate]);
 
   const handleAutoEndChange = useCallback(() => {
     const newIsAutoEnd = !isAutoEnd;

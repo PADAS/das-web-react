@@ -798,7 +798,7 @@ describe('DatePicker', () => {
     expect(onChange).toHaveBeenCalledWith('--01');
   });
 
-  test('sets the day to 01 if the input has the value 31 and is focused and the user presses the up arrow', async () => {
+  test('sets the day to 01 if the year and month are not valid and the day input has the value 31 and is focused and the user presses the up arrow', async () => {
     renderDatePicker({ value: '--31' });
 
     await userEvent.click(screen.getByLabelText('Day'));
@@ -809,6 +809,19 @@ describe('DatePicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('--01');
+  });
+
+  test('sets the day to 01 if the year and month are valid and the day input has the last valid day of the month and is focused and the user presses the up arrow', async () => {
+    renderDatePicker({ value: '2020-02-29' });
+
+    await userEvent.click(screen.getByLabelText('Day'));
+
+    expect(onChange).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('[ArrowUp]');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith('2020-02-01');
   });
 
   test('increments the day if the input has a valid value and is focused and the user presses the up arrow', async () => {
@@ -837,7 +850,7 @@ describe('DatePicker', () => {
     expect(onChange).toHaveBeenCalledWith('--31');
   });
 
-  test('sets the day to 31 if the input has the value 01 and is focused and the user presses the down arrow', async () => {
+  test('sets the day to 31 if the year and month are not valid and the day input has the value 01 and is focused and the user presses the down arrow', async () => {
     renderDatePicker({ value: '--01' });
 
     await userEvent.click(screen.getByLabelText('Day'));
@@ -848,6 +861,19 @@ describe('DatePicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('--31');
+  });
+
+  test('sets the day to the last valid day of the month if the year and month are valid and the day input has the value 01 and is focused and the user presses the down arrow', async () => {
+    renderDatePicker({ value: '2020-02-01' });
+
+    await userEvent.click(screen.getByLabelText('Day'));
+
+    expect(onChange).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('[ArrowDown]');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith('2020-02-29');
   });
 
   test('decrements the day if the input has a valid value and is focused and the user presses the down arrow', async () => {
