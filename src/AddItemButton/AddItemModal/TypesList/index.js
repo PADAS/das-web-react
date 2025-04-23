@@ -1,9 +1,8 @@
-import React, { forwardRef } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
 import EventTypeListItem from '../../../EventTypeListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CategoryList = ({ category, onClickType, showTitle }) => <div>
   {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
@@ -17,7 +16,7 @@ const CategoryList = ({ category, onClickType, showTitle }) => <div>
   </ul>
 </div>;
 
-const TypesList = ({ filterText, onClickType, typesByCategory }, ref) => {
+const TypesList = ({ filterText, onClickType, ref, typesByCategory }) => {
   const filterTextLowerCase = filterText.toLowerCase();
 
   const filteredCategories = typesByCategory.reduce((accumulator, category) => {
@@ -46,17 +45,4 @@ const TypesList = ({ filterText, onClickType, typesByCategory }, ref) => {
   </div>;
 };
 
-const TypesListForwardRef = forwardRef(TypesList);
-
-TypesListForwardRef.propTypes = {
-  filterText: PropTypes.string.isRequired,
-  onClickType: PropTypes.func.isRequired,
-  typesByCategory: PropTypes.arrayOf(PropTypes.shape({
-    display: PropTypes.string,
-    id: PropTypes.string,
-    types: PropTypes.array,
-    value: PropTypes.string,
-  })).isRequired,
-};
-
-export default TypesListForwardRef;
+export default TypesList;

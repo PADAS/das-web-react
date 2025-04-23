@@ -15,7 +15,7 @@ describe('<KebabMenu />',  () => {
 
     expect( await screen.queryByText(optionText) ).not.toBeInTheDocument();
     const kebab = await screen.getByRole('button');
-    userEvent.click(kebab);
+    await userEvent.click(kebab);
     expect( await screen.findByText(optionText) ).toBeInTheDocument();
   });
 
@@ -29,9 +29,9 @@ describe('<KebabMenu />',  () => {
     );
 
     const kebab = await screen.getByRole('button');
-    userEvent.click(kebab);
+    await userEvent.click(kebab);
     const option = await screen.findByText(optionText);
-    userEvent.click(option);
+    await userEvent.click(option);
     expect( handleOnClick ).toHaveBeenCalled();
   });
 

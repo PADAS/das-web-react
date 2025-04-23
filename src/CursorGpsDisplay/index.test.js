@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor } from '../test-utils';
+import { act, render, screen, waitFor } from '../test-utils';
 import { createMapMock } from '../__test-helpers/mocks';
 import { GPS_FORMATS } from '../utils/location';
 import { MapContext } from '../App';
@@ -47,14 +47,14 @@ describe('CursorGpsDisplay', () => {
     </Provider>
   );
 
-  test('does not track the cursor coordinates if the map is not ready', () => {
+  test('does not track the cursor coordinates if the map is not ready', async () => {
     renderCursorGpsDisplay(undefined, undefined, null);
 
     expect(map.on).toHaveBeenCalledTimes(0);
     expect(map.off).toHaveBeenCalledTimes(0);
   });
 
-  test('tracks the cursor coordinates', () => {
+  test('tracks the cursor coordinates', async () => {
     expect(map.on).toHaveBeenCalledTimes(0);
 
     const { unmount } = renderCursorGpsDisplay();
@@ -69,20 +69,20 @@ describe('CursorGpsDisplay', () => {
     expect(map.off.mock.calls[0][0]).toBe('mousemove');
   });
 
-  test('shows the cursor GPS display with the cursor coordinates', () => {
+  test('shows the cursor GPS display with the cursor coordinates', async () => {
     renderCursorGpsDisplay();
 
-    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
+    act(() => map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } }));
 
     expect(screen.getByLabelText('Open the GPS display menu')).toHaveTextContent(('11.666666°, 10.012657°'));
   });
 
-  test('opens the menu', () => {
+  test('opens the menu', async () => {
     renderCursorGpsDisplay();
 
     expect(screen.queryByRole('presentation')).toBeNull();
 
-    userEvent.click(screen.getByLabelText('Open the GPS display menu'));
+    await userEvent.click(screen.getByLabelText('Open the GPS display menu'));
 
     expect(screen.getByRole('presentation')).toBeVisible();
   });
@@ -91,12 +91,12 @@ describe('CursorGpsDisplay', () => {
     renderCursorGpsDisplay();
 
     const button = screen.getByLabelText('Open the GPS display menu');
-    userEvent.click(button);
+    await userEvent.click(button);
     const menu = screen.getByRole('presentation');
 
     expect(menu).toBeVisible();
 
-    userEvent.click(button);
+    await userEvent.click(button);
 
     await waitFor(() => {
       expect(menu).not.toBeVisible();

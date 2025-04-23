@@ -11,7 +11,7 @@ import { calcSenderNameForMessage, extractSubjectFromMessage } from '../utils/me
 import { isRadioWithImage } from '../utils/subjects';
 import { calcUrlForImage } from '../utils/img';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MessageSummaryListItem = (props) => {
 
@@ -28,11 +28,11 @@ const MessageSummaryListItem = (props) => {
 
     const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
 
-    return <li key={message.id} className={`${isOutgoing ? styles.outgoingMessage : styles.incomingMessage} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>
+    return <li key={message.id} className={`${isOutgoing ? styles.outgoingMessage : ''} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>
       <SenderDetails subject={subject} message={message} senderDetailStyle={senderDetailStyle} />
       <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
-        {!message.read && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
-        <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : styles.incoming}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
+        {!message.read && <Badge status={STATUSES.UNHEALTHY_STATUS} />}
+        <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : ''}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
         <DateTime date={message.message_time} className={styles.messageTime} />
       </div>
     </li>;

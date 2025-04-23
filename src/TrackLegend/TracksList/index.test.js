@@ -21,17 +21,17 @@ describe('TrackLegend - TracksList', () => {
     jest.restoreAllMocks();
   });
 
-  test('closes the tracks list', () => {
+  test('closes the tracks list', async () => {
     renderTracksList();
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Close the list of items'));
+    await userEvent.click(screen.getByLabelText('Close the list of items'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('lists all the items', () => {
+  test('lists all the items', async () => {
     renderTracksList({
       items: [{
         description: 'Item 1 description',
@@ -49,7 +49,7 @@ describe('TrackLegend - TracksList', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(2);
   });
 
-  test('shows the item icon', () => {
+  test('shows the item icon', async () => {
     renderTracksList({
       items: [{
         description: 'Item 1 description',
@@ -68,7 +68,7 @@ describe('TrackLegend - TracksList', () => {
     expect(screen.getByAltText('Item 2 icon')).toHaveAttribute('src', 'icon-2');
   });
 
-  test('shows the item title', () => {
+  test('shows the item title', async () => {
     renderTracksList({
       items: [{
         description: 'Item 1 description',
@@ -87,7 +87,7 @@ describe('TrackLegend - TracksList', () => {
     expect(screen.getByText('Item 2 title')).toBeVisible();
   });
 
-  test('shows the item description', () => {
+  test('shows the item description', async () => {
     renderTracksList({
       items: [{
         description: 'Item 1 description',
@@ -106,7 +106,7 @@ describe('TrackLegend - TracksList', () => {
     expect(screen.getByText('Item 2 description')).toBeVisible();
   });
 
-  test('removes an item from the tracks list', () => {
+  test('removes an item from the tracks list', async () => {
     renderTracksList({
       items: [{
         description: 'Item 1 description',
@@ -123,7 +123,7 @@ describe('TrackLegend - TracksList', () => {
 
     expect(onRemoveItemTracks).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Remove Item 2 title'));
+    await userEvent.click(screen.getByLabelText('Remove Item 2 title'));
 
     expect(onRemoveItemTracks).toHaveBeenCalledTimes(1);
     expect(onRemoveItemTracks).toHaveBeenCalledWith('2');

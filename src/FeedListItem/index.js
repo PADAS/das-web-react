@@ -1,9 +1,8 @@
 import React, { memo, useMemo } from 'react';
-import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
@@ -36,13 +35,3 @@ const FeedListItem = (props) => {
 };
 
 export default memo(FeedListItem);
-
-FeedListItem.propTypes = {
-  className: PropTypes.string,
-  themeColor: PropTypes.string.isRequired,
-  themeBgColor: PropTypes.string,
-  IconComponent: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
-  TitleComponent: PropTypes.element.isRequired,
-  DateComponent: PropTypes.element,
-  ControlsComponent: PropTypes.element,
-};

@@ -11,7 +11,7 @@ import { KML_EXPORT_CATEGORY, REPORT_EXPORT_CATEGORY, trackEventFactory } from '
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const kmlExportTracker = trackEventFactory(KML_EXPORT_CATEGORY);
 const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
@@ -56,7 +56,6 @@ const KMLExportModal = (props) => {
         onEndDateChange={handleEndDateChange}
         onStartDateChange={handleStartDateChange}
         placement="bottom"
-        popoverClassName={styles.datePopover}
         requireEnd={true}
         requireStart={true}
         startDate={customStartDate}
@@ -67,7 +66,7 @@ const KMLExportModal = (props) => {
       <label>
         <input checked={includeInactive} onChange={onCheckboxChange} type="checkbox" />
 
-        <span className={styles.checkboxLabel}>{t('includeInactiveSubjectsLabel')}</span>
+        <span>{t('includeInactiveSubjectsLabel')}</span>
       </label>
     </div>
   </DataExportModal >;

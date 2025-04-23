@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
@@ -16,13 +16,13 @@ const PatrolFilterSettings = (props) => {
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFiltersSettings' });
 
   const startInfo = props => (
-    <Tooltip className={styles.filterTooltip} {...props}>
+    <Tooltip {...props}>
       {t('patrolWithinRangeTooltip')}
     </Tooltip>
   );
 
   const overlapInfo = props => (
-    <Tooltip className={styles.filterTooltip} {...props}>
+    <Tooltip {...props}>
       {t('patrolOverlapsRangeTooltip')}
     </Tooltip>
   );

@@ -1,6 +1,5 @@
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
@@ -14,7 +13,7 @@ import ContainedReportListItem from './ContainedReportListItem';
 import DateListItem from './DateListItem';
 import NoteListItem from './NoteListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { areCardsEquals } from '../utils';
 
 const ATTACHMENT_ANALYTICS_SUBSTRING = 'attachment';
@@ -26,7 +25,7 @@ const ActivitySection = ({
   attachments,
   attachmentsToAdd,
   containedReports,
-  endTime,
+  endTime = null,
   notes,
   notesToAdd,
   onDeleteAttachment,
@@ -34,8 +33,9 @@ const ActivitySection = ({
   onDeleteNote,
   onChangeNote,
   onDoneNote,
-  startTime,
-}, ref) => {
+  ref,
+  startTime = null,
+}) => {
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'activitySection' });
 
@@ -223,44 +223,4 @@ const ActivitySection = ({
   </div>;
 };
 
-const ActivitySectionForwardRef = forwardRef(ActivitySection);
-
-ActivitySectionForwardRef.defaultProps = {
-  endTime: null,
-  startTime: null,
-};
-
-ActivitySectionForwardRef.propTypes = {
-  attachments: PropTypes.arrayOf(PropTypes.shape({
-    created_at: PropTypes.string,
-    id: PropTypes.string,
-    updated_at: PropTypes.string,
-  })).isRequired,
-  attachmentsToAdd: PropTypes.arrayOf(PropTypes.shape({
-    creationDate: PropTypes.string,
-    file: PropTypes.shape({
-      name: PropTypes.string,
-    }),
-  })).isRequired,
-  containedReports: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-  })).isRequired,
-  endTime: PropTypes.instanceOf(Date),
-  notes: PropTypes.arrayOf(PropTypes.shape({
-    created_at: PropTypes.string,
-    id: PropTypes.string,
-    updated_at: PropTypes.string,
-  })).isRequired,
-  notesToAdd: PropTypes.arrayOf(PropTypes.shape({
-    creationDate: PropTypes.string,
-    text: PropTypes.string,
-  })).isRequired,
-  onDeleteAttachment: PropTypes.func.isRequired,
-  onDeleteNote: PropTypes.func.isRequired,
-  onChangeNote: PropTypes.func.isRequired,
-  onCancelNote: PropTypes.func.isRequired,
-  onDoneNote: PropTypes.func.isRequired,
-  startTime: PropTypes.instanceOf(Date),
-};
-
-export default ActivitySectionForwardRef;
+export default ActivitySection;

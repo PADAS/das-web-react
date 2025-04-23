@@ -12,7 +12,7 @@ import TimeZoneSelect from './TimeZoneSelect';
 
 import { TIME_OF_DAY_PERIODS } from '../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const COLORED_TIME_ITEMS = [
   {
@@ -85,8 +85,8 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
         type="button"
       >
         {isExpanded
-          ? <ArrowUpSimpleIcon className={styles.arrowIcon} />
-          : <ArrowDownSimpleIcon className={styles.arrowIcon} />}
+          ? <ArrowUpSimpleIcon className={styles.arrowIcon} data-testid="arrow-up-simple-icon" />
+          : <ArrowDownSimpleIcon className={styles.arrowIcon} data-testid="arrow-down-simple-icon" />}
       </button>
     </div>
 

@@ -1,6 +1,6 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const INPUT_ROLES = {
   CHECKBOX: 'checkbox',
@@ -26,9 +26,9 @@ const SelectableItem = ({
   readOnly = false,
   value,
   isMulti = true,
+  ref,
   ...otherProps
-}, ref) => {
-
+}) => {
   const handleOnChange = (event) => {
     if (!readOnly && !disabled){
       event?.preventDefault();
@@ -56,4 +56,4 @@ const SelectableItem = ({
   </div>;
 };
 
-export default forwardRef(SelectableItem);
+export default SelectableItem;

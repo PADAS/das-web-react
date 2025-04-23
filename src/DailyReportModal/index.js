@@ -11,7 +11,7 @@ import { REPORT_EXPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 

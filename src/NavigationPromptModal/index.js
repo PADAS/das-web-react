@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can.svg';
@@ -9,11 +8,11 @@ import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can
 import { BLOCKER_STATES } from '../NavigationContextProvider';
 import useNavigationBlocker from '../hooks/useNavigationBlocker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const NavigationPromptModal = ({
-  onCancel,
-  onContinue,
+  onCancel = null,
+  onContinue = null,
   when,
   ...restProps
 }) => {
@@ -75,22 +74,6 @@ const NavigationPromptModal = ({
       </Button>
     </Modal.Footer>
   </Modal>;
-};
-
-NavigationPromptModal.defaultProps = {
-  onCancel: null,
-  onContinue: null,
-};
-
-NavigationPromptModal.propTypes = {
-  cancelNavigationButtonText: PropTypes.string,
-  continueNavigationNegativeButtonText: PropTypes.string,
-  continueNavigationPositiveButtonText: PropTypes.string,
-  description: PropTypes.string,
-  onCancel: PropTypes.func,
-  onContinue: PropTypes.func,
-  title: PropTypes.string,
-  when: PropTypes.bool.isRequired,
 };
 
 export default memo(NavigationPromptModal);

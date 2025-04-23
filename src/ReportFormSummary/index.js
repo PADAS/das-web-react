@@ -1,6 +1,5 @@
 import React, { memo, useMemo } from 'react';
 import Form from '@rjsf/bootstrap-4';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import useReport from '../hooks/useReport';
@@ -18,7 +17,7 @@ import {
 } from '../SchemaFields';
 import { formValidator } from '../utils/events';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
   const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });
@@ -73,13 +72,6 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
       validator={formValidator}
     />}
   </div>;
-};
-
-ReportFormSummary.propTypes = {
-  className: PropTypes.string.isRequired,
-  report: PropTypes.object.isRequired,
-  schema: PropTypes.object.isRequired,
-  uiSchema: PropTypes.object.isRequired,
 };
 
 export default memo(ReportFormSummary);

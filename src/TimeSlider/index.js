@@ -25,7 +25,7 @@ import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import TimeAgo from '../TimeAgo';
 import dateLocales from '../utils/locales';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

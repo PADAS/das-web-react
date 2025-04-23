@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
@@ -14,9 +13,9 @@ import MessageInput from '../MessageInput';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import SubjectControlButton from '../SubjectControls/button';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const SubjectMessagesPopover = ({ className, subject, ...restProps }) => {
+const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }) => {
   const { t } = useTranslation('subjects', { keyPrefix: 'subjectMessagesPopover' });
 
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
@@ -58,19 +57,6 @@ const SubjectMessagesPopover = ({ className, subject, ...restProps }) => {
       {...restProps}
     />
   </OverlayTrigger>;
-};
-
-SubjectMessagesPopover.defaultProps = {
-  className: '',
-  subject: null,
-};
-
-SubjectMessagesPopover.propTypes = {
-  className: PropTypes.string,
-  subject: PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-  }),
 };
 
 export default memo(SubjectMessagesPopover);

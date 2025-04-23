@@ -1,13 +1,11 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import DateTime from '../DateTime';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
-import styles from './styles.module.scss';
-
+import * as styles from './styles.module.scss';
 
 const AttachmentList = (props) => {
   const { className = '', files, notes, onDeleteFile, onDeleteNote, onClickFile, onClickNote } = props;
@@ -49,15 +47,6 @@ const AttachmentList = (props) => {
       {files.map(ListItemForFile)}
       {notes.map(ListItemForNote)}
     </ul>;
-};
-
-AttachmentList.propTypes = {
-  files: PropTypes.array.isRequired,
-  notes: PropTypes.array.isRequired,
-  onClickFile: PropTypes.func.isRequired,
-  onClickNote: PropTypes.func.isRequired,
-  onDeleteFile: PropTypes.func.isRequired,
-  onDeleteNote: PropTypes.func.isRequired,
 };
 
 export default memo(AttachmentList);

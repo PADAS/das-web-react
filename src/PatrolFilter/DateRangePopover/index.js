@@ -2,7 +2,6 @@ import React, { memo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -15,13 +14,13 @@ import { resetGlobalDateRange } from '../../ducks/global-date-range';
 import PatrolFilterDateRangeSelector from '../DateRange';
 import PatrolFilterSettings from '../PatrolFilterSettings';
 
-import styles from '../../EventFilter/styles.module.scss';
+import * as styles from '../../EventFilter/styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
 
-const DateRangePopover = React.forwardRef(({ containerRef, ...rest }, ref) => {
+const DateRangePopover = ({ containerRef, ref, ...rest }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters.dateRangePopover' });
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
@@ -72,10 +71,6 @@ const DateRangePopover = React.forwardRef(({ containerRef, ...rest }, ref) => {
       />
     </Popover.Body>
   </Popover>;
-});
-
-DateRangePopover.propTypes = { containerRef: PropTypes.any };
-
-DateRangePopover.displayName = 'DateRangePopover';
+};
 
 export default memo(DateRangePopover);

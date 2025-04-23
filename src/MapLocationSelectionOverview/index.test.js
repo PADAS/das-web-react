@@ -77,8 +77,8 @@ describe('MapLocationSelectionOverview', () => {
   test('opens the report information modal when clicking the information icon', async () => {
     expect(onShowInformation).toHaveBeenCalledTimes(0);
 
-    const informationIcon = await screen.findByText('information.svg');
-    userEvent.click(informationIcon);
+    const informationIcon = await screen.findByTestId('information-icon');
+    await userEvent.click(informationIcon);
 
     expect(onShowInformation).toHaveBeenCalledTimes(1);
   });
@@ -88,13 +88,13 @@ describe('MapLocationSelectionOverview', () => {
 
     expect(collapse).toHaveClass('show');
 
-    const arrowUpIcon = await screen.findByText('arrow-up-simple.svg');
-    userEvent.click(arrowUpIcon);
+    const arrowUpIcon = await screen.findByTestId('arrow-up-simple-icon');
+    await userEvent.click(arrowUpIcon);
 
     expect(collapse).not.toHaveClass('show');
 
-    const arrowDownIcon = await screen.findByText('arrow-down-simple.svg');
-    userEvent.click(arrowDownIcon);
+    const arrowDownIcon = await screen.findByTestId('arrow-down-simple-icon');
+    await userEvent.click(arrowDownIcon);
 
     await waitFor(() => {
       expect(collapse).toHaveClass('show');
@@ -158,7 +158,7 @@ describe('MapLocationSelectionOverview', () => {
       expect(onClickUndo).toHaveBeenCalledTimes(0);
 
       const undoButton = await screen.findByText('Undo');
-      userEvent.click(undoButton);
+      await userEvent.click(undoButton);
 
       expect(onClickUndo).toHaveBeenCalledTimes(1);
     });
@@ -184,7 +184,7 @@ describe('MapLocationSelectionOverview', () => {
       expect((await screen.queryByRole('tooltip'))).toBeNull();
 
       const undoButton = await screen.findByText('Undo');
-      userEvent.hover(undoButton);
+      await userEvent.hover(undoButton);
 
       expect((await screen.findByRole('tooltip'))).toHaveTextContent('Reverse your last action');
     });
@@ -193,7 +193,7 @@ describe('MapLocationSelectionOverview', () => {
       expect(onClickDiscard).toHaveBeenCalledTimes(0);
 
       const discardButton = await screen.findByText('Discard');
-      userEvent.click(discardButton);
+      await userEvent.click(discardButton);
 
       expect(onClickDiscard).toHaveBeenCalledTimes(1);
     });
@@ -219,7 +219,7 @@ describe('MapLocationSelectionOverview', () => {
       expect((await screen.queryByRole('tooltip'))).toBeNull();
 
       const discardButton = await screen.findByText('Discard');
-      userEvent.hover(discardButton);
+      await userEvent.hover(discardButton);
 
       expect((await screen.findByRole('tooltip'))).toHaveTextContent('Remove all points');
     });

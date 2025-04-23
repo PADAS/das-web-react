@@ -20,7 +20,7 @@ import { uuid } from '../utils/string';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
 import Select from '../Select';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 

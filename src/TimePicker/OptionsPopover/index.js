@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import {
   HUMANIZED_DURATION_CONFIGS,
 } from '../../utils/datetime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MINUTES_IN_AN_HOUR = 60;
 const HOURS_IN_A_DAY = 24;
@@ -25,12 +25,13 @@ const OptionsPopover = ({
   onChange,
   onClose,
   optionsPopoverButtonRef,
+  ref,
   showDurationFromMin,
   style,
   target,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('dates', { keyPrefix: 'timeUnitAbbreviations' });
 
   const listRef = useRef();
@@ -249,4 +250,4 @@ const OptionsPopover = ({
   </Popover>;
 };
 
-export default forwardRef(OptionsPopover);
+export default OptionsPopover;

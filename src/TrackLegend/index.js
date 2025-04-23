@@ -7,16 +7,15 @@ import { ReactComponent as DayNightIcon } from '../common/images/icons/day-night
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as TracksOffIcon } from '../common/images/icons/tracks_off.svg';
 
-import { BOOTSTRAP_DEFAULTS, FEATURE_FLAG_LABELS } from '../constants';
+import { BOOTSTRAP_DEFAULTS } from '../constants';
 import { setIsTimeOfDayColoringActive } from '../ducks/tracks';
-import { useFeatureFlag } from '../hooks';
 
 import DelayedUnmount from '../DelayedUnmount';
 import TimeOfDaySettings from './TimeOfDaySettings';
 import TrackSettings from './TrackSettings';
 import TracksList from './TracksList';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MENUS = {
   TIME_OF_DAY_SETTINGS: 'TIME_OF_DAY_SETTINGS',
@@ -107,7 +106,7 @@ const TrackLegend = ({
               <p className={styles.title} title={items[0].title}>{items[0].title}</p>
             </>
             : <>
-              <TracksOffIcon className={styles.tracksOffIcon} />
+              <TracksOffIcon className={styles.tracksOffIcon} data-testid="tracks-off-icon" />
 
               <button
                 aria-controls="tracksListCollapse"

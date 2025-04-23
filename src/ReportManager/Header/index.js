@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../utils/events';
@@ -11,10 +10,10 @@ import EventIcon from '../../EventIcon';
 import LocationJumpButton from '../../LocationJumpButton';
 import ReportMenu from './ReportMenu';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Header = ({
-  isReadOnly,
+  isReadOnly = false,
   onChangeTitle,
   onSaveReport,
   printableContentRef,
@@ -108,19 +107,6 @@ const Header = ({
       />
     </div>
   </div>;
-};
-
-Header.defaultProps = {
-  isReadOnly: false,
-};
-
-Header.propTypes = {
-  isReadOnly: PropTypes.bool,
-  onChangeTitle: PropTypes.func.isRequired,
-  onSaveReport: PropTypes.func.isRequired,
-  printableContentRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
-  report: PropTypes.object.isRequired,
-  setRedirectTo: PropTypes.func.isRequired,
 };
 
 export default memo(Header);

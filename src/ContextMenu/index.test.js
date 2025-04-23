@@ -29,7 +29,7 @@ describe('ContextMenu', () => {
 
     expect(screen.getByTestId('contextMenu-positionReference')).not.toHaveClass('hidden');
 
-    userEvent.click(screen.getByTestId('contextMenu-area'));
+    await userEvent.click(screen.getByTestId('contextMenu-area'));
 
     expect(screen.getByTestId('contextMenu-positionReference')).toHaveClass('hidden');
   });

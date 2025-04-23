@@ -1,13 +1,12 @@
 import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { TrackerContext } from '../utils/analytics';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   'application/msword',
@@ -36,7 +35,7 @@ const ATTACHMENT_FILE_TYPES_ACCEPTED = [
   '.wmv'
 ];
 
-const AddAttachmentButton = ({ className, onAddAttachments }) => {
+const AddAttachmentButton = ({ className = '', onAddAttachments }) => {
   const fileInputRef = useRef();
   const { t } = useTranslation('details-view');
 
@@ -73,7 +72,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
 
     setDraggingOver(false);
     onAddAttachments(event.dataTransfer.files);
-    fileInputRef.current.value = null;
+    fileInputRef.current.value = '';
   }, [analytics, onAddAttachments]);
 
   const onChangeFileInput = useCallback((event) => {
@@ -82,7 +81,7 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
     analytics?.track('Add attachment');
 
     onAddAttachments(fileInputRef.current.files);
-    fileInputRef.current.value = null;
+    fileInputRef.current.value = '';
   }, [analytics, onAddAttachments]);
 
   return <>
@@ -109,15 +108,6 @@ const AddAttachmentButton = ({ className, onAddAttachments }) => {
       <label>{t('addAttachmentButton')}</label>
     </Button>
   </>;
-};
-
-AddAttachmentButton.defaultProps = {
-  className: '',
-};
-
-AddAttachmentButton.propTypes = {
-  className: PropTypes.string,
-  onAddAttachments: PropTypes.func.isRequired,
 };
 
 export default memo(AddAttachmentButton);

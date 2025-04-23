@@ -1,13 +1,10 @@
 import React, { memo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 
 import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
-
-import { analyticsMetadataProps } from '../proptypes';
 
 import NoteModal from '../NoteModal';
 
@@ -16,7 +13,7 @@ import { trackEvent } from '../utils/analytics';
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title={title} type='button' {...rest}>  {/* eslint-disable-line react/display-name */}
   <Icon />
@@ -27,7 +24,7 @@ const AttachmentControls = ({
   addModal,
   analyticsMetadata,
   children,
-  allowMultipleFiles,
+  allowMultipleFiles = true,
   onAddFiles,
   onSaveNote
 }) => {
@@ -107,14 +104,3 @@ const AttachmentControls = ({
 export default connect(null, { addModal })(memo(AttachmentControls));
 
 export { AttachmentButton };
-
-AttachmentControls.defaultProps = {
-  allowMultipleFiles: true,
-};
-
-AttachmentControls.propTypes = {
-  analyticsMetadata: analyticsMetadataProps,
-  allowMultipleFiles: PropTypes.bool,
-  onAddFiles: PropTypes.func.isRequired,
-  onSaveNote: PropTypes.func.isRequired,
-};

@@ -2,8 +2,8 @@ import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
-import { renderHook } from '@testing-library/react-hooks';
 
+import { renderHook } from '../../test-utils';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import i18n from '../../i18nForTests';
 import { mockStore } from '../../__test-helpers/MockStore';

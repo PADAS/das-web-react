@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -11,16 +11,17 @@ import { setModalVisibilityState } from '../ducks/modals';
 
 import Popup from '../Popup';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PickMapLocationButton = ({
   onCancel = null,
   onClick = null,
   onPick,
+  ref,
   renderContent = null,
   showInstructionsPopup = true,
   ...otherProps
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'pickMapLocationButton' });
 
@@ -82,7 +83,7 @@ const PickMapLocationButton = ({
         type="button"
         {...otherProps}
       >
-      {renderContent?.() || <LocationIcon />}
+      {renderContent?.() || <LocationIcon data-testid="location-icon" />}
     </button>
 
     {showInstructionsPopup && isPickingMapLocation && <Popup
@@ -97,4 +98,4 @@ const PickMapLocationButton = ({
   </>;
 };
 
-export default memo(forwardRef(PickMapLocationButton));
+export default memo(PickMapLocationButton);

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import SelectableItem from './SelectableItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const calculateOptionValue = (option, getOptionValue = null) => option.value ?? getOptionValue?.(option);
 

@@ -1,6 +1,5 @@
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -22,9 +21,16 @@ import DateTime from '../../../DateTime';
 import ImageModal from '../../../ImageModal';
 import ItemActionButton from '../ItemActionButton';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
-const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, onExpand }, ref) => {
+const AttachmentListItem = ({
+  attachment,
+  cardsExpanded = [],
+  onCollapse = null,
+  onDelete = null,
+  onExpand = null,
+  ref,
+}) => {
   const dispatch = useDispatch();
 
   const tracker = useContext(TrackerContext);
@@ -117,7 +123,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
         <div className={styles.itemActionButtonContainer}>
           <ItemActionButton onClick={onShowImageFullScreen} tooltip={t('fullViewButtonTooltip')}>
-            <ExpandArrowIcon />
+            <ExpandArrowIcon data-testid="expand-arrow-icon" />
           </ItemActionButton>
         </div>
 
@@ -154,7 +160,7 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
 
   return <li className={`${styles.itemRow} ${styles.nonImageAttachment}`} ref={ref}>
     <div className={styles.itemIcon}>
-      <AttachmentIcon />
+      <AttachmentIcon data-testid="attachment-icon" />
     </div>
 
     <div className={styles.itemDetails}>
@@ -182,29 +188,4 @@ const AttachmentListItem = ({ attachment, cardsExpanded, onCollapse, onDelete, o
   </li>;
 };
 
-const AttachmentListItemForwardRef = forwardRef(AttachmentListItem);
-
-AttachmentListItemForwardRef.defaultProps = {
-  cardsExpanded: [],
-  onCollapse: null,
-  onDelete: null,
-  onExpand: null,
-};
-
-AttachmentListItemForwardRef.propTypes = {
-  attachment: PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-    url: PropTypes.string,
-    filename: PropTypes.string,
-    updates: PropTypes.arrayOf(PropTypes.shape({
-      time: PropTypes.string,
-    })),
-  }).isRequired,
-  cardsExpanded: PropTypes.array,
-  onCollapse: PropTypes.func,
-  onDelete: PropTypes.func,
-  onExpand: PropTypes.func,
-};
-
-export default AttachmentListItemForwardRef;
+export default AttachmentListItem;

@@ -53,7 +53,7 @@ describe('PatrolsFeedTab', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const patrolItemButton = await screen.findByTestId('patrol-list-item-icon-05113dd3-3f41-49ef-aa7d-fbc6b7379533');
-    userEvent.click(patrolItemButton);
+    await userEvent.click(patrolItemButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
   });

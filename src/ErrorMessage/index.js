@@ -1,11 +1,10 @@
 import React, { memo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const ErrorMessage = ({ details, message }) => {
+const ErrorMessage = ({ details = '', message = null }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorMessage' });
 
   const [detailsShown, showDetails] = useState(false);
@@ -30,16 +29,6 @@ const ErrorMessage = ({ details, message }) => {
 
     {details && detailsShown && <div className={styles.details}>{details}</div>}
   </>;
-};
-
-ErrorMessage.defaultProps = {
-  details: '',
-  message: null,
-};
-
-ErrorMessage.propTypes = {
-  details: PropTypes.string,
-  message: PropTypes.string,
 };
 
 export default memo(ErrorMessage);

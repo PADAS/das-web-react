@@ -1,9 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
 import flatten from 'lodash/flatten';
 import Modal from 'react-bootstrap/Modal';
-import Pagination from 'react-js-pagination';
-import PropTypes from 'prop-types';
 import startCase from 'lodash/startCase';
+import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
 import unionBy from 'lodash/unionBy';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,9 +14,9 @@ import { fetchObservationsForSubject } from '../ducks/observations';
 import DateTime from '../DateTime';
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-export const DISPLAYED_PAGES_LIMIT = 5;
+export const DISPLAYED_PAGE_ITEMS_COUNT = 5;
 export const ITEMS_PER_PAGE = 10;
 export const SORT_BY = '-recorded_at';
 
@@ -25,6 +24,26 @@ export const getObservationUniqProperties = (observations) => {
   const observationsDeviceProperties = observations.map((result) => result?.device_status_properties ?? []);
   const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
   return uniqPropertiesByLabel.map((property) => property.label);
+};
+
+const getPageItemNumbers = (pagesCount, activePage) => {
+  let start = 1;
+  let end = DISPLAYED_PAGE_ITEMS_COUNT;
+  if (pagesCount > DISPLAYED_PAGE_ITEMS_COUNT) {
+    const halfDisplayedPageItemsCount = Math.floor(DISPLAYED_PAGE_ITEMS_COUNT / 2);
+    start = activePage - halfDisplayedPageItemsCount;
+    end = activePage + halfDisplayedPageItemsCount;
+
+    if (start < 1) {
+      start = 1;
+      end = DISPLAYED_PAGE_ITEMS_COUNT;
+    } else if (end > pagesCount) {
+      start = pagesCount - DISPLAYED_PAGE_ITEMS_COUNT + 1;
+      end = pagesCount;
+    }
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 };
 
 const ObservationRow = ({ observation, observationProperties, subjectIsStatic }) => {
@@ -83,6 +102,9 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
     });
   }, [activePage, dispatch, subjectId]);
 
+  const pagesCount = Math.ceil(observationsCount / ITEMS_PER_PAGE);
+  const pageItemNumbers = getPageItemNumbers(pagesCount, activePage);
+
   return <>
     <Modal.Header closeButton>
       <Modal.Title>{title}</Modal.Title>
@@ -112,23 +134,25 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
         </tbody>
       </Table>
 
-      {observationsCount > ITEMS_PER_PAGE && <Pagination
-        activePage={activePage}
-        itemClass="page-item"
-        itemsCountPerPage={ITEMS_PER_PAGE}
-        linkClass="page-link"
-        onChange={(page) => setActivePage(page)}
-        pageRangeDisplayed={DISPLAYED_PAGES_LIMIT}
-        totalItemsCount={observationsCount}
-      />}
+      {observationsCount > ITEMS_PER_PAGE && <Pagination>
+        <Pagination.First disabled={activePage === 1} onClick={() => setActivePage(1)} />
+
+        <Pagination.Prev disabled={activePage === 1} onClick={() => setActivePage(activePage - 1)} />
+
+        {pageItemNumbers.map((pageItemNumber) => <Pagination.Item
+          active={pageItemNumber === activePage}
+          key={pageItemNumber}
+          onClick={() => setActivePage(pageItemNumber)}
+        >
+          {pageItemNumber}
+        </Pagination.Item>)}
+
+        <Pagination.Next disabled={activePage === pagesCount} onClick={() => setActivePage(activePage + 1)} />
+
+        <Pagination.Last disabled={activePage === pagesCount} onClick={() => setActivePage(pagesCount)} />
+      </Pagination>}
     </Modal.Body>
   </>;
-};
-
-SubjectHistoricalDataModal.propTypes = {
-  subjectId: PropTypes.string.isRequired,
-  subjectIsStatic: PropTypes.bool.isRequired,
-  title: PropTypes.string.isRequired,
 };
 
 export default memo(SubjectHistoricalDataModal);

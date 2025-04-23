@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { REPORT_PRIORITIES } from '../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PRIORITY_CLASSNAMES = {
   100: 'lowPriority',
@@ -12,7 +11,7 @@ const PRIORITY_CLASSNAMES = {
   300: 'highPriority',
 };
 
-const PriorityPicker = ({ className, isMulti, onSelect, selected }) => {
+const PriorityPicker = ({ className = '', isMulti = false, onSelect = null, selected = 0 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'priorityPicker' });
 
   const isSelected = (value) => isMulti ? selected.some((v) => v === value) : selected === value;
@@ -30,23 +29,6 @@ const PriorityPicker = ({ className, isMulti, onSelect, selected }) => {
       </button>
     </li>)}
   </ul>;
-};
-
-PriorityPicker.defaultProps = {
-  className: '',
-  isMulti: false,
-  onSelect: null,
-  selected: 0,
-};
-
-PriorityPicker.propTypes = {
-  className: PropTypes.string,
-  isMulti: PropTypes.bool,
-  onSelect: PropTypes.func,
-  selected: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.array
-  ]),
 };
 
 export default memo(PriorityPicker);

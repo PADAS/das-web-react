@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // Sections are just visual elements that are not present in the form data structure. Thus, fields contained by
 // sections are in the root objects of form data and field errors.

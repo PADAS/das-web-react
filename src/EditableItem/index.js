@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import EditableItemModal from './Modal';
 import EditableItemHeader from './Header';
@@ -26,7 +25,3 @@ EditableItem.Footer = withFormDataContext(EditableItemFooter);
 EditableItem.ContextProvider = FormDataContext.Provider;
 
 export default EditableItem;
-
-EditableItem.propTypes = {
-  data: PropTypes.any.isRequired,
-};

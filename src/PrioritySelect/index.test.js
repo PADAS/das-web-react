@@ -18,38 +18,38 @@ describe('PrioritySelect', () => {
     render(<PrioritySelect isDisabled={isDisabled} onChange={onChange} priority={priority} />)
   );
 
-  it('should render all report priority levels', () => {
+  it('should render all report priority levels', async () => {
     renderPrioritySelect();
     const list = screen.getByText(selectedPriority.display);
-    userEvent.click(list);
+    await userEvent.click(list);
     REPORT_PRIORITIES.forEach(({ key }) => {
       const currentTestId = `priority-select-${key}`;
       expect( screen.getByTestId(currentTestId) ).toBeInTheDocument();
     });
   });
 
-  it('should return selected priority level', () => {
+  it('should return selected priority level', async () => {
     const onChangePartialArgs = { action: 'select-option' };
     const [ highLevel ] = REPORT_PRIORITIES;
     const { display } = highLevel;
     const onChange = jest.fn();
     renderPrioritySelect({ ...initialProps, onChange });
     const list = screen.getByText(display);
-    userEvent.click(list);
+    await userEvent.click(list);
     expect(onChange).not.toHaveBeenCalled();
     const option = screen.getByTestId(testId);
-    userEvent.click(option);
+    await userEvent.click(option);
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(highLevel, onChangePartialArgs);
   });
 
-  it('closes the menu when pressing escape', () => {
+  it('closes the menu when pressing escape', async () => {
     renderPrioritySelect();
 
     const list = screen.getByText(selectedPriority.display);
-    userEvent.click(list);
+    await userEvent.click(list);
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     REPORT_PRIORITIES.forEach(({ key }) => {
       const currentTestId = `priority-select-${key}`;

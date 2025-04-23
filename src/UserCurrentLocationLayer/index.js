@@ -1,6 +1,5 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { booleanContains, point } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
@@ -126,10 +125,6 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
   useMapEventBinding('click', onCurrentLocationIconClick, ICON_LAYER_ID);
 
   return null;
-};
-
-UserCurrentLocationLayer.propTypes = {
-  onIconClick: PropTypes.func.isRequired,
 };
 
 export default memo(UserCurrentLocationLayer);

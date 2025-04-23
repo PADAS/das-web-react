@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, memo } from 'react';
-import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
 import { SocketContext } from '../withSocketConnection';
@@ -40,9 +39,3 @@ const StateManagedSocketConsumer = (props) => {
 };
 
 export default memo(StateManagedSocketConsumer);
-
-StateManagedSocketConsumer.propTypes = {
-  type: PropTypes.string.isRequired,
-  callback: PropTypes.func.isRequired,
-  onStateMismatch: PropTypes.func,
-};

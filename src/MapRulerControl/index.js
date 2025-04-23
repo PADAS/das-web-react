@@ -1,29 +1,29 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
+import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 import { useTranslation } from 'react-i18next';
 
-import { withMap } from '../EarthRangerMap';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
+import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { MapContext } from '../App';
 import { setIsPickingLocation } from '../ducks/map-ui';
-
-import PointPopup from './PointPopup';
-
 import { useMapEventBinding } from '../hooks';
 
 import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
-import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
+import PointPopup from './PointPopup';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const MapRulerControl = (props) => {
-  const { map, setIsPickingLocation } = props;
+const MapRulerControl = ({ setIsPickingLocation }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'mapRuler' });
+
+  const map = useContext(MapContext);
+
   const [active, setActiveState] = useState(false);
   const [drawing, setDrawingState] = useState(false);
   const [points, setPoints] = useState([]);
@@ -199,6 +199,4 @@ const MapRulerControl = (props) => {
   </>;
 };
 
-export default connect(null, { setIsPickingLocation })(memo(withMap(MapRulerControl)));
-
-
+export default connect(null, { setIsPickingLocation })(memo(MapRulerControl));

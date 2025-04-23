@@ -13,7 +13,7 @@ import { showToast } from '../utils/toast';
 import ContextMenu from '../ContextMenu';
 import TextCopyBtn from '../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 30;
 

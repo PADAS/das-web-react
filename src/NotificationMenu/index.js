@@ -18,7 +18,7 @@ import Badge from '../Badge';
 import BadgeIcon from '../Badge';
 import DateTime from '../DateTime';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
@@ -51,7 +51,7 @@ const NotificationItem = ({ item }) => {
     displayMessage += '...';
   }
 
-  return <Dropdown.Item className={`${styles.item} ${isUnread ? styles.unread : ''}`} role="listitem">
+  return <Dropdown.Item className={styles.item} role="listitem">
     {item.title && <div className={styles.headerGroup}>
       {isUnread && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
 

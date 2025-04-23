@@ -10,7 +10,7 @@ import { trackEvent } from '../utils/analytics';
 import AddItemModal from './AddItemModal';
 import DelayedUnmount from '../DelayedUnmount';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const AddItemContext = createContext();
 

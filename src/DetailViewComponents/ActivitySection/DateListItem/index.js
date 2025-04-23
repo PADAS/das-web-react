@@ -4,8 +4,8 @@ import { ReactComponent as ClockIcon } from '../../../common/images/icons/clock-
 
 import DateTime from '../../../DateTime';
 
-import activitySectionStyles from '../styles.module.scss';
-import styles from './styles.module.scss';
+import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DateListItem = ({ date, title }) => <li className={`${activitySectionStyles.itemRow} ${styles.itemRow}`}>
   <div className={`${activitySectionStyles.itemIcon} ${styles.itemIcon}`}>

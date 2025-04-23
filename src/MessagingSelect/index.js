@@ -1,14 +1,11 @@
 import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { allSubjects } from '../selectors/subjects';
 
 import Select from '../Select';
-
-import styles from './styles.module.scss';
 
 const getOptionLabel = (t) => (option) => {
   if (option.hidden) {
@@ -20,7 +17,7 @@ const getOptionLabel = (t) => (option) => {
 const Option = ({ data, ...props }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'messagingSelect' });
 
-  return <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`}>
+  return <div>
     <components.Option {...props}>
       <span>{getOptionLabel(t)(data)}</span>
     </components.Option>
@@ -58,10 +55,6 @@ const MessagingSelect = ({ onChange }) => {
     ref={selectRef}
     styles={{ container: (styles) => ({ ...styles, flexGrow: 1 }) }}
   />;
-};
-
-MessagingSelect.propTypes = {
-  onChange: PropTypes.func.isRequired,
 };
 
 export default memo(MessagingSelect);

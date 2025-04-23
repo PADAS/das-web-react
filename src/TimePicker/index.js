@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +28,7 @@ import { shouldUse12HourFormat } from '../utils/datetime';
 
 import OptionsPopover from './OptionsPopover';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const HOUR_INPUT_PLACEHOLDER = '--';
 const MINUTE_INPUT_PLACEHOLDER = '--';
@@ -44,11 +44,12 @@ const TimePicker = ({
   onChange,
   onFocus = null,
   readOnly = false,
+  ref,
   required = false,
   showDurationFromMin = false,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'timePicker' });
 
   const hourInputRef = useRef();
@@ -493,4 +494,4 @@ const TimePicker = ({
 
 export { EMPTY_TIME_VALUE, isValidTime };
 
-export default memo(forwardRef(TimePicker));
+export default memo(TimePicker);

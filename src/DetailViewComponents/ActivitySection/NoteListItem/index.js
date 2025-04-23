@@ -1,7 +1,6 @@
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../common/images/icons/arrow-down-simple.svg';
@@ -15,7 +14,7 @@ import { TrackerContext } from '../../../utils/analytics';
 import DateTime from '../../../DateTime';
 import ItemActionButton from '../ItemActionButton';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 import { areCardsEquals } from '../../utils';
 
 const NoteListItem = ({
@@ -23,11 +22,12 @@ const NoteListItem = ({
   note,
   onCollapse,
   onChange,
-  onDelete,
+  onDelete = null,
   onCancel,
   onDone,
   onExpand,
-}, ref) => {
+  ref,
+}) => {
   const textareaRef = useRef();
   const tracker = useContext(TrackerContext);
   const isNew = useMemo(() => !note.id, [note.id]);
@@ -92,7 +92,7 @@ const NoteListItem = ({
   return <li className={isOpen ? styles.openItem : ''} ref={ref}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
       <div className={styles.itemIcon}>
-        <NoteIcon />
+        <NoteIcon data-testid="note-icon" />
       </div>
 
       <div className={`${styles.noteTitle} ${styles.itemDetails}`}>
@@ -178,27 +178,4 @@ const NoteListItem = ({
   </li>;
 };
 
-const NoteListItemForwardRef = forwardRef(NoteListItem);
-
-NoteListItemForwardRef.defaultProps = {
-  onDelete: null,
-};
-
-NoteListItemForwardRef.propTypes = {
-  cardsExpanded: PropTypes.array.isRequired,
-  note: PropTypes.shape({
-    id: PropTypes.string,
-    text: PropTypes.string,
-    updates: PropTypes.arrayOf(PropTypes.shape({
-      time: PropTypes.string,
-    })),
-  }).isRequired,
-  onCollapse: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onDelete: PropTypes.func,
-  onDone: PropTypes.func.isRequired,
-  onExpand: PropTypes.func.isRequired,
-};
-
-export default NoteListItemForwardRef;
+export default NoteListItem;

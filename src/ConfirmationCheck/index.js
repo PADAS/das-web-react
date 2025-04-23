@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ConfirmationCheck = () => <svg
     className={styles.checkmark}
