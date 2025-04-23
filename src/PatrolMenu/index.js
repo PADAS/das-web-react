@@ -1,5 +1,4 @@
 import React, { memo, useMemo, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
@@ -28,10 +27,10 @@ const PatrolMenu = ({
   onPatrolChange,
   menuRef,
   printableContentRef,
-  patrolTitle,
-  isPatrolCancelled,
-  showPatrolPrintOption,
-  className,
+  patrolTitle = '',
+  isPatrolCancelled = false,
+  showPatrolPrintOption = true,
+  className = '',
   ...rest
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
@@ -146,23 +145,6 @@ const PatrolMenu = ({
       </KebabMenu.Option>
     }
   </KebabMenu>;
-};
-
-PatrolMenu.defaultProps = {
-  patrolTitle: '',
-  className: '',
-  isPatrolCancelled: false,
-  showPatrolPrintOption: true,
-};
-
-PatrolMenu.propTypes = {
-  patrol: PropTypes.object.isRequired,
-  patrolState: PropTypes.object,
-  className: PropTypes.string,
-  onPatrolChange: PropTypes.func.isRequired,
-  patrolTitle: PropTypes.string,
-  isPatrolCancelled: PropTypes.bool,
-  showPatrolPrintOption: PropTypes.bool,
 };
 
 export default memo(PatrolMenu);

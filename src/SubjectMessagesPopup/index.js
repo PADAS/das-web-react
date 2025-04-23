@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -33,15 +32,6 @@ const SubjectMessagesPopup = ({ data }) => {
 
     {!!hasMessagingWritePermissions && <MessageInput subjectId={properties.id} />}
   </>;
-};
-
-SubjectMessagesPopup.propTypes = {
-  data: PropTypes.shape({
-    properties: PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-    }),
-  }).isRequired,
 };
 
 export default memo(SubjectMessagesPopup);

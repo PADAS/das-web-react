@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import { calcGpsDisplayString } from '../utils/location';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +9,7 @@ import Popup from '../Popup';
 
 import * as styles from './styles.module.scss';
 
-const MouseMarkerPopup = ({ location, ...rest }) => {
+const MouseMarkerPopup = ({ location = null, ...rest }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'mouseMarkerPopup' });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
@@ -26,17 +25,6 @@ const MouseMarkerPopup = ({ location, ...rest }) => {
 
     <p>{calcGpsDisplayString(location.lat, location.lng, gpsFormat)}</p>
   </Popup>;
-};
-
-MouseMarkerPopup.defaultProps = {
-  location: null,
-};
-
-MouseMarkerPopup.propTypes = {
-  location: PropTypes.shape({
-    lat: PropTypes.number,
-    lng: PropTypes.number,
-  }),
 };
 
 export default memo(MouseMarkerPopup);

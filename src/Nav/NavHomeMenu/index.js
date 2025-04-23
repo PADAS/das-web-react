@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -59,17 +58,6 @@ const NavHomeMenu = function NavHomeMenu({ maps, onCurrentLocationClick, onMapSe
       </>}
     </Dropdown.Menu>
   </Dropdown>;
-};
-
-NavHomeMenu.propTypes = {
-  maps: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-  })).isRequired,
-  onCurrentLocationClick: PropTypes.func.isRequired,
-  onMapSelect: PropTypes.func.isRequired,
-  selectedMap: PropTypes.shape({
-    id: PropTypes.string,
-  }).isRequired,
 };
 
 export default memo(NavHomeMenu);

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useImperativeHandle, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -25,10 +25,11 @@ const LocationPicker = ({
   onFocus = null,
   placeholder = null,
   readOnly = false,
+  ref,
   required = false,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const jumpToLocation = useJumpToLocation();
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
 
@@ -128,4 +129,4 @@ const LocationPicker = ({
   </>;
 };
 
-export default memo(forwardRef(LocationPicker));
+export default memo(LocationPicker);

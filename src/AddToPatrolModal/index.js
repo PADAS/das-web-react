@@ -1,6 +1,5 @@
 import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -208,7 +207,3 @@ const AddToPatrolModal = (props) => {
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
 export default connect(mapStateToProps, { removeModal: id => removeModal(id), updatePatrolStore: patrols => updatePatrolStore(patrols) })(memo(AddToPatrolModal));
-
-AddToPatrolModal.propTypes = {
-  onAddToPatrol: PropTypes.func.isRequired,
-};

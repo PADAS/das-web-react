@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { bbox, rewind, simplify } from '@turf/turf';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +18,7 @@ const MAPBOX_MAXIMUM_LATITUDE = 85.0511;
 const STATIC_MAP_WIDTH = 296;
 const STATIC_MAP_HEGHT = 130;
 
-const GeometryPreview = ({ className, event, onAreaSelectStart, onDeleteArea }) => {
+const GeometryPreview = ({ className = '', event, onAreaSelectStart = null, onDeleteArea = null }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
   const originalEvent = useSelector((state) => state.data.eventStore[event.id]);
@@ -97,19 +96,6 @@ const GeometryPreview = ({ className, event, onAreaSelectStart, onDeleteArea }) 
       </Button>}
     </div>
   </div>;
-};
-
-GeometryPreview.defaultProps = {
-  className: '',
-  onAreaSelectStart: null,
-  onDeleteArea: null,
-};
-
-GeometryPreview.propTypes = {
-  className: PropTypes.string,
-  event: PropTypes.object.isRequired,
-  onAreaSelectStart: PropTypes.func,
-  onDeleteArea: PropTypes.func,
 };
 
 export default memo(GeometryPreview);

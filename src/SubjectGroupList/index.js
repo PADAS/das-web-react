@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { hideSubjects, showSubjects } from '../ducks/map-layer-filter';
@@ -13,9 +12,7 @@ import * as listStyles from '../SideBar/styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const SubjectGroupList = (props) => {
-  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, map } = props;
-
+const SubjectGroupList = ({ subjectGroups, mapLayerFilter, hideSubjects, showSubjects, map = {} }) => {
   const { hiddenSubjectIDs } = mapLayerFilter;
 
   const searchText = useMemo(() => mapLayerFilter.text || '', [mapLayerFilter.text]);
@@ -87,11 +84,3 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
-
-SubjectGroupList.defaultProps = {
-  map: {},
-};
-
-SubjectGroupList.propTypes = {
-  map: PropTypes.object,
-};

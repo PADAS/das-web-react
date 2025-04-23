@@ -1,5 +1,4 @@
 import React, { memo, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import { hidePopup } from '../../ducks/popup';
@@ -34,11 +33,6 @@ const FeatureSymbolPopup = ({ data, id }) => {
       />
     </>
   );
-};
-
-FeatureSymbolPopup.propTypes = {
-  data: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
 };
 
 export default memo(FeatureSymbolPopup);

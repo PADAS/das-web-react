@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { isValid, parseISO, subSeconds } from 'date-fns';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
@@ -20,17 +19,17 @@ import DateRangeSelectionString from './DateRangeSelectionString';
 import { useTranslation } from 'react-i18next';
 
 const DateRangeSelector = ({
+  maxDate = new Date(),
+  requireStart = false,
+  requireEnd = false,
+  onClickDateRangePreset = null,
+  showPresets = false,
   startDate,
   endDate,
   endMaxDate,
   onStartDateChange,
   onEndDateChange,
-  onClickDateRangePreset,
   onFilterSettingsToggle,
-  maxDate,
-  requireStart,
-  requireEnd,
-  showPresets,
   isAtDefault = false,
   defaultFriendlyString,
   startDateNullMessage,
@@ -90,7 +89,7 @@ const DateRangeSelector = ({
   };
 
   const onDateRangePresetButtonClick = (lower, upper, label) => {
-    onClickDateRangePreset({ lower, upper }, label);
+    onClickDateRangePreset?.({ lower, upper }, label);
 
     if (!upper) {
       setEndDateTime(EMPTY_DATE_TIME_VALUE);
@@ -207,33 +206,6 @@ const DateRangeSelector = ({
       </FilterSettingsControl>
     </div>}
   </div>;
-};
-
-DateRangeSelector.defaultProps = {
-  maxDate: new Date(),
-  requireStart: false,
-  requireEnd: false,
-  format: 'yyyy-MM-dd HH:mm',
-  onClickDateRangePreset: () => null,
-  showPresets: false,
-};
-
-DateRangeSelector.propTypes = {
-  endDate: PropTypes.instanceOf(Date),
-  endDateLabel: PropTypes.string,
-  endDateLabelClass: PropTypes.string,
-  endDateNullMessage: PropTypes.string,
-  maxDate: PropTypes.instanceOf(Date),
-  onEndDateChange: PropTypes.func.isRequired,
-  onStartDateChange: PropTypes.func.isRequired,
-  onClickDateRangePreset: PropTypes.func,
-  requireStart: PropTypes.bool,
-  requireEnd: PropTypes.bool,
-  showPresets: PropTypes.bool,
-  startDate: PropTypes.instanceOf(Date),
-  startDateLabel: PropTypes.string,
-  startDateLabelClass: PropTypes.string,
-  startDateNullMessage: PropTypes.string,
 };
 
 export default memo(DateRangeSelector);

@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 import 'jest-webgl-canvas-mock';
 import { fetch, FormData, Headers, Response, Request } from 'undici';
 import ReactGA4 from 'react-ga4';

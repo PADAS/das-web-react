@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
+import React, { memo, useImperativeHandle, useRef } from 'react';
 
 import { getMaxDateAndTime, getMinDateAndTime } from './utils';
 
@@ -20,11 +20,12 @@ const DateTimePicker = ({
   onChange,
   onFocus = null,
   readOnly = false,
+  ref,
   required = false,
   timePickerProps = {},
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const datePickerRef = useRef();
   const innerRef = useRef();
 
@@ -76,4 +77,4 @@ const DateTimePicker = ({
   </div>;
 };
 
-export default memo(forwardRef(DateTimePicker));
+export default memo(DateTimePicker);

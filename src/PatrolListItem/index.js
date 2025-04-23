@@ -1,6 +1,5 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 
 import { calcPatrolState } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -24,14 +23,15 @@ const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const PatrolListItem = ({
   className,
   dispatch: _dispatch,
-  onClick,
+  onClick = null,
   onSelfManagedStateChange,
   patrol: patrolFromProps,
-  showControls,
-  showStateTitle,
-  showTitleDetails,
+  ref,
+  showControls = true,
+  showStateTitle = true,
+  showTitleDetails = true,
   ...rest
-}, ref) => {
+}) => {
   const {
     patrolData,
 
@@ -242,20 +242,4 @@ const PatrolListItem = ({
   />;
 };
 
-const PatrolListItemForwardRef = forwardRef(PatrolListItem);
-
-PatrolListItemForwardRef.defaultProps = {
-  onClick: null,
-  showControls: true,
-  showStateTitle: true,
-  showTitleDetails: true,
-};
-
-PatrolListItemForwardRef.propTypes = {
-  onClick: PropTypes.func,
-  showControls: PropTypes.bool,
-  showStateTitle: PropTypes.bool,
-  showTitleDetails: PropTypes.bool,
-};
-
-export default memo(PatrolListItemForwardRef);
+export default memo(PatrolListItem);

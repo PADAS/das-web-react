@@ -1,11 +1,10 @@
-import React, { forwardRef, memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 import * as styles from './styles.module.scss';
 
-// eslint-disable-next-line react/display-name
-const FilterSettingsControl = forwardRef(({ isOpen, hideFilterSettings, target, container, children }, ref) => {
+const FilterSettingsControl = ({ isOpen, hideFilterSettings, target, container, children, ref }) => {
   const handleKeyDown = useCallback((event) => {
     event.stopPropagation();
     event.preventDefault();
@@ -45,10 +44,6 @@ const FilterSettingsControl = forwardRef(({ isOpen, hideFilterSettings, target, 
       </Popover>
     </Overlay>
   </div>;
-});
-
-FilterSettingsControl.defaultProps = {
-  defaultSearchSetting: 'start_dates',
 };
 
 export default (memo(FilterSettingsControl));

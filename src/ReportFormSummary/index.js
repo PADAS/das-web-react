@@ -1,6 +1,5 @@
 import React, { memo, useMemo } from 'react';
 import Form from '@rjsf/bootstrap-4';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import useReport from '../hooks/useReport';
@@ -73,13 +72,6 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
       validator={formValidator}
     />}
   </div>;
-};
-
-ReportFormSummary.propTypes = {
-  className: PropTypes.string.isRequired,
-  report: PropTypes.object.isRequired,
-  schema: PropTypes.object.isRequired,
-  uiSchema: PropTypes.object.isRequired,
 };
 
 export default memo(ReportFormSummary);

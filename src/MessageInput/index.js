@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -57,10 +56,6 @@ const MessageInput = ({ subjectId }) => {
 
     <small>{inputValue.length}/{TEXT_MAX_LENGTH}</small>
   </form> : null;
-};
-
-MessageInput.propTypes = {
-  subjectId: PropTypes.string.isRequired,
 };
 
 export default memo(MessageInput);

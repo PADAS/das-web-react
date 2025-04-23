@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
@@ -64,9 +64,10 @@ const DetailsSection = ({
   onReportLocationChange,
   onReportStateChange,
   originalReport,
+  ref,
   reportForm,
   submitFormButtonRef,
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
@@ -316,4 +317,4 @@ const DetailsSection = ({
   </div>;
 };
 
-export default memo(forwardRef(DetailsSection));
+export default memo(DetailsSection);

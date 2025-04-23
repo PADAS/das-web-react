@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
@@ -171,11 +170,6 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
       printableContentRef={printableContentRef}
     />}
   </div>;
-};
-
-Header.propTypes = {
-  onChangeTitle: PropTypes.func.isRequired,
-  patrol: PropTypes.object.isRequired,
 };
 
 export default memo(Header);

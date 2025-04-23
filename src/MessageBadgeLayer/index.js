@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useReducer, useRef, memo } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bboxPolygon, booleanContains, featureCollection } from '@turf/turf';
 
@@ -197,8 +196,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, null)(memo(withMap(MessageBadgeLayer)));
-
-MessageBadgeLayer.propTypes = {
-  messages: PropTypes.array,
-  subjectFeatureCollection: PropTypes.object.isRequired,
-};

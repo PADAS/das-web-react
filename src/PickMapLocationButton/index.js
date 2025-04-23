@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -17,10 +17,11 @@ const PickMapLocationButton = ({
   onCancel = null,
   onClick = null,
   onPick,
+  ref,
   renderContent = null,
   showInstructionsPopup = true,
   ...otherProps
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'pickMapLocationButton' });
 
@@ -97,4 +98,4 @@ const PickMapLocationButton = ({
   </>;
 };
 
-export default memo(forwardRef(PickMapLocationButton));
+export default memo(PickMapLocationButton);

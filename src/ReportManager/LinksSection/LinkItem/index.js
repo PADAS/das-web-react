@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext } from 'react';
-import PropTypes from 'prop-types';
 
 import { TrackerContext } from '../../../utils/analytics';
 
@@ -41,11 +40,6 @@ const LinkItem = ({ item, to, type }) => {
   }
 
   return null;
-};
-
-LinkItem.propTypes = {
-  item: PropTypes.object.isRequired,
-  type: PropTypes.string.isRequired,
 };
 
 export default memo(LinkItem);

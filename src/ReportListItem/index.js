@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -28,13 +27,13 @@ const HOVER_EFFECTS = {
 };
 
 const ReportListItem = ({
-  className,
-  displayTime,
-  onIconClick,
-  onTitleClick,
+  className = '',
+  displayTime = null,
+  onIconClick = null,
+  onTitleClick = null,
   report,
-  showElapsedTime,
-  showJumpButton,
+  showElapsedTime = true,
+  showJumpButton = true,
 }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportListItem' });
@@ -103,25 +102,6 @@ const ReportListItem = ({
       <button className={styles.title} type="button">{displayTitle}</button>
     </>}
   />;
-};
-
-ReportListItem.defaultProps = {
-  className: '',
-  displayTime: null,
-  onIconClick: null,
-  onTitleClick: null,
-  showElapsedTime: true,
-  showJumpButton: true,
-};
-
-ReportListItem.propTypes = {
-  className: PropTypes.string,
-  displayTime: PropTypes.string,
-  onIconClick: PropTypes.func,
-  onTitleClick: PropTypes.func,
-  report: PropTypes.object.isRequired,
-  showElapsedTime: PropTypes.bool,
-  showJumpButton: PropTypes.bool,
 };
 
 export default memo(ReportListItem);

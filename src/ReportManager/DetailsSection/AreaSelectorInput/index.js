@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useRef, useState } fro
 import debounceRender from 'react-debounce-render';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +23,7 @@ const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const GEOMETRY_PROVENANCE_WEB = 'web';
 
-const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
+const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = null }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
@@ -179,14 +178,3 @@ const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
 };
 
 export default debounceRender(memo(AreaSelectorInput));
-
-AreaSelectorInput.defaultProps = {
-  onGeometryChange: null,
-  originalEvent: null,
-};
-
-AreaSelectorInput.propTypes = {
-  event: PropTypes.object.isRequired,
-  onGeometryChange: PropTypes.func.isRequired,
-  originalEvent: PropTypes.object.isRequired,
-};

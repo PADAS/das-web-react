@@ -1,5 +1,4 @@
 import { memo, useContext, useMemo } from 'react';
-import PropTypes from 'prop-types';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 import { MapContext } from '../App';
@@ -46,7 +45,15 @@ const TIMEPOINT_LAYER_PAINT = {
   ],
 };
 
-const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimepoints, trackData }) => {
+const TrackLayer = ({
+  before = null,
+  id = null,
+  lineLayout = {},
+  linePaint = {},
+  onPointClick,
+  showTimepoints = true,
+  trackData,
+}) => {
   const map = useContext(MapContext);
   const { isTimeOfDayColoringActive } = useSelector(selectTrackSettings);
 
@@ -112,27 +119,6 @@ const TrackLayer = ({ before, id, lineLayout, linePaint, onPointClick, showTimep
   useMapEventBinding('mouseleave', onSymbolMouseLeave, pointLayerId, showTimepoints);
 
   return null;
-};
-
-TrackLayer.defaultProps = {
-  before: null,
-  id: null,
-  lineLayout: {},
-  linePaint: {},
-  showTimepoints: true,
-};
-
-TrackLayer.propTypes = {
-  before: PropTypes.string,
-  id: PropTypes.string,
-  lineLayout: PropTypes.object,
-  linePaint: PropTypes.object,
-  onPointClick: PropTypes.func.isRequired,
-  showTimepoints: PropTypes.bool,
-  trackData: PropTypes.shape({
-    points: PropTypes.object,
-    track: PropTypes.object,
-  }).isRequired,
 };
 
 export default memo(TrackLayer);

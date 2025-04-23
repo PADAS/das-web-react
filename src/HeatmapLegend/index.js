@@ -1,5 +1,4 @@
 import React, { isValidElement, memo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
@@ -34,13 +33,6 @@ const HeatmapLegend = ({ dayCount, onClose, pointCount, title }) => {
       </div>
     </div>}
   />;
-};
-
-HeatmapLegend.propTypes = {
-  dayCount: PropTypes.number.isRequired,
-  onClose: PropTypes.func.isRequired,
-  pointCount: PropTypes.number.isRequired,
-  title: PropTypes.oneOfType([PropTypes.element, PropTypes.node]).isRequired,
 };
 
 export default memo(HeatmapLegend);

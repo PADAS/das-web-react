@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import * as styles from './styles.module.scss';
@@ -34,12 +33,6 @@ const ErrorMessages = ({ errorData, onClose, title }) => {
       </Accordion.Body>
     </Accordion>
   </Alert>;
-};
-
-ErrorMessages.propTypes = {
-  errorData: PropTypes.array.isRequired,
-  onClose: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
 };
 
 export default memo(ErrorMessages);

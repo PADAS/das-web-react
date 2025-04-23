@@ -1,5 +1,4 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 
 import { calculatePopoverPlacement } from '../utils/map';
 import { MapContext } from '../App';
@@ -95,10 +94,6 @@ const PopupLayer = ({ popup, ...rest }) => {
   return template ? <Popup coordinates={coordinates} {...template.popupAttrs} {...popupAttrsOverride} key={id}>
     <template.Component data={data} id={id} map={map} popoverPlacement={popoverPlacement} {...rest} />
   </Popup> : null;
-};
-
-PopupLayer.propTypes = {
-  popup: PropTypes.object.isRequired,
 };
 
 export default memo(PopupLayer);

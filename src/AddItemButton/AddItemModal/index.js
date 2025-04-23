@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
@@ -77,11 +76,6 @@ const AddItemModal = ({ onHide, show, ...restProps }) => {
       </Tabs>
     </Modal.Body>
   </Modal>;
-};
-
-AddItemModal.propTypes = {
-  onHide: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };
 
 export default memo(AddItemModal);

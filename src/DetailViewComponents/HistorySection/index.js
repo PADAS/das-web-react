@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
@@ -13,7 +12,7 @@ import * as styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
-const HistorySection = ({ className, updates }) => {
+const HistorySection = ({ className = '', updates }) => {
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'historySection' });
 
@@ -56,19 +55,6 @@ const HistorySection = ({ className, updates }) => {
 
     <ul className={styles.historyList}>{sortedItemsRendered}</ul>
   </div>;
-};
-
-HistorySection.defaultProps = {
-  className: '',
-};
-
-HistorySection.propTypes = {
-  className: PropTypes.string,
-  updates: PropTypes.arrayOf(PropTypes.shape({
-    message: PropTypes.string,
-    time: PropTypes.string,
-    user: PropTypes.object,
-  })).isRequired,
 };
 
 export default memo(HistorySection);

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import * as styles from './styles.module.scss';
 
-const ToastBody = ({ details, link, message, showDetailsByDefault }) => {
+const ToastBody = ({ details = '', link = null, message = null, showDetailsByDefault = false }) => {
   const { t } = useTranslation('components', { keyPrefix: 'toastBody' });
 
   const [detailsShown, showDetails] = useState(showDetailsByDefault);
@@ -38,20 +37,6 @@ const ToastBody = ({ details, link, message, showDetailsByDefault }) => {
 
     {details && detailsShown && <div className={styles.details}>{details}</div>}
   </>;
-};
-
-ToastBody.defaultProps = {
-  details: '',
-  link: null,
-  message: null,
-  showDetailsByDefault: false,
-};
-
-ToastBody.propTypes = {
-  details: PropTypes.node,
-  link: PropTypes.object,
-  message: PropTypes.node,
-  showDetailsByDefault: PropTypes.bool,
 };
 
 export default ToastBody;

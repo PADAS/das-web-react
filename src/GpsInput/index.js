@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +18,11 @@ const GpsInput = ({
   id,
   inputRef = null,
   onChange,
+  ref,
   renderButton = null,
   value = null,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('components', { keyPrefix: 'gpsInput' });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
@@ -119,4 +120,4 @@ const GpsInput = ({
   </div>;
 };
 
-export default memo(forwardRef(GpsInput));
+export default memo(GpsInput);

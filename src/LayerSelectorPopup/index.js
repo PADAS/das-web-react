@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -87,26 +86,6 @@ const LayerSelectorPopup = ({ data, id }) => {
 
     <ul className={styles.list}>{renderedLayerListItems}</ul>
   </>;
-};
-
-LayerSelectorPopup.propTypes = {
-  data: PropTypes.shape({
-    layers: PropTypes.arrayOf(PropTypes.shape({
-      properties: PropTypes.shape({
-        display_title: PropTypes.string,
-        height: PropTypes.string,
-        id: PropTypes.string,
-        image: PropTypes.string,
-        image_url: PropTypes.string,
-        name: PropTypes.string,
-        title: PropTypes.string,
-        width: PropTypes.string,
-      }),
-    })),
-    onSelectSubject: PropTypes.func,
-    onSelectEvent: PropTypes.func,
-  }).isRequired,
-  id: PropTypes.string.isRequired,
 };
 
 export default memo(LayerSelectorPopup);

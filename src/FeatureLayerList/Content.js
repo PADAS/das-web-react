@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';

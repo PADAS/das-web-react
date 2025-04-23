@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useRef } from 'react';
-import PropTypes from 'prop-types';
 
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { MapContext } from '../App';
@@ -10,7 +9,7 @@ import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackT
 
 import * as styles from './styles.module.scss';
 
-const PatrolTrackControls = ({ className, onLocationClick, patrol }) => {
+const PatrolTrackControls = ({ className = '', onLocationClick, patrol }) => {
   const {
     patrolData,
     patrolTrackState,
@@ -52,16 +51,6 @@ const PatrolTrackControls = ({ className, onLocationClick, patrol }) => {
       onClick={handleLocationClick}
     />}
   </div>;
-};
-
-PatrolTrackControls.defaultProps = {
-  className: '',
-};
-
-PatrolTrackControls.propTypes = {
-  className: PropTypes.string,
-  onLocationClick: PropTypes.func.isRequired,
-  patrol: PropTypes.object.isRequired,
 };
 
 export default PatrolTrackControls;

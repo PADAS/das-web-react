@@ -2,7 +2,6 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -111,12 +110,6 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
       </Button>
     </Modal.Footer>
   </>;
-};
-
-AddToIncidentModal.propTypes = {
-  id: PropTypes.string.isRequired,
-  onAddToExistingIncident: PropTypes.func.isRequired,
-  onAddToNewIncident: PropTypes.func.isRequired,
 };
 
 export default memo(AddToIncidentModal);

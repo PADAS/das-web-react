@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useMemo, useState }  from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +23,7 @@ const BODY_STYLES ={
   width: '100vw',
 };
 
-const MessagesModal = ({ onSelectSubject, selectedSubject }) => {
+const MessagesModal = ({ onSelectSubject, selectedSubject = null }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'messagesModal' });
 
   const subjectStore = useSelector((state) => state.data.subjectStore);
@@ -103,19 +102,6 @@ const MessagesModal = ({ onSelectSubject, selectedSubject }) => {
       </Button>
     </Modal.Footer>}
   </>;
-};
-
-MessagesModal.defaultProps = {
-  selectedSubject: null,
-};
-
-MessagesModal.propTypes = {
-  onSelectSubject: PropTypes.func.isRequired,
-  selectedSubject: PropTypes.shape({
-    id: PropTypes.string,
-    messaging: PropTypes.array,
-    name: PropTypes.string,
-  }),
 };
 
 export default memo(MessagesModal);

@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
 import Collapsible from 'react-collapsible';
@@ -29,7 +28,7 @@ const AnalyzerLayerList = memo(({
   hiddenAnalyzerIDs,
   hideAnalyzers,
   showAnalyzers,
-  map,
+  map = {},
   mapLayerFilter
 }) => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
@@ -147,11 +146,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { hideAnalyzers, showAnalyzers })(AnalyzerLayerList);
-
-AnalyzerLayerList.defaultProps = {
-  map: {},
-};
-
-AnalyzerLayerList.propTypes = {
-  map: PropTypes.object,
-};

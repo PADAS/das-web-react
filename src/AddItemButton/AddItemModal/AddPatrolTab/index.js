@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -60,10 +59,6 @@ const AddPatrolTab = ({ onHideModal }) => {
 
     <TypesList filterText={searchText} onClickType={onClickPatrolType} typesByCategory={patrolCategories} />
   </>;
-};
-
-AddPatrolTab.propTypes = {
-  onHideModal: PropTypes.func.isRequired,
 };
 
 export default memo(AddPatrolTab);
