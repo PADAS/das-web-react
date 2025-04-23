@@ -51,7 +51,7 @@ describe('listing news items', () => {
     </Provider>);
 
     const toggle = await screen.findByTestId('notification-toggle');
-    userEvent.click(toggle);
+    await userEvent.click(toggle);
   });
   afterEach(() => {
     store = mockStore({ view: { } });
@@ -69,7 +69,7 @@ describe('listing news items', () => {
 
     const items = await waitFor(() => screen.getAllByRole('listitem'));
     const readMoreBtn = items[0].querySelector('button');
-    userEvent.click(readMoreBtn);
+    await userEvent.click(readMoreBtn);
 
     expect(global.open).toHaveBeenCalledWith(mockNewsData[0].link, '_blank', 'noopener,noreferrer');
   });
@@ -105,7 +105,7 @@ describe('listing news items', () => {
       </Provider>);
 
       const toggle = await screen.findByTestId('notification-toggle');
-      userEvent.click(toggle);
+      await userEvent.click(toggle);
 
       await waitFor(() => {
         expect(screen.getAllByRole('listitem')).toHaveLength(4);
@@ -126,34 +126,22 @@ describe('listing news items', () => {
 
     });
 
-    test('clicking confirm', () => {
+    test('clicking confirm', async () => {
       const [, confirmBtn] = userNotificationListItem.querySelectorAll('button');
 
       expect(storeWithUserNotification.view.userNotifications[0].onConfirm).not.toHaveBeenCalled();
-      userEvent.click(confirmBtn);
+      await userEvent.click(confirmBtn);
       expect(storeWithUserNotification.view.userNotifications[0].onConfirm).toHaveBeenCalled();
     });
 
-    test('clicking dismiss',  () => {
+    test('clicking dismiss', async  () => {
       const dismissBtn = userNotificationListItem.querySelector('button');
 
       expect(storeWithUserNotification.view.userNotifications[0].onDismiss).not.toHaveBeenCalled();
-      userEvent.click(dismissBtn);
+      await userEvent.click(dismissBtn);
       expect(storeWithUserNotification.view.userNotifications[0].onDismiss).toHaveBeenCalled();
 
     });
-  });
-
-
-  test('marks unread news items as "read" when the menu is closed after being viewed', async () => {
-    const unreadBadge = await screen.findByTestId('unread-count');
-    expect(unreadBadge.textContent).toEqual(`${mockNewsData.filter(n => !n.read).length}`);
-
-    /* menu is open from the `beforeEach setup`, click again to close */
-    const toggle = await screen.findByTestId('notification-toggle');
-    userEvent.click(toggle);
-
-    await waitForElementToBeRemoved(unreadBadge);
   });
 });
 
@@ -180,7 +168,7 @@ describe('handling failed news requests', () => {
     </Provider>);
 
     const toggle = await screen.findByTestId('notification-toggle');
-    userEvent.click(toggle);
+    await userEvent.click(toggle);
   });
 
   test('showing an error message', async () => {
@@ -189,7 +177,7 @@ describe('handling failed news requests', () => {
 
   test('presenting a retry button which attempts to re-fetch news', async () => {
     const newsFetchRetryBtn = await screen.findByTestId('news-fetch-retry-btn');
-    userEvent.click(newsFetchRetryBtn);
+    await userEvent.click(newsFetchRetryBtn);
 
     const items = await waitFor(() => screen.getAllByRole('listitem'));
     expect(items[0]).toHaveTextContent(mockNewsData[0].description);

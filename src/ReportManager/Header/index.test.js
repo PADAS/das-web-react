@@ -68,8 +68,8 @@ describe('ReportManager - Header', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}2');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(onChangeTitle).toHaveBeenCalledTimes(1);
@@ -84,8 +84,8 @@ describe('ReportManager - Header', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}');
+    await userEvent.tab();
 
     expect(onChangeTitle).toHaveBeenCalledTimes(1);
     expect(onChangeTitle).toHaveBeenCalledWith('Light');

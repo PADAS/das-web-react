@@ -41,7 +41,7 @@ test('rendering without crashing', () => {
 });
 
 describe('Error messages', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     render(<ErrorMessages errorData={ERROR_DATA} onClose={clearErrors} title="Error saving report." />);
   });
 
@@ -64,17 +64,17 @@ describe('Error messages', () => {
 
     expect(detailsButton).toBeDefined();
 
-    userEvent.click(detailsButton);
+    await userEvent.click(detailsButton);
 
     expect(await screen.findByText('Hide details')).toBeDefined();
     expect(await screen.queryByText('See details')).toBeNull();
   });
 
-  test('clicking on close icon should dismiss the alert', () => {
+  test('clicking on close icon should dismiss the alert', async () => {
     const errorAlert = screen.getByTestId('errors-alert');
     const closeButton = within(errorAlert).getAllByRole('button');
 
-    userEvent.click(closeButton[0]);
+    await userEvent.click(closeButton[0]);
 
     expect(clearErrors).toHaveBeenCalledTimes(1);
   });
@@ -83,7 +83,7 @@ describe('Error messages', () => {
     const detailsButton = await screen.getByText('See details', { selector: 'button' });
     expect(detailsButton).toBeDefined();
 
-    userEvent.click(detailsButton);
+    await userEvent.click(detailsButton);
 
     const expandedDetailsButton = await screen.getByText('Hide details', { selector: 'button' });
     expect(expandedDetailsButton).toBeDefined();

@@ -21,41 +21,41 @@ describe('MapLegend', () => {
     jest.restoreAllMocks();
   });
 
-  test('renders the title from the render prop', () => {
+  test('renders the title from the render prop', async () => {
     renderMapLegend({ renderTitle: () => <div data-testid="title">Title</div> });
 
     expect(screen.getByTestId('title')).toBeVisible();
   });
 
-  test('closes the map legend when clicking the close button', () => {
+  test('closes the map legend when clicking the close button', async () => {
     renderMapLegend();
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getAllByRole('button')[0]);
+    await userEvent.click(screen.getAllByRole('button')[0]);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('shows a settings button if the render settings prop is defined', () => {
+  test('shows a settings button if the render settings prop is defined', async () => {
     renderMapLegend();
 
     expect(screen.getAllByRole('button')[1]).toBeVisible();
   });
 
-  test('does not show a settings button if the render settings prop is not defined', () => {
+  test('does not show a settings button if the render settings prop is not defined', async () => {
     renderMapLegend({ renderSettings: null });
 
     expect(screen.getAllByRole('button')[1]).toBeUndefined();
   });
 
-  test('renders the settings from the render prop in a popover', () => {
+  test('renders the settings from the render prop in a popover', async () => {
     renderMapLegend({ renderSettings: () => <div data-testid="settings">Settings</div> });
 
     expect(screen.queryByRole('tooltip')).toBeNull();
     expect(screen.queryByTestId('settings')).toBeNull();
 
-    userEvent.click(screen.getAllByRole('button')[1]);
+    await userEvent.click(screen.getAllByRole('button')[1]);
 
     expect(screen.getByRole('tooltip')).toBeVisible();
     expect(screen.getByTestId('settings')).toBeVisible();

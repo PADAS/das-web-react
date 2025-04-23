@@ -1,27 +1,10 @@
 import '@testing-library/jest-dom';
 import 'jest-webgl-canvas-mock';
-import { fetch, FormData, Headers, Response, Request } from 'undici';
 import ReactGA4 from 'react-ga4';
-import { ReadableStream, TransformStream } from 'node:stream/web';
-import { TextDecoder, TextEncoder } from 'node:util';
 
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
 ReactGA4.initialize('dummy', { testMode: true });
-
-Object.defineProperties(global, {
-  Blob: { value: Blob },
-  fetch: { value: fetch, writable: true },
-  File: { value: File },
-  FormData: { value: FormData },
-  Headers: { value: Headers },
-  ReadableStream: { value: ReadableStream },
-  Response: { value: Response },
-  Request: { value: Request },
-  TextDecoder: { value: TextDecoder },
-  TextEncoder: { value: TextEncoder },
-  TransformStream: { value: TransformStream },
-});
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

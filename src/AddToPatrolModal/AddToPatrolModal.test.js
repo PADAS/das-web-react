@@ -151,7 +151,7 @@ describe('the "add to patrol" modal within a report form', () => {
 
     const firstListItem = await screen.findByTestId('add-patrol-list-item-0');
     const button = firstListItem.querySelector('button');
-    userEvent.click(button);
+    await userEvent.click(button);
 
     expect(onAddToPatrol).toHaveBeenCalled();
   });
@@ -164,7 +164,7 @@ describe('the "add to patrol" modal within a report form', () => {
     renderAddToPatrolModal(undefined, TEST_MODAL_ID);
 
     const cancelBtn = await screen.findByTestId('close-modal-button');
-    userEvent.click(cancelBtn);
+    await userEvent.click(cancelBtn);
 
     expect(removeModalSpy).toHaveBeenCalledWith(TEST_MODAL_ID);
 

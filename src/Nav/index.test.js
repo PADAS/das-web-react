@@ -2,10 +2,11 @@ import React from 'react';
 import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
+import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
-import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils';
+import { cleanup, render, screen, waitFor } from '../test-utils';
 import { NEWS_API_URL } from '../ducks/news';
 import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
 
@@ -144,11 +145,12 @@ describe('the Nav component', () => {
       await screen.findByText('Enter Your PIN');
       pinInputs = await screen.findAllByRole('input');
 
-      const splitPin = anotherPinProfile.pin.split('');
+      const user = userEvent.setup({ delay: null });
 
-      splitPin.forEach((char, index) => {
-        fireEvent.keyDown(pinInputs[index], { key: char, code: `key${char}` });
-      });
+      await user.type(pinInputs[0], anotherPinProfile.pin[0]);
+      await user.type(pinInputs[1], anotherPinProfile.pin[1]);
+      await user.type(pinInputs[2], anotherPinProfile.pin[2]);
+      await user.type(pinInputs[3], anotherPinProfile.pin[3]);
 
       state = store.getState();
 

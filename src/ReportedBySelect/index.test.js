@@ -44,7 +44,7 @@ describe('ReportedBySelect', () => {
     expect(screen.getByText('Reported By...')).toBeInTheDocument();
 
     selectControlContainer.focus();
-    userEvent.type(selectControlContainer, '{arrowdown}');
+    await userEvent.type(selectControlContainer, '{arrowdown}');
 
     await waitFor(() => {
       expect(screen.getByText('Informant')).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('ReportedBySelect', () => {
     const selectControlContainer = container.querySelector('input');
 
     selectControlContainer.focus();
-    userEvent.type(selectControlContainer, '{arrowdown}');
+    await userEvent.type(selectControlContainer, '{arrowdown}');
 
     const toClick = await screen.findByText('Informant2');
     toClick.click();
@@ -71,11 +71,11 @@ describe('ReportedBySelect', () => {
   it('closes the menu when pressing escape', async () => {
     const { container } = renderWithWrapper(<ReportedBySelect />);
 
-    userEvent.click(container.querySelector('input'));
+    await userEvent.click(container.querySelector('input'));
 
     expect(await screen.findByText('Informant2')).toBeVisible();
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(await screen.queryByText('Informant2')).toBeNull();
   });

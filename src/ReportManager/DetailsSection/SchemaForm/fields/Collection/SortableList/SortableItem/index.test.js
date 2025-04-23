@@ -83,7 +83,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     </Provider>
   );
 
-  test('registers as a sortable and injects the sortable properties to the item component', () => {
+  test('registers as a sortable and injects the sortable properties to the item component', async () => {
     renderSortableItem();
 
     const item = screen.getByTestId('schema-form-collection-item');
@@ -94,12 +94,12 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(item).toHaveAttribute('tabindex', '0');
     expect(item).toHaveAttribute('style', 'transform: translate3d(0px, 0px, 0); transition: transition 1s, margin 300ms;');
 
-    userEvent.type(item, 'a');
+    await userEvent.type(item, 'a');
 
     expect(listeners.onKeyDown).toHaveBeenCalledTimes(1);
   });
 
-  test('does not inject the listeners if the form modal is open', () => {
+  test('does not inject the listeners if the form modal is open', async () => {
     renderSortableItem({ isFormModalOpen: true });
 
     const item = screen.getByTestId('schema-form-collection-item');
@@ -107,7 +107,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(useSortable).toHaveBeenCalledTimes(1);
     expect(useSortable).toHaveBeenCalledWith({ id: 1 });
 
-    userEvent.type(item, 'a');
+    await userEvent.type(item, 'a');
 
     expect(listeners.onKeyDown).not.toHaveBeenCalled();
   });

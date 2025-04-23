@@ -69,13 +69,13 @@ describe('PickMapLocationButton', () => {
     </Provider>
   );
 
-  test('configures the button with other props', () => {
+  test('configures the button with other props', async () => {
     renderPickMapLocationButton({ className: 'className' });
 
     expect(screen.getByLabelText('Pick a location on the map')).toHaveClass('className');
   });
 
-  test('starts the picking location mode when the user clicks the button', () => {
+  test('starts the picking location mode when the user clicks the button', async () => {
     const onClick = jest.fn();
     renderPickMapLocationButton({ onClick });
 
@@ -84,7 +84,7 @@ describe('PickMapLocationButton', () => {
     expect(hideSideBar).not.toHaveBeenCalled();
     expect(onClick).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(true);
@@ -94,10 +94,10 @@ describe('PickMapLocationButton', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  test('picks a location by clicking the map', () => {
+  test('picks a location by clicking the map', async () => {
     renderPickMapLocationButton();
 
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(true);
@@ -117,11 +117,11 @@ describe('PickMapLocationButton', () => {
     expect(onPick.mock.calls[0][0].lngLat).toEqual({ lng: 10.012657, lat: 11.666666 });
   });
 
-  test('cancels the picking operation when the user presses a key', () => {
+  test('cancels the picking operation when the user presses a key', async () => {
     const onCancel = jest.fn();
     renderPickMapLocationButton({ onCancel });
 
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledWith(true);
@@ -130,7 +130,7 @@ describe('PickMapLocationButton', () => {
     expect(showSideBar).not.toHaveBeenCalled();
     expect(onCancel).not.toHaveBeenCalled();
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(setIsPickingLocation).toHaveBeenCalledTimes(2);
     expect(setIsPickingLocation).toHaveBeenCalledWith(false);
@@ -141,7 +141,7 @@ describe('PickMapLocationButton', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  test('renders the button content', () => {
+  test('renders the button content', async () => {
     renderPickMapLocationButton({ renderContent: () => <div data-testid="content" /> });
 
     const button = screen.getByLabelText('Pick a location on the map');
@@ -149,9 +149,9 @@ describe('PickMapLocationButton', () => {
     expect(within(button).getByTestId('content')).toBeVisible();
   });
 
-  test('renders a default button content', () => {
+  test('renders a default button content', async () => {
     renderPickMapLocationButton();
 
-    expect(screen.getByLabelText('Pick a location on the map')).toHaveTextContent('marker-feed.svg');
+    expect(screen.getByTestId('location-icon')).toBeVisible();
   });
 });

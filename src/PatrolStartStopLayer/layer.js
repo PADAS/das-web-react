@@ -1,13 +1,13 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { selectPatrolData } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
-import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
+import { MapContext } from '../App';
 import withMapViewConfig from '../WithMapViewConfig';
 import useMapSources from '../hooks/useMapSources';
 import useMapLayers from '../hooks/useMapLayers';
@@ -46,8 +46,8 @@ const textLayout = {
 const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
-const StartStopLayer = (props) => {
-  const { patrolData, map, ...rest } = props;
+const StartStopLayer = ({ patrolData, ...rest }) => {
+  const map = useContext(MapContext);
 
   const [instanceId] = useState(uuid());
   const layerId = `${PATROL_SYMBOLS}-${instanceId}`;
@@ -116,4 +116,4 @@ const makeMapStateToProps = () => {
 };
 
 
-export default connect(makeMapStateToProps, null)(memo(withMap(withMapViewConfig(StartStopLayer))));
+export default connect(makeMapStateToProps, null)(memo(withMapViewConfig(StartStopLayer)));

@@ -68,7 +68,7 @@ describe('AddItemButton - AddItemModal - TypesList', () => {
     expect(onClickType).toHaveBeenCalledTimes(0);
 
     const type2Button = await screen.findByTestId('categoryList-button-typ2');
-    userEvent.click(type2Button);
+    await userEvent.click(type2Button);
 
     expect(onClickType).toHaveBeenCalledTimes(1);
     expect(onClickType).toHaveBeenCalledWith({ display: 'Type 2', id: 'typ2' });

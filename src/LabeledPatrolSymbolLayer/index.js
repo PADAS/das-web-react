@@ -1,23 +1,13 @@
 import React, { memo } from 'react';
 
-import { withMap } from '../EarthRangerMap';
-import LabeledSymbolLayer from '../LabeledSymbolLayer';
-
 import withMapViewConfig from '../WithMapViewConfig';
 
-function LabeledPatrolSymbolLayer(
-  { id, ...rest }
-) {
-  const symbolLayout = {
-    'text-field': '{ticker}',
-    'text-offset': [1.1, -1.1],
-  };
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
-  return <LabeledSymbolLayer
-    id={id}
-    layout={symbolLayout}
-    {...rest}
-  />;
-}
+const LabeledPatrolSymbolLayer = ({ id, ...otherProps }) => <LabeledSymbolLayer
+  id={id}
+  layout={{ 'text-field': '{ticker}', 'text-offset': [1.1, -1.1] }}
+  {...otherProps}
+/>;
 
-export default memo(withMapViewConfig(withMap(LabeledPatrolSymbolLayer)));
+export default memo(withMapViewConfig(LabeledPatrolSymbolLayer));

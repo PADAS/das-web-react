@@ -35,7 +35,7 @@ describe('GpsFormatToggle', () => {
     </Provider>
   );
 
-  test('checks the GPS format option that is currently selected', () => {
+  test('checks the GPS format option that is currently selected', async () => {
     renderGpsFormatToggle();
 
     expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
@@ -50,37 +50,37 @@ describe('GpsFormatToggle', () => {
     expect(screen.getByText(GPS_FORMATS.UTM)).not.toHaveClass('active');
   });
 
-  test('updates the GPS format when clicking an option', () => {
+  test('updates the GPS format when clicking an option', async () => {
     renderGpsFormatToggle();
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(0);
 
-    userEvent.click(screen.getByLabelText('DMS'));
+    await userEvent.click(screen.getByLabelText('DMS'));
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(1);
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DMS });
 
-    userEvent.click(screen.getByLabelText('UTM'));
+    await userEvent.click(screen.getByLabelText('UTM'));
 
     expect(updateUserPreferences).toHaveBeenCalledTimes(2);
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.UTM });
   });
 
-  test('shows the GPS string and the copy button if there are valid lat and lng values', () => {
+  test('shows the GPS string and the copy button if there are valid lat and lng values', async () => {
     renderGpsFormatToggle();
 
     expect(screen.getByText('11.666666°, 10.012657°')).toBeVisible();
     expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
   });
 
-  test('does not show either the GPS string nor the copy button if there are not valid lat and lng values set', () => {
+  test('does not show either the GPS string nor the copy button if there are not valid lat and lng values set', async () => {
     renderGpsFormatToggle({ lat: null, lng: null });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();
   });
 
-  test('does not show either the GPS string nor the copy button if the showGpsString is false', () => {
+  test('does not show either the GPS string nor the copy button if the showGpsString is false', async () => {
     renderGpsFormatToggle({ showGpsString: false });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();

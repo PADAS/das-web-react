@@ -7,8 +7,6 @@ import GlobalMenuDrawer from '../GlobalMenuDrawer';
 
 import * as styles from './styles.module.scss';
 
-const ESC_KEY_CODE = 27;
-
 export const globalMenuDrawerId = 'global-menu';
 
 const Drawer = () => {
@@ -18,7 +16,7 @@ const Drawer = () => {
 
   useEffect(() => {
     const onKeydown = (event) => {
-      if (event.keyCode === ESC_KEY_CODE) {
+      if (event.key === 'Escape') {
         dispatch(hideDrawer());
       }
     };

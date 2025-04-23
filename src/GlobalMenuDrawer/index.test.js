@@ -85,7 +85,7 @@ describe('GlobalMenuDrawer', () => {
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
     const crossButton = (await screen.findAllByRole('button'))[0];
-    userEvent.click(crossButton);
+    await userEvent.click(crossButton);
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
@@ -126,7 +126,7 @@ describe('GlobalMenuDrawer', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const reportsNavigationButton = await screen.findByText('Events');
-    userEvent.click(reportsNavigationButton);
+    await userEvent.click(reportsNavigationButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/events');
@@ -156,7 +156,7 @@ describe('GlobalMenuDrawer', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const patrolsNavigationButton = await screen.findByText('Patrols');
-    userEvent.click(patrolsNavigationButton);
+    await userEvent.click(patrolsNavigationButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/patrols');
@@ -173,7 +173,7 @@ describe('GlobalMenuDrawer', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const mapLayersNavigationButton = await screen.findByText('Map Layers');
-    userEvent.click(mapLayersNavigationButton);
+    await userEvent.click(mapLayersNavigationButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/layers');
@@ -202,7 +202,7 @@ describe('GlobalMenuDrawer', () => {
     expect(global.open).toHaveBeenCalledTimes(0);
 
     const tableauButton = await screen.findByText('Tableau');
-    userEvent.click(tableauButton);
+    await userEvent.click(tableauButton);
 
     expect(fetchTableauDashboard).toHaveBeenCalledTimes(1);
 
@@ -233,7 +233,7 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal).toHaveBeenCalledTimes(0);
 
     const alertsButton = await screen.findByText('Alerts');
-    userEvent.click(alertsButton);
+    await userEvent.click(alertsButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Alerts');
@@ -253,7 +253,7 @@ describe('GlobalMenuDrawer', () => {
     expect(global.open).toHaveBeenCalledTimes(0);
 
     const supportButton = await screen.findByText('Contact Support');
-    userEvent.click(supportButton);
+    await userEvent.click(supportButton);
 
     expect(mockHelpButton.click).toHaveBeenCalled();
   });
@@ -268,7 +268,7 @@ describe('GlobalMenuDrawer', () => {
     expect(global.open).toHaveBeenCalledTimes(0);
 
     const helpCenterButton = await screen.findByText('Help Center');
-    userEvent.click(helpCenterButton);
+    await userEvent.click(helpCenterButton);
 
     expect(global.open).toHaveBeenCalledTimes(1);
     expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/', '_blank', 'noopener,noreferrer');
@@ -284,7 +284,7 @@ describe('GlobalMenuDrawer', () => {
     expect(global.open).toHaveBeenCalledTimes(0);
 
     const communityButton = await screen.findByText('Community');
-    userEvent.click(communityButton);
+    await userEvent.click(communityButton);
 
     expect(global.open).toHaveBeenCalledTimes(1);
     expect(global.open).toHaveBeenCalledWith('https://Community.EarthRanger.com', '_blank', 'noopener,noreferrer');
@@ -300,7 +300,7 @@ describe('GlobalMenuDrawer', () => {
     expect(global.open).toHaveBeenCalledTimes(0);
 
     const usersGuideButton = await screen.findByText('User\'s Guide');
-    userEvent.click(usersGuideButton);
+    await userEvent.click(usersGuideButton);
 
     expect(global.open).toHaveBeenCalledTimes(1);
     expect(global.open).toHaveBeenCalledWith('https://support.earthranger.com/en_US/earthranger-web', '_blank', 'noopener,noreferrer');
@@ -316,7 +316,7 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal).toHaveBeenCalledTimes(0);
 
     const dailyReportButton = await screen.findByText('Daily Report');
-    userEvent.click(dailyReportButton);
+    await userEvent.click(dailyReportButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Daily Report');
@@ -325,7 +325,7 @@ describe('GlobalMenuDrawer', () => {
   describe('exporting field reports', () => {
     const getFieldEventsButton = () => screen.queryByText('Field Events');
 
-    test('does not show the Field Reports button if a user doesn\'t have export event data permissions', () => {
+    test('does not show the Field Reports button if a user doesn\'t have export event data permissions', async () => {
       delete store.data.user.permissions[PERMISSION_KEYS.EVENTS];
 
       render(
@@ -339,7 +339,7 @@ describe('GlobalMenuDrawer', () => {
       expect(fieldEventsButton).toBeNull();
     });
 
-    test('opens the field reports modal when clicking the Field Reports button', () => {
+    test('opens the field reports modal when clicking the Field Reports button', async () => {
       render(
         <Provider store={mockStore(store)}>
           <GlobalMenuDrawer />
@@ -349,7 +349,7 @@ describe('GlobalMenuDrawer', () => {
       expect(addModal).toHaveBeenCalledTimes(0);
 
       const fieldEventsButton = getFieldEventsButton();
-      userEvent.click(fieldEventsButton);
+      await userEvent.click(fieldEventsButton);
 
       expect(addModal).toHaveBeenCalledTimes(1);
       expect(addModal.mock.calls[0][0].title).toBe('Field Events');
@@ -367,7 +367,7 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal).toHaveBeenCalledTimes(0);
 
     const masterKMLButton = await screen.findByText('Subject KML');
-    userEvent.click(masterKMLButton);
+    await userEvent.click(masterKMLButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Subject KML');
@@ -377,7 +377,7 @@ describe('GlobalMenuDrawer', () => {
   describe('exporting subject information', () => {
     const getSubjectInfoButton = () => screen.queryByText('Subject Summary');
 
-    test('does not show the subject information link if a user doesn\'t have export observation data permissions', () => {
+    test('does not show the subject information link if a user doesn\'t have export observation data permissions', async () => {
       delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
 
       render(
@@ -390,7 +390,7 @@ describe('GlobalMenuDrawer', () => {
       expect(subjectInfoButton).toBeNull();
     });
 
-    test('opens the subject information modal when clicking the Subject Information button', () => {
+    test('opens the subject information modal when clicking the Subject Information button', async () => {
       render(
         <Provider store={mockStore(store)}>
           <GlobalMenuDrawer />
@@ -400,7 +400,7 @@ describe('GlobalMenuDrawer', () => {
       expect(addModal).toHaveBeenCalledTimes(0);
 
       const subjectInfoButton = getSubjectInfoButton();
-      userEvent.click(subjectInfoButton);
+      await userEvent.click(subjectInfoButton);
 
       expect(addModal).toHaveBeenCalledTimes(1);
       expect(addModal.mock.calls[0][0].title).toBe('Subject Summary');
@@ -410,7 +410,7 @@ describe('GlobalMenuDrawer', () => {
   describe('exporting subject reports', () => {
     const getSubjectReportsButton = () => screen.queryByText('Observations');
 
-    test('does not show the subject reports link if a user doesn\'t have export observation data permissions', () => {
+    test('does not show the subject reports link if a user doesn\'t have export observation data permissions', async () => {
       delete store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS];
 
       render(
@@ -423,7 +423,7 @@ describe('GlobalMenuDrawer', () => {
       expect(subjectReportsButton).toBeNull();
     });
 
-    test('opens the subject reports modal when clicking the Subject Reports button', () => {
+    test('opens the subject reports modal when clicking the Subject Reports button', async () => {
       render(
         <Provider store={mockStore(store)}>
           <GlobalMenuDrawer />
@@ -433,7 +433,7 @@ describe('GlobalMenuDrawer', () => {
       expect(addModal).toHaveBeenCalledTimes(0);
 
       const subjectReportsButton = getSubjectReportsButton();
-      userEvent.click(subjectReportsButton);
+      await userEvent.click(subjectReportsButton);
 
       expect(addModal).toHaveBeenCalledTimes(1);
       expect(addModal.mock.calls[0][0].title).toBe('Observations');

@@ -104,8 +104,8 @@ describe('Header', () => {
     renderHeader({ patrol: scheduledPatrol });
 
     const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
-    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}2');
+    await userEvent.tab();
 
     await waitFor(() => {
       expect(onChangeTitle).toHaveBeenCalledTimes(1);
@@ -117,8 +117,8 @@ describe('Header', () => {
     renderHeader({ patrol: scheduledPatrol });
 
     const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
-    userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '{del}{del}{del}{del}{del}{del}');
+    await userEvent.tab();
 
     expect(onChangeTitle).toHaveBeenCalledTimes(1);
     expect(onChangeTitle).toHaveBeenCalledWith('Future');
@@ -131,7 +131,7 @@ describe('Header', () => {
     expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const buttons = await screen.findAllByRole('button');
-    userEvent.click(buttons[0]);
+    await userEvent.click(buttons[0]);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
@@ -146,7 +146,7 @@ describe('Header', () => {
     expect(setRedirectTo).toHaveBeenCalledTimes(0);
 
     const restorePatrolButton = await screen.findByText('Restore');
-    userEvent.click(restorePatrolButton);
+    await userEvent.click(restorePatrolButton);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');

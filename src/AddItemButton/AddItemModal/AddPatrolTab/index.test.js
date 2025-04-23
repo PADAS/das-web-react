@@ -70,7 +70,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(4);
 
     const searchBar = await screen.findByTestId('search-input');
-    userEvent.type(searchBar, 'routine');
+    await userEvent.type(searchBar, 'routine');
 
     const typeListItems = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
 
@@ -82,12 +82,12 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     renderAddPatrolTab();
 
     const searchBar = await screen.findByTestId('search-input');
-    userEvent.type(searchBar, 'routine');
+    await userEvent.type(searchBar, 'routine');
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(1);
 
     const clearSearchBarButton = await screen.findByTestId('reset-search-button');
-    userEvent.click(clearSearchBarButton);
+    await userEvent.click(clearSearchBarButton);
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(4);
   });
@@ -100,7 +100,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 
     const typeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
-    userEvent.click(typeButton);
+    await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
@@ -113,7 +113,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const typeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
-    userEvent.click(typeButton);
+    await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);

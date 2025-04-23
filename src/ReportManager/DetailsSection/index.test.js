@@ -11,7 +11,7 @@ import { MapContext } from '../../App';
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
-import { render, screen, within } from '../../test-utils';
+import { render, screen, waitFor, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { TrackerContext } from '../../utils/analytics';
 import { VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
@@ -53,8 +53,6 @@ describe('ReportManager - DetailsSection', () => {
 
   let map, store, submitFormButtonRef;
   beforeEach(() => {
-    jest.useFakeTimers();
-
     map = createMapMock();
 
     submitFormButtonRef = { current: {} };
@@ -125,12 +123,12 @@ describe('ReportManager - DetailsSection', () => {
     expect(screen.queryByTestId('reportManager-detailsSection-stateDropdownMenu')).toBeNull();
 
     const stateDropdownToggleButton = screen.getByText('active');
-    userEvent.click(stateDropdownToggleButton);
+    await userEvent.click(stateDropdownToggleButton);
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
 
     expect(stateDropdownMenu).toHaveClass('show');
 
-    userEvent.click(stateDropdownToggleButton);
+    await userEvent.click(stateDropdownToggleButton);
 
     expect(stateDropdownMenu).not.toHaveClass('show');
   });
@@ -139,12 +137,12 @@ describe('ReportManager - DetailsSection', () => {
     renderDetailsSection();
 
     const stateDropdownToggleButton = screen.getByText('active');
-    userEvent.click(stateDropdownToggleButton);
+    await userEvent.click(stateDropdownToggleButton);
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
 
     expect(stateDropdownMenu).toHaveClass('show');
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(stateDropdownMenu).not.toHaveClass('show');
   });
@@ -153,7 +151,7 @@ describe('ReportManager - DetailsSection', () => {
     renderDetailsSection();
 
     const stateDropdownToggleButton = screen.getByText('active');
-    userEvent.click(stateDropdownToggleButton);
+    await userEvent.click(stateDropdownToggleButton);
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
     const stateDropdownItems = within(stateDropdownMenu).getAllByRole('button');
 
@@ -165,13 +163,13 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the state of the event when selecting an item from the state dropdown', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByText('active'));
+    await userEvent.click(screen.getByText('active'));
     const stateDropdownMenu = screen.getByTestId('reportManager-detailsSection-stateDropdownMenu');
 
     expect(onReportStateChange).toHaveBeenCalledTimes(0);
     expect(stateDropdownMenu).toHaveClass('show');
 
-    userEvent.click(screen.getByText('resolved'));
+    await userEvent.click(screen.getByText('resolved'));
 
     expect(onReportStateChange).toHaveBeenCalledTimes(1);
     expect(onReportStateChange.mock.calls[0][0]).toBe('resolved');
@@ -199,11 +197,11 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the reporter of the event when selecting an item from the reported by select', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByText('Reported By...'));
+    await userEvent.click(screen.getByText('Reported By...'));
 
     expect(onReportedByChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(screen.getByText('Canek'));
+    await userEvent.click(screen.getByText('Canek'));
 
     expect(onReportedByChange).toHaveBeenCalledTimes(1);
     expect(onReportedByChange).toHaveBeenCalledWith({
@@ -223,11 +221,11 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the priority of the event when selecting an item from priority select', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByText('Red'));
+    await userEvent.click(screen.getByText('Red'));
 
     expect(onPriorityChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(screen.getByText('Green'));
+    await userEvent.click(screen.getByText('Green'));
 
     expect(onPriorityChange).toHaveBeenCalledTimes(1);
     expect(onPriorityChange).toHaveBeenCalledWith(
@@ -283,8 +281,8 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the location of the event when selecting a location from the location selector input', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByLabelText('Event Location'));
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(screen.getByLabelText('Event Location'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onReportLocationChange).toHaveBeenCalledTimes(0);
 
@@ -309,15 +307,15 @@ describe('ReportManager - DetailsSection', () => {
   test('changes the date of the event when selecting an option from the date picker', async () => {
     renderDetailsSection();
 
-    userEvent.click(screen.getByTestId('datePicker-input'));
+    await userEvent.click(screen.getByTestId('datePicker-input'));
 
     expect(onReportDateChange).not.toHaveBeenCalled();
 
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
-    userEvent.click(datePickerOpenCalendarButton);
+    await userEvent.click(datePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[16]);
+    await userEvent.click(options[16]);
 
     expect(onReportDateChange).toHaveBeenCalledTimes(1);
     expect(onReportDateChange.mock.calls[0][0].toISOString()).toMatch(/^2022-04-12/);
@@ -342,10 +340,10 @@ describe('ReportManager - DetailsSection', () => {
 
     const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
     const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
-    userEvent.click(timePickerOpenOptionsButton);
+    await userEvent.click(timePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
-    userEvent.click(timeOptionsListItems[2]);
+    await userEvent.click(timeOptionsListItems[2]);
 
     expect(onReportDateChange).toHaveBeenCalled();
   });
@@ -391,7 +389,7 @@ describe('ReportManager - DetailsSection', () => {
 
     expect(onLegacyFormChange).toHaveBeenCalledTimes(0);
 
-    userEvent.type(screen.getByLabelText('Type of accident'), 'Truck crash');
+    await userEvent.type(screen.getByLabelText('Type of accident'), 'Truck crash');
 
     expect(onLegacyFormChange).toHaveBeenCalled();
   });
@@ -403,7 +401,9 @@ describe('ReportManager - DetailsSection', () => {
 
     submitFormButtonRef.current.click();
 
-    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
   });
 
   test('shows a loader while the schema loads', async () => {

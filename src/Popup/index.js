@@ -1,13 +1,14 @@
-import React, { Fragment, useEffect, useRef } from 'react';
-import { withMap } from '../EarthRangerMap';
+import React, { useContext, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import mapboxgl from 'mapbox-gl';
-
 import xor from 'lodash/xor';
 
-const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children, map }) => {
-  const classNameRef = useRef('');
+import { MapContext } from '../App';
 
+const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children }) => {
+  const map = useContext(MapContext);
+
+  const classNameRef = useRef('');
   const popupRef = useRef(null);
   const popupContainerRef = useRef(document.createElement('div'));
 
@@ -73,9 +74,9 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
   }, []);
 
   return createPortal(
-    <Fragment>{children}</Fragment>,
+    <>{children}</>,
     popupContainerRef.current
   );
 };
 
-export default withMap(Popup);
+export default Popup;

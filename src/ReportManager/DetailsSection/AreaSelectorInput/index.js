@@ -151,7 +151,7 @@ const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = nul
       onClick={onClickAreaControl}
       ref={locationInputAnchorRef}
     >
-      <PolygonIcon className={styles.icon} />
+      <PolygonIcon className={styles.icon} data-testid="polygon-icon" />
 
       <span className={styles.displayString}>{displayString}</span>
 

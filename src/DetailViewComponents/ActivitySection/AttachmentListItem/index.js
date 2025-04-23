@@ -123,7 +123,7 @@ const AttachmentListItem = ({
 
         <div className={styles.itemActionButtonContainer}>
           <ItemActionButton onClick={onShowImageFullScreen} tooltip={t('fullViewButtonTooltip')}>
-            <ExpandArrowIcon />
+            <ExpandArrowIcon data-testid="expand-arrow-icon" />
           </ItemActionButton>
         </div>
 
@@ -160,7 +160,7 @@ const AttachmentListItem = ({
 
   return <li className={`${styles.itemRow} ${styles.nonImageAttachment}`} ref={ref}>
     <div className={styles.itemIcon}>
-      <AttachmentIcon />
+      <AttachmentIcon data-testid="attachment-icon" />
     </div>
 
     <div className={styles.itemDetails}>

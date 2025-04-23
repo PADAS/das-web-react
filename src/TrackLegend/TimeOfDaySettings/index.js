@@ -85,8 +85,8 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
         type="button"
       >
         {isExpanded
-          ? <ArrowUpSimpleIcon className={styles.arrowIcon} />
-          : <ArrowDownSimpleIcon className={styles.arrowIcon} />}
+          ? <ArrowUpSimpleIcon className={styles.arrowIcon} data-testid="arrow-up-simple-icon" />
+          : <ArrowDownSimpleIcon className={styles.arrowIcon} data-testid="arrow-down-simple-icon" />}
       </button>
     </div>
 

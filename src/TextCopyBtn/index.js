@@ -11,7 +11,7 @@ const TOAST_AUTOCLOSE_TIME = 2000;
 const TextCopyBtn = ({
   className = '',
   getText = null,
-  icon = <ClipboardIcon />,
+  icon = <ClipboardIcon data-testid="clipboard-icon" />,
   label = '',
   permitPropagation = false,
   successMessage = null,

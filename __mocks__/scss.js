@@ -1,7 +1,7 @@
 module.exports = new Proxy(
   {},
   {
-    get: (target, key) => {
+    get: (_target, key) => {
       if (key === '__esModule') {
         return true;
       }

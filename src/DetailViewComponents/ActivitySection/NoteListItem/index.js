@@ -92,7 +92,7 @@ const NoteListItem = ({
   return <li className={isOpen ? styles.openItem : ''} ref={ref}>
     <div className={`${styles.itemRow} ${styles.collapseRow}`} onClick={isOpen ? onCollapse: onExpand}>
       <div className={styles.itemIcon}>
-        <NoteIcon />
+        <NoteIcon data-testid="note-icon" />
       </div>
 
       <div className={`${styles.noteTitle} ${styles.itemDetails}`}>

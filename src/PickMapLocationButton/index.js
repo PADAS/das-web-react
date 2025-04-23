@@ -83,7 +83,7 @@ const PickMapLocationButton = ({
         type="button"
         {...otherProps}
       >
-      {renderContent?.() || <LocationIcon />}
+      {renderContent?.() || <LocationIcon data-testid="location-icon" />}
     </button>
 
     {showInstructionsPopup && isPickingMapLocation && <Popup

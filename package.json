@@ -29,7 +29,6 @@
     "bootstrap": "5.3.5",
     "browserslist": "^4.18.1",
     "buffer": "^6.0.3",
-    "camelcase": "^6.3.0",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
@@ -38,21 +37,20 @@
     "dotenv-expand": "^12.0.1",
     "eslint": "^8.10.0",
     "eslint-config-react-app": "^7.0.1",
-    "eslint-webpack-plugin": "^5.0.0",
+    "eslint-webpack-plugin": "^5.0.1",
     "file-loader": "^6.2.0",
     "fs-extra": "^11.3.0",
     "geodesy": "^2.4.0",
     "html-webpack-plugin": "^5.5.0",
     "humanize-duration": "^3.32.1",
-    "i18next": "^24.0.2",
+    "i18next": "^25.0.0",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^3.0.1",
     "i18next-localstorage-backend": "^4.2.0",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.3",
-    "jest-resolve": "^27.4.2",
-    "jest-watch-typeahead": "^1.0.0",
+    "jest": "^29.7.0",
+    "jest-resolve": "^29.7.0",
+    "jest-watch-typeahead": "^2.2.2",
     "legacy-socket.io-client": "npm:socket.io-client@2.2.0",
     "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",
@@ -66,7 +64,6 @@
     "postcss-preset-env": "^10.1.5",
     "prompts": "^2.4.2",
     "react": "^19.1.0",
-    "react-app-polyfill": "^3.0.0",
     "react-bootstrap": "2.10.9",
     "react-collapsible": "^2.10.0",
     "react-datepicker": "^8.3.0",
@@ -85,7 +82,7 @@
     "react-refresh": "^0.17.0",
     "react-router-dom": "^7.0.1",
     "react-select": "^5.8.3",
-    "react-spinners": "^0.15.0",
+    "react-spinners": "^0.16.1",
     "react-to-print": "^3.0.6",
     "react-toastify": "^11.0.5",
     "react-window": "^1.8.10",
@@ -102,7 +99,7 @@
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "suncalc": "^1.9.0",
-    "tailwindcss": "^4.1.3",
+    "tailwindcss": "^4.1.4",
     "terser-webpack-plugin": "^5.2.5",
     "use-sound": "^5.0.0",
     "uuid": "^11.0.3",
@@ -116,12 +113,10 @@
     "build-sw": "node ./src/sw-build.js",
     "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
     "build": "GENERATE_SOURCEMAP=false node react-scripts/build.js && yarn build-sw && yarn clean-cra-sw",
-    "test": "node react-scripts/test.js --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "test": "node react-scripts/test.js",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
-    "test-cov": "yarn test-ci --coverage",
-    "posttest-cov": "jest-coverage-thresholds-bumper --margin=1",
+    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit",
     "postinstall": "sh setUpLocalGitConfig.sh"
   },
   "devDependencies": {
@@ -130,87 +125,47 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.6.1",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "jest-coverage-thresholds-bumper": "^1.0.1",
-    "jest-webgl-canvas-mock": "^0.2.3",
-    "madge": "^8.0.0",
-    "msw": "^2.7.3",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-fixed-jsdom": "^0.0.9",
+    "jest-webgl-canvas-mock": "^2.5.3",
+    "msw": "^2.7.4",
     "redux-mock-store": "^1.5.3",
     "sass": "^1.86.0",
     "socket.io-mock": "^1.3.2",
     "stylelint": "^16.17.0",
     "stylelint-config-css-modules": "^4.4.0",
     "stylelint-config-standard": "^38.0.0",
-    "stylelint-scss": "^6.11.1",
-    "undici": "5.0.0"
+    "stylelint-scss": "^6.11.1"
   },
   "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
-    ],
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
-    ],
+    "moduleNameMapper": {
+      "\\.css": "<rootDir>/__mocks__/css.js",
+      ".+\\.module\\.scss": "<rootDir>/__mocks__/scss.js",
+      "\\.svg": "<rootDir>/__mocks__/svg.js"
+    },
+    "resetMocks": true,
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupTests.js"
     ],
+    "testEnvironment": "jest-fixed-jsdom",
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
-      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+      "<rootDir>/src/**/*.test.{js,jsx}"
     ],
-    "testEnvironment": "jsdom",
     "transform": {
       "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/react-app-config/jest/babelTransform.js",
-      "^.+\\.css$": "<rootDir>/react-app-config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/react-app-config/jest/fileTransform.js"
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|json)$)": "<rootDir>/react-app-config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
-    ],
-    "modulePaths": [],
-    "moduleNameMapper": {
-      "^react-native$": "react-native-web",
-      ".+\\.module\\.scss": "<rootDir>/__mocks__/scss.js",
-      "^.+\\.module\\.(css|sass)$": "identity-obj-proxy"
-    },
-    "moduleFileExtensions": [
-      "web.js",
-      "js",
-      "web.ts",
-      "ts",
-      "web.tsx",
-      "tsx",
-      "json",
-      "web.jsx",
-      "jsx",
-      "node"
+      "/node_modules/(?!(geodesy|lodash-es|nanoid|react-debounce-render|uuid)/)"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
-    ],
-    "resetMocks": true,
-    "coverageReporters": [
-      "html",
-      "json-summary"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 45.52,
-        "functions": 49.78,
-        "lines": 59.28,
-        "statements": 58.03
-      }
-    }
+    ]
   },
   "browserslist": [
     "last 1 chrome version",

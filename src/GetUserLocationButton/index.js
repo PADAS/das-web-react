@@ -61,7 +61,7 @@ const GetUserLocationButton = ({ onClick = null, onGet, ref, renderContent = nul
         type="button"
         {...otherProps}
       >
-      {renderContent?.() || <GpsLocationIcon />}
+      {renderContent?.() || <GpsLocationIcon data-testid="gps-location-icon" />}
     </button>
 
     {isLoading && <LoadingOverlay className={styles.loadingOverlay} message={t('loadingOverlayMessage')} />}

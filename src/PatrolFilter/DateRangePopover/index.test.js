@@ -30,7 +30,10 @@ describe('DateRangePopover', () => {
       data: {
         patrolFilter: {
           filter: {
-            date_range: INITIAL_FILTER_STATE.filter.date_range,
+            date_range: {
+              lower: INITIAL_FILTER_STATE.filter.date_range.lower,
+              upper: INITIAL_FILTER_STATE.filter.date_range.upper,
+            },
           },
         },
       },
@@ -51,9 +54,9 @@ describe('DateRangePopover', () => {
     expect(resetGlobalDateRange).toHaveBeenCalledTimes(0);
 
     const resetButton = await screen.findByText('Reset');
-    userEvent.click(resetButton);
+    await userEvent.click(resetButton);
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(resetGlobalDateRange).toHaveBeenCalledTimes(1);
     });
   });
@@ -69,13 +72,13 @@ describe('DateRangePopover', () => {
 
     // Click the patrol filter settings button
     const patrolFilterSettings = await screen.getByTestId('settings-gear-icon');
-    userEvent.click(patrolFilterSettings);
+    await userEvent.click(patrolFilterSettings);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     // Click date overlap radio button
     const dateRangeOverlapRadioButton = (await screen.findAllByRole('radio'))[1];
-    userEvent.click(dateRangeOverlapRadioButton);
+    await userEvent.click(dateRangeOverlapRadioButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrols_overlap_daterange: true } });

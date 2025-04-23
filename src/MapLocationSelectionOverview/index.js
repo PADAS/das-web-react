@@ -87,9 +87,11 @@ const MapLocationSelectionOverview = ({
         : t(`chooseLocationHeader.${patrol ? 'patrol' : 'report'}`)}</h2>
 
       <div className={styles.actions}>
-        {onShowInformation && <InformationIcon onClick={onClickInformationIcon} />}
+        {onShowInformation && <InformationIcon data-testid="information-icon" onClick={onClickInformationIcon} />}
 
-        {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+        {isOpen
+          ? <ArrowUpSimpleIcon data-testid="arrow-up-simple-icon" />
+          : <ArrowDownSimpleIcon data-testid="arrow-down-simple-icon" />}
       </div>
     </div>
 

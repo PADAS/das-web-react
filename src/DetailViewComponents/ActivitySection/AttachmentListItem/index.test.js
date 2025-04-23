@@ -116,8 +116,8 @@ describe('ActivitySection - AttachmentListItem', () => {
 
     expect(downloadFileFromUrl).toHaveBeenCalledTimes(0);
 
-    const downloadButton = await screen.findByText('download-arrow.svg');
-    userEvent.click(downloadButton);
+    const downloadButton = await screen.findByTestId('activitySection-downloadArrow-1234');
+    await userEvent.click(downloadButton);
 
     expect(downloadFileFromUrl).toHaveBeenCalledTimes(1);
     expect(downloadFileFromUrl).toHaveBeenCalledWith('/file.txt', { filename: 'file.txt' });
@@ -135,7 +135,7 @@ describe('ActivitySection - AttachmentListItem', () => {
         />
     );
 
-    expect((await screen.queryByText('trash-can.svg'))).toBeNull();
+    expect((await screen.queryByTestId('activitySection-trashCan-file.txt'))).toBeNull();
   });
 
   test('user can not download new attachments', async () => {
@@ -143,7 +143,7 @@ describe('ActivitySection - AttachmentListItem', () => {
       <AttachmentListItem attachment={{ name: 'file.txt' }} onDelete={onDelete} />
     );
 
-    expect((await screen.queryByText('download-arrow.svg'))).toBeNull();
+    expect((await screen.queryByTestId('activitySection-downloadArrow-1234'))).toBeNull();
   });
 
   test('user can delete new attachments', async () => {
@@ -154,8 +154,8 @@ describe('ActivitySection - AttachmentListItem', () => {
 
     expect(onDelete).toHaveBeenCalledTimes(0);
 
-    const deleteButton = await screen.findByText('trash-can.svg');
-    userEvent.click(deleteButton);
+    const deleteButton = await screen.findByTestId('activitySection-trashCan-file.txt');
+    await userEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
@@ -201,8 +201,8 @@ describe('ActivitySection - AttachmentListItem', () => {
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
 
-    const expandArrowIcon = await screen.findByText('expand-arrow.svg');
-    userEvent.click(expandArrowIcon);
+    const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
+    await userEvent.click(expandArrowIcon);
 
     await waitFor(() => {
       expect(mockStoreInstance.getActions()).toHaveLength(1);
@@ -221,8 +221,8 @@ describe('ActivitySection - AttachmentListItem', () => {
 
     expect(mockStoreInstance.getActions()).toHaveLength(0);
 
-    const expandArrowIcon = await screen.findByText('expand-arrow.svg');
-    userEvent.click(expandArrowIcon);
+    const expandArrowIcon = await screen.findByTestId('expand-arrow-icon');
+    await userEvent.click(expandArrowIcon);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
     expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');
@@ -237,8 +237,8 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-1234'))).toHaveClass('collapse');
 
-    const expandAttachmentButton = await screen.findByText('arrow-down-simple.svg');
-    userEvent.click(expandAttachmentButton);
+    const expandAttachmentButton = await screen.findByTestId('activitySection-arrowDown-1234');
+    await userEvent.click(expandAttachmentButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
@@ -256,8 +256,8 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-1234'))).toHaveClass('show');
 
-    const colapseAttachmentButton = await screen.findByText('arrow-up-simple.svg');
-    userEvent.click(colapseAttachmentButton);
+    const colapseAttachmentButton = await screen.findByTestId('activitySection-arrowUp-1234');
+    await userEvent.click(colapseAttachmentButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
@@ -273,7 +273,7 @@ describe('ActivitySection - AttachmentListItem', () => {
     expect(mockStoreInstance.getActions()).toHaveLength(0);
 
     const expandedImage = await screen.findByRole('img');
-    userEvent.click(expandedImage);
+    await userEvent.click(expandedImage);
 
     expect(mockStoreInstance.getActions()).toHaveLength(1);
     expect(mockStoreInstance.getActions()[0].type).toEqual('ADD_MODAL');

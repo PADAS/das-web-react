@@ -1,28 +1,14 @@
-import React, { Fragment, memo } from 'react';
+import React, { memo } from 'react';
+import { useSelector } from 'react-redux';
 
-import { connect } from 'react-redux';
-
-import { withMap } from '../EarthRangerMap';
 import { selectPatrolsWithTracks } from '../selectors/patrols';
 
 import StartStopLayer from './layer';
 
+const PatrolStartStopLayer = () => {
+  const patrolsWithTracks = useSelector(selectPatrolsWithTracks);
 
-const PatrolStartStopLayer = ({ patrolsWithTracks }) => {
-  const onSymbolClick = () => {};
-
-  return <Fragment>
-    {patrolsWithTracks
-      .map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
-  </Fragment>;
-
+  return patrolsWithTracks.map((patrol, index) => <StartStopLayer key={index} patrol={patrol} />);
 };
 
-const mapStateToProps = (state) => ({
-  patrolsWithTracks: selectPatrolsWithTracks(state),
-});
-
-
-export default connect(mapStateToProps, null)(withMap(
-  memo(PatrolStartStopLayer),
-));
+export default memo(PatrolStartStopLayer);
