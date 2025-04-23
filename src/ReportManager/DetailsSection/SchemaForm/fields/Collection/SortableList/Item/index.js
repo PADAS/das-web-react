@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,7 @@ import { getItemTitle } from './utils';
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Item = ({
   blurLocationMarker = null,
@@ -33,11 +33,12 @@ const Item = ({
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  ref,
   renderField = null,
   setIsFormModalOpen = null,
   setIsFormPreviewOpen = null,
   ...otherProps
-}, ref) => {
+}) => {
   const { i18n, t } = useTranslation('reports', {
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
@@ -231,4 +232,4 @@ const Item = ({
   </li>;
 };
 
-export default forwardRef(Item);
+export default Item;

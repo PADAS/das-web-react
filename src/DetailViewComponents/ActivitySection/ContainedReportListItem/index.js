@@ -19,8 +19,8 @@ import ItemActionButton from '../ItemActionButton';
 import ReportFormSummary from '../../../ReportFormSummary';
 import ReportListItem from '../../../ReportListItem';
 
-import activitySectionStyles from '../styles.module.scss';
-import styles from './styles.module.scss';
+import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 30;
@@ -68,7 +68,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip={t('goToReportButtonTooltip')}>
-          <ArrowIntoIcon />
+          <ArrowIntoIcon data-testid="arrow-into-icon" />
         </ItemActionButton>}
       </div>
 

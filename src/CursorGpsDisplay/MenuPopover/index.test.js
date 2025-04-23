@@ -20,12 +20,14 @@ jest.mock('../../hooks/useJumpToLocation', () => jest.fn());
 describe('CursorGpsDisplay - MenuPopover', () => {
   const onClose = jest.fn();
 
-  let jumpToLocationMock, showPopupMock, store;
-  beforeEach(() => {
+  let jumpToLocationMock, showPopupMock, store, user;
+  beforeEach(async () => {
     showPopupMock = jest.fn(() => () => {});
     showPopup.mockImplementation(showPopupMock);
     jumpToLocationMock = jest.fn();
     useJumpToLocation.mockImplementation(() => jumpToLocationMock);
+
+    user = await userEvent.setup({ delay: null });
 
     store = {
       data: {},
@@ -59,16 +61,16 @@ describe('CursorGpsDisplay - MenuPopover', () => {
     </Provider>
   );
 
-  test('jumps to the typed coordinates by pressing enter', () => {
+  test('jumps to the typed coordinates by pressing enter', async () => {
     renderMenuPopover();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByLabelText('GPS location'), '10,10');
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(showPopup).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.keyboard('{Enter}');
+    await user.keyboard('{Enter}');
 
     expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
     expect(jumpToLocationMock).toHaveBeenCalledWith([10, 10]);
@@ -89,41 +91,41 @@ describe('CursorGpsDisplay - MenuPopover', () => {
     });
   });
 
-  test('closes the menu if the user presses escape', () => {
+  test('closes the menu if the user presses escape', async () => {
     renderMenuPopover();
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
-    userEvent.keyboard('{Escape}');
+    await user.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('disables the GPS input button if there is no value', () => {
+  test('disables the GPS input button if there is no value', async () => {
     renderMenuPopover();
 
     expect(screen.getByLabelText('Jump to coordinates')).toBeDisabled();
   });
 
-  test('enables the GPS input button if there is a value', () => {
+  test('enables the GPS input button if there is a value', async () => {
     renderMenuPopover();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByLabelText('GPS location'), '10,10');
 
     expect(screen.getByLabelText('Jump to coordinates')).toBeEnabled();
   });
 
-  test('jumps to the typed coordinates by clicking the GPS input button', () => {
+  test('jumps to the typed coordinates by clicking the GPS input button', async () => {
     renderMenuPopover();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await user.type(screen.getByLabelText('GPS location'), '10,10');
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(showPopup).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Jump to coordinates'));
+    await user.click(screen.getByLabelText('Jump to coordinates'));
 
     expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
     expect(jumpToLocationMock).toHaveBeenCalledWith([10, 10]);
@@ -144,7 +146,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
     });
   });
 
-  test('closes the menu if the user clicks outside', () => {
+  test('closes the menu if the user clicks outside', async () => {
     render(<>
       <div data-testid="outside" />
 
@@ -163,7 +165,7 @@ describe('CursorGpsDisplay - MenuPopover', () => {
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('outside'));
+    await user.click(screen.getByTestId('outside'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

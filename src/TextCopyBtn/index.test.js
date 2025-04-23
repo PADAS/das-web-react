@@ -29,7 +29,7 @@ describe('TextCopyBtn', () => {
 
     expect(toast.info).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Copy to clipboard'));
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith('text');
@@ -50,7 +50,7 @@ describe('TextCopyBtn', () => {
 
     expect(toast.info).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Copy to clipboard'));
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith('text gotten');
@@ -68,7 +68,7 @@ describe('TextCopyBtn', () => {
     renderTextCopyBtn({ successMessage: 'success message' });
 
     window.navigator.clipboard = { writeText: jest.fn() };
-    userEvent.click(screen.getByLabelText('Copy to clipboard'));
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledTimes(1);
@@ -80,15 +80,15 @@ describe('TextCopyBtn', () => {
   });
 
   test('shows a custom icon in the button', async () => {
-    renderTextCopyBtn({ icon: <LinkIcon /> });
+    renderTextCopyBtn({ icon: <LinkIcon data-testid="link-icon" /> });
 
-    expect(screen.getByLabelText('Copy to clipboard')).toHaveTextContent('link.svg');
+    expect(screen.getByTestId('link-icon')).toBeVisible();
   });
 
   test('shows a default icon in the button', async () => {
     renderTextCopyBtn();
 
-    expect(screen.getByLabelText('Copy to clipboard')).toHaveTextContent('clipboard-icon.svg');
+    expect(screen.getByTestId('clipboard-icon')).toBeVisible();
   });
 
   test('shows text inside the button', async () => {

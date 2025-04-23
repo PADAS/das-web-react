@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '../test-utils';
 
 import { FEATURE_FLAG_LABELS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
@@ -97,9 +97,9 @@ describe('#useFeatureFlag', () => {
     wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;  // eslint-disable-line react/display-name
   });
   test('throwing an error if no matching feature flag has been set in the environment file', async () => {
-    const { result } = renderHook(() => useFeatureFlag('this_does_not_exist_anywhere_yo'), { wrapper });
-
-    expect(result.error.message).toBe('no feature flag with that name exists');
+    expect(() => {
+      renderHook(() => useFeatureFlag('this_does_not_exist_anywhere_yo'), { wrapper });
+    }).toThrow('no feature flag with that name exists');
   });
 
   test('using the default value if no override has been set', () => {

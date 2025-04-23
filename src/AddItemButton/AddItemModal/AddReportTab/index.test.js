@@ -59,7 +59,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(106);
 
     const searchBar = await screen.findByTestId('search-input');
-    userEvent.type(searchBar, 'fire');
+    await userEvent.type(searchBar, 'fire');
 
     const typeListItems = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
 
@@ -71,12 +71,12 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     renderAddReportTab();
 
     const searchBar = await screen.findByTestId('search-input');
-    userEvent.type(searchBar, 'fire');
+    await userEvent.type(searchBar, 'fire');
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(3);
 
     const clearSearchBarButton = await screen.findByTestId('reset-search-button');
-    userEvent.click(clearSearchBarButton);
+    await userEvent.click(clearSearchBarButton);
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(106);
   });
@@ -89,7 +89,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect(onAddReport).toHaveBeenCalledTimes(0);
 
     const typeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
-    userEvent.click(typeButton);
+    await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(onAddReport).toHaveBeenCalledTimes(1);
@@ -111,7 +111,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     });
 
     const pointTypeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
-    userEvent.click(pointTypeButton);
+    await userEvent.click(pointTypeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);
@@ -121,7 +121,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect(mockNavState.state.reportData).toEqual(reportData);
 
     const polygonTypeButton = await screen.findByTestId('categoryList-button-3ff27054-da2a-41a5-8785-a10a90e57486'); // a known event type fixture with a Polygon geometry_type
-    userEvent.click(polygonTypeButton);
+    await userEvent.click(polygonTypeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(2);
     expect(navigate).toHaveBeenCalledTimes(2);
@@ -136,7 +136,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const typeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
-    userEvent.click(typeButton);
+    await userEvent.click(typeButton);
 
     expect(onHideModal).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledTimes(1);

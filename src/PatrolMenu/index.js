@@ -1,5 +1,4 @@
 import React, { memo, useMemo, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +18,7 @@ import { basePrintingStyles } from '../utils/styles';
 import TextCopyBtn from '../TextCopyBtn';
 import KebabMenu from '../KebabMenu';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -28,10 +27,10 @@ const PatrolMenu = ({
   onPatrolChange,
   menuRef,
   printableContentRef,
-  patrolTitle,
-  isPatrolCancelled,
-  showPatrolPrintOption,
-  className,
+  patrolTitle = '',
+  isPatrolCancelled = false,
+  showPatrolPrintOption = true,
+  className = '',
   ...rest
 }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolMenu' });
@@ -116,14 +115,14 @@ const PatrolMenu = ({
     >
     { (canEditPatrol && !isPatrolCancelled && !patrolIsDone) &&
       <KebabMenu.Option disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>
-        { canEnd ? <StopIcon /> : <PlayIcon /> }
+        { canEnd ? <StopIcon /> : <PlayIcon data-testid="play-icon" /> }
         {patrolStartStopTitle}
       </KebabMenu.Option>
     }
 
     { canEditPatrol &&
       <KebabMenu.Option disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancellationState}>
-        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon /> }
+        { isPatrolCancelled || patrolIsDone ? <RestoreIcon /> : <CloseIcon data-testid="close-icon" /> }
         {patrolCancelRestoreTitle}
       </KebabMenu.Option>
     }
@@ -133,7 +132,7 @@ const PatrolMenu = ({
         <TextCopyBtn
           label={t('copyButton')}
           text={`${DAS_HOST}/patrols/${patrol.id}`}
-          icon={<ClipIcon />}
+          icon={<ClipIcon data-testid="clip-icon" />}
           successMessage={t('copyButtonMessage')}
           permitPropagation />
       </KebabMenu.Option>
@@ -141,28 +140,11 @@ const PatrolMenu = ({
 
     { showPatrolPrintOption &&
       <KebabMenu.Option onClick={handlePrint}>
-        <PrinterIcon />
+        <PrinterIcon data-testid="printer-icon" />
         {t('printPatrolButton')}
       </KebabMenu.Option>
     }
   </KebabMenu>;
-};
-
-PatrolMenu.defaultProps = {
-  patrolTitle: '',
-  className: '',
-  isPatrolCancelled: false,
-  showPatrolPrintOption: true,
-};
-
-PatrolMenu.propTypes = {
-  patrol: PropTypes.object.isRequired,
-  patrolState: PropTypes.object,
-  className: PropTypes.string,
-  onPatrolChange: PropTypes.func.isRequired,
-  patrolTitle: PropTypes.string,
-  isPatrolCancelled: PropTypes.bool,
-  showPatrolPrintOption: PropTypes.bool,
 };
 
 export default memo(PatrolMenu);

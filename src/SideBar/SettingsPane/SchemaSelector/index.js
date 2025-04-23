@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import schemas from './mockedSchemas';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { setMockedJSONSchema } from '../../../ducks/schema-selector';
 
 /* ToDo: Delete this component and its implementations once QA process is done for EFB support in das-web-react */

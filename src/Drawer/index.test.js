@@ -75,7 +75,7 @@ describe('Drawer', () => {
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
     const overlay = await screen.findByTestId('overlay');
-    userEvent.click(overlay);
+    await userEvent.click(overlay);
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
@@ -90,7 +90,7 @@ describe('Drawer', () => {
 
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });

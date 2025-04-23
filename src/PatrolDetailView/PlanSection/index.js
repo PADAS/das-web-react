@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { format, isFuture, isValid, parseISO } from 'date-fns';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as CalendarIcon } from '../../common/images/icons/calendar.svg';
@@ -24,7 +23,7 @@ import LocationPicker from '../../LocationPicker';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { selectPatrolLeadersWithLastPosition } from '../../selectors/patrols';
 import { useTranslation } from 'react-i18next';
 
@@ -234,7 +233,7 @@ const PlanSection = ({
         <div className={styles.dateTimeContainer}>
           <label
             data-testid="patrolDetailView-endDatePicker"
-            className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
+            className={styles.fieldLabel}
           >
             {t('endDateLabel')}
             <DatePicker
@@ -287,16 +286,6 @@ const PlanSection = ({
       </label>
     </div>
   </>;
-};
-
-PlanSection.propTypes = {
-  onPatrolEndDateChange: PropTypes.func.isRequired,
-  onPatrolEndLocationChange: PropTypes.func.isRequired,
-  onPatrolObjectiveChange: PropTypes.func.isRequired,
-  onPatrolReportedByChange: PropTypes.func.isRequired,
-  onPatrolStartDateChange: PropTypes.func.isRequired,
-  onPatrolStartLocationChange: PropTypes.func.isRequired,
-  patrolForm: PropTypes.object.isRequired,
 };
 
 export default memo(PlanSection);

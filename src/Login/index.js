@@ -14,7 +14,7 @@ import { fetchSystemStatus } from '../ducks/system-status';
 import { REACT_APP_ROUTE_PREFIX, SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LoginPage = () => {
   const dispatch = useDispatch();

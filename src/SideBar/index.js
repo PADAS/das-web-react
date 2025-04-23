@@ -38,7 +38,7 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CLOSE_BUTTON_LABEL_KEY = {
   [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
@@ -151,7 +151,7 @@ const SideBar = () => {
   // NOTE: This is getting unmaintainable. Is it really a good practice to use escape like a navigation key?
   useEffect(() => {
     const onKeydown = (event) => {
-      const wasEscapePressed = event.keyCode === 27;
+      const wasEscapePressed = event.key === 'Escape';
       const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
       const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
       if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
@@ -40,7 +40,7 @@ import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
@@ -64,9 +64,10 @@ const DetailsSection = ({
   onReportLocationChange,
   onReportStateChange,
   originalReport,
+  ref,
   reportForm,
   submitFormButtonRef,
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
@@ -234,7 +235,6 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
-                className={styles.datePicker}
                 data-testid="reportManager-detailsSection-datePicker"
                 disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
@@ -317,4 +317,4 @@ const DetailsSection = ({
   </div>;
 };
 
-export default memo(forwardRef(DetailsSection));
+export default memo(DetailsSection);

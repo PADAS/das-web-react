@@ -1,21 +1,18 @@
-import React, { useEffect, useContext, useReducer, useRef, memo } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { useEffect, useContext, useReducer, useRef, memo } from 'react';
 import { bboxPolygon, booleanContains, featureCollection } from '@turf/turf';
-
-import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
-
-import { usePermissions } from '../hooks';
-import { addMapImage } from '../utils/map';
-import { getBboxParamsFromMap } from '../utils/query';
-import { SocketContext } from '../withSocketConnection';
-
-import { withMap } from '../EarthRangerMap';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { extractSubjectFromMessage } from '../utils/messaging';
-import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE, fetchAllMessages } from '../ducks/messaging';
+import { connect } from 'react-redux';
 
 import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
+
+import { addMapImage } from '../utils/map';
+import { extractSubjectFromMessage } from '../utils/messaging';
+import { getBboxParamsFromMap } from '../utils/query';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { MapContext } from '../App';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { SocketContext } from '../withSocketConnection';
+import { usePermissions } from '../hooks';
+import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE, fetchAllMessages } from '../ducks/messaging';
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   if (!messages.length || !subjectFeatureCollection?.features?.length) return featureCollection([]);
@@ -66,14 +63,12 @@ const messageBadgePaint = {
   'text-color': 'white',
 };
 
-const MessageBadgeLayer = (props) => {
-  /* "messages" prop needs to be replaced by a FETCH that retrieves only unread messages and has a huge page size to guarantee full retrieval */
-  const { map, onBadgeClick, subjectFeatureCollection } = props;
+const MessageBadgeLayer = ({ onBadgeClick, subjectFeatureCollection }) => {
+  const map = useContext(MapContext);
+  const socket = useContext(SocketContext);
 
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
-
-  const socket = useContext(SocketContext);
 
   const lastRequestedSubjectIdList = useRef(null);
 
@@ -196,9 +191,4 @@ const mapStateToProps = (state) => ({
   subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
 });
 
-export default connect(mapStateToProps, null)(memo(withMap(MessageBadgeLayer)));
-
-MessageBadgeLayer.propTypes = {
-  messages: PropTypes.array,
-  subjectFeatureCollection: PropTypes.object.isRequired,
-};
+export default connect(mapStateToProps, null)(memo(MessageBadgeLayer));

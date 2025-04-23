@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
@@ -23,7 +23,7 @@ import {
 
 import CalendarPopper from './CalendarPopper';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DatePicker = ({
   className = '',
@@ -37,10 +37,11 @@ const DatePicker = ({
   onFocus = null,
   reactDatePickerProps = {},
   readOnly = false,
+  ref,
   required = false,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('components', { keyPrefix: 'datePicker' });
 
   const dayInputRef = useRef();
@@ -381,4 +382,4 @@ const DatePicker = ({
 
 export { EMPTY_DATE_VALUE };
 
-export default memo(forwardRef(DatePicker));
+export default memo(DatePicker);

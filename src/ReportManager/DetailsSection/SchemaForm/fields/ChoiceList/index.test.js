@@ -143,9 +143,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-      userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
+      await userEvent.type(screen.getByRole('combobox'), '{arrowdown}');
 
-      userEvent.click(screen.getByText('EarthRanger System'));
+      await userEvent.click(screen.getByText('EarthRanger System'));
 
       expect(onFieldChange).toHaveBeenCalledTimes(1);
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
@@ -162,17 +162,17 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       const dropdown = screen.getByRole('combobox');
 
-      userEvent.type(dropdown, '{arrowdown}');
+      await userEvent.type(dropdown, '{arrowdown}');
 
-      userEvent.click(screen.getByText('EarthRanger System'));
+      await userEvent.click(screen.getByText('EarthRanger System'));
 
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
         '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
       ]);
 
-      userEvent.type(dropdown, '{arrowdown}');
+      await userEvent.type(dropdown, '{arrowdown}');
 
-      userEvent.click(screen.getByText('frank'));
+      await userEvent.click(screen.getByText('frank'));
 
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
         '0d9fbeea-5252-4723-ba59-ca696baef2d9'
@@ -318,7 +318,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-      userEvent.click(screen.getByText('EarthRanger System'));
+      await userEvent.click(screen.getByText('EarthRanger System'));
 
       expect(onFieldChange).toHaveBeenCalledTimes(1);
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', '0d553bb7-5c4f-43d7-9b82-a561a668ae64');
@@ -338,13 +338,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - ChoiceList', ()
 
       expect(onFieldChange).toHaveBeenCalledTimes(0);
 
-      userEvent.click(screen.getByText('EarthRanger System'));
+      await userEvent.click(screen.getByText('EarthRanger System'));
 
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
         '0d553bb7-5c4f-43d7-9b82-a561a668ae64'
       ]);
 
-      userEvent.click(screen.getByText('frank'));
+      await userEvent.click(screen.getByText('frank'));
 
       expect(onFieldChange).toHaveBeenCalledWith('a-choice', [
         '0d9fbeea-5252-4723-ba59-ca696baef2d9'

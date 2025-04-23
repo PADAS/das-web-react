@@ -48,7 +48,7 @@ describe('AddReport', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const jumpButton = await screen.findByTitle('Jump to this location');
-    userEvent.click(jumpButton);
+    await userEvent.click(jumpButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');

@@ -62,12 +62,12 @@ describe('Login', () => {
 
   const login = async (usernameText = username, passwordText = password) => {
     const usernameInput = await screen.findByLabelText('Username');
-    userEvent.type(usernameInput, usernameText);
+    await userEvent.type(usernameInput, usernameText);
     const passwordInput = await screen.findByLabelText('Password');
-    userEvent.type(passwordInput, passwordText);
+    await userEvent.type(passwordInput, passwordText);
     const formSubmitButton = await screen.findByRole('button');
 
-    userEvent.click(formSubmitButton);
+    await userEvent.click(formSubmitButton);
   };
 
   test('navigates to map after a successful login', async () => {

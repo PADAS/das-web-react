@@ -1,13 +1,12 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { generateNewMessage } from '../utils/messaging';
 import { sendMessage } from '../ducks/messaging';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const TEXT_MAX_LENGTH = 160;
 
@@ -57,10 +56,6 @@ const MessageInput = ({ subjectId }) => {
 
     <small>{inputValue.length}/{TEXT_MAX_LENGTH}</small>
   </form> : null;
-};
-
-MessageInput.propTypes = {
-  subjectId: PropTypes.string.isRequired,
 };
 
 export default memo(MessageInput);

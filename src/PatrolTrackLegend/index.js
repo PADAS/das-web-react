@@ -10,7 +10,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import DasIcon from '../DasIcon';
 import TrackLegend from '../TrackLegend';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PatrolTrackLegend = () => {
   const dispatch = useDispatch();

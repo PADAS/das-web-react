@@ -24,7 +24,7 @@ import ErrorMessage from '../../ErrorMessage';
 import EventFeed from '../../EventFeed';
 import EventFilter from '../../EventFilter';
 
-import styles from './../styles.module.scss';
+import * as styles from './../styles.module.scss';
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -79,13 +79,11 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
   return <ErrorBoundary>
     <div className={styles.filterWrapper} data-testid='filter-wrapper'>
       <EventFilter
-        className={styles.eventFilter}
         data-testid='reports-filter'
         onResetAll={resetFeedSort}
         sortConfig={feedSort}
       >
         <ColumnSort
-          className={styles.dateSort}
           onChange={setFeedSort}
           orderOptions={EVENT_SORT_ORDER_OPTIONS}
           sortOptions={EVENT_SORT_OPTIONS}

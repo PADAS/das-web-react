@@ -1,11 +1,11 @@
-import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
+import React, { memo, useImperativeHandle, useRef } from 'react';
 
 import { getMaxDateAndTime, getMinDateAndTime } from './utils';
 
 import DatePicker, { EMPTY_DATE_VALUE } from '../DatePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const EMPTY_DATE_TIME_VALUE = `${EMPTY_DATE_VALUE}T${EMPTY_TIME_VALUE}`;
 
@@ -20,11 +20,12 @@ const DateTimePicker = ({
   onChange,
   onFocus = null,
   readOnly = false,
+  ref,
   required = false,
   timePickerProps = {},
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const datePickerRef = useRef();
   const innerRef = useRef();
 
@@ -76,4 +77,4 @@ const DateTimePicker = ({
   </div>;
 };
 
-export default memo(forwardRef(DateTimePicker));
+export default memo(DateTimePicker);

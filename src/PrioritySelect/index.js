@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
 import { components } from 'react-select';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -12,7 +11,7 @@ import {
 
 import Select from '../Select';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PRIORITY_STYLES = {
   [REPORT_PRIORITY_HIGH.value]: styles.highPriority,
@@ -40,7 +39,7 @@ const Option = ({ data, ...props }) => <components.Option {...props} >
   </div>
 </components.Option>;
 
-const PrioritySelect = ({ className, isDisabled, onChange, placeholder, priority }) => {
+const PrioritySelect = ({ className = '', isDisabled = false, onChange, placeholder = '', priority = null }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'prioritySelect' });
 
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -82,21 +81,6 @@ const PrioritySelect = ({ className, isDisabled, onChange, placeholder, priority
     }}
     value={priorityValue}
   />;
-};
-
-PrioritySelect.defaultProps = {
-  className: '',
-  isDisabled: false,
-  placeholder: '',
-  priority: null,
-};
-
-PrioritySelect.propTypes = {
-  className: PropTypes.string,
-  isDisabled: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  placeholder: PropTypes.string,
-  priority: PropTypes.number,
 };
 
 export default memo(PrioritySelect);

@@ -114,7 +114,7 @@ describe('The AreaSelector input', () => {
       expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
 
       const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
-      userEvent.click(setAreaButton);
+      await userEvent.click(setAreaButton);
 
       await waitFor(() => {
         expect(setIsPickingLocation).toHaveBeenCalledTimes(1);
@@ -141,7 +141,7 @@ describe('The AreaSelector input', () => {
       );
 
       expect((await screen.findByText('Set event area'))).toBeDefined();
-      expect((await screen.findByText('polygon.svg'))).toBeDefined();
+      expect((await screen.findByTestId('polygon-icon'))).toBeDefined();
     });
   });
 
@@ -168,12 +168,12 @@ describe('The AreaSelector input', () => {
       );
 
       const setAreaButton = await screen.getByTestId(CONTROL_SELECTOR);
-      userEvent.click(setAreaButton);
+      await userEvent.click(setAreaButton);
 
       expect(onGeometryChange).toHaveBeenCalledTimes(0);
 
       const deleteAreaButton = await screen.getByTitle('Delete Area');
-      userEvent.click(deleteAreaButton);
+      await userEvent.click(deleteAreaButton);
 
       await waitFor(async () => {
         expect(onGeometryChange).toHaveBeenCalledTimes(1);

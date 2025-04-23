@@ -2,7 +2,6 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import InfiniteScroll from 'react-infinite-scroller';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +14,7 @@ import { removeModal } from '../ducks/modals';
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const addIncidentTracker = trackEventFactory(ADD_INCIDENT_CATEGORY);
 
@@ -84,7 +83,6 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
         >
           {incidents.results.map((report, index) =>
             <ReportListItem
-              className={styles.listItem}
               key={`${report.id}-${index}`}
               onIconClick={onExistingIncidentClick}
               onTitleClick={onExistingIncidentClick}
@@ -94,8 +92,8 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
           )}
 
           {hasMore
-            ? <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>{t('modalBody.loadingItem')}</li>
-            : <li className={`${styles.listItem} ${styles.loadMessage}`} key="no-more-events-to-load">
+            ? <li key={0}>{t('modalBody.loadingItem')}</li>
+            : <li key="no-more-events-to-load">
               {t('modalBody.noMoreEventsItem')}
             </li>}
         </InfiniteScroll>
@@ -112,12 +110,6 @@ const AddToIncidentModal = ({ id, onAddToExistingIncident, onAddToNewIncident })
       </Button>
     </Modal.Footer>
   </>;
-};
-
-AddToIncidentModal.propTypes = {
-  id: PropTypes.string.isRequired,
-  onAddToExistingIncident: PropTypes.func.isRequired,
-  onAddToNewIncident: PropTypes.func.isRequired,
 };
 
 export default memo(AddToIncidentModal);

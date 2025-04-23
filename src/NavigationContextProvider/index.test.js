@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 
+import { act, renderHook } from '../test-utils';
 import NavigationContextProvider, { BLOCKER_STATES, NavigationContext } from './';
 
 describe('NavigationContextProvider', () => {
@@ -12,7 +12,9 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.navigationData).toEqual({});
 
-    result.current.setNavigationData('Navigation data!');
+    act(() => {
+      result.current.setNavigationData('Navigation data!');
+    });
 
     expect(result.current.navigationData).toBe('Navigation data!');
   });
@@ -23,7 +25,9 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation(blockRequestId);
+    act(() => {
+      result.current.blockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
   });
@@ -34,11 +38,15 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation(blockRequestId);
+    act(() => {
+      result.current.blockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
 
-    result.current.unblockNavigation(blockRequestId);
+    act(() => {
+      result.current.unblockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
   });
@@ -49,16 +57,22 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation(blockRequestId);
+    act(() => {
+      result.current.blockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
 
-    result.current.onNavigationAttemptBlocked();
+    act(() => {
+      result.current.onNavigationAttemptBlocked();
+    });
 
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.BLOCKED);
 
-    result.current.blocker.proceed();
+    act(() => {
+      result.current.blocker.proceed();
+    });
 
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.PROCEEDING);
   });
@@ -69,16 +83,22 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation(blockRequestId);
+    act(() => {
+      result.current.blockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
 
-    result.current.onNavigationAttemptBlocked();
+    act(() => {
+      result.current.onNavigationAttemptBlocked();
+    });
 
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.BLOCKED);
 
-    result.current.blocker.reset();
+    act(() => {
+      result.current.blocker.reset();
+    });
 
     expect(result.current.blocker.state).toBe(BLOCKER_STATES.UNBLOCKED);
   });
@@ -91,16 +111,22 @@ describe('NavigationContextProvider', () => {
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
 
-    result.current.blockNavigation(blockRequestId);
-    result.current.blockNavigation(anotherBlockRequestId);
+    act(() => {
+      result.current.blockNavigation(blockRequestId);
+      result.current.blockNavigation(anotherBlockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
 
-    result.current.unblockNavigation(anotherBlockRequestId);
+    act(() => {
+      result.current.unblockNavigation(anotherBlockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeTruthy();
 
-    result.current.unblockNavigation(blockRequestId);
+    act(() => {
+      result.current.unblockNavigation(blockRequestId);
+    });
 
     expect(result.current.isNavigationBlocked).toBeFalsy();
   });

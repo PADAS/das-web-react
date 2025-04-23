@@ -42,7 +42,7 @@ describe('AddItemButton', () => {
     expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
 
     const addItemButton = await screen.findByTestId('addItemButton');
-    userEvent.click(addItemButton);
+    await userEvent.click(addItemButton);
 
     expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();
   });
@@ -51,12 +51,12 @@ describe('AddItemButton', () => {
     renderAddItemButton();
 
     const addItemButton = await screen.findByTestId('addItemButton');
-    userEvent.click(addItemButton);
+    await userEvent.click(addItemButton);
 
     expect((await screen.findByTestId('addItemButton-addItemModal'))).toBeDefined();
 
     const closeButton = await screen.findByLabelText('Close');
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     await waitFor(async () => {
       expect((await screen.queryByTestId('addItemButton-addItemModal'))).toBeNull();
@@ -87,12 +87,12 @@ describe('AddItemButton', () => {
     renderAddItemButton({ onAddReport });
 
     const addItemButton = await screen.findByTestId('addItemButton');
-    userEvent.click(addItemButton);
+    await userEvent.click(addItemButton);
 
     expect(onAddReport).toHaveBeenCalledTimes(0);
 
     const reportTypeButton = await screen.findByTestId('categoryList-button-74941f0d-4b89-48be-a62a-a74c78db8383');
-    userEvent.click(reportTypeButton);
+    await userEvent.click(reportTypeButton);
 
     expect(onAddReport).toHaveBeenCalledTimes(1);
     expect(onAddReport.mock.calls[0][2]).toBe('74941f0d-4b89-48be-a62a-a74c78db8383');
@@ -104,14 +104,14 @@ describe('AddItemButton', () => {
     renderAddItemButton({ onAddPatrol });
 
     const addItemButton = await screen.findByTestId('addItemButton');
-    userEvent.click(addItemButton);
+    await userEvent.click(addItemButton);
 
     expect(onAddPatrol).toHaveBeenCalledTimes(0);
 
     const addPatrolTab = (await screen.findAllByRole('tab'))[1];
-    userEvent.click(addPatrolTab);
+    await userEvent.click(addPatrolTab);
     const patrolTypeButton = await screen.findByTestId('categoryList-button-c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');
-    userEvent.click(patrolTypeButton);
+    await userEvent.click(patrolTypeButton);
 
     expect(onAddPatrol).toHaveBeenCalledTimes(1);
     expect(onAddPatrol.mock.calls[0][2]).toBe('c6f88fd2-2b87-477a-9c23-3bc4b3eb845d');

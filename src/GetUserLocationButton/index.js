@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +10,9 @@ import { setCurrentUserLocation } from '../ducks/location';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const GetUserLocationButton = ({ onClick = null, onGet, renderContent = null, ...otherProps }, ref) => {
+const GetUserLocationButton = ({ onClick = null, onGet, ref, renderContent = null, ...otherProps }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'getUserLocationButton' });
 
@@ -61,11 +61,11 @@ const GetUserLocationButton = ({ onClick = null, onGet, renderContent = null, ..
         type="button"
         {...otherProps}
       >
-      {renderContent?.() || <GpsLocationIcon />}
+      {renderContent?.() || <GpsLocationIcon data-testid="gps-location-icon" />}
     </button>
 
     {isLoading && <LoadingOverlay className={styles.loadingOverlay} message={t('loadingOverlayMessage')} />}
   </>;
 };
 
-export default memo(forwardRef(GetUserLocationButton));
+export default memo(GetUserLocationButton);

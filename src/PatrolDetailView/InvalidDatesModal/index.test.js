@@ -19,7 +19,7 @@ describe('InvalidDatesModal', () => {
     expect(onHide).toHaveBeenCalledTimes(0);
 
     const okButton = await screen.findByText('OK');
-    userEvent.click(okButton);
+    await userEvent.click(okButton);
 
     expect(onHide).toHaveBeenCalledTimes(1);
   });

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import GetUserLocationButton from '../../GetUserLocationButton';
 import GpsInput from '../../GpsInput';
 import PickMapLocationButton from '../../PickMapLocationButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const MAX_POPOVER_WIDTH = 380;
 const MIN_POPOVER_WIDTH = 280;
@@ -26,12 +26,13 @@ const MenuPopover = ({
   onBlur,
   onChange,
   onClose,
+  ref,
   setLocationButtonRef,
   style,
   target,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker.menuPopover' });
 
   const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
@@ -193,4 +194,4 @@ const MenuPopover = ({
   </Popover>;
 };
 
-export default forwardRef(MenuPopover);
+export default MenuPopover;

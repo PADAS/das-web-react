@@ -24,7 +24,7 @@ describe('SelectListGroup - SelectableItem', () => {
     <SelectableItem {...props} />
   );
 
-  const testSelectableItemHasChangedWithClick = (queryClickableElement, expectedIsChecked, props = {}) => {
+  const testSelectableItemHasChangedWithClick = async (queryClickableElement, expectedIsChecked, props = {}) => {
     const onClick = jest.fn();
 
     renderSelectableItem({
@@ -35,13 +35,13 @@ describe('SelectListGroup - SelectableItem', () => {
 
     expect(onClick).not.toHaveBeenCalled();
 
-    userEvent.click(queryClickableElement());
+    await userEvent.click(queryClickableElement());
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
   };
 
-  const testSelectableItemHasChangedUsingKeyboard = (keyboardKey, expectedIsChecked, props = {}) => {
+  const testSelectableItemHasChangedUsingKeyboard = async (keyboardKey, expectedIsChecked, props = {}) => {
     const onClick = jest.fn();
     const itemProps = {
       ...defaultProps,
@@ -59,13 +59,13 @@ describe('SelectListGroup - SelectableItem', () => {
     const input = screen.getByRole(role);
 
     input.focus();
-    userEvent.keyboard(keyboardKey);
+    await userEvent.keyboard(keyboardKey);
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledWith(110, expectedIsChecked);
   };
 
-  test('shows a proper label', () => {
+  test('shows a proper label', async () => {
     renderSelectableItem();
 
     expect( screen.getByText('This is a checkbox') ).toBeVisible();
@@ -73,7 +73,7 @@ describe('SelectListGroup - SelectableItem', () => {
 
   describe('Checkbox item', () => {
 
-    test('shows a checked checkbox', () => {
+    test('shows a checked checkbox', async () => {
       renderSelectableItem();
 
       const checkbox = screen.getByRole('checkbox');
@@ -81,7 +81,7 @@ describe('SelectListGroup - SelectableItem', () => {
       expect( checkbox ).toBeChecked();
     });
 
-    test('shows an unchecked checkbox', () => {
+    test('shows an unchecked checkbox', async () => {
       renderSelectableItem({
         ...defaultProps,
         isChecked: false
@@ -92,15 +92,15 @@ describe('SelectListGroup - SelectableItem', () => {
       expect( checkbox ).not.toBeChecked();
     });
 
-    test('the checkbox is unchecked when user clicks on label', () => {
-      testSelectableItemHasChangedWithClick(
+    test('the checkbox is unchecked when user clicks on label', async () => {
+      await testSelectableItemHasChangedWithClick(
         () => screen.getByText('This is a checkbox'),
         false
       );
     });
 
-    test('the checkbox is checked when user clicks on label', () => {
-      testSelectableItemHasChangedWithClick(
+    test('the checkbox is checked when user clicks on label', async () => {
+      await testSelectableItemHasChangedWithClick(
         () => screen.getByText('This is a checkbox'),
         true,
         {
@@ -109,15 +109,15 @@ describe('SelectListGroup - SelectableItem', () => {
       );
     });
 
-    test('the checkbox is unchecked when user focus item and hits space bar', () => {
-      testSelectableItemHasChangedUsingKeyboard(
+    test('the checkbox is unchecked when user focus item and hits space bar', async () => {
+      await testSelectableItemHasChangedUsingKeyboard(
         '[Space]',
         false
       );
     });
 
-    test('the checkbox is checked when user focus item and types  space bar', () => {
-      testSelectableItemHasChangedUsingKeyboard(
+    test('the checkbox is checked when user focus item and types  space bar', async () => {
+      await testSelectableItemHasChangedUsingKeyboard(
         '[Space]',
         true,
         {
@@ -126,7 +126,7 @@ describe('SelectListGroup - SelectableItem', () => {
       );
     });
 
-    test('checkbox is disabled', () => {
+    test('checkbox is disabled', async () => {
       const onClick = jest.fn();
       renderSelectableItem({
         ...defaultProps,
@@ -138,13 +138,13 @@ describe('SelectListGroup - SelectableItem', () => {
 
       const input = screen.getByRole('checkbox');
 
-      userEvent.click(input);
+      await userEvent.click(input);
 
       expect(input).toBeDisabled();
       expect(onClick).not.toHaveBeenCalled();
     });
 
-    test('checkbox is readOnly', () => {
+    test('checkbox is readOnly', async () => {
       const onClick = jest.fn();
       renderSelectableItem({
         ...defaultProps,
@@ -156,7 +156,7 @@ describe('SelectListGroup - SelectableItem', () => {
 
       const input = screen.getByRole('checkbox');
 
-      userEvent.click(input);
+      await userEvent.click(input);
 
       expect(input).toHaveProperty('readOnly', true);
       expect(onClick).not.toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe('SelectListGroup - SelectableItem', () => {
 
   describe('Radio item', () => {
 
-    test('shows a checked radio', () => {
+    test('shows a checked radio', async () => {
       renderSelectableItem({
         ...defaultProps,
         label: 'This is a radio',
@@ -177,7 +177,7 @@ describe('SelectListGroup - SelectableItem', () => {
       expect( radio ).toBeChecked();
     });
 
-    test('shows an unchecked radio', () => {
+    test('shows an unchecked radio', async () => {
       renderSelectableItem({
         ...defaultProps,
         label: 'This is a radio',
@@ -190,7 +190,7 @@ describe('SelectListGroup - SelectableItem', () => {
       expect( radio ).not.toBeChecked();
     });
 
-    test('radio is disabled', () => {
+    test('radio is disabled', async () => {
       const onClick = jest.fn();
       renderSelectableItem({
         ...defaultProps,
@@ -203,13 +203,13 @@ describe('SelectListGroup - SelectableItem', () => {
 
       const input = screen.getByRole('radio');
 
-      userEvent.click(input);
+      await userEvent.click(input);
 
       expect(input).toBeDisabled();
       expect(onClick).not.toHaveBeenCalled();
     });
 
-    test('radio is readOnly', () => {
+    test('radio is readOnly', async () => {
       const onClick = jest.fn();
       renderSelectableItem({
         ...defaultProps,
@@ -222,7 +222,7 @@ describe('SelectListGroup - SelectableItem', () => {
 
       const input = screen.getByRole('radio');
 
-      userEvent.click(input);
+      await userEvent.click(input);
 
       expect(input).toHaveProperty('readOnly', true);
       expect(onClick).not.toHaveBeenCalled();

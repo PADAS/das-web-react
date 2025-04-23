@@ -79,7 +79,7 @@ describe('LocationPicker - MenuPopover', () => {
     jest.restoreAllMocks();
   });
 
-  test('matches the width of the target while is less than 380 and more than 280', () => {
+  test('matches the width of the target while is less than 380 and more than 280', async () => {
     renderMenuPopover();
 
     const menuPopover = screen.getByRole('presentation');
@@ -88,7 +88,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(menuPopover).toHaveStyle('width: 320px;');
   });
 
-  test('sets the popover width to 280 if the target is smaller', () => {
+  test('sets the popover width to 280 if the target is smaller', async () => {
     renderMenuPopover({
       target: {
         current: {
@@ -104,7 +104,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(menuPopover).toHaveStyle('width: 280px;');
   });
 
-  test('sets the popover width to 380 if the target is bigger', () => {
+  test('sets the popover width to 380 if the target is bigger', async () => {
     renderMenuPopover({
       target: {
         current: {
@@ -120,69 +120,69 @@ describe('LocationPicker - MenuPopover', () => {
     expect(menuPopover).toHaveStyle('width: 380px;');
   });
 
-  test('changes the location when the user types in the GPS input', () => {
+  test('changes the location when the user types in the GPS input', async () => {
     renderMenuPopover();
 
     expect(onChange).not.toHaveBeenCalled();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
 
     expect(onChange).toHaveBeenCalledTimes(2);
     expect(onChange).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
   });
 
-  test('closes the menu and focuses the set location button if the user presses enter while focusing the GPS input', () => {
+  test('closes the menu and focuses the set location button if the user presses enter while focusing the GPS input', async () => {
     renderMenuPopover();
 
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
-    userEvent.keyboard('{Enter}');
+    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.keyboard('{Enter}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('does neither close the menu nor focuse the set location button if the user presses enter while picking a location', () => {
+  test('does neither close the menu nor focuse the set location button if the user presses enter while picking a location', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMenuPopover();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
-    userEvent.keyboard('{Enter}');
+    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.keyboard('{Enter}');
 
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
   });
 
-  test('closes the menu and focuses the set location button if the user presses escape', () => {
+  test('closes the menu and focuses the set location button if the user presses escape', async () => {
     renderMenuPopover();
 
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
-    userEvent.keyboard('{Escape}');
+    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('does neither close the menu nor focuse the set location button if the user presses escape while picking a location', () => {
+  test('does neither close the menu nor focuse the set location button if the user presses escape while picking a location', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
     renderMenuPopover();
 
-    userEvent.type(screen.getByLabelText('GPS location'), '10,10');
-    userEvent.keyboard('{Escape}');
+    await userEvent.type(screen.getByLabelText('GPS location'), '10,10');
+    await userEvent.keyboard('{Escape}');
 
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
   });
 
-  test('changes the location when the user picks a location in the map', () => {
+  test('changes the location when the user picks a location in the map', async () => {
     renderMenuPopover();
 
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
@@ -196,20 +196,20 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('does not show the get user location button if the user location is not active', () => {
+  test('does not show the get user location button if the user location is not active', async () => {
     renderMenuPopover();
 
     expect(screen.queryByLabelText('Get current position')).toBeNull();
   });
 
-  test('shows the get user location button if the user location is active', () => {
+  test('shows the get user location button if the user location is active', async () => {
     store.view.showUserLocation = true;
     renderMenuPopover();
 
     expect(screen.getByLabelText('Get current position')).toBeVisible();
   });
 
-  test('changes the location when the user clicks the button to get its location', () => {
+  test('changes the location when the user clicks the button to get its location', async () => {
     store.view.showUserLocation = true;
     store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
     renderMenuPopover();
@@ -218,7 +218,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(setLocationButtonRefFocus).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Get current position'));
+    await userEvent.click(screen.getByLabelText('Get current position'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
@@ -226,7 +226,7 @@ describe('LocationPicker - MenuPopover', () => {
     expect(setLocationButtonRefFocus).toHaveBeenCalledTimes(1);
   });
 
-  test('closes the menu if the user clicks outside and triggers the blur callback if the click was outside of the picker', () => {
+  test('closes the menu if the user clicks outside and triggers the blur callback if the click was outside of the picker', async () => {
     render(<>
       <div data-testid="outside" />
 
@@ -260,13 +260,13 @@ describe('LocationPicker - MenuPopover', () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(onBlur).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('outside'));
+    await userEvent.click(screen.getByTestId('outside'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onBlur).toHaveBeenCalledTimes(1);
   });
 
-  test('closes the menu if the user clicks outside but does not trigger the blur callback if the click was inside the picker', () => {
+  test('closes the menu if the user clicks outside but does not trigger the blur callback if the click was inside the picker', async () => {
     render(<>
       <div data-testid="outside" />
 
@@ -299,13 +299,13 @@ describe('LocationPicker - MenuPopover', () => {
 
     expect(onClose).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByTestId('outside'));
+    await userEvent.click(screen.getByTestId('outside'));
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(onBlur).not.toHaveBeenCalled();
   });
 
-  test('does not close the menu if the user clicks outside while picking a location', () => {
+  test('does not close the menu if the user clicks outside while picking a location', async () => {
     store.view.mapLocationSelection.isPickingLocation = true;
 
     render(<>
@@ -338,7 +338,7 @@ describe('LocationPicker - MenuPopover', () => {
       </Provider>
     </>);
 
-    userEvent.click(screen.getByTestId('outside'));
+    await userEvent.click(screen.getByTestId('outside'));
 
     expect(onClose).not.toHaveBeenCalled();
     expect(onBlur).not.toHaveBeenCalled();

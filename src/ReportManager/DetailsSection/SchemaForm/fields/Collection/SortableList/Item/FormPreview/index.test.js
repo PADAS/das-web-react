@@ -58,31 +58,31 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     </Provider>
   );
 
-  test('shows the form preview as a drag overlay', () => {
+  test('shows the form preview as a drag overlay', async () => {
     renderFormPreview({ isDragOverlay: true });
 
     expect(screen.getByTestId('schema-form-collection-item-form-preview')).toHaveClass('dragOverlay');
   });
 
-  test('does not show the form preview as a drag overlay', () => {
+  test('does not show the form preview as a drag overlay', async () => {
     renderFormPreview();
 
     expect(screen.getByTestId('schema-form-collection-item-form-preview')).not.toHaveClass('dragOverlay');
   });
 
-  test('shows an error state if there are errors', () => {
+  test('shows an error state if there are errors', async () => {
     renderFormPreview({ errors: { 'field-1': { message: 'Error' } } });
 
     expect(screen.getByTestId('schema-form-collection-item-form-preview')).toHaveClass('error');
   });
 
-  test('does not show an error state if there are no errors', () => {
+  test('does not show an error state if there are no errors', async () => {
     renderFormPreview();
 
     expect(screen.getByTestId('schema-form-collection-item-form-preview')).not.toHaveClass('error');
   });
 
-  test('shows the preview of each field with its value', () => {
+  test('shows the preview of each field with its value', async () => {
     renderFormPreview();
 
     expect(screen.getByText('Field 1')).toBeVisible();
@@ -91,7 +91,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByText('Value 2')).toBeVisible();
   });
 
-  test('shows an error state in the preview of erroneous fields', () => {
+  test('shows an error state in the preview of erroneous fields', async () => {
     renderFormPreview({ errors: { 'field-1': { message: 'Error' } } });
 
     expect(screen.getByText('Field 1')).toHaveClass('error');
@@ -100,7 +100,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByText('Value 2')).not.toHaveClass('error');
   });
 
-  test('shows a jump to location button for location fields with values', () => {
+  test('shows a jump to location button for location fields with values', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
       fields: {
@@ -123,13 +123,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.getByLabelText('Jump to Field 2 location')).toBeVisible();
   });
 
-  test('does not show a jump to location button if fields are not of type location', () => {
+  test('does not show a jump to location button if fields are not of type location', async () => {
     renderFormPreview();
 
     expect(screen.queryByLabelText('Jump to Field 2 location')).toBeNull();
   });
 
-  test('does not show a jump to location button for location fields without values', () => {
+  test('does not show a jump to location button for location fields without values', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
       fields: {
@@ -152,7 +152,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(screen.queryByLabelText('Jump to Field 2 location')).toBeNull();
   });
 
-  test('jumps to the location of a location field when clicking the button and focuses its marker', () => {
+  test('jumps to the location of a location field when clicking the button and focuses its marker', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
       fields: {
@@ -175,7 +175,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(focusLocationMarker).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
+    await userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
 
     expect(jumpToLocationMock).toHaveBeenCalledTimes(1);
     expect(jumpToLocationMock).toHaveBeenCalledWith([10, 10], 20);
@@ -183,7 +183,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
     expect(focusLocationMarker).toHaveBeenCalledWith('field-2');
   });
 
-  test('does neither jump to the location of a location field when clicking the button nor focuses its marker if its a drag overlay', () => {
+  test('does neither jump to the location of a location field when clicking the button nor focuses its marker if its a drag overlay', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
       fields: {
@@ -204,13 +204,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       isDragOverlay: true,
     });
 
-    userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
+    await userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
 
     expect(jumpToLocationMock).not.toHaveBeenCalled();
     expect(focusLocationMarker).not.toHaveBeenCalled();
   });
 
-  test('blurs the location marker when the jump to location button is blurred', () => {
+  test('blurs the location marker when the jump to location button is blurred', async () => {
     renderFormPreview({
       fieldIds: ['field-1', 'field-2'],
       fields: {
@@ -230,7 +230,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection - So
       formData: { 'field-1': 'Value 1', 'field-2': { latitude: 10, longitude: 10 } },
     });
 
-    userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
+    await userEvent.click(screen.getByLabelText('Jump to Field 2 location'));
 
     expect(blurLocationMarker).not.toHaveBeenCalled();
 

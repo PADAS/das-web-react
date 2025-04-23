@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +10,7 @@ import { removeModal } from '../ducks/modals';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
@@ -93,10 +92,3 @@ const ImageModal = ({ id, src, title, url, tracker }) => {
 };
 
 export default memo(ImageModal);
-
-ImageModal.propTypes = {
-  id: PropTypes.string.isRequired,
-  src: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
-};

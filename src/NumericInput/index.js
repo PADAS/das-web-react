@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowUpSimpleIcon } from '../common/images/icons/arrow-up-simple.svg';
@@ -19,7 +19,7 @@ import {
   sanitizeNegativeSymbols
 } from './utils';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const NumericInput = ({
   className = '',
@@ -33,12 +33,12 @@ const NumericInput = ({
   placeholder = '',
   required = false,
   readOnly = false,
+  ref,
   blockOutOfRangeValues = true,
   title = '',
   value = '',
   ...otherProps
-},
-ref) => {
+}) => {
   const [numberConfig, setNumberConfig] = useState({
     amountOfZeros: 0,
     amountOfZerosAfterLastPositiveNumber: 0,
@@ -161,6 +161,4 @@ ref) => {
   </div>;
 };
 
-const NumericInputWithRef = forwardRef(NumericInput);
-
-export default NumericInputWithRef;
+export default NumericInput;

@@ -1,6 +1,5 @@
 import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -21,7 +20,7 @@ import { PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const INITIAL_PATROLS_STATE = {
   count: null,
@@ -183,17 +182,16 @@ const AddToPatrolModal = (props) => {
             {listPatrols.map((patrol, index) => {
 
               return <PatrolListItem
-                className={styles.listItem}
                 patrol={patrol}
                 data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 showControls={false}
                 onClick={onClickPatrol} />;
             })}
-            {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+            {hasMore && <li key={0}>
               {t('loading')}
             </li>}
-            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
+            {!!loaded && !hasMore && <li style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
               {t('noMorePatrols')}
             </li>}
           </InfiniteScroll>
@@ -209,7 +207,3 @@ const AddToPatrolModal = (props) => {
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
 export default connect(mapStateToProps, { removeModal: id => removeModal(id), updatePatrolStore: patrols => updatePatrolStore(patrols) })(memo(AddToPatrolModal));
-
-AddToPatrolModal.propTypes = {
-  onAddToPatrol: PropTypes.func.isRequired,
-};

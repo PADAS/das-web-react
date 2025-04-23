@@ -1,5 +1,4 @@
 import React, { memo, useContext, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { selectPatrolData } from '../selectors/patrols';
@@ -38,15 +37,6 @@ const PatrolTrackLayer = ({ onPointClick, patrol: patrolFromProps, trackTimeEnve
     trackData={trimmedTrackData}
     {...restProps}
   /> : null;
-};
-
-PatrolTrackLayer.propTypes = {
-  onPointClick: PropTypes.func.isRequired,
-  patrol: PropTypes.func.isRequired,
-  trackTimeEnvelope: PropTypes.shape({
-    from: PropTypes.any,
-    until: PropTypes.any,
-  }).isRequired,
 };
 
 export default memo(PatrolTrackLayer);

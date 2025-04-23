@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import isObject from 'lodash/isObject';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -8,9 +8,9 @@ import { selectDisplayEventTypes } from '../selectors/event-types';
 
 import DasIcon from '../DasIcon';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const EventIcon = ({ report, ...rest }, ref) => {
+const EventIcon = ({ ref, report, ...rest }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventIcon' });
 
   const eventTypes = useSelector(selectDisplayEventTypes);
@@ -50,4 +50,4 @@ const EventIcon = ({ report, ...rest }, ref) => {
   </span>;
 };
 
-export default memo(forwardRef(EventIcon));
+export default memo(EventIcon);

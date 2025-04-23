@@ -18,7 +18,7 @@ describe('ActivitySection - ItemActionButton', () => {
     expect(onClick).toHaveBeenCalledTimes(0);
 
     const button = await screen.findByRole('button');
-    userEvent.click(button);
+    await userEvent.click(button);
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
@@ -27,7 +27,7 @@ describe('ActivitySection - ItemActionButton', () => {
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
     const button = await screen.findByRole('button');
-    userEvent.hover(button);
+    await userEvent.hover(button);
 
     expect((await screen.findByRole('tooltip'))).toHaveTextContent('tooltip');
   });

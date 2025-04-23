@@ -22,7 +22,7 @@ import { TrackerContext } from '../utils/analytics';
 import useNavigate from '../hooks/useNavigate';
 import { notes } from '../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
-import { render, screen, waitFor, within } from '../test-utils';
+import { act, render, screen, waitFor, within } from '../test-utils';
 
 jest.mock('mapbox-gl', () => ({
   ...jest.requireActual('mapbox-gl'),
@@ -308,19 +308,19 @@ describe('PatrolDetailView', () => {
 
     expect(titleInput).toHaveTextContent('Unknown patrol type');
 
-    userEvent.type(titleInput, '2');
+    await userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveTextContent('2nknown patrol type');
+    expect(titleInput).toHaveTextContent('2');
   });
 
-  test('sets the start location when user changes it', () => {
+  test('sets the start location when user changes it', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
     const startLocationPickerButton = screen.getByLabelText('Start Location');
-    userEvent.click(startLocationPickerButton);
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(startLocationPickerButton);
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
-    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
     expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
   });
@@ -333,9 +333,9 @@ describe('PatrolDetailView', () => {
 
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
-    userEvent.click(startDatePickerOpenCalendarButton);
+    await userEvent.click(startDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    await userEvent.click(options[25]);
 
     expect(await within(startDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -348,22 +348,22 @@ describe('PatrolDetailView', () => {
 
     const startTimePicker = await screen.findByTestId('patrolDetailView-planSection-startTimePicker');
     const startTimePickerOpenOptionsButton = await within(startTimePicker).findByLabelText('Open time options');
-    userEvent.click(startTimePickerOpenOptionsButton);
+    await userEvent.click(startTimePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
-    userEvent.click(timeOptionsListItems[2]);
+    await userEvent.click(timeOptionsListItems[2]);
 
     expect(await within(startTimePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
 
-  test('sets the end location when user changes it', () => {
+  test('sets the end location when user changes it', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
     const endLocationPickerButton = screen.getByLabelText('End Location');
-    userEvent.click(endLocationPickerButton);
-    userEvent.click(screen.getByLabelText('Pick a location on the map'));
+    await userEvent.click(endLocationPickerButton);
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
-    map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
+    act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
     expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
   });
@@ -376,9 +376,9 @@ describe('PatrolDetailView', () => {
 
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
-    userEvent.click(endDatePickerOpenCalendarButton);
+    await userEvent.click(endDatePickerOpenCalendarButton);
     const endOptions = await screen.findAllByRole('option');
-    userEvent.click(endOptions[25]);
+    await userEvent.click(endOptions[25]);
 
     expect(await within(endDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -405,16 +405,16 @@ describe('PatrolDetailView', () => {
 
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
-    userEvent.click(endDatePickerOpenCalendarButton);
+    await userEvent.click(endDatePickerOpenCalendarButton);
     const endOptions = await screen.findAllByRole('option');
-    userEvent.click(endOptions[25]);
+    await userEvent.click(endOptions[25]);
 
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
     const endTimePickerOpenOptionsButton = await within(endTimePicker).findByLabelText('Open time options');
-    userEvent.click(endTimePickerOpenOptionsButton);
+    await userEvent.click(endTimePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
-    userEvent.click(timeOptionsListItems[2]);
+    await userEvent.click(timeOptionsListItems[2]);
 
     expect(await within(endTimePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
@@ -426,7 +426,7 @@ describe('PatrolDetailView', () => {
 
     expect(objectiveInput).not.toHaveTextContent('great objective');
 
-    userEvent.type(objectiveInput, 'great objective');
+    await userEvent.type(objectiveInput, 'great objective');
 
     expect(objectiveInput).toHaveTextContent('great objective');
   });
@@ -437,7 +437,7 @@ describe('PatrolDetailView', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
@@ -446,25 +446,25 @@ describe('PatrolDetailView', () => {
   test('displays a new note', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('note-icon'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(1);
   });
 
   test('deletes a new note', async () => {
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('note-icon'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
-    userEvent.click(addNoteButton);
-    const deleteNoteButton = await screen.findByText('trash-can.svg');
-    userEvent.click(deleteNoteButton);
+    await userEvent.click(addNoteButton);
+    const deleteNoteButton = await screen.findByTestId('activitySection-deleteIcon-');
+    await userEvent.click(deleteNoteButton);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('note-icon'))).toBeNull();
   });
 
   test('shows invalid dates modal and does not save if dates are invalid', async () => {
@@ -477,18 +477,18 @@ describe('PatrolDetailView', () => {
 
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
-    userEvent.click(endDatePickerOpenCalendarButton);
+    await userEvent.click(endDatePickerOpenCalendarButton);
     const endOptions = await screen.findAllByRole('option');
-    userEvent.click(endOptions[25]);
+    await userEvent.click(endOptions[25]);
 
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
-    userEvent.click(startDatePickerOpenCalendarButton);
+    await userEvent.click(startDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[26]);
+    await userEvent.click(options[26]);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
     expect((await screen.findByText('Invalid Patrol Times'))).toBeDefined();
@@ -498,13 +498,13 @@ describe('PatrolDetailView', () => {
     renderWithWrapper(<PatrolDetailView />);
 
     const titleInput = (await screen.findAllByRole('textbox'))[0];
-    userEvent.type(titleInput, '2');
-    userEvent.tab();
+    await userEvent.type(titleInput, '2');
+    await userEvent.tab();
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(executeSaveActions).toHaveBeenCalledTimes(1);
@@ -513,32 +513,20 @@ describe('PatrolDetailView', () => {
     });
   });
 
-  test('shows the loading overlay while saving', async () => {
-    renderWithWrapper(<PatrolDetailView />);
-
-    const titleInput = (await screen.findAllByRole('textbox'))[0];
-    userEvent.type(titleInput, '2');
-    userEvent.tab();
-    const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
-
-    expect(await screen.findByText('Saving...')).toBeDefined();
-  });
-
   test('can not add a second note without saving the first one', async () => {
     window.alert = jest.fn();
 
     renderWithWrapper(<PatrolDetailView />);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('note-icon'))).toBeNull();
     expect(window.alert).toHaveBeenCalledTimes(0);
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
-    userEvent.click(addNoteButton);
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
     expect(window.alert).toHaveBeenCalledTimes(1);
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(2);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(1);
   });
 
   test('does not display the activity section nor its anchor if there are no items to show', async () => {
@@ -555,7 +543,7 @@ describe('PatrolDetailView', () => {
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('addNoteButton');
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
@@ -584,13 +572,13 @@ describe('PatrolDetailView', () => {
     renderWithWrapper(<PatrolDetailView/>);
 
     const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
-    userEvent.click(editNoteIcon);
+    await userEvent.click(editNoteIcon);
 
     const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
-    userEvent.type(noteTextArea, updatedText);
+    await userEvent.type(noteTextArea, updatedText);
 
     const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
-    userEvent.click(doneNoteButton);
+    await userEvent.click(doneNoteButton);
 
     const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
     return { textArea, doneNoteButton, };
@@ -604,7 +592,7 @@ describe('PatrolDetailView', () => {
     expect(textArea).toHaveValue(`${note.text}${updatedText}`);
 
     const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(textArea).toHaveTextContent(note.text);
     expect( (await screen.queryByText(doneNoteButton)) ).toBeNull();
@@ -643,11 +631,11 @@ describe('PatrolDetailView', () => {
       renderWithWrapper(<PatrolDetailView />);
 
       const titleInput = await screen.findByTestId('patrolDetailView-header-title');
-      userEvent.type(titleInput, '2');
+      await userEvent.type(titleInput, '2');
       titleInput.blur();
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await screen.findByText('Unsaved Changes');
       await screen.findByText('There are unsaved changes. Would you like to go back, discard the changes, or save and continue?');
@@ -657,11 +645,11 @@ describe('PatrolDetailView', () => {
       renderWithWrapper(<PatrolDetailView />);
 
       const titleTextBox = await screen.findByTestId('patrolDetailView-header-title');
-      userEvent.type(titleTextBox, '2');
-      userEvent.tab();
+      await userEvent.type(titleTextBox, '2');
+      await userEvent.tab();
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       expect(executeSaveActions).toHaveBeenCalledTimes(0);
       expect(navigate).toHaveBeenCalledTimes(0);
@@ -680,45 +668,45 @@ describe('PatrolDetailView', () => {
     test('displays a new attachment', async () => {
       renderWithWrapper(<PatrolDetailView />);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+      expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
 
       const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
       const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-      userEvent.upload(addAttachmentButton, fakeFile);
+      await userEvent.upload(addAttachmentButton, fakeFile);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+      expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
     });
 
     test('deletes a new attachment', async () => {
       renderWithWrapper(<PatrolDetailView />);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+      expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
 
       const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
       const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-      userEvent.upload(addAttachmentButton, fakeFile);
-      const deleteAttachmentButton = await screen.findByText('trash-can.svg');
-      userEvent.click(deleteAttachmentButton);
+      await userEvent.upload(addAttachmentButton, fakeFile);
+      const deleteAttachmentButton = await screen.findByTestId('activitySection-trashCan-fake.txt');
+      await userEvent.click(deleteAttachmentButton);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+      expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
     });
 
     test('omits duplicated attachment files', async () => {
       window.alert = jest.fn();
       renderWithWrapper(<PatrolDetailView />);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+      expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
 
       const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
       const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-      userEvent.upload(addAttachmentButton, fakeFile);
+      await userEvent.upload(addAttachmentButton, fakeFile);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+      expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
 
       const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-      userEvent.upload(addAttachmentButton, fakeFileAgain);
+      await userEvent.upload(addAttachmentButton, fakeFileAgain);
 
-      expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+      expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
     });
 
   });

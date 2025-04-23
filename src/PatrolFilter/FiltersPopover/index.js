@@ -1,11 +1,10 @@
 import React, { memo, useCallback, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import uniq from 'lodash/uniq';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
@@ -17,9 +16,9 @@ import CheckboxList from '../../CheckboxList';
 import DasIcon from '../../DasIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
-import colorVariables from '../../common/styles/vars/colors.module.scss';
-import patrolFiltersPopoverStyles from './styles.module.scss';
-import styles from '../../EventFilter/styles.module.scss';
+import * as colorVariables from '../../common/styles/vars/colors.module.scss';
+import * as patrolFiltersPopoverStyles from './styles.module.scss';
+import * as styles from '../../EventFilter/styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
@@ -44,86 +43,82 @@ const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
   return [...checkedItemIds, clickedItemId];
 };
 
-const FiltersPopover = React.forwardRef(({
-  fetchTrackedBySchema,
-  patrolFilter,
-  patrolLeaderSchema,
-  patrolTypes,
-  updatePatrolFilter,
-  ...rest
-}, ref) => {
-  const { status: selectedStatusIds } = patrolFilter;
-  const {
-    tracked_by: selectedLeaderIds,
-    patrol_type: selectedPatrolTypeIds,
-  } = patrolFilter.filter;
+const FiltersPopover = ({ ref, ...rest }) => {
+  const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters.filtersPopover' });
+
+  const patrolFilter = useSelector((state) => state.data.patrolFilter);
+  const patrolLeaderSchema = useSelector((state) => state.data.patrolLeaderSchema);
+  const patrolTypes = useSelector((state) => state.data.patrolTypes);
+
+  const { status: selectedStatusIds } = patrolFilter;
+  const { patrol_type: selectedPatrolTypeIds, tracked_by: selectedLeaderIds } = patrolFilter.filter;
 
   const onLeadersFilterChange = useCallback((leadersSelected) => {
     const isAnyLeaderSelected = !!leadersSelected?.length;
-    updatePatrolFilter({
+    dispatch(updatePatrolFilter({
       filter: { tracked_by: isAnyLeaderSelected ? uniq(leadersSelected.map(({ id }) => id)) : [] }
-    });
+    }));
 
     patrolFilterTracker.track(
       `${isAnyLeaderSelected ? 'Set' : 'Clear'} 'Tracked By' Filter`,
       isAnyLeaderSelected ? `${leadersSelected.length} trackers` : null
     );
-  }, [updatePatrolFilter]);
+  }, [dispatch]);
 
   const onStatusFilterChange = useCallback((clickedStatus) => {
     const checkedStatus = calculateNewCheckedItems(clickedStatus.id, selectedStatusIds);
-    updatePatrolFilter({ status: checkedStatus });
+    dispatch(updatePatrolFilter({ status: checkedStatus }));
 
     const isAnyStatusChecked = checkedStatus[0] !== CHECKBOX_LIST_ALL_OPTION_ID;
     patrolFilterTracker.track(
       `${isAnyStatusChecked ? 'Set' : 'Clear'} 'Status' Filter`,
       isAnyStatusChecked ? `${selectedStatusIds.length} status` : null
     );
-  }, [selectedStatusIds, updatePatrolFilter]);
+  }, [dispatch, selectedStatusIds]);
 
   const onPatrolTypesFilterChange = useCallback((clickedPatrolType) => {
     const checkedPatrolTypes = calculateNewCheckedItems(clickedPatrolType.id, selectedPatrolTypeIds);
-    updatePatrolFilter({ filter: { patrol_type: checkedPatrolTypes } });
+    dispatch(updatePatrolFilter({ filter: { patrol_type: checkedPatrolTypes } }));
 
     const isAnyPatrolTypeSelected = !!selectedPatrolTypeIds.length;
     patrolFilterTracker.track(
       `${isAnyPatrolTypeSelected ? 'Set' : 'Clear'} 'Patrol Types' Filter`,
       isAnyPatrolTypeSelected ? `${selectedPatrolTypeIds.length} types` : null
     );
-  }, [selectedPatrolTypeIds, updatePatrolFilter]);
+  }, [dispatch, selectedPatrolTypeIds]);
 
   const resetFilters = useCallback(() => {
-    updatePatrolFilter({
+    dispatch(updatePatrolFilter({
       filter: {
         tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
         patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
       },
       status: INITIAL_FILTER_STATE.status,
-    });
+    }));
 
     patrolFilterTracker.track('Click Reset All Filters');
-  }, [updatePatrolFilter]);
+  }, [dispatch]);
 
   const resetFilter = useCallback((filterToReset) => (e) => {
     e.stopPropagation();
-    updatePatrolFilter({ filter: { [filterToReset]: INITIAL_FILTER_STATE.filter[filterToReset] } });
+    dispatch(updatePatrolFilter({ filter: { [filterToReset]: INITIAL_FILTER_STATE.filter[filterToReset] } }));
 
     patrolFilterTracker.track(`Click reset ${filterToReset} filter`);
-  }, [updatePatrolFilter]);
+  }, [dispatch]);
 
   const resetStatusFilter = useCallback((e) => {
     e.stopPropagation();
-    updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
+    dispatch(updatePatrolFilter({ status: INITIAL_FILTER_STATE.status }));
 
     patrolFilterTracker.track('Click reset status');
-  }, [updatePatrolFilter]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
-      fetchTrackedBySchema();
+      dispatch(fetchTrackedBySchema());
     }
-  }, [fetchTrackedBySchema, patrolLeaderSchema]);
+  }, [dispatch, patrolLeaderSchema]);
 
   const patrolLeaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
     || [];
@@ -266,44 +261,6 @@ const FiltersPopover = React.forwardRef(({
       </div>
     </Popover.Body>
   </Popover>;
-});
-
-FiltersPopover.propTypes = {
-  fetchTrackedBySchema: PropTypes.func.isRequired,
-  patrolFilter: PropTypes.shape({
-    filters: PropTypes.shape({
-      patrol_type: PropTypes.arrayOf(PropTypes.string),
-      tracked_by: PropTypes.arrayOf(PropTypes.string),
-    }),
-  }).isRequired,
-  patrolLeaderSchema: PropTypes.shape({
-    trackedbySchema: PropTypes.shape({
-      properties: PropTypes.shape({
-        leader: PropTypes.shape({
-          enum_ext: PropTypes.arrayOf(PropTypes.shape({ value: PropTypes.object })),
-        }),
-      }),
-    }),
-  }).isRequired,
-  patrolTypes: PropTypes.arrayOf(PropTypes.shape({
-    display: PropTypes.string,
-    id: PropTypes.string,
-    icon_id: PropTypes.string,
-  })).isRequired,
-  updatePatrolFilter: PropTypes.func.isRequired,
 };
 
-FiltersPopover.displayName = 'FiltersPopover';
-
-const mapStateToProps = (state) => ({
-  patrolFilter: state.data.patrolFilter,
-  patrolLeaderSchema: state.data.patrolLeaderSchema,
-  patrolTypes: state.data.patrolTypes,
-});
-
-export default connect(
-  mapStateToProps,
-  { fetchTrackedBySchema, updatePatrolFilter },
-  null,
-  { forwardRef: true }
-)(memo(FiltersPopover));
+export default memo(FiltersPopover);

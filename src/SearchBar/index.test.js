@@ -7,12 +7,12 @@ import { render, screen } from '../test-utils';
 const changeMock = jest.fn(() => {});
 const clearMock = jest.fn();
 
-test('rendering without crashing', () => {
+test('rendering without crashing', async () => {
   render(<SearchBar placeholder='Search here!' value='' onChange={changeMock} onClear={clearMock}/>);
 });
 
 describe('searching and reset', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     render(<SearchBar placeholder='Search here!' value='' onChange={changeMock} onClear={clearMock}/>);
   });
 
@@ -26,15 +26,15 @@ describe('searching and reset', () => {
     expect(searchInput).toHaveAttribute('placeholder', 'Search here!');
   });
 
-  test('it should call onChange', () => {
+  test('it should call onChange', async () => {
     const searchInput = screen.getByTestId('search-input');
-    userEvent.type(searchInput, 'ER');
+    await userEvent.type(searchInput, 'ER');
     expect(changeMock).toHaveBeenCalledTimes(2);
   });
 
   test('it should clear the search input after clicking the reset button', async () => {
     const resetButton = await screen.getByTestId('reset-search-button');
-    userEvent.click(resetButton);
+    await userEvent.click(resetButton);
     expect(clearMock).toHaveBeenCalledTimes(1);
   });
 });

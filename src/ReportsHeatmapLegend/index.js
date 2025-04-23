@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { differenceInCalendarDays } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +26,6 @@ const ReportsHeatmapLegend = ({ onClose }) => {
     pointCount={reportCount}
     title={<h6>{t('heatmapLegendTitle')}</h6>}
   />;
-};
-
-ReportsHeatmapLegend.propTypes = {
-  onClose: PropTypes.func.isRequired,
 };
 
 export default memo(ReportsHeatmapLegend);

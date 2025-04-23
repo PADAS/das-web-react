@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { length } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod } from '../selectors/tracks';
 
-const TrackLength = ({ className, trackId }) => {
+const TrackLength = ({ className = '', trackId }) => {
   const { t } = useTranslation('tracks', { keyPrefix: 'trackLength' });
 
   const tracks = useSelector(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod);
@@ -28,15 +27,6 @@ const TrackLength = ({ className, trackId }) => {
 
     <span>{t('length', { length: length(trackFeature).toFixed(2) })}</span>
   </div> : null;
-};
-
-TrackLength.defaultProps = {
-  className: '',
-};
-
-TrackLength.propTypes = {
-  className: PropTypes.string,
-  trackId: PropTypes.string.isRequired,
 };
 
 export default TrackLength;
