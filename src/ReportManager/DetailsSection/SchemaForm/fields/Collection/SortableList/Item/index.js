@@ -29,6 +29,7 @@ const Item = ({
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
+  wasItemRecentlyAdded = false,
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
@@ -48,6 +49,7 @@ const Item = ({
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
   const formDataBeforeEditingRef = useRef(null);
+  const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
   const hasError = !!errors;
   const title = getItemTitle(
@@ -75,11 +77,6 @@ const Item = ({
     setIsFormModalOpen(true);
   };
 
-  const onFormModalCancel = () => {
-    onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
-    setIsFormModalOpen(false);
-  };
-
   const onFieldChange = (fieldId, value, error) => {
     // We update the field error in the errors object.
     let updatedErrors = { ...errors };
@@ -96,8 +93,22 @@ const Item = ({
   };
 
   const onDeleteItem = () => {
-    onDelete();
+    onDelete(shouldDeleteOnCancelRef.current);
     setIsFormModalOpen(false);
+  };
+
+  const onFormModalCancel = () => {
+    if (shouldDeleteOnCancelRef.current) {
+      onDeleteItem();
+    } else {
+      onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
+      setIsFormModalOpen(false);
+    }
+  };
+
+  const onFormModalDone = () => {
+    setIsFormModalOpen(false);
+    shouldDeleteOnCancelRef.current = false;
   };
 
   useEffect(() => {
@@ -211,8 +222,9 @@ const Item = ({
       leftColumn={collectionDetails.leftColumn}
       onCancel={onFormModalCancel}
       onDeleteItem={onDeleteItem}
-      onDone={() => setIsFormModalOpen(false)}
+      onDone={onFormModalDone}
       onFieldChange={onFieldChange}
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
       renderField={renderField}
       rightColumn={collectionDetails.rightColumn}
       title={title}

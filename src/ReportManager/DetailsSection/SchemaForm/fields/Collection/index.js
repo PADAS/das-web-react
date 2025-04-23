@@ -66,7 +66,7 @@ const Collection = ({
     );
   };
 
-  const onItemDelete = (itemIndex) => () => {
+  const onItemDelete = (itemIndex) => (decreaseLastAddedItemId = false) => {
     // We clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
@@ -80,8 +80,12 @@ const Collection = ({
         if (erroneousItemIndex > itemIndex) {
           updatedError[parseInt(erroneousItemIndex) - 1] = updatedError[erroneousItemIndex];
           delete updatedError[erroneousItemIndex];
-        };
+        }
       });
+    }
+
+    if (decreaseLastAddedItemId){
+      lastAddedItemIdRef.current -= 1;
     }
 
     onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
@@ -108,11 +112,18 @@ const Collection = ({
     setItems(arrayMove(items, originalItemIndex, newItemIndex));
   };
 
-  const setIsItemFormModalOpen = (itemIndex) => (isItemFormModalOpen) => setItems([
-    ...items.slice(0, itemIndex),
-    { ...items[itemIndex], isFormModalOpen: isItemFormModalOpen },
-    ...items.slice(itemIndex + 1),
-  ]);
+  const setIsItemFormModalOpen = (itemIndex) => (isItemFormModalOpen) => {
+    setItems((currentItems) => {
+      const itemToUpdate = currentItems[itemIndex];
+      return !itemToUpdate
+        ? currentItems
+        : [
+          ...currentItems.slice(0, itemIndex),
+          { ...itemToUpdate, isFormModalOpen: isItemFormModalOpen, wasItemRecentlyAdded: false },
+          ...currentItems.slice(itemIndex + 1)
+        ];
+    });
+  };
 
   const setIsItemFormPreviewOpen = (itemIndex) => (isItemFormPreviewOpen) => setItems([
     ...items.slice(0, itemIndex),
@@ -130,7 +141,15 @@ const Collection = ({
 
     lastAddedItemIdRef.current += 1;
     onFieldChange(id, [...value, {}], updatedError);
-    setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
+    setItems([
+      ...items,
+      {
+        id: lastAddedItemIdRef.current,
+        isFormModalOpen: true,
+        isFormPreviewOpen: false,
+        wasItemRecentlyAdded: true
+      }
+    ]);
   };
 
   // If a location field from an item requests to focus its location marker, prefix the marker id with the collection

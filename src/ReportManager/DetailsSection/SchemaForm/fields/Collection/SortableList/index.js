@@ -153,6 +153,7 @@ const SortableList = ({
           index={index}
           isFormModalOpen={item.isFormModalOpen}
           isFormPreviewOpen={item.isFormPreviewOpen}
+          wasItemRecentlyAdded={item.wasItemRecentlyAdded}
           key={item.id}
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}
