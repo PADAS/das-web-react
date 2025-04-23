@@ -1,5 +1,4 @@
 import React, { memo, useContext } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +25,8 @@ import AddToIncidentModal from '../../../AddToIncidentModal';
 import AddToPatrolModal from '../../../AddToPatrolModal';
 import TextCopyBtn from '../../../TextCopyBtn';
 import KebabMenu from '../../../KebabMenu';
+
+import * as styles from './styles.module.scss';
 
 const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }) => {
   const dispatch = useDispatch();
@@ -111,6 +112,7 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
     { !!report.id &&
       <KebabMenu.Option as="div">
         <TextCopyBtn
+          className={styles.textCopyButton}
           getText={() => getReportLink(report)}
           icon={<ClipIcon />}
           label={t('header.reportMenu.textCopyButtonLabel')}
@@ -124,17 +126,6 @@ const ReportMenu = ({ onSaveReport, printableContentRef, report, setRedirectTo }
       {t('header.reportMenu.printReportItem')}
     </KebabMenu.Option>
   </KebabMenu>;
-};
-
-ReportMenu.propTypes = {
-  onSaveReport: PropTypes.func.isRequired,
-  printableContentRef: PropTypes.shape({ current: PropTypes.instanceOf(Element) }).isRequired,
-  report: PropTypes.shape({
-    id: PropTypes.string,
-    is_collection: PropTypes.bool,
-    priority: PropTypes.number,
-  }).isRequired,
-  setRedirectTo: PropTypes.func.isRequired,
 };
 
 export default memo(ReportMenu);

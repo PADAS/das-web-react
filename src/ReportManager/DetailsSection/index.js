@@ -1,8 +1,8 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
-import { ResizeSpinLoader } from 'react-css-loaders';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -34,20 +34,22 @@ import {
 import AreaSelectorInput from './AreaSelectorInput';
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
 import GeometryPreview from './AreaSelectorInput/GeometryPreview';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import PrioritySelect from '../../PrioritySelect';
 import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
-const LOADER_SIZE = 4;
+const LOADER_SIZE = 50;
 
 const DetailsSection = ({
+  eventId,
   eventSchema = null,
   formValidator,
+  isBehindAddedEvent,
   isCollection,
   isNewEvent,
   loadingSchema,
@@ -62,9 +64,10 @@ const DetailsSection = ({
   onReportLocationChange,
   onReportStateChange,
   originalReport,
+  ref,
   reportForm,
   submitFormButtonRef,
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
@@ -75,7 +78,7 @@ const DetailsSection = ({
   const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
   // Schema from schema selector, it is stored in redux.
   const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema.schema : null
+    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema?.schema : null
   );
   // Override to the schema.
   const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
@@ -91,7 +94,6 @@ const DetailsSection = ({
 
   const geometryType = eventType?.geometry_type;
   const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
-  const reportLocation = !!reportForm.location ? [reportForm.location.longitude, reportForm.location.latitude] : null;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -220,10 +222,10 @@ const DetailsSection = ({
                 onGeometryChange={onReportGeometryChange}
                 originalEvent={originalReport}
               />
-              : <LocationSelectorInput
-                label={null}
-                location={reportLocation}
-                onLocationChange={onReportLocationChange}
+              : <LocationPicker
+                id="reportManager-detailsSection-locationPicker"
+                onChange={onReportLocationChange}
+                value={reportForm.location || null}
               />
             }
           </label>
@@ -233,7 +235,6 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
-                className={styles.datePicker}
                 data-testid="reportManager-detailsSection-datePicker"
                 disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
@@ -292,6 +293,9 @@ const DetailsSection = ({
 
     {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
       autofillDefaultInputs={isNewEvent}
+      eventId={eventId}
+      eventLocation={reportForm.location}
+      hideMapLocationMarkers={isBehindAddedEvent}
       initialFormData={reportForm.event_details}
       onFormDataChange={onFormDataChange}
       onFormSubmit={onFormSubmit}
@@ -303,12 +307,14 @@ const DetailsSection = ({
       schema={eventSchemaOverride}
     />}
 
-    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
-      color={LOADER_COLOR}
-      data-testid="reportManager-detailsSection-loader"
-      size={LOADER_SIZE}
-    />}
+    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+      <MoonLoader
+        color={LOADER_COLOR}
+        data-testid="reportManager-detailsSection-loader"
+        size={LOADER_SIZE}
+      />
+    </div>}
   </div>;
 };
 
-export default memo(forwardRef(DetailsSection));
+export default memo(DetailsSection);

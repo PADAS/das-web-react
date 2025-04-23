@@ -89,7 +89,7 @@ describe('SettingsPane', () => {
       });
       test('toggling the event filter persistence setting when clicked', async () => {
         const eventFilterPersistToggle = await screen.findByText('Event Filters');
-        userEvent.click(eventFilterPersistToggle);
+        await userEvent.click(eventFilterPersistToggle);
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:eventFilter',
@@ -99,7 +99,7 @@ describe('SettingsPane', () => {
 
       test('toggling the patrol filter persistence setting when clicked', async () => {
         const patrolFilterPersistToggle = await screen.findByText('Patrol Filters');
-        userEvent.click(patrolFilterPersistToggle);
+        await userEvent.click(patrolFilterPersistToggle);
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:patrolFilter',
@@ -111,7 +111,7 @@ describe('SettingsPane', () => {
         expect(global.localStorage.setItem).not.toHaveBeenCalled();
 
         const mapPositionPersistToggle = await screen.findByText('Map Position & Zoom Level');
-        userEvent.click(mapPositionPersistToggle);
+        await userEvent.click(mapPositionPersistToggle);
 
         expect(global.localStorage.setItem).toHaveBeenCalledWith(
           'er-web-restorable:mapPosition',
@@ -124,7 +124,7 @@ describe('SettingsPane', () => {
   describe('the "Map" settings tab', () => {
     it('toggles the showInactiveRadios state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('Show Inactive Radios');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'SHOW_INACTIVE_RADIOS', payload: true }]);
@@ -133,7 +133,7 @@ describe('SettingsPane', () => {
     it('toggles the mapIsLocked state when the checkbox is clicked', async () => {
 
       const checkbox = await screen.findByText('Lock Map');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'SET_MAP_LOCK_STATE', payload: true }]);
@@ -141,7 +141,7 @@ describe('SettingsPane', () => {
 
     it('toggles the enable3D state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('3D Map Terrain');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'UPDATE_USER_PREFERENCES', payload: { enable3D: true } }]);
@@ -149,7 +149,7 @@ describe('SettingsPane', () => {
 
     it('toggles the simplifyMapDataOnZoom state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('Simplify Map Data on Zoom');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'SET_MAP_DATA_ZOOM_SIMPLIFICATION' }]);
@@ -157,7 +157,7 @@ describe('SettingsPane', () => {
 
     it('toggles the showTrackTimepoints state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('Show Track Timepoints');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'TOGGLE_TRACK_TIMEPOINTS' }]);
@@ -165,7 +165,7 @@ describe('SettingsPane', () => {
 
     it('toggles the showInactiveRadios state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('Show Inactive Radios');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'SHOW_INACTIVE_RADIOS', payload: true }]);
@@ -173,7 +173,7 @@ describe('SettingsPane', () => {
 
     it('toggles the showUserLocation state when the checkbox is clicked', async () => {
       const checkbox = await screen.findByText('Show My Current Location');
-      userEvent.click(checkbox);
+      await userEvent.click(checkbox);
 
       const actions = store.getActions();
       expect(actions).toEqual([{ type: 'TOGGLE_DISPLAY_USER_LOCATION' }]);

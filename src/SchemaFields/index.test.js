@@ -63,9 +63,9 @@ describe('DateTimeWidget', () => {
     expect(props.onChange).toHaveBeenCalledTimes(0);
 
     const datePickerOpenCalendarButton = await screen.findByLabelText('Open calendar');
-    userEvent.click(datePickerOpenCalendarButton);
+    await userEvent.click(datePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[16]);
+    await userEvent.click(options[16]);
 
     expect(props.onChange).toHaveBeenCalled();
   });
@@ -76,10 +76,10 @@ describe('DateTimeWidget', () => {
     expect(props.onChange).toHaveBeenCalledTimes(0);
 
     const timePickerOpenOptionsButton = await screen.findByLabelText('Open time options');
-    userEvent.click(timePickerOpenOptionsButton);
+    await userEvent.click(timePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
-    userEvent.click(timeOptionsListItems[2]);
+    await userEvent.click(timeOptionsListItems[2]);
 
     expect(props.onChange).toHaveBeenCalled();
   });

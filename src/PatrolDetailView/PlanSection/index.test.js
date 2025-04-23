@@ -12,6 +12,18 @@ import { mockStore } from '../../__test-helpers/MockStore';
 
 import PlanSection from '.';
 
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
+
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({ pathname: '/patrols' }),
@@ -112,12 +124,12 @@ describe('PatrolDetailView - PlanSection', () => {
     renderPlanSectionWithWrapper();
 
     const selectReportedBy = await screen.getByText('Select Device...');
-    userEvent.click(selectReportedBy);
+    await userEvent.click(selectReportedBy);
 
     expect(onPatrolReportedByChange).toHaveBeenCalledTimes(0);
 
     const reporterOption = await screen.getByAltText('Radio icon for Alex option');
-    userEvent.click(reporterOption);
+    await userEvent.click(reporterOption);
 
     expect(onPatrolReportedByChange).toHaveBeenCalledTimes(1);
     expect(onPatrolReportedByChange.mock.calls[0][0].id).toBe('dba0e0a6-0083-41be-a0eb-99e956977748');
@@ -135,11 +147,11 @@ describe('PatrolDetailView - PlanSection', () => {
     renderPlanSectionWithWrapper();
 
     const objectiveInput = await screen.getByTestId('patrolDetailView-objectiveTextArea');
-    userEvent.click(objectiveInput);
+    await userEvent.click(objectiveInput);
 
     expect(onPatrolObjectiveChange).toHaveBeenCalledTimes(0);
 
-    userEvent.type(objectiveInput, 'Great objective');
+    await userEvent.type(objectiveInput, 'Great objective');
 
     expect(onPatrolObjectiveChange).toHaveBeenCalled();
   });
@@ -166,9 +178,9 @@ describe('PatrolDetailView - PlanSection', () => {
 
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
-    userEvent.click(startDatePickerOpenCalendarButton);
+    await userEvent.click(startDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    await userEvent.click(options[25]);
 
     expect(onPatrolStartDateChange).toHaveBeenCalled();
   });
@@ -193,7 +205,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolStartDateChange).not.toHaveBeenCalled();
 
     const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
-    userEvent.click(autoStartInput);
+    await userEvent.click(autoStartInput);
 
     expect(onPatrolStartDateChange).toHaveBeenCalled();
   });
@@ -205,9 +217,9 @@ describe('PatrolDetailView - PlanSection', () => {
 
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
-    userEvent.click(endDatePickerOpenCalendarButton);
+    await userEvent.click(endDatePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    await userEvent.click(options[25]);
 
     expect(onPatrolEndDateChange).toHaveBeenCalled();
   });
@@ -232,7 +244,7 @@ describe('PatrolDetailView - PlanSection', () => {
     expect(onPatrolEndDateChange).not.toHaveBeenCalled();
 
     const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
-    userEvent.click(autoEndInput);
+    await userEvent.click(autoEndInput);
 
     expect(onPatrolEndDateChange).toHaveBeenCalled();
   });
@@ -255,10 +267,10 @@ describe('PatrolDetailView - PlanSection', () => {
     renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
 
     const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
-    userEvent.click(autoStartInput);
+    await userEvent.click(autoStartInput);
 
     const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
-    userEvent.click(autoEndInput);
+    await userEvent.click(autoEndInput);
 
     const [, autoStartAction, autoEndAction] = mockedStore.getActions();
 
@@ -307,7 +319,7 @@ describe('PatrolDetailView - PlanSection', () => {
 
     expect(autoEndInput).not.toBeDisabled();
 
-    userEvent.click(autoEndInput);
+    await userEvent.click(autoEndInput);
     const [, autoEndAction] = mockedStore.getActions();
 
     expect(autoEndAction).toStrictEqual({ payload: { autoEndPatrols: true }, type: 'UPDATE_USER_PREFERENCES' });
@@ -332,10 +344,10 @@ describe('PatrolDetailView - PlanSection', () => {
     renderPlanSectionWithWrapper({ patrolForm: futurePatrol });
 
     const autoStartInput = await screen.findByTestId('patrol-is-auto-start');
-    userEvent.click(autoStartInput);
+    await userEvent.click(autoStartInput);
 
     const autoEndInput = await screen.findByTestId('patrol-is-auto-end');
-    userEvent.click(autoEndInput);
+    await userEvent.click(autoEndInput);
 
     const [, autoStartAction, autoEndAction] = mockedStore.getActions();
 
@@ -374,33 +386,29 @@ describe('PatrolDetailView - PlanSection', () => {
   test('triggers the onPatrolStartLocationChange callback when the user chooses a location in map', async () => {
     renderPlanSectionWithWrapper();
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[0];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    await userEvent.click(screen.getByLabelText('Start Location'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(0);
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect(onPatrolStartLocationChange).toHaveBeenCalledTimes(1);
-    expect(onPatrolStartLocationChange).toHaveBeenCalledWith([88, 55]);
+    expect(onPatrolStartLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
   });
 
   test('triggers the onPatrolEndLocationChange callback when the user chooses a location in map', async () => {
     renderPlanSectionWithWrapper();
 
-    const setLocationButton = (await screen.findAllByTestId('set-location-button'))[1];
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    await userEvent.click(screen.getByLabelText('End Location'));
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(0);
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     expect(onPatrolEndLocationChange).toHaveBeenCalledTimes(1);
-    expect(onPatrolEndLocationChange).toHaveBeenCalledWith([88, 55]);
+    expect(onPatrolEndLocationChange).toHaveBeenCalledWith({ latitude: 55, longitude: 88 });
   });
 
   test('it should show the placeholder for empty values', async () => {

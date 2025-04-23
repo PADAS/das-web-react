@@ -41,10 +41,9 @@ describe('PatrolFilter', () => {
           },
           status: INITIAL_FILTER_STATE.status,
         },
-        patrols: {
-          results: [],
-        },
+        patrolsFeed: [],
         subjectStore: {},
+        patrolStore: {},
       },
     };
 
@@ -61,7 +60,7 @@ describe('PatrolFilter', () => {
     expect(searchBar.value).toBe('');
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    userEvent.type(searchBar, 'Search');
+    await userEvent.type(searchBar, 'Search');
 
     await waitFor(() => {
       expect(searchBar.value).toBe('Search');
@@ -73,7 +72,7 @@ describe('PatrolFilter', () => {
   test('clears the search bar text when the user clicks the clear button', async () => {
     const searchBar = await screen.findByTestId('search-input');
     const clearSearchBarButton = await screen.findByTestId('reset-search-button');
-    userEvent.type(searchBar, 'Search');
+    await userEvent.type(searchBar, 'Search');
 
     await waitFor(() => {
       expect(searchBar.value).toBe('Search');
@@ -81,7 +80,7 @@ describe('PatrolFilter', () => {
       expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { text: 'Search' } });
     }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME + 50 });
 
-    userEvent.click(clearSearchBarButton);
+    await userEvent.click(clearSearchBarButton);
 
     await waitFor(() => {
       expect(searchBar.value).toBe('');

@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { BOOTSTRAP_DEFAULTS } from '../../../../../../constants';
@@ -37,9 +38,11 @@ const customKeyboardCoordinateGetter = (event, args) => {
 };
 
 const SortableList = ({
+  blurLocationMarker,
   breadcrumbs,
   collectionDetails,
   fields,
+  focusLocationMarker,
   items,
   onItemChange,
   onItemDelete,
@@ -68,6 +71,8 @@ const SortableList = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList',
   });
 
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+
   const [activeItemIndex, setActiveItemIndex] = useState(null);
 
   // Utility to calculate variables needed for a11y announcements on drag operations.
@@ -82,6 +87,7 @@ const SortableList = ({
         `${collectionDetails.itemName} ${items[activeItemIndex].id + 1}`,
         fields[collectionDetails.itemIdentifier],
         i18n.language,
+        gpsFormat,
         t
       ),
       ...(overId === null ? [] : [items.findIndex((item) => item.id === overId) + 1]),
@@ -136,14 +142,18 @@ const SortableList = ({
     >
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => <SortableItem
+          blurLocationMarker={blurLocationMarker}
           breadcrumbs={breadcrumbs}
           collectionDetails={collectionDetails}
           errors={item.error}
           fields={fields}
+          focusLocationMarker={focusLocationMarker(index)}
           formData={item.formData}
           id={item.id}
+          index={index}
           isFormModalOpen={item.isFormModalOpen}
           isFormPreviewOpen={item.isFormPreviewOpen}
+          wasItemRecentlyAdded={item.wasItemRecentlyAdded}
           key={item.id}
           onChange={onItemChange(index)}
           onDelete={onItemDelete(index)}

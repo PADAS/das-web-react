@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchPatrols } from '../../ducks/patrols';
+import { fetchPatrolsFeed } from '../../ducks/patrols';
 
 const useFetchPatrolsFeed = () => {
   const dispatch = useDispatch();
@@ -20,18 +20,15 @@ const useFetchPatrolsFeed = () => {
     return filterParams;
   }, [patrolFilter]);
 
-  const fetchAndLoadPatrolData = useCallback(() => {
-    patrolFetchRef.current = dispatch(fetchPatrols());
+  useEffect(() => {
+    setLoadingPatrolsFeed(true);
+
+    patrolFetchRef.current = dispatch(fetchPatrolsFeed());
 
     patrolFetchRef.current.request.finally(() => {
       setLoadingPatrolsFeed(false);
       patrolFetchRef.current = null;
     });
-  }, [dispatch]);
-
-  useEffect(() => {
-    setLoadingPatrolsFeed(true);
-    fetchAndLoadPatrolData();
 
     return () => {
       const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
@@ -40,7 +37,7 @@ const useFetchPatrolsFeed = () => {
         priorRequestCancelToken.cancel();
       }
     };
-  }, [fetchAndLoadPatrolData, patrolFilterParams]);
+  }, [dispatch, patrolFilterParams]);
 
   return { loadingPatrolsFeed };
 };

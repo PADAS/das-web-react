@@ -1,10 +1,10 @@
-import React, { forwardRef, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import ReactSelect, { components } from 'react-select';
 
-import colorVars from '../common/styles/vars/colors.module.scss';
-import controlsVars from '../common/styles/vars/controls.module.scss';
+import * as colorVars from '../common/styles/vars/colors.module.scss';
+import * as controlsVars from '../common/styles/vars/controls.module.scss';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DropdownIndicator = ({ isDisabled, ...restProps }) => <components.DropdownIndicator isDisabled={isDisabled} {...restProps}>
   <div className={ !isDisabled ? styles.caret : styles.disabled } />
@@ -15,7 +15,7 @@ const IndicatorsContainer = ({ className, ...rest }) => <components.IndicatorsCo
   {...rest}
 />;
 
-const Select = ({ styles: customStyles, components, ...rest }, ref) => {
+const Select = ({ styles: customStyles, components, ref, ...rest }) => {
   const selectStyles = useMemo(() => ({
     ...customStyles,
     option: (styles, state) => {
@@ -51,6 +51,4 @@ const Select = ({ styles: customStyles, components, ...rest }, ref) => {
   />;
 };
 
-const SelectForwardRef = forwardRef(Select);
-
-export default SelectForwardRef;
+export default Select;

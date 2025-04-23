@@ -35,7 +35,7 @@ describe('format dates', () => {
 
   test('converts date time iso string to time string based on Asia/Istanbul time zone', () => {
     const date = new Date('2025-02-21T21:41:14.677Z');
-    expect( getTimeInTimezone( date, 'Asia/Istanbul') ).toBe('24:41');
+    expect( getTimeInTimezone( date, 'Asia/Istanbul') ).toBe('00:41');
   });
 
   test('converts date time iso string to time string based on Australia/Sydney time zone', () => {
@@ -45,7 +45,7 @@ describe('format dates', () => {
 
   test('converts date time iso string to time string based on Africa/Nairobi time zone', () => {
     const date = new Date('2025-02-21T21:41:14.677Z');
-    expect( getTimeInTimezone( date, 'Africa/Nairobi') ).toBe('24:41');
+    expect( getTimeInTimezone( date, 'Africa/Nairobi') ).toBe('00:41');
   });
 
 

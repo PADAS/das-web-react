@@ -1,5 +1,4 @@
 import React, { memo, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 import pluralize from 'pluralize';
 import { useTranslation } from 'react-i18next';
@@ -46,25 +45,6 @@ const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sort
     {children}
     {sortingTypeLabel}
   </p>;
-};
-
-FriendlyFilterString.propTypes = {
-  children: null,
-  className: null,
-  isFiltered: false,
-  sortConfig: null,
-};
-
-FriendlyFilterString.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  dateRange: PropTypes.shape({
-    lower: PropTypes.string,
-    upper: PropTypes.string,
-  }).isRequired,
-  isFiltered: PropTypes.bool,
-  sortConfig: PropTypes.array,
-  totalFeedCount: PropTypes.number,
 };
 
 export default memo(FriendlyFilterString);

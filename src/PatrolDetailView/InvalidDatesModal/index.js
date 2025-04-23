@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import PropTypes from 'prop-types';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
@@ -24,11 +23,6 @@ const InvalidDatesModal = ({ onHide, show }) => {
       </Button>
     </Modal.Footer>
   </Modal>;
-};
-
-InvalidDatesModal.propTypes = {
-  onHide: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };
 
 export default memo(InvalidDatesModal);

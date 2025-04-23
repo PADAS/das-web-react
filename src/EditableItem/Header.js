@@ -1,10 +1,8 @@
-import React, { forwardRef, memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
+import React, { memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-import { analyticsMetadataProps } from '../proptypes';
 import { BREAKPOINTS } from '../constants';
 import { FormDataContext } from './context';
 import { trackEvent } from '../utils/analytics';
@@ -15,7 +13,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import InlineEditable from '../InlineEditable';
 import TimeAgo from '../TimeAgo';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const EditableItemHeader = ({
   afterMenuToggle,
@@ -95,8 +93,7 @@ const EditableItemHeader = ({
     </span>
   </>;
 
-  // eslint-disable-next-line react/display-name
-  const HistoryPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.historyPopover}>
+  const HistoryPopover = (props) => <Popover {...props} className={styles.historyPopover}>
     <Popover.Header>
       {t('sectionTitle')}
     </Popover.Header>
@@ -119,7 +116,7 @@ const EditableItemHeader = ({
         )}
       </ul>
     </Popover.Body>
-  </Popover>);
+  </Popover>;
 
   return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
     <h4>
@@ -177,18 +174,6 @@ const EditableItemHeader = ({
       </div>
     </h4>
   </div>;
-};
-
-EditableItemHeader.propTypes = {
-  afterMenuToggle: PropTypes.func,
-  analyticsMetadata: analyticsMetadataProps,
-  data: PropTypes.object,
-  Icon: PropTypes.oneOfType([PropTypes.element, PropTypes.node]),
-  maxTitleLength: PropTypes.number,
-  MenuContent: PropTypes.oneOfType([PropTypes.element, PropTypes.node]),
-  onTitleChange: PropTypes.func.isRequired,
-  priority: PropTypes.number,
-  title: PropTypes.string,
 };
 
 export default memo(EditableItemHeader);

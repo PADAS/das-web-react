@@ -23,7 +23,7 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 
 import { getReporterById } from './events';
 
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 const DEFAULT_STROKE = '#FF0080';
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -226,15 +226,6 @@ export const actualEndTimeForPatrol = (patrol) => {
   return value
     ? new Date(value)
     : null;
-};
-
-export const getLeaderForPatrol = (patrol, subjectStore) => {
-  if (!patrol?.patrol_segments.length) return null;
-  const [firstLeg] = patrol.patrol_segments;
-  const { leader }  = firstLeg;
-  if (!leader) return null;
-
-  return subjectStore[leader.id] || leader;
 };
 
 export const getPatrolsForLeaderId = (leaderId) => {

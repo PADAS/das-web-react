@@ -1,20 +1,24 @@
-import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useContext, useState, useEffect, useRef } from 'react';
 import throttle from 'lodash/throttle';
-import PropTypes from 'prop-types';
 
 import { addMapImage } from '../utils/map';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { MapContext } from '../App';
 import { validateLocation } from '../utils/location';
-import { withMap } from '../EarthRangerMap';
 
-import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
 import MouseMarkerPopup from '../MouseMarkerPopup';
+import PickMapLocationButton from '../PickMapLocationButton';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const MapMarkerDropper = ({ onMarkerDropped = null, showMarkerPopup = true, ...rest }) => {
+  const map = useContext(MapContext);
+
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
@@ -30,6 +34,8 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   const hideMarker = () => {
     setMarkerLocation({});
     stopMovingReportMarker();
+
+    mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
   const onMouseMove = throttle((e) => {
@@ -54,7 +60,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   }, [map]);
 
   useEffect(() => {
-    if (!moving && isValidLocation) {
+    if (onMarkerDropped && !moving && isValidLocation) {
       onMarkerDropped(location);
     }
   }, [isValidLocation, location, moving, onMarkerDropped]);
@@ -66,11 +72,15 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
   const startMovingReportMarker = () => {
     setMovingState(true);
     map.on('mousemove', mouseMoveFunc.current);
+
+    mapInteractionTracker.track('Click \'Drop Marker\' button');
   };
 
   const onLocationSelect = () => {
     stopMovingReportMarker();
     setCleanupState(true);
+
+    mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
 
@@ -92,33 +102,21 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 
   }, [moving]); // eslint-disable-line
 
-
-
-  return <Fragment>
-    <MapLocationPicker
-      showPopup={false}
-      disabled={isValidLocation || moving}
-      showCancelButton={moving}
+  return <>
+    <PickMapLocationButton
       className={styles.mapControl}
-      wrapperClassName={styles.buttons}
-      onLocationSelectCancel={hideMarker}
-      onLocationSelectStart={startMovingReportMarker}
-      onLocationSelect={onLocationSelect} />
+      disabled={isValidLocation || moving}
+      onCancel={hideMarker}
+      onClick={startMovingReportMarker}
+      onPick={onLocationSelect}
+      showInstructionsPopup={false}
+    />
 
     {shouldShowMarkerLayer && <>
       <MouseMarkerLayer location={location} {...rest} />
       {showMarkerPopup && moving && <MouseMarkerPopup location={location} />}
     </>}
-  </Fragment>;
+  </>;
 };
 
-export default memo(withMap(MapMarkerDropper));
-
-MapMarkerDropper.defaultProps = {
-  onMarkerDropped() {
-  },
-};
-
-MapMarkerDropper.propTypes = {
-  onMarkerDropped: PropTypes.func,
-};
+export default memo(MapMarkerDropper);

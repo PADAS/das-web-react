@@ -62,7 +62,7 @@ describe('GeometryPreview', () => {
     expect(onAreaSelectStart).toHaveBeenCalledTimes(0);
 
     const editAreaButton = await screen.findByTitle('Place geometry on map');
-    userEvent.click(editAreaButton);
+    await userEvent.click(editAreaButton);
 
     expect(onAreaSelectStart).toHaveBeenCalledTimes(1);
   });
@@ -87,7 +87,7 @@ describe('GeometryPreview', () => {
     expect(onDeleteArea).toHaveBeenCalledTimes(0);
 
     const deleteAreaButton = await screen.findByTitle('Delete Area');
-    userEvent.click(deleteAreaButton);
+    await userEvent.click(deleteAreaButton);
 
     expect(onDeleteArea).toHaveBeenCalledTimes(1);
   });

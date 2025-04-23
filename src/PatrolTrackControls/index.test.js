@@ -59,7 +59,7 @@ describe('patrols with leader, location and track data', () => {
 
   test('toggling a patrol track on when clicking the "jump to location button"', async () => {
     const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
-    userEvent.click(jumpButton);
+    await userEvent.click(jumpButton);
 
     const actions = store.getActions();
 
@@ -71,7 +71,7 @@ describe('patrols with leader, location and track data', () => {
 
   test('toggling a patrol leader\'s track on when clicking the "jump to location button"', async () => {
     const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
-    userEvent.click(jumpButton);
+    await userEvent.click(jumpButton);
 
     const actions = store.getActions();
 

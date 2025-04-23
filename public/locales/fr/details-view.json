@@ -27,11 +27,6 @@
     "stateResolveButton": "Sauvegarder et résoudre",
     "stateReopenButton": "Sauvregarder et réouvrir"
   },
-  "geoLocator": {
-    "buttonLabel": "Utiliser ma géolocalisation",
-    "loadingMessage": "En cours de lecture de votre géolocalisation...",
-    "readingLocationError": "Erreur de lecture de votre positionnement actuel #{{locationErrorMessage}}"
-  },
   "goToReportButtonTooltip": "Accéder a l'événement",
   "header": {
     "historyLinkCreated": "Crée",
@@ -46,10 +41,6 @@
   "imageModal": {
     "errorTitle": "Erreur de chargement de l'image",
     "errorMessage": "Si vous avez télécharger ce fichier récemment, veuillez patientez quelques minutes et réessayer."
-  },
-  "locationSelector": {
-    "inputLabel": "Position",
-    "inputPlaceHolder": "Ajouter les coordonnées"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Retour",

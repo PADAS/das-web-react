@@ -25,7 +25,7 @@ describe('Link', () => {
     </NavigationWrapper>);
 
     const link = await screen.findByRole('link');
-    userEvent.click(link);
+    await userEvent.click(link);
 
     expect((await screen.findByTestId('location-display'))).toHaveTextContent('/route');
   });
@@ -44,7 +44,7 @@ describe('Link', () => {
     </NavigationWrapper>);
 
     const link = await screen.findByRole('link');
-    userEvent.click(link);
+    await userEvent.click(link);
 
     expect((await screen.findByTestId('location-display'))).toHaveTextContent('/');
   });
@@ -65,7 +65,7 @@ describe('Link', () => {
     </NavigationWrapper>);
 
     const link = await screen.findByRole('link');
-    userEvent.click(link);
+    await userEvent.click(link);
 
     expect((await screen.findByTestId('location-display'))).toHaveTextContent('/');
 

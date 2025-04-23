@@ -1,34 +1,18 @@
 {
     "patrolTrackLegend": {
-        "multiplePatrolsTitle": "{{count}} गस्तीहरु",
-        "singlePatrolTitle": "गस्ती: {{patrolDisplayTitle}}",
-        "titleElement": {
-            "coveredSpan": "ढाकिएको",
-            "icon": "{{title}}को लागि आइकन",
-            "lengthCovered": "{{length}}  ढाकिएको",
-            "removeButton": "हटाउनुहोस्"
-        }
+        "icon": "{{title}}को लागि आइकन",
+        "itemTitle": "गस्ती: {{patrolTitle}}",
+        "trackLegendItemsName": "गस्तीहरु"
     },
     "subjectTrackLegend": {
+        "description": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",
+        "itemDescription_one": "{{count}} पोइन्ट",
+        "itemDescription_other": "{{count}} पोइन्टहरू",
+        "itemIcon": "{{title}} को आइकन",
+        "trackLegendItemsName": "विषयहरू"
+    },
+    "trackLegend": {
         "clearTracksButton": "ट्र्याकहरू खाली गर्नुहोस्",
-        "icon": "{{title}} को आइकन",
-        "multipleSubjectTracksTitle": "{{count}} विषयहरू",
-        "pointsOverTime": "{{trackTime}} मा {{pointCount}} पोइन्टहरू",
-        "subjectTrackList": {
-          "closeButtonLabel": "विषयहरूको सूची बन्द गर्नुहोस्",
-          "subjectTracksItem": {
-            "icon": "{{title}} को आइकन",
-            "pointCount_one": "{{count}} पोइन्ट",
-            "pointCount_other": "{{count}} पोइन्टहरू",
-            "removeButton": "हटाउनुहोस्",
-            "removeButtonLabel": "{{title}} हटाउनुहोस्"
-          },
-          "title": "विषयहरू"
-        },
-        "subjectTracksListButtonLabel": {
-          "closed": "विषयहरूको सूची खोल्नुहोस्",
-          "open": "विषयहरूको सूची बन्द गर्नुहोस्"
-        },
         "timeOfDaySettings": {
           "chevronButtonLabel": {
             "closed": "दिनको समय सेटिङ विस्तार गर्नुहोस्",
@@ -54,6 +38,17 @@
         "timeOfDaySettingsButtonLabel": {
           "active": "दिनको समय अनुसार रंग निष्क्रिय गर्नुहोस्",
           "inactive": "दिनको समय अनुसार रंग सक्रिय गर्नुहोस्"
+        },
+        "tracksList": {
+          "closeButtonLabel": "{{itemsName}} को सूची बन्द गर्नुहोस्",
+          "tracksItem": {
+            "removeButton": "हटाउनुहोस्",
+            "removeButtonLabel": "{{title}} हटाउनुहोस्"
+          }
+        },
+        "tracksListButtonLabel": {
+          "closed": "{{itemsName}} को सूची खोल्नुहोस्",
+          "open": "{{itemsName}} को सूची बन्द गर्नुहोस्"
         },
         "trackSettings": {
           "closeButtonLabel": "ट्र्याक सेटिङहरू बन्द गर्नुहोस्",

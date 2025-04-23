@@ -19,7 +19,7 @@ describe('Footer', () => {
     expect(onCancel).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
@@ -28,7 +28,7 @@ describe('Footer', () => {
     expect(onSave).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(onSave).toHaveBeenCalledTimes(1);
   });
@@ -39,7 +39,7 @@ describe('Footer', () => {
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
     const saveButton = await screen.findByText('Save');
-    userEvent.hover(saveButton);
+    await userEvent.hover(saveButton);
 
     expect((await screen.findByRole('tooltip'))).toHaveTextContent('Only closed shapes can be saved');
   });
@@ -50,7 +50,7 @@ describe('Footer', () => {
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
     const saveButton = await screen.findByText('Save');
-    userEvent.hover(saveButton);
+    await userEvent.hover(saveButton);
 
     expect((await screen.findByRole('tooltip'))).toHaveTextContent('Segments of the shape cannot intersect');
   });
@@ -61,7 +61,7 @@ describe('Footer', () => {
     expect((await screen.queryByRole('tooltip'))).toBeNull();
 
     const saveButton = await screen.findByText('Save');
-    userEvent.hover(saveButton);
+    await userEvent.hover(saveButton);
 
     expect((await screen.queryByRole('tooltip'))).toBeNull();
   });

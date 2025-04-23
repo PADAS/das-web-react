@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
@@ -23,7 +23,7 @@ import {
 
 import CalendarPopper from './CalendarPopper';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const DatePicker = ({
   className = '',
@@ -37,10 +37,11 @@ const DatePicker = ({
   onFocus = null,
   reactDatePickerProps = {},
   readOnly = false,
+  ref,
   required = false,
   value,
   ...otherProps
-}, ref) => {
+}) => {
   const { t } = useTranslation('components', { keyPrefix: 'datePicker' });
 
   const dayInputRef = useRef();
@@ -84,12 +85,14 @@ const DatePicker = ({
   const onYearInputKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Decrease the year when the user presses the down arrow.
-      if (isValidYearInput(year) && parseInt(year) > 0) {
-        const yearMinusOne = (parseInt(year) - 1).toString().padStart(4, '0');
-        onYearChange(yearMinusOne);
+        // Decrease the year when the user presses the down arrow.
+        if (isValidYearInput(year) && parseInt(year) > 0) {
+          const yearMinusOne = (parseInt(year) - 1).toString().padStart(4, '0');
+          onYearChange(yearMinusOne);
+        }
       }
       break;
 
@@ -106,12 +109,14 @@ const DatePicker = ({
       break;
 
     case 'ArrowUp':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Increase the year when the user presses the up arrow.
-      if (isValidYearInput(year) && parseInt(year) < 9999) {
-        const yearPlusOne = (parseInt(year) + 1).toString().padStart(4, '0');
-        onYearChange(yearPlusOne);
+        // Increase the year when the user presses the up arrow.
+        if (isValidYearInput(year) && parseInt(year) < 9999) {
+          const yearPlusOne = (parseInt(year) + 1).toString().padStart(4, '0');
+          onYearChange(yearPlusOne);
+        }
       }
       break;
 
@@ -130,7 +135,7 @@ const DatePicker = ({
   const onMonthInputBlur = () => {
     // If the month input is blurred and the user left a single digit we autofill the first one with a zero, unless we
     // moved the focus programatically after the user typed a valid month.
-    if (shouldAutofillMonthOnBlurRef.current && shouldCompleteFirstMonthDigitWithZero(month)) {
+    if (!readOnly && shouldAutofillMonthOnBlurRef.current && shouldCompleteFirstMonthDigitWithZero(month)) {
       onMonthChange(`0${month}`);
     }
 
@@ -161,14 +166,16 @@ const DatePicker = ({
   const onMonthInputKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Decrease the month when the user presses the down arrow.
-      if (month === '' || parseInt(month) === 1) {
-        onMonthChange('12');
-      } else if (isValidMonthInput(month)) {
-        const monthMinusOne = (parseInt(month) - 1).toString().padStart(2, '0');
-        onMonthChange(monthMinusOne);
+        // Decrease the month when the user presses the down arrow.
+        if (month === '' || parseInt(month) === 1) {
+          onMonthChange('12');
+        } else if (isValidMonthInput(month)) {
+          const monthMinusOne = (parseInt(month) - 1).toString().padStart(2, '0');
+          onMonthChange(monthMinusOne);
+        }
       }
       break;
 
@@ -185,14 +192,16 @@ const DatePicker = ({
       break;
 
     case 'ArrowUp':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Increase the month when the user presses the up arrow.
-      if (month === '' || month === '12') {
-        onMonthChange('01');
-      } else if (isValidMonthInput(month)) {
-        const monthPlusOne = (parseInt(month) + 1).toString().padStart(2, '0');
-        onMonthChange(monthPlusOne);
+        // Increase the month when the user presses the up arrow.
+        if (month === '' || month === '12') {
+          onMonthChange('01');
+        } else if (isValidMonthInput(month)) {
+          const monthPlusOne = (parseInt(month) + 1).toString().padStart(2, '0');
+          onMonthChange(monthPlusOne);
+        }
       }
       break;
 
@@ -224,14 +233,16 @@ const DatePicker = ({
   const onDayInputKeyDown = (event) => {
     switch (event.key) {
     case 'ArrowDown':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Decrease the day when the user presses the down arrow.
-      if (day === '' || parseInt(day) === 1) {
-        onDayChange('31');
-      } else if (isValidDayInput(day)) {
-        const dayMinusOne = (parseInt(day) - 1).toString().padStart(2, '0');
-        onDayChange(dayMinusOne);
+        // Decrease the day when the user presses the down arrow.
+        if (day === '' || parseInt(day) === 1) {
+          onDayChange('31');
+        } else if (isValidDayInput(day)) {
+          const dayMinusOne = (parseInt(day) - 1).toString().padStart(2, '0');
+          onDayChange(dayMinusOne);
+        }
       }
       break;
 
@@ -248,14 +259,16 @@ const DatePicker = ({
       break;
 
     case 'ArrowUp':
-      event.preventDefault();
+      if (!readOnly) {
+        event.preventDefault();
 
-      // Increase the day when the user presses the up arrow.
-      if (day === '' || day === '31') {
-        onDayChange('01');
-      } else if (isValidDayInput(day)) {
-        const dayPlusOne = (parseInt(day) + 1).toString().padStart(2, '0');
-        onDayChange(dayPlusOne);
+        // Increase the day when the user presses the up arrow.
+        if (day === '' || day === '31') {
+          onDayChange('01');
+        } else if (isValidDayInput(day)) {
+          const dayPlusOne = (parseInt(day) + 1).toString().padStart(2, '0');
+          onDayChange(dayPlusOne);
+        }
       }
       break;
 
@@ -338,7 +351,7 @@ const DatePicker = ({
       className={styles.dayInput}
       disabled={disabled}
       inputMode="numeric"
-      onBlur={() => shouldCompleteFirstDayDigitWithZero(day) && onDayChange(`0${day}`)}
+      onBlur={() => !readOnly && shouldCompleteFirstDayDigitWithZero(day) && onDayChange(`0${day}`)}
       onChange={onDayInputChange}
       onFocus={(event) => event.target.select()}
       onKeyDown={onDayInputKeyDown}
@@ -369,4 +382,4 @@ const DatePicker = ({
 
 export { EMPTY_DATE_VALUE };
 
-export default memo(forwardRef(DatePicker));
+export default memo(DatePicker);

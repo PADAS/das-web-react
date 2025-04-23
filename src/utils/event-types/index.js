@@ -1,4 +1,4 @@
-import colorVariables from '../../common/styles/vars/colors.module.scss';
+import * as colorVariables from '../../common/styles/vars/colors.module.scss';
 
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
@@ -49,7 +49,7 @@ export const mapEventTypesToCategories = (eventTypes, eventCategories) => {
     // Read the event type category. The location of the event category value property depends on the event type
     // version.
     const eventTypeCategory = eventType.version === 1
-      ? eventCategories[eventType.category.value]
+      ? eventType.category
       : eventCategories[eventType.category];
 
     if (eventTypeCategory.value === 'hidden') {

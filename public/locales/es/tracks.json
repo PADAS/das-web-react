@@ -1,34 +1,18 @@
 {
   "patrolTrackLegend": {
-    "multiplePatrolsTitle": "{{count}} patrullas",
-    "singlePatrolTitle": "Patrulla: {{patrolDisplayTitle}}",
-    "titleElement": {
-      "coveredSpan": " cubiertas",
-      "icon": "Ícono para {{title}}",
-      "lengthCovered": "{{length}} cubiertos",
-      "removeButton": "remover"
-    }
+    "icon": "Ícono para {{title}}",
+    "itemTitle": "Patrulla: {{patrolTitle}}",
+    "trackLegendItemsName": "patrullas"
   },
   "subjectTrackLegend": {
+    "description": "{{pointCount}} puntos en {{trackTime}}",
+    "itemDescription_one": "{{count}} punto",
+    "itemDescription_other": "{{count}} puntos",
+    "itemIcon": "Icono para {{title}}",
+    "trackLegendItemsName": "sujetos"
+  },
+  "trackLegend": {
     "clearTracksButton": "Limpiar trayectorias",
-    "icon": "Icono para {{title}}",
-    "multipleSubjectTracksTitle": "{{count}} sujetos",
-    "pointsOverTime": "{{pointCount}} puntos en {{trackTime}}",
-    "subjectTrackList": {
-      "closeButtonLabel": "Cerrar la lista de sujetos",
-      "subjectTracksItem": {
-        "icon": "Icono para {{title}}",
-        "pointCount_one": "{{count}} punto",
-        "pointCount_other": "{{count}} puntos",
-        "removeButton": "Eliminar",
-        "removeButtonLabel": "Eliminar a {{title}}"
-      },
-      "title": "Sujetos"
-    },
-    "subjectTracksListButtonLabel": {
-      "closed": "Abrir la lista de sujetos",
-      "open": "Cerrar la lista de sujetos"
-    },
     "timeOfDaySettings": {
       "chevronButtonLabel": {
         "closed": "Expandir la configuración de la hora del día",
@@ -54,6 +38,17 @@
     "timeOfDaySettingsButtonLabel": {
       "active": "Desactivar la coloración por hora del día",
       "inactive": "Activar la coloración por hora del día"
+    },
+    "tracksList": {
+      "closeButtonLabel": "Cerrar la lista de {{itemsName}}",
+      "tracksItem": {
+        "removeButton": "Eliminar",
+        "removeButtonLabel": "Eliminar a {{title}}"
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Abrir la lista de {{itemsName}}",
+      "open": "Cerrar la lista de {{itemsName}}"
     },
     "trackSettings": {
       "closeButtonLabel": "Cerrar la configuración de trayectorias",

@@ -2,15 +2,14 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import PinField from 'react-pin-field';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import ConfirmationCheck from '../ConfirmationCheck';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PIN_LENGTH = 4;
-const PIN_VALIDATION_RULES = /^[0-9]$/;
+const PIN_VALIDATION_RULES = '[0-9]';
 
 const ProfilePINModal = ({ onSuccess, profile }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'profilePINModal' });
@@ -56,10 +55,10 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
             length={PIN_LENGTH}
             onChange={onChange}
             onComplete={onComplete}
+            pattern={PIN_VALIDATION_RULES}
             ref={pinInputsRef}
             role="input"
             type="password"
-            validate={PIN_VALIDATION_RULES}
           />
 
           {success && <ConfirmationCheck />}
@@ -69,14 +68,6 @@ const ProfilePINModal = ({ onSuccess, profile }) => {
       </Form>
     </Modal.Body>
   </>;
-};
-
-ProfilePINModal.propTypes = {
-  onSuccess: PropTypes.func.isRequired,
-  profile: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-    pin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  }).isRequired,
 };
 
 export default memo(ProfilePINModal);

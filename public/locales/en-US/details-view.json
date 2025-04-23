@@ -38,11 +38,6 @@
     "stateResolveButton": "Save and resolve",
     "stateReopenButton": "Save and reopen"
   },
-  "geoLocator": {
-    "buttonLabel": "Use my location",
-    "loadingMessage": "Trying to read your location...",
-    "readingLocationError": "Could not read your current location: {{locationErrorMessage}}"
-  },
   "header": {
     "historyLinkCreated": "Created",
     "historyLinkUpdated": "Updated",
@@ -56,12 +51,6 @@
   "imageModal": {
     "errorTitle": "Error loading image.",
     "errorMessage": "If you uploaded this file recently, please wait a minute and try again."
-  },
-  "locationSelector": {
-    "copyButtonLabel": "Copy Location",
-    "copyButtonTitle": "Copy",
-    "inputLabel": "Location:",
-    "inputPlaceHolder": "Set location"
   },
   "navigationPromptModal": {
     "cancelNavigationButtonText": "Go Back",

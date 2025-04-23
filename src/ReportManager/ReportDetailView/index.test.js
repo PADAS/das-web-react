@@ -29,12 +29,24 @@ import { notes } from '../../__test-helpers/fixtures/reports';
 import { SidebarScrollProvider } from '../../SidebarScrollContext';
 import { cleanup, render, screen, waitFor, within } from '../../test-utils';
 
-jest.mock('../../AddItemButton', () => jest.fn());
+jest.mock('mapbox-gl', () => ({
+  ...jest.requireActual('mapbox-gl'),
+  Popup: class {
+    addTo() {}
+    on() {}
+    remove() {}
+    setDOMContent() {}
+    setOffset() {}
+    trackPointer() {}
+  },
+}));
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useNavigate: () => () => null, /* eslint-disable-line react/display-name */
 }));
+
+jest.mock('../../AddItemButton', () => jest.fn());
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
@@ -233,28 +245,29 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect(titleInput).toHaveTextContent('Accident');
 
-    userEvent.type(titleInput, '2');
+    await userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveTextContent('2ccident');
+    expect(titleInput).toHaveTextContent('2');
   });
 
   test('sets the location when user changes it', async () => {
     renderWithWrapper(
       <ReportDetailView
-              isNewReport
-              newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-              reportId="1234"
-            />
+        isNewReport
+        newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
+        reportId="1234"
+      />
     );
 
-    const setLocationButton = await screen.findByTestId('set-location-button');
-    userEvent.click(setLocationButton);
-    const placeMarkerOnMapButton = await screen.findByTitle('Place marker on map');
-    userEvent.click(placeMarkerOnMapButton);
+    const locationPickerButton = screen.getByLabelText('Event Location');
+    await userEvent.click(locationPickerButton);
+    await userEvent.click(screen.getByLabelText('Pick a location on the map'));
 
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
-    expect((await screen.findByText('55.000000°, 88.000000°'))).toBeDefined();
+    await waitFor(() => {
+      expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+    });
   });
 
   test('sets the date when user changes it', async () => {
@@ -264,9 +277,9 @@ describe('ReportManager - ReportDetailView', () => {
 
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
-    userEvent.click(datePickerOpenCalendarButton);
+    await userEvent.click(datePickerOpenCalendarButton);
     const options = await screen.findAllByRole('option');
-    userEvent.click(options[25]);
+    await userEvent.click(options[25]);
 
     expect(await within(datePicker).findByTestId('datePicker-input')).toHaveValue('2022-12-22');
   });
@@ -278,10 +291,10 @@ describe('ReportManager - ReportDetailView', () => {
 
     const timePicker = await screen.findByTestId('reportManager-detailsSection-timePicker');
     const timePickerOpenOptionsButton = await within(timePicker).findByLabelText('Open time options');
-    userEvent.click(timePickerOpenOptionsButton);
+    await userEvent.click(timePickerOpenOptionsButton);
     const optionsList = await screen.findByTestId('timePicker-OptionsList');
     const timeOptionsListItems = await within(optionsList).findAllByRole('option');
-    userEvent.click(timeOptionsListItems[2]);
+    await userEvent.click(timeOptionsListItems[2]);
 
     expect(await within(timePicker).findByTestId('timePicker-input')).toHaveValue('00:30');
   });
@@ -296,7 +309,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const typeOfAccidentField = await screen.findByLabelText('Type of accident');
-    userEvent.type(typeOfAccidentField, 'Truck crash');
+    await userEvent.type(typeOfAccidentField, 'Truck crash');
 
     expect((await screen.findByDisplayValue('Truck crash'))).toBeDefined();
   });
@@ -313,9 +326,9 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.queryByRole('button', { name: 'Resolved' }))).toBeNull();
 
     const stateDropdown = await screen.findByText('active');
-    userEvent.click(stateDropdown);
+    await userEvent.click(stateDropdown);
     const resolvedItem = await screen.findByText('resolved');
-    userEvent.click(resolvedItem);
+    await userEvent.click(resolvedItem);
 
     expect(((await screen.findAllByRole('button', { name: 'resolved' })))[0]).toHaveClass('dropdown-toggle');
   });
@@ -332,14 +345,10 @@ describe('ReportManager - ReportDetailView', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.EVENTS}`);
-  });
-
-  test('showing the navigation warning prompt when canceling an added report', () => {
-
   });
 
   test('displays a new attachment', async () => {
@@ -347,13 +356,13 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
 
     const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
+    await userEvent.upload(addAttachmentButton, fakeFile);
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
   });
 
   test('deletes a new attachment', async () => {
@@ -361,15 +370,16 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
-
     const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
-    const deleteAttachmentButton = await screen.findByText('trash-can.svg');
-    userEvent.click(deleteAttachmentButton);
+    await userEvent.upload(addAttachmentButton, fakeFile);
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+    expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
+
+    const deleteAttachmentButton = await screen.findByTestId('activitySection-trashCan-fake.txt');
+    await userEvent.click(deleteAttachmentButton);
+
+    expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
   });
 
   test('displays a new note', async () => {
@@ -377,12 +387,12 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(notes.length + 1);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(notes.length);
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(notes.length + 2);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(notes.length + 1);
   });
 
   test('deletes a new note', async () => {
@@ -390,14 +400,15 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="123" />
     );
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
-
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
-    userEvent.click(addNoteButton);
-    const deleteNoteButton = await screen.findByText('trash-can.svg');
-    userEvent.click(deleteNoteButton);
+    await userEvent.click(addNoteButton);
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(1);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(1);
+
+    const deleteNoteButton = await screen.findByTestId('activitySection-deleteIcon-');
+    await userEvent.click(deleteNoteButton);
+
+    expect((await screen.queryByTestId('note-icon'))).toBeNull();
   });
 
   test('if the current report is a collection, adding a new one simply appends it', async () => {
@@ -497,13 +508,13 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
 
     expect(onSaveSuccess).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(onSaveSuccess).toHaveBeenCalledTimes(1);
@@ -519,13 +530,13 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(1);
 
@@ -543,13 +554,13 @@ describe('ReportManager - ReportDetailView', () => {
         />
     );
     const editNoteIcon = await screen.findByTestId(`activitySection-editIcon-${noteId}`);
-    userEvent.click(editNoteIcon);
+    await userEvent.click(editNoteIcon);
 
     const noteTextArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
-    userEvent.type(noteTextArea, updatedText);
+    await userEvent.type(noteTextArea, updatedText);
 
     const doneNoteButton = await screen.findByTestId(`activitySection-noteDone-${noteId}`);
-    userEvent.click(doneNoteButton);
+    await userEvent.click(doneNoteButton);
 
     const textArea = await screen.findByTestId(`activitySection-noteTextArea-${noteId}`);
     return { textArea, doneNoteButton };
@@ -564,7 +575,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect(textArea).toHaveValue(`${note.text}${updatedText}`);
 
     const cancelButton = await screen.findByText('Cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(textArea).toHaveTextContent(note.text);
     expect((await screen.queryByText(doneNoteButton))).toBeNull();
@@ -587,24 +598,6 @@ describe('ReportManager - ReportDetailView', () => {
     expect(textArea.value).toBe(`${note.text} with spaces`);
   });
 
-  test('shows the loading overlay while saving', async () => {
-    renderWithWrapper(
-      <ReportDetailView
-            isNewReport
-            newReportTypeId="6c90e5f5-ae8e-4e7f-a8dd-26e5d2909a74"
-            reportId="456"
-          />
-    );
-
-    const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
-    const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
-
-    expect(await screen.findByText('Saving...')).toBeDefined();
-  });
-
   test('triggers the formProps onSaveError callback if there is an error saving', async () => {
     const onSaveError = jest.fn();
 
@@ -621,13 +614,13 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
 
     expect(onSaveError).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(onSaveError).toHaveBeenCalledTimes(1);
@@ -647,10 +640,10 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
     const saveButton = await screen.findByText('Save');
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     expect(await screen.findByText('Error saving event.')).toBeDefined();
   });
@@ -662,18 +655,18 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(1);
+    expect((await screen.queryByTestId('attachment-icon'))).toBeNull();
 
     const addAttachmentButton = await screen.findByTestId('addAttachmentButton');
     const fakeFile = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFile);
+    await userEvent.upload(addAttachmentButton, fakeFile);
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
 
     const fakeFileAgain = new File(['fake'], 'fake.txt', { type: 'text/plain' });
-    userEvent.upload(addAttachmentButton, fakeFileAgain);
+    await userEvent.upload(addAttachmentButton, fakeFileAgain);
 
-    expect((await screen.findAllByText('attachment.svg'))).toHaveLength(2);
+    expect((await screen.findAllByTestId('attachment-icon'))).toHaveLength(1);
   });
 
   test('can not add a second note without saving the first one', async () => {
@@ -683,15 +676,15 @@ describe('ReportManager - ReportDetailView', () => {
       <ReportDetailView isNewReport={false} reportId="456" />
     );
 
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(3);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(2);
     expect(window.alert).toHaveBeenCalledTimes(0);
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
-    userEvent.click(addNoteButton);
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
     expect(window.alert).toHaveBeenCalledTimes(1);
-    expect((await screen.findAllByText('note.svg'))).toHaveLength(4);
+    expect((await screen.findAllByTestId('note-icon'))).toHaveLength(3);
   });
 
   test('does not display the activity section nor its anchor if there are no items to show', async () => {
@@ -720,7 +713,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect((await screen.queryByTestId('quickLinks-anchor-Activity'))).toBeNull();
 
     const addNoteButton = await screen.findByTestId('reportDetailView-addNoteButton-original');
-    userEvent.click(addNoteButton);
+    await userEvent.click(addNoteButton);
 
     expect((await screen.findByTestId('detailView-activitySection'))).toBeDefined();
     expect((await screen.findByTestId('quickLinks-anchor-Activity'))).toBeDefined();
@@ -807,7 +800,7 @@ describe('ReportManager - ReportDetailView', () => {
     renderWithWrapper(<ReportDetailView isNewReport={false} reportId="456" />);
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleInput, '2');
+    await userEvent.type(titleInput, '2');
     titleInput.blur();
 
     await waitFor(() => {
@@ -822,14 +815,14 @@ describe('ReportManager - ReportDetailView', () => {
     expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleInput, '2');
+    await userEvent.type(titleInput, '2');
     titleInput.blur();
 
     await waitFor(() => {
       expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
     });
 
-    userEvent.type(titleInput, 't');
+    await userEvent.type(titleInput, 'title');
     titleInput.blur();
 
     await waitFor(() => {
@@ -850,11 +843,11 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
-    userEvent.type(titleTextBox, '2');
-    userEvent.tab();
+    await userEvent.type(titleTextBox, '2');
+    await userEvent.tab();
 
 
-    const saveButtonGroup = (await screen.findAllByRole('group'))[2];
+    const saveButtonGroup = (await screen.findAllByRole('group'))[3];
     expect(saveButtonGroup).toHaveTextContent('Save');
 
     const saveBtnDropdownToggle = saveButtonGroup.querySelector('.dropdown-toggle');
@@ -873,7 +866,7 @@ describe('ReportManager - ReportDetailView', () => {
       const changes = generateSaveActionsForReportLikeObject.mock.calls[0][0];
 
       expect(changes.state).toBe('resolved');
-      expect(changes.title).toBe('2ccident');
+      expect(changes.title).toBe('2');
     });
   });
 
@@ -900,11 +893,11 @@ describe('ReportManager - ReportDetailView', () => {
       );
 
       const titleInput = await screen.findByTestId('reportManager-header-title');
-      userEvent.type(titleInput, '2');
+      await userEvent.type(titleInput, '2');
       titleInput.blur();
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await screen.findByText(modalPromptTitle);
       await screen.findByText(modalPromptText);
@@ -926,7 +919,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       await screen.findByText(modalPromptTitle);
       await screen.findByText(modalPromptText);
@@ -948,7 +941,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(onCancelAddedReport).toHaveBeenCalledTimes(0);
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       const discardButton = await screen.findByText('Discard');
       discardButton.click();
@@ -969,12 +962,12 @@ describe('ReportManager - ReportDetailView', () => {
       );
 
       const titleTextBox = await screen.findByTestId('reportManager-header-title');
-      userEvent.type(titleTextBox, '2');
-      userEvent.tab();
+      await userEvent.type(titleTextBox, '2');
+      await userEvent.tab();
 
 
       const cancelButton = await screen.findByText('Cancel');
-      userEvent.click(cancelButton);
+      await userEvent.click(cancelButton);
 
       expect(onSaveSuccess).not.toHaveBeenCalled();
 

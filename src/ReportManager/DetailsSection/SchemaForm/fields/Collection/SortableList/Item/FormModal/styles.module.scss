@@ -7,6 +7,11 @@
   background: none !important;
 }
 
+// So much detail is needed to override the App.scss .modal[role=dialog] display: flex !important
+.hide[class*=modal][role=dialog] {
+  display: none !important;
+}
+
 .header {
   background-color: white;
   flex-direction: column;
@@ -60,8 +65,15 @@
 }
 
 .footer {
-  justify-content: space-between;
   padding: 0.5rem 1rem;
+
+  &.alignEvenly{
+    justify-content: space-between;
+  }
+
+  &.alignRight{
+    justify-content: right;
+  }
 
   .deleteButton {
     background-color: colors.$high-priority-bg-hover;

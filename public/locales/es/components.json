@@ -55,26 +55,45 @@
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
     "shareLocationToastTitle": "Aprende cómo"
   },
+  "getUserLocationButton": {
+    "errorToastMessage": "No se pudo obtener tu ubicación actual: {{errorMessage}}",
+    "loadingOverlayMessage": "Intentando obtener tu ubicación...",
+    "userLocationButtonLabel": "Obtener ubicación actual"
+  },
+  "gpsFormatToggle": {
+    "fieldsetLegend": "Formato de GPS",
+    "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
+  },
   "gpsInput": {
-    "gpsFormats": {
+    "defaultPlaceholder": "Ubicación",
+    "errorMessage": "Ubicación inválida",
+    "inputDescription": "Ejemplo: {{gpsFormat}}",
+    "inputLabel": "Ubicación GPS",
+    "placeholders": {
       "DDM": "Grados, Decimales, Minutos",
       "DEG": "Latitud, Longitud",
       "DMS": "Grados, Minutos, Segundos",
       "UTM": "Universal Transversal de Mercator",
       "MGRS": "Sistema de Referencia de Cuadrícula Militar"
-    },
-    "defaultPlaceholder": "Ubicación",
-    "inputExample": "Ejemplo: {{gpsFormat}}",
-    "invalidLocation": "Ubicación inválida"
+    }
   },
   "locationJumpButton": {
     "title": "Ir a está ubicación"
   },
-  "mapLocationPicker": {
-    "cancelButton": "Cancelar",
-    "popupLabel": "Da clic para seleccionar una ubicación",
-    "selectLocationButtonLabel": "Seleccionar en mapa",
-    "selectLocationButtonTitle": "Colocar marcador en el mapa"
+  "locationPicker": {
+    "defaultPlaceholder": "Establecer ubicación",
+    "inputDescription": "Haz clic en el botón para establecer un valor desde el menú del selector de ubicación.",
+    "inputLabel": "Ubicación",
+    "jumpToLocationButtonLabel": "Ir a la ubicación",
+    "menuPopover": {
+      "getUserLocationButton": "Usar mi ubicación",
+      "pickMapLocationButton": "Establecer en el mapa"
+    },
+    "setLocationButtonLabel": {
+      "closed": "Abrir el menú del selector de ubicación para establecer un valor",
+      "open": "Cerrar el menú del selector de ubicación"
+    },
+    "textCopyButtonLabel": "Copiar ubicación al portapapeles"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -108,6 +127,10 @@
     "senderDetails": {
       "radioIconTitle": "Ícono del radio para {{subjectName}}"
     }
+  },
+  "pickMapLocationButton": {
+    "instructionsPopupLabel": "Haz clic para seleccionar una ubicación",
+    "pickLocationButtonLabel": "Selecciona una ubicación en el mapa"
   },
   "priorityPicker": {
     "amber": "Ambar",
@@ -193,6 +216,7 @@
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"
   },
   "textCopyBtn": {
+    "buttonLabel": "Copiar al portapapeles",
     "defaultToastMessage": "Copiado al portapapeles"
   },
   "timePicker": {

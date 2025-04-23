@@ -1,7 +1,7 @@
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { renderHook } from '@testing-library/react-hooks';
 
+import { renderHook } from '../../../../../test-utils';
 import i18n from '../../../../../i18nForTests';
 
 import useSchemaValidations from '.';

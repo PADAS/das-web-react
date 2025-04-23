@@ -1,5 +1,4 @@
 import React, { memo, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
@@ -14,7 +13,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
   const onComplete = useCallback(() => dispatch(hidePopup(id)), [dispatch, id]);
 
   return <>
-    <GpsFormatToggle lat={location.lat} lng={location.lng} />
+    <GpsFormatToggle lat={location.lat} lng={location.lng} name="droppedMarkerPopup-gpsFormatToggle" />
 
     <hr />
 
@@ -30,10 +29,6 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
       showLabel={false}
     />
   </>;
-};
-
-DroppedMarkerPopup.propTypes = {
-  data: PropTypes.object.isRequired,
 };
 
 export default memo(DroppedMarkerPopup);

@@ -38,7 +38,7 @@ import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CLOSE_BUTTON_LABEL_KEY = {
   [TAB_KEYS.EVENTS]: 'closeEventFeedButtonLabel',
@@ -65,6 +65,7 @@ const SideBar = () => {
 
   const sideBarRef = useRef();
 
+  const isPickingLocation = useSelector((state) => state.view.mapLocationSelection.isPickingLocation);
   const sideBar = useSelector((state) => state.view.sideBar);
 
   const [showEventsBadge, setShowEventsBadge] = useState(false);
@@ -147,12 +148,13 @@ const SideBar = () => {
     }
   }, [sidebarOpen, currentTab, socket, isReportDetailsViewActive]);
 
+  // NOTE: This is getting unmaintainable. Is it really a good practice to use escape like a navigation key?
   useEffect(() => {
     const onKeydown = (event) => {
-      const wasEscapePressed = event.keyCode === 27;
+      const wasEscapePressed = event.key === 'Escape';
       const isDetailsViewActive = isReportDetailsViewActive || isPatrolDetailsViewActive;
       const isSideBarFocused = sideBarRef.current.contains(document.activeElement);
-      if (wasEscapePressed && isDetailsViewActive && isSideBarFocused) {
+      if (wasEscapePressed && isDetailsViewActive && isSideBarFocused && !isPickingLocation) {
         navigate(`/${getCurrentTabFromURL(location.pathname)}`);
       }
     };
@@ -160,7 +162,7 @@ const SideBar = () => {
     document.addEventListener('keydown', onKeydown, false);
 
     return () => document.removeEventListener('keydown', onKeydown, false);
-  }, [isPatrolDetailsViewActive, isReportDetailsViewActive, location.pathname, navigate]);
+  }, [isPatrolDetailsViewActive, isPickingLocation, isReportDetailsViewActive, location.pathname, navigate]);
 
   useEffect(() => {
     sideBarRef.current.focus();

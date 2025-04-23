@@ -1,64 +1,99 @@
 import React from 'react';
+import { toast } from 'react-toastify';
+import userEvent from '@testing-library/user-event';
+
+import { ReactComponent as LinkIcon } from '../common/images/icons/link.svg';
+
+import { render, screen, waitFor } from '../test-utils';
 
 import TextCopyBtn from './';
 
-import userEvent from '@testing-library/user-event';
-import { Slide, ToastContainer } from 'react-toastify';
+jest.mock('react-toastify', () => ({
+  ...jest.requireActual('react-toastify'),
+  toast: { info: jest.fn() },
+}));
 
-import { render, screen } from '../test-utils';
+describe('TextCopyBtn', () => {
+  const renderTextCopyBtn = (props) => render(<TextCopyBtn text="text" {...props} />);
 
-Object.defineProperty(global.navigator, 'clipboard', { value: {
-  writeText: jest.fn().mockReturnValue(Promise.resolve()),
-}, configurable: true });
+  test('configures the button with other props', () => {
+    renderTextCopyBtn({ className: 'className' });
 
-const testString = 'i am being copied';
+    expect(screen.getByLabelText('Copy to clipboard')).toHaveClass('className');
+  });
 
-const renderTextCopyBtn = (props) => render(
-  <>
-    <ToastContainer transition={Slide} />
-    <TextCopyBtn text={testString} {...props} />
-  </>
-);
+  test('copies the provided text to the clibpboard when the user clicks the button', async () => {
+    renderTextCopyBtn();
 
-test('rendering without crashing', () => {
-  renderTextCopyBtn();
-});
+    window.navigator.clipboard = { writeText: jest.fn() };
 
-test('copying to the clipbboard', async () => {
-  renderTextCopyBtn();
+    expect(toast.info).not.toHaveBeenCalled();
 
-  const copyBtn = await screen.findByRole('button');
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
-  expect(global.navigator.clipboard.writeText).not.toHaveBeenCalled();
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith('text');
 
-  userEvent.click(copyBtn);
+    await waitFor(() => {
+      expect(toast.info).toHaveBeenCalledTimes(1);
+      expect(toast.info).toHaveBeenCalledWith('Copied to clipboard', {
+        autoClose: 2000,
+        hideProgressBar: true,
+      });
+    });
+  });
 
-  expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(testString);
-});
+  test('copies the text from the getter function to the clibpboard when the user clicks the button', async () => {
+    renderTextCopyBtn({ getText: () => 'text gotten', text: null });
 
-test('copying to the clipbboard with a getter', async () => {
-  const getText = jest.fn(() => 'text build on click!');
-  renderTextCopyBtn({ text: null, getText });
+    window.navigator.clipboard = { writeText: jest.fn() };
 
-  const copyBtn = await screen.findByRole('button');
+    expect(toast.info).not.toHaveBeenCalled();
 
-  expect(global.navigator.clipboard.writeText).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
-  expect(getText).toHaveBeenCalledTimes(0);
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith('text gotten');
 
-  userEvent.click(copyBtn);
+    await waitFor(() => {
+      expect(toast.info).toHaveBeenCalledTimes(1);
+      expect(toast.info).toHaveBeenCalledWith('Copied to clipboard', {
+        autoClose: 2000,
+        hideProgressBar: true,
+      });
+    });
+  });
 
-  expect(getText).toHaveBeenCalledTimes(1);
-  expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith('text build on click!');
-});
+  test('shows a custom success message', async () => {
+    renderTextCopyBtn({ successMessage: 'success message' });
 
-test('showing a message on successful copy', async () => {
-  renderTextCopyBtn();
+    window.navigator.clipboard = { writeText: jest.fn() };
+    await userEvent.click(screen.getByLabelText('Copy to clipboard'));
 
-  const copyBtn = await screen.findByRole('button');
-  userEvent.click(copyBtn);
+    await waitFor(() => {
+      expect(toast.info).toHaveBeenCalledTimes(1);
+      expect(toast.info).toHaveBeenCalledWith('success message', {
+        autoClose: 2000,
+        hideProgressBar: true,
+      });
+    });
+  });
 
-  const successMsg = await screen.findByRole('alert');
-  expect(successMsg).toBeInTheDocument();
-  expect(successMsg.textContent).toBe('Copied to clipboard');
+  test('shows a custom icon in the button', async () => {
+    renderTextCopyBtn({ icon: <LinkIcon data-testid="link-icon" /> });
+
+    expect(screen.getByTestId('link-icon')).toBeVisible();
+  });
+
+  test('shows a default icon in the button', async () => {
+    renderTextCopyBtn();
+
+    expect(screen.getByTestId('clipboard-icon')).toBeVisible();
+  });
+
+  test('shows text inside the button', async () => {
+    renderTextCopyBtn({ label: 'text' });
+
+    expect(screen.getByLabelText('Copy to clipboard')).toHaveTextContent('text');
+  });
 });

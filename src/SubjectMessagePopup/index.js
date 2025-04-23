@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -22,24 +21,12 @@ const SubjectMessagePopup = ({ data }) => {
 
     <DateTime date={message.message_time} />
 
-    <GpsFormatToggle lat={message.device_location.latitude} lng={message.device_location.longitude} />
+    <GpsFormatToggle
+      lat={message.device_location.latitude}
+      lng={message.device_location.longitude}
+      name="subjectMessagePopup-gpsFormatToggle"
+    />
   </>;
-};
-
-SubjectMessagePopup.propTypes = {
-  data: PropTypes.shape({
-    message: PropTypes.shape({
-      device_location: PropTypes.shape({
-        latitude: PropTypes.number,
-        longitude: PropTypes.number,
-      }),
-      message_time: PropTypes.string,
-      text: PropTypes.string,
-    }),
-    subject: PropTypes.shape({
-      name: PropTypes.string,
-    }),
-  }).isRequired,
 };
 
 export default memo(SubjectMessagePopup);

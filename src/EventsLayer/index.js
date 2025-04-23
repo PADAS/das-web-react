@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
@@ -18,7 +17,7 @@ import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import { MapContext } from '../App';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
-import { useMapSource } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 
 import EventGeometryLayer from '../EventGeometryLayer';
@@ -61,8 +60,8 @@ const SYMBOL_LAYER_FILTER = [
 ];
 
 const EventsLayer = ({
-  bounceEventIDs,
-  mapImages,
+  bounceEventIDs = [],
+  mapImages = {},
   mapUserLayoutConfig,
   mapUserLayoutConfigByLayerId,
   minZoom,
@@ -241,7 +240,7 @@ const EventsLayer = ({
     ...mapEventFeatures,
     features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
   };
-  useMapSource(UNCLUSTERED_EVENTS_SOURCE, geoJson);
+  useMapSources([{ id: UNCLUSTERED_EVENTS_SOURCE, data: geoJson }]);
 
   const isSubjectSymbolsLayerReady = !!map.getLayer(SUBJECT_SYMBOLS);
   const isClustersSourceReady = !!map.getSource(CLUSTERS_SOURCE_ID);
@@ -284,20 +283,6 @@ const EventsLayer = ({
       reportFeatureCollection={eventPointFeatureCollection}
     />}
   </>;
-};
-
-EventsLayer.defaultProps = {
-  bounceEventIDs: [],
-  mapImages: {},
-};
-
-EventsLayer.propTypes = {
-  bounceEventIDs: PropTypes.string,
-  mapImages: PropTypes.object,
-  mapUserLayoutConfig: PropTypes.object.isRequired,
-  mapUserLayoutConfigByLayerId: PropTypes.func.isRequired,
-  minZoom: PropTypes.number.isRequired,
-  onEventClick: PropTypes.func.isRequired,
 };
 
 export default memo(withMapViewConfig(EventsLayer));

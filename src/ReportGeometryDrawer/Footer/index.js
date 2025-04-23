@@ -1,11 +1,10 @@
 import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useTranslation } from 'react-i18next';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Footer = ({ isDrawing, isGeometryAValidPolygon, onCancel, onSave }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportGeometryDrawer' });
@@ -32,13 +31,6 @@ const Footer = ({ isDrawing, isGeometryAValidPolygon, onCancel, onSave }) => {
       </Button>
     </OverlayTrigger>
   </div>;
-};
-
-Footer.propTypes = {
-  isDrawing: PropTypes.bool.isRequired,
-  isGeometryAValidPolygon: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
 };
 
 export default memo(Footer);

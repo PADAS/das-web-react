@@ -8,7 +8,7 @@ import { dateIsValid, getCurrentLocale } from '../utils/datetime';
 
 import DateRangeSelector from '../DateRangeSelector';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const FeedDateFilter = (props) => {
   const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, ...rest } = props;

@@ -13,7 +13,7 @@ import { ReactComponent as HistoryIcon } from '../../common/images/icons/history
 import { ReactComponent as LinkIcon } from '../../common/images/icons/link.svg';
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
+import * as activitySectionStyles from '../../DetailViewComponents/ActivitySection/styles.module.scss';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../DetailViewComponents/utils';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../utils/file';
@@ -52,7 +52,7 @@ import LoadingOverlay from '../../LoadingOverlay';
 import NavigationPromptModal from '../../NavigationPromptModal';
 import QuickLinks from '../../QuickLinks';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CLEAR_ERRORS_TIMEOUT = 7000;
 const FETCH_EVENT_DEBOUNCE_TIME = 300;
@@ -109,6 +109,7 @@ const ReportDetailView = ({
   className = '',
   formProps = {},
   isAddedReport = false,
+  isBehindAddedEvent = false,
   isNewReport,
   newReportTypeId = null,
   onAddReport = null,
@@ -407,9 +408,7 @@ const ReportDetailView = ({
   }, [reportForm, reportTracker]);
 
   const onReportLocationChange = useCallback((location) => {
-    const updatedLocation = !!location ? { latitude: location[1], longitude: location[0] } : null;
-
-    setReportForm({ ...reportForm, location: updatedLocation });
+    setReportForm({ ...reportForm, location });
 
     reportTracker.track('Change Report Location');
   }, [reportForm, reportTracker]);
@@ -793,7 +792,9 @@ const ReportDetailView = ({
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
+                eventId={reportId}
                 eventSchema={reportSchemas}
+                isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}
                 loadingSchema={isLoadingSchemas}

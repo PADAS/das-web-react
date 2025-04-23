@@ -9,7 +9,7 @@ import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import { addPatrolSegmentToEvent, getEventIdsForCollection, setOriginalTextToEventNotes } from '../utils/events';
-import { createPatrolDataSelector } from '../selectors/patrols';
+import { selectPatrolData } from '../selectors/patrols';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../utils/file';
 import {
   actualEndTimeForPatrol,
@@ -50,9 +50,9 @@ import NavigationPromptModal from '../NavigationPromptModal';
 import PlanSection from './PlanSection';
 import QuickLinks from '../QuickLinks';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-import activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
+import * as activitySectionStyles from '../DetailViewComponents/ActivitySection/styles.module.scss';
 import { areCardsEquals as areNotesEqual } from '../DetailViewComponents/utils';
 import { SidebarScrollContext } from '../SidebarScrollContext';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
@@ -259,12 +259,10 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolEndLocationChange = useCallback((endLocation) => {
-    const updatedEndLocation = !!endLocation ? { latitude: endLocation[1], longitude: endLocation[0] } : null;
-
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        { ...patrolForm.patrol_segments[0], end_location: updatedEndLocation },
+        { ...patrolForm.patrol_segments[0], end_location: endLocation },
         ...patrolForm.patrol_segments.slice(1),
       ],
     });
@@ -333,12 +331,10 @@ const PatrolDetailView = () => {
   }, [patrolForm]);
 
   const onPatrolStartLocationChange = useCallback((startLocation) => {
-    const updatedStartLocation = !!startLocation ? { latitude: startLocation[1], longitude: startLocation[0] } : null;
-
     setPatrolForm({
       ...patrolForm,
       patrol_segments: [
-        { ...patrolForm.patrol_segments[0], start_location: updatedStartLocation },
+        { ...patrolForm.patrol_segments[0], start_location: startLocation },
         ...patrolForm.patrol_segments.slice(1),
       ],
     });
@@ -496,7 +492,7 @@ const PatrolDetailView = () => {
       const navigationPatrolId = isNewPatrol ? newPatrolTemporalId : patrolId;
       const memoryPatrolId = isNewPatrol ? temporalIdRef.current : patrolDataSelector?.patrol?.id;
       if (navigationPatrolId !== memoryPatrolId) {
-        setPatrolDataSelector(originalPatrol ? createPatrolDataSelector()(state, { patrol: originalPatrol }) : {});
+        setPatrolDataSelector(originalPatrol ? selectPatrolData(state, originalPatrol) : {});
         temporalIdRef.current = isNewPatrol ? newPatrolTemporalId : null;
       }
     }

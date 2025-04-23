@@ -134,14 +134,14 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
 
-    userEvent.click(screen.getByLabelText('Open calendar'));
-    userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
+    await userEvent.click(screen.getByLabelText('Open calendar'));
+    await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
     expect(onFieldChange).toHaveBeenCalledWith('date-time-1', `2020-01-13T06:30:00${getTimezoneOffsetString()}`);
 
-    userEvent.click(screen.getByLabelText('Open time options'));
-    userEvent.click(screen.getByText('08:00 AM'));
+    await userEvent.click(screen.getByLabelText('Open time options'));
+    await userEvent.click(screen.getByText('08:00 AM'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(3);
     expect(onFieldChange).toHaveBeenCalledWith('date-time-1', `2020-01-01T08:00:00${getTimezoneOffsetString()}`);

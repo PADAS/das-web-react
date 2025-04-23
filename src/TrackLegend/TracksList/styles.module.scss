@@ -1,0 +1,110 @@
+@use 'sass:color';
+
+@use '../../common/styles/vars/colors';
+
+.tracksList {
+  backdrop-filter: blur(2px);
+  background: rgb(white, 90%);
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+
+  .header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+
+    .title {
+      color: black;
+      margin: 0;
+      text-transform: capitalize;
+    }
+
+    .closeButton {
+      background: none;
+      border: none;
+      border-radius: .1875rem;
+      color: colors.$secondary-medium-gray;
+      padding: 0rem 0.5rem;
+
+      &:focus-visible {
+        color: colors.$bright-blue;
+        outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover {
+        background: colors.$light-gray-background;
+      }
+
+      .crossIcon {
+        height: 0.75rem;
+        width: 0.75rem;
+      }
+    }
+  }
+
+  .list {
+    margin: 0;
+    max-height: 12.5rem;
+    overflow-y: scroll;
+
+    .tracksItem {
+      align-items: center;
+      background: white;
+      border-radius: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+      padding: 0.25rem;
+
+      .leftColumn {
+        align-items: center;
+        display: flex;
+        margin-right: 0.25rem;
+
+        .title {
+          color: black;
+          font-size: 0.875rem;
+          margin: 0;
+          max-width: 10rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .rightColumn {
+        align-items: center;
+        display: flex;
+        margin-right: 0.25rem;
+
+        .description {
+          color: colors.$secondary-medium-gray;
+          font-size: 0.75rem;
+          margin: 0;
+          margin-right: 0.5rem;
+        }
+
+        .removeButton {
+          background-color: colors.$light-gray-background;
+          border: none;
+          border-radius: 0.25rem;
+          color: colors.$off-black;
+          font-size: 0.875rem;
+          font-weight: 500;
+          padding: 0.25rem 0.5rem;
+
+          &:focus-visible {
+            outline: 2px solid colors.$bright-blue;
+          }
+
+          &:hover {
+            background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+          }
+        }
+      }
+    }
+  }
+}

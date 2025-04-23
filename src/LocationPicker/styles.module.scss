@@ -1,0 +1,126 @@
+@use 'sass:color';
+
+@use '../common/styles/vars/colors';
+
+.locationPicker {
+  align-items: center;
+  border: 1px solid colors.$light-gray-border;
+  border-radius: 0.25rem;
+  display: flex;
+  height: 2.5rem;
+
+  &.error {
+    border-color: colors.$bright-red;
+
+    .setLocationButton {
+      .input {
+        &::placeholder {
+          color: color.adjust(colors.$bright-red, $lightness: 33%);
+        }
+      }
+    }
+
+    .textCopyButton {
+      button {
+        color: colors.$bright-red;
+      }
+    }
+
+    .jumpToLocationButton {
+      color: colors.$bright-red;
+    }
+  }
+
+  &.disabled {
+    background-color: colors.$disabled-field-gray;
+  }
+
+  .setLocationButton {
+    background: white;
+    border: none;
+    border-bottom-left-radius: 0.25rem;
+    border-top-left-radius: 0.25rem;
+    display: flex;
+    height: 100%;
+    outline: none;
+    padding: 0 0.5rem;
+    width: 100%;
+
+    &:disabled:not(.readOnly) {
+      background-color: colors.$disabled-field-gray;
+    }
+
+    &:focus:not(:disabled) {
+      border: 2px solid colors.$bright-blue;
+    }
+
+    .input {
+      background: unset;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      width: 100%;
+
+      &::placeholder {
+        color: colors.$bright-blue;
+      }
+
+      &:disabled {
+        cursor: default;
+
+        &::placeholder {
+          color: unset;
+        }
+      }
+
+      &.readOnly {
+        cursor: default;
+      }
+    }
+
+    .inputDescription {
+      border-width: 0;
+      clip: rect(0, 0, 0, 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+  }
+
+  .textCopyButton {
+    height: 100%;
+    width: 2.5rem;
+
+    &:hover:not(:disabled) {
+      background-color: white;
+      color: colors.$bright-blue;
+    }
+  }
+
+  .jumpToLocationButton {
+    background-color: colors.$light-gray-background;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-gray;
+    height: 100%;
+    min-width: 2.5rem;
+    outline: none;
+    width: 2.5rem;
+
+    &:disabled {
+      background-color: colors.$disabled-field-gray;
+    }
+
+    &:focus-visible:not(:disabled) {
+      border: 2px solid colors.$bright-blue;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+    }
+  }
+}

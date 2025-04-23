@@ -1,7 +1,5 @@
-import React, { memo, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { memo, useCallback, useContext, useEffect } from 'react';
 
-import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
@@ -10,7 +8,10 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SOURCE_IDS } fr
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
+import { MapContext } from '../App';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SKY_LAYER } = LAYER_IDS;
 
@@ -77,7 +78,9 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserLayoutConfig, minZoom, map }) => {
+const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserLayoutConfig, minZoom }) => {
+  const map = useContext(MapContext);
+
   const layout = {
     ...symbolLayout,
     ...mapUserLayoutConfig,
@@ -114,14 +117,37 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
 
   const layerConfig = { minZoom, before: SKY_LAYER };
 
-  useMapSource(MAP_FEATURES_LINES_SOURCE, lines);
-  useMapSource(MAP_FEATURES_POLYGONS_SOURCE, polygons);
-  useMapSource(MAP_FEATURES_SYMBOLS_SOURCE, symbols);
+  useMapSources([{ id: MAP_FEATURES_LINES_SOURCE, data: lines }]);
+  useMapSources([{ id: MAP_FEATURES_POLYGONS_SOURCE, data: polygons }]);
+  useMapSources([{ id: MAP_FEATURES_SYMBOLS_SOURCE, data: symbols }]);
 
-  // (layerId, type, sourceId, paint, layout, filter, minzoom, maxzoom, condition = true)
-  useMapLayer(FEATURE_FILLS, 'fill', MAP_FEATURES_POLYGONS_SOURCE, fillPaint, fillLayout, layerConfig);
-  useMapLayer(FEATURE_LINES, 'line', MAP_FEATURES_LINES_SOURCE, linePaint, lineLayout, layerConfig);
-  useMapLayer(FEATURE_SYMBOLS, 'symbol', MAP_FEATURES_SYMBOLS_SOURCE, symbolPaint, layout, layerConfig);
+  // (layerId, type, sourceId, paint, layout, filter, min-zoom, max-zoom, condition = true)
+  useMapLayers([{
+    id: FEATURE_FILLS,
+    type: 'fill',
+    sourceId: MAP_FEATURES_POLYGONS_SOURCE,
+    paint: fillPaint,
+    layout: fillLayout,
+    options: layerConfig
+  }]);
+
+  useMapLayers([{
+    id: FEATURE_LINES,
+    type: 'line',
+    sourceId: MAP_FEATURES_LINES_SOURCE,
+    paint: linePaint,
+    layout: lineLayout,
+    options: layerConfig
+  }]);
+
+  useMapLayers([{
+    id: FEATURE_SYMBOLS,
+    type: 'symbol',
+    sourceId: MAP_FEATURES_SYMBOLS_SOURCE,
+    paint: symbolPaint,
+    layout: layout,
+    options: layerConfig
+  }]);
 
   useMapEventBinding('click', onSymbolClick, FEATURE_SYMBOLS);
   useMapEventBinding('mouseenter', onSymbolMouseEnter, FEATURE_SYMBOLS);
@@ -131,10 +157,4 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   return null;
 };
 
-FeatureLayer.propTypes = {
-  symbols: PropTypes.object.isRequired,
-  lines: PropTypes.object.isRequired,
-  polygons: PropTypes.object.isRequired,
-};
-
-export default memo(withMap(withMapViewConfig(FeatureLayer)));
+export default memo(withMapViewConfig(FeatureLayer));

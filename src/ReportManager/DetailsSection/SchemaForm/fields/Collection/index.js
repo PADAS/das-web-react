@@ -9,17 +9,19 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../../../../common/image
 
 import SortableList from './SortableList';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 // Collections have an array of objects as their value in the form data object. Each of the objects is a collection
 // item and it contains the values of the fields rendered by a collection item. They can be nested within sections and
 // within other collections, so we propagate values, errors and breadcrumbs and their changes to the parent and the
 // children.
 const Collection = ({
+  blurLocationMarker,
   breadcrumbs,
   details,
   error,
   fields,
+  focusLocationMarker,
   id,
   onFieldChange,
   renderField,
@@ -64,7 +66,7 @@ const Collection = ({
     );
   };
 
-  const onItemDelete = (itemIndex) => () => {
+  const onItemDelete = (itemIndex) => (decreaseLastAddedItemId = false) => {
     // We clean the error of the deleted item and the collection error message.
     let updatedError = { ...error };
     delete updatedError[itemIndex];
@@ -78,8 +80,12 @@ const Collection = ({
         if (erroneousItemIndex > itemIndex) {
           updatedError[parseInt(erroneousItemIndex) - 1] = updatedError[erroneousItemIndex];
           delete updatedError[erroneousItemIndex];
-        };
+        }
       });
+    }
+
+    if (decreaseLastAddedItemId){
+      lastAddedItemIdRef.current -= 1;
     }
 
     onFieldChange(id, value.filter((_, index) => itemIndex !== index), updatedError);
@@ -106,11 +112,18 @@ const Collection = ({
     setItems(arrayMove(items, originalItemIndex, newItemIndex));
   };
 
-  const setIsItemFormModalOpen = (itemIndex) => (isItemFormModalOpen) => setItems([
-    ...items.slice(0, itemIndex),
-    { ...items[itemIndex], isFormModalOpen: isItemFormModalOpen },
-    ...items.slice(itemIndex + 1),
-  ]);
+  const setIsItemFormModalOpen = (itemIndex) => (isItemFormModalOpen) => {
+    setItems((currentItems) => {
+      const itemToUpdate = currentItems[itemIndex];
+      return !itemToUpdate
+        ? currentItems
+        : [
+          ...currentItems.slice(0, itemIndex),
+          { ...itemToUpdate, isFormModalOpen: isItemFormModalOpen, wasItemRecentlyAdded: false },
+          ...currentItems.slice(itemIndex + 1)
+        ];
+    });
+  };
 
   const setIsItemFormPreviewOpen = (itemIndex) => (isItemFormPreviewOpen) => setItems([
     ...items.slice(0, itemIndex),
@@ -128,8 +141,21 @@ const Collection = ({
 
     lastAddedItemIdRef.current += 1;
     onFieldChange(id, [...value, {}], updatedError);
-    setItems([...items, { id: lastAddedItemIdRef.current, isFormModalOpen: true, isFormPreviewOpen: false }]);
+    setItems([
+      ...items,
+      {
+        id: lastAddedItemIdRef.current,
+        isFormModalOpen: true,
+        isFormPreviewOpen: false,
+        wasItemRecentlyAdded: true
+      }
+    ]);
   };
+
+  // If a location field from an item requests to focus its location marker, prefix the marker id with the collection
+  // id and the item index.
+  const focusLocationMarkerFromItem = (itemIndex) => (markerId) =>
+    focusLocationMarker(`${id}.${itemIndex}.${markerId}`);
 
   return <div
       aria-errormessage={hasError ? `${id}-description` : undefined}
@@ -165,9 +191,11 @@ const Collection = ({
         {value.length === 0
           ? <div className={styles.emptyState} data-testid="schema-form-collection-list-empty-state" />
           : <SortableList
+            blurLocationMarker={blurLocationMarker}
             breadcrumbs={breadcrumbs}
             collectionDetails={details}
             fields={fields}
+            focusLocationMarker={focusLocationMarkerFromItem}
             // Merge the value, error and items array into a single array of item objects.
             items={items
               .filter((_, index) => !!value[index])

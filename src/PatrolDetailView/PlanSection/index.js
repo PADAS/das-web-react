@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { format, isFuture, isValid, parseISO } from 'date-fns';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as CalendarIcon } from '../../common/images/icons/calendar.svg';
@@ -20,12 +19,12 @@ import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
 import { useMatchMedia } from '../../hooks';
 
 import DatePicker, { EMPTY_DATE_VALUE } from '../../DatePicker';
-import LocationSelectorInput from '../../EditableItem/LocationSelectorInput';
+import LocationPicker from '../../LocationPicker';
 import ReportedBySelect from '../../ReportedBySelect';
 import TimePicker, { isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
-import { getPatrolLeadersWithLocation } from '../../selectors/patrols';
+import * as styles from './styles.module.scss';
+import { selectPatrolLeadersWithLastPosition } from '../../selectors/patrols';
 import { useTranslation } from 'react-i18next';
 
 const shouldScheduleDate = (date, isAuto) => !isAuto && isFuture(date);
@@ -48,7 +47,7 @@ const PlanSection = ({
   const userPrefAutoStart = useSelector((state) => state.view.userPreferences.autoStartPatrols);
   const [isAutoEnd, setIsAutoEnd] = useState(isNewPatrol ? userPrefAutoEnd : !!actualEndTime);
   const [isAutoStart, setIsAutoStart] = useState(isNewPatrol ? userPrefAutoStart : !!actualStartTime);
-  const patrolLeaders = useSelector(getPatrolLeadersWithLocation);
+  const patrolLeaders = useSelector(selectPatrolLeadersWithLastPosition);
   const displayEndDate = displayEndTimeForPatrol(patrolForm);
   const displayStartDate = displayStartTimeForPatrol(patrolForm);
   const endDayIsSameAsStart = displayEndDate && displayStartDate?.toDateString() === displayEndDate?.toDateString();
@@ -58,18 +57,6 @@ const PlanSection = ({
   const [endTime, setEndTime] = useState(getHoursAndMinutesString(displayEndDate));
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
-
-  const startLocation = useMemo(() => {
-    const startLocation = patrolForm.patrol_segments?.[0]?.start_location;
-
-    return startLocation ? [startLocation.longitude, startLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
-
-  const endLocation = useMemo(() => {
-    const endLocation = patrolForm.patrol_segments?.[0]?.end_location;
-
-    return endLocation ? [endLocation.longitude, endLocation.latitude] : null;
-  }, [patrolForm.patrol_segments]);
 
   const handleEndDateChange = useCallback((date) => {
     setEndDate(date);
@@ -222,11 +209,11 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-startLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'startLocationLargeLabel' : 'startLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={startLocation}
-            onLocationChange={onPatrolStartLocationChange}
+          <LocationPicker
+            id="patrolDetailView-planSection-startLocationPicker"
+            onChange={onPatrolStartLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={patrolForm.patrol_segments?.[0]?.start_location || null}
           />
         </label>
       </div>
@@ -246,7 +233,7 @@ const PlanSection = ({
         <div className={styles.dateTimeContainer}>
           <label
             data-testid="patrolDetailView-endDatePicker"
-            className={`${styles.fieldLabel} ${styles.datePickerLabel}`}
+            className={styles.fieldLabel}
           >
             {t('endDateLabel')}
             <DatePicker
@@ -278,11 +265,11 @@ const PlanSection = ({
 
         <label data-testid="patrolDetailView-endLocationSelect" className={styles.fieldLabel}>
           {t(isMediumLayoutOrLarger ? 'endLocationLargeLabel' : 'endLocationSmallLabel')}
-          <LocationSelectorInput
-            label={null}
-            location={endLocation}
-            onLocationChange={onPatrolEndLocationChange}
+          <LocationPicker
+            id="patrolDetailView-planSection-endLocationPicker"
+            onChange={onPatrolEndLocationChange}
             placeholder={t('locationSelectorPlaceholder')}
+            value={patrolForm.patrol_segments?.[0]?.end_location || null}
           />
         </label>
       </div>
@@ -299,16 +286,6 @@ const PlanSection = ({
       </label>
     </div>
   </>;
-};
-
-PlanSection.propTypes = {
-  onPatrolEndDateChange: PropTypes.func.isRequired,
-  onPatrolEndLocationChange: PropTypes.func.isRequired,
-  onPatrolObjectiveChange: PropTypes.func.isRequired,
-  onPatrolReportedByChange: PropTypes.func.isRequired,
-  onPatrolStartDateChange: PropTypes.func.isRequired,
-  onPatrolStartLocationChange: PropTypes.func.isRequired,
-  patrolForm: PropTypes.object.isRequired,
 };
 
 export default memo(PlanSection);

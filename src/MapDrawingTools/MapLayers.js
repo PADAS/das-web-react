@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { MapContext } from '../App';
 
-import { useMapEventBinding, useMapLayer, useMapSource } from '../hooks';
+import { useMapEventBinding } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
 
 import {
   linePaint,
@@ -13,6 +14,7 @@ import {
   lineSymbolLayout,
   polygonSymbolLayout,
 } from './layerStyles';
+import useMapLayers from '../hooks/useMapLayers';
 
 export const LAYER_IDS = {
   POINTS: 'draw-layer-points',
@@ -45,20 +47,54 @@ const MapDrawingLayers = ({
   const [isHoveringPolygonFill, setIsHoveringPolygonFill] = useState(false);
   const [isHoveringCircle, setIsHoveringCircle] = useState(false);
 
-  useMapSource(SOURCE_IDS.FILL_SOURCE, fillPolygon, { type: 'geojson' });
-  useMapSource(SOURCE_IDS.FILL_LABEL_SOURCE, fillLabelPoint, { type: 'geojson' });
-  useMapSource(SOURCE_IDS.LINE_SOURCE, drawnLineSegments, { type: 'geojson' });
-  useMapSource(SOURCE_IDS.POINT_SOURCE, drawnLinePoints, { generateId: true, type: 'geojson' });
+  useMapSources([{ id: SOURCE_IDS.FILL_SOURCE, data: fillPolygon }], { type: 'geojson' });
+  useMapSources([{ id: SOURCE_IDS.FILL_LABEL_SOURCE, data: fillLabelPoint }], { type: 'geojson' });
+  useMapSources([{ id: SOURCE_IDS.LINE_SOURCE, data: drawnLineSegments }], { type: 'geojson' });
+  useMapSources([{ id: SOURCE_IDS.POINT_SOURCE, data: drawnLinePoints }], { generateId: true, type: 'geojson' });
 
-  useMapLayer(LAYER_IDS.LINE_LABELS, 'symbol', SOURCE_IDS.LINE_SOURCE, symbolPaint, lineSymbolLayout, {
-    condition: drawing || !isHoveringGeometry || draggedPoint,
-  });
-  useMapLayer(LAYER_IDS.FILL_LABEL, 'symbol', SOURCE_IDS.FILL_LABEL_SOURCE, symbolPaint, polygonSymbolLayout, {
-    condition: drawing || !isHoveringGeometry || draggedPoint,
-  });
-  useMapLayer(LAYER_IDS.LINES, 'line', SOURCE_IDS.LINE_SOURCE, linePaint, lineLayout);
-  const fillLayer = useMapLayer(LAYER_IDS.FILL, 'fill', SOURCE_IDS.FILL_SOURCE, fillPaint, fillLayout);
-  const pointsLayer = useMapLayer(LAYER_IDS.POINTS, 'circle', SOURCE_IDS.POINT_SOURCE, circlePaint);
+  useMapLayers([{
+    id: LAYER_IDS.LINE_LABELS,
+    type: 'symbol',
+    sourceId: SOURCE_IDS.LINE_SOURCE,
+    paint: symbolPaint,
+    layout: lineSymbolLayout,
+    options: {
+      condition: drawing || !isHoveringGeometry || draggedPoint
+    }
+  }]);
+  useMapLayers([{
+    id: LAYER_IDS.FILL_LABEL,
+    type: 'symbol',
+    sourceId: SOURCE_IDS.FILL_LABEL_SOURCE,
+    paint: symbolPaint,
+    layout: polygonSymbolLayout,
+    options: {
+      condition: drawing || !isHoveringGeometry || draggedPoint
+    }
+  }]);
+
+  useMapLayers([{
+    id: LAYER_IDS.LINES,
+    type: 'line',
+    sourceId: SOURCE_IDS.LINE_SOURCE,
+    paint: linePaint,
+    layout: lineLayout
+  }]);
+
+  const [fillLayer] = useMapLayers([{
+    id: LAYER_IDS.FILL,
+    type: 'fill',
+    sourceId: SOURCE_IDS.FILL_SOURCE,
+    paint: fillPaint,
+    layout: fillLayout
+  }]);
+
+  const [pointsLayer] = useMapLayers([{
+    id: LAYER_IDS.POINTS,
+    type: 'circle',
+    sourceId: SOURCE_IDS.POINT_SOURCE,
+    paint: circlePaint
+  }]);
 
   const onCircleMouseEnter = useCallback((event) => {
     setIsHoveringCircle(true);

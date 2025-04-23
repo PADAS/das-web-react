@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import intersection from 'lodash-es/intersection';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash-es/uniq';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../../common/images/icons/user-profile.svg';
@@ -15,7 +14,7 @@ import ReportTypeMultiSelect from '../../ReportTypeMultiSelect';
 import { EVENT_STATE_CHOICES } from '../../constants';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const StateSelector = ({ onStateSelect, state, t }) => (
   <ul className={styles.stateList} data-testid="state-filter-options">
@@ -219,7 +218,7 @@ const Filters = ({
             <span>{t('reportTypesAllLabel')}</span>
           </div>
           {t('reportTypesLabel')}
-          <small className={!isEventTypeFilterEmpty ? styles.modified : ''}>
+          <small>
             {appliedFilterLabel}
           </small>
           <ResetButton disabled={isEventTypeFilterEmpty} onClick={onResetReportTypes} text={t('restButton')} />
@@ -234,25 +233,6 @@ const Filters = ({
       </div>
     </Popover.Body>
   </>;
-};
-
-Filters.propTypes = {
-  priority: PropTypes.string.isRequired,
-  reportTypeFilterText: PropTypes.string.isRequired,
-  isFilterModified: PropTypes.bool.isRequired,
-  isReportedByFilterModified: PropTypes.bool.isRequired,
-  isEventTypeFilterEmpty: PropTypes.bool.isRequired,
-  isPriorityFilterModified: PropTypes.bool.isRequired,
-  isStateFilterModified: PropTypes.bool.isRequired,
-  currentFilterReportTypes: PropTypes.array.isRequired,
-  reporters: PropTypes.array.isRequired,
-  reportedByFilter: PropTypes.array.isRequired,
-  eventFilterTracker: PropTypes.object.isRequired,
-  updateEventFilter: PropTypes.func.isRequired,
-  eventTypes: PropTypes.array.isRequired,
-  state: PropTypes.object.isRequired,
-  onResetPopoverFilters: PropTypes.func.isRequired,
-  setReportTypeFilterText: PropTypes.func.isRequired
 };
 
 export default memo(Filters);

@@ -21,7 +21,7 @@ const patrolFilter = { filter: {
 let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
 store.data.patrolStore = { [activePatrol.id]: activePatrol };
-store.data.patrols.results = [activePatrol.id];
+store.data.patrolsFeed = [activePatrol.id];
 
 describe('PatrolsFeedTab', () => {
   let navigate, useNavigateMock;
@@ -53,7 +53,7 @@ describe('PatrolsFeedTab', () => {
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const patrolItemButton = await screen.findByTestId('patrol-list-item-icon-05113dd3-3f41-49ef-aa7d-fbc6b7379533');
-    userEvent.click(patrolItemButton);
+    await userEvent.click(patrolItemButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
   });

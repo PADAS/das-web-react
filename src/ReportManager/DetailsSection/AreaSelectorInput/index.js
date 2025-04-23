@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useRef, useState } fro
 import debounceRender from 'react-debounce-render';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
-import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -18,13 +17,13 @@ import { useEventGeoMeasurementDisplayStrings } from '../../../hooks/geometry';
 import GeometryPreview from './GeometryPreview';
 import TextCopyBtn from '../../../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const GEOMETRY_PROVENANCE_WEB = 'web';
 
-const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
+const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = null }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager' });
 
@@ -152,7 +151,7 @@ const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
       onClick={onClickAreaControl}
       ref={locationInputAnchorRef}
     >
-      <PolygonIcon className={styles.icon} />
+      <PolygonIcon className={styles.icon} data-testid="polygon-icon" />
 
       <span className={styles.displayString}>{displayString}</span>
 
@@ -169,8 +168,8 @@ const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
       show={isPopoverOpen}
       target={locationInputAnchorRef.current}
     >
-      <Popover className={styles.newGpsPopover} placement="bottom">
-        {isPopoverOpen && <div className={styles.popoverContent} ref={popoverContentRef}>
+      <Popover className={styles.gpsPopover} placement="bottom">
+        {isPopoverOpen && <div ref={popoverContentRef}>
           <GeometryPreview event={event} onAreaSelectStart={onAreaSelectStart} onDeleteArea={onDeleteArea} />
         </div>}
       </Popover>
@@ -179,14 +178,3 @@ const AreaSelectorInput = ({ event, onGeometryChange, originalEvent }) => {
 };
 
 export default debounceRender(memo(AreaSelectorInput));
-
-AreaSelectorInput.defaultProps = {
-  onGeometryChange: null,
-  originalEvent: null,
-};
-
-AreaSelectorInput.propTypes = {
-  event: PropTypes.object.isRequired,
-  onGeometryChange: PropTypes.func.isRequired,
-  originalEvent: PropTypes.object.isRequired,
-};

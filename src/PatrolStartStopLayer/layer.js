@@ -1,15 +1,16 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
-import { createPatrolDataSelector } from '../selectors/patrols';
+import { selectPatrolData } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
-import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
+import { MapContext } from '../App';
 import withMapViewConfig from '../WithMapViewConfig';
-import { useMapLayer, useMapSource } from '../hooks';
+import useMapSources from '../hooks/useMapSources';
+import useMapLayers from '../hooks/useMapLayers';
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
 
@@ -45,8 +46,8 @@ const textLayout = {
 const symbolFilter = ['==', ['geometry-type'], 'Point'];
 
 
-const StartStopLayer = (props) => {
-  const { patrolData, map, ...rest } = props;
+const StartStopLayer = ({ patrolData, ...rest }) => {
+  const map = useContext(MapContext);
 
   const [instanceId] = useState(uuid());
   const layerId = `${PATROL_SYMBOLS}-${instanceId}`;
@@ -89,8 +90,14 @@ const StartStopLayer = (props) => {
   const layerSymbolPaint = useMemo(() => ({ ...symbolPaint, 'text-color': ['get', 'stroke'] }), []);
   const layerLinePaint = useMemo(() => ({ ...linePaint, 'line-color': ['get', 'stroke'] }), []);
 
-  useMapSource(sourceId, patrolPointsSourceData);
-  useMapLayer(`${layerId}-lines`, 'line', sourceId, layerLinePaint, lineLayout);
+  useMapSources([{ id: sourceId, data: patrolPointsSourceData }]);
+  useMapLayers([{
+    id: `${layerId}-lines`,
+    type: 'line',
+    sourceId,
+    paint: layerLinePaint,
+    layout: lineLayout
+  }]);
 
   if (!points && !lines) return null;
 
@@ -100,14 +107,13 @@ const StartStopLayer = (props) => {
 };
 
 const makeMapStateToProps = () => {
-  const getDataForPatrolFromProps = createPatrolDataSelector();
   const mapStateToProps = (state, props) => {
     return {
-      patrolData: getDataForPatrolFromProps(state, props),
+      patrolData: selectPatrolData(state, props.patrol),
     };
   };
   return mapStateToProps;
 };
 
 
-export default connect(makeMapStateToProps, null)(memo(withMap(withMapViewConfig(StartStopLayer))));
+export default connect(makeMapStateToProps, null)(memo(withMapViewConfig(StartStopLayer)));

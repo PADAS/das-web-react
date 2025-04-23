@@ -68,7 +68,7 @@ describe('ReportManager - QuickLinks', () => {
       expect(onClick).toHaveBeenCalledTimes(0);
 
       const anchor = await screen.queryByTestId('quickLinks-anchor-anchor1');
-      userEvent.click(anchor);
+      await userEvent.click(anchor);
 
       expect(onClickAnchor).toHaveBeenCalledTimes(1);
       expect(onClickAnchor).toHaveBeenCalledWith('anchor1');

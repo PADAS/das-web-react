@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { STATUSES } from '../constants';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS } = STATUSES;
 

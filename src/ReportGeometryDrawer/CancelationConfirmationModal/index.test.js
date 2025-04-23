@@ -42,7 +42,7 @@ describe('CancelationConfirmationModal', () => {
     expect(setMapDrawingData).toHaveBeenCalledTimes(0);
 
     const continueEditingButton = await screen.findByText('Continue Editing');
-    userEvent.click(continueEditingButton);
+    await userEvent.click(continueEditingButton);
 
     expect(onHide).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(0);
@@ -55,7 +55,7 @@ describe('CancelationConfirmationModal', () => {
     expect(setMapDrawingData).toHaveBeenCalledTimes(0);
 
     const discartButton = await screen.findByText('Discard');
-    userEvent.click(discartButton);
+    await userEvent.click(discartButton);
 
     expect(onHide).toHaveBeenCalledTimes(1);
     expect(setIsPickingLocation).toHaveBeenCalledTimes(1);

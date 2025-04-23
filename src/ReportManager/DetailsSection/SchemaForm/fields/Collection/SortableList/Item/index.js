@@ -1,5 +1,6 @@
-import React, { forwardRef, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSimpleIcon } from '../../../../../../../common/images/icons/arrow-down-simple.svg';
@@ -13,34 +14,42 @@ import { getItemTitle } from './utils';
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Item = ({
+  blurLocationMarker = null,
   breadcrumbs = null,
   collectionDetails,
   errors,
   fields,
+  focusLocationMarker = null,
   formData,
   id,
+  index = null,
   isDragging = false,
   isDragOverlay = false,
   isFormModalOpen = false,
+  wasItemRecentlyAdded = false,
   isFormPreviewOpen,
   onChange = null,
   onDelete = null,
+  ref,
   renderField = null,
   setIsFormModalOpen = null,
   setIsFormPreviewOpen = null,
   ...otherProps
-}, ref) => {
+}) => {
   const { i18n, t } = useTranslation('reports', {
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
+
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
   // changes and then clicks the cancel button.
   const errorsBeforeEditingRef = useRef(null);
   const formDataBeforeEditingRef = useRef(null);
+  const shouldDeleteOnCancelRef = useRef(wasItemRecentlyAdded);
 
   const hasError = !!errors;
   const title = getItemTitle(
@@ -49,6 +58,7 @@ const Item = ({
     `${collectionDetails.itemName} ${id + 1}`,
     fields[collectionDetails.itemIdentifier],
     i18n.language,
+    gpsFormat,
     t
   );
 
@@ -67,11 +77,6 @@ const Item = ({
     setIsFormModalOpen(true);
   };
 
-  const onFormModalCancel = () => {
-    onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
-    setIsFormModalOpen(false);
-  };
-
   const onFieldChange = (fieldId, value, error) => {
     // We update the field error in the errors object.
     let updatedErrors = { ...errors };
@@ -88,8 +93,22 @@ const Item = ({
   };
 
   const onDeleteItem = () => {
-    onDelete();
+    onDelete(shouldDeleteOnCancelRef.current);
     setIsFormModalOpen(false);
+  };
+
+  const onFormModalCancel = () => {
+    if (shouldDeleteOnCancelRef.current) {
+      onDeleteItem();
+    } else {
+      onChange(formDataBeforeEditingRef.current, errorsBeforeEditingRef.current);
+      setIsFormModalOpen(false);
+    }
+  };
+
+  const onFormModalDone = () => {
+    setIsFormModalOpen(false);
+    shouldDeleteOnCancelRef.current = false;
   };
 
   useEffect(() => {
@@ -114,7 +133,15 @@ const Item = ({
     + (isDragging ? ` ${styles.isDragging}` : '')
     + (isDragOverlay ? ` ${styles.dragOverlay}` : '')
     + (hasError ? ` ${styles.error}` : '');
-  return <li className={itemClassName} data-testid="schema-form-collection-item" ref={ref} {...otherProps}>
+  return <li
+      className={itemClassName}
+      data-testid="schema-form-collection-item"
+      // We use the index and not the item id because the id is internal for having a constant default title, while the
+      // index corresponds directly to the position of the item in the form data object.
+      id={index !== null ? `${collectionDetails.value}.${index}` : undefined}
+      ref={ref}
+      {...otherProps}
+    >
     <div className={styles.header}>
       <div
         aria-controls={`collectionForm-${title}`}
@@ -173,7 +200,9 @@ const Item = ({
     <Collapse in={isFormPreviewOpen}>
       <div id={`collectionForm-${title}`}>
         <FormPreview
+          blurLocationMarker={blurLocationMarker}
           errors={errors}
+          focusLocationMarker={focusLocationMarker}
           formData={formData}
           fieldIds={[...collectionDetails.leftColumn, ...collectionDetails.rightColumn]}
           fields={fields}
@@ -185,6 +214,7 @@ const Item = ({
     {!isDragOverlay && <FormModal
       breadcrumbs={breadcrumbs}
       columns={collectionDetails.columns}
+      focusLocationMarker={focusLocationMarker}
       formData={formData}
       errors={errors}
       isOpen={isFormModalOpen}
@@ -192,8 +222,9 @@ const Item = ({
       leftColumn={collectionDetails.leftColumn}
       onCancel={onFormModalCancel}
       onDeleteItem={onDeleteItem}
-      onDone={() => setIsFormModalOpen(false)}
+      onDone={onFormModalDone}
       onFieldChange={onFieldChange}
+      hideDeleteButton={shouldDeleteOnCancelRef.current}
       renderField={renderField}
       rightColumn={collectionDetails.rightColumn}
       title={title}
@@ -201,4 +232,4 @@ const Item = ({
   </li>;
 };
 
-export default forwardRef(Item);
+export default Item;

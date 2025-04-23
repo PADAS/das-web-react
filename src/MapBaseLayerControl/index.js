@@ -19,7 +19,7 @@ import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
 
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);

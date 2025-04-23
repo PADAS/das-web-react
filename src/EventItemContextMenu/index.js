@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import PropTypes from 'prop-types';
-import { SpinLoader } from 'react-css-loaders';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -14,7 +13,9 @@ import { showToast } from '../utils/toast';
 import ContextMenu from '../ContextMenu';
 import TextCopyBtn from '../TextCopyBtn';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
+
+const LOADER_SIZE = 30;
 
 const NotificationDetails = ({ failedReports, isActive, processedReports }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
@@ -42,7 +43,7 @@ const NotificationDetails = ({ failedReports, isActive, processedReports }) => {
   return processedReportsElements;
 };
 
-const EventItemContextMenu = ({ children, className, report }) => {
+const EventItemContextMenu = ({ children, className = '', report }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventItemContextMenu' });
 
@@ -136,21 +137,11 @@ const EventItemContextMenu = ({ children, className, report }) => {
     </>
   }>
     {isLoading && <div className={styles.loading}>
-      <SpinLoader />
+      <MoonLoader size={LOADER_SIZE} />
     </div>}
 
     {children}
   </ContextMenu>;
-};
-
-EventItemContextMenu.defaultProps = {
-  className: ''
-};
-
-EventItemContextMenu.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  report: PropTypes.object.isRequired,
 };
 
 export default memo(EventItemContextMenu);

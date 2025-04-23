@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { featureCollection } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
@@ -8,8 +7,8 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { MapContext } from '../App';
-import { useMapSource } from '../hooks';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
+import useMapSources from '../hooks/useMapSources';
 
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -32,7 +31,7 @@ const UNCLUSTERED_FILTER = [
 const UNCLUSTERED_LAYER_ID = `${SUBJECT_SYMBOLS}-unclustered`;
 const UNCLUSTERED_SOURCE_ID = 'subject-symbol-source';
 
-const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
+const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   const map = useContext(MapContext);
 
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
@@ -67,10 +66,13 @@ const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
     }
   ), [map, onSubjectClick, subjectLayerIds]);
 
-  useMapSource(UNCLUSTERED_SOURCE_ID, {
-    ...mapSubjectFeatures,
-    features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
-  });
+  useMapSources([{
+    id: UNCLUSTERED_SOURCE_ID,
+    data: {
+      ...mapSubjectFeatures,
+      features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
+    }
+  }]);
 
   return <>
     <LabeledPatrolSymbolLayer
@@ -92,15 +94,6 @@ const SubjectsLayer = ({ mapImages, onSubjectClick }) => {
       type="symbol"
     />}
   </>;
-};
-
-SubjectsLayer.defaultProps = {
-  mapImages: {},
-};
-
-SubjectsLayer.propTypes = {
-  mapImages: PropTypes.object,
-  onSubjectClick: PropTypes.func.isRequired,
 };
 
 export default memo(withMapViewConfig(SubjectsLayer));

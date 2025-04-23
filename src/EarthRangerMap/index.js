@@ -1,83 +1,65 @@
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import React, { Fragment, forwardRef, memo, useCallback, useRef, useState, useEffect } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { MapContext } from '../App';
-import MapTerrain from '../MapTerrain';
-import SkyLayer from '../SkyLayer';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
-import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
+import { MapContext } from '../App';
+import {
+  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  REACT_APP_BASE_MAP_STYLES,
+  REACT_APP_MAPBOX_TOKEN,
+} from '../constants';
+
+import Attribution from './Attribution';
+import BaseLayerRenderer from '../BaseLayerRenderer';
+import MapTerrain from '../MapTerrain';
+import SkyLayer from '../SkyLayer';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../Map/Map.scss';
-import BaseLayerRenderer from '../BaseLayerRenderer';
-import Attribution from './Attribution';
 
 mapboxgl.accessToken = REACT_APP_MAPBOX_TOKEN;
 
-export function withMap(Component) {
-  return forwardRef((props, ref) => <MapContext.Consumer>{map => <Component map={map} {...props} ref={ref} />}</MapContext.Consumer>); // eslint-disable-line react/display-name
-}
+const getStartingMapPositionValues = (mapPosition) => mapPosition?.center && mapPosition.zoom
+  ? { bearing: mapPosition.bearing, center: mapPosition.center, pitch: mapPosition.pitch, zoom: mapPosition.zoom }
+  : {};
 
-const getStartingMapPositionValues = (savedMapPosition = {}) => {
-  if (savedMapPosition?.center && savedMapPosition?.zoom) {
-    const { bearing, center, pitch, zoom } = savedMapPosition;
-
-    return {
-      bearing,
-      center,
-      pitch,
-      zoom,
-    };
-  }
-
-  return {};
-};
-
-const EarthRangerMap = (props) => {
-  const { currentBaseLayer, children, controls, onMapLoaded, dispatch: _dispatch, ...rest } = props;
-
+const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'earthRangerMap' });
 
+  const currentBaseLayer = useSelector(state => state.view.currentBaseLayer);
   const mapPosition = useSelector(state => state.data.mapPosition);
 
-  const [mapLoaded, setMapLoaded] = useState(false);
   const baseStyleRef = useRef(REACT_APP_BASE_MAP_STYLES);
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const onLoad = useCallback(({ target: map }) => {
     map.loadImage(mapLabel, (_err, img) => {
-      map.addImage('name-label-78-sdf', img, {
-        sdf: true,
-      });
+      map.addImage('name-label-78-sdf', img, { sdf: true });
 
-      const scale = new mapboxgl.ScaleControl({
-        maxWidth: 80,
-      });
+      const scale = new mapboxgl.ScaleControl({ maxWidth: 80 });
 
       map.addControl(new mapboxgl.NavigationControl({ showZoom: false }), 'top-right');
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
       map.addControl(scale, 'bottom-right');
-
     });
 
     onMapLoaded && onMapLoaded(map);
+
     setMapLoaded(true);
   }, [onMapLoaded]);
 
-  const map = useRef(null);
-  const mapContainer = useRef(null);
-
   useEffect(() => {
-    if (!map.current) {
-      const initialMapPositionOptions = getStartingMapPositionValues(mapPosition);
-
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: REACT_APP_BASE_MAP_STYLES,
-        minZoom: MIN_ZOOM,
-        maxZoom: MAX_ZOOM,
+    if (!mapRef.current) {
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainerRef.current,
         locale: {
           'Map.Title': t('mapTitle'),
           'NavigationControl.ResetBearing': t('navigationResetBearing'),
@@ -85,44 +67,48 @@ const EarthRangerMap = (props) => {
           'NavigationControl.ZoomOut': t('navigationZoomOut'),
         },
         logoPosition: 'bottom-left',
-        ...initialMapPositionOptions,
+        maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
+        style: REACT_APP_BASE_MAP_STYLES,
+        ...getStartingMapPositionValues(mapPosition),
       });
-      map.current.on('load', onLoad);
+
+      mapRef.current.on('load', onLoad);
     }
   }, [mapPosition, onLoad, t]);
 
   useEffect(() => {
-    if (map.current && currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
+    if (mapRef.current
+      && currentBaseLayer
+      && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
       const value = currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url;
 
       if (value !== baseStyleRef.current) {
-        map.current.setStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
+        mapRef.current.setStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
         baseStyleRef.current = value;
       }
     }
   }, [currentBaseLayer]);
 
-  return <MapContext.Provider value={map.current}>
+  return <MapContext.Provider value={mapRef.current}>
     <div className="map-wrapper" style={{ height: '100%' }}>
-      <div ref={mapContainer} {...rest} >
-      </div>
-      {mapLoaded && <Fragment>
-        <MapTerrain map={map.current} />
-        <SkyLayer map={map.current} />
-        <div className='map-controls-container'>
-          {controls}
-        </div>
+      <div ref={mapContainerRef} {...otherProps} />
+
+      {mapLoaded && <>
+        <MapTerrain map={mapRef.current} />
+
+        <SkyLayer map={mapRef.current} />
+
+        <div className='map-controls-container'>{controls}</div>
+
         {children}
+
         <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
+
         <BaseLayerRenderer />
-      </Fragment>}
+      </>}
     </div>
   </MapContext.Provider>;
 };
 
-
-const mapStateToProps = ({ view: { currentBaseLayer } }) => ({
-  currentBaseLayer,
-});
-
-export default connect(mapStateToProps, null)(memo(EarthRangerMap));
+export default memo(EarthRangerMap);

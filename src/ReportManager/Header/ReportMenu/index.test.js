@@ -81,12 +81,12 @@ describe('Menu report options', () => {
     </>);
 
     const kebabButton = screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(writeText).toHaveBeenCalledTimes(0);
 
-    const copyButton = screen.getByTestId('textCopyBtn');
-    userEvent.click(copyButton);
+    const copyButton = screen.getByLabelText('Copy to clipboard');
+    await userEvent.click(copyButton);
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledTimes(1);
@@ -109,17 +109,17 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = await screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(0);
 
     const printReportButton = await screen.getByText('Print Event Details');
-    userEvent.click(printReportButton);
+    await userEvent.click(printReportButton);
 
     expect(handlePrint).toHaveBeenCalledTimes(1);
   });
 
-  test('should not show the incident option if the report is a collection', () => {
+  test('should not show the incident option if the report is a collection', async () => {
     const collectionReport = { ...report, ...{ is_collection: true } };
     renderWithWrapper(
       <ReportMenu
@@ -132,13 +132,13 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
     expect((screen.queryByText('Add to Parol'))).toBeDefined();
   });
 
-  test('should not show the incident option if the report belongs to a collection', () => {
+  test('should not show the incident option if the report belongs to a collection', async () => {
     const reportWithCollection = { ...report, ...{ is_contained_in: [{ type: 'contains', ordernum: null, url: 'https://fake.com', related_event: {} }] } };
     renderWithWrapper(
       <ReportMenu
@@ -151,7 +151,7 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeNull();
     expect((screen.queryByText('Add to Parol'))).toBeDefined();
@@ -169,18 +169,18 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = await screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     const addToIncidentButton = await screen.findByText('Add to Incident');
 
     expect(addToIncidentButton).toBeDefined();
 
-    userEvent.click(addToIncidentButton);
+    await userEvent.click(addToIncidentButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
   });
 
-  test('should not show the patrol option if the report belongs to a patrol', () => {
+  test('should not show the patrol option if the report belongs to a patrol', async () => {
     const patrolReport = { ...report, ...{ patrol_segments: [{}] } };
     renderWithWrapper(
       <ReportMenu
@@ -193,7 +193,7 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect((screen.queryByText('Add to Incident'))).toBeDefined();
     expect((screen.queryByText('Add to Patrol'))).toBeNull();
@@ -211,13 +211,13 @@ describe('Menu report options', () => {
     );
 
     const kebabButton = await screen.getByRole('button');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     const addToPatrolButton = await screen.findByText('Add to Patrol');
 
     expect(addToPatrolButton).toBeDefined();
 
-    userEvent.click(addToPatrolButton);
+    await userEvent.click(addToPatrolButton);
 
     expect(addModal).toHaveBeenCalledTimes(1);
   });

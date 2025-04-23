@@ -40,7 +40,7 @@ describe('DetailViewComponents - HistorySection', () => {
     render(<HistorySection updates={updatesMock} />, { wrapper: Wrapper });
 
     const sortButton = await screen.findByRole('button');
-    userEvent.click(sortButton);
+    await userEvent.click(sortButton);
     const items = await screen.findAllByRole('listitem');
 
     expect((await within(items[0]).findByText('Kim Johanna'))).toBeDefined();

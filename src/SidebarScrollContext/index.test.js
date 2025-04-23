@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { SidebarScrollContext, SidebarScrollProvider } from './index';
-import { renderHook } from '@testing-library/react-hooks';
 import { useContext } from 'react';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { act, renderHook, render, screen } from '../test-utils';
+import { SidebarScrollContext, SidebarScrollProvider } from './index';
 
 describe('SidebarScrollContext', () => {
 
@@ -18,7 +18,7 @@ describe('SidebarScrollContext', () => {
     const wrapper = ({ children }) => <SidebarScrollProvider>{children}</SidebarScrollProvider>;
     const { result } = renderHook( () => useContext(SidebarScrollContext), { wrapper });
     const { current: { setScrollPosition } } = result;
-    setScrollPosition(tab, scrollPosition);
+    act(() => setScrollPosition(tab, scrollPosition));
 
     expect(result.current.scrollPositionValues).toEqual({ [tab]: scrollPosition });
   });

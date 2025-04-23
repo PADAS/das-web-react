@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { isRadioWithImage, subjectIsStatic, getSubjectDefaultDeviceProperty } from '../utils/subjects';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const SubjectListItem = (props) => {
   const { map, ...subject } = props;

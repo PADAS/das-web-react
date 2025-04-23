@@ -1,22 +1,19 @@
-import React, { forwardRef, memo, useCallback, useContext } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useCallback, useContext } from 'react';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
 import { TAB_KEYS } from '../constants';
-import LoadingOverlay from '../LoadingOverlay';
 import { MapContext } from '../App';
 import { ScrollRestoration } from '../SidebarScrollContext';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, patrol, onItemClick, ...rest } = props;
-
+const ListItem = ({ map, patrol, onItemClick, ref, ...rest }) => {
   const onClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
     onItemClick(patrol.id);
@@ -30,12 +27,17 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
       map={map}
       {...rest} />
   </Flipped>;
-});
+};
 
 const PatrolList = ({ patrols = [], loading, onItemClick }) => {
   const map = useContext(MapContext);
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolList' });
-  if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
+
+  if (loading) {
+    return <div className={styles.loaderWrapper}>
+      <MoonLoader />
+    </div>;
+  }
 
   return <>
     {!!patrols.length && <ScrollRestoration
@@ -61,8 +63,3 @@ const PatrolList = ({ patrols = [], loading, onItemClick }) => {
 };
 
 export default memo(PatrolList);
-
-PatrolList.propTypes = {
-  patrols: PropTypes.array,
-  loading: PropTypes.bool,
-};

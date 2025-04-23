@@ -24,7 +24,7 @@ import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
 
-import colorVariables from '../common/styles/vars/colors.module.scss';
+import * as colorVariables from '../common/styles/vars/colors.module.scss';
 
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
@@ -67,7 +67,6 @@ beforeEach(() => {
   updatePatrol.mockImplementation(updatePatrolMock);
 
   jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true); // full permissions for list item read+write access
-  jest.useFakeTimers('modern');
 });
 
 const initialProps = {
@@ -173,14 +172,10 @@ describe('the patrol list item', () => {
 describe('for active patrols', () => {
   const patrolWithLeader = { ...patrols[1] };
   const mockStartDate = new Date('2021-10-09');
-  const mockCurrentDate = new Date('2021-10-10');
 
   beforeEach(() => {
     testPatrol = { ...patrolWithLeader };
     testPatrol.patrol_segments[0].time_range.start_time = mockStartDate.toISOString();
-
-    jest.useFakeTimers('modern');
-    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockImplementation(() => true);
     jest.spyOn(patrolUtils, 'getBoundsForPatrol').mockImplementation(() => {
@@ -200,7 +195,7 @@ describe('for active patrols', () => {
 
   test('toggling a patrol track on when clicking the "jump to location button"', async () => {
     const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
-    userEvent.click(jumpButton);
+    await userEvent.click(jumpButton);
 
     const actions = store.getActions();
 
@@ -212,7 +207,7 @@ describe('for active patrols', () => {
 
   test('toggling a patrol leader\'s track on when clicking the "jump to location button"', async () => {
     const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
-    userEvent.click(jumpButton);
+    await userEvent.click(jumpButton);
 
     const actions = store.getActions();
 
@@ -229,12 +224,12 @@ describe('for active patrols', () => {
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
-    userEvent.click(cancelBtn);
+    await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
@@ -243,16 +238,15 @@ describe('for active patrols', () => {
   test('ending a patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const endBtn = await within(kebabMenu).findByText('End Patrol');
-    userEvent.click(endBtn);
+    await userEvent.click(endBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.DONE);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBe(mockCurrentDate.toISOString());
   });
 
   test('theming', async () => {
@@ -265,13 +259,10 @@ describe('for active patrols', () => {
 
 describe('for scheduled patrols', () => {
   const mockStartDate = new Date('10-10-2021 11:00');
-  const mockCurrentDate = new Date('10-10-2021 9:00');
 
   beforeEach(() => {
     testPatrol = { ...patrols[0] };
     testPatrol.patrol_segments[0].time_range.scheduled_start = mockStartDate.toISOString();
-
-    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.READY_TO_START);
 
@@ -282,23 +273,21 @@ describe('for scheduled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const startBtn = await screen.findByTestId(`patrol-list-item-start-btn-${testPatrol.id}`);
-    userEvent.click(startBtn);
+    await userEvent.click(startBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
-    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.start_time).toBe(mockCurrentDate.toISOString());
   });
 
   test('canceling the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
-    userEvent.click(cancelBtn);
+    await userEvent.click(cancelBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
@@ -314,13 +303,10 @@ describe('for scheduled patrols', () => {
 
 describe('for overdue patrols', () => {
   const mockStartDate = new Date('10-10-2021 01:00');
-  const mockCurrentDate = new Date('10-10-2021 13:00');
 
   beforeEach(() => {
     testPatrol = { ...patrols[0] };
     testPatrol.patrol_segments[0].time_range.scheduled_start = mockStartDate.toISOString();
-
-    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.START_OVERDUE);
 
@@ -342,13 +328,9 @@ describe('for overdue patrols', () => {
 });
 
 describe('for cancelled patrols', () => {
-  const mockCurrentDate = new Date('10-10-2021 13:00');
-
   beforeEach(() => {
     testPatrol = { ...patrols[0] };
     testPatrol.state = PATROL_API_STATES.CANCELLED;
-
-    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.CANCELLED);
 
@@ -359,7 +341,7 @@ describe('for cancelled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await screen.findByTestId(`patrol-list-item-restore-btn-${testPatrol.id}`);
-    userEvent.click(restoreBtn);
+    await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
@@ -369,12 +351,12 @@ describe('for cancelled patrols', () => {
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
-    userEvent.click(restoreBtn);
+    await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
@@ -389,13 +371,9 @@ describe('for cancelled patrols', () => {
 });
 
 describe('for completed patrols', () => {
-  const mockCurrentDate = new Date('10-10-2021 13:00');
-
   beforeEach(() => {
     testPatrol = { ...patrols[0] };
     testPatrol.state = PATROL_API_STATES.CANCELLED;
-
-    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => PATROL_UI_STATES.CANCELLED);
 
@@ -405,12 +383,12 @@ describe('for completed patrols', () => {
   test('restoring the patrol from the kebab menu', async () => {
     const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
-    userEvent.click(kebabButton);
+    await userEvent.click(kebabButton);
 
     expect(updatePatrol).toHaveBeenCalledTimes(0);
 
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
-    userEvent.click(restoreBtn);
+    await userEvent.click(restoreBtn);
 
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);

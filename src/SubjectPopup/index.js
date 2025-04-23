@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Button from 'react-bootstrap/Button';
@@ -15,7 +14,7 @@ import SubjectControls from '../SubjectControls';
 import TimeAgo from '../TimeAgo';
 import TrackLength from '../TrackLength';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
@@ -90,7 +89,12 @@ const SubjectPopup = ({ data }) => {
       </div>}
     </div>
 
-    <GpsFormatToggle className={styles.gpsFormatToggle} lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />
+    <GpsFormatToggle
+      className={styles.gpsFormatToggle}
+      lat={geometry.coordinates[1]}
+      lng={geometry.coordinates[0]}
+      name="subjectPopup-gpsFormatToggle"
+    />
 
     {radioWithRecentMicActivity && <div className={styles.micActivity}>
       <h5>{t('micActivityHeader')}</h5>
@@ -124,7 +128,7 @@ const SubjectPopup = ({ data }) => {
         {isTimeSliderActive ? <span>{t('noHistoricalDataSpan')}</span> : <span data-testid="additional-props-value">
           {deviceStatusProperty.value.toString()}
 
-          <span className={styles.unit}> {deviceStatusProperty.units}</span>
+          <span> {deviceStatusProperty.units}</span>
         </span>}
       </li>)}
     </ul>}
@@ -149,24 +153,6 @@ const SubjectPopup = ({ data }) => {
       subject={properties}
     />
   </>;
-};
-
-SubjectPopup.propTypes = {
-  data: PropTypes.shape({
-    geometry: PropTypes.shape({
-      coordinates: PropTypes.arrayOf(PropTypes.number)
-    }),
-    properties: PropTypes.shape({
-      coordinateProperties: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-      default_status_value: PropTypes.string,
-      device_status_properties: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-      id: PropTypes.string,
-      image: PropTypes.string,
-      last_voice_call_start_at: PropTypes.string,
-      name: PropTypes.string,
-      tracks_available: PropTypes.bool,
-    })
-  }).isRequired,
 };
 
 export default memo(SubjectPopup);

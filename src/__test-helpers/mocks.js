@@ -22,6 +22,7 @@ export const createMapMock = (override = {}) => {
     }),
     getCenter: jest.fn(() => ({ lng: 0, lat: 0 })),
     getContainer: jest.fn(() => document.createElement('div')),
+    getCanvas: jest.fn(),
     getCanvasContainer: jest.fn(() => document.createElement('div')),
     setFilter: jest.fn(),
     removeSource: jest.fn(),

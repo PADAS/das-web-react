@@ -1,34 +1,18 @@
 {
   "patrolTrackLegend": {
-    "multiplePatrolsTitle": "{{count}} patrols",
-    "singlePatrolTitle": "Patrol: {{patrolDisplayTitle}}",
-    "titleElement": {
-      "coveredSpan": " covered",
-      "icon": "Icon for {{title}}",
-      "lengthCovered": "{{length}} covered",
-      "removeButton": "remove"
-    }
+    "icon": "Icon for {{patrolTitle}}",
+    "itemTitle": "Patrol: {{patrolTitle}}",
+    "trackLegendItemsName": "patrols"
   },
   "subjectTrackLegend": {
+    "description": "{{pointCount}} points over {{trackTime}}",
+    "itemDescription_one": "{{count}} point",
+    "itemDescription_other": "{{count}} points",
+    "itemIcon": "Icon for {{title}}",
+    "trackLegendItemsName": "subjects"
+  },
+  "trackLegend": {
     "clearTracksButton": "Clear Tracks",
-    "icon": "Icon for {{title}}",
-    "multipleSubjectTracksTitle": "{{count}} subjects",
-    "pointsOverTime": "{{pointCount}} points over {{trackTime}}",
-    "subjectTrackList": {
-      "closeButtonLabel": "Close the list of subjects",
-      "subjectTracksItem": {
-        "icon": "Icon for {{title}}",
-        "pointCount_one": "{{count}} point",
-        "pointCount_other": "{{count}} points",
-        "removeButton": "Remove",
-        "removeButtonLabel": "Remove {{title}}"
-      },
-      "title": "Subjects"
-    },
-    "subjectTracksListButtonLabel": {
-      "closed": "Open the list of subjects",
-      "open": "Close the list of subjects"
-    },
     "timeOfDaySettings": {
       "chevronButtonLabel": {
         "closed": "Expand the time of day settings",
@@ -54,6 +38,17 @@
     "timeOfDaySettingsButtonLabel": {
       "active": "Deactivate the time of day coloring",
       "inactive": "Activate the time of day coloring"
+    },
+    "tracksList": {
+      "closeButtonLabel": "Close the list of {{itemsName}}",
+      "tracksItem": {
+        "removeButton": "Remove",
+        "removeButtonLabel": "Remove {{title}}"
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Open the list of {{itemsName}}",
+      "open": "Close the list of {{itemsName}}"
     },
     "trackSettings": {
       "closeButtonLabel": "Close the track settings",

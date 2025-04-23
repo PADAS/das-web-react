@@ -11,7 +11,7 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const PointPopup = (props) => {
   const { drawing, onClickFinish, pointIndex, points } = props;
@@ -48,7 +48,7 @@ const PointPopup = (props) => {
   return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
 
     {!drawing && <>
-      <GpsFormatToggle lng={point[0]} lat={point[1]} />
+      <GpsFormatToggle lng={point[0]} lat={point[1]} name="mapRulerControl-pointPopup-gpsFormatToggle" />
       {points.length > 1 && !isFirstPoint && <>
         <p>
           <strong>{t('bearingLabel')}</strong> {bearingFromPrev}&deg; <br />

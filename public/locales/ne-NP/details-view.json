@@ -30,11 +30,6 @@
         "stateResolveButton": "सुरक्षित गरि समाधान गर्नुहोस्",
         "stateReopenButton": "सुरक्षित गरि फेरी खोल्नुहोस्"
     },
-    "geoLocator": {
-        "buttonLabel": "मेरो लोकेसन प्रयोग गर्नुहोस्",
-        "loadingMessage": "तपाईंको लोकेसन पत्ता लगाउने प्रयास गर्दैछौं…",
-        "readingLocationError": "तपाईंको लोकेसन पत्ता लगाउन सकिएनः #{{locationErrorMessage}}"
-    },
     "containedReportListItem": {
         "goToReportButtonTooltip": "घटनामा जानुहोस्",
         "collapseClosedButtonLabel": "बिस्तार गर्नुहोस्",
@@ -55,12 +50,6 @@
     "imageModal": {
         "errorTitle": "फोटो लोड गर्न समस्या भइरहेको छ ।",
         "errorMessage": "यो फाईल भर्खरै अपलोड गर्नुभएको हो भने कृपया केही समय पर्खेर फेरी प्रयास गर्नुहोस् ।"
-    },
-    "locationSelector": {
-        "inputLabel": "स्थान",
-        "inputPlaceHolder": "लोकेसन सेट गर्नुहोस्",
-        "copyButtonLabel": "लोकेसन कपि गर्नुहोस्",
-        "copyButtonTitle": "कपि गर्नुहोस्"
     },
     "navigationPromptModal": {
         "cancelNavigationButtonText": "पछाडी जानुहोस्",

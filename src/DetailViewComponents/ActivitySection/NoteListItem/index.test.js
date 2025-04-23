@@ -86,7 +86,7 @@ describe('ActivitySection - Note', () => {
     expect(onDelete).toHaveBeenCalledTimes(0);
 
     const deleteButton = await screen.findByTestId('activitySection-deleteIcon-note');
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);
   });
@@ -99,7 +99,7 @@ describe('ActivitySection - Note', () => {
     expect(onDone).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByTestId('activitySection-noteDone-note');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(onDone).toHaveBeenCalledTimes(1);
   });
@@ -112,7 +112,7 @@ describe('ActivitySection - Note', () => {
     expect(onCancel).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByTestId('activitySection-noteCancel-note');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
@@ -134,7 +134,7 @@ describe('ActivitySection - Note', () => {
     expect((await screen.findByRole('textbox'))).toHaveProperty('readOnly', true);
 
     const editButton = await screen.findByTestId('activitySection-editIcon-someID');
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
     expect((await screen.findByText(saveButtonText))).toBeDefined();
@@ -149,8 +149,8 @@ describe('ActivitySection - Note', () => {
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('collapse');
 
-    const expandNoteButton = await screen.findByText('arrow-down-simple.svg');
-    userEvent.click(expandNoteButton);
+    const expandNoteButton = await screen.findByTestId('activitySection-arrowDown-note');
+    await userEvent.click(expandNoteButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
@@ -163,8 +163,8 @@ describe('ActivitySection - Note', () => {
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-note'))).toHaveClass('show');
 
-    const colapseNoteButton = await screen.findByText('arrow-up-simple.svg');
-    userEvent.click(colapseNoteButton);
+    const colapseNoteButton = await screen.findByTestId('activitySection-arrowUp-note');
+    await userEvent.click(colapseNoteButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
@@ -178,8 +178,8 @@ describe('ActivitySection - Note', () => {
 
     const noteTextArea = await screen.findByRole('textbox');
     const editButton = await screen.findByTestId('activitySection-editIcon-');
-    userEvent.click(editButton);
-    userEvent.type(noteTextArea, ' ');
+    await userEvent.click(editButton);
+    await userEvent.type(noteTextArea, ' ');
 
     expect(noteTextArea).toHaveTextContent('');
   });

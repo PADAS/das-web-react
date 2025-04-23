@@ -1,8 +1,6 @@
 import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { findDOMNode } from 'react-dom';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -18,12 +16,18 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListItem from '../PatrolListItem';
 
-import { INITIAL_PATROLS_STATE, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
+import { PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
+import * as styles from './styles.module.scss';
 
-import styles from './styles.module.scss';
+const INITIAL_PATROLS_STATE = {
+  count: null,
+  next: null,
+  previous: null,
+  results: [],
+};
 
 const { Header, Title, Body, Footer } = Modal;
 
@@ -173,22 +177,21 @@ const AddToPatrolModal = (props) => {
             hasMore={hasMore}
             loadMore={onScroll}
             useWindow={false}
-            getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
+            getScrollParent={() => scrollRef.current}>
 
             {listPatrols.map((patrol, index) => {
 
               return <PatrolListItem
-                className={styles.listItem}
                 patrol={patrol}
                 data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 showControls={false}
                 onClick={onClickPatrol} />;
             })}
-            {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>
+            {hasMore && <li key={0}>
               {t('loading')}
             </li>}
-            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
+            {!!loaded && !hasMore && <li style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>
               {t('noMorePatrols')}
             </li>}
           </InfiniteScroll>
@@ -204,7 +207,3 @@ const AddToPatrolModal = (props) => {
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
 export default connect(mapStateToProps, { removeModal: id => removeModal(id), updatePatrolStore: patrols => updatePatrolStore(patrols) })(memo(AddToPatrolModal));
-
-AddToPatrolModal.propTypes = {
-  onAddToPatrol: PropTypes.func.isRequired,
-};

@@ -6,6 +6,7 @@ import { render, screen } from '../../../../../test-utils';
 import Section from './';
 
 describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () => {
+  const focusLocationMarker = jest.fn();
   const onFieldChange = jest.fn();
   const onFieldErrorsChange = jest.fn();
   const renderField = jest.fn();
@@ -23,6 +24,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
   const renderSectionField = (props) => render(<Section
     details={details}
     fieldErrors={{}}
+    focusLocationMarker={focusLocationMarker}
     formData={{ 'text-1': 'Value 1' }}
     id="section-1"
     onFieldChange={onFieldChange}
@@ -31,20 +33,20 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     {...props}
   />);
 
-  test('does not show a header if the label is not defined', () => {
+  test('does not show a header if the label is not defined', async () => {
     details.label = '';
     renderSectionField();
 
     expect(screen.queryByRole('heading')).toBeNull();
   });
 
-  test('shows the header if the labes is defined', () => {
+  test('shows the header if the labes is defined', async () => {
     renderSectionField();
 
     expect(screen.getByRole('heading')).toHaveTextContent('Section 1 Label');
   });
 
-  test('shows the left column when it is the only column', () => {
+  test('shows the left column when it is the only column', async () => {
     details.columns = 1;
     renderSectionField();
 
@@ -54,7 +56,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     expect(leftColumn).toHaveClass('fullWidth');
   });
 
-  test('shows the left column when there are two columns', () => {
+  test('shows the left column when there are two columns', async () => {
     renderSectionField();
 
     const leftColumn = screen.getByTestId('schema-form-section-section-1-left-column');
@@ -63,29 +65,30 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     expect(leftColumn).toHaveClass('halfWidthLeft');
   });
 
-  test('does not show the right column if the section has one column', () => {
+  test('does not show the right column if the section has one column', async () => {
     details.columns = 1;
     renderSectionField();
 
     expect(screen.queryByTestId('schema-form-section-section-1-right-column')).toBeNull();
   });
 
-  test('shows the right column if the section has two columns', () => {
+  test('shows the right column if the section has two columns', async () => {
     renderSectionField();
 
     expect(screen.getByTestId('schema-form-section-section-1-right-column')).toBeVisible();
   });
 
-  test('renders the children', () => {
+  test('renders the children', async () => {
     renderSectionField();
 
     expect(renderField).toHaveBeenCalledTimes(1);
     expect(renderField.mock.calls[0][0]).toBe('text-1');
     expect(renderField.mock.calls[0][1]).toBe('Value 1');
     expect(renderField.mock.calls[0][3]).toBe(undefined);
+    expect(renderField.mock.calls[0][4]).toBe(focusLocationMarker);
   });
 
-  test('applies changes in values and errors from the children', () => {
+  test('applies changes in values and errors from the children', async () => {
     renderField.mockImplementation((id, value, onChange) => <input
       data-testid={id}
       onChange={(event) => onChange(id, event.target.value)}
@@ -96,7 +99,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Section', () =>
     expect(onFieldChange).not.toHaveBeenCalled();
     expect(onFieldErrorsChange).not.toHaveBeenCalled();
 
-    userEvent.type(screen.getByTestId('text-1'), 'a');
+    await userEvent.type(screen.getByTestId('text-1'), 'a');
 
     expect(onFieldChange).toHaveBeenCalledTimes(1);
     expect(onFieldChange).toHaveBeenCalledWith('text-1', 'Value 1a');

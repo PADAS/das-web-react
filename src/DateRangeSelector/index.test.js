@@ -21,7 +21,7 @@ describe('presets', () => {
       render(<DateRangeSelector onClickDateRangePreset={dateRangePresetFn} showPresets={true} />);
 
       const yesterdayBtn = await screen.findByTestId('yesterday-btn');
-      userEvent.click(yesterdayBtn);
+      await userEvent.click(yesterdayBtn);
 
       expect(dateRangePresetFn.mock.calls.length).toEqual(1);
 

@@ -112,7 +112,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     renderCursorGpsDisplay(undefined, mockedStore);
 
-    expect((await screen.queryByText('arrow-into.svg'))).toBeNull();
+    expect((await screen.queryByTestId('arrow-into-icon'))).toBeNull();
   });
 
   test('once the report is loaded, link to navigate into it shows up', async () => {
@@ -120,7 +120,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     const mockedStore = mockStore(store);
     renderCursorGpsDisplay(undefined, mockedStore);
 
-    expect((await screen.findByText('arrow-into.svg'))).toBeDefined();
+    expect((await screen.findByTestId('arrow-into-icon'))).toBeDefined();
   });
 
   test('user can open the report collapsible', async () => {
@@ -131,8 +131,8 @@ describe('ActivitySection - ContainedReportListItem', () => {
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('collapse');
 
-    const expandNoteButton = await screen.findByText('arrow-down-simple.svg');
-    userEvent.click(expandNoteButton);
+    const expandNoteButton = await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    await userEvent.click(expandNoteButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
@@ -145,8 +145,8 @@ describe('ActivitySection - ContainedReportListItem', () => {
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('show');
 
-    const colapseNoteButton = await screen.findByText('arrow-up-simple.svg');
-    userEvent.click(colapseNoteButton);
+    const colapseNoteButton = await screen.findByTestId('activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
+    await userEvent.click(colapseNoteButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });

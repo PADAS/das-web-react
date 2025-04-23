@@ -1,10 +1,9 @@
 import React from 'react';
 import { http, HttpResponse } from 'msw';
 import { Provider } from 'react-redux';
-import { renderHook } from '@testing-library/react-hooks';
 import { setupServer } from 'msw/node';
-import { waitFor } from '@testing-library/react';
 
+import { renderHook, waitFor } from '../../test-utils';
 import { DEFAULT_EVENT_SORT } from '../../constants';
 import { events, eventWithPoint } from '../../__test-helpers/fixtures/events';
 import { EVENTS_API_URL, EVENT_API_URL } from '../../ducks/events';

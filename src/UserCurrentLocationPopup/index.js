@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from 'react';
 import isEqual from 'react-fast-compare';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -22,7 +21,11 @@ const UserCurrentLocationPopup = ({ data, id }) => {
   return <>
     <h4>{t('header')}</h4>
 
-    <GpsFormatToggle lat={data.location.coords.latitude} lng={data.location.coords.longitude} />
+    <GpsFormatToggle
+      lat={data.location.coords.latitude}
+      lng={data.location.coords.longitude}
+      name="userCurrentLocationPopup-gpsFormatToggle"
+    />
 
     <p>{t('accuracy', { accuracy: data.location.coords.accuracy })}</p>
 
@@ -42,13 +45,6 @@ const UserCurrentLocationPopup = ({ data, id }) => {
       showLabel={false}
     />
   </>;
-};
-
-UserCurrentLocationPopup.propTypes = {
-  data: PropTypes.shape({
-    location: PropTypes.object,
-  }).isRequired,
-  id: PropTypes.string.isRequired,
 };
 
 export default memo(

@@ -107,6 +107,9 @@ describe('SideBar', () => {
       },
       view: {
         featureFlagOverrides: {},
+        mapLocationSelection: {
+          isPickingLocation: false,
+        },
         userPreferences: {},
         sideBar: {},
         systemConfig: {
@@ -141,20 +144,20 @@ describe('SideBar', () => {
     expect(await screen.findByText('Patrols')).toBeDefined();
   });
 
-  test('does not show the patrols tab if user has not permissions', () => {
+  test('does not show the patrols tab if user has not permissions', async () => {
     store.data.user.permissions = {};
     renderSideBar();
 
     expect(screen.queryByText('Patrols')).toBeNull();
   });
 
-  test('sets the tab title for the Events tab', () => {
+  test('sets the tab title for the Events tab', async () => {
     renderSideBar();
 
     expect(screen.getByRole('heading')).toHaveTextContent('Events');
   });
 
-  test('sets the tab title for the Patrols tab', () => {
+  test('sets the tab title for the Patrols tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -162,7 +165,7 @@ describe('SideBar', () => {
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Patrols');
   });
 
-  test('sets the tab title for the Map Layers tab', () => {
+  test('sets the tab title for the Map Layers tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -202,7 +205,7 @@ describe('SideBar', () => {
     await assertBadgeWhenEventSignals();
   });
 
-  test('does not show the report badge if sidebar is open in reports tab', () => {
+  test('does not show the report badge if sidebar is open in reports tab', async () => {
     renderSideBar();
 
     expect(screen.queryByTestId('badgeIcon')).toBeNull();
@@ -216,13 +219,13 @@ describe('SideBar', () => {
     expect(screen.queryByTestId('badgeIcon')).toBeNull();
   });
 
-  test('shows the Add Report button', () => {
+  test('shows the Add Report button', async () => {
     renderSideBar();
 
     expect(screen.getByTestId('sideBar-addReportButton')).not.toHaveClass('hidden');
   });
 
-  test('hides the Add Report button in the map layers tab', () => {
+  test('hides the Add Report button in the map layers tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -237,9 +240,9 @@ describe('SideBar', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       const closeButton = screen.getByTestId('sideBar-closeButton');
-      userEvent.click(closeButton);
+      await userEvent.click(closeButton);
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith('/');
 
@@ -248,7 +251,7 @@ describe('SideBar', () => {
 
   });
 
-  test('shows a back button if the detail view of the current tab is open', () => {
+  test('shows a back button if the detail view of the current tab is open', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -256,47 +259,47 @@ describe('SideBar', () => {
     expect(screen.getByTestId('sideBar-backDetailViewButton')).toBeDefined();
   });
 
-  const assertBehaviorOfDetailViewBackButton = (locationMock, expectedInvocationParams) => {
+  const assertBehaviorOfDetailViewBackButton = async (locationMock, expectedInvocationParams) => {
     useLocation.mockImplementation(locationMock);
     renderSideBar();
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
     const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
-    userEvent.click(backDetailViewButton);
+    await userEvent.click(backDetailViewButton);
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith(expectedInvocationParams, {});
   };
 
-  test('hides the report detail view if it was opened but user clicked the back button', () => {
+  test('hides the report detail view if it was opened but user clicked the back button', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/new' })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
   });
 
-  test('hides the patrol detail view if it was opened but user clicked the back button', () => {
+  test('hides the patrol detail view if it was opened but user clicked the back button', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/new' })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, -1);
   });
 
-  test('return to report feed when user clicked the back button coming from a deep link', () => {
+  test('return to report feed when user clicked the back button coming from a deep link', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/123123', key: 'default' })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
   });
 
-  test('return to patrol feed when user clicked the back button coming from a deep link', () => {
+  test('return to patrol feed when user clicked the back button coming from a deep link', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols/123123', key: 'default' })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, '/patrols');
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, '/patrols');
   });
 
-  test('return to report feed when user clicked the back button coming from a deep link which required login', () => {
+  test('return to report feed when user clicked the back button coming from a deep link which required login', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/123123', key: '2324e2', state: { comesFromLogin: true } })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
   });
 
-  test('return to report feed when user clicked the back button coming from a deep link with lngLat value', () => {
+  test('return to report feed when user clicked the back button coming from a deep link with lngLat value', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events/123123', key: '2324e2', state: { comesFromLngLatRedirection: true } })));
-    assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
+    await assertBehaviorOfDetailViewBackButton(useLocationMock, '/events');
   });
 
   test('redirects to map if a tab is not recognized', async () => {
@@ -329,7 +332,7 @@ describe('SideBar', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/events');
@@ -342,7 +345,7 @@ describe('SideBar', () => {
 
     expect(navigate).toHaveBeenCalledTimes(0);
 
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/patrols');

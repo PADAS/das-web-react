@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
 import { useLocation, useSearchParams } from 'react-router';
 
 import {
@@ -20,7 +19,7 @@ import DelayedUnmount from '../DelayedUnmount';
 import LoadingOverlay from '../LoadingOverlay';
 import ReportDetailView from './ReportDetailView';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
 
@@ -31,7 +30,7 @@ const shouldFetchEventDetails = (eventId, eventStore) =>
   || !eventStore[eventId].notes
   || !eventStore[eventId].updates;
 
-const ReportManager = ({ onReportBeingAdded }) => {
+const ReportManager = ({ onReportBeingAdded = null }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -124,6 +123,7 @@ const ReportManager = ({ onReportBeingAdded }) => {
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView
       formProps={navigationData?.formProps}
+      isBehindAddedEvent={showAddedReport}
       isNewReport={isNewReport}
       key={reportId} // This resets component state when the id changes
       newReportTypeId={newReportTypeId}
@@ -145,14 +145,6 @@ const ReportManager = ({ onReportBeingAdded }) => {
       />
     </DelayedUnmount>
   </TrackerContext.Provider>;
-};
-
-ReportManager.defaultProps = {
-  onReportBeingAdded: null,
-};
-
-ReportManager.propTypes = {
-  onReportBeingAdded: PropTypes.func,
 };
 
 export default memo(ReportManager);
