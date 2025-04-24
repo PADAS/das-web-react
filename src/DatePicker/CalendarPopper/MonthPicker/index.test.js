@@ -34,118 +34,118 @@ describe('DatePicker - CalendarPopper - MonthPicker', () => {
     jest.restoreAllMocks();
   });
 
-  test('decreases the year', () => {
+  test('decreases the year', async () => {
     renderMonthPicker();
 
     expect(decreaseYear).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Previous year'));
+    await userEvent.click(screen.getByLabelText('Previous year'));
 
     expect(decreaseYear).toHaveBeenCalledTimes(1);
   });
 
-  test('decreases the month', () => {
+  test('decreases the month', async () => {
     renderMonthPicker();
 
     expect(decreaseMonth).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Previous month'));
+    await userEvent.click(screen.getByLabelText('Previous month'));
 
     expect(decreaseMonth).toHaveBeenCalledTimes(1);
   });
 
-  test('increases the month', () => {
+  test('increases the month', async () => {
     renderMonthPicker();
 
     expect(increaseMonth).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Next month'));
+    await userEvent.click(screen.getByLabelText('Next month'));
 
     expect(increaseMonth).toHaveBeenCalledTimes(1);
   });
 
-  test('increases the year', () => {
+  test('increases the year', async () => {
     renderMonthPicker();
 
     expect(increaseYear).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Next year'));
+    await userEvent.click(screen.getByLabelText('Next year'));
 
     expect(increaseYear).toHaveBeenCalledTimes(1);
   });
 
-  test('opens the month picker', () => {
+  test('opens the month picker', async () => {
     renderMonthPicker();
 
-    userEvent.click(screen.getByLabelText('Open month picker'));
+    await userEvent.click(screen.getByLabelText('Open month picker'));
 
     expect(screen.getByLabelText('Choose Date')).toBeVisible();
   });
 
-  test('closes the month picker by clicking the button', () => {
+  test('closes the month picker by clicking the button', async () => {
     renderMonthPicker();
 
     const openMonthPickerButton = screen.getByLabelText('Open month picker');
-    userEvent.click(openMonthPickerButton);
+    await userEvent.click(openMonthPickerButton);
     const monthPicker = screen.getByLabelText('Choose Date');
 
     expect(monthPicker).toBeVisible();
 
-    userEvent.click(openMonthPickerButton);
+    await userEvent.click(openMonthPickerButton);
 
     expect(monthPicker).not.toBeVisible();
   });
 
-  test('closes the month picker by pressing escape', () => {
+  test('closes the month picker by pressing escape', async () => {
     renderMonthPicker();
 
-    userEvent.click(screen.getByLabelText('Open month picker'));
+    await userEvent.click(screen.getByLabelText('Open month picker'));
     const monthPicker = screen.getByLabelText('Choose Date');
 
     expect(monthPicker).toBeVisible();
 
-    userEvent.keyboard('{escape}');
+    await userEvent.keyboard('{escape}');
 
     expect(monthPicker).not.toBeVisible();
   });
 
-  test('decreases the year of the month picker', () => {
+  test('decreases the year of the month picker', async () => {
     renderMonthPicker();
 
-    userEvent.click(screen.getByLabelText('Open month picker'));
+    await userEvent.click(screen.getByLabelText('Open month picker'));
     const monthPickerHeader = screen.getByTestId('datePicker-calendarPopper-monthPicker-header');
 
     expect(monthPickerHeader).toHaveTextContent('2020');
 
-    userEvent.click(within(monthPickerHeader).getByLabelText('Previous year'));
+    await userEvent.click(within(monthPickerHeader).getByLabelText('Previous year'));
 
     expect(monthPickerHeader).toHaveTextContent('2019');
   });
 
-  test('increases the year of the month picker', () => {
+  test('increases the year of the month picker', async () => {
     renderMonthPicker();
 
-    userEvent.click(screen.getByLabelText('Open month picker'));
+    await userEvent.click(screen.getByLabelText('Open month picker'));
     const monthPickerHeader = screen.getByTestId('datePicker-calendarPopper-monthPicker-header');
 
     expect(monthPickerHeader).toHaveTextContent('2020');
 
-    userEvent.click(within(monthPickerHeader).getByLabelText('Next year'));
+    await userEvent.click(within(monthPickerHeader).getByLabelText('Next year'));
 
     expect(monthPickerHeader).toHaveTextContent('2021');
   });
 
-  test('changes the date when the user clicks an option from the calendar', () => {
+  test('changes the date when the user clicks an option from the calendar', async () => {
     renderMonthPicker();
 
-    userEvent.click(screen.getByLabelText('Open month picker'));
+    await userEvent.click(screen.getByLabelText('Open month picker'));
     const monthPicker = screen.getByLabelText('Choose Date');
 
     expect(changeMonth).not.toHaveBeenCalled();
     expect(changeYear).not.toHaveBeenCalled();
     expect(monthPicker).toBeVisible();
 
-    userEvent.click(screen.getByLabelText('Choose March 2020'));
+    await userEvent.click(screen.getByLabelText('Choose March 2020'));
 
     expect(changeMonth).toHaveBeenCalledTimes(1);
     expect(changeMonth).toHaveBeenCalledWith(2);

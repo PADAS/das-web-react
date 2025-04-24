@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { HEADER_ELEMENT_SIZES } from '../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const HEADER_THEMES = {
   [HEADER_ELEMENT_SIZES.LARGE]: styles.large,

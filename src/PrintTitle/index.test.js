@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
 import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';

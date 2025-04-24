@@ -5,9 +5,7 @@ import { hideDrawer } from '../ducks/drawer';
 
 import GlobalMenuDrawer from '../GlobalMenuDrawer';
 
-import styles from './styles.module.scss';
-
-const ESC_KEY_CODE = 27;
+import * as styles from './styles.module.scss';
 
 export const globalMenuDrawerId = 'global-menu';
 
@@ -18,7 +16,7 @@ const Drawer = () => {
 
   useEffect(() => {
     const onKeydown = (event) => {
-      if (event.keyCode === ESC_KEY_CODE) {
+      if (event.key === 'Escape') {
         dispatch(hideDrawer());
       }
     };

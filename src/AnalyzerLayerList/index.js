@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
 import Collapsible from 'react-collapsible';
@@ -15,7 +14,7 @@ import { getAnalyzerListState } from './selectors';
 import { analyzerFeatures } from '../selectors';
 import AnalyzerListItem from './AnalyzerListItem';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -29,7 +28,7 @@ const AnalyzerLayerList = memo(({
   hiddenAnalyzerIDs,
   hideAnalyzers,
   showAnalyzers,
-  map,
+  map = {},
   mapLayerFilter
 }) => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
@@ -117,8 +116,6 @@ const AnalyzerLayerList = memo(({
 
   return !!analyzers.length && <ul className={listStyles.list}>
     <li><Collapsible
-      className={listStyles.collapsed}
-      openedClassName={listStyles.opened}
       {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
       trigger={trigger}
       triggerElementProps={{
@@ -149,11 +146,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { hideAnalyzers, showAnalyzers })(AnalyzerLayerList);
-
-AnalyzerLayerList.defaultProps = {
-  map: {},
-};
-
-AnalyzerLayerList.propTypes = {
-  map: PropTypes.object,
-};

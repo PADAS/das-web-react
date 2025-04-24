@@ -1,6 +1,6 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 
+import { renderHook } from '../test-utils';
 import { useEventGeoMeasurementDisplayStrings } from './geometry';
 
 const mockGeometry = {

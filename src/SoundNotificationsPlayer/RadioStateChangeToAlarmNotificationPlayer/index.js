@@ -8,7 +8,7 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 import DateTime from '../../DateTime';
 import LocationJumpButton from '../../LocationJumpButton';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const AlarmRadioStateToastMessage = ({ onClickJumpToLocation, subject }) => {
   const { t } = useTranslation('components', { keyPrefix: 'soundNotificationsPlayer' });
@@ -56,7 +56,6 @@ const RadioStateChangeToAlarmNotificationPlayer = ({ onPlayNotificationSound }) 
           showDetailsByDefault: true,
           toastConfig: {
             autoClose: false,
-            className: styles.toast,
             type: 'error',
           },
         });

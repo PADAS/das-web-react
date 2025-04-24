@@ -1,14 +1,13 @@
 import React, { memo, useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { MapDrawingToolsContext } from '../../MapDrawingTools/ContextProvider';
 import { setIsPickingLocation } from '../../ducks/map-ui';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const CancelationConfirmationModal = ({ onHide, show }) => {
   const dispatch = useDispatch();
@@ -54,11 +53,6 @@ const CancelationConfirmationModal = ({ onHide, show }) => {
       </div>
     </Modal.Body>
   </Modal>;
-};
-
-CancelationConfirmationModal.propTypes = {
-  onHide: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };
 
 export default memo(CancelationConfirmationModal);

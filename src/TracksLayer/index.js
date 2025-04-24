@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
@@ -14,7 +13,7 @@ const ARROW_IMG_ID = 'track_arrow';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const TracksLayer = ({ onPointClick, showTimepoints }) => {
+const TracksLayer = ({ onPointClick, showTimepoints = true }) => {
   const map = useContext(MapContext);
 
   const subjectTracksWithPatrolTrackShownFlag = useSelector(selectSubjectTracksWithPatrolTrackShownFlag);
@@ -35,22 +34,14 @@ const TracksLayer = ({ onPointClick, showTimepoints }) => {
 
   return subjectTracksWithPatrolTrackShownFlag.length > 0
     ? subjectTracksWithPatrolTrackShownFlag.map((subjectTracks) => <TrackLayer
-        key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
-        linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
-        onPointClick={onTimepointClick}
-        showTimepoints={showTimepoints}
-        trackData={subjectTracks}
-      />)
+      id={subjectTracks.track.features[0].properties.id}
+      key={`track-layer-${subjectTracks.track.features[0].properties.id}`}
+      linePaint={{ 'line-opacity': subjectTracks.patrolTrackShown ? 0.4 : 1 }}
+      onPointClick={onTimepointClick}
+      showTimepoints={showTimepoints}
+      trackData={subjectTracks}
+    />)
     : null;
-};
-
-TracksLayer.defaultProps = {
-  showTimepoints: true,
-};
-
-TracksLayer.propTypes = {
-  onPointClick: PropTypes.func.isRequired,
-  showTimepoints: PropTypes.bool,
 };
 
 export default memo(TracksLayer);

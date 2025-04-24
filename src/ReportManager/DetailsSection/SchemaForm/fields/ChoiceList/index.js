@@ -5,7 +5,7 @@ import Dropdown from './Dropdown';
 
 import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const INPUTS = {
   [CHOICE_LIST_ELEMENT_INPUT_TYPES.DROPDOWN]: Dropdown,

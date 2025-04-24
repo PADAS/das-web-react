@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +10,9 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 
 import GpsInput from '../../GpsInput';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
-const MenuPopover = ({ buttonRef, className, onClose, ...otherProps }, ref) => {
+const MenuPopover = ({ buttonRef, className, onClose, ref, ...otherProps }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const { t } = useTranslation('map-controls', { keyPrefix: 'cursorGPSDisplay.menuPopover' });
@@ -134,4 +134,4 @@ const MenuPopover = ({ buttonRef, className, onClose, ...otherProps }, ref) => {
   </Popover>;
 };
 
-export default forwardRef(MenuPopover);
+export default MenuPopover;

@@ -49,7 +49,7 @@ describe('#useSortedNodesWithToggleBtn', () => {
     expect(listItems[0]).toHaveTextContent('I am newer!');
     expect(listItems[1]).toHaveTextContent('I am older!');
 
-    userEvent.click(timeSortButton);
+    await userEvent.click(timeSortButton);
 
     listItems = await screen.findAllByRole('listitem');
 

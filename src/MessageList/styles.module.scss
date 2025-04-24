@@ -155,15 +155,12 @@ $icon-size: 1.5em;
   }
 }
 
-.summaryLoadingOverlay {
-  background: none;
-  div[class*=spinner] {
-    bottom: -3rem;
-    position: absolute;
-    left: 0.75rem;
-    height: 3em;
-    width: 3em;
-  }
+.loaderWrapper {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
 }
 
 .messageContent {

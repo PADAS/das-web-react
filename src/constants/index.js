@@ -1,5 +1,5 @@
 import * as packageJson from '../../package.json';
-import layoutVariables from '../common/styles/layout.module.scss';
+import * as layoutVariables from '../common/styles/layout.module.scss';
 
 const { buildbranch, buildnum } = packageJson;
 
@@ -130,13 +130,6 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
   [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
   [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
 };
-
-export const LAYER_PICKER_IDS = [
-  LAYER_IDS.ANALYZER_POLYS_WARNING_SOURCE, LAYER_IDS.ANALYZER_POLYS_CRITICAL_SOURCE,
-  LAYER_IDS.ANALYZER_LINES_CRITICAL_SOURCE, LAYER_IDS.ANALYZER_LINES_WARNING_SOURCE,
-  LAYER_IDS.EVENT_SYMBOLS, LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`,
-  LAYER_IDS.EVENT_GEOMETRY_LAYER,
-];
 
 export const SYSTEM_CONFIG_FLAGS = {
   PATROL_MANAGEMENT: 'patrol_enabled',
@@ -319,15 +312,11 @@ export const SUPPORTED_LANGUAGES = {
 };
 
 export const FEATURE_FLAG_LABELS = {
-  LEGACY_RT_ENABLED: 'LEGACY_RT_ENABLED',
   EFB_FORM_SCHEMA_SUPPORT_ENABLED: 'EFB_FORM_SCHEMA_SUPPORT_ENABLED',
-  TIME_OF_DAY_TRACKING: 'TIME_OF_DAY_TRACKING',
 };
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAG_LABELS.LEGACY_RT_ENABLED]: process.env.REACT_APP_LEGACY_RT_ENABLED === 'true',
   [FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED]: process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED === 'true',
-  [FEATURE_FLAG_LABELS.TIME_OF_DAY_TRACKING]: process.env.REACT_APP_TIME_OF_DAY_TRACKING === 'true',
 };
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };

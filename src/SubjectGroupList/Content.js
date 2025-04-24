@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
@@ -17,7 +16,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -118,8 +117,6 @@ const ContentComponent = (props) => {
   };
 
   return <Collapsible
-    className={listStyles.collapsed}
-    openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     trigger={<TriggerComponent {...triggerProps} />}
     triggerElementProps={{
@@ -153,16 +150,3 @@ const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(sta
 
 const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(memo(ContentComponent));
 export default ConnectedComponent;
-
-
-ContentComponent.defaultProps = {
-  itemProps: {},
-};
-
-ContentComponent.propTypes = {
-  subgroups: PropTypes.array.isRequired,
-  itemProps: PropTypes.object,
-  subjects: PropTypes.array.isRequired,
-  name: PropTypes.string.isRequired,
-  hiddenSubjectIDs: PropTypes.array,
-};

@@ -1,8 +1,8 @@
-import React, { forwardRef, memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
-import { format, isToday, isValid as isValidDate, parseISO } from 'date-fns';
-import { ResizeSpinLoader } from 'react-css-loaders';
+import { format, isToday, isValid, parseISO } from 'date-fns';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -40,10 +40,10 @@ import ReportedBySelect from '../../ReportedBySelect';
 import SchemaForm from './SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
-const LOADER_SIZE = 4;
+const LOADER_SIZE = 50;
 
 const DetailsSection = ({
   eventId,
@@ -64,9 +64,10 @@ const DetailsSection = ({
   onReportLocationChange,
   onReportStateChange,
   originalReport,
+  ref,
   reportForm,
   submitFormButtonRef,
-}, ref) => {
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
@@ -105,13 +106,9 @@ const DetailsSection = ({
   const onDatePickerChange = (newDate) => {
     setDate(newDate);
 
-    const parsedDate = parseISO(newDate);
-    if (isValidDate(parsedDate)) {
-      if (isValidTime(time)) {
-        const [hour, minute] = time.split(':');
-        parsedDate.setHours(hour, minute, '00');
-      }
-      onReportDateChange(parsedDate);
+    const parsedNewDate = parseISO(`${newDate}T${isValidTime(time) ? time : '00:00'}`);
+    if (isValid(parsedNewDate)) {
+      onReportDateChange(parsedNewDate);
     } else {
       onReportDateChange(undefined);
     }
@@ -122,13 +119,11 @@ const DetailsSection = ({
   const onTimePickerChange = (newTime) => {
     setTime(newTime);
 
-    const parsedDate = parseISO(date);
-    if (isValidDate(parsedDate)) {
-      if (isValidTime(newTime)) {
-        const [newHour, newMinute] = newTime.split(':');
-        parsedDate.setHours(newHour, newMinute, '00');
-      }
-      onReportDateChange(parsedDate);
+    const parsedNewDate = parseISO(`${date}T${newTime}`);
+    if (isValid(parsedNewDate)) {
+      onReportDateChange(parsedNewDate);
+    } else {
+      onReportDateChange(undefined);
     }
 
     reportTracker.track('Change Report Time');
@@ -234,7 +229,6 @@ const DetailsSection = ({
               {t('dateLabel')}
 
               <DatePicker
-                className={styles.datePicker}
                 data-testid="reportManager-detailsSection-datePicker"
                 disabled={jsonSchema?.readonly}
                 max={format(new Date(), 'yyyy-MM-dd')}
@@ -307,12 +301,14 @@ const DetailsSection = ({
       schema={eventSchemaOverride}
     />}
 
-    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <ResizeSpinLoader
-      color={LOADER_COLOR}
-      data-testid="reportManager-detailsSection-loader"
-      size={LOADER_SIZE}
-    />}
+    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+      <MoonLoader
+        color={LOADER_COLOR}
+        data-testid="reportManager-detailsSection-loader"
+        size={LOADER_SIZE}
+      />
+    </div>}
   </div>;
 };
 
-export default memo(forwardRef(DetailsSection));
+export default memo(DetailsSection);

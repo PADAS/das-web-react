@@ -1,6 +1,5 @@
 import { memo, useMemo } from 'react';
 import { length } from '@turf/turf';
-import PropTypes from 'prop-types';
 
 import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 
@@ -24,9 +23,4 @@ const PatrolDistanceCovered = ({ patrolsData  = [], suffix='km' }) => {
   return `${patrolTrackLength ? patrolTrackLength.toFixed(2) : 0}${suffix}`;
 };
 
-
 export default memo(PatrolDistanceCovered);
-
-PatrolDistanceCovered.propTypes = {
-  trackData: PropTypes.object,
-};

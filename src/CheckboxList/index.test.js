@@ -33,12 +33,12 @@ describe('CheckboxList', () => {
 
     expect(onItemChange).toHaveBeenCalledTimes(0);
 
-    userEvent.click(checkboxes[1]);
+    await userEvent.click(checkboxes[1]);
 
     expect(onItemChange).toHaveBeenCalledTimes(1);
     expect(onItemChange).toHaveBeenCalledWith(options[1], 1);
 
-    userEvent.click(checkboxes[2]);
+    await userEvent.click(checkboxes[2]);
 
     expect(onItemChange).toHaveBeenCalledTimes(2);
     expect(onItemChange).toHaveBeenCalledWith(options[2], 2);

@@ -1,17 +1,28 @@
-import React, { memo, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { memo, useCallback, useContext, useEffect } from 'react';
+
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
-
-import { withMap } from '../EarthRangerMap';
-import withMapViewConfig from '../WithMapViewConfig';
-
+import { MapContext } from '../App';
 import { useMapEventBinding } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
+import withMapViewConfig from '../WithMapViewConfig';
 
-const LabeledSymbolLayer = (
-  { before, paint, layout, textPaint, textLayout, id, sourceId, map, mapUserLayoutConfigByLayerId, onClick, onInit,
-    onMouseEnter, onMouseLeave, filter }
-) => {
+const LabeledSymbolLayer = ({
+  before,
+  filter,
+  id,
+  layout,
+  mapUserLayoutConfigByLayerId,
+  onClick,
+  onInit = null,
+  onMouseEnter,
+  onMouseLeave,
+  paint,
+  sourceId,
+  textLayout,
+  textPaint,
+}) => {
+  const map = useContext(MapContext);
+
   const textLayerId = `${id}-labels`;
 
   const handleMouseEnter = (e) => {
@@ -32,11 +43,9 @@ const LabeledSymbolLayer = (
     onClick?.(e);
   }, [onClick]);
 
-
   useEffect(() => {
-    onInit([id, textLayerId]);
+    onInit?.([id, textLayerId]);
   }, [id, onInit, textLayerId]);
-
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
@@ -101,16 +110,4 @@ const LabeledSymbolLayer = (
   return null;
 };
 
-export default memo(withMapViewConfig(withMap(LabeledSymbolLayer)));
-
-LabeledSymbolLayer.defaultProps = {
-  onInit() {
-    return null;
-  },
-};
-
-LabeledSymbolLayer.propTypes = {
-  sourceId: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  onInit: PropTypes.func,
-};
+export default memo(withMapViewConfig(LabeledSymbolLayer));

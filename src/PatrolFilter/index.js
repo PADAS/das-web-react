@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 import { caseInsensitiveCompare } from '../utils/string';
@@ -23,14 +22,14 @@ import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-ic
 
 import SearchBar from '../SearchBar';
 
-import patrolFilterStyles from './styles.module.scss';
-import styles from '../EventFilter/styles.module.scss';
+import * as patrolFilterStyles from './styles.module.scss';
+import * as styles from '../EventFilter/styles.module.scss';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({ className }) => {
+const PatrolFilter = ({ className = '' }) => {
   const containerRef = useRef(null);
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
@@ -129,7 +128,7 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
-          <FilterIcon className={styles.filterIcon} title={t('filtersTitle')} />
+          <FilterIcon title={t('filtersTitle')} />
           <span>{t('filtersTitle')}</span>
         </Button>
       </OverlayTrigger>
@@ -149,7 +148,7 @@ const PatrolFilter = ({ className }) => {
           onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
           data-testid="patrolFilter-dateRangeButton"
         >
-          <ClockIcon className={styles.clockIcon} title={t('datesTitle')} />
+          <ClockIcon title={t('datesTitle')} />
           <span>{t('datesTitle')}</span>
         </Button>
       </OverlayTrigger>
@@ -172,14 +171,6 @@ const PatrolFilter = ({ className }) => {
       }
     </div>
   </>;
-};
-
-PatrolFilter.defaultProps = {
-  className: '',
-};
-
-PatrolFilter.propTypes = {
-  className: PropTypes.string,
 };
 
 export default PatrolFilter;

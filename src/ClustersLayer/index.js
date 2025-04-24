@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
 import { featureCollection } from '@turf/turf';
-import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
 import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
@@ -101,7 +100,5 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   return null;
 };
-
-ClustersLayer.propTypes = { onShowClusterSelectPopup: PropTypes.func.isRequired };
 
 export default memo(ClustersLayer);

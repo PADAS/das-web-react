@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, within } from '../test-utils';
+import { act, render, screen, within } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setCurrentUserLocation } from '../ducks/location';
 
@@ -44,13 +44,13 @@ describe('GetUserLocationButton', () => {
     </Provider>
   );
 
-  test('configures the button with other props', () => {
+  test('configures the button with other props', async () => {
     renderGetUserLocationButton({ className: 'className' });
 
     expect(screen.getByLabelText('Get current position')).toHaveClass('className');
   });
 
-  test('returns the user position from the store if it is available', () => {
+  test('returns the user position from the store if it is available', async () => {
     store.view.userLocation = { coords: { latitude: 10, longitude: 10 } };
     const onClick = jest.fn();
     renderGetUserLocationButton({ onClick });
@@ -58,14 +58,14 @@ describe('GetUserLocationButton', () => {
     expect(onClick).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Get current position'));
+    await userEvent.click(screen.getByLabelText('Get current position'));
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledWith({ latitude: 10, longitude: 10 });
   });
 
-  test('requests the user position from the window.navigator.geolocation API and returns it', () => {
+  test('requests the user position from the window.navigator.geolocation API and returns it', async () => {
     const onClick = jest.fn();
     window.navigator.geolocation = {
       getCurrentPosition: jest.fn((successCallback) => {
@@ -77,14 +77,14 @@ describe('GetUserLocationButton', () => {
     expect(onClick).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Get current position'));
+    await userEvent.click(screen.getByLabelText('Get current position'));
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledTimes(1);
     expect(onGet).toHaveBeenCalledWith({ latitude: 15, longitude: 15 });
   });
 
-  test('shows an error if window.navigator.geolocation API fails', () => {
+  test('shows an error if window.navigator.geolocation API fails', async () => {
     const onClick = jest.fn();
     window.navigator.geolocation = {
       getCurrentPosition: jest.fn((_, errorCallback) => {
@@ -96,7 +96,7 @@ describe('GetUserLocationButton', () => {
     expect(onClick).not.toHaveBeenCalled();
     expect(toast.error).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getByLabelText('Get current position'));
+    await userEvent.click(screen.getByLabelText('Get current position'));
 
     expect(onGet).not.toHaveBeenCalled();
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -104,7 +104,7 @@ describe('GetUserLocationButton', () => {
     expect(toast.error).toHaveBeenCalledWith('Could not read your current location: Error');
   });
 
-  test('shows a loading overlay while fetching the user location', () => {
+  test('shows a loading overlay while fetching the user location', async () => {
     jest.useFakeTimers();
 
     window.navigator.geolocation = {
@@ -114,18 +114,19 @@ describe('GetUserLocationButton', () => {
     };
     renderGetUserLocationButton();
 
-    userEvent.click(screen.getByLabelText('Get current position'));
+    const user = userEvent.setup({ delay: null });
+    await user.click(screen.getByLabelText('Get current position'));
 
     expect(screen.getByText('Trying to read your location...')).toBeVisible();
 
-    jest.runOnlyPendingTimers();
+    act(() => jest.runOnlyPendingTimers());
 
     expect(screen.queryByText('Trying to read your location...')).toBeNull();
 
     jest.useRealTimers();
   });
 
-  test('renders the button content', () => {
+  test('renders the button content', async () => {
     renderGetUserLocationButton({ renderContent: () => <div data-testid="content" /> });
 
     const button = screen.getByLabelText('Get current position');
@@ -133,9 +134,9 @@ describe('GetUserLocationButton', () => {
     expect(within(button).getByTestId('content')).toBeVisible();
   });
 
-  test('renders a default button content', () => {
+  test('renders a default button content', async () => {
     renderGetUserLocationButton();
 
-    expect(screen.getByLabelText('Get current position')).toHaveTextContent('gps-location-icon.svg');
+    expect(screen.getByTestId('gps-location-icon')).toBeVisible();
   });
 });

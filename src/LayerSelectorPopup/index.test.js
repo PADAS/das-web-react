@@ -80,7 +80,7 @@ describe('LayerSelectorPopup', () => {
     expect(await screen.findAllByRole('listitem')).toHaveLength(6);
 
     const searchBar = await screen.findByRole('textbox');
-    userEvent.type(searchBar, 'Jenae One Field');
+    await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);
   });
@@ -99,12 +99,12 @@ describe('LayerSelectorPopup', () => {
     );
 
     const searchBar = await screen.findByRole('textbox');
-    userEvent.type(searchBar, 'Jenae One Field');
+    await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);
 
     const clearButton = await screen.findByRole('button');
-    userEvent.click(clearButton);
+    await userEvent.click(clearButton);
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(6);
   });
@@ -126,7 +126,7 @@ describe('LayerSelectorPopup', () => {
     expect(onSelectSubject).toHaveBeenCalledTimes(0);
 
     const subjectLayer = (await screen.findAllByRole('listitem'))[0];
-    userEvent.click(subjectLayer);
+    await userEvent.click(subjectLayer);
 
     expect(hidePopup).toHaveBeenCalledTimes(1);
     expect(onSelectSubject).toHaveBeenCalledTimes(1);
@@ -150,7 +150,7 @@ describe('LayerSelectorPopup', () => {
     expect(onSelectEvent).toHaveBeenCalledTimes(0);
 
     const eventLayer = (await screen.findAllByRole('listitem'))[0];
-    userEvent.click(eventLayer);
+    await userEvent.click(eventLayer);
 
     expect(hidePopup).toHaveBeenCalledTimes(1);
     expect(onSelectEvent).toHaveBeenCalledTimes(1);

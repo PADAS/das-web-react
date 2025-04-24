@@ -2,7 +2,7 @@ import React, { useEffect, useRef, memo } from 'react';
 
 import NumericInput from '../../../../../NumericInput';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const Numeric = ({ autofillDefaultInput, details, error, id, onFieldChange, value = '' }) => {
   const hasError = !!error;

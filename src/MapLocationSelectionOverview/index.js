@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import PropTypes from 'prop-types';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +20,7 @@ import { useEventGeoMeasurementDisplayStrings } from '../hooks/geometry';
 import PatrolListItem from '../PatrolListItem';
 import ReportListItem from '../ReportListItem';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -29,11 +28,11 @@ const TOOLTIP_SHOW_TIME = 500;
 const TOOLTIP_HIDE_TIME = 150;
 
 const MapLocationSelectionOverview = ({
-  isDiscardButtonDisabled,
-  isUndoButtonDisabled,
-  onClickDiscard: onClickDiscardCallback,
-  onClickUndo: onClickUndoCallback,
-  onShowInformation,
+  isDiscardButtonDisabled = false,
+  isUndoButtonDisabled = false,
+  onClickDiscard: onClickDiscardCallback = null,
+  onClickUndo: onClickUndoCallback = null,
+  onShowInformation = null,
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'mapLocationSelectionOverview' });
 
@@ -88,9 +87,11 @@ const MapLocationSelectionOverview = ({
         : t(`chooseLocationHeader.${patrol ? 'patrol' : 'report'}`)}</h2>
 
       <div className={styles.actions}>
-        {onShowInformation && <InformationIcon onClick={onClickInformationIcon} />}
+        {onShowInformation && <InformationIcon data-testid="information-icon" onClick={onClickInformationIcon} />}
 
-        {isOpen ? <ArrowUpSimpleIcon /> : <ArrowDownSimpleIcon />}
+        {isOpen
+          ? <ArrowUpSimpleIcon data-testid="arrow-up-simple-icon" />
+          : <ArrowDownSimpleIcon data-testid="arrow-down-simple-icon" />}
       </div>
     </div>
 
@@ -156,22 +157,6 @@ const MapLocationSelectionOverview = ({
       </div>
     </Collapse>
   </div>;
-};
-
-MapLocationSelectionOverview.defaultProps = {
-  isDiscardButtonDisabled: false,
-  isUndoButtonDisabled: false,
-  onClickDiscard: null,
-  onClickUndo: null,
-  onShowInformation: null,
-};
-
-MapLocationSelectionOverview.propTypes = {
-  isDiscardButtonDisabled: PropTypes.bool,
-  isUndoButtonDisabled: PropTypes.bool,
-  onClickDiscard: PropTypes.func,
-  onClickUndo: PropTypes.func,
-  onShowInformation: PropTypes.func,
 };
 
 export default memo(MapLocationSelectionOverview);

@@ -6,7 +6,7 @@ import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.s
 
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

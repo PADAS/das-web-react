@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -33,7 +33,9 @@ import {
   updateHeatmapSubjects,
   updateTrackState
 } from '../ducks/map-ui';
+import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
+import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import {
@@ -42,9 +44,10 @@ import {
 } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
-import EarthRangerMap, { withMap } from '../EarthRangerMap';
+import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
+import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import EventsVectorLayer from '../EventsVectorLayer';
 import TracksLayer from '../TracksLayer';
@@ -79,7 +82,6 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
-import { useMapEventBinding } from '../hooks';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -102,16 +104,13 @@ const replaceLayoutTextFieldLanguage = (textField, language) => {
   return textField.map((textField) => replaceLayoutTextFieldLanguage(textField, language));
 };
 
-const Map = ({
-  children,
-  map,
-  onMapLoad,
-  socket,
-}) => {
+const Map = ({ children, onMapLoad, socket }) => {
   const dispatch = useDispatch();
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const map = useContext(MapContext);
 
   const analyzerFeatures = useSelector(analyzerFeaturesSelector);
   const maps = useSelector(state => state.data.maps);
@@ -187,7 +186,7 @@ const Map = ({
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map]);
+    , [dispatch, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -219,13 +218,13 @@ const Map = ({
         : Promise.resolve(latestMapSubjects))
       .catch(() => { });
   },
-  [
-    dispatch,
-    eventFilter.filter.date_range,
-    fetchMapSubjectTracksForTimeslider,
-    map,
-    timeSliderActive,
-  ]);
+    [
+      dispatch,
+      eventFilter.filter.date_range,
+      fetchMapSubjectTracksForTimeslider,
+      map,
+      timeSliderActive,
+    ]);
 
   const debouncedFetchEventsAndSubjects = useMemo(() =>
     debounce(() =>
@@ -235,7 +234,7 @@ const Map = ({
         .catch((e) =>
           console.warn('error loading map data', e)
         ), 100)
-  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+    , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
 
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
@@ -604,7 +603,7 @@ const Map = ({
       <TimeSliderMapControl />
     </>}
     onMapLoaded={setMap}
-    >
+  >
     {map && <>
       {children}
 
@@ -658,6 +657,8 @@ const Map = ({
       {subjectTracksVisible && <TracksLayer onPointClick={onTimepointClick} showTimepoints={showTrackTimepoints} />}
       {patrolTracksVisible && <PatrolStartStopLayer />}
 
+      <BuoyTrawlLineLayer />
+
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
       <FeatureLayer
@@ -691,4 +692,4 @@ const Map = ({
 };
 
 
-export default withMap(Map);
+export default Map;

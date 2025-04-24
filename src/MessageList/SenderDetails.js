@@ -7,7 +7,7 @@ import { calcSenderNameForMessage } from '../utils/messaging';
 import { calcUrlForImage } from '../utils/img';
 import { isRadioWithImage, subjectIsStatic } from '../utils/subjects';
 
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export const SENDER_DETAIL_STYLES = {
   FULL: 'full',

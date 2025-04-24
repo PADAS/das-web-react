@@ -34,7 +34,7 @@ test('rendering without crashing', () => {
 });
 
 describe('Rendering subject list item', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     map = createMapMock();
   });
 

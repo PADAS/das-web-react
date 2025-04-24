@@ -1,7 +1,7 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 
+import { renderHook } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { MapContext } from '../../App';
 import useMapLayers from './';

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import { ResizeSpinLoader } from 'react-css-loaders';
+import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -19,11 +19,11 @@ import ItemActionButton from '../ItemActionButton';
 import ReportFormSummary from '../../../ReportFormSummary';
 import ReportListItem from '../../../ReportListItem';
 
-import activitySectionStyles from '../styles.module.scss';
-import styles from './styles.module.scss';
+import * as activitySectionStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
-const LOADER_SIZE = 4;
+const LOADER_SIZE = 30;
 
 const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }) => {
   const dispatch = useDispatch();
@@ -68,7 +68,7 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
 
       <div className={activitySectionStyles.itemActionButtonContainer}>
         {!!reportFromEventStore && <ItemActionButton onClick={onClickArrowIntoIcon} tooltip={t('goToReportButtonTooltip')}>
-          <ArrowIntoIcon />
+          <ArrowIntoIcon data-testid="arrow-into-icon" />
         </ItemActionButton>}
       </div>
 
@@ -96,7 +96,9 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
             schema={reportSchemas.schema}
             uiSchema={reportSchemas.uiSchema}
           />
-          : <ResizeSpinLoader color={LOADER_COLOR} size={LOADER_SIZE} />}
+          : <div className={styles.loaderWrapper}>
+            <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
+          </div>}
       </div>
     </Collapse>
   </li>;

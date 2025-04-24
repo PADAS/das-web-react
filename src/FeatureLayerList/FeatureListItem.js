@@ -11,7 +11,7 @@ import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-
 import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
 import LocationJumpButton from '../LocationJumpButton';
 
-import listStyles from '../SideBar/styles.module.scss';
+import * as listStyles from '../SideBar/styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 

@@ -8,6 +8,12 @@
     "plugin:react/recommended"
   ],
   "parserOptions": {
+    "babelOptions": {
+      "presets": [
+        ["babel-preset-react-app", false],
+        "babel-preset-react-app/prod"
+      ]
+    },
     "ecmaVersion": 2018
   },
   "rules": {

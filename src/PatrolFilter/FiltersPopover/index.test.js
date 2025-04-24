@@ -114,7 +114,7 @@ describe('PatrolFilter', () => {
     );
 
     const resetFiltersButton = await screen.findByText('Reset All');
-    userEvent.click(resetFiltersButton);
+    await userEvent.click(resetFiltersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({
@@ -136,8 +136,8 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const leadersSelect = await screen.findByRole('combobox');
-    userEvent.type(leadersSelect, 'Leader 1');
-    userEvent.keyboard('{Enter}');
+    await userEvent.type(leadersSelect, 'Leader 1');
+    await userEvent.keyboard('{Enter}');
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 1'] } });
@@ -152,8 +152,8 @@ describe('PatrolFilter', () => {
     );
 
     const leadersSelect = await screen.findByRole('combobox');
-    userEvent.type(leadersSelect, 'Leader 2');
-    userEvent.keyboard('{Enter}');
+    await userEvent.type(leadersSelect, 'Leader 2');
+    await userEvent.keyboard('{Enter}');
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 1', 'Leader 2'] } });
@@ -194,7 +194,7 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const resetLeadersButton = await screen.findByTestId('patrolFilter-reset-leaders-button');
-    userEvent.click(resetLeadersButton);
+    await userEvent.click(resetLeadersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: INITIAL_FILTER_STATE.filter.tracked_by } });
@@ -211,7 +211,7 @@ describe('PatrolFilter', () => {
 
     const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
     const activeStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[1];
-    userEvent.click(activeStatusCheckbox);
+    await userEvent.click(activeStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active'] });
@@ -229,7 +229,7 @@ describe('PatrolFilter', () => {
 
     const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
     const cancelledStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[3];
-    userEvent.click(cancelledStatusCheckbox);
+    await userEvent.click(cancelledStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active', 'cancelled'] });
@@ -245,7 +245,7 @@ describe('PatrolFilter', () => {
 
     const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
     const allStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[0];
-    userEvent.click(allStatusCheckbox);
+    await userEvent.click(allStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ status: [] });
@@ -287,7 +287,7 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const resetStatusButton = await screen.findByTestId('patrolFilter-reset-status-button');
-    userEvent.click(resetStatusButton);
+    await userEvent.click(resetStatusButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ status: INITIAL_FILTER_STATE.status });
@@ -304,7 +304,7 @@ describe('PatrolFilter', () => {
 
     const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
     const dogPatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[1];
-    userEvent.click(dogPatrolTypeCheckbox);
+    await userEvent.click(dogPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['dog_patrol'] } });
@@ -322,7 +322,7 @@ describe('PatrolFilter', () => {
 
     const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
     const fencePatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[2];
-    userEvent.click(fencePatrolTypeCheckbox);
+    await userEvent.click(fencePatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['dog_patrol', 'fence_patrol'] } });
@@ -340,7 +340,7 @@ describe('PatrolFilter', () => {
 
     const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
     const allPatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[0];
-    userEvent.click(allPatrolTypeCheckbox);
+    await userEvent.click(allPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: [] } });
@@ -381,7 +381,7 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const resetPatrolTypesButton = await screen.findByTestId('patrolFilter-reset-patrol-type-button');
-    userEvent.click(resetPatrolTypesButton);
+    await userEvent.click(resetPatrolTypesButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({

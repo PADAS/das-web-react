@@ -1,6 +1,7 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 
-import { fireEvent, render, screen, waitFor } from '../test-utils';
+import { render, screen, waitFor } from '../test-utils';
 import ProfilePINModal from './';
 
 describe('ProfilePINModal', () => {
@@ -26,13 +27,12 @@ describe('ProfilePINModal', () => {
   test('entering the correct PIN invokes the onSuccess callback', async () => {
     const pinInputs = await screen.findAllByRole('input');
 
-    const splitPin = profile.pin.split('');
-
     expect(onSuccess).not.toHaveBeenCalled();
 
-    splitPin.forEach((char, index) => {
-      fireEvent.keyDown(pinInputs[index], { key: char, code: `key${char}` });
-    });
+    await userEvent.type(pinInputs[0], profile.pin[0]);
+    await userEvent.type(pinInputs[1], profile.pin[1]);
+    await userEvent.type(pinInputs[2], profile.pin[2]);
+    await userEvent.type(pinInputs[3], profile.pin[3]);
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalled();
@@ -40,28 +40,25 @@ describe('ProfilePINModal', () => {
   });
 
   describe('entering the incorrect PIN', () => {
-    let pinInputs;
+    test('showing an error message', async () => {
+      const pinInputs = await screen.findAllByRole('input');
 
-    beforeEach(async () => {
-      pinInputs = await screen.findAllByRole('input');
+      await userEvent.type(pinInputs[0], '1');
+      await userEvent.type(pinInputs[1], '1');
+      await userEvent.type(pinInputs[2], '1');
+      await userEvent.type(pinInputs[3], '1');
 
-      pinInputs.forEach((input) => {
-        fireEvent.keyDown(input, { key: '1', code: 'key1' });
-      });
-
-    });
-
-    test('showing an error message', () => {
       expect(screen.queryByText('Incorrect PIN')).toBeInTheDocument();
     });
 
-    test('changing the value after an error clears the error message', () => {
-      fireEvent.keyDown(pinInputs[1], {
-        key: 'Backspace',
-        keyCode: 8,
-        charCode: 8,
-        which: 8,
-      });
+    test('changing the value after an error clears the error message', async () => {
+      const pinInputs = await screen.findAllByRole('input');
+
+      await userEvent.type(pinInputs[0], '1');
+      await userEvent.type(pinInputs[1], '1');
+      await userEvent.type(pinInputs[2], '1');
+      await userEvent.type(pinInputs[3], '1');
+      await userEvent.type(pinInputs[3], '{backspace}');
 
       expect(screen.queryByText('Incorrect PIN')).not.toBeInTheDocument();
     });

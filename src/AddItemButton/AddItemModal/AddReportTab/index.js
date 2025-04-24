@@ -13,7 +13,7 @@ import SearchBar from '../../../SearchBar';
 import Select from '../../../Select';
 import TypesList from '../TypesList';
 
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const SCROLL_OFFSET_CORRECTION = 96;
 
