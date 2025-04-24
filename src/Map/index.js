@@ -46,6 +46,7 @@ import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
+import EventsVectorLayer from '../EventsVectorLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import FeatureLayer from '../FeatureLayer';
@@ -150,7 +151,7 @@ const Map = ({
   const timeSliderActive = timeSliderState.active;
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
-    && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+    && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
 
   const isSelectingEventLocation = mapLocationSelection.isPickingLocation
     && mapLocationSelection.event
@@ -216,7 +217,7 @@ const Map = ({
       .then((latestMapSubjects) => timeSliderActive
         ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
         : Promise.resolve(latestMapSubjects))
-      .catch(() => {});
+      .catch(() => { });
   },
   [
     dispatch,
@@ -288,15 +289,13 @@ const Map = ({
   );
 
 
-  const onSelectEvent = withLocationPickerState(
-    ({ layer: { properties: event } }) => {
-      setTimeout(() => {
-        mapInteractionTracker.track('Click Map Event', `Event Type:${event.event_type}`);
+  const onSelectEvent = useCallback((feature) => {
+    setTimeout(() => {
+      mapInteractionTracker.track('Click Map Event', `Event Type:${feature.properties.event_type}`);
 
-        navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
-      }, 50);
-    }
-  );
+      navigate(`/${TAB_KEYS.EVENTS}/${feature.properties.id}`);
+    }, 50);
+  }, [navigate]);
 
   const handleMultiFeaturesAtSameLocationClick = useCallback((event, layers) => {
     showPopup('multi-layer-select', {
@@ -363,8 +362,8 @@ const Map = ({
     );
   }, [dispatch]);
 
-  const onCloseReportHeatmap = useCallback(()  => {
-    dispatch (
+  const onCloseReportHeatmap = useCallback(() => {
+    dispatch(
       setReportHeatmapVisibility(false)
     );
   }, [dispatch]);
@@ -547,7 +546,7 @@ const Map = ({
         hidePopup(popup.id);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, timeSliderState.virtualDate]);
 
   useEffect(() => {
@@ -611,11 +610,11 @@ const Map = ({
 
       <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
-      <EventsLayer
+      {/* <EventsLayer
           mapImages={mapImages}
           onEventClick={onSelectEvent}
           bounceEventIDs={bounceEventIDs}
-        />
+        /> */}
 
       <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
 
@@ -625,11 +624,13 @@ const Map = ({
 
       <StaticSensorsLayer />
 
+      <EventsVectorLayer onEventClick={onSelectEvent} />
+
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
       <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
-          <EventFilter className='report-filter'/>
+          <EventFilter className='report-filter' />
         </div>
       </DelayedUnmount>
 

@@ -1,4 +1,4 @@
-import { useContext }  from 'react';
+import { useContext } from 'react';
 import { featureCollection } from '@turf/turf';
 import { MapContext } from '../App';
 import PropTypes from 'prop-types';
@@ -50,7 +50,7 @@ const EventGeometryLayer = ({ onClick }) => {
   const mapLocationSelection = useSelector(({ view: { mapLocationSelection } }) => mapLocationSelection);
 
   const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
-    && mapLocationSelection.mode  === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+    && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
   const currentGeometryBeingEdited = isDrawingEventGeometry ? (mapLocationSelection?.event?.id ?? '') : '';
 
   const layerConfig = {

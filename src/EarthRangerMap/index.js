@@ -75,6 +75,7 @@ const EarthRangerMap = (props) => {
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
+        devtools: true,
         style: REACT_APP_BASE_MAP_STYLES,
         minZoom: MIN_ZOOM,
         maxZoom: MAX_ZOOM,
@@ -113,7 +114,7 @@ const EarthRangerMap = (props) => {
           {controls}
         </div>
         {children}
-        <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
+        <Attribution currentBaseLayer={currentBaseLayer} className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
         <BaseLayerRenderer />
       </Fragment>}
     </div>

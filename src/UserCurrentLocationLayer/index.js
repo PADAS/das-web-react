@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { booleanContains, point } from '@turf/turf';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import useMapSources from '../hooks/useMapSources';
 
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 import useMapLayers from '../hooks/useMapLayers';
+import throttle from 'lodash/throttle';
 
 const { CURRENT_USER_LOCATION_SOURCE } = SOURCE_IDS;
 
@@ -31,20 +32,6 @@ const SYMBOL_LAYOUT = {
   'icon-size': 0.6 / MAP_ICON_SCALE,
 };
 
-const updateBlipAnimation = (animationState, setAnimationState) => {
-  setTimeout(() => {
-    const opacity = animationState.opacity - .05;
-    if (opacity <= 0) {
-      setAnimationState({ opacity: INITIAL_OPACITY, radius: INITIAL_RADIUS, strokeWidth: INITIAL_STROKE_WIDTH });
-    } else {
-      const radius = animationState.radius + ((MAX_RADIUS - animationState.radius) / FRAMES_PER_SECOND);
-      const strokeWidth = animationState.strokeWidth - .05;
-
-      setAnimationState({ opacity, radius, strokeWidth });
-    }
-  }, 1000 / FRAMES_PER_SECOND);
-};
-
 const UserCurrentLocationLayer = ({ onIconClick }) => {
   const map = useContext(MapContext);
 
@@ -52,11 +39,14 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
   const userLocation = useSelector((state) => state.view.userLocation);
   const userLocationCanBeShown = useSelector(userLocationCanBeShownSelector);
 
-  const [animationState, setAnimationState] = useState({
+  // Use a ref for animation state to avoid unnecessary React re-renders
+  const animationStateRef = useRef({
     opacity: INITIAL_OPACITY,
     radius: INITIAL_RADIUS,
     strokeWidth: INITIAL_STROKE_WIDTH,
   });
+
+  const [, forceUpdate] = useState(0); // Used to trigger a re-render only when needed
 
   const userLocationIsInMapBounds = useMemo(
     () => !!currentMapBbox
@@ -71,14 +61,15 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     ? point([userLocation.coords.longitude, userLocation.coords.latitude])
     : null;
 
+  // Use the ref for animation state
   const circlePaint = {
-    'circle-radius': animationState.radius,
+    'circle-radius': animationStateRef.current.radius,
     'circle-radius-transition': { duration: 0 },
     'circle-opacity-transition': { duration: 0 },
     'circle-color': 'rgba(0,0,0,0)',
     'circle-stroke-color': '#007cbf',
-    'circle-stroke-width': animationState.strokeWidth,
-    'circle-stroke-opacity': animationState.opacity,
+    'circle-stroke-width': animationStateRef.current.strokeWidth,
+    'circle-stroke-opacity': animationStateRef.current.opacity,
   };
 
   const layerConfig = useMemo(() => (
@@ -96,14 +87,39 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
   }, [map]);
 
   useEffect(() => {
-    if (showLayer) {
-      const animationFrameID = window.requestAnimationFrame(
-        () => updateBlipAnimation(animationState, setAnimationState)
-      );
+    if (!showLayer) return;
 
-      return () => window.cancelAnimationFrame(animationFrameID);
-    }
-  }, [animationState, showLayer]);
+    let animationFrameId;
+
+    // Throttle the animation update to FRAMES_PER_SECOND
+    const throttledAnimate = throttle(() => {
+      let { opacity, radius, strokeWidth } = animationStateRef.current;
+      if (opacity > 0) {
+        opacity = Math.max(0, opacity - 0.05);
+        radius = radius + ((MAX_RADIUS - radius) / FRAMES_PER_SECOND);
+        strokeWidth = Math.max(0, strokeWidth - 0.05);
+      }
+      if (opacity <= 0) {
+        opacity = INITIAL_OPACITY;
+        radius = INITIAL_RADIUS;
+        strokeWidth = INITIAL_STROKE_WIDTH;
+      }
+      animationStateRef.current = { opacity, radius, strokeWidth };
+      forceUpdate(n => n + 1); // Only to update the paint prop
+    }, 1000 / FRAMES_PER_SECOND, { leading: true, trailing: true });
+
+    const animate = () => {
+      throttledAnimate();
+      animationFrameId = window.requestAnimationFrame(animate);
+    };
+
+    animationFrameId = window.requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
+      throttledAnimate.cancel();
+    };
+  }, [showLayer]);
 
   useMapSources([{ id: CURRENT_USER_LOCATION_SOURCE, data: userLocationPoint }]);
 

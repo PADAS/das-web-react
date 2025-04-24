@@ -60,6 +60,14 @@ const SYMBOL_LAYER_FILTER = [
   ['==', ['geometry-type'], 'Point'],
 ];
 
+const eventLayerIds = [
+  EVENT_SYMBOLS,
+  `${EVENT_SYMBOLS}-labels`,
+  `${EVENT_SYMBOLS}-unclustered`,
+  `${EVENT_SYMBOLS}-unclustered-labels`,
+  EVENT_GEOMETRY_LAYER,
+];
+
 const EventsLayer = ({
   bounceEventIDs,
   mapImages,
@@ -79,17 +87,9 @@ const EventsLayer = ({
 
   const [animationState, setAnimationState] = useState({ frame: 1, scale: 0.0, isRendering: false });
   const [bounceIDs, setBounceIDs] = useState([]);
-  const [eventLayerIds, setEventLayerIds] = useState([]);
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
   const [mapEventFeatures, setMapEventFeatures] = useState(featureCollection([]));
 
-  const onLayerInit = useCallback(() => setEventLayerIds([
-    EVENT_SYMBOLS,
-    `${EVENT_SYMBOLS}-labels`,
-    `${EVENT_SYMBOLS}-unclustered`,
-    `${EVENT_SYMBOLS}-unclustered-labels`,
-    EVENT_GEOMETRY_LAYER,
-  ]), []);
 
   const onEventSymbolClick = useMemo(() =>
     withMultiLayerHandlerAwareness(
@@ -106,7 +106,7 @@ const EventsLayer = ({
           });
         }
       }
-    ), [eventLayerIds, map, onEventClick]);
+    ), [map, onEventClick]);
 
   const updateBounceSineAnimation = useCallback(() => {
     let currFrame = animationState.frame;
@@ -255,7 +255,6 @@ const EventsLayer = ({
         layout={eventIconLayout}
         minZoom={minZoom}
         onClick={onEventSymbolClick}
-        onInit={onLayerInit}
         sourceId={UNCLUSTERED_EVENTS_SOURCE}
         textLayout={eventLabelLayout}
         textPaint={EVENTS_LAYER_TEXT_PAINT}
