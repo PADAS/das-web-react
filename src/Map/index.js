@@ -186,7 +186,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map]);
+    , [dispatch, map]);
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -218,23 +218,23 @@ const Map = ({ children, onMapLoad, socket }) => {
         : Promise.resolve(latestMapSubjects))
       .catch(() => { });
   },
-  [
-    dispatch,
-    eventFilter.filter.date_range,
-    fetchMapSubjectTracksForTimeslider,
-    map,
-    timeSliderActive,
-  ]);
+    [
+      dispatch,
+      eventFilter.filter.date_range,
+      fetchMapSubjectTracksForTimeslider,
+      map,
+      timeSliderActive,
+    ]);
 
   const debouncedFetchEventsAndSubjects = useMemo(() =>
     debounce(() =>
       Promise.all(
-        [mapEventsFetch(), fetchMapSubjectsFromTimeslider()]
+        [/* mapEventsFetch(),  */fetchMapSubjectsFromTimeslider()]
       )
         .catch((e) =>
           console.warn('error loading map data', e)
         ), 100)
-  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+  , [/* mapEventsFetch,  */fetchMapSubjectsFromTimeslider]);
 
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
@@ -603,7 +603,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       <TimeSliderMapControl />
     </>}
     onMapLoaded={setMap}
-    >
+  >
     {map && <>
       {children}
 
@@ -615,7 +615,7 @@ const Map = ({ children, onMapLoad, socket }) => {
           bounceEventIDs={bounceEventIDs}
         /> */}
 
-      <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} />
+      {/* <SubjectsLayer mapImages={mapImages} onSubjectClick={onSelectSubject} /> */}
 
       <MapImagesLayer />
 
@@ -625,7 +625,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       <EventsVectorLayer onEventClick={onSelectEvent} />
 
-      <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
+      {/* <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} /> */}
 
       <DelayedUnmount isMounted={!currentTab && !mapLocationSelection.isPickingLocation}>
         <div className='floating-report-filter'>
