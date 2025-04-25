@@ -406,7 +406,7 @@ const EventsVectorLayer = (props) => {
           'text-color': '#fff',
           'text-halo-color': '#222',
           'text-halo-width': 2,
-          'text-halo-blur': 0.75,
+          'text-halo-blur': 0.5,
           'text-translate': [0, 4],
           'text-translate-anchor': 'viewport'
         }

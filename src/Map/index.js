@@ -607,7 +607,7 @@ const Map = ({ children, onMapLoad, socket }) => {
     {map && <>
       {children}
 
-      <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
+      {/* <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} /> */}
 
       {/* <EventsLayer
           mapImages={mapImages}
