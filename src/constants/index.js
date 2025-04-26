@@ -20,8 +20,8 @@ export const DAS_HOST = process.env.REACT_APP_DAS_HOST
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
-export const MIN_ZOOM = 2.5;
-export const MAX_ZOOM = 20;
+export const MIN_ZOOM = 3;
+export const MAX_ZOOM = 22;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;

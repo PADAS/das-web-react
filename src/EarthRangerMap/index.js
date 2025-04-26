@@ -69,6 +69,7 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
         logoPosition: 'bottom-left',
         maxZoom: MAX_ZOOM,
         minZoom: MIN_ZOOM,
+        maxPitch: 65,
         style: REACT_APP_BASE_MAP_STYLES,
         ...getStartingMapPositionValues(mapPosition),
       });
