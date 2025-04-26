@@ -26,8 +26,6 @@ const EventsVectorLayer = (props) => {
   const eventFilter = useSelector(state => state.data.eventFilter);
   const token = useSelector((state) => state.data.token?.access_token);
 
-  // New state to hold the current timestamp, updated every 45 seconds
-  const [currentTimestamp, setCurrentTimestamp] = useState(() => new Date().toISOString());
 
   // useEffect(() => {
   //   if (!map) return;
@@ -85,31 +83,28 @@ const EventsVectorLayer = (props) => {
     return () => map.off('styleimagemissing', handleStyleImageMissing);
   }, [map]);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTimestamp(new Date().toISOString());
-    }, 300000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   // Refactor buildTileUrl to useMemo since it returns a string
   const tileUrl = useMemo(() => {
     const { filter: { date_range, priority, reported_by }, state: eventStates } = eventFilter || {};
     const statesToSend = eventStates?.length ? eventStates : defaultEventStates;
     const lower = date_range?.lower ?? '';
-    const upper = date_range?.upper ?? currentTimestamp;
+    const upper = date_range?.upper ?? null;
 
     // Generate multiple "state=" parameters
     const stateParams = statesToSend.map(
       state => `state=${encodeURIComponent(state)}`
     );
 
+    let dateParams = encodeURIComponent(lower);
+    if (upper) {
+      dateParams += `,${encodeURIComponent(upper)}`;
+    }
+
     const params = [
       ...stateParams,
       `api_host=${API_HOST}`,
       `api_token=${token}`,
-      `date_range=${encodeURIComponent(lower)},${encodeURIComponent(upper)}`
+      dateParams,
     ];
 
     if (reported_by?.length) {
@@ -123,8 +118,8 @@ const EventsVectorLayer = (props) => {
     const prodUrl = 'https://vector-tile-server-cm4yoasyba-uc.a.run.app';
     const localUrl = 'http://localhost:3000';
 
-    return `${prodUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
-  }, [eventFilter, currentTimestamp, token]);
+    return `${localUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
+  }, [eventFilter, token]);
 
   useEffect(() => {
     if (!map) return;
@@ -165,7 +160,7 @@ const EventsVectorLayer = (props) => {
         maxzoom: 20
       });
     }
-  }, [map, tileUrl, eventFilter, currentTimestamp]);
+  }, [map, tileUrl, eventFilter]);
 
   useEffect(() => {
     if (!map) return;
