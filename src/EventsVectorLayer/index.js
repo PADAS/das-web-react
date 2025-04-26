@@ -118,7 +118,7 @@ const EventsVectorLayer = (props) => {
     const prodUrl = 'https://vector-tile-server-cm4yoasyba-uc.a.run.app';
     const localUrl = 'http://localhost:3000';
 
-    return `${localUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
+    return `${prodUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
   }, [eventFilter, token]);
 
   useEffect(() => {
