@@ -14,7 +14,6 @@ import { ReactComponent as TrashCanIcon } from '../common/images/icons/trash-can
 
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
-import { getTimezoneOffsetString } from '../utils/datetime';
 import { uuid } from '../utils/string';
 
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
@@ -347,13 +346,20 @@ export const DateTimeWidget = ({
   required,
   schema,
 }) => {
-  let timeZoneCorrectedData = formData;
-  if (formData) {
-    const parsedDateTimeValue = parseISO(formData);
-    if (isValid(parsedDateTimeValue)) {
-      timeZoneCorrectedData = format(parsedDateTimeValue, 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
-    }
-  }
+  // If the form data contains a value, we use date-fns format to transform it to the user's current time zone and set
+  // the initial value string in the time picker format.
+  const [dateTime, setDateTime] = useState(formData
+    ? format(formData, 'yyyy-MM-dd\'T\'HH:mm')
+    : EMPTY_DATE_TIME_VALUE);
+
+  const onDateTimePickerChange = (newDateTime) => {
+    setDateTime(newDateTime);
+
+    // When there is a change, if the new date time is valid, we store it with the right offset corresponding to the
+    // date (format method considers the daylight saving) and the user's current time zone.
+    const parsedNewDateTime = parseISO(newDateTime);
+    onChange(isValid(parsedNewDateTime) ? format(parsedNewDateTime, 'yyyy-MM-dd\'T\'HH:mm:ssxxx') : undefined);
+  };
 
   return <>
     <label htmlFor={id}>{schema.title}{required ? '*' : ''}</label>
@@ -362,12 +368,11 @@ export const DateTimeWidget = ({
       autofocus={autofocus}
       disabled={disabled}
       onBlur={onBlur}
-      onChange={(newDateTime) => onChange(`${newDateTime}:00${getTimezoneOffsetString()}`)}
+      onChange={onDateTimePickerChange}
       onFocus={onFocus}
       readOnly={readonly}
       required={required}
-      // Slice out the seconds and the time offset.
-      value={timeZoneCorrectedData ? timeZoneCorrectedData.slice(0, -9) : EMPTY_DATE_TIME_VALUE}
+      value={dateTime}
     />
   </>;
 };

@@ -70,21 +70,21 @@ const DateRangeSelector = ({
     onFilterSettingsToggle && onFilterSettingsToggle(!filterSettingsOpen);
   }, [filterSettingsOpen, onFilterSettingsToggle]);
 
-  const onStartDateTimePickerChange = (dateTime) => {
-    setStartDateTime(dateTime);
+  const onStartDateTimePickerChange = (newStartDateTime) => {
+    setStartDateTime(newStartDateTime);
 
-    const parsedDateTime = parseISO(dateTime);
-    if (isValid(parsedDateTime)) {
-      onStartDateChange(parsedDateTime);
+    const parsedNewStartDateTime = parseISO(newStartDateTime);
+    if (isValid(parsedNewStartDateTime)) {
+      onStartDateChange(parsedNewStartDateTime);
     }
   };
 
-  const onEndDateTimePickerChange = (dateTime) => {
-    setEndDateTime(dateTime);
+  const onEndDateTimePickerChange = (newEndDateTime) => {
+    setEndDateTime(newEndDateTime);
 
-    const parsedDateTime = parseISO(dateTime);
-    if (isValid(parsedDateTime)) {
-      onEndDateChange(parsedDateTime);
+    const parsedNewEndDateTime = parseISO(newEndDateTime);
+    if (isValid(parsedNewEndDateTime)) {
+      onEndDateChange(parsedNewEndDateTime);
     }
   };
 

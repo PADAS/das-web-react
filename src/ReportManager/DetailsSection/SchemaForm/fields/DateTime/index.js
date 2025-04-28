@@ -2,9 +2,8 @@ import React, { memo, useEffect, useState } from 'react';
 import { format, isValid, parseISO } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../constants';
-import { getTimezoneOffsetString } from '../../../../../utils/datetime';
 
-import DatePicker, { EMPTY_DATE_VALUE } from '../../../../../DatePicker';
+import DatePicker, { isValidDate, EMPTY_DATE_VALUE } from '../../../../../DatePicker';
 import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../../../../../DateTimePicker';
 import TimePicker, { EMPTY_TIME_VALUE } from '../../../../../TimePicker';
 
@@ -26,8 +25,11 @@ const DateTimeInput = ({ onChange, value, ...otherProps }) => {
     if (newDateTime === EMPTY_DATE_TIME_VALUE) {
       onChange(undefined);
     } else {
-      // JSON schema time format expects the time with the timezone offset.
-      const dateTimeWithSecondsAndOffset = `${newDateTime}:00${getTimezoneOffsetString()}`;
+      // JSON schema date time format expects the date time with seconds and timezone offset. If the new date is valid,
+      // consider the offset of that date (to match the daylight saving), otherwise consider the current date offset.
+      const [newDateValue] = newDateTime.split('T');
+      const newOffset = format(isValidDate(newDateValue) ? newDateValue : new Date(), 'xxx');
+      const dateTimeWithSecondsAndOffset = `${newDateTime}:00${newOffset}`;
       onChange(dateTimeWithSecondsAndOffset);
     }
   };
@@ -49,8 +51,8 @@ const TimeInput = ({ onChange, value, ...otherProps }) => {
     if (newTime === EMPTY_TIME_VALUE) {
       onChange(undefined);
     } else {
-      // JSON schema time format expects the time with the timezone offset.
-      const timeWithSecondsAndOffset = `${newTime}:00${getTimezoneOffsetString()}`;
+      // JSON schema time format expects the time with seconds and timezone offset.
+      const timeWithSecondsAndOffset = `${newTime}:00${format(new Date(), 'xxx')}`;
       onChange(timeWithSecondsAndOffset);
     }
   };
@@ -76,7 +78,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
   // Date-time and time input types have a timezone offset, so we correct the input value to the current user timezone
   // before rendering it.
   useEffect(() => {
-    if (!hasTimezoneBeenCorrected && value) {
+    if (value && !hasTimezoneBeenCorrected) {
       if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.DATE_TIME) {
         const parsedDateTimeValue = parseISO(value);
         if (isValid(parsedDateTimeValue)) {
@@ -85,8 +87,7 @@ const DateTime = ({ autofillDefaultInput: _autofillDefaultInput, details, error,
       }
 
       if (details.inputType === DATE_TIME_ELEMENT_INPUT_TYPES.TIME) {
-        // We add a dummy date just to make it a valid ISO date
-        const parsedTimeValue = parseISO(`2000-01-01T${value}`);
+        const parsedTimeValue = parseISO(`${format(new Date(), 'yyyy-MM-dd')}T${value}`);
         if (isValid(parsedTimeValue)) {
           onFieldChange(id, format(parsedTimeValue, 'HH:mm:ssXXX'));
         }

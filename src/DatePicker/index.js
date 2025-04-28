@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { parseISO } from 'date-fns';
+import { lastDayOfMonth, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
@@ -13,6 +13,7 @@ import {
   isMonthInputComplete,
   isSecondDayDigitPossible,
   isSecondMonthDigitPossible,
+  isValidDate,
   isValidDayInput,
   isValidMonthInput,
   isValidYearInput,
@@ -231,6 +232,12 @@ const DatePicker = ({
   };
 
   const onDayInputKeyDown = (event) => {
+    // If the year and month inputs are complete, we can calculate the last valid day of the current month to set when
+    // the user decreases or increases the day with the arrows.
+    const lastValidDayOfMonth = isYearInputComplete(year) && isMonthInputComplete(month)
+      ? lastDayOfMonth(new Date(year, month - 1)).getDate().toString()
+      : '31';
+
     switch (event.key) {
     case 'ArrowDown':
       if (!readOnly) {
@@ -238,7 +245,7 @@ const DatePicker = ({
 
         // Decrease the day when the user presses the down arrow.
         if (day === '' || parseInt(day) === 1) {
-          onDayChange('31');
+          onDayChange(lastValidDayOfMonth);
         } else if (isValidDayInput(day)) {
           const dayMinusOne = (parseInt(day) - 1).toString().padStart(2, '0');
           onDayChange(dayMinusOne);
@@ -263,7 +270,7 @@ const DatePicker = ({
         event.preventDefault();
 
         // Increase the day when the user presses the up arrow.
-        if (day === '' || day === '31') {
+        if (day === '' || day === lastValidDayOfMonth) {
           onDayChange('01');
         } else if (isValidDayInput(day)) {
           const dayPlusOne = (parseInt(day) + 1).toString().padStart(2, '0');
@@ -380,6 +387,6 @@ const DatePicker = ({
   </div>;
 };
 
-export { EMPTY_DATE_VALUE };
+export { EMPTY_DATE_VALUE, isValidDate };
 
 export default memo(DatePicker);

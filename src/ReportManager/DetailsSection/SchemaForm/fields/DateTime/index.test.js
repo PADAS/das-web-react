@@ -6,7 +6,6 @@ import { render, screen } from '../../../../../test-utils';
 import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../constants';
 
 import DateTime from './';
-import { getTimezoneOffsetString } from '../../../../../utils/datetime';
 
 const transformISOToCurrentTimezone = (dateValue) => format(parseISO(dateValue), 'yyyy-MM-dd\'T\'HH:mm:ssXXX');
 
@@ -138,12 +137,13 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
     await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(2);
-    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', `2020-01-13T06:30:00${getTimezoneOffsetString()}`);
+    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-13T06:30'));
 
     await userEvent.click(screen.getByLabelText('Open time options'));
     await userEvent.click(screen.getByText('08:00 AM'));
 
     expect(onFieldChange).toHaveBeenCalledTimes(3);
-    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', `2020-01-01T08:00:00${getTimezoneOffsetString()}`);
+    expect(onFieldChange.mock.calls[2][0]).toBe('date-time-1');
+    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-01T08:00'));
   });
 });
