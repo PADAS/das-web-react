@@ -185,7 +185,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     return dispatch(fetchMapEvents(map))
       .catch((e) => console.warn('error fetching map events', e));
   }
-  , [dispatch, map]);
+    , [dispatch, map]);
+
 
   const resetTrackRequestCancelToken = useCallback(() => {
     trackRequestCancelToken.current.cancel();
@@ -217,13 +218,13 @@ const Map = ({ children, onMapLoad, socket }) => {
         : Promise.resolve(latestMapSubjects))
       .catch(() => { });
   },
-  [
-    dispatch,
-    eventFilter.filter.date_range,
-    fetchMapSubjectTracksForTimeslider,
-    map,
-    timeSliderActive,
-  ]);
+    [
+      dispatch,
+      eventFilter.filter.date_range,
+      fetchMapSubjectTracksForTimeslider,
+      map,
+      timeSliderActive,
+    ]);
 
   const debouncedFetchEventsAndSubjects = useMemo(() =>
     debounce(() =>
@@ -233,7 +234,7 @@ const Map = ({ children, onMapLoad, socket }) => {
         .catch((e) =>
           console.warn('error loading map data', e)
         ), 100)
-  , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
+    , [mapEventsFetch, fetchMapSubjectsFromTimeslider]);
 
   const fetchMapData = useCallback(() => {
     cancelMapDataRequests();
@@ -604,7 +605,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       <TimeSliderMapControl />
     </>}
     onMapLoaded={setMap}
-    >
+  >
     {map && <>
       {children}
 
