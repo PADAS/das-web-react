@@ -116,8 +116,7 @@
     "test": "node react-scripts/test.js",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit",
-    "postinstall": "sh setUpLocalGitConfig.sh"
+    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.27.0",

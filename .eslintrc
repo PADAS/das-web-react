@@ -3,10 +3,7 @@
     "browser": true,
     "es6": true
   },
-  "extends": [
-    "react-app",
-    "plugin:react/recommended"
-  ],
+  "extends": "react-app",
   "parserOptions": {
     "babelOptions": {
       "presets": [
@@ -102,6 +99,7 @@
     "io": true
   },
   "root": true,
+  "ignorePatterns": ["build/**", "node_modules/**"],
   "overrides": [
     {
       "files": [

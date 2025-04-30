@@ -113,8 +113,9 @@ checkBrowsers(paths.appPath, isInteractive)
       port,
     };
     const devServer = new WebpackDevServer(serverConfig, compiler);
-    // Launch WebpackDevServer.
-    devServer.startCallback(() => {
+
+
+    const onStart = () => {
       if (isInteractive) {
         clearConsole();
       }
@@ -129,11 +130,15 @@ checkBrowsers(paths.appPath, isInteractive)
 
       console.log(chalk.cyan('Starting the development server...\n'));
       openBrowser(urls.localUrlForBrowser);
-    });
+    };// Launch WebpackDevServer.
+
+
+    devServer.start()
+      .then(onStart);
 
     ['SIGINT', 'SIGTERM'].forEach(function (sig) {
       process.on(sig, function () {
-        devServer.close();
+        devServer.stop();
         process.exit();
       });
     });
@@ -141,7 +146,7 @@ checkBrowsers(paths.appPath, isInteractive)
     if (process.env.CI !== 'true') {
       // Gracefully exit when stdin ends
       process.stdin.on('end', function () {
-        devServer.close();
+        devServer.stop();
         process.exit();
       });
     }

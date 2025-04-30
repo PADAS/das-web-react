@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from 'react';
+import React, { useContext, useEffect, useState, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { displayTitleForEvent } from '../utils/events';
@@ -11,6 +11,11 @@ const LAYER_ID = 'event-vector-layer';
 const LABEL_LAYER_ID = `${LAYER_ID}-label`;
 const LABEL_SOURCE_ID = 'event-labels-geojson';
 
+// New constants for the clustering feature
+const CLUSTER_SOURCE_ID = 'event-cluster-source';
+const CLUSTER_LAYER_ID = 'event-cluster-layer';
+const CLUSTER_COUNT_LAYER_ID = 'event-cluster-count-layer';
+
 const defaultEventStates = ['active', 'new'];
 
 const API_HOST = process.env.NODE_ENV === 'production'
@@ -20,18 +25,23 @@ const API_HOST = process.env.NODE_ENV === 'production'
 const EventsVectorLayer = (props) => {
   const { onEventClick } = props;
   const map = useContext(MapContext);
+  // Disable for production or make configurable
   map.showTileBoundaries = true;
 
   const eventTypes = useSelector(state => state.data.eventTypes);
   const eventFilter = useSelector(state => state.data.eventFilter);
   const token = useSelector((state) => state.data.token?.access_token);
 
+  const [extractedFeatures, setExtractedFeatures] = useState({ type: 'FeatureCollection', features: [] });
 
-  // useEffect(() => {
-  //   if (!map) return;
-  // TODO add marker image for use with subjects+events
-  //   map.
-  // }, [map]);
+  // Add at the top with other state variables
+  const [clusteredFeatureIds, setClusteredFeatureIds] = useState(new Set());
+
+  // Add zoom threshold constant - clusters shown below this zoom level
+  const CLUSTER_ZOOM_THRESHOLD = 4;
+
+  // Store previous zoom to avoid unnecessary updates
+  const prevZoomRef = useRef(null);
 
   useEffect(() => {
     // Dynamically load missing images when requested by the style
@@ -118,7 +128,7 @@ const EventsVectorLayer = (props) => {
     const prodUrl = 'https://vector-tile-server-cm4yoasyba-uc.a.run.app';
     const localUrl = 'http://localhost:3000';
 
-    return `${prodUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
+    return `${localUrl}/tiles/{z}/{x}/{y}.mvt?${params.join('&')}`;
   }, [eventFilter, token]);
 
   useEffect(() => {
@@ -306,63 +316,248 @@ const EventsVectorLayer = (props) => {
     };
   }, [map]);
 
+  // Modify the existing sourcedata handler to also extract features for clustering
   useEffect(() => {
     if (!map) return;
 
     // Only handle sourcedata events for our vector source, and throttle to once per second
     const THROTTLE_MS = 1000;
 
-    const setDisplayTitles = throttle(() => {
+    const processSourceFeatures = throttle(() => {
       const features = map.querySourceFeatures?.(SOURCE_ID, { sourceLayer: 'events' }) || [];
-      const geojsonFeatures = [];
-      console.log({ features });
 
+      // Create features for labels
+      const labelFeatures = [];
+      // Create features for clustering (only points)
+      const clusterFeatures = [];
+
+      console.log(`Processing ${features.length} source features`);
+
+      // Process each feature
       features.forEach(feature => {
+        if (!feature.id || !feature.geometry) return;
+
         const display_title = displayTitleForEvent(feature.properties, eventTypes);
-        geojsonFeatures.push({
+
+        // Format the time if available
+        let date_formatted = '';
+        if (feature.properties.time) {
+          try {
+            const date = new Date(feature.properties.time);
+            date_formatted = date.toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            });
+          } catch (e) {
+            console.warn('Error formatting date for event', feature.id);
+          }
+        }
+
+        // Add to label features with formatted date
+        labelFeatures.push({
           type: 'Feature',
           geometry: feature.geometry,
-          properties: { id: feature.id, display_title }
+          properties: {
+            id: feature.id,
+            display_title,
+            date_formatted
+          }
         });
+
+        // Add to cluster features (only point features)
+        if (feature.geometry.type === 'Point') {
+          clusterFeatures.push({
+            type: 'Feature',
+            geometry: feature.geometry,
+            properties: {
+              ...feature.properties, // Keep original properties
+              id: feature.id,
+              display_title,
+              date_formatted,
+              // Add any additional properties needed for clustering
+              priority_level: feature.properties.priority || 0
+            }
+          });
+        }
       });
 
-      const source = map.getSource('event-labels-geojson');
-      const data = { type: 'FeatureCollection', features: geojsonFeatures };
-      source ? source.setData(data) : map.addSource('event-labels-geojson', { type: 'geojson', data });
+      // Update label source
+      const labelSource = map.getSource(LABEL_SOURCE_ID);
+      const labelData = { type: 'FeatureCollection', features: labelFeatures };
+
+      if (labelSource) {
+        labelSource.setData(labelData);
+      } else {
+        map.addSource(LABEL_SOURCE_ID, {
+          type: 'geojson',
+          data: labelData
+        });
+      }
+
+      // Update cluster source
+      const clusterData = {
+        type: 'FeatureCollection',
+        features: clusterFeatures
+      };
+      setExtractedFeatures(clusterData);
+
+      const clusterSource = map.getSource(CLUSTER_SOURCE_ID);
+      if (clusterSource) {
+        clusterSource.setData(clusterData);
+      } else if (clusterFeatures.length > 0) {
+        // Only create the source if we have features
+        map.addSource(CLUSTER_SOURCE_ID, {
+          type: 'geojson',
+          data: clusterData,
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50
+        });
+
+        // Setup clustering layers if they don't exist yet
+        setupClusteringLayers();
+      }
     }, THROTTLE_MS, { leading: true, trailing: true });
 
-    const displayTitleCallback = (e) => {
-      if (e?.sourceId === SOURCE_ID || e?.source?.id === SOURCE_ID) {
-        setDisplayTitles();
+    const setupClusteringLayers = () => {
+      if (!map.getSource(CLUSTER_SOURCE_ID)) return;
+
+      // Add a layer for the clusters
+      if (!map.getLayer(CLUSTER_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_LAYER_ID,
+          type: 'circle',
+          source: CLUSTER_SOURCE_ID,
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              '#51bbd6',
+              10, '#f1f075',
+              30, '#f28cb1'
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              20,
+              10, 30,
+              30, 40
+            ]
+          }
+        });
+      }
+
+      // Add a layer for the cluster count labels
+      if (!map.getLayer(CLUSTER_COUNT_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_COUNT_LAYER_ID,
+          type: 'symbol',
+          source: CLUSTER_SOURCE_ID,
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+          },
+          paint: {
+            'text-color': '#ffffff'
+          }
+        });
       }
     };
 
-    map.on('sourcedata', displayTitleCallback);
-    displayTitleCallback();
+    const handleSourceData = (e) => {
+      if (e?.sourceId === SOURCE_ID || e?.source?.id === SOURCE_ID) {
+        processSourceFeatures();
+      }
+    };
+
+    // Listen for source data changes
+    map.on('sourcedata', handleSourceData);
+    processSourceFeatures(); // Initial processing
 
     return () => {
-      map.off('sourcedata', displayTitleCallback);
-      setDisplayTitles.cancel();
+      map.off('sourcedata', handleSourceData);
+      processSourceFeatures.cancel();
     };
   }, [map, eventTypes]);
 
+  // Add click handler for cluster layers
   useEffect(() => {
     if (!map) return;
 
+    // Handle cluster click to zoom in
+    const handleClusterClick = (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [CLUSTER_LAYER_ID]
+      });
 
+      if (!features.length) return;
+
+      const clusterId = features[0].properties.cluster_id;
+      const clusterSource = map.getSource(CLUSTER_SOURCE_ID);
+
+      if (!clusterSource) return;
+
+      clusterSource.getClusterExpansionZoom(
+        clusterId,
+        (err, zoom) => {
+          if (err) return;
+
+          map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom
+          });
+        }
+      );
+    };
+
+    map.on('click', CLUSTER_LAYER_ID, handleClusterClick);
+
+    return () => {
+      map.off('click', CLUSTER_LAYER_ID, handleClusterClick);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    if (!map) return;
 
     // Gather features for the label source
     const features = map.querySourceFeatures?.(SOURCE_ID, { sourceLayer: 'events' }) || [];
     const geojsonFeatures = features
       .filter(feature => feature.id != null && feature.geometry.type === 'Point')
-      .map(feature => ({
-        type: 'Feature',
-        geometry: feature.geometry,
-        properties: {
-          id: feature.id,
-          display_title: displayTitleForEvent(feature.properties, eventTypes)
+      .map(feature => {
+        // Format the date if available
+        let date_formatted = '';
+        if (feature.properties.time) {
+          try {
+            const date = new Date(feature.properties.time);
+            date_formatted = date.toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            });
+          } catch (e) {
+            console.warn('Error formatting date for event', feature.id);
+          }
         }
-      }));
+
+        return {
+          type: 'Feature',
+          geometry: feature.geometry,
+          properties: {
+            id: feature.id,
+            display_title: displayTitleForEvent(feature.properties, eventTypes),
+            date_formatted
+          }
+        };
+      });
 
     // Add or update the label source
     const labelSource = map.getSource(LABEL_SOURCE_ID);
@@ -387,7 +582,17 @@ const EventsVectorLayer = (props) => {
         source: LABEL_SOURCE_ID,
         filter: ['==', '$type', 'Point'],
         layout: {
-          'text-field': ['get', 'display_title'],
+          // Use Mapbox format expression for two-line label with title and date
+          'text-field': [
+            'format',
+            ['get', 'display_title'], { 'font-scale': 1.0 },
+            '\n',
+            ['case',
+              ['has', 'date_formatted'],
+              ['get', 'date_formatted'],
+              ''
+            ], { 'font-scale': 0.8 }
+          ],
           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
           'text-size': 15,
           'text-anchor': 'top',
@@ -464,6 +669,201 @@ const EventsVectorLayer = (props) => {
           map.off('mouseleave', layerId, handleMouseLeave);
         }
       });
+    };
+  }, [map]);
+
+  // Add this new effect for hiding vector features when clustered
+  useEffect(() => {
+    if (!map) return;
+
+    // Layers from the vector source that should hide clustered features
+    const layersToHide = [
+      LAYER_ID,
+      `${LAYER_ID}-circle`,
+      `${LAYER_ID}-pointer`,
+      `${LAYER_ID}-dot`
+    ];
+
+    // Updates which features should be hidden based on current clusters
+    const updateHiddenFeatures = throttle(() => {
+      const clusterSource = map.getSource(CLUSTER_SOURCE_ID);
+      if (!clusterSource) return;
+
+      // Get all visible clusters
+      const clusters = map.queryRenderedFeatures({
+        layers: [CLUSTER_LAYER_ID]
+      });
+
+      // If no clusters are visible, reset all filters
+      if (clusters.length === 0) {
+        layersToHide.forEach(layerId => {
+          if (map.getLayer(layerId)) {
+            // Reset to original filter
+            const baseFilter = layerId === `${LAYER_ID}-polygon`
+              ? ['==', '$type', 'Polygon']
+              : ['==', '$type', 'Point'];
+            map.setFilter(layerId, baseFilter);
+          }
+        });
+        setClusteredFeatureIds(new Set());
+        return;
+      }
+
+      // Process each cluster to find which feature IDs it contains
+      const newClusteredIds = new Set();
+      let pendingClusters = clusters.length;
+
+      clusters.forEach(cluster => {
+        const clusterId = cluster.properties.cluster_id;
+
+        // Get points in this cluster
+        clusterSource.getClusterLeaves(
+          clusterId,
+          100, // max points to retrieve
+          0,   // offset for pagination
+          (err, leaves) => {
+            if (!err) {
+              // Add each leaf's ID to our set
+              leaves.forEach(leaf => {
+                if (leaf.properties?.id) {
+                  newClusteredIds.add(leaf.properties.id);
+                }
+              });
+            }
+
+            // When all clusters are processed, update filters
+            pendingClusters--;
+            if (pendingClusters === 0) {
+              setClusteredFeatureIds(newClusteredIds);
+              applyFilters(newClusteredIds);
+            }
+          }
+        );
+      });
+    }, 200);
+
+    // Apply filters to hide clustered features
+    const applyFilters = (clusterIds) => {
+      if (clusterIds.size === 0) return;
+
+      const idsArray = Array.from(clusterIds);
+
+      layersToHide.forEach(layerId => {
+        if (!map.getLayer(layerId)) return;
+
+        // Get base filter for this layer
+        const baseFilter = layerId === `${LAYER_ID}-polygon`
+          ? ['==', '$type', 'Polygon']
+          : ['==', '$type', 'Point'];
+
+        // Fix: Use correct filter syntax with direct property name
+        // Mapbox expects: ['!in', 'propertyName', value1, value2, ...]
+        const combinedFilter = [
+          'all',
+          baseFilter,
+          ['!in', 'id', ...idsArray] // Use direct property name 'id' and spread the values
+        ];
+
+        map.setFilter(layerId, combinedFilter);
+      });
+    };
+
+    // Listen for map events that might change clusters
+    const handleZoomEnd = () => updateHiddenFeatures();
+    const handleMoveEnd = () => updateHiddenFeatures();
+    const handleSourceData = (e) => {
+      if (e?.sourceId === CLUSTER_SOURCE_ID) {
+        updateHiddenFeatures();
+      }
+    };
+
+    map.on('zoomend', handleZoomEnd);
+    map.on('moveend', handleMoveEnd);
+    map.on('sourcedata', handleSourceData);
+
+    // Initial update
+    updateHiddenFeatures();
+
+    return () => {
+      map.off('zoomend', handleZoomEnd);
+      map.off('moveend', handleMoveEnd);
+      map.off('sourcedata', handleSourceData);
+      updateHiddenFeatures.cancel();
+    };
+  }, [map]);
+
+  // Add this effect to toggle layers based on zoom level
+  useEffect(() => {
+    if (!map) return;
+
+    // Toggle layer visibility based on zoom
+    const updateLayerVisibility = () => {
+      const zoom = map.getZoom();
+
+      // Only update if zoom crossed the threshold
+      if (prevZoomRef.current !== null) {
+        const previouslyBelowThreshold = prevZoomRef.current <= CLUSTER_ZOOM_THRESHOLD;
+        const currentlyBelowThreshold = zoom <= CLUSTER_ZOOM_THRESHOLD;
+
+        // If we didn't cross the threshold, no need to update
+        if (previouslyBelowThreshold === currentlyBelowThreshold) {
+          prevZoomRef.current = zoom;
+          return;
+        }
+      }
+
+      // Store current zoom for next comparison
+      prevZoomRef.current = zoom;
+
+      // Show clusters at lower zoom levels, show individual events at higher zooms
+      const showClusters = zoom <= CLUSTER_ZOOM_THRESHOLD;
+
+      // Vector tile layers to toggle
+      const eventLayers = [
+        LAYER_ID,
+        `${LAYER_ID}-circle`,
+        `${LAYER_ID}-pointer`,
+        `${LAYER_ID}-dot`,
+        `${LAYER_ID}-polygon`,
+        LABEL_LAYER_ID
+      ];
+
+      // Toggle vector layer visibility
+      eventLayers.forEach(layerId => {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(
+            layerId,
+            'visibility',
+            showClusters ? 'none' : 'visible'
+          );
+        }
+      });
+
+      // Toggle cluster layers visibility
+      const clusterLayers = [CLUSTER_LAYER_ID, CLUSTER_COUNT_LAYER_ID];
+      clusterLayers.forEach(layerId => {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(
+            layerId,
+            'visibility',
+            showClusters ? 'visible' : 'none'
+          );
+        }
+      });
+    };
+
+    // Update visibility on first render
+    updateLayerVisibility();
+
+    // Update visibility when zoom changes
+    const zoomHandler = () => {
+      updateLayerVisibility();
+    };
+
+    map.on('zoom', zoomHandler);
+
+    return () => {
+      map.off('zoom', zoomHandler);
     };
   }, [map]);
 
