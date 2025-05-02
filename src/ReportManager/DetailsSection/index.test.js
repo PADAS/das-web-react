@@ -3,8 +3,8 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../../__test-helpers/mocks';
-import { eventSchemas } from '../../__test-helpers/fixtures/event-schemas';
-import { eventTypes } from '../../__test-helpers/fixtures/event-types';
+import { eventSchemas, snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
+import { eventTypes, snareV2 } from '../../__test-helpers/fixtures/event-types';
 import { formValidator } from '../../utils/events';
 import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
@@ -66,7 +66,6 @@ describe('ReportManager - DetailsSection', () => {
         eventSchemas,
       },
       view: {
-        featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
@@ -405,11 +404,40 @@ describe('ReportManager - DetailsSection', () => {
     });
   });
 
+  test('changes the event form when changing the value of an input for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+
+    expect(onFormDataChange).toHaveBeenCalledTimes(0);
+
+    await userEvent.type(screen.getByLabelText('Number of Snares Found *'), '3');
+
+    expect(onFormDataChange).toHaveBeenCalled();
+    expect(onFormDataChange).toHaveBeenCalledWith({ number_of_snares_found: 3 });
+  });
+
+  test('submits the form for v2 schemas', async () => {
+    store.data.eventTypes = [...eventTypes, snareV2];
+    renderDetailsSection({
+      eventSchema: snareSchemaV2,
+      reportForm: { ...report, event_type: 'snare_v2_rep' },
+    });
+
+    await userEvent.type(screen.getByLabelText('Number of Snares Found *'), '3');
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(0);
+
+    submitFormButtonRef.current.click();
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
   test('shows a loader while the schema loads', async () => {
     renderDetailsSection({ eventSchema: null, loadingSchema: true });
 
     expect(screen.getByTestId('reportManager-detailsSection-loader')).toBeVisible();
   });
-
-  // TODO: Add tests for new schemas once we stop using the feature flag
 });

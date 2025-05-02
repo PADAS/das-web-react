@@ -5039,6 +5039,7 @@ export const animalControlTypeV2 = {
   resolve_time: null,
   auto_resolve: false,
   url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/animal_control_v2',
+  version: 2,
 };
 
 export const fireTypeV2 = {
@@ -5058,4 +5059,25 @@ export const fireTypeV2 = {
   resolve_time: null,
   auto_resolve: false,
   url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/fire_v2',
+  version: 2,
+};
+
+export const snareV2 = {
+  id: 'bbd64930-a029-4d89-98f2-f94e269f8fe6',
+  has_events_assigned: true,
+  icon: 'snare_rep',
+  value: 'snare_v2_rep',
+  display: 'Snare v2',
+  ordernum: 160,
+  is_collection: false,
+  category: 'security',
+  icon_id: 'snare_rep',
+  is_active: true,
+  default_priority: 200,
+  default_state: 'active',
+  geometry_type: 'Point',
+  resolve_time: null,
+  auto_resolve: false,
+  url: 'https://stage.pamdas.org/api/v2.0/activity/eventtypes/snare_v2_rep',
+  version: 2,
 };
