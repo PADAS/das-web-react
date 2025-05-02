@@ -68,7 +68,6 @@ describe('ReportManager - DetailsSection', () => {
       view: {
         featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
-        schemaSelector: { schema: {} },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },

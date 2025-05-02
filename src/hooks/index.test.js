@@ -86,7 +86,7 @@ describe('#useMemoCompare', () => {
 
 describe('#useFeatureFlag', () => {
   let wrapper, store;
-  const knownProperty = 'EFB_FORM_SCHEMA_SUPPORT_ENABLED';
+  const knownProperty = 'DUMMY_FF_FOR_TESTING';
 
   beforeEach(() => {
     store = mockStore({

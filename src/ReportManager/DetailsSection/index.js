@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
 
-import { EVENT_FORM_STATES, FEATURE_FLAG_LABELS, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
+import { EVENT_FORM_STATES, VALID_EVENT_GEOMETRY_TYPES } from '../../constants';
 import {
   filterOutErrorsForHiddenProperties,
   filterOutRequiredValueOnSchemaPropErrors,
@@ -18,7 +18,6 @@ import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
 import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { TrackerContext } from '../../utils/analytics';
-import { useFeatureFlag } from '../../hooks';
 
 import {
   AddButton,
@@ -73,17 +72,6 @@ const DetailsSection = ({
 
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
 
-  // Temporary solution to test new schemas starts here.
-  // Feature flag to enable mocks schemas from the selector.
-  const efbFormSchemaSupportEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED);
-  // Schema from schema selector, it is stored in redux.
-  const schemaFromSchemaSelector = useSelector(
-    (state) => efbFormSchemaSupportEnabled ? state.view.schemaSelector.schema?.schema : null
-  );
-  // Override to the schema.
-  const eventSchemaOverride = efbFormSchemaSupportEnabled ? schemaFromSchemaSelector : eventSchema;
-  // Temporary solution to test new schemas ends here.
-
   const reportTracker = useContext(TrackerContext);
 
   const reportTime = reportForm?.time ? new Date(reportForm.time) : null;
@@ -93,7 +81,7 @@ const DetailsSection = ({
   const [time, setTime] = useState(reportTime ? getHoursAndMinutesString(reportTime) : EMPTY_TIME_VALUE);
 
   const geometryType = eventType?.geometry_type;
-  const jsonSchema = eventType?.version === 1 ? eventSchemaOverride?.schema : eventSchemaOverride?.json;
+  const jsonSchema = eventType?.version === 1 ? eventSchema?.schema : eventSchema?.json;
   const reportState = reportForm.state === EVENT_FORM_STATES.NEW_LEGACY ? EVENT_FORM_STATES.ACTIVE : reportForm.state;
 
   const onStateDropdownKeyDown = useCallback((event) => {
@@ -132,11 +120,11 @@ const DetailsSection = ({
   const transformErrors = useCallback((errors) => {
     const filteredErrors = filterOutErrorsForHiddenProperties(
       filterOutRequiredValueOnSchemaPropErrors(errors),
-      eventSchemaOverride.uiSchema
+      eventSchema.uiSchema
     );
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
-  }, [eventSchemaOverride?.uiSchema]);
+  }, [eventSchema?.uiSchema]);
 
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
@@ -261,7 +249,7 @@ const DetailsSection = ({
     </div>
 
     {/* Legacy form renderer */}
-    {(eventType?.version === 1 && !efbFormSchemaSupportEnabled) && !!jsonSchema && <Form
+    {eventType?.version === 1 && !!jsonSchema && <Form
       className={`${styles.form} ${reportForm.is_collection ? styles.hidden : ''}`}
       disabled={jsonSchema?.readonly}
       fields={{ externalLink: ExternalLinkField }}
@@ -279,13 +267,13 @@ const DetailsSection = ({
         ObjectFieldTemplate,
       }}
       transformErrors={transformErrors}
-      uiSchema={eventSchemaOverride?.uiSchema}
+      uiSchema={eventSchema?.uiSchema}
       validator={formValidator}
     >
       <button ref={submitFormButtonRef} type="submit" />
     </Form>}
 
-    {(eventType?.version === 2 || efbFormSchemaSupportEnabled) && eventSchemaOverride && <SchemaForm
+    {eventType?.version === 2 && eventSchema && <SchemaForm
       autofillDefaultInputs={isNewEvent}
       eventId={eventId}
       eventLocation={reportForm.location}
@@ -298,10 +286,10 @@ const DetailsSection = ({
         ref={submitFormButtonRef}
         type="submit"
       />}
-      schema={eventSchemaOverride}
+      schema={eventSchema}
     />}
 
-    {!eventSchemaOverride && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
+    {!eventSchema && !reportForm.is_collection && loadingSchema && <div className={styles.loaderWrapper}>
       <MoonLoader
         color={LOADER_COLOR}
         data-testid="reportManager-detailsSection-loader"

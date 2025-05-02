@@ -22,10 +22,3 @@ export const filterOutErrorsForHiddenProperties = (errors, uiSchema) => {
     return !!propsInForm[propName];
   });
 };
-
-export const getSchemasForEventTypeByEventId = (eventSchemas, event_type, event_id) => {
-  if (event_id) {
-    return eventSchemas?.[event_type]?.[event_id];
-  }
-  return eventSchemas?.[event_type]?.base;
-};

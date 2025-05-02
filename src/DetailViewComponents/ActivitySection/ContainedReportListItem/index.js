@@ -10,7 +10,7 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icon
 
 import { fetchEvent } from '../../../ducks/events';
 import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
-import { getSchemasForEventTypeByEventId } from '../../../utils/event-schemas';
+import { selectEventSchema } from '../../../selectors/event-schemas';
 import { selectEventTypeByValue } from '../../../selectors/event-types';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
@@ -30,15 +30,13 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
   const navigate = useNavigate();
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
-  const eventSchemas = useSelector((state) => state.data.eventSchemas);
-  const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
+  const eventSchema = useSelector((state) => reportFromEventStore
+    ? selectEventSchema(state, reportFromEventStore.event_type, reportFromEventStore.id)
+    : null);
+  const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
 
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
-
-  const reportSchemas = reportFromEventStore
-    ? getSchemasForEventTypeByEventId(eventSchemas, reportFromEventStore.event_type, reportFromEventStore.id)
-    : null;
 
   const onClickArrowIntoIcon = useCallback(() => navigate(`/${TAB_KEYS.EVENTS}/${report.id}`), [navigate, report]);
 
@@ -49,10 +47,10 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
   }, [dispatch, report.id, reportFromEventStore]);
 
   useEffect(() => {
-    if (!!eventType && !reportSchemas) {
+    if (!!eventType && !eventSchema) {
       dispatch(fetchEventTypeSchema(report.event_type, report.id));
     }
-  }, [dispatch, eventType, report.event_type, report.id, reportSchemas]);
+  }, [dispatch, eventSchema, eventType, report.event_type, report.id]);
 
   return <li>
     <div
@@ -90,11 +88,11 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       in={isOpen}
     >
       <div>
-        {!!reportFromEventStore && !!reportSchemas
+        {!!reportFromEventStore && !!eventSchema
           ? <ReportFormSummary
             report={reportFromEventStore}
-            schema={reportSchemas.schema}
-            uiSchema={reportSchemas.uiSchema}
+            schema={eventSchema.schema}
+            uiSchema={eventSchema.uiSchema}
           />
           : <div className={styles.loaderWrapper}>
             <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
