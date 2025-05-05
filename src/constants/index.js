@@ -311,11 +311,9 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = { DUMMY_FF_FOR_TESTING: 'DUMMY_FF_FOR_TESTING' };
+export const FEATURE_FLAG_LABELS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAG_LABELS.DUMMY_FF_FOR_TESTING]: process.env.REACT_APP_DUMMY_FF_FOR_TESTING === 'true',
-};
+export const DEVELOPMENT_FEATURE_FLAGS = {};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 
