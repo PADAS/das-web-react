@@ -123,7 +123,7 @@ const SchemaForm = ({
     default:
       const Field = FIELDS[fields[id].type];
       return <Field
-        autofillDefaultInput={autofillDefaultInputs}
+        autofillDefaultInput={autofillDefaultInputs && !value}
         details={fields[id].details}
         error={error}
         id={id}

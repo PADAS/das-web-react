@@ -11,6 +11,12 @@ import { mockStore } from '../__test-helpers/MockStore';
 
 import { useFeatureFlag, useMemoCompare, useMapEventBinding } from './';
 
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { DUMMY_FF_FOR_TESTING: true },
+  FEATURE_FLAG_LABELS: { DUMMY_FF_FOR_TESTING: 'DUMMY_FF_FOR_TESTING' },
+}));
+
 describe('#useMapEventBinding', () => {
   let map, wrapper, handler;
   const layerId = 'test-layer-id';
@@ -86,7 +92,6 @@ describe('#useMemoCompare', () => {
 
 describe('#useFeatureFlag', () => {
   let wrapper, store;
-  const knownProperty = 'EFB_FORM_SCHEMA_SUPPORT_ENABLED';
 
   beforeEach(() => {
     store = mockStore({
@@ -103,28 +108,25 @@ describe('#useFeatureFlag', () => {
   });
 
   test('using the default value if no override has been set', () => {
+    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS.DUMMY_FF_FOR_TESTING), { wrapper });
 
-    expect(FEATURE_FLAG_LABELS).toHaveProperty(knownProperty);
-    expect(DEVELOPMENT_FEATURE_FLAGS).toHaveProperty(knownProperty);
-
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
-    expect(result.current).toBe(DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
+    expect(result.current).toBe(DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING);
   });
 
   test('using the override value if an override has been set', () => {
     store = mockStore({
       view: {
         featureFlagOverrides: {
-          [FEATURE_FLAG_LABELS[knownProperty]]: {
+          DUMMY_FF_FOR_TESTING: {
             label: 'whatever',
-            value: !DEVELOPMENT_FEATURE_FLAGS[knownProperty],
+            value: !DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING,
           }
         }
       },
     });
 
-    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS[knownProperty]), { wrapper });
+    const { result } = renderHook(() => useFeatureFlag(FEATURE_FLAG_LABELS.DUMMY_FF_FOR_TESTING), { wrapper });
 
-    expect(result.current).toBe(!DEVELOPMENT_FEATURE_FLAGS[knownProperty]);
+    expect(result.current).toBe(!DEVELOPMENT_FEATURE_FLAGS.DUMMY_FF_FOR_TESTING);
   });
 });

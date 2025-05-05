@@ -311,13 +311,9 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = {
-  EFB_FORM_SCHEMA_SUPPORT_ENABLED: 'EFB_FORM_SCHEMA_SUPPORT_ENABLED',
-};
+export const FEATURE_FLAG_LABELS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {
-  [FEATURE_FLAG_LABELS.EFB_FORM_SCHEMA_SUPPORT_ENABLED]: process.env.REACT_APP_EFB_FORM_SCHEMA_SUPPORT_ENABLED === 'true',
-};
+export const DEVELOPMENT_FEATURE_FLAGS = {};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 

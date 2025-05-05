@@ -270,7 +270,7 @@ const DatePicker = ({
         event.preventDefault();
 
         // Increase the day when the user presses the up arrow.
-        if (day === '' || day === lastValidDayOfMonth) {
+        if (day === '' || day >= lastValidDayOfMonth) {
           onDayChange('01');
         } else if (isValidDayInput(day)) {
           const dayPlusOne = (parseInt(day) + 1).toString().padStart(2, '0');

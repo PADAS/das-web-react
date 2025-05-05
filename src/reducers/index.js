@@ -47,7 +47,6 @@ import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
-import schemaSelectorReducer from '../ducks/schema-selector';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
@@ -62,7 +61,6 @@ const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForag
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
-const schemaSelectorPersistenceConfig = generateStorageConfig('schemaSelector');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -128,7 +126,6 @@ const rootReducer = combineReducers({
     userLocation: userLocationReducer,
     userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
-    schemaSelector: persistReducer(schemaSelectorPersistenceConfig, schemaSelectorReducer), /*ToDo: Remove reducer once mock data is no longer needed for EFB support*/
     trackSettings: persistReducer(trackSettingsPersistenceConfig, trackSettingsReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
