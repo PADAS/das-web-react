@@ -34,7 +34,7 @@ const EventFormSummary = ({ report }) => {
   }, [dispatch, eventSchema, eventType, report.event_type, report.id]);
 
   if (!eventSchema) {
-    return <div className={styles.loaderWrapper}>
+    return <div className={styles.loaderWrapper} data-testid="reportFormSummary-loader">
       <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
     </div>;
   }
