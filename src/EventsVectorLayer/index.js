@@ -38,7 +38,7 @@ const EventsVectorLayer = (props) => {
   const [clusteredFeatureIds, setClusteredFeatureIds] = useState(new Set());
 
   // Add zoom threshold constant - clusters shown below this zoom level
-  const CLUSTER_ZOOM_THRESHOLD = 4;
+  const CLUSTER_ZOOM_THRESHOLD = 3;
 
   // Store previous zoom to avoid unnecessary updates
   const prevZoomRef = useRef(null);
