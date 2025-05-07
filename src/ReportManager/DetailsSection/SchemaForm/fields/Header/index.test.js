@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { render, screen } from '../../../../../test-utils';
-import { HEADER_ELEMENT_SIZES } from '../../constants';
+import { HEADER_ELEMENT_SIZES } from '../../../../../utils/v2-event-schemas/constants';
 
 import Header from './';
 

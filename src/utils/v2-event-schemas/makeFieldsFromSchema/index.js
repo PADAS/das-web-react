@@ -1,4 +1,4 @@
-import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../constants';
+import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../constants';
 
 const SECTION_CHILD_TYPES = { FIELD: 'field', HEADER: 'header' };
 

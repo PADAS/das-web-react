@@ -1,39 +1,45 @@
-import React, { memo, useMemo } from 'react';
-import Form from '@rjsf/bootstrap-4';
+import React, { memo, useEffect } from 'react';
+import MoonLoader from 'react-spinners/MoonLoader';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { fetchEventTypeSchema } from '../ducks/event-schemas';
+import { selectEventSchema } from '../selectors/event-schemas';
+import { selectEventTypeByValue } from '../selectors/event-types';
 import useReport from '../hooks/useReport';
 
-import {
-  AddButton,
-  ArrayFieldItemTemplate,
-  ArrayFieldTemplate,
-  BaseInputTemplate,
-  ExternalLinkField,
-  MoveDownButton,
-  MoveUpButton,
-  ObjectFieldTemplate,
-  RemoveButton,
-} from '../SchemaFields';
-import { formValidator } from '../utils/events';
+import V1SchemaFormSummary from './V1SchemaFormSummary';
+import V2SchemaFormSummary from './V2SchemaFormSummary';
 
 import * as styles from './styles.module.scss';
 
-const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
-  const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });
-  const { eventTypeTitle } = useReport(report);
-  const filteredSchema = useMemo(() => {
-    const { properties = {} } = schema ?? {};
-    const eventDetailsKeys = Object.keys(report?.event_details ?? {});
-    return {
-      ...schema,
-      properties: Object.entries(properties).reduce((acc, [key, value]) => {
-        return eventDetailsKeys.includes(key) ? { ...acc, [key]: value } : acc;
-      }, {})
-    };
-  }, [report, schema]);
+const LOADER_COLOR = '#006cd9'; // Bright blue
+const LOADER_SIZE = 30;
 
-  return <div className={`${styles.reportFormSummary} ${className}`}>
+const EventFormSummary = ({ report }) => {
+  const dispatch = useDispatch();
+  const { t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary' });
+
+  const eventSchema = useSelector((state) => report
+    ? selectEventSchema(state, report.event_type, report.id)
+    : null);
+  const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
+
+  const { eventTypeTitle } = useReport(report);
+
+  useEffect(() => {
+    if (!!eventType && !eventSchema) {
+      dispatch(fetchEventTypeSchema(report.event_type, report.id));
+    }
+  }, [dispatch, eventSchema, eventType, report.event_type, report.id]);
+
+  if (!eventSchema) {
+    return <div className={styles.loaderWrapper}>
+      <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
+    </div>;
+  }
+
+  return <div className={styles.reportFormSummary}>
     <div className={styles.nonSchemaFields}>
       <div className={styles.nonSchemaField}>
         <label>
@@ -43,35 +49,21 @@ const ReportFormSummary = ({ className, report, schema, uiSchema }) => {
         {eventTypeTitle}
       </div>
 
-      {
-        report.reported_by?.name &&
-        <div className={styles.nonSchemaField}>
-          <label>
-            {t('reportedByLabel')}
-          </label>
-          {report.reported_by?.name}
-        </div>
-      }
+      {report.reported_by?.name && <div className={styles.nonSchemaField}>
+        <label>
+          {t('reportedByLabel')}
+        </label>
+        {report.reported_by?.name}
+      </div>}
     </div>
 
-    {schema && <Form
-      className={styles.form}
-      disabled
-      fields={{ externalLink: ExternalLinkField }}
-      formData={report?.event_details}
-      schema={filteredSchema}
-      showErrorList={false}
-      templates={{
-        ArrayFieldItemTemplate,
-        ArrayFieldTemplate,
-        BaseInputTemplate,
-        ButtonTemplates: { AddButton, MoveDownButton, MoveUpButton, RemoveButton },
-        ObjectFieldTemplate,
-      }}
-      uiSchema={uiSchema}
-      validator={formValidator}
+    {eventType.version === 1 && <V1SchemaFormSummary eventSchema={eventSchema} report={report} />}
+
+    {eventType.version === 2 && <V2SchemaFormSummary
+      eventSchema={eventSchema}
+      formData={report?.event_details || {}}
     />}
   </div>;
 };
 
-export default memo(ReportFormSummary);
+export default memo(EventFormSummary);

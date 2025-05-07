@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../test-utils';
-import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../constants';
+import { DATE_TIME_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import DateTime from './';
 

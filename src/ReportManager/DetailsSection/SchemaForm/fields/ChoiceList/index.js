@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
+import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import Dropdown from './Dropdown';
 import List from './List';

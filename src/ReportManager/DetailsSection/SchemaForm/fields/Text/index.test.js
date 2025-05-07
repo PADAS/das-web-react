@@ -2,7 +2,7 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../../../test-utils';
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import Text from './';
 

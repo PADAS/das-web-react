@@ -1,5 +1,8 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 
+import { EVENT_TYPE_SCHEMA_API_URL } from '../ducks/event-schemas';
 import ReportFormSummary from './index';
 import { report as mockedReport } from '../__test-helpers/fixtures/reports';
 import { eventSchemas } from '../__test-helpers/fixtures/event-schemas';
@@ -9,10 +12,18 @@ import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventTypeTitleForEvent } from '../utils/events';
 import { render, screen } from '../test-utils';
 
+const server = setupServer(
+  http.get(
+    `${EVENT_TYPE_SCHEMA_API_URL}/:name`,
+    () => HttpResponse.json( { data: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6']})
+  )
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('ReportFormSummary', () => {
-
-  const { schema, uiSchema } = eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'];
   const event_details = {
     wildlifesightingrep_species: 'cheetah',
     wildlifesightingrep_numberanimals: 2,
@@ -20,14 +31,21 @@ describe('ReportFormSummary', () => {
   };
   const reported_by = { name: 'Ranger' };
   const report = { ...mockedReport, event_details, reported_by };
-  const initialProps = { report, schema, uiSchema };
   const store = mockStore({
-    data: { eventTypes }
+    data: {
+      eventSchemas: {
+        light_rep: {
+          'd45cb504-4612-41fe-9ea5-f1b423ac3ba4': eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6']
+        },
+      },
+      eventTypes,
+    },
+    view: {},
   });
 
-  const renderReportFormSummary = (props = initialProps) => render(
+  const renderReportFormSummary = (props) => render(
     <Provider store={store}>
-      <ReportFormSummary {...props} />
+      <ReportFormSummary report={report} {...props} />
     </Provider>
   );
 
@@ -59,16 +77,8 @@ describe('ReportFormSummary', () => {
     const eventDetails = { ...event_details };
     delete eventDetails.wildlifesightingrep_species;
 
-    const props = {
-      ...initialProps,
-      report: {
-        ...report,
-        event_details: eventDetails
-      }
-    };
-
     rerender(<Provider store={store}>
-      <ReportFormSummary {...props} />
+      <ReportFormSummary report={{ ...report, event_details: eventDetails }} />
     </Provider>);
 
     expect( screen.queryByRole('combobox', roleOptions ) ).not.toBeInTheDocument();
