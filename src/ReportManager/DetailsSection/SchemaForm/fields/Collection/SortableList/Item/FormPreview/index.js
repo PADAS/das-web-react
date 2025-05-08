@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../../../../../../../../common/images/icons/marker-feed.svg';
 
-import { FORM_ELEMENT_TYPES, JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../../../../constants';
-import { getHumanizedValue } from '../utils';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../../utils/v2-event-schemas/constants';
+import { JUMP_TO_LOCATION_BUTTON_ZOOM } from '../../../../../constants';
+import getHumanizedFieldValue from '../../../../../../../../utils/v2-event-schemas/getHumanizedFieldValue';
 import useJumpToLocation from '../../../../../../../../hooks/useJumpToLocation';
 
 import * as styles from './styles.module.scss';
@@ -39,7 +40,7 @@ const FormPreview = ({
         </p>
 
         <p className={`${styles.value} ${errors?.[fieldId] ? styles.error : ''}`}>
-          {getHumanizedValue(fields[fieldId], formData[fieldId], '-', i18n.language, gpsFormat, t)}
+          {getHumanizedFieldValue(fields[fieldId], formData[fieldId], '-', i18n.language, gpsFormat, t)}
         </p>
       </div>
 

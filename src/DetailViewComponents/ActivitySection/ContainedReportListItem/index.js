@@ -9,9 +9,6 @@ import { ReactComponent as ArrowIntoIcon } from '../../../common/images/icons/ar
 import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icons/arrow-up-simple.svg';
 
 import { fetchEvent } from '../../../ducks/events';
-import { fetchEventTypeSchema } from '../../../ducks/event-schemas';
-import { selectEventSchema } from '../../../selectors/event-schemas';
-import { selectEventTypeByValue } from '../../../selectors/event-types';
 import { TAB_KEYS } from '../../../constants';
 import useNavigate from '../../../hooks/useNavigate';
 
@@ -31,10 +28,6 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
   const { t } = useTranslation('details-view', { keyPrefix: 'containedReportListItem' });
 
   const reportFromEventStore = useSelector((state) => state.data.eventStore[report.id]);
-  const eventSchema = useSelector((state) => reportFromEventStore
-    ? selectEventSchema(state, reportFromEventStore.event_type, reportFromEventStore.id)
-    : null);
-  const eventType = useSelector((state) => selectEventTypeByValue(state, report.event_type));
 
   const isOpen = useMemo(() => cardsExpanded.includes(report), [cardsExpanded, report]);
 
@@ -45,12 +38,6 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       dispatch(fetchEvent(report.id));
     }
   }, [dispatch, report.id, reportFromEventStore]);
-
-  useEffect(() => {
-    if (!!eventType && !eventSchema) {
-      dispatch(fetchEventTypeSchema(report.event_type, report.id));
-    }
-  }, [dispatch, eventSchema, eventType, report.event_type, report.id]);
 
   return <li>
     <div
@@ -88,12 +75,8 @@ const ContainedReportListItem = ({ cardsExpanded, onCollapse, onExpand, report }
       in={isOpen}
     >
       <div>
-        {!!reportFromEventStore && !!eventSchema
-          ? <ReportFormSummary
-            report={reportFromEventStore}
-            schema={eventSchema.schema}
-            uiSchema={eventSchema.uiSchema}
-          />
+        {!!reportFromEventStore
+          ? <ReportFormSummary report={reportFromEventStore} />
           : <div className={styles.loaderWrapper}>
             <MoonLoader color={LOADER_COLOR} size={LOADER_SIZE} />
           </div>}

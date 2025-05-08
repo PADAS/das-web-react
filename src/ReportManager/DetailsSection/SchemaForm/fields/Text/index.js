@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
 
-import { TEXT_ELEMENT_INPUT_TYPES } from '../../constants';
+import { TEXT_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import * as styles from './styles.module.scss';
 

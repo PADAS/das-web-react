@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, within } from '../../../../../../../test-utils';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../utils/v2-event-schemas/constants';
 import { GPS_FORMATS } from '../../../../../../../utils/location';
 import { mockStore } from '../../../../../../../__test-helpers/MockStore';
 

@@ -71,7 +71,10 @@
     },
     "reportFormSummary": {
         "reportTypeLabel": "घटनाका प्रकार",
-        "reportedByLabel": "द्वारा रिपोर्ट गरिएको"
+        "reportedByLabel": "द्वारा रिपोर्ट गरिएको",
+        "v2SchemaFormSummary": {
+            "collectionHumanizedValue": "{{collectionLength}} वस्तुहरू"
+        }
     },
     "addReportButtonLabel": "नयाँ घटना बनाउनुहोस्"
 }

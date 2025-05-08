@@ -6,7 +6,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { render, screen } from '../../../../../../../test-utils';
 import { GPS_FORMATS } from '../../../../../../../utils/location';
 import { mockStore } from '../../../../../../../__test-helpers/MockStore';
-import { FORM_ELEMENT_TYPES } from '../../../../constants';
+import { FORM_ELEMENT_TYPES } from '../../../../../../../utils/v2-event-schemas/constants';
 
 import SortableItem from './';
 
