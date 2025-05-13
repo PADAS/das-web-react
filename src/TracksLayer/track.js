@@ -13,11 +13,21 @@ import useMapLayers from '../hooks/useMapLayers';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
+const STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID = [
+  'rgb',
+  ['random', 64, 224, ['concat', ['get', 'id'], '-r']],
+  ['random', 64, 224, ['concat', ['get', 'id'], '-g']],
+  ['random', 64, 224, ['concat', ['get', 'id'], '-b']]
+];
+
 const TRACK_LAYER_LINE_PAINT = {
   'line-color': [
     'case',
-    ['has', 'stroke'], ['get', 'stroke'],
-    'orange',
+    ['all',
+      ['has', 'stroke'],
+      ['!=', ['get', 'stroke'], '']
+    ], ['to-color', ['get', 'stroke']],
+    STABLE_RANDOM_TRACK_COLOR_BASED_ON_ID,
   ],
   'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
 };
