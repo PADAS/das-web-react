@@ -38,6 +38,7 @@
       "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
       "title": "Field Events"
     },
+    "ecoscopeDownloaderLink": "Ecoscope Downloader",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
       "copyright": "©{{year}} EarthRanger",

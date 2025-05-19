@@ -269,6 +269,7 @@ const GlobalMenuDrawer = () => {
         <h6>{t('exportsHeader')}</h6>
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
+        <button></button>
       </div>
     </div>
 

@@ -36,6 +36,7 @@
       "content": "Les informations exportées inclueront uniquement les informations filtrées selon les critères dans la rubrique des Événements ",
       "title": "Événements"
     },
+    "ecoscopeDownloaderLink": "Téléchargeur Ecoscope",
     "footer": {
       "clientVersion": "Version du client web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
