@@ -30,8 +30,8 @@
             "noneSelected": "कुनैपनि छानिएन",
             "someSelected": "{{eventTypeIDsLength}} को {{reportTypesCheckedCount}} वटा छानियो"
         },
-        "restAllButton": "सबै रिसेट गर्नुहोस्",
-        "restButton": "रिसेट गर्नुहोस्",
+        "resetAllButton": "सबै रिसेट गर्नुहोस्",
+        "resetButton": "रिसेट गर्नुहोस्",
         "stateLabel": "अवस्था",
         "stateSelector": {
             "active": "सकृय",

@@ -30,8 +30,8 @@
       "noneSelected": "Aucune sélection",
       "someSelected": "{{reportTypesCheckedCount}} sur {{eventTypeIDsLength}} sélectionnés "
     },
-    "restAllButton": "Tout réinitialiser",
-    "restButton": "Réinitialiser",
+    "resetAllButton": "Tout réinitialiser",
+    "resetButton": "Réinitialiser",
     "stateLabel": "Statut",
     "stateSelector": {
       "active": "Actif",

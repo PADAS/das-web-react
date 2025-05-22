@@ -1,6 +1,5 @@
-import React, { memo, Fragment, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
-import intersection from 'lodash/intersection';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -13,113 +12,123 @@ import SearchBar from '../SearchBar';
 
 import * as styles from './styles.module.scss';
 
-const filterProps = ['display', 'value', 'category.display'];
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 
-const filterEventTypes = (eventTypes, filterText) =>
-  eventTypes.filter(item =>
-    filterProps.some((prop) => {
-      if (prop.includes('.')) {
-        const nestedFilterProp = prop.split('.').reduce((accumulator, prop) => {
-          if (typeof accumulator === 'object') {
-            return accumulator[prop];
-          }
-          return accumulator;
-        }, item);
-        return nestedFilterProp?.toString().toLowerCase().includes(filterText.toString().toLowerCase());
+const EVENT_TYPE_TEXT_FILTER_FIELDS = ['display', 'value', 'category.display'];
+
+const filterEventTypes = (eventTypes, filterText) => {
+  const filterTextInLowerCase = filterText.toString().toLowerCase();
+
+  return eventTypes.filter((eventType) =>
+    EVENT_TYPE_TEXT_FILTER_FIELDS.some((field) => {
+      let fieldValue = eventType?.[field];
+      if (field.includes('.')) {
+        // If the field has a "." we traverse the event type object to the
+        // nested field.
+        fieldValue = field
+          .split('.')
+          .reduce((accumulator, field) => accumulator?.[field], eventType);
       }
-      return item?.[prop].toString().toLowerCase().includes(filterText.toString().toLowerCase());
+
+      return fieldValue?.toString().toLowerCase().includes(filterTextInLowerCase);
     })
   );
+};
+
+const ListItem = ({ display, onTypeToggle, selectedReportTypeIDs, types }) => <>
+  <h5>{display}</h5>
+
+  <CheckableList
+    itemComponent={EventTypeListItem}
+    itemFullyChecked={(eventType) => !selectedReportTypeIDs.length|| selectedReportTypeIDs.includes(eventType.id)}
+    items={types}
+    onCheckClick={onTypeToggle}
+  />
+</>;
 
 const ReportTypeMultiSelect = ({
   filter,
+  onCategoryToggle,
   onFilterChange,
   onFilteredItemsSelect,
-  onCategoryToggle,
   onTypeToggle,
   selectedReportTypeIDs,
 }) => {
   const { t } = useTranslation('filters', { keyPrefix: 'reportTypeMultiSelect' });
 
-  const eventTypes = useSelector((state) => state.data.eventTypes);
   const eventCategories = useSelector((state) => state.data.eventCategories);
+  const eventTypes = useSelector((state) => state.data.eventTypes);
 
-  const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
+  const filteredEventTypes = useMemo(
+    () => filter.length > 0 ? filterEventTypes(eventTypes, filter) : eventTypes,
+    [eventTypes, filter]
+  );
 
-  const onSearchValueChange = ({ target: { value } }) => {
-    onFilterChange(value);
-  };
+  const eventTypesMappedByCategory = mapEventTypesToCategories(filteredEventTypes, eventCategories);
 
-  const onFilterClear = () => {
+  let setToMatchesButtonText = t('noResultsLabel');
+  if (filteredEventTypes.length > 0) {
+    setToMatchesButtonText = filteredEventTypes.length > 1
+      ? t('someResultsLabel', { resultCount: filteredEventTypes.length })
+      : t('singleResultLabel');
+  }
+
+  const onSearchBarClear = () => {
     onFilterChange('');
+
     eventFilterTracker.track('Clear Report Type Text Filter');
   };
 
-  const filteredEventTypes = filter.length ? filterEventTypes(eventTypes, filter) : eventTypes;
-
-  const itemsGroupedByCategory = mapEventTypesToCategories(filteredEventTypes, eventCategories);
-
-  const categoryFullyChecked = (category) => {
-    if (noEventTypeSetInFilter) return true;
-
-    const categoryTypeIDs = category.types.map(t => t.id);
-    return intersection(categoryTypeIDs, selectedReportTypeIDs).length === categoryTypeIDs.length;
-  };
-
-  const categoryPartiallyChecked = (category) => {
-    const categoryTypeIDs = category.types.map(t => t.id);
-    return !categoryFullyChecked(category) && !!intersection(categoryTypeIDs, selectedReportTypeIDs).length;
-  };
-
-  const selectFilteredItems = () => {
+  const onSetToMatchesButtonClick = () => {
     onFilteredItemsSelect(filteredEventTypes);
+
     eventFilterTracker.track('Set Selected Report Types From Searchbar');
   };
 
-  const reportTypeChecked = (type) => noEventTypeSetInFilter ? true : selectedReportTypeIDs.includes(type.id);
+  const areAllCategoryEventTypesSelected = (category) => {
+    if (!selectedReportTypeIDs.length) {
+      return true;
+    }
 
-  const ListItem = (props) => { // eslint-disable-line react/display-name
-    const { display, types } = props;
-    return <Fragment key={display}>
-      <h5>{display}</h5>
-      <CheckableList
-        items={types}
-        onCheckClick={onTypeToggle}
-        itemComponent={EventTypeListItem}
-        itemFullyChecked={reportTypeChecked}
-      />
-    </Fragment>;
+    const categoryEventTypeIds = category.types.map((eventType) => eventType.id);
+
+    return categoryEventTypeIds.every((eventTypeId) => selectedReportTypeIDs.includes(eventTypeId));
   };
 
-  const MemoizedListItem = memo(ListItem);
+  const areCategoryEventTypesPartiallySelected = (category) => {
+    const categoryEventTypeIds = category.types.map((eventType) => eventType.id);
 
-  const matchesButtonText = useMemo(() => {
-    if (filteredEventTypes.length){
-      return filteredEventTypes.length > 1
-        ? t('someResultsLabel', { resultCount: filteredEventTypes.length })
-        : t('singleResultLabel');
-    }
-    return t('noResultsLabel');
-  }, [filteredEventTypes, t]);
+    return categoryEventTypeIds.some((eventTypeId) => selectedReportTypeIDs.includes(eventTypeId))
+      && !areAllCategoryEventTypesSelected(category);
+  };
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
-      <SearchBar placeholder={t('placeholder')} value={filter}
-        onChange={onSearchValueChange} onClear={onFilterClear} />
-      {!!filter.length
-        && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>
-          {matchesButtonText}
-        </Button>
-      }
+      <SearchBar
+        onChange={(event) => onFilterChange(event.target.value)}
+        onClear={onSearchBarClear}
+        placeholder={t('placeholder')}
+        value={filter}
+      />
+
+      {filter.length > 0 && <Button
+        onClick={onSetToMatchesButtonClick}
+        size="sm"
+        type="button"
+        variant="info"
+      >
+        {setToMatchesButtonText}
+      </Button>}
     </div>
+
     <CheckableList
       className={styles.reportTypeList}
+      itemComponent={ListItem}
+      itemFullyChecked={areAllCategoryEventTypesSelected}
+      itemPartiallyChecked={areCategoryEventTypesPartiallySelected}
+      itemProps={{ onTypeToggle, selectedReportTypeIDs }}
+      items={eventTypesMappedByCategory}
       onCheckClick={onCategoryToggle}
-      items={itemsGroupedByCategory}
-      itemComponent={MemoizedListItem}
-      itemFullyChecked={categoryFullyChecked}
-      itemPartiallyChecked={categoryPartiallyChecked}
     />
   </div>;
 };
