@@ -26,7 +26,7 @@ const EventsVectorLayer = (props) => {
   const { onEventClick } = props;
   const map = useContext(MapContext);
   // Disable for production or make configurable
-  map.showTileBoundaries = true;
+  map.showTileBoundaries = process.env.NODE_ENV !== 'production';
 
   const eventTypes = useSelector(state => state.data.eventTypes);
   const eventFilter = useSelector(state => state.data.eventFilter);
