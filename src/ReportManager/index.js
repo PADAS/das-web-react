@@ -11,6 +11,7 @@ import {
 import { fetchEvent } from '../ducks/events';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { NavigationContext } from '../NavigationContextProvider';
+import { selectEventTypeById } from '../selectors/event-types';
 import { TAB_KEYS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 import { uuid } from '../utils/string';
@@ -22,13 +23,6 @@ import ReportDetailView from './ReportDetailView';
 import * as styles from './styles.module.scss';
 
 const ADDED_REPORT_TRANSITION_EFFECT_TIME = 600;
-
-const shouldFetchEventDetails = (eventId, eventStore) =>
-  !eventStore[eventId]
-  || !eventStore[eventId].event_details
-  || !eventStore[eventId].files
-  || !eventStore[eventId].notes
-  || !eventStore[eventId].updates;
 
 const ReportManager = ({ onReportBeingAdded = null }) => {
   const dispatch = useDispatch();
@@ -77,17 +71,15 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
   const newReportTemporalId = location.state?.temporalId;
   const newReportTypeId = searchParams.get('reportType');
 
-  const eventStore = useSelector((state) => state.data.eventStore);
-  const reportType = useSelector(
-    (state) => state.data.eventTypes.find((eventType) => eventType.id === newReportTypeId)
-  );
-
-  const [isLoadingReport, setIsLoadingReport] = useState(true);
-
   const isNewReport = existingReportId === 'new';
   const reportId = isNewReport ? newReportTemporalId : existingReportId;
 
-  const shouldRenderReportDetailView = !!(isNewReport ? reportType : (eventStore[reportId] && !isLoadingReport));
+  const event = useSelector((state) => state.data.eventStore[reportId]);
+  const eventType = useSelector((state) => selectEventTypeById(state, newReportTypeId));
+
+  const [isLoadingReport, setIsLoadingReport] = useState(true);
+
+  const shouldRenderReportDetailView = !!(isNewReport ? eventType : (event && !isLoadingReport));
 
   const onAddReport = useCallback((formProps, reportData, reportTypeId) => {
     setAddedReportFormProps({ ...formProps, onCancelAddedReport });
@@ -98,7 +90,7 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
 
   useEffect(() => {
     if (isNewReport) {
-      if (!reportType) {
+      if (!eventType) {
         navigate(`/${TAB_KEYS.EVENTS}`, { replace: true });
       } else if (!newReportTemporalId) {
         navigate(
@@ -107,10 +99,15 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
         );
       }
     }
-  }, [isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId, reportType]);
+  }, [eventType, isNewReport, location.pathname, location.search, location.state, navigate, newReportTemporalId]);
 
   useEffect(() => {
-    if (!isNewReport && shouldFetchEventDetails(reportId, eventStore)) {
+    const shouldFetchEventDetails = !event
+      || !event.event_details
+      || !event.files
+      || !event.notes
+      || !event.updates;
+    if (!isNewReport && shouldFetchEventDetails) {
       setIsLoadingReport(true);
       dispatch(fetchEvent(reportId))
         .then(() => setIsLoadingReport(false))
@@ -118,7 +115,7 @@ const ReportManager = ({ onReportBeingAdded = null }) => {
     } else {
       setIsLoadingReport(false);
     }
-  }, [dispatch, eventStore, isNewReport, navigate, reportId]);
+  }, [dispatch, event, isNewReport, navigate, reportId]);
 
   return <TrackerContext.Provider value={reportTracker}>
     {shouldRenderReportDetailView ? <ReportDetailView

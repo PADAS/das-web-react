@@ -58,6 +58,9 @@
   },
   "reportFormSummary": {
     "reportTypeLabel": "Type d'Évenement",
-    "reportedByLabel": "Complété Par"
+    "reportedByLabel": "Complété Par",
+    "v2SchemaFormSummary": {
+      "collectionHumanizedValue": "{{collectionLength}} éléments"
+    }
   }
 }

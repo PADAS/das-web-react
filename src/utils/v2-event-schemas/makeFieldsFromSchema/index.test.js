@@ -6,9 +6,8 @@ import {
   HEADER_ELEMENT_SIZES,
   ROOT_CANVAS_ID,
   TEXT_ELEMENT_INPUT_TYPES,
-} from '../../constants';
-
-import { choicesListOptions } from '../../fixtures';
+} from '../constants';
+import { choicesListOptions } from '../fixtures';
 
 describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSchema', () => {
   it('creates section fields from the schema', () => {

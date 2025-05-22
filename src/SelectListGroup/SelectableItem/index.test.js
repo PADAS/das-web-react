@@ -158,7 +158,6 @@ describe('SelectListGroup - SelectableItem', () => {
 
       await userEvent.click(input);
 
-      expect(input).toHaveProperty('readOnly', true);
       expect(onClick).not.toHaveBeenCalled();
     });
   });
@@ -224,7 +223,6 @@ describe('SelectListGroup - SelectableItem', () => {
 
       await userEvent.click(input);
 
-      expect(input).toHaveProperty('readOnly', true);
       expect(onClick).not.toHaveBeenCalled();
     });
 

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { HEADER_ELEMENT_SIZES } from '../../constants';
+import { HEADER_ELEMENT_SIZES } from '../../../../../utils/v2-event-schemas/constants';
 
 import * as styles from './styles.module.scss';
 

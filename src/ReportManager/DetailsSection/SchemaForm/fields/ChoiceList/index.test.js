@@ -1,9 +1,8 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../constants';
-
 import { render, screen } from '../../../../../test-utils';
+import { CHOICE_LIST_ELEMENT_INPUT_TYPES } from '../../../../../utils/v2-event-schemas/constants';
 
 import ChoiceList from './';
 

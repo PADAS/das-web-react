@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from './constants';
-import makeFieldsFromSchema from './utils/makeFieldsFromSchema';
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../../utils/v2-event-schemas/constants';
+import makeFieldsFromSchema from '../../../utils/v2-event-schemas/makeFieldsFromSchema';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
 
@@ -123,7 +123,7 @@ const SchemaForm = ({
     default:
       const Field = FIELDS[fields[id].type];
       return <Field
-        autofillDefaultInput={autofillDefaultInputs}
+        autofillDefaultInput={autofillDefaultInputs && !value}
         details={fields[id].details}
         error={error}
         id={id}

@@ -59,5 +59,8 @@
     "reportFormSummary": {
         "reportTypeLabel": "Tipo de evento",
         "reportedByLabel": "Reportado por"
+    },
+    "v2SchemaFormSummary": {
+        "collectionHumanizedValue": "{{collectionLength}} itens"
     }
 }

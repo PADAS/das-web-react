@@ -72,6 +72,9 @@
   },
   "reportFormSummary": {
     "reportTypeLabel": "Aina ya Tukio",
-    "reportedByLabel": "Imeorodheshwa na"
+    "reportedByLabel": "Imeorodheshwa na",
+    "v2SchemaFormSummary": {
+      "collectionHumanizedValue": "{{collectionLength}} vitu"
+    }
   }
 }

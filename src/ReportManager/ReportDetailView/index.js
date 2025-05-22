@@ -30,7 +30,7 @@ import { executeSaveActions, generateSaveActionsForReportLikeObject } from '../.
 import { extractObjectDifference } from '../../utils/objects';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { fetchPatrol } from '../../ducks/patrols';
-import { getSchemasForEventTypeByEventId } from '../../utils/event-schemas';
+import { selectEventSchema } from '../../selectors/event-schemas';
 import { selectEventTypeById, selectEventTypeByValue } from '../../selectors/event-types';
 import { setLocallyEditedEvent, unsetLocallyEditedEvent } from '../../ducks/locally-edited-event';
 import { SidebarScrollContext } from '../../SidebarScrollContext';
@@ -125,7 +125,7 @@ const ReportDetailView = ({
   const reportTracker = useContext(TrackerContext);
   const { setScrollPosition } = useContext(SidebarScrollContext);
 
-  const eventSchemas = useSelector((state) => state.data.eventSchemas);
+  const loadingEventSchemas = useSelector((state) => state.data.eventSchemas.loading);
   const eventStore = useSelector((state) => state.data.eventStore);
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const eventType = useSelector((state) => {
@@ -156,6 +156,10 @@ const ReportDetailView = ({
   const [reportForm, setReportForm] = useState(isNewReport ? newReport : reportFromStore);
   const [saveError, setSaveError] = useState(null);
 
+  const eventSchema = useSelector((state) => reportForm
+    ? selectEventSchema(state, reportForm.event_type, reportForm.id)
+    : null);
+
   const {
     onCancelAddedReport,
     onSaveError: onSaveErrorCallback,
@@ -164,15 +168,11 @@ const ReportDetailView = ({
     relationshipButtonDisabled,
   } = formProps || {};
 
-  const reportSchemas = reportForm
-    ? getSchemasForEventTypeByEventId(eventSchemas, reportForm.event_type, reportForm.id)
-    : null;
-
   const originalReport = isNewReport ? newReport : reportFromStore;
   const isActive = isReportActive(originalReport);
   const isCollection = !!reportForm?.is_collection;
   const isCollectionChild = eventBelongsToCollection(reportForm);
-  const isLoadingSchemas = (!!reportForm && !reportSchemas) || !!eventSchemas.loading;
+  const isLoadingSchemas = (!!reportForm && !eventSchema) || !!loadingEventSchemas;
   const isPatrolAddedReport = formProps?.hasOwnProperty('isPatrolReport') && formProps.isPatrolReport;
   const belongsToPatrol = eventBelongsToPatrol(reportForm);
 
@@ -225,7 +225,7 @@ const ReportDetailView = ({
       return {};
     }
 
-    const { properties: schemaProps } = reportSchemas?.schema ?? {};
+    const { properties: schemaProps } = eventSchema?.schema ?? {};
     const formattedReportDiffs = calculateFormattedReportDiffs(reportForm, originalReport);
     return formattedReportDiffs.reduce((accumulator, [key, reportField]) => {
       if (key === EVENT_DETAILS_KEY) {
@@ -237,7 +237,7 @@ const ReportDetailView = ({
 
       return { ...accumulator, [key]: reportField };
     }, {});
-  }, [originalReport, reportForm, reportSchemas]);
+  }, [eventSchema, originalReport, reportForm]);
 
   const newNotesAdded = useMemo(
     () => notesToAdd.length > 0 && notesToAdd.some((noteToAdd) => noteToAdd.text),
@@ -438,11 +438,11 @@ const ReportDetailView = ({
   const onFormError = useCallback((errors) => {
     const formattedErrors = errors.map((error) => ({
       ...error,
-      label: reportSchemas.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
+      label: eventSchema.schema?.properties?.[error.linearProperty]?.title ?? error.linearProperty,
     }));
 
     setSaveError([...formattedErrors]);
-  }, [reportSchemas?.schema?.properties]);
+  }, [eventSchema?.schema?.properties]);
 
   const onFormSubmit = useCallback(() => onSaveReport(`/${TAB_KEYS.EVENTS}`), [onSaveReport]);
 
@@ -618,7 +618,7 @@ const ReportDetailView = ({
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
     if (shouldSave && !isPatrolAddedReport) {
       onClickSaveButton();
-      return !formValidator.validateFormData(reportForm, reportSchemas?.schema)?.errors?.length;
+      return !formValidator.validateFormData(reportForm, eventSchema?.schema)?.errors?.length;
     }
 
     if (shouldSave && isPatrolAddedReport) {
@@ -634,10 +634,10 @@ const ReportDetailView = ({
 
     return true;
   }, [
+    eventSchema?.schema,
     isPatrolAddedReport,
     onClickSaveButton,
     reportForm,
-    reportSchemas?.schema,
     onSaveReport,
     isAddedReport,
     trackDiscard,
@@ -669,10 +669,10 @@ const ReportDetailView = ({
   ]);
 
   useEffect(() => {
-    if (!!reportForm && !!eventType && !reportSchemas) {
+    if (!!reportForm && !!eventType && !eventSchema) {
       dispatch(fetchEventTypeSchema(reportForm.event_type, reportForm.id));
     }
-  }, [dispatch, eventType, reportForm, reportSchemas]);
+  }, [eventSchema, dispatch, eventType, reportForm]);
 
   useEffect(() => {
     if (linkedPatrolIds?.length > 0) {
@@ -724,7 +724,7 @@ const ReportDetailView = ({
   const shouldRenderHistorySection = reportForm?.updates;
   const shouldRenderLinksSection = !!linkedReports.length || !!linkedPatrols.length;
 
-  const isReadOnly = reportSchemas?.schema?.readonly;
+  const isReadOnly = eventSchema?.schema?.readonly;
 
   return <div
     className={`${styles.reportDetailView} ${className || ''} ${isReadOnly ? styles.readonly : ''}`}
@@ -793,7 +793,7 @@ const ReportDetailView = ({
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
               <DetailsSection
                 eventId={reportId}
-                eventSchema={reportSchemas}
+                eventSchema={eventSchema}
                 isBehindAddedEvent={isBehindAddedEvent}
                 isCollection={isCollection}
                 isNewEvent={isNewReport}

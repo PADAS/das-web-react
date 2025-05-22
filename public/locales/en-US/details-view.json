@@ -72,6 +72,9 @@
   },
   "reportFormSummary": {
     "reportTypeLabel": "Event Type",
-    "reportedByLabel": "Reported By"
+    "reportedByLabel": "Reported By",
+    "v2SchemaFormSummary": {
+      "collectionHumanizedValue": "{{collectionLength}} items"
+    }
   }
 }

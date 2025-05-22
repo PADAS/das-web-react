@@ -16,7 +16,7 @@ import ContainedReportListItem from '.';
 
 const server = setupServer(
   http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.json( { data: { ...report } })),
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}:name`, () => HttpResponse.json( { data: { results: {} } }))
+  http.get(`${EVENT_TYPE_SCHEMA_API_URL}/:name`, () => HttpResponse.json( { data: { results: {} } }))
 );
 
 beforeAll(() => server.listen());
