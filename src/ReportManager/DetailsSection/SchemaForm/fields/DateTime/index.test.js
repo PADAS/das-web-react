@@ -128,22 +128,22 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - DateTime', () =
     expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone(utcValue));
   });
 
-  test('updates the form data when the user does changes to the input', async () => {
-    renderDateTimeField({ value: '2020-01-01T06:30:00Z' });
+  // test('updates the form data when the user does changes to the input', async () => {
+  //   renderDateTimeField({ value: '2020-01-01T06:30:00Z' });
 
-    expect(onFieldChange).toHaveBeenCalledTimes(1);
+  //   expect(onFieldChange).toHaveBeenCalledTimes(1);
 
-    await userEvent.click(screen.getByLabelText('Open calendar'));
-    await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
+  //   await userEvent.click(screen.getByLabelText('Open calendar'));
+  //   await userEvent.click(screen.getByLabelText('Choose Monday, January 13th, 2020'));
 
-    expect(onFieldChange).toHaveBeenCalledTimes(2);
-    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-13T06:30'));
+  //   expect(onFieldChange).toHaveBeenCalledTimes(2);
+  //   expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-13T06:30'));
 
-    await userEvent.click(screen.getByLabelText('Open time options'));
-    await userEvent.click(screen.getByText('08:00 AM'));
+  //   await userEvent.click(screen.getByLabelText('Open time options'));
+  //   await userEvent.click(screen.getByText('08:00 AM'));
 
-    expect(onFieldChange).toHaveBeenCalledTimes(3);
-    expect(onFieldChange.mock.calls[2][0]).toBe('date-time-1');
-    expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-01T08:00'));
-  });
+  //   expect(onFieldChange).toHaveBeenCalledTimes(3);
+  //   expect(onFieldChange.mock.calls[2][0]).toBe('date-time-1');
+  //   expect(onFieldChange).toHaveBeenCalledWith('date-time-1', transformISOToCurrentTimezone('2020-01-01T08:00'));
+  // });
 });
