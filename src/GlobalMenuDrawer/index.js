@@ -270,7 +270,7 @@ const GlobalMenuDrawer = () => {
         <h6>{t('exportsHeader')}</h6>
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
-        <a className={styles.ecoscopeDownloaderLink} target="_blank" rel="noreferrer" href='https://ecoscope.io/en/latest/ecoscope_gui.html#downloads' aria-label="Ecoscope Downloader">
+        <a className={styles.ecoscopeDownloaderLink} target="_blank" rel="noreferrer" href='https://ecoscope.io/en/latest/ecoscope_gui.html#downloads' aria-label={t('ecoscopeDownloaderLink')}>
           {t('ecoscopeDownloaderLink')} <ExternalLinkIcon />
         </a>
       </div>
