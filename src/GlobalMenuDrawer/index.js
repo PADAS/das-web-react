@@ -271,7 +271,7 @@ const GlobalMenuDrawer = () => {
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
         <a className={styles.ecoscopeDownloaderLink} target="_blank" rel="noreferrer" href='https://ecoscope.io/en/latest/ecoscope_gui.html#downloads' aria-label="Ecoscope Downloader">
-          Ecoscope Downloader <ExternalLinkIcon />
+          {t('ecoscopeDownloaderLink')} <ExternalLinkIcon />
         </a>
       </div>
     </div>
