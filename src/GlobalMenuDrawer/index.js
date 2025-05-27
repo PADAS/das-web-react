@@ -8,6 +8,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -269,6 +270,9 @@ const GlobalMenuDrawer = () => {
         <h6>{t('exportsHeader')}</h6>
 
         {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
+        <a className={styles.ecoscopeDownloaderLink} target="_blank" rel="noreferrer" href='https://ecoscope.io/en/latest/ecoscope_gui.html#downloads' aria-label={t('ecoscopeDownloaderLink')}>
+          {t('ecoscopeDownloaderLink')} <ExternalLinkIcon />
+        </a>
       </div>
     </div>
 
