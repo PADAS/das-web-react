@@ -30,8 +30,8 @@
       "noneSelected": "None selected",
       "someSelected": "{{reportTypesCheckedCount}} of {{eventTypeIDsLength}} selected"
     },
-    "restAllButton": "Reset All",
-    "restButton": "Reset",
+    "resetAllButton": "Reset All",
+    "resetButton": "Reset",
     "stateLabel": "State",
     "stateSelector": {
       "active": "Active",

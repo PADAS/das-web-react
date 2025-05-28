@@ -77,7 +77,10 @@
     color: $secondary-light-gray;
   }
 
-  button {
+  button,
+  .ecoscopeDownloaderLink {
+    color: white;
+    text-decoration: none;
     margin-bottom: 0.5rem;
 
     &:hover {
