@@ -56,13 +56,15 @@ const ObservationRow = ({ observation, observationProperties, subjectIsStatic })
 
   return <tr>
     <td>
-      <DateTime className={styles.dateTime} date={observation.recorded_at}/>
+      <DateTime className={styles.dateTime} date={observation.recorded_at} />
     </td>
 
     {observationProperties.map((property) => {
       const matchedProp = observation.device_status_properties?.find((observationProperty) => observationProperty.label === property);
       if (!matchedProp) {
-        return <span className={styles.noDataLabel} key={property}>{t('noDataLabel')}</span>;
+        return <td key={property}>
+          <span className={styles.noDataLabel} key={property}>{t('noDataLabel')}</span>
+        </td>;
       }
 
       const propertyUnitsLabel = JSON.parse(JSON.stringify(matchedProp.units)) ? ` ${matchedProp.units}` : '';
@@ -111,7 +113,7 @@ const SubjectHistoricalDataModal = ({ subjectId, subjectIsStatic, title }) => {
     </Modal.Header>
 
     <Modal.Body className={styles.modalBody}>
-      {loading && <LoadingOverlay/>}
+      {loading && <LoadingOverlay />}
 
       <Table bordered hover responsive size="sm">
         <thead>
