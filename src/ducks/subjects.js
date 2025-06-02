@@ -51,12 +51,14 @@ const cancelableMapSubjectsFetch = () => {
       cancelToken.cancel();
       cancelToken = CancelToken.source();
 
+      
       return axios.get(SUBJECTS_API_URL, {
         cancelToken: cancelToken.token,
         params: {
           bbox,
           use_lkl,
           ...params,
+          include_inactive: false,
         }
       })
         .then((response) => {
@@ -144,7 +146,7 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
       return {
         ...group,
         subgroups: replaceGroupSubjectsWithSubjectIDs(...subgroups),
-        subjects: subjects.map(({ id }) =>  id),
+        subjects: subjects.map(({ id }) => id),
       };
 
     });
