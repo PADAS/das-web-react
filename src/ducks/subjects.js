@@ -57,6 +57,7 @@ const cancelableMapSubjectsFetch = () => {
           bbox,
           use_lkl,
           ...params,
+          include_inactive: false,
         }
       })
         .then((response) => {
@@ -144,7 +145,7 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
       return {
         ...group,
         subgroups: replaceGroupSubjectsWithSubjectIDs(...subgroups),
-        subjects: subjects.map(({ id }) =>  id),
+        subjects: subjects.map(({ id }) => id),
       };
 
     });
