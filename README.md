@@ -1,3 +1,4 @@
+
 # EarthRanger Web
 This is the web interface for EarthRanger. It is built with React (whose bootstrapping documentation is kept inline at the end of this document), using Redux for state management and Mapbox GL for map rendering. For an exhaustive list of 3rd-party dependencies, please review the package.json file at the root of this project.
 
