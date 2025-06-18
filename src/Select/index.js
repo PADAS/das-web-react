@@ -45,9 +45,9 @@ const Select = ({ styles: customStyles, components, ref, ...rest }) => {
 
   return <ReactSelect
       components={{ DropdownIndicator, IndicatorsContainer, ...components }}
-      ref={ref}
       menuPortalTarget={document.body}
       menuPlacement='auto'
+      ref={ref}
       styles={{
         ...selectStyles,
         menuPortal: base => ({ ...base, zIndex: 10 })

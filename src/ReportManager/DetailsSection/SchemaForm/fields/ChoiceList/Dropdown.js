@@ -64,6 +64,8 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherPro
     isClearable
     isDisabled={disabled}
     isMulti={details.multiple}
+    menuPortalTarget={document.body}
+    menuPlacement='auto'
     noOptionsMessage={() => t('select.noOptionsMessage')}
     onChange={onSelectChange}
     onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
@@ -71,6 +73,9 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherPro
     onMenuOpen={() => setMenuOpen(true)}
     options={options}
     placeholder={details.hint}
+    styles={{
+        menuPortal: base => ({ ...base, zIndex: 10 })
+    }}
     value={selectedValue}
     {...otherProps}
   />;
