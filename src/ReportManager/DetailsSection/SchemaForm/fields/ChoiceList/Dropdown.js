@@ -73,9 +73,6 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherPro
     onMenuOpen={() => setMenuOpen(true)}
     options={options}
     placeholder={details.hint}
-    styles={{
-        menuPortal: base => ({ ...base, zIndex: 10 })
-    }}
     value={selectedValue}
     {...otherProps}
   />;

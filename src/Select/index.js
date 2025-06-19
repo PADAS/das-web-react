@@ -48,10 +48,7 @@ const Select = ({ styles: customStyles, components, ref, ...rest }) => {
       menuPortalTarget={document.body}
       menuPlacement='auto'
       ref={ref}
-      styles={{
-        ...selectStyles,
-        menuPortal: base => ({ ...base, zIndex: 10 })
-      }}
+      styles={selectStyles}
       {...rest}
   />;
 };
