@@ -64,8 +64,6 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, value, ...otherPro
     isClearable
     isDisabled={disabled}
     isMulti={details.multiple}
-    menuPortalTarget={document.body}
-    menuPlacement='auto'
     noOptionsMessage={() => t('select.noOptionsMessage')}
     onChange={onSelectChange}
     onKeyDown={(event) => event.key === 'Escape' && isMenuOpen && event.stopPropagation()}
