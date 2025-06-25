@@ -44,6 +44,7 @@ const Collection = ({
   })));
 
   const hasError = !!error?.message;
+  const hasDescription = !!details.description && !hasError;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
@@ -223,7 +224,14 @@ const Collection = ({
       </div>
     </Collapse>
 
-    {hasError && <p aria-live="assertive" className={styles.description} id={`${id}-description`}>{error.message}</p>}
+    {(hasDescription || hasError) && <p
+        aria-live={hasError ? 'assertive' : 'off'}
+        className={`${styles.description} ${hasError ? styles.error : ''}`}
+        id={`${id}-description`}
+    >
+      {error?.message || details.description}
+    </p>}
+
   </div>;
 };
 
