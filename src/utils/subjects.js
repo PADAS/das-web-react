@@ -72,7 +72,7 @@ export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGr
 
 export const subjectIsStatic = subject => {
   return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
+    subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
 };
 
 export const canShowTrackForSubject = subject =>
@@ -80,7 +80,7 @@ export const canShowTrackForSubject = subject =>
   && !subjectIsAFixedPositionRadio(subject);
 
 
-export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
+export const getSubjectsWithViewableTrackingDataFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
 export const getSubjectLastPositionCoordinates = subject => {
@@ -93,10 +93,8 @@ export const getSubjectDefaultDeviceProperty = subject => {
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
 };
 
-
 export const addDefaultStatusValue = (originalFeature) => {
   const feature = cloneDeep(originalFeature);
-
   const { properties } = feature;
   const defaultProperty = getSubjectDefaultDeviceProperty(feature);
 
@@ -106,7 +104,7 @@ export const addDefaultStatusValue = (originalFeature) => {
   }
 
   if (!properties?.image?.length) {
-    set(feature, 'properties.default_status_label', defaultProperty.label) ;
+    set(feature, 'properties.default_status_label', defaultProperty.label);
   }
 
   return feature;
