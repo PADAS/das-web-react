@@ -69,12 +69,6 @@ const ContentComponent = (props) => {
     addHeatmapSubjects, removeHeatmapSubjects, showTrackingControls, listLevel,
     unloadedSubjectTrackIDs, hideSubjectTracks, pinSubjectTracks, showSubjectTracks } = props;
 
-  console.log({
-    hiddenSubjectIDs, groupTrackingDataState, subjectIDsWithTrackingData, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
-    addHeatmapSubjects, removeHeatmapSubjects, showTrackingControls, listLevel,
-    unloadedSubjectTrackIDs, hideSubjectTracks, pinSubjectTracks, showSubjectTracks
-  });
-
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
