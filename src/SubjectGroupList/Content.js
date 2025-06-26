@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import { useTranslation } from 'react-i18next';
@@ -64,20 +64,16 @@ const TriggerComponent = memo(({ // eslint-disable-line react/display-name
 });
 
 const ContentComponent = (props) => {
-  const dispatch = useDispatch();
-
-  /* 
-    to disconnect:
-    - addHeatmapSubjects
-    - removeHeatmapSubjects
-    - groupTrackingDataState
-    - hiddenSubjectIDs
-  */
-
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick,
     hiddenSubjectIDs, groupTrackingDataState, subjectIDsWithTrackingData, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
     addHeatmapSubjects, removeHeatmapSubjects, showTrackingControls, listLevel,
     unloadedSubjectTrackIDs, hideSubjectTracks, pinSubjectTracks, showSubjectTracks } = props;
+
+  console.log({
+    hiddenSubjectIDs, groupTrackingDataState, subjectIDsWithTrackingData, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
+    addHeatmapSubjects, removeHeatmapSubjects, showTrackingControls, listLevel,
+    unloadedSubjectTrackIDs, hideSubjectTracks, pinSubjectTracks, showSubjectTracks
+  });
 
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
