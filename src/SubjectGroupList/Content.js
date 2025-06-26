@@ -51,6 +51,7 @@ const TriggerComponent = memo(({ // eslint-disable-line react/display-name
       <TrackToggleButton
         loading={loadingTracks}
         onClick={onTrackButtonClick}
+        className={`${(partiallyPinned || partiallyVisible) ? listStyles.partialTrackButton : ''}`}
         showLabel={false}
         trackPinned={fullyPinned || partiallyPinned}
         trackVisible={fullyVisible || partiallyVisible}
