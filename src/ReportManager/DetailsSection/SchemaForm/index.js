@@ -21,39 +21,6 @@ export const FIELDS = {
   [FORM_ELEMENT_TYPES.TEXT]: Text,
 };
 
-const addIsRequiredForMinItems = (schema) => {
-  /*I'm adding this next 2 checks taking in count the schema might not be created by ER */
-  if (typeof schema !== 'object' || schema === null) {
-    return;
-  }
-
-  if (schema.type === 'object' && schema.properties) {
-    // Initialize required array if it doesn't exist
-    if (!Array.isArray(schema.required)) {
-      schema.required = [];
-    }
-
-    // Iterate through all schema props
-    for (const [propName, propSchema] of Object.entries(schema.properties)) {
-      const isArray = propSchema.type === 'array';
-      // If the property is an array with minItems > 0, and it does not exist in required prop, add it
-      if (isArray && propSchema.minItems > 0) {
-        if (!schema.required.includes(propName)) {
-          schema.required.push(propName);
-        }
-      }
-
-      // If the property is an object or could contain nested objects, recurse
-      if (propSchema.type === 'object' || isArray) {
-        // If it's an array, we might need to check the items schema
-        addIsRequiredForMinItems(isArray ? propSchema.items : propSchema);
-      }
-    }
-  }
-
-  return schema;
-};
-
 const SchemaForm = ({
   autofillDefaultInputs,
   eventId,
@@ -65,9 +32,7 @@ const SchemaForm = ({
   renderSubmitButton,
   schema,
 }) => {
-  /* ToDo: iterate collections to apply the rule of a temporary required field in order to display valid errors */
-  const updatedSchema = addIsRequiredForMinItems({ ...schema });
-  const runValidations = useSchemaValidations(updatedSchema);
+  const runValidations = useSchemaValidations(schema);
 
   const onLocationMarkerClick = useCallback((markerId) => {
     const locationField = document.getElementById(markerId);
