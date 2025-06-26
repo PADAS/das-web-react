@@ -48,7 +48,7 @@ export const groupTracksFullyVisible = createSelector(
 export const groupTracksPartiallyVisible = createSelector(
   [visibleTrackIDs, groupTracksFullyVisible, visibleTrackingDataSubjectIDsForGroup],
   (visibleTracks, tracksFullyVisible, eligibleSubjects) =>
-    !!eligibleSubjects
+    eligibleSubjects.length > 0
     && !tracksFullyVisible
     && intersection(eligibleSubjects, visibleTracks).length,
 );
