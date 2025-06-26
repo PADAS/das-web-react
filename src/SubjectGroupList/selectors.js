@@ -41,7 +41,7 @@ export const groupTracksPartiallyPinned = createSelector(
 export const groupTracksFullyVisible = createSelector(
   [visibleTrackIDs, visibleTrackingDataSubjectIDsForGroup],
   (visibleTracks, eligibleSubjects) =>
-    !!eligibleSubjects
+    eligibleSubjects.length
     && intersection(eligibleSubjects, visibleTracks).length === eligibleSubjects.length,
 );
 
