@@ -113,6 +113,19 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(description).not.toHaveClass('error');
   });
 
+  test('shows a non required collection', () => {
+    renderCollectionField();
+
+    expect(screen.getByText('Collection 1 Label (0)')).toBeVisible();
+  });
+
+  test('shows a required collection', () => {
+    details.isRequired = true;
+    renderCollectionField();
+
+    expect(screen.getByText('Collection 1 Label (0) *')).toBeVisible();
+  });
+
   test('does not show an error state in the header if the collection and its items are all valid', async () => {
     renderCollectionField();
 
@@ -131,7 +144,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.getByTestId('schema-form-collection-header-collection-1')).toHaveClass('error');
   });
 
-  test('sets the collection label with the number of items it continas', async () => {
+  test('sets the collection label with the number of items it contains', async () => {
     renderCollectionField({ value: [{}, {}] });
 
     expect(screen.getByLabelText('Collection 1 Label (2)')).toBeVisible();

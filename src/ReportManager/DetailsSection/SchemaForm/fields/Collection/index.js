@@ -28,7 +28,6 @@ const Collection = ({
   value = [],
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
-
   // Ref to keep track of the temporal id of the last added item so we keep incrementing them when the user adds more
   // items.
   const lastAddedItemIdRef = useRef(value.length - 1);
@@ -46,6 +45,7 @@ const Collection = ({
   const hasError = !!error?.message;
   const hasDescription = !!details.description && !hasError;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
+  const label = `${details.label} (${value.length})`;
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     // We clean the collection error message and update the changed item error.
@@ -171,7 +171,7 @@ const Collection = ({
       data-testid={`schema-form-collection-header-${id}`}
     >
       <label className={styles.label} id={`${id}-label`}>
-        {`${details.label} (${value.length})`}
+        {details.isRequired ? `${label} *` : label}
       </label>
 
       <button
