@@ -28,6 +28,7 @@ const Collection = ({
   value = [],
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection' });
+
   // Ref to keep track of the temporal id of the last added item so we keep incrementing them when the user adds more
   // items.
   const lastAddedItemIdRef = useRef(value.length - 1);
