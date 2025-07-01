@@ -50,9 +50,6 @@ const addFieldToFieldsObjectRecursively = (
     fields[fieldId].details.multiple =
       jsonSubschema.properties[fieldId].type === 'array';
   } else if (fields[fieldId].type === FORM_ELEMENT_TYPES.COLLECTION) {
-    // Collections are the only field that doesn't have the required flag.
-    delete fields[fieldId].details.isRequired;
-
     const itemsJSONSubschema = jsonSubschema.properties[fieldId].items;
 
     // When extracting the collection columns, we filter out the inactive children.
