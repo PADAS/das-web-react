@@ -11,7 +11,7 @@ const DateTime = ({ date, showElapsed = true, className = '', ...rest }) => {
     return null;
   }
 
-  return <div className={`${styles.container} ${className}`} title={generateCurrentTimeZoneTitle()} {...rest}>
+  return <div className={`${styles.container} ${className}`} data-testid='date-time' title={generateCurrentTimeZoneTitle()} {...rest}>
     <span className={styles.date}>
       {
         format(new Date(date), STANDARD_DATE_FORMAT)
