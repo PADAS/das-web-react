@@ -1,162 +1,95 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
-$unfiltered-color : $secondary-medium-gray;
-$filtered-color : $highlight-color;
-
-.search {
-  --transition-timing: 0.15s;
-
+.searchBar {
   align-items: center;
+  border: 1px solid colors.$secondary-light-gray;
+  border-radius: 0.25rem;
   display: flex;
-  position: relative;
+  height: fit-content;
+  padding: 0.25rem;
 
-  input {
-    border-radius: 0.25rem;
-    border: 1px solid $secondary-light-gray;
-    flex-grow: 1;
-    padding: 0.25rem 1.75rem;
-    font-size: 0.875rem;
-    width: 100%;
+  &:hover {
+    border: 1px solid colors.$off-black;
 
-    &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: $unfiltered-color;
-      opacity: 1; /* Firefox */
-    }
-
-    &::-ms-input-placeholder { /* Microsoft Edge */
-      color: $unfiltered-color;
-    }
-
-    &:-ms-input-placeholder { /* Internet Explorer 10-11 */
-      color: $unfiltered-color;
+    &.hasValue {
+      .clearButton {
+        visibility: visible;
+      }
     }
   }
 
-  .searchIcon {
-    --dimensions: 0.9rem;
+  &:focus-within {
+    border-color: colors.$bright-blue;
+    outline: 1px solid colors.$bright-blue;
 
-    height: var(--dimensions);
-    left: 0.5rem;
-    position: absolute;
-    top: 0.5rem;
-    width: var(--dimensions);
+    &.hasValue {
+      .clearButton {
+        visibility: visible;
+      }
+    }
+  }
 
-    circle {
-      fill: none;
-      stroke: $unfiltered-color;
-      stroke-width: 1rem;
+  .searchIconContainer {
+    align-items: center;
+    color: colors.$secondary-medium-light-gray;
+    display: flex;
+    flex: 0 0 1.375rem;
+    justify-content: center;
+    padding: 0.25rem;
+    width: 1.375rem;
+
+    svg {
+      height: 0.875rem;
+      width: 0.875rem;
+
+      circle {
+        fill: none;
+        stroke-width: 1rem;
+      }
+    }
+  }
+
+  .searchInput {
+    border: none;
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    min-width: 0;
+    outline: none;
+
+    &::placeholder {
+      color: colors.$secondary-medium-gray;
     }
 
-    path {
-      fill: $unfiltered-color;
-    }
-
-    * {
-      transition: var(--transition-timing) linear stroke, fill;
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      -webkit-appearance: none;
     }
   }
 
   .clearButton {
-    width: 1rem;
-    height: 1rem;
-    padding: 0;
-    position: absolute;
-    outline: none;
-    border: none;
+    align-items: center;
     background: none;
+    border: none;
+    border-radius: 0.25rem;
+    color: colors.$secondary-medium-light-gray;
+    display: flex;
+    flex: 0 0 1.25rem;
+    justify-content: center;
+    outline: none;
+    padding: 0.25rem;
     visibility: hidden;
-    right: 0.5rem;
-    top: 0.333rem;
-    cursor: pointer;
+    width: 1.25rem;
 
-    svg * {
-      stroke: $unfiltered-color;
+    &:hover {
+      background-color: colors.$light-gray;
+      color: colors.$off-black;
     }
 
-    &:hover > svg * {
-      stroke: $filtered-color;
-    }
-
-    > svg {
-      height: 100%;
-      position: relative;
-      top: -0.25rem;
-      width: 100%;
-    }
-  }
-
-  &.isFiltered {
-    .searchIcon {
-      circle {
-        stroke: $filtered-color;
-      }
-
-      path {
-        fill: $filtered-color;
-      }
-    }
-
-    .clearButton {
-      visibility: visible;
-    }
-  }
-
-  &.isActive:not(.isFiltered),
-  &:hover:not(.isFiltered) {
-    .searchIcon {
-      circle {
-        stroke: darken($unfiltered-color, 30%);
-      }
-
-      path {
-        fill: darken($unfiltered-color, 30%);
-      }
-    }
-  }
-
-  &.oldNavigation {
-    input {
-      border: medium none color;
-
-      &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-        color: $secondary-light-gray;
-      }
-      &::-ms-input-placeholder { /* Microsoft Edge */
-        color: $secondary-light-gray;
-      }
-  
-      &:-ms-input-placeholder { /* Internet Explorer 10-11 */
-        color: $secondary-light-gray;
-      }
-    }
-
-    .searchIcon {
-      circle {
-        stroke: $secondary-light-gray;
-      }
-  
-      path {
-        fill: $secondary-light-gray;
-      }
-    }
-
-    .clearButton {
-      svg * {
-        stroke: $secondary-light-gray;
-      }
-    }
-
-    &.isActive:not(.isFiltered),
-    &:hover:not(.isFiltered) {
-      .searchIcon {
-        circle {
-          stroke: darken($secondary-light-gray, 30%);
-        }
-
-        path {
-          fill: darken($secondary-light-gray, 30%);
-        }
-      }
+    svg {
+      height: 0.75rem;
+      width: 0.75rem;
     }
   }
 }

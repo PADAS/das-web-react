@@ -1,86 +1,180 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useContext, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { hideSubjects, showSubjects } from '../ducks/map-layer-filter';
-import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import {
+  filterSubjects,
+  getUniqueSubjectGroupSubjects,
+} from '../utils/subjects';
 import { getSubjectGroups } from '../selectors/subjects';
-import CheckableList from '../CheckableList';
+import { hideSubjects, showSubjects } from '../ducks/map-layer-filter';
+import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../constants';
+import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { MapContext } from '../App';
 
+import CheckableList from '../CheckableList';
 import Content from './Content';
+import SubjectListItem from './SubjectListItem';
+
 import * as listStyles from '../SideBar/styles.module.scss';
+import { uniqBy } from 'lodash-es';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const SubjectGroupList = ({ subjectGroups, mapLayerFilter, hideSubjects, showSubjects, map = {} }) => {
-  const { hiddenSubjectIDs } = mapLayerFilter;
+const SubjectGroupList = () => {
+  const dispatch = useDispatch();
 
-  const searchText = useMemo(() => mapLayerFilter.text || '', [mapLayerFilter.text]);
+  const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
+  const subjectGroups = useSelector(getSubjectGroups);
 
-  const subjectFilterEnabled = searchText.length > 0;
+  const map = useContext(MapContext);
 
-  const subjectFilterIsMatch = useCallback((subject) => {
-    if (searchText.length === 0) return true;
-    return (subject.name.toLowerCase().includes(searchText));
-  }, [searchText]);
+  const { filteredSubjectGroups, flat } = useMemo(() => {
+    const doesSubjectMatchFilterText = (subject) =>
+      subject.name.toLowerCase().includes(mapLayerFilter.text.toLowerCase());
 
-  const groupsInList = useMemo(() => {
-    return subjectFilterEnabled ?
-      filterSubjects(subjectGroups, subjectFilterIsMatch) :
-      subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
-  }, [subjectFilterEnabled, subjectFilterIsMatch, subjectGroups]);
+    // Filter the subject groups and subjects by text match.
+    const filteredSubjectGroups = mapLayerFilter.text.length > 0
+      ? filterSubjects(subjectGroups, doesSubjectMatchFilterText)
+      : subjectGroups.filter((subjectGroup) => !!subjectGroup.subgroups.length || !!subjectGroup.subjects.length);
 
-  const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
+    let flatSubjectGroups;
+    if (!mapLayerFilter.grouped) {
+      const flattenSubjectGroups = (subjectGroup) => subjectGroup.subgroups.reduce(
+        (accumulator, subGroup) => [...accumulator, ...flattenSubjectGroups(subGroup)],
+        [...subjectGroup.subjects]
+      );
+
+      flatSubjectGroups = filteredSubjectGroups.reduce(
+        (accumulator, subjectGroup) => [...accumulator, ...flattenSubjectGroups(subjectGroup)],
+        [],
+      );
+
+      flatSubjectGroups = uniqBy(flatSubjectGroups, 'id');
+    }
+
+    const alphabeticCompareFunction = (itemA, itemB) => {
+      if (itemA.name.toLowerCase() > itemB.name.toLowerCase()) {
+        return mapLayerFilter.sortDirection === SORT_DIRECTION.down ? 1 : -1;
+      }
+      return mapLayerFilter.sortDirection === SORT_DIRECTION.down ? -1 : 1;
+    };
+    // TODO: This method sorts by the updated_at value of the subject, but not
+    // by its last track time which I guess is what users want (?).
+    const lastUpdateCompareFunction = (subjectA, subjectB) => {
+      if (new Date(subjectB.updated_at) > new Date(subjectA.updated_at)) {
+        return mapLayerFilter.sortDirection === SORT_DIRECTION.down ? 1 : -1;
+      }
+      return mapLayerFilter.sortDirection === SORT_DIRECTION.down ? -1 : 1;
+    };
+
+    if (flatSubjectGroups) {
+      return {
+        filteredSubjectGroups: flatSubjectGroups.sort(mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+          ? lastUpdateCompareFunction
+          : alphabeticCompareFunction),
+        flat: true,
+      };
+    }
+
+    // Sort the subject groups and subjects of a group recursivelly.
+    const sortSubjectGroupsRecursivelly = (subjectGroup) => {
+      // Start by sorting the nested subgroups.
+      subjectGroup.subgroups.forEach((subjectSubGroup) => sortSubjectGroupsRecursivelly(subjectSubGroup));
+
+      // Sort subgroups and subjects.
+      subjectGroup.subgroups.sort(mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+        ? lastUpdateCompareFunction
+        : alphabeticCompareFunction);
+      subjectGroup.subjects.sort(mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+        ? lastUpdateCompareFunction
+        : alphabeticCompareFunction);
+
+      // Calculate the updated at value of this group.
+      let updatedAt;
+      subjectGroup.subgroups.forEach((subGroup) => {
+        if (!updatedAt || new Date(subGroup.updated_at) > new Date (updatedAt)) {
+          updatedAt = subGroup.updated_at;
+        }
+      });
+      subjectGroup.subjects.forEach((subject) => {
+        if (!updatedAt || new Date(subject.updated_at) > new Date (updatedAt)) {
+          updatedAt = subject.updated_at;
+        }
+      });
+      subjectGroup.updated_at = updatedAt;
+    };
+
+    // Sort the content of each first level subject group.
+    filteredSubjectGroups.forEach((subjectGroup) => sortSubjectGroupsRecursivelly(subjectGroup));
+
+    // Now sort the first level subject groups themselves.
+    return {
+      filteredSubjectGroups: filteredSubjectGroups.sort(mapLayerFilter.sortBy === MAP_LAYER_SORT_VALUES.LAST_UPDATE
+        ? lastUpdateCompareFunction
+        : alphabeticCompareFunction),
+      flat: false,
+    };
+  }, [mapLayerFilter, subjectGroups]);
+
+  const groupIsFullyVisible = (group) => !getUniqueSubjectGroupSubjects(group)
+    .map((subject) => subject.id)
+    .some((subjectId) => mapLayerFilter.hiddenSubjectIDs.includes(subjectId));
+
   const groupIsPartiallyVisible = (group) => {
     const groupSubjectIDs = getUniqueSubjectGroupSubjects(group).map(item => item.id);
-    return !groupIsFullyVisible(group, hiddenSubjectIDs) && !groupSubjectIDs.every(id => hiddenSubjectIDs.includes(id));
+    return !groupIsFullyVisible(group, mapLayerFilter.hiddenSubjectIDs) && !groupSubjectIDs.every(id => mapLayerFilter.hiddenSubjectIDs.includes(id));
   };
 
   const onSubjectCheckClick = (subject) => {
-    if (subjectIsVisible(subject)) return hideSubjects(subject.id);
-    return showSubjects(subject.id);
+    if (subjectIsVisible(subject)) return dispatch(hideSubjects(subject.id));
+    return dispatch(showSubjects(subject.id));
   };
 
-  const subjectIsVisible = subject => !hiddenSubjectIDs.includes(subject.id);
+  const subjectIsVisible = subject => !mapLayerFilter.hiddenSubjectIDs.includes(subject.id);
 
   const onGroupCheckClick = (group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
     if (groupIsFullyVisible(group)) {
       mapLayerTracker.track('Uncheck Group Map Layer checkbox', `Group:${group.name}`);
-      return hideSubjects(...subjectIDs);
+      return dispatch(hideSubjects(...subjectIDs));
     } else {
       mapLayerTracker.track('Check Group Map Layer checkbox', `Group:${group.name}`);
-      return showSubjects(...subjectIDs);
+      return dispatch(showSubjects(...subjectIDs));
     }
   };
 
-  const listLevel = 0;
-
-  const itemProps = {
-    map,
-    onGroupCheckClick,
-    onSubjectCheckClick,
-    hiddenSubjectIDs,
-    subjectIsVisible,
-    subjectFilterEnabled,
-    subjectFilterIsMatch,
-    listLevel,
-  };
-
-  return !!groupsInList.length && <CheckableList
-    className={listStyles.list}
-    id='subjectgroups'
-    onCheckClick={onGroupCheckClick}
-    itemComponent={Content}
-    itemProps={itemProps}
-    items={groupsInList}
-    itemFullyChecked={groupIsFullyVisible}
-    itemPartiallyChecked={groupIsPartiallyVisible} />;
+  if (filteredSubjectGroups.length > 0) {
+    if (flat) {
+      return <CheckableList
+        className={listStyles.flatCheckableList}
+        items={filteredSubjectGroups}
+        itemProps={{ map }}
+        itemFullyChecked={subjectIsVisible}
+        onCheckClick={onSubjectCheckClick}
+        itemComponent={SubjectListItem}
+      />;
+    } else {
+      return <CheckableList
+        className={listStyles.list}
+        id="subjectgroups"
+        itemFullyChecked={groupIsFullyVisible}
+        itemComponent={Content}
+        itemPartiallyChecked={groupIsPartiallyVisible}
+        itemProps={{
+          hiddenSubjectIDs: mapLayerFilter.hiddenSubjectIDs,
+          listLevel: 0,
+          map,
+          onGroupCheckClick,
+          onSubjectCheckClick,
+          subjectFilterEnabled: mapLayerFilter.text.length > 0,
+          subjectIsVisible,
+        }}
+        items={filteredSubjectGroups}
+        onCheckClick={onGroupCheckClick}
+      />;
+    }
+  }
+  return null;
 };
 
-const mapStateToProps = (state) => {
-  const { data: { mapLayerFilter } } = state;
-  return { subjectGroups: getSubjectGroups(state), mapLayerFilter };
-};
-
-export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
+export default memo(SubjectGroupList);

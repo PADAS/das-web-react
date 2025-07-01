@@ -177,26 +177,6 @@
   &:focus {
     border: none;
   }
-
-  .mapLayers {
-    background-color: white;
-    height: 100%;
-    overflow: hidden;
-    overflow-y: auto;
-    padding-bottom: 4rem;
-
-    >.noItems {
-      visibility: hidden;
-      font-size: 0.75rem;
-      font-weight: bold;
-      text-align: center;
-      padding: 1rem;
-    }
-
-    >.noItems:only-child {
-      visibility: visible;
-    }
-  }
 }
 
 .header {
@@ -253,25 +233,6 @@
   }
 }
 
-.mapLayers {
-  height: 100%;
-  overflow: hidden;
-  overflow-y: auto;
-  padding-bottom: 4rem;
-
-  >.noItems {
-    visibility: hidden;
-    font-size: 0.75rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 1rem;
-  }
-
-  >.noItems:only-child {
-    visibility: visible;
-  }
-}
-
 .feedError {
   align-items: center;
   display: flex;
@@ -309,21 +270,29 @@
   }
 }
 
-.mapLayerFooter {
-  background-color: $map-layers-footer;
-  height: 3rem;
-  width: var(--sidebar-width);
-  text-align: left;
-  position: absolute;
-  bottom: 0;
-  z-index: 3;
+// List Styles
 
-  a {
-    margin-left: 0.5rem;
+.flatCheckableList {
+  margin-bottom: 0;
+
+  li {
+    align-items: center;
+    border-bottom: 1px solid $light-gray-border;
+    display: flex;
+    padding: 1rem;
+    padding-right: 3rem;
+
+    .itemTitle {
+      margin: 0;
+      margin-left: 1rem;
+      word-break: break-word;
+    }
+
+    .controls {
+      margin-left: auto;
+    }
   }
 }
-
-// List Styles
 
 .list {
   display: block;
@@ -399,7 +368,7 @@
       padding-bottom: 1rem;
       padding-top: 1rem;
       position: relative;
-      z-index: 1;
+      // z-index: 1;
 
       &:hover {
         text-decoration: underline;

@@ -1,23 +1,136 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
+@use 'sass:color';
+
+@use '../common/styles/inputs';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .form {
-  align-items: center;
-  border-bottom: 1px solid $gray-border;
+  border-bottom: 1px solid colors.$gray-border;
   display: flex;
-  flex-flow: row;
-  padding: 1.25rem 0.75rem 0.5rem;
-  position: relative;
-  z-index: 2;
-  justify-content: space-between;
+  padding: 0.75rem 0.5rem;
+
+  .searchBar {
+    width: 40%;
+  }
+
+  .sortingButtons {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: 60%;
+
+    .sortingButton {
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2rem;
+      padding: 0 0.5rem;
+
+      &.inactive {
+        background-color: colors.$light-gray-background;
+        border: 1px solid colors.$light-gray-background;
+        color: colors.$secondary-medium-gray;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+          border-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+        }
+
+        &:focus-visible:not(:disabled) {
+          border-color: colors.$bright-blue;
+          outline: 1px solid colors.$bright-blue;
+        }
+      }
+
+      &.active {
+        background-color: colors.$bright-blue;
+        border: 1px solid colors.$bright-blue;
+        color: white;
+
+        &:hover {
+          background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+          border-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+        }
+
+        &:focus-visible:not(:disabled) {
+          background-color: white;
+          border-color: colors.$bright-blue;
+          color: colors.$bright-blue;
+          outline: 1px solid colors.$bright-blue;
+        }
+      }
+
+      .sortingButtonIcon {
+        margin-right: 0.375rem;
+      }
+    }
+  }
 }
 
-.search {
-  margin-bottom: 0;
-  width: 40%;
+.sortByMenuPopover {
+  @include inputs.boxShadow;
+  border: none !important;
+  border-radius: 0.25rem !important;
+  min-width: 12rem;
 
-  @media (min-width: $md-layout-width-min) {
-    margin-right: unset;
-    width: 50%;
+  [class*=popover-arrow] {
+    display: none;
+  }
+
+  .sortByMenu {
+    margin: 0;
+
+    .sortByMenuItem {
+      &:first-child {
+        .sortByMenuItemOption {
+          border-top-left-radius: 0.25rem;
+          border-top-right-radius: 0.25rem;
+        }
+      }
+
+      &:last-child {
+        .sortByMenuItemOption {
+          border-bottom-left-radius: 0.25rem;
+          border-bottom-right-radius: 0.25rem;
+        }
+      }
+
+      .sortByMenuItemOption {
+        background-color: white;
+        border: none;
+        outline: none;
+        padding: 0.5rem;
+        text-align: left;
+        width: 100%;
+
+        &:hover {
+          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
+        }
+
+        &:focus {
+          background-color: colors.$light-gray-background;
+        }
+
+        &[aria-checked="true"] {
+          background-color: colors.$blue-highlight;
+
+          &:hover, &:focus {
+            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
+          }
+        }
+
+        &[aria-checked="false"] {
+          padding-left: 1.75rem;
+        }
+
+        .checkIcon {
+          color: colors.$bright-blue;
+          height: 0.75rem;
+          margin-right: 0.5rem;
+          width: 0.75rem;
+        }
+      }
+    }
   }
 }

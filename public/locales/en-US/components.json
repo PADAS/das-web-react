@@ -181,7 +181,8 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Clear search bar",
+    "clearButtonLabel": "Clear search",
+    "defaultAriaLabel": "Search",
     "defaultPlaceholder": "Search..."
   },
   "serviceWorkerWatcher": {
