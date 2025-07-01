@@ -58,6 +58,7 @@ const addFieldToFieldsObjectRecursively = (
     // When extracting the collection columns, we filter out the inactive children.
     fields[fieldId].details.buttonText = uiSchema.fields[fieldId].buttonText;
     fields[fieldId].details.columns = uiSchema.fields[fieldId].columns;
+    fields[fieldId].details.description = jsonSubschema.properties[fieldId].description;
     fields[fieldId].details.itemIdentifier =
       uiSchema.fields[fieldId].itemIdentifier;
     fields[fieldId].details.itemName = uiSchema.fields[fieldId].itemName;

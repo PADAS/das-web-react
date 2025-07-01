@@ -20,6 +20,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     details = {
       buttonText: 'Add button text',
       columns: 1,
+      description: 'The collection description',
       isActive: true,
       itemIdentifier: 'field-1',
       itemName: 'Item',
@@ -95,6 +96,36 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(description).toHaveAttribute('aria-live', 'assertive');
   });
 
+  test('does not show the description', () => {
+    details.description = '';
+    renderCollectionField();
+
+    expect(screen.queryByText('The collection description')).toBeNull();
+  });
+
+  test('shows the description', () => {
+    renderCollectionField();
+
+    const description = screen.getByText('The collection description');
+
+    expect(description).toBeVisible();
+    expect(description).toHaveAttribute('aria-live', 'off');
+    expect(description).not.toHaveClass('error');
+  });
+
+  test('shows a non required collection', () => {
+    renderCollectionField();
+
+    expect(screen.getByText('Collection 1 Label (0)')).toBeVisible();
+  });
+
+  test('shows a required collection', () => {
+    details.isRequired = true;
+    renderCollectionField();
+
+    expect(screen.getByText('Collection 1 Label (0) *')).toBeVisible();
+  });
+
   test('does not show an error state in the header if the collection and its items are all valid', async () => {
     renderCollectionField();
 
@@ -113,7 +144,7 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
     expect(screen.getByTestId('schema-form-collection-header-collection-1')).toHaveClass('error');
   });
 
-  test('sets the collection label with the number of items it continas', async () => {
+  test('sets the collection label with the number of items it contains', async () => {
     renderCollectionField({ value: [{}, {}] });
 
     expect(screen.getByLabelText('Collection 1 Label (2)')).toBeVisible();
