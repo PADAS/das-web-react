@@ -46,7 +46,7 @@ const Collection = ({
   const hasError = !!error?.message;
   const hasDescription = !!details.description && !hasError;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
-  const label = `${details.label} (${value.length})`;
+  const label = details.isRequired ? `${details.label} (${value.length}) *` : `${details.label} (${value.length})` ;
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     // We clean the collection error message and update the changed item error.
@@ -172,7 +172,7 @@ const Collection = ({
       data-testid={`schema-form-collection-header-${id}`}
     >
       <label className={styles.label} id={`${id}-label`}>
-        {details.isRequired ? `${label} *` : label}
+        {label}
       </label>
 
       <button
