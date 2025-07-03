@@ -1,12 +1,4 @@
 {
-    "clusterMembers": {
-        "all": "Selecionar tudo",
-        "reports": "Eventos",
-        "subjects": "Indivíduos rastreados"
-    },
-    "inactiveRadioControl": {
-        "label": "Mostrar rádios inativos"
-    },
     "mapDataZoomSimplificationControl": {
         "label": "Simplificar dados do mapa no Zoom"
     },
@@ -21,9 +13,6 @@
             "reports": "Eventos",
             "patrols": "Patrulhas"
         }
-    },
-    "mapTrackTimepointsControl": {
-        "label": "Mostrar pontos de tempo rastreados por seguimento"
     },
     "userLocationMapControl": {
         "label": "Mostrar minha localização atual"

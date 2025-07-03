@@ -1,12 +1,4 @@
 {
-  "clusterMembers": {
-    "all": "Yote",
-    "reports": "Matukio",
-    "subjects": "Mada"
-  },
-  "inactiveRadioControl": {
-    "label": "Onyesha Redio Zisizo na Shughuli"
-  },
   "mapDataZoomSimplificationControl": {
     "label": "Rahisisha Data ya Ramani kwenye Kuongeza Kupunguza"
   },
@@ -21,9 +13,6 @@
       "reports": "Matukio",
       "patrols": "Doria"
     }
-  },
-  "mapTrackTimepointsControl": {
-    "label": "Onyesha Muda wa Vipindi vya Nyayo kwenye Ramani"
   },
   "mapTerrain3DOption": "Mazingira ya Ramani ya 3D",
   "userLocationMapControl": {

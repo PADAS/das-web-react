@@ -1,12 +1,4 @@
 {
-  "clusterMembers": {
-    "all": "All",
-    "reports": "Events",
-    "subjects": "Subjects"
-  },
-  "inactiveRadioControl": {
-    "label": "Show Inactive Radios"
-  },
   "mapDataZoomSimplificationControl": {
     "label": "Simplify Map Data on Zoom"
   },
@@ -21,9 +13,6 @@
       "reports": "Events",
       "patrols": "Patrols"
     }
-  },
-  "mapTrackTimepointsControl": {
-    "label": "Show Track Timepoints"
   },
   "mapTerrain3DOption": "3D Map Terrain",
   "userLocationMapControl": {

@@ -12,15 +12,8 @@ import { PATROL_FILTER_STORAGE_KEY } from '../../ducks/patrol-filter';
 import { useOptionalPersistence } from '../../reducers/storage-config';
 
 import BetaToggles from '../../GlobalMenuDrawer/BetaToggles';
-import ClusterMemberControl from '../../MapSettingsControl/ClusterMemberControl';
-import InactiveRadioControl from '../../InactiveRadioControl';
-import Map3DToggleControl from '../../MapSettingsControl/Map3DToggleControl';
-import MapDataZoomSimplificationControl from '../../MapDataZoomSimplificationControl';
-import MapLockControl from '../../MapLockControl';
-import MapNamesControl from '../../MapNamesControl';
-import MapTrackTimepointsControl from '../../MapTrackTimepointsControl';
+import MapTab from './MapTab';
 import Select from '../../Select';
-import UserLocationMapControl from '../../UserLocationMapControl';
 
 import * as styles from './styles.module.scss';
 
@@ -36,7 +29,6 @@ const SettingsPane = () => {
   const { i18n, t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane' });
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
-  const hasUserLocation = useSelector((state) => !!state.view.userLocation);
 
   const [activeTabKey, setActiveTabKey] = useState(TAB_KEYS.GENERAL);
 
@@ -145,47 +137,7 @@ const SettingsPane = () => {
       eventKey={TAB_KEYS.MAP}
       title={t('mapTabTitle')}
     >
-      <section>
-        <h3>{t('generalHeader')}</h3>
-
-        <ul>
-          <li><MapLockControl /></li>
-
-          <li><Map3DToggleControl /></li>
-
-          <li><MapDataZoomSimplificationControl /></li>
-        </ul>
-      </section>
-
-      <section>
-        <h3>{t('displayHeader')}</h3>
-
-        <ul>
-          <li><MapTrackTimepointsControl /></li>
-
-          <li><InactiveRadioControl /></li>
-        </ul>
-
-        <h6>{t('clusterDataDescription')}</h6>
-
-        <ul>
-          <li><ClusterMemberControl /></li>
-        </ul>
-      </section>
-
-      <section>
-        <h3>{t('mapMarkersHeader')}</h3>
-
-        <h6>{t('mapMarkersDescription')}</h6>
-
-        <ul>
-          <li><MapNamesControl /></li>
-        </ul>
-      </section>
-
-      <ul>
-        {hasUserLocation && <li><UserLocationMapControl /></li>}
-      </ul>
+      <MapTab />
     </Tab>
 
     {alertsEnabled && <Tab

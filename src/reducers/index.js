@@ -19,11 +19,22 @@ import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '..
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
 import {
-  heatmapStyleConfigReducer, displayMapNamesReducer,
-  heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  mapDataZoomSimplificationReducer, mapLocationSelectionReducer, printTitleReducer,
-  displayUserLocationReducer, bounceEventReducer,
-  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
+  heatmapStyleConfigReducer,
+  displayMapNamesReducer,
+  heatmapSubjectIDsReducer,
+  subjectTrackReducer,
+  mapLockStateReducer,
+  mapDataZoomSimplificationReducer,
+  mapLocationSelectionReducer,
+  printTitleReducer,
+  displayUserLocationReducer,
+  bounceEventReducer,
+  displayTrackTimepointsReducer,
+  reportHeatmapStateReducer,
+  displayInactiveRadiosReducer,
+  openMapFeatureTypesReducer,
+  mapClusterConfigReducer,
+  mapClusterConfigMigrations,
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
@@ -60,7 +71,7 @@ const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localF
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
-const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
+const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig', storage, 1, mapClusterConfigMigrations);
 
 const rootReducer = combineReducers({
   data: combineReducers({

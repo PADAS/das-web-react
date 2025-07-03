@@ -7,10 +7,10 @@ const getClusterConfig = ({ view: { mapClusterConfig } }) => mapClusterConfig;
 
 export const getShouldEventsBeClustered = createSelector(
   [getClusterConfig, getShowReportsOnMap, getTimeSliderState],
-  (mapClusterConfig, showReportsOnMap, timeSliderState) => !!mapClusterConfig.reports && showReportsOnMap && !timeSliderState.active
+  (mapClusterConfig, showReportsOnMap, timeSliderState) => !!mapClusterConfig.data.events && showReportsOnMap && !timeSliderState.active
 );
 
 export const getShouldSubjectsBeClustered = createSelector(
   [getClusterConfig, getTimeSliderState],
-  (clusterConfig, timeSliderState) => !!clusterConfig.subjects && !timeSliderState.active
+  (clusterConfig, timeSliderState) => !!clusterConfig.data.subjects && !timeSliderState.active
 );

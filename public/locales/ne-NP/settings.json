@@ -1,12 +1,4 @@
 {
-    "clusterMembers": {
-        "all": "सबै",
-        "reports": "घटना",
-        "subjects": "विषय"
-    },
-    "inactiveRadioControl": {
-        "label": "निष्कृय रेडियो देखाउनुहोस्"
-    },
     "mapDataZoomSimplificationControl": {
         "label": "नक्साका डाटालाई जुममा सरलीकरण गर्नुहोस्"
     },
@@ -21,9 +13,6 @@
             "reports": "घटनाहरु",
             "patrols": "गस्तीहरु"
         }
-    },
-    "mapTrackTimepointsControl": {
-        "label": "ट्रयाकको समय देखाउनुहोस्"
     },
     "mapTerrain3DOption": "३डी नक्शा भूभाग",
     "userLocationMapControl": {

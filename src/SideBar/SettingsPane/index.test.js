@@ -36,7 +36,7 @@ describe('SettingsPane', () => {
         },
         featureFlagOverrides: {},
         timeSliderState: { active: false },
-        mapClusterConfig: { reports: true, subjects: true },
+        mapClusterConfig: { data: { events: true, subjects: true  } },
         showMapNames: {},
         showUserLocation: true,
       }

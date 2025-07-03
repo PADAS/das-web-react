@@ -200,14 +200,22 @@
             "appRefreshMapPositionAndZoomLevelLabel": "Posição do mapa & Nível de zoom",
             "appRefreshPatrolFiltersLabel": "Filtros de patrulhas",
             "appRefreshReportFiltersLabel": "Filtros de eventos",
-            "clusterDataDescription": "Agrupar dados quando existir sobreposição de:",
-            "displayHeader": "Visualizar",
             "experimentalFeaturesHeader": "Funções experimentais",
-            "generalHeader": "Características Gerais",
             "generalTabTitle": "Características Gerais",
             "languagesHeader": "Idioma",
-            "mapMarkersDescription": "Motrar nomes nos marcadores do mapa",
-            "mapMarkersHeader": "Marcadores do mapa",
+            "mapTab": {
+                "clusterDataAllCheckboxLabel": "Selecionar tudo",
+                "clusterDataEventsCheckboxLabel": "Eventos",
+                "clusterDataLegend": "Agrupar dados quando existir sobreposição de:",
+                "clusterDataSubjectsCheckboxLabel": "Indivíduos rastreados",
+                "displayLegend": "Visualizar",
+                "generalHeader": "Características Gerais",
+                "mapMarkersDescription": "Motrar nomes nos marcadores do mapa",
+                "mapMarkersHeader": "Marcadores do mapa",
+                "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita a área dos dados agrupados",
+                "showInactiveRadiosCheckboxLabel": "Mostrar rádios inativos",
+                "showTrackTimepointsCheckboxLabel": "Mostrar pontos de tempo rastreados por seguimento"
+            },
             "mapTabTitle": "Mapa"
         },
         "settingsLink": "Preferências"

@@ -32,7 +32,9 @@ let store = {
       }
     },
     mapClusterConfig: {
-      subjects: false,
+      data: {
+        subjects: false,
+      }
     },
     timeSliderState: {
       active: false,

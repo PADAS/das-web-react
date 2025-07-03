@@ -217,14 +217,22 @@
       "appRefreshMapPositionAndZoomLevelLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
       "appRefreshPatrolFiltersLabel": "Vichuja vya Doria",
       "appRefreshReportFiltersLabel": "Vichuja vya Tukio",
-      "clusterDataDescription": "Kuweka vikundi data wakati kuna lapitiko kwa",
-      "displayHeader": "Onyesha",
       "experimentalFeaturesHeader": "Vipengele vya Majaribio",
-      "generalHeader": "Jumla",
       "generalTabTitle": "Jumla",
       "languagesHeader": "Lugha",
-      "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
-      "mapMarkersHeader": "Alama za Ramani",
+      "mapTab": {
+        "clusterDataAllCheckboxLabel": "Yote",
+        "clusterDataEventsCheckboxLabel": "Matukio",
+        "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
+        "clusterDataSubjectsCheckboxLabel": "Mada",
+        "displayLegend": "Onyesha",
+        "generalHeader": "Jumla",
+        "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
+        "mapMarkersHeader": "Alama za Ramani",
+        "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
+        "showInactiveRadiosCheckboxLabel": "Onyesha Redio Zisizo na Shughuli",
+        "showTrackTimepointsCheckboxLabel": "Onyesha Muda wa Vipindi vya Nyayo kwenye Ramani"
+      },
       "mapTabTitle": "Ramani"
     },
     "settingsLink": "Mipangilio"

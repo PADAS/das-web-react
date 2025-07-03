@@ -1,0 +1,44 @@
+@use '../../../common/styles/vars/colors';
+
+.section {
+  .title {
+    color: colors.$dark-gray;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  .subTitle {
+    color: colors.$secondary-medium-gray;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  .checkboxWrapper {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.125rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.indent {
+      margin-left: 1.5rem;
+    }
+
+    .checkbox {
+      cursor: pointer;
+    }
+
+    .label {
+      cursor: pointer;
+    }
+  }
+}
+
+.separator {
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+}

@@ -200,14 +200,22 @@
       "appRefreshMapPositionAndZoomLevelLabel": "Positionnement de la Carte & Niveau du Zoom",
       "appRefreshPatrolFiltersLabel": "Filtres de Patrouilles",
       "appRefreshReportFiltersLabel": "Filtres des Événements",
-      "clusterDataDescription": "Regrouper les données lorsqu'il y a plusieurs:",
-      "displayHeader": "Affichage",
       "experimentalFeaturesHeader": "Fonctionnalités expérimentales",
-      "generalHeader": "Actualisation & Langue",
       "generalTabTitle": "Actualisation & Langue",
       "languagesHeader": "Langues",
-      "mapMarkersDescription": "Afficher les noms pour:",
-      "mapMarkersHeader": "Repères",
+      "mapTab": {
+        "clusterDataAllCheckboxLabel": "Tout sélectionner",
+        "clusterDataEventsCheckboxLabel": "Événements",
+        "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
+        "clusterDataSubjectsCheckboxLabel": "Appareils Suivis",
+        "displayLegend": "Affichage",
+        "generalHeader": "Actualisation & Langue",
+        "mapMarkersDescription": "Afficher les noms pour:",
+        "mapMarkersHeader": "Repères",
+        "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
+        "showInactiveRadiosCheckboxLabel": "Afficher les Radios Inactives",
+        "showTrackTimepointsCheckboxLabel": "Afficher les Points Temporels du Suivi"
+      },
       "mapTabTitle": "Carte"
     },
     "settingsLink": "Réglages"

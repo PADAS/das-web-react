@@ -217,14 +217,22 @@
       "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
       "appRefreshPatrolFiltersLabel": "Patrol Filters",
       "appRefreshReportFiltersLabel": "Event Filters",
-      "clusterDataDescription": "Cluster data when there is overlap for",
-      "displayHeader": "Display",
       "experimentalFeaturesHeader": "Experimental Features",
-      "generalHeader": "General",
       "generalTabTitle": "General",
       "languagesHeader": "Language",
-      "mapMarkersDescription": "Show names on map markers for",
-      "mapMarkersHeader": "Map Markers",
+      "mapTab": {
+        "clusterDataAllCheckboxLabel": "All",
+        "clusterDataEventsCheckboxLabel": "Events",
+        "clusterDataLegend": "Cluster data when there is overlap for",
+        "clusterDataSubjectsCheckboxLabel": "Subjects",
+        "displayLegend": "Display",
+        "generalHeader": "General",
+        "mapMarkersDescription": "Show names on map markers for",
+        "mapMarkersHeader": "Map Markers",
+        "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
+        "showInactiveRadiosCheckboxLabel": "Show Inactive Radios",
+        "showTrackTimepointsCheckboxLabel": "Show Track Timepoints"
+      },
       "mapTabTitle": "Map"
     },
     "settingsLink": "Settings"
