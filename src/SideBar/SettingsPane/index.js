@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useSelector } from 'react-redux';
@@ -30,8 +30,6 @@ const SettingsPane = () => {
 
   const alertsEnabled = useSelector((state) => state.view.systemConfig.alerts_enabled);
 
-  const [activeTabKey, setActiveTabKey] = useState(TAB_KEYS.GENERAL);
-
   const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY);
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY);
@@ -62,10 +60,10 @@ const SettingsPane = () => {
   }, [i18n]);
 
   return <Tabs
-    className={styles.tabs}
-    defaultActiveKey={activeTabKey}
-    fill
-    onSelect={setActiveTabKey}
+      aria-labelledby="side-bar-tab-header"
+      className={styles.tabs}
+      defaultActiveKey={TAB_KEYS.GENERAL}
+      variant="underline"
     >
     <Tab
       className={styles.tab}

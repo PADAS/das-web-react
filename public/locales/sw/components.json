@@ -221,17 +221,36 @@
       "generalTabTitle": "Jumla",
       "languagesHeader": "Lugha",
       "mapTab": {
-        "clusterDataAllCheckboxLabel": "Yote",
-        "clusterDataEventsCheckboxLabel": "Matukio",
-        "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
-        "clusterDataSubjectsCheckboxLabel": "Mada",
-        "displayLegend": "Onyesha",
-        "generalHeader": "Jumla",
-        "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
-        "mapMarkersHeader": "Alama za Ramani",
-        "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
-        "showInactiveRadiosCheckboxLabel": "Onyesha Redio Zisizo na Shughuli",
-        "showTrackTimepointsCheckboxLabel": "Onyesha Muda wa Vipindi vya Nyayo kwenye Ramani"
+        "generalFieldSet": {
+          "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3d",
+          "legend": "Jumla",
+          "lockMapCheckboxLabel": "Funga ramani",
+          "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
+        },
+        "displayFieldSet": {
+          "clusterDataAllCheckboxLabel": "Yote",
+          "clusterDataCheckboxLabel": {
+            "events": "Matukio",
+            "subjects": "Mada"
+          },
+          "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
+          "legend": "Onyesha",
+          "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
+          "showInactiveRadiosCheckboxLabel": "Onyesha redio zisizo na shughuli",
+          "showTrackTimepointsCheckboxLabel": "Onyesha muda wa vipindi vya nyayo kwenye ramani"
+        },
+        "mapMarkersFieldSet": {
+          "legend": "Alama za ramani",
+          "markerNamesAllCheckboxLabel": "Yote",
+          "markerNamesCheckboxLabel": {
+            "patrols": "Doria",
+            "reports": "Matukio",
+            "stationary_subjects": "Mada zisizotembea",
+            "subjects": "Mada"
+          },
+          "markerNamesLegend": "Onyesha majina kwenye alama za ramani kwa",
+          "showUserLocationCheckboxLabel": "Onyesha mahali yangu ya sasa"
+        }
       },
       "mapTabTitle": "Ramani"
     },

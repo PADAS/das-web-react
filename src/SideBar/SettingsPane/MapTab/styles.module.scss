@@ -7,11 +7,18 @@
     font-weight: 500;
   }
 
+  .subSection {
+    margin-top: 0.5rem;
+
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+  }
+
   .subTitle {
     color: colors.$secondary-medium-gray;
     font-size: 1rem;
     font-weight: 500;
-    margin-top: 0.5rem;
   }
 
   .checkboxWrapper {
@@ -28,12 +35,16 @@
       margin-left: 1.5rem;
     }
 
-    .checkbox {
+    .checkbox:not(:disabled) {
       cursor: pointer;
     }
 
     .label {
       cursor: pointer;
+
+      &.disabled {
+        cursor: default;
+      }
     }
   }
 }

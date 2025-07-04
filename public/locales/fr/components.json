@@ -204,17 +204,36 @@
       "generalTabTitle": "Actualisation & Langue",
       "languagesHeader": "Langues",
       "mapTab": {
-        "clusterDataAllCheckboxLabel": "Tout sélectionner",
-        "clusterDataEventsCheckboxLabel": "Événements",
-        "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
-        "clusterDataSubjectsCheckboxLabel": "Appareils Suivis",
-        "displayLegend": "Affichage",
-        "generalHeader": "Actualisation & Langue",
-        "mapMarkersDescription": "Afficher les noms pour:",
-        "mapMarkersHeader": "Repères",
-        "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
-        "showInactiveRadiosCheckboxLabel": "Afficher les Radios Inactives",
-        "showTrackTimepointsCheckboxLabel": "Afficher les Points Temporels du Suivi"
+        "generalFieldSet": {
+          "3DMapTerrainCheckboxLabel": "Relief 3d",
+          "legend": "Actualisation & langue",
+          "lockMapCheckboxLabel": "Verrouiller la carte",
+          "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
+        },
+        "displayFieldSet": {
+          "clusterDataAllCheckboxLabel": "Tout sélectionner",
+          "clusterDataCheckboxLabel": {
+            "events": "Événements",
+            "subjects": "Appareils suivis"
+          },
+          "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
+          "legend": "Affichage",
+          "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
+          "showInactiveRadiosCheckboxLabel": "Afficher les radios inactives",
+          "showTrackTimepointsCheckboxLabel": "Afficher les points temporels du suivi"
+        },
+        "mapMarkersFieldSet": {
+          "legend": "Repères",
+          "markerNamesAllCheckboxLabel": "Tout sélectionner",
+          "markerNamesCheckboxLabel": {
+            "patrols": "Patrouilles",
+            "reports": "Événements",
+            "stationary_subjects": "Appareils fixes",
+            "subjects": "Appareils suivis"
+          },
+          "markerNamesLegend": "Afficher les noms pour:",
+          "showUserLocationCheckboxLabel": "Afficher votre position actuelle"
+        }
       },
       "mapTabTitle": "Carte"
     },
