@@ -222,7 +222,7 @@ describe('SideBar', () => {
   test('shows the Add Report button', async () => {
     renderSideBar();
 
-    expect(screen.getByTestId('sideBar-addReportButton')).not.toHaveClass('hidden');
+    expect(screen.getByTestId('sideBar-addReportButton')).toBeVisible();
   });
 
   test('hides the Add Report button in the map layers tab', async () => {
@@ -231,7 +231,7 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    expect(screen.getByTestId('sideBar-addReportButton')).toHaveClass('hidden');
+    expect(screen.queryByTestId('sideBar-addReportButton')).toBeNull();
   });
 
   test('closes the sidebar tabs when clicking the cross button', async () => {

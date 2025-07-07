@@ -87,7 +87,7 @@ describe('adding layers to the map', () => {
   describe('the layer used when clustering is enabled', () => {
     beforeEach(() => {
       render(
-        <Provider store={mockStore({ ...store, view: { ...store.view, mapClusterConfig: { subjects: true } } })}>
+        <Provider store={mockStore({ ...store, view: { ...store.view, mapClusterConfig: { data: { subjects: true } } } })}>
           <MapContext.Provider value={map}>
             <StaticSensorsLayer isTimeSliderActive={false} />
           </MapContext.Provider>

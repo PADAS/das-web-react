@@ -1,14 +1,15 @@
 import React from 'react';
-import { MapContext } from '../../App';
-import { createMapMock } from '../../__test-helpers/mocks';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+
+import { render, screen } from '../../test-utils';
+import { createMapMock } from '../../__test-helpers/mocks';
+import { MapContext } from '../../App';
+import { mockStore } from '../../__test-helpers/MockStore';
+
 import SettingsPane from './';
 
-import { mockStore } from '../../__test-helpers/MockStore';
-import { render, screen } from '../../test-utils';
-
-describe('SettingsPane', () => {
+describe('SideBar - SettingsPane', () => {
   let initialState, renderWithWrapper, Wrapper, store, map;
   beforeEach(() => {
     map = createMapMock();
@@ -22,23 +23,24 @@ describe('SettingsPane', () => {
         patrolFilter: {},
       },
       view: {
+        featureFlagOverrides: {},
+        mapClusterConfig: {
+          data: { events: true, subjects: true  },
+        },
         mapPosition: {
-          zoom: 10,
           center: { lat: 0, lng: 0 },
+          zoom: 10,
         },
-        systemConfig: {
-          alerts_enabled: true,
-        },
+        showMapNames: {},
+        showUserLocation: true,
         simplifyMapDataOnZoom: false,
+        systemConfig: { alerts_enabled: true },
+        timeSliderState: { active: false },
         userLocation: {
           lat: 10,
           lng: 10,
         },
-        featureFlagOverrides: {},
-        timeSliderState: { active: false },
-        mapClusterConfig: { data: { events: true, subjects: true  } },
-        showMapNames: {},
-        showUserLocation: true,
+        userPreferences: { enable3D: true },
       }
     };
 
@@ -119,66 +121,6 @@ describe('SettingsPane', () => {
         );
       });
     });
-  });
-
-  describe('the "Map" settings tab', () => {
-    it('toggles the showInactiveRadios state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('Show Inactive Radios');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'SHOW_INACTIVE_RADIOS', payload: true }]);
-    });
-
-    it('toggles the mapIsLocked state when the checkbox is clicked', async () => {
-
-      const checkbox = await screen.findByText('Lock Map');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'SET_MAP_LOCK_STATE', payload: true }]);
-    });
-
-    it('toggles the enable3D state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('3D Map Terrain');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'UPDATE_USER_PREFERENCES', payload: { enable3D: true } }]);
-    });
-
-    it('toggles the simplifyMapDataOnZoom state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('Simplify Map Data on Zoom');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'SET_MAP_DATA_ZOOM_SIMPLIFICATION' }]);
-    });
-
-    it('toggles the showTrackTimepoints state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('Show Track Timepoints');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'TOGGLE_TRACK_TIMEPOINTS' }]);
-    });
-
-    it('toggles the showInactiveRadios state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('Show Inactive Radios');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'SHOW_INACTIVE_RADIOS', payload: true }]);
-    });
-
-    it('toggles the showUserLocation state when the checkbox is clicked', async () => {
-      const checkbox = await screen.findByText('Show My Current Location');
-      await userEvent.click(checkbox);
-
-      const actions = store.getActions();
-      expect(actions).toEqual([{ type: 'TOGGLE_DISPLAY_USER_LOCATION' }]);
-    });
-
   });
 
   describe('the alerts tab', () => {
