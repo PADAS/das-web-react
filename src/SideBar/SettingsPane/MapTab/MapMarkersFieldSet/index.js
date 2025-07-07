@@ -35,6 +35,18 @@ const MapMarkersFieldSet = () => {
     mapInteractionTracker.track(`${isMarkerNamesFullyChecked ? 'Uncheck' : 'Check' } 'Show Names' checkbox`);
   };
 
+  const onMarkerNamesCheckboxChange = (markerNamesKey) => (event) => {
+    dispatch(toggleMapNamesState({
+      ...showMapNames,
+      [markerNamesKey]: {
+        ...showMapNames[markerNamesKey],
+        enabled: event.target.checked,
+      },
+    }));
+
+    mapInteractionTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'Marker names: ${markerNamesKey}' checkbox`);
+  };
+
   const onShowUserLocationCheckboxChange = () => {
     dispatch(toggleDisplayUserLocation());
 
@@ -77,13 +89,7 @@ const MapMarkersFieldSet = () => {
           checked={showMapNames[markerNamesKey].enabled}
           className={styles.checkbox}
           id={`marker-names-${markerNamesKey}-checkbox`}
-          onChange={(event) => dispatch(toggleMapNamesState({
-            ...showMapNames,
-            [markerNamesKey]: {
-              ...showMapNames[markerNamesKey],
-              enabled: event.target.checked,
-            },
-          }))}
+          onChange={onMarkerNamesCheckboxChange(markerNamesKey)}
           type="checkbox"
         />
 

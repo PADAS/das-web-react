@@ -205,7 +205,7 @@
       "languagesHeader": "Lenguaje",
       "mapTab": {
         "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "Mapa de terreno 3d",
+          "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
           "legend": "General",
           "lockMapCheckboxLabel": "Bloquear mapa",
           "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"

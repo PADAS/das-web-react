@@ -36,9 +36,33 @@ const DisplayFieldSet = () => {
   };
 
   const onShowInactiveRadiosCheckboxChange = () => {
-    dispatch(toggleShowInactiveRadioState(!showInactiveRadios));
+    dispatch(toggleShowInactiveRadioState());
 
     mapInteractionTracker.track(`${showInactiveRadios? 'Uncheck' : 'Check'} 'Show Inactive Radios' checkbox`);
+  };
+
+  const onShowClusterPolygonsCheckboxChange = (event) => {
+    dispatch(setShowMapClusterPolygons(event.target.checked));
+
+    mapInteractionTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'Show cluster polygons' checkbox`);
+  };
+
+  const onClusterDataAllCheckboxChange = () => {
+    dispatch(setMapClusterData({
+      events: !isClusterDataFullyChecked,
+      subjects: !isClusterDataFullyChecked,
+    }));
+
+    mapInteractionTracker.track(`${isClusterDataFullyChecked ? 'Uncheck' : 'Check'} 'Cluster data: All' checkbox`);
+  };
+
+  const onClusterDataCheckboxChange = (mapClusterDataKey) => (event) => {
+    dispatch(setMapClusterData({
+      ...mapClusterConfig.data,
+      [mapClusterDataKey]: event.target.checked,
+    }));
+
+    mapInteractionTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'Cluster data: ${mapClusterDataKey}' checkbox`);
   };
 
   useEffect(() => {
@@ -84,7 +108,7 @@ const DisplayFieldSet = () => {
         className={styles.checkbox}
         disabled={!isClusterDataFullyChecked && !isClusterDataPartiallyChecked}
         id="show-cluster-polygons-checkbox"
-        onChange={(event) => dispatch(setShowMapClusterPolygons(event.target.checked))}
+        onChange={onShowClusterPolygonsCheckboxChange}
         type="checkbox"
       />
 
@@ -106,10 +130,7 @@ const DisplayFieldSet = () => {
           className={styles.checkbox}
           disabled={isTimeSliderActive}
           id="cluster-data-all-checkbox"
-          onChange={() => dispatch(setMapClusterData({
-            events: !isClusterDataFullyChecked,
-            subjects: !isClusterDataFullyChecked,
-          }))}
+          onChange={onClusterDataAllCheckboxChange}
           ref={clusterDataAllChekboxRef}
           type="checkbox"
         />
@@ -131,10 +152,7 @@ const DisplayFieldSet = () => {
           className={styles.checkbox}
           disabled={isTimeSliderActive}
           id={`cluster-data-${mapClusterDataKey}-checkbox`}
-          onChange={(event) => dispatch(setMapClusterData({
-            ...mapClusterConfig.data,
-            [mapClusterDataKey]: event.target.checked,
-          }))}
+          onChange={onClusterDataCheckboxChange(mapClusterDataKey)}
           type="checkbox"
         />
 

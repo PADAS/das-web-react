@@ -205,7 +205,7 @@
       "languagesHeader": "Langues",
       "mapTab": {
         "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "Relief 3d",
+          "3DMapTerrainCheckboxLabel": "Relief 3D",
           "legend": "Actualisation & langue",
           "lockMapCheckboxLabel": "Verrouiller la carte",
           "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"

@@ -31,8 +31,8 @@ const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
 const SET_MAP_DATA_ZOOM_SIMPLIFICATION = 'SET_MAP_DATA_ZOOM_SIMPLIFICATION';
 
-const SET_MAP_CLUSTER_DATA = 'MAP_UI.SET_MAP_CLUSTER_DATA';
-const SET_SHOW_MAP_CLUSTER_POLYGONS = 'MAP_UI.SET_SHOW_MAP_CLUSTER_POLYGONS';
+export const SET_MAP_CLUSTER_DATA = 'MAP_UI.SET_MAP_CLUSTER_DATA';
+export const SET_SHOW_MAP_CLUSTER_POLYGONS = 'MAP_UI.SET_SHOW_MAP_CLUSTER_POLYGONS';
 
 // Action creators
 export const setReportHeatmapVisibility = (show) => ({
@@ -70,9 +70,8 @@ export const updateHeatmapSubjects = (update) => ({
   payload: update,
 });
 
-export const toggleMapLockState = (enabled) => ({
+export const toggleMapLockState = () => ({
   type: SET_MAP_LOCK_STATE,
-  payload: enabled,
 });
 
 export const toggleMapDataSimplificationOnZoom = () => ({
@@ -94,9 +93,8 @@ export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
 });
 
-export const toggleShowInactiveRadioState = (enabled) => ({
+export const toggleShowInactiveRadioState = () => ({
   type: SHOW_INACTIVE_RADIOS,
-  payload: enabled,
 });
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
@@ -156,9 +154,9 @@ export const setMapClusterData = (mapClusterData) => ({
   payload: mapClusterData,
 });
 
-export const setShowMapClusterPolygons = (mapClusterPolygons) => ({
+export const setShowMapClusterPolygons = (showMapClusterPolygons) => ({
   type: SET_SHOW_MAP_CLUSTER_POLYGONS,
-  payload: mapClusterPolygons,
+  payload: showMapClusterPolygons,
 });
 
 // Reducers
@@ -208,8 +206,8 @@ export const openMapFeatureTypesReducer = globallyResettableReducer((state, acti
 }, []);
 
 export const mapLockStateReducer = (state = false, action) => {
-  const { type, payload } = action;
-  if (type === SET_MAP_LOCK_STATE) return payload;
+  const { type } = action;
+  if (type === SET_MAP_LOCK_STATE) return !state;
   return state;
 };
 
@@ -300,7 +298,7 @@ export const mapClusterConfigMigrations = {
   }),
 };
 
-const INITIAL_MAP_CLUSTER_STATE = {
+export const INITIAL_MAP_CLUSTER_STATE = {
   data: {
     events: true,
     subjects: true,

@@ -219,14 +219,30 @@ describe('SideBar', () => {
     expect(screen.queryByTestId('badgeIcon')).toBeNull();
   });
 
-  test('shows the Add Report button', async () => {
+  test('shows the Add Report button in the events tab', async () => {
     renderSideBar();
 
     expect(screen.getByTestId('sideBar-addReportButton')).toBeVisible();
   });
 
-  test('hides the Add Report button in the map layers tab', async () => {
+  test('shows the Add Report button in the patrols tab', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
+    renderSideBar();
+
+    expect(screen.getByTestId('sideBar-addReportButton')).toBeVisible();
+  });
+
+  test('does not show the Add Report button in the map layers tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(screen.queryByTestId('sideBar-addReportButton')).toBeNull();
+  });
+
+  test('does not show the Add Report button in the settings tab', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/settings' })));
     useLocation.mockImplementation(useLocationMock);
 
     renderSideBar();

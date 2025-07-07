@@ -222,7 +222,7 @@
       "languagesHeader": "Language",
       "mapTab": {
         "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "3d map terrain",
+          "3DMapTerrainCheckboxLabel": "3D map terrain",
           "legend": "General",
           "lockMapCheckboxLabel": "Lock map",
           "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
@@ -245,7 +245,7 @@
           "markerNamesCheckboxLabel": {
             "patrols": "Patrols",
             "reports": "Events",
-            "stationary_subjects": "Stationary subjects",
+            "stationary_subjects": "Stationary Subjects",
             "subjects": "Subjects"
           },
           "markerNamesLegend": "Show names on map markers for",

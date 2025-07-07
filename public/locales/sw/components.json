@@ -222,7 +222,7 @@
       "languagesHeader": "Lugha",
       "mapTab": {
         "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3d",
+          "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3D",
           "legend": "Jumla",
           "lockMapCheckboxLabel": "Funga ramani",
           "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"

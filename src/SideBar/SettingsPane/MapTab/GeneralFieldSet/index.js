@@ -32,19 +32,25 @@ const GeneralFieldSet = () => {
   const map = useContext(MapContext);
 
   const onLockMapCheckboxChange = () => {
-    dispatch(toggleMapLockState(!mapIsLocked));
+    dispatch(toggleMapLockState());
 
     LOCKABLE_MAP_CONTROLS.forEach((mapControl) => mapIsLocked
       ? map[mapControl].enable()
       : map[mapControl].disable());
 
-    mapInteractionTracker.track(`${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
+    mapInteractionTracker.track(`${mapIsLocked ? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
+  };
+
+  const on3DMapTerrainCheckboxChange = () => {
+    dispatch(updateUserPreferences({ enable3D: !enable3D }));
+
+    mapInteractionTracker.track(`${enable3D ? 'Uncheck' : 'Check'} '3D map terrain' checkbox`);
   };
 
   const onSimplifyMapDataOnZoomCheckboxChange = () => {
     dispatch(toggleMapDataSimplificationOnZoom());
 
-    mapInteractionTracker.track(`${simplifyMapDataOnZoom.enabled? 'Uncheck' : 'Check'} 'Simplify Map Data on Zoom' checkbox`);
+    mapInteractionTracker.track(`${simplifyMapDataOnZoom.enabled ? 'Uncheck' : 'Check'} 'Simplify Map Data on Zoom' checkbox`);
   };
 
   return <fieldset className={styles.section}>
@@ -69,7 +75,7 @@ const GeneralFieldSet = () => {
         checked={enable3D}
         className={styles.checkbox}
         id="3d-map-terrain-checkbox"
-        onChange={() => dispatch(updateUserPreferences({ enable3D: !enable3D }))}
+        onChange={on3DMapTerrainCheckboxChange}
         type="checkbox"
       />
 
