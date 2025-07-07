@@ -721,6 +721,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
         properties: {
           'collection-1': {
             deprecated: false,
+            description: 'Some description',
             items: {
               additionalProperties: false,
               properties: {
@@ -732,6 +733,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
                 },
                 'collection-3': {
                   deprecated: false,
+                  description: 'Some description',
                   items: {
                     additionalProperties: false,
                     properties: {
@@ -795,6 +797,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
           },
           'collection-2': {
             deprecated: true,
+            description: 'Some description',
             items: {
               additionalProperties: false,
               properties: {},
@@ -806,7 +809,7 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
             unevaluatedItems: false,
           },
         },
-        required: [],
+        required: ['collection-1'],
         type: 'object',
       },
       ui: {
@@ -923,6 +926,8 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
         details: {
           buttonText: 'Collection 1 Button Text',
           columns: 2,
+          description: 'Some description',
+          isRequired: true,
           itemIdentifier: '',
           itemName: 'Collection 1 Item Name',
           label: 'Collection 1 Label',
@@ -939,6 +944,8 @@ describe('ReportManager - DetailsSection - SchemaForm - Utils - makeFieldsFromSc
         details: {
           buttonText: 'Collection 3 Button Text',
           columns: 2,
+          description: 'Some description',
+          isRequired: false,
           itemIdentifier: '',
           itemName: 'Collection 3 Item Name',
           label: 'Collection 3 Label',

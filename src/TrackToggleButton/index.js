@@ -34,6 +34,7 @@ const TrackToggleButton = ({
     containerClassName={containerClasses}
     labelText={t((trackPinned && 'tracksPinned') || (trackVisible && 'tracksOn') || 'tracksOff')}
     ref={ref}
+    data-testid="tracks-toggle-button"
     {...restProps}
   />;
 };

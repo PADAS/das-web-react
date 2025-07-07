@@ -26,7 +26,11 @@ export const fetchCurrentUser = () => (dispatch, getState) => axios.get(CURRENT_
     dispatch(fetchUserSuccess(data));
     const { data: { selectedUserProfile } } = getState();
     if (selectedUserProfile?.id && selectedUserProfile.id !== data.id) {
-      return axios.get(`${USER_API_URL}/${selectedUserProfile.id}`)
+      return axios.get(`${USER_API_URL}/${selectedUserProfile.id}`, {
+        headers: {
+          'User-Profile': selectedUserProfile.id,
+        },
+      })
         .then(({ data: { data: profileUser } }) => {
           dispatch(setUserProfile(profileUser));
         });

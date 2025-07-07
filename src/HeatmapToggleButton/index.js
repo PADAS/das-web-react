@@ -21,6 +21,7 @@ const HeatmapToggleButton = ({
     containerClassName={`${styles.container} ${visibilityClassName}`}
     labelText={visibilityClassName ? t('heatmapOnLabel') : t('heatmapOffLabel')}
     onClick={onButtonClick}
+    data-testid="heatmap-toggle-button"
     {...restProps}
   />;
 };

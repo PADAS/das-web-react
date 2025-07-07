@@ -54,7 +54,7 @@ const SubjectPopup = ({ data }) => {
   return <>
     <div className={styles.header}>
       <div>
-        <div className={styles.defaultStatusProperty}>
+        <div className={styles.defaultStatusProperty} data-testid="subject-popup-name">
           {properties.default_status_value && <>
             {properties.image && <img alt={t('subjectIconAlt', { name: properties.name })} src={properties.image} />}
 
