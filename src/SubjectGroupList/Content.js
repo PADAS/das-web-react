@@ -9,8 +9,10 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import TrackToggleButton from '../TrackToggleButton';
 import SubjectListItem from './SubjectListItem';
 
+import { TRACKING_CONTROL_STATES } from '../constants';
+
 import { addHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, removeHeatmapSubjects, showSubjectTracks } from '../ducks/map-ui';
-import { subjectGroupTrackingControlsState, TRACKING_CONTROL_STATES } from './selectors';
+import { subjectGroupTrackingControlsState } from './selectors';
 
 import { fetchTracksIfNecessary } from '../utils/tracks';
 

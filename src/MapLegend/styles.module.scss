@@ -3,7 +3,7 @@
 
 .mapLegend {
   --close-button-size: 1.75rem;
-  --legend-height: 3rem;
+  --legend-height: 3.25rem;
 
   background: rgba(255, 255, 255, 0.9);
   border-radius: 0 var(--close-button-size) var(--close-button-size) 0;
@@ -16,7 +16,7 @@
   padding: 0.5rem;
   position: relative;
 
-  + .legend {
+  +.legend {
     margin-top: 0.5rem;
   }
 

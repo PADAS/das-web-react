@@ -1,16 +1,10 @@
 import { createSelector } from 'reselect';
 import intersection from 'lodash/intersection';
 
+import { TRACKING_CONTROL_STATES } from '../constants';
+
 import { getSubjectsWithViewableTrackingDataFromGroups } from '../utils/subjects';
 
-export const TRACKING_CONTROL_STATES = {
-  FULLY_HEATMAPPED: 'FULLY_HEATMAPPED',
-  PARTIALLY_HEATMAPPED: 'PARTIALLY_HEATMAPPED',
-  FULLY_PINNED: 'FULLY_PINNED',
-  PARTIALLY_PINNED: 'PARTIALLY_PINNED',
-  FULLY_VISIBLE: 'FULLY_VISIBLE',
-  PARTIALLY_VISIBLE: 'PARTIALLY_VISIBLE',
-};
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 const pinnedTrackIDs = ({ view: { subjectTrackState: { pinned } } }) => pinned;
