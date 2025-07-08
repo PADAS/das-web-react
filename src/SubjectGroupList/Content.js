@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import { useTranslation } from 'react-i18next';
@@ -71,10 +71,9 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
 const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick,
     subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
-    addHeatmapSubjects, removeHeatmapSubjects, listLevel,
-    hideSubjectTracks, pinSubjectTracks, showSubjectTracks } = props;
+    listLevel, } = props;
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const subjectIDsWithTrackingData = useSelector((state) => visibleTrackingDataSubjectIDsForGroup(state, props));
   const showTrackingControls = !!subjectIDsWithTrackingData.length;
   const groupTrackState = useSelector((state) => groupTrackingDataState(state, props));
@@ -85,6 +84,11 @@ const ContentComponent = (props) => {
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
   const [collapsibleShouldBeOpen, setCollapsibleOpenState] = useState(false);
+
+
+  /* 
+    addHeatmapSubjects, removeHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, showSubjectTracks
+  */
 
   const groupItemProps = {
     map,
@@ -125,16 +129,16 @@ const ContentComponent = (props) => {
     }
 
     if (groupTrackState.track === TRACKING_CONTROL_STATES.FULLY_PINNED) {
-      return hideSubjectTracks(...subjectIDsWithTrackingData);  // turn off all;
+      return dispatch(hideSubjectTracks(...subjectIDsWithTrackingData));  // turn off all;
     }
     if (
       [TRACKING_CONTROL_STATES.PARTIALLY_PINNED, TRACKING_CONTROL_STATES.FULLY_VISIBLE]
         .includes(groupTrackState.track)
     ) {
-      return pinSubjectTracks(...subjectIDsWithTrackingData);
+      return dispatch(pinSubjectTracks(...subjectIDsWithTrackingData));
     }
 
-    return showSubjectTracks(...subjectIDsWithTrackingData);
+    return dispatch(showSubjectTracks(...subjectIDsWithTrackingData));
   };
 
   const onGroupHeatmapToggle = async (e) => {
@@ -143,7 +147,7 @@ const ContentComponent = (props) => {
     e.stopPropagation();
     if (groupIsFullyHeatmapped) {
       mapLayerTracker.track('Uncheck Group Heatmap checkbox', `Group:${name}`);
-      return removeHeatmapSubjects(...subjectIDsWithTrackingData);
+      return dispatch(removeHeatmapSubjects(...subjectIDsWithTrackingData));
     }
 
     setTrackLoadingState(true);
@@ -154,7 +158,7 @@ const ContentComponent = (props) => {
     setTrackLoadingState(false);
 
     mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);
-    return addHeatmapSubjects(...subjectIDsWithTrackingData);
+    return dispatch(addHeatmapSubjects(...subjectIDsWithTrackingData));
   };
 
 
@@ -186,7 +190,7 @@ const ContentComponent = (props) => {
         itemFullyChecked={groupIsFullyVisible}
         itemPartiallyChecked={groupIsPartiallyVisible}
         onCheckClick={onGroupCheckClick}
-        itemComponent={ConnectedComponent} />
+        itemComponent={ContentComponent} />
     }
     {!!subjects.length &&
       <CheckableList
@@ -200,5 +204,4 @@ const ContentComponent = (props) => {
   </Collapsible>;
 };
 
-const ConnectedComponent = connect(null, { addHeatmapSubjects, removeHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, showSubjectTracks })(ContentComponent);
-export default ConnectedComponent;
+export default ContentComponent;
