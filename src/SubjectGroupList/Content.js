@@ -81,23 +81,6 @@ const ContentComponent = (props) => {
   const subjectTrackIDsToLoad = useSelector((state) => unloadedSubjectTrackIDs(state, props));
   const hiddenSubjectIDs = useSelector(({ data: { mapLayerFilter: { hiddenSubjectIDs } } }) => hiddenSubjectIDs);
 
-
-  /* 
-    replacing groupTrackState with the primitive contents
-    
-    export const subjectGroupTrackingControlsState = createSelector(
-  [visibleTrackingDataSubjectIDsForGroup, groupTrackState, unloadedSubjectTrackIDs],
-  (eligibleSubjects, groupTrackState, unloadedSubjectTrackIDs) => ({
-    showTrackingControls: !!eligibleSubjects.length,
-    subjectIDsWithTrackingData: eligibleSubjects,
-    groupTrackState,
-    unloadedSubjectTrackIDs,
-  }),
-);
-*/
-
-
-
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const [loadingTracks, setTrackLoadingState] = useState(false);

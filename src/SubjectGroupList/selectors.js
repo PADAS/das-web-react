@@ -14,10 +14,8 @@ export const visibleTrackingDataSubjectIDsForGroup = (_, props) => getSubjectsWi
 
 const groupIsFullyHeatmapped = createSelector(
   [heatmapSubjectIDs, visibleTrackingDataSubjectIDsForGroup],
-  (heatmapSubjects, eligibleSubjects) => {
-    console.log('groupIsFullyHeatmapped', !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length);
-    return !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length;
-  }
+  (heatmapSubjects, eligibleSubjects) =>
+    !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length,
 );
 
 const groupIsPartiallyHeatmapped = createSelector(
@@ -84,14 +82,3 @@ export const groupTrackingDataState = createSelector(
     return trackState;
   },
 );
-
-export const subjectGroupTrackingControlsState = createSelector(
-  [visibleTrackingDataSubjectIDsForGroup, groupTrackingDataState, unloadedSubjectTrackIDs],
-  (eligibleSubjects, groupTrackingDataState, unloadedSubjectTrackIDs) => ({
-    showTrackingControls: !!eligibleSubjects.length,
-    subjectIDsWithTrackingData: eligibleSubjects,
-    groupTrackingDataState,
-    unloadedSubjectTrackIDs,
-  }),
-);
-

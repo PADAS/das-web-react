@@ -3,10 +3,7 @@ import {
   groupTracksPartiallyPinned,
   groupTracksFullyVisible,
   groupTracksPartiallyVisible,
-  subjectGroupTrackingControlsState
 } from './selectors';
-
-import { TRACKING_CONTROL_STATES } from '../constants';
 
 import { getSubjectsWithViewableTrackingDataFromGroups } from '../utils/subjects';
 
@@ -113,78 +110,4 @@ describe('SubjectGroupList selectors', () => {
     });
   });
 
-  describe('subjectGroupTrackingControlsState', () => {
-    it('returns correct state for pinned tracks', () => {
-      mockState.view.subjectTrackState.pinned = ['subject1', 'subject2', 'subject3'];
-      mockState.data.tracks = {
-        subject1: { track: {} },
-        subject2: { track: {} },
-        subject3: { track: {} }
-      };
-
-      const result = subjectGroupTrackingControlsState(mockState, mockProps);
-
-      expect(result).toEqual({
-        showTrackingControls: true,
-        subjectIDsWithTrackingData: ['subject1', 'subject2', 'subject3'],
-        groupTrackingDataState: {
-          heatmap: null,
-          track: TRACKING_CONTROL_STATES.FULLY_PINNED
-        },
-        unloadedSubjectTrackIDs: []
-      });
-    });
-
-    it('returns correct state for visible tracks', () => {
-      mockState.view.subjectTrackState.visible = ['subject1', 'subject2', 'subject3'];
-      mockState.data.tracks = {
-        subject1: { track: {} },
-        subject2: { track: {} },
-        subject3: { track: {} }
-      };
-
-      const result = subjectGroupTrackingControlsState(mockState, mockProps);
-
-      expect(result).toEqual({
-        showTrackingControls: true,
-        subjectIDsWithTrackingData: ['subject1', 'subject2', 'subject3'],
-        groupTrackingDataState: {
-          heatmap: null,
-          track: TRACKING_CONTROL_STATES.FULLY_VISIBLE
-        },
-        unloadedSubjectTrackIDs: []
-      });
-    });
-
-    it('returns correct state for heatmap subjects', () => {
-      mockState.view.heatmapSubjectIDs = ['subject1', 'subject2', 'subject3'];
-      mockState.data.tracks = {
-        subject1: { track: {} },
-        subject2: { track: {} },
-        subject3: { track: {} }
-      };
-
-      const result = subjectGroupTrackingControlsState(mockState, mockProps);
-
-      expect(result).toEqual({
-        showTrackingControls: true,
-        subjectIDsWithTrackingData: ['subject1', 'subject2', 'subject3'],
-        groupTrackingDataState: {
-          heatmap: TRACKING_CONTROL_STATES.FULLY_HEATMAPPED,
-          track: null
-        },
-        unloadedSubjectTrackIDs: []
-      });
-    });
-
-    it('identifies unloaded tracks', () => {
-      mockState.data.tracks = {
-        subject1: { track: {} }
-      };
-
-      const result = subjectGroupTrackingControlsState(mockState, mockProps);
-
-      expect(result.unloadedSubjectTrackIDs).toEqual(['subject2', 'subject3']);
-    });
-  });
 });
