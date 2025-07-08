@@ -215,7 +215,7 @@
                     "clusterDataAllCheckboxLabel": "सबै",
                     "clusterDataCheckboxLabel": {
                         "events": "घटना",
-                        "subjects": "घटना"
+                        "subjects": "विषयहरु"
                     },
                     "clusterDataLegend": "ओभरल्याप हुँदाको सामुहिक डाटा",
                     "legend": "प्रदर्शन गर्नुहोस्",

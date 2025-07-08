@@ -231,7 +231,7 @@
                         "stationary_subjects": "Indivíduos estacionários",
                         "subjects": "Indivíduos rastreados"
                     },
-                    "markerNamesLegend": "Motrar nomes nos marcadores do mapa",
+                    "markerNamesLegend": "Mostrar nomes nos marcadores do mapa",
                     "showUserLocationCheckboxLabel": "Mostrar minha localização atual"
                 }
             },

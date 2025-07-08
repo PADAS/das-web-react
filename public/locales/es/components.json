@@ -226,7 +226,7 @@
           "legend": "Marcadores del mapa",
           "markerNamesAllCheckboxLabel": "Todos",
           "markerNamesCheckboxLabel": {
-            "patrols": "Todos",
+            "patrols": "Patrullas",
             "reports": "Eventos",
             "stationary_subjects": "Sujetos estacionarios",
             "subjects": "Sujetos"
