@@ -200,14 +200,41 @@
             "appRefreshMapPositionAndZoomLevelLabel": "Posição do mapa & Nível de zoom",
             "appRefreshPatrolFiltersLabel": "Filtros de patrulhas",
             "appRefreshReportFiltersLabel": "Filtros de eventos",
-            "clusterDataDescription": "Agrupar dados quando existir sobreposição de:",
-            "displayHeader": "Visualizar",
             "experimentalFeaturesHeader": "Funções experimentais",
-            "generalHeader": "Características Gerais",
             "generalTabTitle": "Características Gerais",
             "languagesHeader": "Idioma",
-            "mapMarkersDescription": "Motrar nomes nos marcadores do mapa",
-            "mapMarkersHeader": "Marcadores do mapa",
+            "mapTab": {
+                "generalFieldSet": {
+                    "3DMapTerrainCheckboxLabel": "Terreno do mapa 3D",
+                    "legend": "Características gerais",
+                    "lockMapCheckboxLabel": "Bloquear mapa",
+                    "simplifyMapDataOnZoomCheckboxLabel": "Simplificar dados do mapa no zoom"
+                },
+                "displayFieldSet": {
+                    "clusterDataAllCheckboxLabel": "Selecionar tudo",
+                    "clusterDataCheckboxLabel": {
+                        "events": "Eventos",
+                        "subjects": "Indivíduos rastreados"
+                    },
+                    "clusterDataLegend": "Agrupar dados quando existir sobreposição de:",
+                    "legend": "Visualizar",
+                    "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita a área dos dados agrupados",
+                    "showInactiveRadiosCheckboxLabel": "Mostrar rádios inativos",
+                    "showTrackTimepointsCheckboxLabel": "Mostrar pontos de tempo rastreados por seguimento"
+                },
+                "mapMarkersFieldSet": {
+                    "legend": "Marcadores do mapa",
+                    "markerNamesAllCheckboxLabel": "Selecionar tudo",
+                    "markerNamesCheckboxLabel": {
+                        "patrols": "Patrulhas",
+                        "reports": "Eventos",
+                        "stationary_subjects": "Indivíduos estacionários",
+                        "subjects": "Indivíduos rastreados"
+                    },
+                    "markerNamesLegend": "Mostrar nomes nos marcadores do mapa",
+                    "showUserLocationCheckboxLabel": "Mostrar minha localização atual"
+                }
+            },
             "mapTabTitle": "Mapa"
         },
         "settingsLink": "Preferências"

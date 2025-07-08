@@ -181,20 +181,6 @@ export const createFeatureCollectionFromEvents = (events, eventTypes) =>
     setUpEventGeoJson(events, eventTypes)
   );
 
-export const lockMap = (map, isLocked) => {
-  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
-  if (isLocked === true) {
-    mapControls.forEach(function (control) {
-      map[control].disable();
-    });
-  }
-  else {
-    mapControls.forEach(function (control) {
-      map[control].enable();
-    });
-  }
-};
-
 const baseLayerIsArcGisServer = ({ attributes: { url } }) => url.includes('arcgisonline.com/ArcGIS/rest/services');
 const baseLayerIsGoogleMap = ({ attributes: { url } }) => url.includes('mt.google.com');
 
