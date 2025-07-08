@@ -483,6 +483,17 @@
   @media (min-width: $md-layout-width-min) {
     margin: 0;
   }
+
+  button {
+
+    &:focus,
+    &:focus-visible,
+    &:active,
+    &:target,
+    &:hover {
+      outline: -webkit-focus-ring-color auto 1px;
+    }
+  }
 }
 
 .toggleButton {
