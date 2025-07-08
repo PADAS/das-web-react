@@ -10,11 +10,14 @@ const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs
 const pinnedTrackIDs = ({ view: { subjectTrackState: { pinned } } }) => pinned;
 const visibleTrackIDs = ({ view: { subjectTrackState: { visible } } }) => visible;
 const tracks = ({ data: { tracks } }) => tracks;
-const visibleTrackingDataSubjectIDsForGroup = (_, props) => getSubjectsWithViewableTrackingDataFromGroups(props).map(s => s.id);
+export const visibleTrackingDataSubjectIDsForGroup = (_, props) => getSubjectsWithViewableTrackingDataFromGroups(props).map(s => s.id);
 
 const groupIsFullyHeatmapped = createSelector(
   [heatmapSubjectIDs, visibleTrackingDataSubjectIDsForGroup],
-  (heatmapSubjects, eligibleSubjects) => !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length,
+  (heatmapSubjects, eligibleSubjects) => {
+    console.log('groupIsFullyHeatmapped', !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length);
+    return !!eligibleSubjects.length && intersection(eligibleSubjects, heatmapSubjects).length === eligibleSubjects.length;
+  }
 );
 
 const groupIsPartiallyHeatmapped = createSelector(
@@ -47,12 +50,12 @@ export const groupTracksPartiallyVisible = createSelector(
     && intersection(eligibleSubjects, visibleTracks).length,
 );
 
-const unloadedSubjectTrackIDs = createSelector(
+export const unloadedSubjectTrackIDs = createSelector(
   [visibleTrackingDataSubjectIDsForGroup, tracks],
   (subjectIDs, tracks) => subjectIDs.filter(id => !tracks[id]),
 );
 
-const groupTrackingDataState = createSelector(
+export const groupTrackingDataState = createSelector(
   [
     groupIsFullyHeatmapped,
     groupIsPartiallyHeatmapped,

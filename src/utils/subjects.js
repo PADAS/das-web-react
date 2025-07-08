@@ -67,7 +67,6 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 }, []);
 
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
-
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
 export const subjectIsStatic = subject => {

@@ -1,11 +1,12 @@
 import {
-  TRACKING_CONTROL_STATES,
   groupTracksFullyPinned,
   groupTracksPartiallyPinned,
   groupTracksFullyVisible,
   groupTracksPartiallyVisible,
   subjectGroupTrackingControlsState
 } from './selectors';
+
+import { TRACKING_CONTROL_STATES } from '../constants';
 
 import { getSubjectsWithViewableTrackingDataFromGroups } from '../utils/subjects';
 
