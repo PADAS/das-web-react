@@ -85,11 +85,6 @@ const ContentComponent = (props) => {
   const [loadingTracks, setTrackLoadingState] = useState(false);
   const [collapsibleShouldBeOpen, setCollapsibleOpenState] = useState(false);
 
-
-  /* 
-    addHeatmapSubjects, removeHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, showSubjectTracks
-  */
-
   const groupItemProps = {
     map,
     onGroupCheckClick,
