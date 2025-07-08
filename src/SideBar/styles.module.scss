@@ -341,6 +341,7 @@
     h4,
     h5,
     h6 {
+      flex: 1;
       margin: 0;
       font-weight: 600;
     }
@@ -473,6 +474,17 @@
   @media (min-width: $md-layout-width-min) {
     margin: 0;
   }
+
+  button {
+
+    &:focus,
+    &:focus-visible,
+    &:active,
+    &:target,
+    &:hover {
+      outline: -webkit-focus-ring-color auto 1px;
+    }
+  }
 }
 
 .toggleButton {
@@ -480,10 +492,16 @@
 }
 
 .trigger {
-  display: flex;
-  justify-content: space-between;
-  padding-right: 2rem;
   align-items: center;
+  display: flex;
+  height: 1.5rem;
+  gap: 1rem;
+  justify-content: flex-start;
+  padding-right: 2rem;
+}
+
+.partialTrackButton {
+  opacity: 0.5;
 }
 
 .featureTitle {

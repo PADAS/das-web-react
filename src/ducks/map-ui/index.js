@@ -117,6 +117,42 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
+export const pinSubjectTracks = (...subjectIDs) => (dispatch, getState) => {
+  const { view: { subjectTrackState: { pinned, visible } } } = getState();
+
+  return dispatch(updateTrackState({
+    pinned: uniq([...subjectIDs, ...pinned]),
+    visible: visible.filter(id => !subjectIDs.includes(id)),
+  }));
+};
+
+export const unpinSubjectTracks = (...subjectIDs) => (dispatch, getState) => {
+  const { view: { subjectTrackState: { pinned, visible } } } = getState();
+
+  return dispatch(updateTrackState({
+    pinned: pinned.filter(id => !subjectIDs.includes(id)),
+    ...{ visible },
+  }));
+};
+
+export const showSubjectTracks = (...subjectIDs) => (dispatch, getState) => {
+  const { view: { subjectTrackState: { pinned, visible } } } = getState();
+
+  return dispatch(updateTrackState({
+    visible: uniq([...subjectIDs, ...visible]),
+    pinned: pinned.filter(id => !subjectIDs.includes(id)),
+  }));
+};
+
+export const hideSubjectTracks = (...subjectIDs) => (dispatch, getState) => {
+  const { view: { subjectTrackState: { pinned, visible } } } = getState();
+
+  return dispatch(updateTrackState({
+    visible: visible.filter(id => !subjectIDs.includes(id)),
+    pinned: pinned.filter(id => !subjectIDs.includes(id)),
+  }));
+};
+
 export const MAP_LOCATION_SELECTION_MODES = { EVENT_GEOMETRY: 'eventGeometry', DEFAULT: 'default' };
 
 export const setMapLocationSelectionEvent = (event) => ({
