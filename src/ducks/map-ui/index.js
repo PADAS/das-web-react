@@ -1,9 +1,9 @@
 import uniq from 'lodash/uniq';
 
-import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
+import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../../constants';
+import globallyResettableReducer from '../../reducers/global-resettable';
 
-// actions
+// Actions
 const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
 
 const OPEN_MAP_FEATURE_TYPES = 'OPEN_MAP_FEATURE_TYPES';
@@ -31,10 +31,10 @@ const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
 const SET_MAP_DATA_ZOOM_SIMPLIFICATION = 'SET_MAP_DATA_ZOOM_SIMPLIFICATION';
 
-export const SET_MAP_CLUSTER_CONFIG = 'SET_MAP_CLUSTER_CONFIG';
+export const SET_MAP_CLUSTER_DATA = 'MAP_UI.SET_MAP_CLUSTER_DATA';
+export const SET_SHOW_MAP_CLUSTER_POLYGONS = 'MAP_UI.SET_SHOW_MAP_CLUSTER_POLYGONS';
 
-
-// action creators
+// Action creators
 export const setReportHeatmapVisibility = (show) => ({
   type: SET_REPORT_HEATMAP_VISIBILITY,
   payload: show,
@@ -70,9 +70,8 @@ export const updateHeatmapSubjects = (update) => ({
   payload: update,
 });
 
-export const toggleMapLockState = (enabled) => ({
+export const toggleMapLockState = () => ({
   type: SET_MAP_LOCK_STATE,
-  payload: enabled,
 });
 
 export const toggleMapDataSimplificationOnZoom = () => ({
@@ -94,9 +93,8 @@ export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
 });
 
-export const toggleShowInactiveRadioState = (enabled) => ({
+export const toggleShowInactiveRadioState = () => ({
   type: SHOW_INACTIVE_RADIOS,
-  payload: enabled,
 });
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
@@ -151,12 +149,17 @@ export const setBounceEventIDs = (eventId) => ({
   payload: eventId,
 });
 
-export const setMapClusterConfig = (payload) => ({
-  type: SET_MAP_CLUSTER_CONFIG,
-  payload,
+export const setMapClusterData = (mapClusterData) => ({
+  type: SET_MAP_CLUSTER_DATA,
+  payload: mapClusterData,
 });
 
-// reducers
+export const setShowMapClusterPolygons = (showMapClusterPolygons) => ({
+  type: SET_SHOW_MAP_CLUSTER_POLYGONS,
+  payload: showMapClusterPolygons,
+});
+
+// Reducers
 
 const INITIAL_PRINT_TITLE_STATE = '';
 export const printTitleReducer = (state = INITIAL_PRINT_TITLE_STATE, action) => {
@@ -203,8 +206,8 @@ export const openMapFeatureTypesReducer = globallyResettableReducer((state, acti
 }, []);
 
 export const mapLockStateReducer = (state = false, action) => {
-  const { type, payload } = action;
-  if (type === SET_MAP_LOCK_STATE) return payload;
+  const { type } = action;
+  if (type === SET_MAP_LOCK_STATE) return !state;
   return state;
 };
 
@@ -284,11 +287,34 @@ export const displayInactiveRadiosReducer = (state = true, action) => {
   return state;
 };
 
-const INITIAL_MAP_CLUSTER_STATE = { reports: true, subjects: true };
+
+export const mapClusterConfigMigrations = {
+  0: (state) => ({
+    data: {
+      events: state.reports,
+      subjects: state.subjects,
+    },
+    showPolygons: true,
+  }),
+};
+
+export const INITIAL_MAP_CLUSTER_STATE = {
+  data: {
+    events: true,
+    subjects: true,
+  },
+  showPolygons: true,
+};
+
 export const mapClusterConfigReducer = (state = INITIAL_MAP_CLUSTER_STATE, action) => {
-  const { type, payload } = action;
+  switch (action.type) {
+  case SET_MAP_CLUSTER_DATA:
+    return { ...state, data: { ...state.data, ...action.payload } };
 
-  if (type === SET_MAP_CLUSTER_CONFIG) return payload;
+  case SET_SHOW_MAP_CLUSTER_POLYGONS:
+    return { ...state, showPolygons: action.payload };
 
-  return state;
+  default:
+    return state;
+  }
 };

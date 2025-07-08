@@ -218,31 +218,35 @@ const SideBar = () => {
     <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
         <div className={styles.header}>
-          <div className={[TAB_KEYS.EVENTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
-            {!!itemId
-              ? <button
-                aria-label={t('backButtonLabel')}
-                className={styles.backButton}
-                type='button'
-                onClick={onClickBackFromDetailView}
-                title={t('backButtonTitle')}
-                data-testid="sideBar-backDetailViewButton"
-              >
-                <ArrowLeftIcon />
-              </button>
-              : <AddItemButton
-                analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
-                aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
-                className={styles.addReport}
-                hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
-                hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
-                showLabel={false}
-                title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
-                variant="secondary"
-              />}
-          </div>
+          <div className={styles.title}>
+            {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div
+              data-testid="sideBar-addReportButton"
+            >
+              {!!itemId
+                ? <button
+                  aria-label={t('backButtonLabel')}
+                  className={styles.backButton}
+                  type='button'
+                  onClick={onClickBackFromDetailView}
+                  title={t('backButtonTitle')}
+                  data-testid="sideBar-backDetailViewButton"
+                >
+                  <ArrowLeftIcon />
+                </button>
+                : <AddItemButton
+                  analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
+                  aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
+                  className={styles.addReport}
+                  hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
+                  hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
+                  showLabel={false}
+                  title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
+                  variant="secondary"
+                />}
+            </div>}
 
-          <h3>{t(`${currentTab}Link`)}</h3>
+            <h3 id="side-bar-tab-header">{t(`${currentTab}Link`)}</h3>
+          </div>
 
           <button
             aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}

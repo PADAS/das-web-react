@@ -217,14 +217,41 @@
       "appRefreshMapPositionAndZoomLevelLabel": "Map Position & Zoom Level",
       "appRefreshPatrolFiltersLabel": "Patrol Filters",
       "appRefreshReportFiltersLabel": "Event Filters",
-      "clusterDataDescription": "Cluster data when there is overlap for",
-      "displayHeader": "Display",
       "experimentalFeaturesHeader": "Experimental Features",
-      "generalHeader": "General",
       "generalTabTitle": "General",
       "languagesHeader": "Language",
-      "mapMarkersDescription": "Show names on map markers for",
-      "mapMarkersHeader": "Map Markers",
+      "mapTab": {
+        "generalFieldSet": {
+          "3DMapTerrainCheckboxLabel": "3D map terrain",
+          "legend": "General",
+          "lockMapCheckboxLabel": "Lock map",
+          "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
+        },
+        "displayFieldSet": {
+          "clusterDataAllCheckboxLabel": "All",
+          "clusterDataCheckboxLabel": {
+            "events": "Events",
+            "subjects": "Subjects"
+          },
+          "clusterDataLegend": "Cluster data when there is overlap for",
+          "legend": "Display",
+          "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
+          "showInactiveRadiosCheckboxLabel": "Show inactive radios",
+          "showTrackTimepointsCheckboxLabel": "Show track timepoints"
+        },
+        "mapMarkersFieldSet": {
+          "legend": "Map markers",
+          "markerNamesAllCheckboxLabel": "All",
+          "markerNamesCheckboxLabel": {
+            "patrols": "Patrols",
+            "reports": "Events",
+            "stationary_subjects": "Stationary Subjects",
+            "subjects": "Subjects"
+          },
+          "markerNamesLegend": "Show names on map markers for",
+          "showUserLocationCheckboxLabel": "Show my current location"
+        }
+      },
       "mapTabTitle": "Map"
     },
     "settingsLink": "Settings"

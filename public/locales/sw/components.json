@@ -217,14 +217,41 @@
       "appRefreshMapPositionAndZoomLevelLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
       "appRefreshPatrolFiltersLabel": "Vichuja vya Doria",
       "appRefreshReportFiltersLabel": "Vichuja vya Tukio",
-      "clusterDataDescription": "Kuweka vikundi data wakati kuna lapitiko kwa",
-      "displayHeader": "Onyesha",
       "experimentalFeaturesHeader": "Vipengele vya Majaribio",
-      "generalHeader": "Jumla",
       "generalTabTitle": "Jumla",
       "languagesHeader": "Lugha",
-      "mapMarkersDescription": "Onyesha majina kwenye alama za ramani kwa",
-      "mapMarkersHeader": "Alama za Ramani",
+      "mapTab": {
+        "generalFieldSet": {
+          "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3D",
+          "legend": "Jumla",
+          "lockMapCheckboxLabel": "Funga ramani",
+          "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
+        },
+        "displayFieldSet": {
+          "clusterDataAllCheckboxLabel": "Yote",
+          "clusterDataCheckboxLabel": {
+            "events": "Matukio",
+            "subjects": "Mada"
+          },
+          "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
+          "legend": "Onyesha",
+          "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
+          "showInactiveRadiosCheckboxLabel": "Onyesha redio zisizo na shughuli",
+          "showTrackTimepointsCheckboxLabel": "Onyesha muda wa vipindi vya nyayo kwenye ramani"
+        },
+        "mapMarkersFieldSet": {
+          "legend": "Alama za ramani",
+          "markerNamesAllCheckboxLabel": "Yote",
+          "markerNamesCheckboxLabel": {
+            "patrols": "Doria",
+            "reports": "Matukio",
+            "stationary_subjects": "Mada zisizotembea",
+            "subjects": "Mada"
+          },
+          "markerNamesLegend": "Onyesha majina kwenye alama za ramani kwa",
+          "showUserLocationCheckboxLabel": "Onyesha mahali yangu ya sasa"
+        }
+      },
       "mapTabTitle": "Ramani"
     },
     "settingsLink": "Mipangilio"

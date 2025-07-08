@@ -21,7 +21,7 @@ import {
   mockEventFeatureCollection,
   mockSubjectFeatureCollection,
 } from '../__test-helpers/fixtures/clusters';
-import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
+import useClusterPolygon from '../hooks/useClusterPolygon';
 
 const { CLUSTERS_SOURCE_ID } = SOURCE_IDS;
 
@@ -44,7 +44,7 @@ jest.mock('../selectors/subjects', () => ({
   ...jest.requireActual('../selectors/subjects'),
   getMapSubjectFeatureCollectionWithVirtualPositioning: () => mockSubjectFeatureCollection,
 }));
-jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
+jest.mock('../hooks/useClusterPolygon', () => jest.fn());
 
 
 describe('ClustersLayer', () => {
@@ -56,14 +56,14 @@ describe('ClustersLayer', () => {
   });
 
   describe('the map layer', () => {
-    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(),
+    const onShowClusterSelectPopup = jest.fn(), addClusterPolygon = jest.fn(),
       setData = jest.fn();
-    let map, useClusterBufferPolygonMock;
+    let map, useClusterPolygonMock;
     beforeEach(() => {
       jest.useFakeTimers();
 
-      useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
-      useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
+      useClusterPolygonMock = () => ({ removeClusterPolygon, addClusterPolygon });
+      useClusterPolygon.mockImplementation(useClusterPolygonMock);
 
       map = createMapMock();
       map.queryRenderedFeatures.mockImplementation(() => [
@@ -87,7 +87,7 @@ describe('ClustersLayer', () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
       render(
-        <Provider store={mockStore({ data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } }, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { reports: true, subjects: true } } })}>
+        <Provider store={mockStore({ data: { mapLayerFilter: { showReportsOnMap: true }, mapEvents: { events: [] }, eventFilter: { filter: { date_range: {} } } }, view: { mapImages: [], timeSliderState: {}, mapClusterConfig: { data: { events: true, subjects: true } } } })}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -137,14 +137,14 @@ describe('ClustersLayer', () => {
       map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
 
-      expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
+      expect(addClusterPolygon).toHaveBeenCalledTimes(0);
 
       await waitFor(() => {
         mapMarkers[0].dispatchEvent(new Event('mouseover'));
       });
 
       jest.runAllTimers();
-      expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
+      expect(addClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
@@ -514,11 +514,11 @@ describe('ClustersLayer', () => {
 
     test('keeps the old cluster markers that are still rendered', () => {
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
         clusterMarkerHashMapRef,
         clustersSource,
         map,
         [],
-        onClusterMouseEnter,
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
@@ -532,11 +532,11 @@ describe('ClustersLayer', () => {
 
     test('creates new markers for the new rendered clusters', () => {
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
+        onClusterMouseEnter,
         clusterMarkerHashMapRef,
         clustersSource,
         map,
         [],
-        onClusterMouseEnter,
         onClusterMouseLeave,
         renderedClusterFeatures,
         renderedClusterHashes,
