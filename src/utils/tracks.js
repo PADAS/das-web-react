@@ -21,9 +21,6 @@ const WORLD_TOTAL_LONGITUDE = 360;
 const MAX_MINUTES_PER_DAY = 1440;
 
 // Helper function to fix antimeridian crossing for a coordinate array
-
-
-
 export const fixAntimeridianCrossing = (featCollection) => {
   if (!featCollection?.features?.length) return featCollection;
 
@@ -48,7 +45,7 @@ export const fixAntimeridianCrossing = (featCollection) => {
   };
 
   const processGeometry = (geometry) => {
-    if (!geometry || !geometry.coordinates) return geometry;
+    if (!geometry?.coordinates) return geometry;
 
     const { type, coordinates } = geometry;
 
