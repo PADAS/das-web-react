@@ -20,35 +20,81 @@ const MAX_ABSOLUTE_LONGITUDE = 180;
 const WORLD_TOTAL_LONGITUDE = 360;
 const MAX_MINUTES_PER_DAY = 1440;
 
-export const fixAntimeridianCrossing = (trackFeatureCollection) => {
-  if (!trackFeatureCollection?.features?.length) return trackFeatureCollection;
+// Helper function to fix antimeridian crossing for a coordinate array
 
-  trackFeatureCollection.features = trackFeatureCollection.features.map((feature) => {
-    if (feature?.geometry?.type !== 'LineString') return feature;
 
-    feature.geometry.coordinates = feature.geometry.coordinates.reduce((accumulator, coordinates, index) => {
-      let fixedCoordinates = coordinates;
+
+export const fixAntimeridianCrossing = (featCollection) => {
+  if (!featCollection?.features?.length) return featCollection;
+
+  const adjustCoordinatesForCrossing = (coordinates) => {
+    return coordinates.reduce((accumulator, coordinate, index) => {
+      let fixedCoordinate = coordinate;
       if (index !== 0) {
-        const longitudeDifference = coordinates[0] - accumulator.at(-1)[0];
+        const longitudeDifference = coordinate[0] - accumulator.at(-1)[0];
 
         if (longitudeDifference > MAX_ABSOLUTE_LONGITUDE) {
-          fixedCoordinates = [coordinates[0] - WORLD_TOTAL_LONGITUDE, coordinates[1]];
+          fixedCoordinate = [coordinate[0] - WORLD_TOTAL_LONGITUDE, coordinate[1]];
         }
 
         if (longitudeDifference < -MAX_ABSOLUTE_LONGITUDE) {
-          fixedCoordinates = [coordinates[0] + WORLD_TOTAL_LONGITUDE, coordinates[1]];
+          fixedCoordinate = [coordinate[0] + WORLD_TOTAL_LONGITUDE, coordinate[1]];
         }
       }
 
-      accumulator.push(fixedCoordinates);
-
+      accumulator.push(fixedCoordinate);
       return accumulator;
     }, []);
+  };
 
-    return feature;
+  const processGeometry = (geometry) => {
+    if (!geometry || !geometry.coordinates) return geometry;
+
+    const { type, coordinates } = geometry;
+
+
+    switch (type) {
+    case 'LineString':
+      return {
+        ...geometry,
+        coordinates: adjustCoordinatesForCrossing(coordinates)
+      };
+
+    case 'Polygon':
+      return {
+        ...geometry,
+        coordinates: coordinates.map(ring => adjustCoordinatesForCrossing(ring))
+      };
+
+    case 'MultiLineString':
+      return {
+        ...geometry,
+        coordinates: coordinates.map(lineString => adjustCoordinatesForCrossing(lineString))
+      };
+
+    case 'MultiPolygon':
+      return {
+        ...geometry,
+        coordinates: coordinates.map(polygon =>
+          polygon.map(ring => adjustCoordinatesForCrossing(ring))
+        )
+      };
+
+    default:
+      return geometry;
+    }
+  };
+
+  featCollection.features = featCollection.features.map((feature) => {
+    if (!feature?.geometry) return feature;
+
+    return {
+      ...feature,
+      geometry: processGeometry(feature.geometry)
+    };
   });
 
-  return trackFeatureCollection;
+  return featCollection;
 };
 
 export const convertTrackFeatureCollectionToPoints = feature => {
@@ -366,7 +412,7 @@ export const getTimeOfDayPeriodBasedOnTime = (datetimeString, timeZone) => {
 
   const trackTotalMinutesInTZ = parsedHour === MAX_MINUTES_PER_DAY
     ? MAX_MINUTES_PER_DAY
-    : ( parsedHour + parseInt(min) ) || MAX_MINUTES_PER_DAY;
+    : (parsedHour + parseInt(min)) || MAX_MINUTES_PER_DAY;
 
   return TIME_OF_DAY_PERIODS.find((timeOfDayPeriod) =>
     trackTotalMinutesInTZ >= timeOfDayPeriod.rangeMinutesMin && trackTotalMinutesInTZ <= timeOfDayPeriod.rangeMinutesMax
@@ -424,7 +470,7 @@ export const buildTrackSegments = (trackFeatureCollection, timeZone) => {
     const startCoors = coordinates[i];
     const endCoors = coordinates[i + 1];
 
-    if (!endTime || !endCoors){
+    if (!endTime || !endCoors) {
       break;
     }
 
