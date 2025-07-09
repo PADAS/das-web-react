@@ -150,10 +150,21 @@
 
   &[class*=open] {
     transform: translateX(0);
+  }
 
-    .filterWrapper {
-      margin-bottom: -0.75rem;
-      padding-top: 0.812rem;
+  .printLogo {
+    background-color: white;
+    display: none;
+    padding-top: 0.5rem;
+    text-align: center;
+    width: 100%;
+
+    svg {
+      height: 1.25rem;
+    }
+
+    @media print {
+      display: block;
     }
   }
 
@@ -204,7 +215,7 @@
   color: $off-black;
   display: flex;
   justify-content: space-between;
-  padding: 1rem 1rem 0.25rem;
+  padding: 1rem;
   width: 100%;
 
   .title {
@@ -217,8 +228,9 @@
 
     .addReport {
       svg {
-        width: 2rem;
+        margin-bottom: 0;
         height: 2rem;
+        width: 2rem;
       }
     }
 
@@ -293,8 +305,6 @@
 }
 
 .sidebarEventFeed {
-  margin-top: 0.75rem;
-
   [class*=titleContainer] {
     max-width: 20.5rem;
   }

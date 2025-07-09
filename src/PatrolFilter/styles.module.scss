@@ -1,63 +1,6 @@
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
-.form {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  padding: 1.25rem 0.5rem 0.5rem 0.5rem;
-  width: 100%;
-  border-bottom: 1px solid $light-gray-border;
-
-  @media (min-width: $md-layout-width-min) {
-    justify-content: flex-start;
-  }
-}
-
-.search {
-  margin-bottom: 0.75rem;
-  margin-right: 0.75rem;
-  width: 100%;
-  
-  @media (min-width: $md-layout-width-min) {
-    margin-bottom: 0;
-    width: 40%;
-    max-width: 11rem;
-    width: 50%;
-  }
-}
-
-.filterButton {
-  margin-right: 0.5rem;
-}
-
-.dateFilterButton {
-  margin-right: 0.75rem;
-}
-
-.popoverTrigger {
-  --iconDimensions: 0.875rem;
-
-  svg {
-    height: var(--iconDimensions);
-    width: var(--iconDimensions);
-    margin-right: 0.5rem;
-
-    * {
-      stroke: gray;
-    }
-  }
-
-  &[class*=btn-primary] {
-    svg {
-      * {
-        stroke: white;
-      }
-    }
-  }
-}
-
 .settingsInputContainer {
   display: flex;
   line-height: 1.25;

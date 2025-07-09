@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
@@ -217,6 +218,10 @@ const SideBar = () => {
 
     <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
+        <div className={styles.printLogo}>
+          <ERLogo />
+        </div>
+
         <div className={styles.header}>
           <div className={styles.title}>
             {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div

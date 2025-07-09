@@ -16,13 +16,10 @@ import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 import DateRangePopover from './DateRangePopover';
 import FiltersPopover from './FiltersPopover';
 import FriendlyFilterString from '../FriendlyFilterString';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
-import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 
 import SearchBar from '../SearchBar';
 
-import * as patrolFilterStyles from './styles.module.scss';
 import * as styles from '../EventFilter/styles.module.scss';
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
@@ -30,7 +27,6 @@ export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const PatrolFilter = ({ className = '' }) => {
-  const containerRef = useRef(null);
   const { t } = useTranslation('filters', { keyPrefix: 'patrolFilters' });
   const dispatch = useDispatch();
   const patrolsFeedMappedFromStore = useSelector(selectPatrolsFeedMappedFromStore);
@@ -100,59 +96,54 @@ const PatrolFilter = ({ className = '' }) => {
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
   return <>
-    <div
-      ref={containerRef}
-      className={`${patrolFilterStyles.form} ${className}`}
+    <form
+      className={`${styles.form} ${className}`}
       onSubmit={e => e.preventDefault()}
       >
       <SearchBar
-        className={`${styles.search} ${patrolFilterStyles.search}`}
+        className={styles.searchBar}
         placeholder={t('searchbarPlaceHolder')}
         value={filterText}
         onChange={onSearchChange}
         onClear={resetSearch}
       />
 
-      <OverlayTrigger
-        shouldUpdatePosition={true}
-        rootClose
-        trigger='click'
-        placement='auto'
-        overlay={<FiltersPopover />}
-        flip={true}
-      >
-        <Button
-          variant={filtersModified ? 'primary' : 'light'}
-          size='sm'
-          className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
-          onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
-          data-testid="patrolFilter-filtersButton"
+      <div className={styles.buttons}>
+        <OverlayTrigger
+          shouldUpdatePosition={true}
+          rootClose
+          trigger='click'
+          placement='bottom'
+          overlay={<FiltersPopover />}
+          flip={true}
         >
-          <FilterIcon title={t('filtersTitle')} />
-          <span>{t('filtersTitle')}</span>
-        </Button>
-      </OverlayTrigger>
+          <button
+            className={`${styles.button} ${filtersModified ? styles.active : styles.inactive}`}
+            data-testid="patrolFilter-filtersButton"
+            onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
+          >
+            {t('filtersTitle')}
+          </button>
+        </OverlayTrigger>
 
-      <OverlayTrigger
-        shouldUpdatePosition={true}
-        rootClose
-        trigger='click'
-        placement='auto'
-        overlay={<DateRangePopover containerRef={containerRef} />}
-        flip={true}
-      >
-        <Button
-          variant={dateRangeModified ? 'primary' : 'light'}
-          size='sm'
-          className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`}
-          onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
-          data-testid="patrolFilter-dateRangeButton"
+        <OverlayTrigger
+          shouldUpdatePosition={true}
+          rootClose
+          trigger='click'
+          placement='auto'
+          overlay={<DateRangePopover />}
+          flip={true}
         >
-          <ClockIcon title={t('datesTitle')} />
-          <span>{t('datesTitle')}</span>
-        </Button>
-      </OverlayTrigger>
-    </div>
+          <button
+            className={`${styles.button} ${dateRangeModified ? styles.active : styles.inactive}`}
+            onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
+            data-testid="patrolFilter-dateRangeButton"
+          >
+            {t('datesTitle')}
+          </button>
+        </OverlayTrigger>
+      </div>
+    </form>
 
     <div className={`${styles.filterStringWrapper} ${className}`}>
       <FriendlyFilterString
