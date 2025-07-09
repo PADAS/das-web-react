@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -14,7 +13,7 @@ import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import * as styles from './styles.module.scss';
 
-const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange }) => {
+const ColumnSort = ({ sortOptions, orderOptions, value, onChange }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'columnSort' });
 
   const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
@@ -80,40 +79,38 @@ const ColumnSort = ({ className = '', sortOptions, orderOptions, value, onChange
     </Popover.Body>
   </Popover>;
 
-  return <span className={`${styles.columnWrapper} ${className}`}>
+  return <>
     <OverlayTrigger
-      flip={true}
-      overlay={SortPopover}
-      placement="bottom"
-      rootClose
-      rootCloseEvent="click"
-      shouldUpdatePosition={true}
-      trigger="click"
-    >
-      <Button
-        className={styles.popoverTrigger}
-        data-testid="sort-popover-trigger"
-        size="sm"
-        variant={isSortModified ? 'primary' : 'light'}
+        flip={true}
+        overlay={SortPopover}
+        placement="bottom"
+        rootClose
+        rootCloseEvent="click"
+        shouldUpdatePosition={true}
+        trigger="click"
       >
-        <SortLines />
+      <button
+        className={`${styles.button} ${isSortModified ? styles.active : styles.inactive}`}
+        data-testid="sort-popover-trigger"
+      >
+        <SortLines className={styles.sortingButtonIcon} />
 
-        { t(`eventSortOptions.${selectedOption.key}`) }
-      </Button>
+        <span className={styles.buttonText}>
+          {t(`eventSortOptions.${selectedOption.key}`)}
+        </span>
+      </button>
     </OverlayTrigger>
 
-    <Button
-      aria-label={t(`sortDirectionToggleLabel.${isSortUp ? 'ascending' : 'descending'}`)}
-      className={styles.sortDirection}
-      data-testid="sort-direction-toggle"
-      onClick={toggleSortDirection}
-      size="sm"
-      title={t(`sortDirectionToggleTitle.${isSortUp ? 'ascending' : 'descending'}`)}
-      variant={isSortUp ? 'primary' : 'light'}
-    >
+    <button
+        aria-label={t(`sortDirectionToggleLabel.${isSortUp ? 'ascending' : 'descending'}`)}
+        className={`${styles.button} ${isSortUp ? styles.active : styles.inactive}`}
+        data-testid="sort-direction-toggle"
+        onClick={toggleSortDirection}
+        title={t(`sortDirectionToggleTitle.${isSortUp ? 'ascending' : 'descending'}`)}
+      >
       {isSortUp ? <ArrowUp /> : <ArrowDown />}
-    </Button>
-  </span>;
+    </button>
+  </>;
 };
 
 export default ColumnSort;

@@ -529,8 +529,6 @@ const PatrolDetailView = () => {
 
     <NavigationPromptModal onContinue={onNavigationContinue} when={shouldShowNavigationPrompt} />
 
-    <ERLogo className={styles.printLogo} />
-
     <Header printableContentRef={printableContentRef} onChangeTitle={onChangeTitle} patrol={patrolForm} setRedirectTo={setRedirectTo} />
 
     <TrackerContext.Provider value={patrolDetailViewTracker}>
