@@ -20,38 +20,33 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
-    && !!properties.last_voice_call_start_at
-    && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
+    && !!properties.last_position_date
+    && !['null', 'undefined'].includes(properties.last_position_date); /* extra check for bad deserialization from mapbox-held subject data */
 };
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
-const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
-  if (subject
-    && subject.last_position_status
-    && subject.last_position_status.last_voice_call_start_at) {
-    const updatedTime = new Date(subject.last_position_status.last_voice_call_start_at);
-    if (updatedTime) {
-      const delta = differenceInSeconds(new Date(), updatedTime);
-      if (delta > 0) {
-        return delta;
-      }
-    }
-  }
+const calcElapsedTimeSinceSubjectActivity = (subject) => {
+  const time = new Date(subject?.last_position_date);
+  if (window.isNaN(time)) return -1;
+
+  const delta = differenceInSeconds(new Date(), time);
+  if (delta > 0) return delta;
+
   return -1;
 };
 
 export const radioHasRecentActivity = (radio) => {
-  const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(radio);
-
-  return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  const elapsedSeconds = calcElapsedTimeSinceSubjectActivity(radio);
+  const hasRecentActivity = (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  return hasRecentActivity;
 };
 
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)
     .filter(radioHasRecentActivity)
-    .sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b));
+    .sort((a, b) => calcElapsedTimeSinceSubjectActivity(a) - calcElapsedTimeSinceSubjectActivity(b));
 
   return recentRadios;
 };
