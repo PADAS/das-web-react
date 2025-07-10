@@ -13,7 +13,7 @@ const STATIONARY_SUBJECT_TYPE = 'stationary-object';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
-export const RECENT_RADIO_DECAY_THRESHOLD = (3000 * 60); // 30 minutes
+export const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
 
 export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
