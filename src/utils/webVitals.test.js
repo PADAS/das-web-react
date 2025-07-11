@@ -179,22 +179,21 @@ describe('webVitals utility', () => {
 
       lcpCallback(mockMetric);
 
-      expect(ReactGA4.event).toHaveBeenCalledWith({
-        action: 'web_vital_lcp',
-        custom_parameters: {
-          event_category: 'Web Vitals',
-          metric_name: 'LCP',
-          metric_value: 2500,
-          metric_delta: 100,
-          metric_rating: 'good',
-          metric_id: 'metric123',
-          page_path: '/test-path',
-          user_role: 'ranger',
-          organization: 'test.earthranger.com',
-          user_id_hash: 'abc123',
-          is_staff: false,
-          is_superuser: false,
-        },
+      expect(ReactGA4.event).toHaveBeenCalledWith('web_vital_lcp', {
+        event_category: 'Web Vitals',
+        metric_name: 'LCP',
+        metric_value: 2500,
+        metric_delta: 100,
+        metric_rating: 'good',
+        metric_id: 'metric123',
+        page_path: '/test-path',
+        page_title: 'Test Page',
+        hostname: 'test.earthranger.com',
+        user_role: 'ranger',
+        organization: 'test.earthranger.com',
+        user_id_hash: 'abc123',
+        is_staff: false,
+        is_superuser: false,
       });
     });
   });

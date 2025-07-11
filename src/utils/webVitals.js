@@ -37,18 +37,17 @@ export const initializeWebVitals = (userContext = {}) => {
       return;
     }
 
-    ReactGA4.event({
-      action: `web_vital_${metric.name.toLowerCase()}`,
-      custom_parameters: {
-        event_category: 'Web Vitals',
-        metric_name: metric.name,
-        metric_value: Math.round(metric.value),
-        metric_delta: metric.delta,
-        metric_rating: metric.rating,
-        metric_id: metric.id,
-        page_path: window.location.pathname,
-        ...userContext,
-      }
+    ReactGA4.event(`web_vital_${metric.name.toLowerCase()}`, {
+      event_category: 'Web Vitals',
+      metric_name: metric.name,
+      metric_value: Math.round(metric.value),
+      metric_delta: metric.delta,
+      metric_rating: metric.rating,
+      metric_id: metric.id,
+      page_path: window.location.pathname,
+      page_title: document.title,
+      hostname: window.location.hostname,
+      ...userContext,
     });
 
     if (process.env.NODE_ENV === 'development') {
