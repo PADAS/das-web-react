@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { initializeWebVitals, createUserAnalyticsData } from '../utils/webVitals';
+import { initializeWebVitals, createUserAnalyticsData } from '../../utils/webVitals';
 
-const WebVitalsProvider = () => { // Initializes web vitals tracking with user context
+const useWebVitals = () => {
   const user = useSelector((state) => state.data?.user);
   const selectedUserProfile = useSelector((state) => state.data?.selectedUserProfile);
   const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
@@ -19,8 +19,6 @@ const WebVitalsProvider = () => { // Initializes web vitals tracking with user c
       }
     }
   }, [user, selectedUserProfile, serverVersion]);
-
-  return null;
 };
 
-export default WebVitalsProvider;
+export default useWebVitals;

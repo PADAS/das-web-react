@@ -1,8 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { mockStore } from '../../__test-helpers/MockStore';
-import WebVitalsProvider from '../index';
+import useWebVitals from './index';
 import { initializeWebVitals, createUserAnalyticsData } from '../../utils/webVitals';
 
 jest.mock('../../utils/webVitals', () => ({
@@ -10,7 +10,7 @@ jest.mock('../../utils/webVitals', () => ({
   createUserAnalyticsData: jest.fn(),
 }));
 
-describe('WebVitalsProvider', () => {
+describe('useWebVitals hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -21,7 +21,7 @@ describe('WebVitalsProvider', () => {
     jest.restoreAllMocks();
   });
 
-  const renderWithProvider = (storeState = {}) => {
+  const createWrapper = (storeState = {}) => {
     const testStore = mockStore({
       data: {
         user: null,
@@ -31,25 +31,24 @@ describe('WebVitalsProvider', () => {
       ...storeState,
     });
 
-    return render(
+    const Wrapper = ({ children }) => (
       <Provider store={testStore}>
-        <WebVitalsProvider />
+        {children}
       </Provider>
     );
+
+    return Wrapper;
   };
 
-  it('should render without crashing', () => {
-    renderWithProvider();
-    expect(document.body.textContent).toBe('');
-  });
-
   it('should not initialize web vitals when user is not available', () => {
-    renderWithProvider({
+    const wrapper = createWrapper({
       data: {
         user: null,
         selectedUserProfile: {},
       },
     });
+
+    renderHook(() => useWebVitals(), { wrapper });
 
     expect(initializeWebVitals).not.toHaveBeenCalled();
     expect(createUserAnalyticsData).not.toHaveBeenCalled();
@@ -81,7 +80,7 @@ describe('WebVitalsProvider', () => {
 
     createUserAnalyticsData.mockReturnValue(mockUserData);
 
-    renderWithProvider({
+    const wrapper = createWrapper({
       data: {
         user: mockUser,
         selectedUserProfile: mockSelectedProfile,
@@ -92,6 +91,8 @@ describe('WebVitalsProvider', () => {
         },
       },
     });
+
+    renderHook(() => useWebVitals(), { wrapper });
 
     expect(createUserAnalyticsData).toHaveBeenCalledWith(mockUser, mockSelectedProfile, mockServerVersion);
     expect(initializeWebVitals).toHaveBeenCalledWith(mockUserData);
@@ -112,7 +113,7 @@ describe('WebVitalsProvider', () => {
 
     createUserAnalyticsData.mockReturnValue(mockUserData);
 
-    const { rerender } = renderWithProvider({
+    const wrapper = createWrapper({
       data: {
         user: mockUser,
         selectedUserProfile: {},
@@ -124,24 +125,13 @@ describe('WebVitalsProvider', () => {
       },
     });
 
-    expect(initializeWebVitals).toHaveBeenCalledTimes(1);
-
-    rerender(
-      <Provider store={mockStore({
-        data: {
-          user: mockUser,
-          selectedUserProfile: {},
-          systemStatus: {
-            server: {
-              version: '1.0.0',
-            },
-          },
-        },
-      })}>
-        <WebVitalsProvider />
-      </Provider>
-    );
+    const { rerender } = renderHook(() => useWebVitals(), { wrapper });
 
     expect(initializeWebVitals).toHaveBeenCalledTimes(1);
+
+    // Rerender the hook
+    rerender();
+
+    expect(initializeWebVitals).toHaveBeenCalledTimes(1); // Should still be 1
   });
 });

@@ -27,7 +27,7 @@ import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
-import WebVitalsProvider from './WebVitalsProvider';
+import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
@@ -61,6 +61,8 @@ const PathNormalizationRouteComponent = ({ location }) => {
 
 const RootApp = () => {
   const { i18n } = useTranslation();
+
+  useWebVitals();
 
   useEffect(() => {
     if (window?.OneTrust) {
@@ -104,7 +106,6 @@ root.render(
     <PersistGate loading={null} persistor={persistStore(store)} >
       <BrowserRouter>
         <NavigationContextProvider>
-          <WebVitalsProvider />
           <RootApp />
         </NavigationContextProvider>
       </BrowserRouter>
