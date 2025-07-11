@@ -8,11 +8,22 @@ export const hashCode = (string) => {
   if (string.length === 0) return 0;
 
   const hash = string.split('').reduce((hash, char) => {
-    hash  = ((hash << 5) - hash) + char.charCodeAt(0);
+    hash = ((hash << 5) - hash) + char.charCodeAt(0);
     hash |= 0;
 
     return hash;
   }, 0);
 
   return hash;
+};
+
+export const hashString = (str) => { // Create a simple hash of a string for anonymization. Returns 'unknown' for falsy values, otherwise returns a base36 hash
+  if (!str) return 'unknown';
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
 };

@@ -27,6 +27,7 @@ import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
+import WebVitalsProvider from './WebVitalsProvider';
 
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
@@ -103,6 +104,7 @@ root.render(
     <PersistGate loading={null} persistor={persistStore(store)} >
       <BrowserRouter>
         <NavigationContextProvider>
+          <WebVitalsProvider />
           <RootApp />
         </NavigationContextProvider>
       </BrowserRouter>
