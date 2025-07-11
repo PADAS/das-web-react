@@ -140,7 +140,7 @@ describe('webVitals utility', () => {
 
   describe('initializeWebVitals', () => {
     it('should initialize all web vitals listeners', () => {
-      const userContext = {
+      const userData = {
         user_role: 'ranger',
         organization: 'test.earthranger.com',
         user_id_hash: 'abc123',
@@ -148,7 +148,7 @@ describe('webVitals utility', () => {
         is_superuser: false,
       };
 
-      initializeWebVitals(userContext);
+      initializeWebVitals(userData);
 
       expect(onCLS).toHaveBeenCalledWith(expect.any(Function));
       expect(onFCP).toHaveBeenCalledWith(expect.any(Function));
@@ -158,7 +158,7 @@ describe('webVitals utility', () => {
     });
 
     it('should send metrics to GA4 with user context', () => {
-      const userContext = {
+      const userData = {
         user_role: 'ranger',
         organization: 'test.earthranger.com',
         user_id_hash: 'abc123',
@@ -166,7 +166,7 @@ describe('webVitals utility', () => {
         is_superuser: false,
       };
 
-      initializeWebVitals(userContext);
+      initializeWebVitals(userData);
 
       const lcpCallback = onLCP.mock.calls[0][0];
       const mockMetric = {

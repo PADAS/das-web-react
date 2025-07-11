@@ -21,7 +21,7 @@ const isLocalhost = () => {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 };
 
-export const initializeWebVitals = (userContext = {}) => {
+export const initializeWebVitals = (userData = {}) => {
   const sendToGA4 = (metric) => {
     if (isLocalhost()) {
       if (process.env.NODE_ENV === 'development') {
@@ -47,7 +47,7 @@ export const initializeWebVitals = (userContext = {}) => {
       page_path: window.location.pathname,
       page_title: document.title,
       hostname: window.location.hostname,
-      ...userContext,
+      ...userData,
     });
 
     if (process.env.NODE_ENV === 'development') {

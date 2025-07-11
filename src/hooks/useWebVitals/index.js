@@ -9,13 +9,13 @@ const useWebVitals = () => {
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (user && user.id && !isInitialized.current) {
-      const userContext = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
-      initializeWebVitals(userContext);
+    if (!isInitialized.current && user?.id) {
+      const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+      initializeWebVitals(userData);
       isInitialized.current = true;
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Web vitals initialized with user context:', userContext);
+        console.log('Web vitals initialized with user context:', userData);
       }
     }
   }, [user, selectedUserProfile, serverVersion]);
