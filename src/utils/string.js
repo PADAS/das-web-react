@@ -17,7 +17,7 @@ export const hashCode = (string) => {
   return hash;
 };
 
-export const hashString = (str) => { // Create a simple hash of a string for anonymization. Returns 'unknown' for falsy values, otherwise returns a base36 hash
+export const hashString = (str) => { // String hashing function for anonymization. Differs from hashCode above as hashCode is a numeric hash for map feature idenitification.
   if (!str) return 'unknown';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
