@@ -2,10 +2,10 @@ import React, { useContext }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
-import { MapContext } from '../../../../App';
-import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../ducks/map-ui';
-import { updateUserPreferences } from '../../../../ducks/user-preferences';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
+import { MapContext } from '../../../../../App';
+import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
+import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
 import * as styles from '../styles.module.scss';
 

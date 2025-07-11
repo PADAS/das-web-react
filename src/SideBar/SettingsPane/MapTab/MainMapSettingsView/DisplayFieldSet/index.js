@@ -2,19 +2,23 @@ import React, { useEffect, useRef }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
+import { FEATURE_FLAG_LABELS } from '../../../../../constants';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import {
   setMapClusterData,
   setShowMapClusterPolygons,
   toggleShowInactiveRadioState,
   toggleTrackTimepointState,
-} from '../../../../ducks/map-ui';
+} from '../../../../../ducks/map-ui';
+import { useFeatureFlag } from '../../../../../hooks';
 
 import * as styles from '../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const DisplayFieldSet = () => {
+const DisplayFieldSet = ({ onShowCoordianteSettingsView }) => {
+  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
+
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.mapTab.displayFieldSet' });
 
@@ -73,6 +77,9 @@ const DisplayFieldSet = () => {
 
   return <fieldset className={styles.section}>
     <legend className={styles.title}>{t('legend')}</legend>
+
+    {/* TODO (CRS): I18n and a11y */}
+    {customCoordinateSystemsEnabled && <button onClick={() => onShowCoordianteSettingsView()}>Coordinates</button>}
 
     <div className={styles.checkboxWrapper}>
       <input

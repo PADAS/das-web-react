@@ -271,6 +271,7 @@ aside {
 
 .app-container {
   flex: 1;
+  max-height: calc(100vh - 2.75rem);
   position: relative;
   width: 100vw;
   z-index: 1;
