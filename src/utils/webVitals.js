@@ -37,6 +37,11 @@ export const initializeWebVitals = (userContext = {}) => {
       return;
     }
 
+    // Send a simple test event first
+    ReactGA4.event('test_web_vital', {
+      test_param: 'test_value',
+    });
+
     ReactGA4.event(`web_vital_${metric.name.toLowerCase()}`, {
       event_category: 'Web Vitals',
       metric_name: metric.name,
