@@ -5,11 +5,12 @@ import { initializeWebVitals, createUserAnalyticsData } from '../utils/webVitals
 const WebVitalsProvider = () => { // Initializes web vitals tracking with user context
   const user = useSelector((state) => state.data?.user);
   const selectedUserProfile = useSelector((state) => state.data?.selectedUserProfile);
+  const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (user && user.id && !isInitialized.current) {
-      const userContext = createUserAnalyticsData(user, selectedUserProfile);
+    if (user && user.id && serverVersion && !isInitialized.current) {
+      const userContext = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
       initializeWebVitals(userContext);
       isInitialized.current = true;
 
@@ -17,7 +18,7 @@ const WebVitalsProvider = () => { // Initializes web vitals tracking with user c
         console.log('Web vitals initialized with user context:', userContext);
       }
     }
-  }, [user, selectedUserProfile]);
+  }, [user, selectedUserProfile, serverVersion]);
 
   return null;
 };

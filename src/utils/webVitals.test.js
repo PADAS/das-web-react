@@ -1,4 +1,4 @@
-import { initializeWebVitals, createUserAnalyticsData } from '../webVitals';
+import { initializeWebVitals, createUserAnalyticsData } from './webVitals';
 import ReactGA4 from 'react-ga4';
 import { onCLS, onFCP, onLCP, onTTFB } from 'web-vitals';
 
@@ -57,8 +57,9 @@ describe('webVitals utility', () => {
         is_superuser: false,
       };
       const selectedUserProfile = {};
+      const serverVersion = '1.2.3';
 
-      const data = createUserAnalyticsData(user, selectedUserProfile);
+      const data = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
 
       expect(data).toEqual({
         user_role: 'ranger',
@@ -66,6 +67,8 @@ describe('webVitals utility', () => {
         user_id_hash: expect.any(String),
         is_staff: false,
         is_superuser: false,
+        client_version: expect.any(String),
+        server_version: '1.2.3',
       });
       expect(data.user_id_hash).not.toBe('unknown');
     });
@@ -83,8 +86,9 @@ describe('webVitals utility', () => {
         is_staff: true,
         is_superuser: false,
       };
+      const serverVersion = '2.0.0';
 
-      const data = createUserAnalyticsData(user, selectedUserProfile);
+      const data = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
 
       expect(data).toEqual({
         user_role: 'admin',
@@ -92,6 +96,8 @@ describe('webVitals utility', () => {
         user_id_hash: expect.any(String),
         is_staff: true,
         is_superuser: false,
+        client_version: expect.any(String),
+        server_version: '2.0.0',
       });
     });
 
@@ -104,6 +110,29 @@ describe('webVitals utility', () => {
         user_id_hash: 'unknown',
         is_staff: false,
         is_superuser: false,
+        client_version: expect.any(String),
+        server_version: 'unknown',
+      });
+    });
+
+    it('should handle missing server version gracefully', () => {
+      const user = {
+        id: 'user123',
+        role: 'ranger',
+        is_staff: false,
+        is_superuser: false,
+      };
+
+      const data = createUserAnalyticsData(user, {});
+
+      expect(data).toEqual({
+        user_role: 'ranger',
+        organization: 'test.earthranger.com',
+        user_id_hash: expect.any(String),
+        is_staff: false,
+        is_superuser: false,
+        client_version: expect.any(String),
+        server_version: 'unknown',
       });
     });
   });
@@ -149,17 +178,15 @@ describe('webVitals utility', () => {
       lcpCallback(mockMetric);
 
       expect(ReactGA4.event).toHaveBeenCalledWith({
-        category: 'Web Vitals',
-        action: 'LCP',
-        label: 'metric123',
-        value: 2500,
-        nonInteraction: true,
+        action: 'web_vital_lcp',
         custom_parameters: {
+          event_category: 'Web Vitals',
+          metric_name: 'LCP',
+          metric_value: 2500,
           metric_delta: 100,
           metric_rating: 'good',
+          metric_id: 'metric123',
           page_path: '/test-path',
-          page_title: 'Test Page',
-          hostname: 'test.earthranger.com',
           user_role: 'ranger',
           organization: 'test.earthranger.com',
           user_id_hash: 'abc123',

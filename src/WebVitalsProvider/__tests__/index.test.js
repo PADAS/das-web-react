@@ -69,6 +69,8 @@ describe('WebVitalsProvider', () => {
       role: 'admin',
     };
 
+    const mockServerVersion = '1.2.3';
+
     const mockUserData = {
       user_role: 'admin',
       organization: 'test.earthranger.com',
@@ -83,10 +85,15 @@ describe('WebVitalsProvider', () => {
       data: {
         user: mockUser,
         selectedUserProfile: mockSelectedProfile,
+        systemStatus: {
+          server: {
+            version: mockServerVersion,
+          },
+        },
       },
     });
 
-    expect(createUserAnalyticsData).toHaveBeenCalledWith(mockUser, mockSelectedProfile);
+    expect(createUserAnalyticsData).toHaveBeenCalledWith(mockUser, mockSelectedProfile, mockServerVersion);
     expect(initializeWebVitals).toHaveBeenCalledWith(mockUserData);
   });
 
@@ -109,6 +116,11 @@ describe('WebVitalsProvider', () => {
       data: {
         user: mockUser,
         selectedUserProfile: {},
+        systemStatus: {
+          server: {
+            version: '1.0.0',
+          },
+        },
       },
     });
 
@@ -119,6 +131,11 @@ describe('WebVitalsProvider', () => {
         data: {
           user: mockUser,
           selectedUserProfile: {},
+          systemStatus: {
+            server: {
+              version: '1.0.0',
+            },
+          },
         },
       })}>
         <WebVitalsProvider />

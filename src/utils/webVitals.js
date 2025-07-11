@@ -1,8 +1,9 @@
 import { onCLS, onFCP, onLCP, onTTFB } from 'web-vitals';
 import ReactGA4 from 'react-ga4';
 import { hashString } from './string';
+import { CLIENT_BUILD_VERSION } from '../constants';
 
-export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}) => {
+export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}, serverVersion = 'unknown') => {
   const activeUser = selectedUserProfile.id ? selectedUserProfile : user;
 
   return {
@@ -11,6 +12,8 @@ export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}) => 
     user_id_hash: hashString(activeUser.id),
     is_staff: activeUser.is_staff || false,
     is_superuser: activeUser.is_superuser || false,
+    client_version: CLIENT_BUILD_VERSION,
+    server_version: serverVersion,
   };
 };
 
@@ -35,17 +38,15 @@ export const initializeWebVitals = (userContext = {}) => {
     }
 
     ReactGA4.event({
-      category: 'Web Vitals',
-      action: metric.name,
-      label: metric.id,
-      value: Math.round(metric.value),
-      nonInteraction: true,
+      action: `web_vital_${metric.name.toLowerCase()}`,
       custom_parameters: {
+        event_category: 'Web Vitals',
+        metric_name: metric.name,
+        metric_value: Math.round(metric.value),
         metric_delta: metric.delta,
         metric_rating: metric.rating,
+        metric_id: metric.id,
         page_path: window.location.pathname,
-        page_title: document.title,
-        hostname: window.location.hostname,
         ...userContext,
       }
     });
