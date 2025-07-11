@@ -9,7 +9,7 @@ const WebVitalsProvider = () => { // Initializes web vitals tracking with user c
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (user && user.id && serverVersion && !isInitialized.current) {
+    if (user && user.id && !isInitialized.current) {
       const userContext = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
       initializeWebVitals(userContext);
       isInitialized.current = true;
