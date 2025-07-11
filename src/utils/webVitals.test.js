@@ -1,10 +1,11 @@
 import { initializeWebVitals, createUserAnalyticsData } from './webVitals';
 import ReactGA4 from 'react-ga4';
-import { onCLS, onFCP, onLCP, onTTFB } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 jest.mock('web-vitals', () => ({
   onCLS: jest.fn(),
   onFCP: jest.fn(),
+  onINP: jest.fn(),
   onLCP: jest.fn(),
   onTTFB: jest.fn(),
 }));
@@ -151,6 +152,7 @@ describe('webVitals utility', () => {
 
       expect(onCLS).toHaveBeenCalledWith(expect.any(Function));
       expect(onFCP).toHaveBeenCalledWith(expect.any(Function));
+      expect(onINP).toHaveBeenCalledWith(expect.any(Function));
       expect(onLCP).toHaveBeenCalledWith(expect.any(Function));
       expect(onTTFB).toHaveBeenCalledWith(expect.any(Function));
     });

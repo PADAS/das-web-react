@@ -1,4 +1,4 @@
-import { onCLS, onFCP, onLCP, onTTFB } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import ReactGA4 from 'react-ga4';
 import { hashString } from './string';
 import { CLIENT_BUILD_VERSION } from '../constants';
@@ -66,6 +66,7 @@ export const initializeWebVitals = (userContext = {}) => {
   onCLS(sendToGA4);
   onLCP(sendToGA4);
   onFCP(sendToGA4);
+  onINP(sendToGA4);
   onTTFB(sendToGA4);
 };
 
