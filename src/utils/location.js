@@ -170,9 +170,9 @@ export const validateLocation = (location) => typeof location?.lng === 'number'
 let proj4CompatibleCRSSingleton = null;
 export const getProj4CompatibleCRS = async () => {
   if (!proj4CompatibleCRSSingleton) {
-    const { default: alCoordinateReferenceSystems } = await import('epsg-index/all.json');
+    const { default: allCoordinateReferenceSystems } = await import('epsg-index/all.json');
 
-    proj4CompatibleCRSSingleton = Object.values(alCoordinateReferenceSystems)
+    proj4CompatibleCRSSingleton = Object.values(allCoordinateReferenceSystems)
       .reduce((acc, coordinateReferenceSystem) => {
         // Only include coordinate reference systems that have proj4 in so they
         // can be transformed from one system to another.
