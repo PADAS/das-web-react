@@ -1,23 +1,20 @@
-import React  from 'react';
+import React, { useState } from 'react';
 
-import DisplayFieldSet from './DisplayFieldSet';
-import GeneralFieldSet from './GeneralFieldSet';
-import MapMarkersFieldSet from './MapMarkersFieldSet';
+import CoordinateSettingsView from './CoordinateSettingsView';
+import MainMapSettingsView from './MainMapSettingsView';
 
-import * as styles from './styles.module.scss';
+const VIEWS = { COORDINATE_SETTINGS: 'coordinates' };
 
-const MapTab = () => <>
-  <GeneralFieldSet />
+const MapTab = () => {
+  const [currentView, setCurrentView] = useState(null);
 
-  <hr className={styles.separator} />
+  switch (currentView) {
+  case VIEWS.COORDINATE_SETTINGS:
+    return <CoordinateSettingsView onShowMainMapSettingsView={() => setCurrentView(null)} />;
 
-  <DisplayFieldSet />
-
-  <hr className={styles.separator} />
-
-  <MapMarkersFieldSet />
-
-  <hr className={styles.separator} />
-</>;
+  default:
+    return <MainMapSettingsView onShowCoordianteSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
+  };
+};
 
 export default MapTab;

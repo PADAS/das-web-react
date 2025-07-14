@@ -2,19 +2,19 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
-import { render, screen, within } from '../../../../test-utils';
-import { mockStore } from '../../../../__test-helpers/MockStore';
+import { render, screen, within } from '../../../../../test-utils';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
 import {
   setMapClusterData,
   setShowMapClusterPolygons,
   toggleShowInactiveRadioState,
   toggleTrackTimepointState,
-} from '../../../../ducks/map-ui';
+} from '../../../../../ducks/map-ui';
 
 import DisplayFieldSet from './';
 
-jest.mock('../../../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../../../ducks/map-ui'),
+jest.mock('../../../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../../../ducks/map-ui'),
   setMapClusterData: jest.fn(),
   setShowMapClusterPolygons: jest.fn(),
   toggleShowInactiveRadioState: jest.fn(),

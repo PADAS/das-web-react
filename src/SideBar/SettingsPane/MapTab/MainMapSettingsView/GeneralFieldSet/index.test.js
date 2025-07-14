@@ -2,23 +2,23 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
-import { render, screen } from '../../../../test-utils';
-import { createMapMock } from '../../../../__test-helpers/mocks';
-import { MapContext } from '../../../../App';
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../ducks/map-ui';
-import { updateUserPreferences } from '../../../../ducks/user-preferences';
+import { render, screen } from '../../../../../test-utils';
+import { createMapMock } from '../../../../../__test-helpers/mocks';
+import { MapContext } from '../../../../../App';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
+import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
+import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
 import GeneralFieldSet from './';
 
-jest.mock('../../../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../../../ducks/map-ui'),
+jest.mock('../../../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../../../ducks/map-ui'),
   toggleMapDataSimplificationOnZoom: jest.fn(),
   toggleMapLockState: jest.fn(),
 }));
 
-jest.mock('../../../../ducks/user-preferences', () => {
-  const actual = jest.requireActual('../../../../ducks/user-preferences');
+jest.mock('../../../../../ducks/user-preferences', () => {
+  const actual = jest.requireActual('../../../../../ducks/user-preferences');
 
   return {
     ...actual,

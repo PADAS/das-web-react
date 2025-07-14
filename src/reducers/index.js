@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import { generateStorageConfig } from './storage-config';
+import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventCategoriesReducer from '../ducks/event-categories';
@@ -72,6 +73,7 @@ const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForag
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
 const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig', storage, 1, mapClusterConfigMigrations);
+const coordinateReferenceSystemsStorageConfig = generateStorageConfig('coordinateReferenceSystems');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -115,6 +117,7 @@ const rootReducer = combineReducers({
     patrolLeaderSchema: patrolTrackedBySchemaReducer,
   }),
   view: combineReducers({
+    coordinateReferenceSystems: persistReducer(coordinateReferenceSystemsStorageConfig, coordinateReferenceSystemsReducer),
     currentBaseLayer: persistReducer(baseLayerPersistenceConfig, currentBaseLayerReducer),
     featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
     homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),

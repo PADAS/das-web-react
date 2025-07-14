@@ -2,9 +2,9 @@ import React, { useEffect, useRef }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { LAYER_IDS } from '../../../../constants';
-import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
-import { toggleDisplayUserLocation, toggleMapNamesState } from '../../../../ducks/map-ui';
+import { LAYER_IDS } from '../../../../../constants';
+import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
+import { toggleDisplayUserLocation, toggleMapNamesState } from '../../../../../ducks/map-ui';
 
 import * as styles from '../styles.module.scss';
 

@@ -3,9 +3,9 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
-  calcActualGpsPositionForRawText,
   calcGpsDisplayString,
   GPS_FORMAT_EXAMPLES,
+  normalizeGpsFormatTextToLngLat,
   validateLngLat,
 } from '../utils/location';
 
@@ -50,16 +50,16 @@ const GpsInput = ({
       onChange(null);
     } else {
       try {
-        const locationObject = calcActualGpsPositionForRawText(event.target.value, gpsFormat);
-        const isLocationValid = validateLngLat(locationObject.longitude, locationObject.latitude);
+        const lngLat = normalizeGpsFormatTextToLngLat(event.target.value, gpsFormat);
+        const isLocationValid = validateLngLat(lngLat.longitude, lngLat.latitude);
 
         setIsValid(isLocationValid);
 
         if (isLocationValid) {
           // Call onChange for valid locations.
           onChange({
-            latitude: (parseFloat(locationObject.latitude) * 10) / 10,
-            longitude: (parseFloat(locationObject.longitude) * 10) / 10,
+            latitude: (parseFloat(lngLat.latitude) * 10) / 10,
+            longitude: (parseFloat(lngLat.longitude) * 10) / 10,
           });
         }
       } catch (error) {

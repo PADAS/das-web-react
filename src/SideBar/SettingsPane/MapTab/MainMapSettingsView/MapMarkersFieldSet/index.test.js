@@ -2,15 +2,15 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
-import { render, screen, within } from '../../../../test-utils';
-import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../../../../constants';
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { toggleDisplayUserLocation, toggleMapNamesState } from '../../../../ducks/map-ui';
+import { render, screen, within } from '../../../../../test-utils';
+import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../../../../../constants';
+import { mockStore } from '../../../../../__test-helpers/MockStore';
+import { toggleDisplayUserLocation, toggleMapNamesState } from '../../../../../ducks/map-ui';
 
 import MapMarkersFieldSet from './';
 
-jest.mock('../../../../ducks/map-ui', () => ({
-  ...jest.requireActual('../../../../ducks/map-ui'),
+jest.mock('../../../../../ducks/map-ui', () => ({
+  ...jest.requireActual('../../../../../ducks/map-ui'),
   toggleDisplayUserLocation: jest.fn(),
   toggleMapNamesState: jest.fn(),
 }));
