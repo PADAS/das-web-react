@@ -84,6 +84,8 @@ const AddReportTab = ({ onHideModal }) => {
         getOptionLabel={(option) => option.display}
         isSearchable
         onChange={onQuickJumpSelectChange}
+        menuPortalTarget={null}
+        menuPlacement='bottom'
         options={eventsByCategory}
         placeholder={t('reportsSelectPlaceholder')}
       />
