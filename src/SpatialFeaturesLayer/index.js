@@ -39,7 +39,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (!map.getSource(SPATIAL_FEATURES_SOURCE)) {
       map.addSource(SPATIAL_FEATURES_SOURCE, {
         type: 'vector',
-        url: VECTOR_TILE_URL,
+        tiles: [VECTOR_TILE_URL],
         minzoom: 0,
         maxzoom: 22,
       });
@@ -113,9 +113,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         }
       });
 
-      if (map.getSource(SPATIAL_FEATURES_SOURCE)) {
-        map.removeSource(SPATIAL_FEATURES_SOURCE);
-      }
+      // if (map.getSource(SPATIAL_FEATURES_SOURCE)) {
+      //   map.removeSource(SPATIAL_FEATURES_SOURCE);
+      // }
     };
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, POINTS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
 
