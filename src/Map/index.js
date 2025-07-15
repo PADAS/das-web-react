@@ -21,7 +21,6 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
-import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
@@ -51,7 +50,6 @@ import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
-import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -68,6 +66,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SpatialFeaturesLayer from '../SpatialFeaturesLayer';
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -128,7 +127,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
   const mapImages = useSelector(state => state.view.mapImages);
-  const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
   const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
   const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
@@ -157,7 +155,7 @@ const Map = ({ children, onMapLoad, socket }) => {
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 
-  const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+  // const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
   const {
     analyzerWarningLines,
@@ -660,11 +658,15 @@ const Map = ({ children, onMapLoad, socket }) => {
 
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-      <FeatureLayer
+      {/* <FeatureLayer
         symbols={symbolFeatures}
         lines={lineFeatures}
         polygons={fillFeatures}
         onFeatureSymbolClick={onFeatureSymbolClick}
+      /> */}
+
+      <SpatialFeaturesLayer
+        onFeatureClick={onFeatureSymbolClick}
       />
 
       <AnalyzerLayer

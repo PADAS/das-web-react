@@ -34,6 +34,8 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
   const currentBaseLayer = useSelector(state => state.view.currentBaseLayer);
   const mapPosition = useSelector(state => state.data.mapPosition);
 
+  const authToken = useSelector(({ data }) => data.token.access_token); // <-- PSEUDO-CODE: Fix this selector
+
   const baseStyleRef = useRef(REACT_APP_BASE_MAP_STYLES);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -70,12 +72,23 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
         maxZoom: MAX_ZOOM,
         minZoom: MIN_ZOOM,
         style: REACT_APP_BASE_MAP_STYLES,
+        transformRequest: (url, _resourceType) => {
+          if (authToken && url.includes(process.env.REACT_APP_DAS_HOST)) {
+            return {
+              url: url,
+              headers: {
+                'Authorization': `Bearer ${authToken}`
+              }
+            };
+          }
+          return { url };
+        },
         ...getStartingMapPositionValues(mapPosition),
       });
 
       mapRef.current.on('load', onLoad);
     }
-  }, [mapPosition, onLoad, t]);
+  }, [mapPosition, onLoad, t, authToken]);
 
   useEffect(() => {
     if (mapRef.current
@@ -103,7 +116,7 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
 
         {children}
 
-        <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
+        <Attribution currentBaseLayer={currentBaseLayer} className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
 
         <BaseLayerRenderer />
       </>}
