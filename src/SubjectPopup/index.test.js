@@ -39,6 +39,10 @@ describe('SubjectPopup', () => {
         tracks: {},
       },
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         featureFlagOverrides: {},
         heatmapSubjectIDs: [],
         timeSliderState: {
