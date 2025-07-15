@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { memo, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -22,13 +22,7 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
-  const storedCRS = useSelector(
-    (state) => state.view.coordinateReferenceSystems.storedSystems.reduce(
-      (accumulator, storedSystem) => {
-        accumulator[storedSystem.code] = storedSystem;
-        return accumulator;
-      }, {})
-  );
+  const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
   const fieldsetRef = useRef();
   const innerRef = useRef();
@@ -38,6 +32,11 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
   const gpsString = showGpsString && lat !== null && lng !== null ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
 
   const gpsFormatOptions = customCoordinateSystemsEnabled ? selectedCRS : Object.values(GPS_FORMATS);
+
+  const storedCRSMappedByCode = useMemo(() => storedCRS.reduce((accumulator, storedSystem) => {
+    accumulator[storedSystem.code] = storedSystem;
+    return accumulator;
+  }, {}), [storedCRS]);
 
   const onGpsFormatChange = (gpsFormat) => {
     dispatch(updateUserPreferences({ gpsFormat }));
@@ -79,7 +78,7 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
             value={gpsFormatOption}
           />
 
-          {storedCRS[gpsFormatOption]?.name || gpsFormatOption}
+          {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
         </label>)}
     </fieldset>
 

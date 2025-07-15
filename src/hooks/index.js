@@ -19,7 +19,7 @@ export const useFeatureFlag = (flagName) => {
     throw new Error('no feature flag with that name exists');
   }
 
-  return featureFlagOverrides.hasOwnProperty(flagName)
+  return featureFlagOverrides?.hasOwnProperty(flagName)
     ? featureFlagOverrides[flagName].value
     : DEVELOPMENT_FEATURE_FLAGS[flagName];
 };

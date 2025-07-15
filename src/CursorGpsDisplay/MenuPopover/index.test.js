@@ -32,6 +32,10 @@ describe('CursorGpsDisplay - MenuPopover', () => {
     store = {
       data: {},
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },

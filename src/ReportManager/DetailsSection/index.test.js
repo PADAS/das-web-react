@@ -66,6 +66,10 @@ describe('ReportManager - DetailsSection', () => {
         eventSchemas,
       },
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },

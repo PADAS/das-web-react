@@ -26,6 +26,10 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Location', () =
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: {
           isPickingLocation: false,
         },

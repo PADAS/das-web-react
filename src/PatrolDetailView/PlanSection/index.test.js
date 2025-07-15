@@ -44,6 +44,10 @@ const store = {
   ...patrolDefaultStoreData,
   view: {
     ...patrolDefaultStoreData.view,
+    coordinateReferenceSystems: {
+      selectedSystems: Object.values(GPS_FORMATS),
+      storedSystems: [],
+    },
     mapLocationSelection: { isPickingLocation: false },
     userPreferences: { gpsFormat: GPS_FORMATS.DEG },
   },
