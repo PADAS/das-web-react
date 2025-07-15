@@ -24,6 +24,10 @@ describe('GpsInput', () => {
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
@@ -49,7 +53,7 @@ describe('GpsInput', () => {
       },
     });
 
-    expect(screen.getByLabelText('GPS location')).toHaveValue('10.000000°,  10.000000°');
+    expect(screen.getByLabelText('GPS location')).toHaveValue('10.000000°, 10.000000°');
   });
 
   test('updates the displayed value to the new GPS format when the user changes the toggle', async () => {
@@ -62,7 +66,7 @@ describe('GpsInput', () => {
 
     const gpsInput = screen.getByLabelText('GPS location');
 
-    expect(gpsInput).toHaveValue('10.000000°,  10.000000°');
+    expect(gpsInput).toHaveValue('10.000000°, 10.000000°');
 
     store.view.userPreferences.gpsFormat = GPS_FORMATS.DDM;
     rerender(
@@ -109,7 +113,7 @@ describe('GpsInput', () => {
 
     const gpsInput = screen.getByLabelText('GPS location');
 
-    expect(gpsInput).toHaveValue('10.000000°,  10.000000°');
+    expect(gpsInput).toHaveValue('10.000000°, 10.000000°');
     expect(onChange).not.toHaveBeenCalled();
 
     await userEvent.clear(gpsInput);
@@ -166,7 +170,7 @@ describe('GpsInput', () => {
 
     const gpsInput = screen.getByLabelText('GPS location');
 
-    expect(gpsInput).toHaveValue('10.000000°,  10.000000°');
+    expect(gpsInput).toHaveValue('10.000000°, 10.000000°');
 
     await userEvent.clear(gpsInput);
     await userEvent.type(gpsInput, 'a');
@@ -176,7 +180,7 @@ describe('GpsInput', () => {
 
     fireEvent.blur(gpsInput);
 
-    expect(gpsInput).toHaveValue('10.000000°,  10.000000°');
+    expect(gpsInput).toHaveValue('10.000000°, 10.000000°');
     expect(gpsInput).not.toHaveAccessibleErrorMessage();
   });
 

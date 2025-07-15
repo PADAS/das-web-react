@@ -22,6 +22,10 @@ describe('GpsFormatToggle', () => {
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },
