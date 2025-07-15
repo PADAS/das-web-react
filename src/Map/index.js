@@ -68,6 +68,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
+import SpatialFeaturesLayer from '../SpatialFeaturesLayer';
 
 import AddItemButton from '../AddItemButton';
 import MapRulerControl from '../MapRulerControl';
@@ -665,6 +666,12 @@ const Map = ({ children, onMapLoad, socket }) => {
         lines={lineFeatures}
         polygons={fillFeatures}
         onFeatureSymbolClick={onFeatureSymbolClick}
+      />
+
+      <SpatialFeaturesLayer
+        onFeatureClick={(feature) => {
+          console.log('Spatial feature clicked:', feature);
+        }}
       />
 
       <AnalyzerLayer
