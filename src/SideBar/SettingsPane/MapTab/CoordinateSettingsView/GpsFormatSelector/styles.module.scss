@@ -60,6 +60,9 @@
     .example {
       font-size: 0.875rem;
       margin-left: 1.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
   
       &.disabled {
         color: colors.$alt-light-gray;

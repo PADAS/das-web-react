@@ -101,7 +101,7 @@ const CoordinateReferenceSystemFinder = () => {
         <tr>
           <th scope="col">{t('resultsTableCodeHeaderCell')}</th>
           <th scope="col">{t('resultsTableNameHeaderCell')}</th>
-          <th scope="col">{t('resultsTableAreaHeaderCell')}</th>
+          <th className={styles.areaCell} scope="col">{t('resultsTableAreaHeaderCell')}</th>
           <th scope="col" />
         </tr>
       </thead>
@@ -122,7 +122,7 @@ const CoordinateReferenceSystemFinder = () => {
           <tr key={filteredCRS.code}>
             <td>{filteredCRS.code}</td>
             <td>{filteredCRS.name}</td>
-            <td>{filteredCRS.area}</td>
+            <td className={styles.areaCell} >{filteredCRS.area}</td>
             <td>
               <button
                 aria-label={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}

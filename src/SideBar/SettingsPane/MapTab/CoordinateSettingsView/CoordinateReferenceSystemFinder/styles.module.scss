@@ -1,6 +1,7 @@
 @use 'sass:color';
 
 @use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/layout';
 
 .instructions {
   color: colors.$off-black;
@@ -24,19 +25,35 @@
   width: 100%;
 
   .codeColumn {
-    width: 13%;
+    width: 20%;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      width: 13%;
+    }
   }
 
   .nameColumn {
-    width: 30%;
+    width: 55%;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      width: 30%;
+    }
   }
 
   .areaColumn {
-    width: 40%;
+    width: 0;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      width: 40%;
+    }
   }
 
   .actionColumn {
-    width: 17%;
+    width: 25%;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      width: 17%;
+    }
   }
 
   thead {
@@ -48,6 +65,14 @@
     border-bottom: 1px solid colors.$light-gray-lines;
     font-weight: 400;
     padding: 0.5rem;
+
+    &.areaCell {
+      display: none;
+
+      @media (min-width: layout.$md-layout-width-min) {
+        display: table-cell;
+      }
+    }
 
     &:last-child {
       text-align: center;
