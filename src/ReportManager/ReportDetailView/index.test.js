@@ -179,6 +179,10 @@ describe('ReportManager - ReportDetailView', () => {
         tracks: {},
       },
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},
@@ -266,7 +270,7 @@ describe('ReportManager - ReportDetailView', () => {
     map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } });
 
     await waitFor(() => {
-      expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+      expect(within(locationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
     });
   });
 

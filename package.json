@@ -105,6 +105,7 @@
     "terser-webpack-plugin": "^5.2.5",
     "use-sound": "^5.0.0",
     "uuid": "^11.0.3",
+    "web-vitals": "^5.0.3",
     "webpack": "^5.98.0",
     "webpack-dev-server": "^5.2.1",
     "webpack-manifest-plugin": "^5.0.1",

@@ -206,6 +206,10 @@ describe('PatrolDetailView', () => {
     store.data.user = { permissions: { patrol: ['change'] } };
     store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
     store.view.mapLocationSelection = {};
+    store.view.coordinateReferenceSystems = {
+      selectedSystems: Object.values(GPS_FORMATS),
+      storedSystems: [],
+    };
 
     map = createMapMock();
 
@@ -322,7 +326,7 @@ describe('PatrolDetailView', () => {
 
     act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
-    expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+    expect(within(startLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
   });
 
   test('sets the start date when user changes it', async () => {
@@ -365,7 +369,7 @@ describe('PatrolDetailView', () => {
 
     act(() => map.__test__.fireHandlers('click', { lngLat: { lng: 88, lat: 55 } }));
 
-    expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°,  88.000000°');
+    expect(within(endLocationPickerButton).getByRole('textbox')).toHaveValue('55.000000°, 88.000000°');
   });
 
   test('sets the end date when user changes it', async () => {

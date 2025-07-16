@@ -111,7 +111,7 @@ describe('getHumanizedFieldValue', () => {
       'en-US',
       GPS_FORMATS.DEG,
       t
-    )).toBe('10.123400°,  30.987000°');
+    )).toBe('10.123400°, 30.987000°');
   });
 
   test('returns the plain value for other element types', () => {
