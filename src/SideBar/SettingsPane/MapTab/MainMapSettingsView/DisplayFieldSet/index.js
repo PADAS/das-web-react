@@ -86,30 +86,32 @@ const DisplayFieldSet = ({ onOpenCoordianteSettingsView }) => {
     <legend className={styles.title}>{t('legend')}</legend>
 
     <div className={styles.sectionWrapper}>
-      {customCoordinateSystemsEnabled && <div className={styles.buttonWrapper}>
-        <span className={styles.label} id="open-coordinate-settings-button-label">
-          {t('openCoordinateSettingsButtonLabel')}
-        </span>
+      {customCoordinateSystemsEnabled && <>
+        <div className={styles.buttonWrapper}>
+          <span className={styles.label} id="open-coordinate-settings-button-label">
+            {t('openCoordinateSettingsButtonLabel')}
+          </span>
 
-        <span className={styles.details} id="open-coordinate-settings-button-details">
-          {t('openCoordinateSettingsButtonDetails', {
-            selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
-          })}
-        </span>
+          <span className={styles.details} id="open-coordinate-settings-button-details">
+            {t('openCoordinateSettingsButtonDetails', {
+              selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
+            })}
+          </span>
 
-        <button
-          aria-describedby="open-coordinate-settings-button-details"
-          aria-labelledby="open-coordinate-settings-button-label"
-          className={styles.button}
-          onClick={() => onOpenCoordianteSettingsView()}
-          title={t('openCoordinateSettingsButtonTitle')}
-          type="button"
-        >
-          <ChevronRight aria-hidden="true" />
-        </button>
-      </div>}
+          <button
+            aria-describedby="open-coordinate-settings-button-details"
+            aria-labelledby="open-coordinate-settings-button-label"
+            className={styles.button}
+            onClick={() => onOpenCoordianteSettingsView()}
+            title={t('openCoordinateSettingsButtonTitle')}
+            type="button"
+          >
+            <ChevronRight aria-hidden="true" />
+          </button>
+        </div>
 
-      <hr className={styles.separator} />
+        <hr className={styles.separator} />
+      </>}
 
       <div className={styles.checkboxWrapper}>
         <input
