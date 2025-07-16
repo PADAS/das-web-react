@@ -36,7 +36,11 @@ const coordinateReferenceSystemsReducer = (state = INITIAL_STATE, action) => {
     return { ...state, selectedSystems: selectedSystems.slice(0, MAX_SELECTED_COORDINATE_REFERENCE_SYSTEMS) };
 
   case SET_STORED_COORDINATE_REFERENCE_SYSTEMS:
-    return { ...state, storedSystems: action.payload };
+    // Sort the stored coordinate reference systems by their EPSG code.
+    return {
+      ...state,
+      storedSystems: [...action.payload].sort((crsA, crsB) => crsA.code - crsB.code),
+    };
 
   default:
     return state;

@@ -10,10 +10,10 @@ const MapTab = () => {
 
   switch (currentView) {
   case VIEWS.COORDINATE_SETTINGS:
-    return <CoordinateSettingsView onShowMainMapSettingsView={() => setCurrentView(null)} />;
+    return <CoordinateSettingsView onOpenMainMapSettingsView={() => setCurrentView(null)} />;
 
   default:
-    return <MainMapSettingsView onShowCoordianteSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
+    return <MainMapSettingsView onOpenCoordianteSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
   };
 };
 

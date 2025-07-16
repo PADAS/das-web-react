@@ -12,7 +12,9 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapMarkersFieldSet = () => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.mapTab.mapMarkersFieldSet' });
+  const { t } = useTranslation('components', {
+    keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.mapMarkersFieldSet',
+  });
 
   const hasUserLocation = useSelector((state) => !!state.view.userLocation);
   const showMapNames = useSelector((state) => state.view.showMapNames);
@@ -62,56 +64,62 @@ const MapMarkersFieldSet = () => {
   return <fieldset className={styles.section}>
     <legend className={styles.title}>{t('legend')}</legend>
 
-    <fieldset className={styles.subSection}>
-      <legend className={styles.subTitle}>{t('markerNamesLegend')}</legend>
+    <div className={styles.sectionWrapper}>
+      <fieldset>
+        <legend className={styles.subTitle}>{t('markerNamesLegend')}</legend>
 
-      <div className={styles.checkboxWrapper}>
-        <input
-          aria-checked={isMarkerNamesPartiallyChecked ? 'mixed' : undefined}
-          checked={isMarkerNamesFullyChecked}
-          className={styles.checkbox}
-          id="marker-names-all-checkbox"
-          onChange={onMarkerNamesAllCheckboxChange}
-          ref={markerNamesAllChekboxRef}
-          type="checkbox"
-        />
+        <div className={styles.checkboxWrapper}>
+          <input
+            aria-checked={isMarkerNamesPartiallyChecked ? 'mixed' : undefined}
+            checked={isMarkerNamesFullyChecked}
+            className={styles.checkbox}
+            id="marker-names-all-checkbox"
+            onChange={onMarkerNamesAllCheckboxChange}
+            ref={markerNamesAllChekboxRef}
+            type="checkbox"
+          />
 
-        <label className={styles.label} htmlFor="marker-names-all-checkbox">
-          {t('markerNamesAllCheckboxLabel')}
-        </label>
-      </div>
+          <label className={styles.label} htmlFor="marker-names-all-checkbox">
+            {t('markerNamesAllCheckboxLabel')}
+          </label>
+        </div>
 
-      {Object.keys(showMapNames).map((markerNamesKey) => <div
-        className={`${styles.checkboxWrapper} ${styles.indent}`}
-        key={markerNamesKey}
-      >
-        <input
-          checked={showMapNames[markerNamesKey].enabled}
-          className={styles.checkbox}
-          id={`marker-names-${markerNamesKey}-checkbox`}
-          onChange={onMarkerNamesCheckboxChange(markerNamesKey)}
-          type="checkbox"
-        />
+        {Object.keys(showMapNames).map((markerNamesKey) => <div
+          className={`${styles.checkboxWrapper} ${styles.indent}`}
+          key={markerNamesKey}
+        >
+          <input
+            checked={showMapNames[markerNamesKey].enabled}
+            className={styles.checkbox}
+            id={`marker-names-${markerNamesKey}-checkbox`}
+            onChange={onMarkerNamesCheckboxChange(markerNamesKey)}
+            type="checkbox"
+          />
 
-        <label className={styles.label} htmlFor={`marker-names-${markerNamesKey}-checkbox`}>
-          {t(`markerNamesCheckboxLabel.${showMapNames[markerNamesKey].key}`)}
-        </label>
-      </div>)}
-    </fieldset>
+          <label className={styles.label} htmlFor={`marker-names-${markerNamesKey}-checkbox`}>
+            {t(`markerNamesCheckboxLabel.${showMapNames[markerNamesKey].key}`)}
+          </label>
+        </div>)}
+      </fieldset>
 
-    {!!hasUserLocation && <div className={styles.checkboxWrapper}>
-      <input
-        checked={showUserLocation}
-        className={styles.checkbox}
-        id="show-user-location-checkbox"
-        onChange={onShowUserLocationCheckboxChange}
-        type="checkbox"
-      />
+      {!!hasUserLocation && <>
+        <hr className={styles.separator} />
 
-      <label className={styles.label} htmlFor="show-user-location-checkbox">
-        {t('showUserLocationCheckboxLabel')}
-      </label>
-    </div>}
+        <div className={styles.checkboxWrapper}>
+          <input
+            checked={showUserLocation}
+            className={styles.checkbox}
+            id="show-user-location-checkbox"
+            onChange={onShowUserLocationCheckboxChange}
+            type="checkbox"
+          />
+
+          <label className={styles.label} htmlFor="show-user-location-checkbox">
+            {t('showUserLocationCheckboxLabel')}
+          </label>
+        </div>
+      </>}
+    </div>
   </fieldset>;
 };
 

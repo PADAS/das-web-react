@@ -1,0 +1,107 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/vars/colors';
+
+.instructions {
+  color: colors.$off-black;
+  margin-bottom: 0;
+  margin-top: 2rem;
+}
+
+.searchBar {
+  background: white;
+  margin-bottom: 0.5rem;
+}
+
+.resultsTable {
+  background: white;
+  border: 1px solid colors.$light-gray-lines;
+  border-collapse: separate;
+  border-radius: 0.5rem;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  width: 100%;
+
+  .codeColumn {
+    width: 13%;
+  }
+
+  .nameColumn {
+    width: 30%;
+  }
+
+  .areaColumn {
+    width: 40%;
+  }
+
+  .actionColumn {
+    width: 17%;
+  }
+
+  thead {
+    background: colors.$very-light-gray;
+    color: colors.$secondary-medium-gray;
+  }
+
+  th, td {
+    border-bottom: 1px solid colors.$light-gray-lines;
+    font-weight: 400;
+    padding: 0.5rem;
+
+    &:last-child {
+      text-align: center;
+    }
+
+    .addButton {
+      background-color: colors.$very-light-blue;
+      border: none;
+      border-radius: 0.25rem;
+      color: colors.$bright-blue;
+      font-size: 1rem;
+      font-weight: 500;
+      height: 2.25rem;
+      outline: none;
+      padding: 0 0.75rem;
+
+      &:hover {
+        background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
+      }
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+      }
+    }
+
+    .emptyState {
+      font-size: 1rem;
+      padding: 0.5rem;
+
+      .message {
+        color: colors.$secondary-medium-gray;
+        display: block;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+}
+
+.crsFinderMessage {
+  color: colors.$secondary-medium-gray;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  margin-top: 0.25rem;
+}
+
+.srOnly {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

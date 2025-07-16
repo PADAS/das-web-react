@@ -1,0 +1,94 @@
+@use 'sass:color';
+
+@use '../../../../../common/styles/vars/colors';
+
+.instructions {
+  color: colors.$secondary-medium-gray;
+  font-size: 0.875rem;
+}
+
+.fieldset {
+  background: white;
+  border: 1px solid colors.$light-gray-lines;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+
+  .gpsFormatOption {
+    align-items: center;
+    color: colors.$off-black;
+    display: flex;
+    gap: 0.75rem;
+
+    .checkbox[disabled] {
+      cursor: not-allowed
+    }
+
+    .label {
+      cursor: pointer;
+      flex-grow: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &.disabled {
+        color: colors.$alt-light-gray;
+        cursor: not-allowed
+      }
+    }
+
+    .deleteButton {
+      background-color: colors.$high-priority-bg-hover;
+      border: none;
+      border-radius: 0.25rem;
+      color: colors.$bright-red;
+      height: 2.25rem;
+      margin-left: 1rem;
+      outline: none;
+      width: 2.25rem;
+
+      &:hover {
+        background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+      }
+
+      &:focus-visible {
+        outline: 2px solid colors.$bright-blue;
+      }
+    }
+  }
+
+  .defaultGpsFormatOptionWrapper {
+    .example {
+      font-size: 0.875rem;
+      margin-left: 1.5rem;
+  
+      &.disabled {
+        color: colors.$alt-light-gray;
+      }
+    }
+  }
+
+  .separator {
+    border-top: 1px solid colors.$light-gray-lines;
+    margin: 0.5rem 0;
+    opacity: 1;
+  }
+}
+
+.message {
+  color: colors.$secondary-medium-gray;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  margin-top: 0.25rem;
+}
+
+.srOnly {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

@@ -2,6 +2,8 @@ import React, { useEffect, useRef }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
+
 import { FEATURE_FLAG_LABELS } from '../../../../../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import {
@@ -16,14 +18,19 @@ import * as styles from '../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const DisplayFieldSet = ({ onShowCoordianteSettingsView }) => {
+const DisplayFieldSet = ({ onOpenCoordianteSettingsView }) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
 
   const dispatch = useDispatch();
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.mapTab.displayFieldSet' });
+  const { t } = useTranslation('components', {
+    keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.displayFieldSet',
+  });
 
   const isTimeSliderActive = useSelector((state) => !!state.view.timeSliderState.active);
   const mapClusterConfig = useSelector((state) => state.view.mapClusterConfig);
+  const selectedCoordinateReferenceSystems = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedSystems
+  );
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
   const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
@@ -78,99 +85,129 @@ const DisplayFieldSet = ({ onShowCoordianteSettingsView }) => {
   return <fieldset className={styles.section}>
     <legend className={styles.title}>{t('legend')}</legend>
 
-    {/* TODO (CRS): I18n and a11y */}
-    {customCoordinateSystemsEnabled && <button onClick={() => onShowCoordianteSettingsView()}>Coordinates</button>}
+    <div className={styles.sectionWrapper}>
+      {customCoordinateSystemsEnabled && <div className={styles.buttonWrapper}>
+        <span className={styles.label} id="open-coordinate-settings-button-label">
+          {t('openCoordinateSettingsButtonLabel')}
+        </span>
 
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={showTrackTimepoints}
-        className={styles.checkbox}
-        id="show-track-timepoints-checkbox"
-        onChange={onShowTrackTimepointsCheckboxChange}
-        type="checkbox"
-      />
+        <span className={styles.details} id="open-coordinate-settings-button-details">
+          {t('openCoordinateSettingsButtonDetails', {
+            selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
+          })}
+        </span>
 
-      <label className={styles.label} htmlFor="show-track-timepoints-checkbox">
-        {t('showTrackTimepointsCheckboxLabel')}
-      </label>
-    </div>
+        <button
+          aria-describedby="open-coordinate-settings-button-details"
+          aria-labelledby="open-coordinate-settings-button-label"
+          className={styles.button}
+          onClick={() => onOpenCoordianteSettingsView()}
+          title={t('openCoordinateSettingsButtonTitle')}
+          type="button"
+        >
+          <ChevronRight aria-hidden="true" />
+        </button>
+      </div>}
 
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={showInactiveRadios}
-        className={styles.checkbox}
-        id="show-inactive-radios-checkbox"
-        onChange={onShowInactiveRadiosCheckboxChange}
-        type="checkbox"
-      />
-
-      <label className={styles.label} htmlFor="show-inactive-radios-checkbox">
-        {t('showInactiveRadiosCheckboxLabel')}
-      </label>
-    </div>
-
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={mapClusterConfig.showPolygons}
-        className={styles.checkbox}
-        disabled={!isClusterDataFullyChecked && !isClusterDataPartiallyChecked}
-        id="show-cluster-polygons-checkbox"
-        onChange={onShowClusterPolygonsCheckboxChange}
-        type="checkbox"
-      />
-
-      <label
-        className={`${styles.label} ${!isClusterDataFullyChecked && !isClusterDataPartiallyChecked ? styles.disabled : ''}`}
-        htmlFor="show-cluster-polygons-checkbox"
-      >
-        {t('showClusterPolygonsCheckboxLabel')}
-      </label>
-    </div>
-
-    <fieldset className={styles.subSection}>
-      <legend className={styles.subTitle}>{t('clusterDataLegend')}</legend>
+      <hr className={styles.separator} />
 
       <div className={styles.checkboxWrapper}>
         <input
-          aria-checked={isClusterDataPartiallyChecked ? 'mixed' : undefined}
-          checked={isClusterDataFullyChecked}
+          checked={showTrackTimepoints}
           className={styles.checkbox}
-          disabled={isTimeSliderActive}
-          id="cluster-data-all-checkbox"
-          onChange={onClusterDataAllCheckboxChange}
-          ref={clusterDataAllChekboxRef}
+          id="show-track-timepoints-checkbox"
+          onChange={onShowTrackTimepointsCheckboxChange}
           type="checkbox"
         />
 
-        <label
-          className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
-          htmlFor="cluster-data-all-checkbox"
-        >
-          {t('clusterDataAllCheckboxLabel')}
+        <label className={styles.label} htmlFor="show-track-timepoints-checkbox">
+          {t('showTrackTimepointsCheckboxLabel')}
         </label>
       </div>
 
-      {Object.keys(mapClusterConfig.data).map((mapClusterDataKey) => <div
-        className={`${styles.checkboxWrapper} ${styles.indent}`}
-        key={mapClusterDataKey}
-      >
+      <hr className={styles.separator} />
+
+      <div className={styles.checkboxWrapper}>
         <input
-          checked={mapClusterConfig.data[mapClusterDataKey]}
+          checked={showInactiveRadios}
           className={styles.checkbox}
-          disabled={isTimeSliderActive}
-          id={`cluster-data-${mapClusterDataKey}-checkbox`}
-          onChange={onClusterDataCheckboxChange(mapClusterDataKey)}
+          id="show-inactive-radios-checkbox"
+          onChange={onShowInactiveRadiosCheckboxChange}
+          type="checkbox"
+        />
+
+        <label className={styles.label} htmlFor="show-inactive-radios-checkbox">
+          {t('showInactiveRadiosCheckboxLabel')}
+        </label>
+      </div>
+
+      <hr className={styles.separator} />
+
+      <div className={styles.checkboxWrapper}>
+        <input
+          checked={mapClusterConfig.showPolygons}
+          className={styles.checkbox}
+          disabled={!isClusterDataFullyChecked && !isClusterDataPartiallyChecked}
+          id="show-cluster-polygons-checkbox"
+          onChange={onShowClusterPolygonsCheckboxChange}
           type="checkbox"
         />
 
         <label
-          className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
-          htmlFor={`cluster-data-${mapClusterDataKey}-checkbox`}
+          className={`${styles.label} ${!isClusterDataFullyChecked && !isClusterDataPartiallyChecked ? styles.disabled : ''}`}
+          htmlFor="show-cluster-polygons-checkbox"
         >
-          {t(`clusterDataCheckboxLabel.${mapClusterDataKey}`)}
+          {t('showClusterPolygonsCheckboxLabel')}
         </label>
-      </div>)}
-    </fieldset>
+      </div>
+
+      <hr className={styles.separator} />
+
+      <fieldset>
+        <legend className={styles.subTitle}>{t('clusterDataLegend')}</legend>
+
+        <div className={styles.checkboxWrapper}>
+          <input
+            aria-checked={isClusterDataPartiallyChecked ? 'mixed' : undefined}
+            checked={isClusterDataFullyChecked}
+            className={styles.checkbox}
+            disabled={isTimeSliderActive}
+            id="cluster-data-all-checkbox"
+            onChange={onClusterDataAllCheckboxChange}
+            ref={clusterDataAllChekboxRef}
+            type="checkbox"
+          />
+
+          <label
+            className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
+            htmlFor="cluster-data-all-checkbox"
+          >
+            {t('clusterDataAllCheckboxLabel')}
+          </label>
+        </div>
+
+        {Object.keys(mapClusterConfig.data).map((mapClusterDataKey) => <div
+          className={`${styles.checkboxWrapper} ${styles.indent}`}
+          key={mapClusterDataKey}
+        >
+          <input
+            checked={mapClusterConfig.data[mapClusterDataKey]}
+            className={styles.checkbox}
+            disabled={isTimeSliderActive}
+            id={`cluster-data-${mapClusterDataKey}-checkbox`}
+            onChange={onClusterDataCheckboxChange(mapClusterDataKey)}
+            type="checkbox"
+          />
+
+          <label
+            className={`${styles.label} ${isTimeSliderActive ? styles.disabled : ''}`}
+            htmlFor={`cluster-data-${mapClusterDataKey}-checkbox`}
+          >
+            {t(`clusterDataCheckboxLabel.${mapClusterDataKey}`)}
+          </label>
+        </div>)}
+      </fieldset>
+    </div>
   </fieldset>;
 };
 
