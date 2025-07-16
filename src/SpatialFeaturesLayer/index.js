@@ -22,7 +22,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     }
   }, [map, onFeatureClick, POINTS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
 
-  // Mouse cursor handlers
   const onMouseEnter = useCallback(() => {
     map.getCanvas().style.cursor = 'pointer';
   }, [map]);
@@ -31,11 +30,9 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     map.getCanvas().style.cursor = '';
   }, [map]);
 
-  // Setup and cleanup effect
   useEffect(() => {
     if (!map) return;
 
-    // Add vector tile source
     if (!map.getSource(SPATIAL_FEATURES_SOURCE)) {
       map.addSource(SPATIAL_FEATURES_SOURCE, {
         type: 'vector',
@@ -45,7 +42,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
-    // Add Points layer - 10px radius circles
     if (!map.getLayer(POINTS_LAYER_ID)) {
       map.addLayer({
         id: POINTS_LAYER_ID,
@@ -62,7 +58,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
-    // Add Lines layer - 4px wide black lines
     if (!map.getLayer(LINES_LAYER_ID)) {
       map.addLayer({
         id: LINES_LAYER_ID,
@@ -77,7 +72,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
-    // Add Polygons layer - black border with 30% opacity fill
     if (!map.getLayer(POLYGONS_LAYER_ID)) {
       map.addLayer({
         id: POLYGONS_LAYER_ID,
@@ -93,7 +87,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       });
     }
 
-    // Add event listeners for each layer
     const layerIds = [POINTS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID];
 
     layerIds.forEach(layerId => {
@@ -102,7 +95,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       map.on('mouseleave', layerId, onMouseLeave);
     });
 
-    // Cleanup function
     return () => {
       layerIds.forEach(layerId => {
         if (map.getLayer(layerId)) {
@@ -112,10 +104,6 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
           map.removeLayer(layerId);
         }
       });
-
-      // if (map.getSource(SPATIAL_FEATURES_SOURCE)) {
-      //   map.removeSource(SPATIAL_FEATURES_SOURCE);
-      // }
     };
   }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, POINTS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
 
