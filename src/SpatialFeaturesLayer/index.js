@@ -1,4 +1,5 @@
 import React, { memo, useContext, useCallback, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { MapContext } from '../App';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -8,6 +9,7 @@ const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
+  const token = useSelector(state => state.data.token);
 
   const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
   const LINES_LAYER_ID = 'spatial-features-lines';
@@ -40,6 +42,18 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         tiles: [VECTOR_TILE_URL],
         minzoom: 0,
         maxzoom: 22,
+        transformRequest: (url, resourceType) => {
+          // Add authorization header for vector tile requests
+          if (resourceType === 'Tile' && token?.access_token) {
+            return {
+              url,
+              headers: {
+                'Authorization': `Bearer ${token.access_token}`
+              }
+            };
+          }
+          return { url };
+        }
       });
     }
 
@@ -159,11 +173,8 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         }
       });
 
-      if (map.getSource(SPATIAL_FEATURES_SOURCE)) {
-        map.removeSource(SPATIAL_FEATURES_SOURCE);
-      }
     };
-  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
+  }, [map, handleFeatureClick, onMouseEnter, onMouseLeave, SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, token?.access_token]);
 
   return null;
 };
