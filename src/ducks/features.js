@@ -3,7 +3,7 @@ import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-export const FEATURESET_API_URL = `${API_URL}featureset/`;
+export const FEATURESET_API_URL = `${API_URL}featureset?summarize_features=true`;
 
 // actions
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';

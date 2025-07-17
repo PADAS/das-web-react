@@ -1,4 +1,4 @@
-import uniq from 'lodash/uniq';
+import groupBy from 'lodash/groupBy';
 import { createSelector } from 'reselect';
 
 import { featureSets } from '../selectors';
@@ -6,10 +6,10 @@ import { featureSets } from '../selectors';
 export const getFeatureLayerListState = createSelector(
   [(state, props) => featureSets(state, props)],
   (featureSets) => featureSets.map((set) => {
-    const typeNames = uniq(set.geojson.features.map(f => f.properties.type_name));
-    const featuresByType = typeNames.map((name) => ({
+    const groupedFeatures = groupBy(set.geojson.features, 'properties.type_name');
+    const featuresByType = Object.entries(groupedFeatures).map(([name, features]) => ({
       name,
-      features: set.geojson.features.filter(f => f.properties.type_name === name),
+      features,
     }));
     return ({
       name: set.name,
