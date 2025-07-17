@@ -1,9 +1,10 @@
 import React, { memo, useContext, useCallback, useEffect } from 'react';
 import { MapContext } from '../App';
+import { API_URL } from '../constants';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
-const VECTOR_TILE_URL = `${process.env.REACT_APP_DAS_HOST}/api/v1.0/spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
