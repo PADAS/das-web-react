@@ -3,7 +3,7 @@ import { MapContext } from '../App';
 
 const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 
-const VECTOR_TILE_URL = `${process.env.REACT_APP_DAS_HOST}/api/v1.0/spatial_features/{z}/{x}/{y}.pbf`;
+const VECTOR_TILE_URL = `${process.env.REACT_APP_DAS_HOST}/api/v1.0/spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
