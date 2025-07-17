@@ -1,0 +1,89 @@
+@use '../../../../common/styles/vars/colors';
+
+.section {
+  margin-bottom: 1rem;
+
+  .title {
+    color: colors.$secondary-medium-gray;
+    font-size: 1.125rem;
+    font-weight: 400;
+  }
+
+  .sectionWrapper {
+    background: white;
+    border: 1px solid colors.$light-gray-lines;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+
+    .separator {
+      border-top: 1px solid colors.$light-gray-lines;
+      margin: 0.5rem 0;
+      opacity: 1;
+    }
+
+    .subTitle {
+      color: colors.$secondary-medium-gray;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .buttonWrapper {
+      align-items: center;
+      display: flex;
+
+      .label {
+        flex-grow: 1;
+      }
+
+      .details {
+        font-size: 0.875rem;
+        margin-right: 0.5rem;
+      }
+
+      .button {
+        background: none;
+        border: none;
+        border-radius: 0.1875rem;
+        color: colors.$secondary-medium-gray;
+        outline: none;
+        padding: 0.25rem 0.5rem;
+
+        &:focus-visible {
+          outline: 2px solid colors.$bright-blue;
+          color: colors.$bright-blue;
+        }
+
+        &:hover {
+          background: colors.$light-gray-background;
+        }
+
+        svg {
+          height: 1.125rem;
+          width: 1.125rem;
+        }
+      }
+    }
+
+    .checkboxWrapper {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+
+      &.indent {
+        margin-left: 1.5rem;
+      }
+
+      .checkbox:not(:disabled) {
+        cursor: pointer;
+      }
+
+      .label {
+        cursor: pointer;
+
+        &.disabled {
+          cursor: default;
+        }
+      }
+    }
+  }
+}

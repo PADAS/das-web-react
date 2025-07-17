@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import { generateStorageConfig } from './storage-config';
+import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventCategoriesReducer from '../ducks/event-categories';
@@ -19,11 +20,22 @@ import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '..
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import featureFlagOverrideReducer, { migrations as flagOverrideMigrations } from '../ducks/feature-flag-overrides';
 import {
-  heatmapStyleConfigReducer, displayMapNamesReducer,
-  heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  mapDataZoomSimplificationReducer, mapLocationSelectionReducer, printTitleReducer,
-  displayUserLocationReducer, bounceEventReducer,
-  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
+  heatmapStyleConfigReducer,
+  displayMapNamesReducer,
+  heatmapSubjectIDsReducer,
+  subjectTrackReducer,
+  mapLockStateReducer,
+  mapDataZoomSimplificationReducer,
+  mapLocationSelectionReducer,
+  printTitleReducer,
+  displayUserLocationReducer,
+  bounceEventReducer,
+  displayTrackTimepointsReducer,
+  reportHeatmapStateReducer,
+  displayInactiveRadiosReducer,
+  openMapFeatureTypesReducer,
+  mapClusterConfigReducer,
+  mapClusterConfigMigrations,
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
@@ -60,7 +72,8 @@ const featureSetsPersistenceConfig = generateStorageConfig('featureSets', localF
 const analyzersPersistenceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackSettingsPersistenceConfig = generateStorageConfig('trackSettings');
-const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
+const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig', storage, 1, mapClusterConfigMigrations);
+const coordinateReferenceSystemsStorageConfig = generateStorageConfig('coordinateReferenceSystems');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -104,6 +117,7 @@ const rootReducer = combineReducers({
     patrolLeaderSchema: patrolTrackedBySchemaReducer,
   }),
   view: combineReducers({
+    coordinateReferenceSystems: persistReducer(coordinateReferenceSystemsStorageConfig, coordinateReferenceSystemsReducer),
     currentBaseLayer: persistReducer(baseLayerPersistenceConfig, currentBaseLayerReducer),
     featureFlagOverrides: persistReducer(featureFlagOverrideConfig, featureFlagOverrideReducer),
     homeMap: persistReducer(homeMapPersistenceConfig, homeMapReducer),

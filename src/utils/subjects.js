@@ -20,38 +20,33 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
-    && !!properties.last_voice_call_start_at
-    && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
+    && !!properties.last_position_date
+    && !['null', 'undefined'].includes(properties.last_position_date); /* extra check for bad deserialization from mapbox-held subject data */
 };
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
-const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
-  if (subject
-    && subject.last_position_status
-    && subject.last_position_status.last_voice_call_start_at) {
-    const updatedTime = new Date(subject.last_position_status.last_voice_call_start_at);
-    if (updatedTime) {
-      const delta = differenceInSeconds(new Date(), updatedTime);
-      if (delta > 0) {
-        return delta;
-      }
-    }
-  }
+const calcElapsedTimeSinceSubjectActivity = (subject) => {
+  const time = new Date(subject?.last_position_date);
+  if (window.isNaN(time)) return -1;
+
+  const delta = differenceInSeconds(new Date(), time);
+  if (delta > 0) return delta;
+
   return -1;
 };
 
 export const radioHasRecentActivity = (radio) => {
-  const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(radio);
-
-  return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  const elapsedSeconds = calcElapsedTimeSinceSubjectActivity(radio);
+  const hasRecentActivity = (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+  return hasRecentActivity;
 };
 
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)
     .filter(radioHasRecentActivity)
-    .sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b));
+    .sort((a, b) => calcElapsedTimeSinceSubjectActivity(a) - calcElapsedTimeSinceSubjectActivity(b));
 
   return recentRadios;
 };
@@ -67,12 +62,11 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 }, []);
 
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
-
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
 export const subjectIsStatic = subject => {
   return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
+    subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
 };
 
 export const canShowTrackForSubject = subject =>
@@ -80,7 +74,7 @@ export const canShowTrackForSubject = subject =>
   && !subjectIsAFixedPositionRadio(subject);
 
 
-export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
+export const getSubjectsWithViewableTrackingDataFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
 export const getSubjectLastPositionCoordinates = subject => {
@@ -93,10 +87,8 @@ export const getSubjectDefaultDeviceProperty = subject => {
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
 };
 
-
 export const addDefaultStatusValue = (originalFeature) => {
   const feature = cloneDeep(originalFeature);
-
   const { properties } = feature;
   const defaultProperty = getSubjectDefaultDeviceProperty(feature);
 
@@ -106,7 +98,7 @@ export const addDefaultStatusValue = (originalFeature) => {
   }
 
   if (!properties?.image?.length) {
-    set(feature, 'properties.default_status_label', defaultProperty.label) ;
+    set(feature, 'properties.default_status_label', defaultProperty.label);
   }
 
   return feature;

@@ -54,6 +54,7 @@ const SubjectMessagesPopover = ({ className = '', subject = null, ...restProps }
       buttonClassName={`${className} ${styles.button}`}
       containerClassName={styles.container}
       labelText={t('label')}
+      data-testid="subject-messages-popover"
       {...restProps}
     />
   </OverlayTrigger>;

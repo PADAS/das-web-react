@@ -44,7 +44,9 @@ const Collection = ({
   })));
 
   const hasError = !!error?.message;
+  const hasDescription = !!details.description && !hasError;
   const doesChildrenHaveErrors = !!error && Object.keys(error).some((errorKey) => errorKey !== 'message');
+  const label = details.isRequired ? `${details.label} (${value.length}) *` : `${details.label} (${value.length})` ;
 
   const onItemChange = (itemIndex) => (itemValue, itemError) => {
     // We clean the collection error message and update the changed item error.
@@ -170,7 +172,7 @@ const Collection = ({
       data-testid={`schema-form-collection-header-${id}`}
     >
       <label className={styles.label} id={`${id}-label`}>
-        {`${details.label} (${value.length})`}
+        {label}
       </label>
 
       <button
@@ -223,7 +225,14 @@ const Collection = ({
       </div>
     </Collapse>
 
-    {hasError && <p aria-live="assertive" className={styles.description} id={`${id}-description`}>{error.message}</p>}
+    {(hasDescription || hasError) && <p
+        aria-live={hasError ? 'assertive' : 'off'}
+        className={`${styles.description} ${hasError ? styles.error : ''}`}
+        id={`${id}-description`}
+    >
+      {error?.message || details.description}
+    </p>}
+
   </div>;
 };
 

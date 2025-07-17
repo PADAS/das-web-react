@@ -164,12 +164,12 @@ export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPo
 };
 
 export const addNewClusterMarkers = (
+  addClusterPolygon,
   clusterMarkerHashMapRef,
   sourceId,
   map,
   mapImages,
   removeClusterPolygon,
-  renderClusterPolygon,
   renderedClusterFeatures,
   renderedClusterHashes,
   renderedClusterIds,
@@ -195,7 +195,7 @@ export const addNewClusterMarkers = (
         onShowClusterSelectPopup,
         sourceId
       );
-      const onMouseOver = () => renderClusterPolygon(clusterFeatureCollection);
+      const onMouseOver = () => addClusterPolygon(clusterFeatureCollection);
       const onMouseLeave = () => removeClusterPolygon();
 
       let newClusterHTMLMarkerContainer = createClusterHTMLMarker(

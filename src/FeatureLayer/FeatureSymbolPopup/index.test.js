@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 
+import { GPS_FORMATS } from '../../utils/location';
+
 import AddItemButton from '../../AddItemButton';
 import FeatureSymbolPopup from './';
 import { hidePopup } from '../../ducks/popup';
@@ -22,7 +24,18 @@ describe('FeatureLayer - FeatureSymbolPopup', () => {
     hidePopupMock = jest.fn(() => () => {});
     hidePopup.mockImplementation(hidePopupMock);
 
-    store = { data: {}, view: { userPreferences: { gpsFormat: 'DEG' } } };
+    store = {
+      data: {},
+      view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
+      },
+    };
   });
 
   test('extracts the coordinates from an array', () => {

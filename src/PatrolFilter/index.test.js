@@ -55,7 +55,7 @@ describe('PatrolFilter', () => {
   });
 
   test('updates the search bar text when the user types in it', async () => {
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
 
     expect(searchBar.value).toBe('');
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
@@ -70,7 +70,7 @@ describe('PatrolFilter', () => {
   });
 
   test('clears the search bar text when the user clicks the clear button', async () => {
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
     const clearSearchBarButton = await screen.findByTestId('reset-search-button');
     await userEvent.type(searchBar, 'Search');
 
@@ -87,13 +87,11 @@ describe('PatrolFilter', () => {
     }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME });
   });
 
-  test('sets a light variant to the filters button if there are no filters applied', async () => {
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-
-    expect(filtersButton.className).toEqual(expect.stringContaining('btn-light'));
+  test('sets an inactive state to the filters button if there are no filters applied', async () => {
+    expect(screen.getByTestId('patrolFilter-filtersButton')).toHaveClass('inactive');
   });
 
-  test('sets a primary variant to the filters button if there is a filter applied', async () => {
+  test('sets an active state to the filters button if there is a filter applied', async () => {
     store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     cleanup();
     render(
@@ -102,18 +100,14 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-
-    expect(filtersButton.className).toEqual(expect.stringContaining('btn-primary'));
+    expect(screen.getByTestId('patrolFilter-filtersButton')).toHaveClass('active');
   });
 
-  test('sets a light variant to the date range button if there are no filters applied', async () => {
-    const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
-
-    expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-light'));
+  test('sets an inactive state to the date range button if there are no filters applied', async () => {
+    expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('inactive');
   });
 
-  test('sets a primary variant to the date range button if there is a filter applied', async () => {
+  test('sets an active state to the date range button if there is a filter applied', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.toISOString();
@@ -125,8 +119,6 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
-
-    expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-primary'));
+    expect(screen.getByTestId('patrolFilter-dateRangeButton')).toHaveClass('active');
   });
 });

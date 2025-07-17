@@ -69,7 +69,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(4);
 
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'routine');
 
     const typeListItems = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
@@ -81,7 +81,7 @@ describe('AddItemButton - AddItemModal - AddPatrolTab', () => {
   test('clears search text filter', async () => {
     renderAddPatrolTab();
 
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'routine');
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(1);

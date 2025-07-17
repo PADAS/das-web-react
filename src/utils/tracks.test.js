@@ -1,9 +1,8 @@
-import { buildTrackSegments, getTimeOfDayPeriodBasedOnTime } from './tracks';
+import { buildTrackSegments, getTimeOfDayPeriodBasedOnTime, fixAntimeridianCrossing } from './tracks';
 
 import { TIME_OF_DAY_PERIODS } from '../constants';
 
 describe('utils - tracks', () => {
-
   describe('getTimeOfDayPeriodBasedOnTime', () => {
     const baseDateTimeString = '2025-02-21T21:41:14.677Z';
 
@@ -193,6 +192,391 @@ describe('utils - tracks', () => {
       expect(emptyFeatureCollection.type).toBe('FeatureCollection');
     });
 
+
+  });
+
+  describe('fixAntimeridianCrossing', () => {
+
+    test('returns original collection when input is null or undefined', () => {
+      expect(fixAntimeridianCrossing(null)).toBe(null);
+      expect(fixAntimeridianCrossing(undefined)).toBe(undefined);
+    });
+
+    test('returns original collection when features array is empty', () => {
+      const emptyCollection = { type: 'FeatureCollection', features: [] };
+      expect(fixAntimeridianCrossing(emptyCollection)).toBe(emptyCollection);
+    });
+
+    test('handles LineString geometry with antimeridian crossing', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [170, 10],
+                [-170, 15], // This should be adjusted to 190
+                [175, 20]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([
+        [170, 10],
+        [190, 15], // 360 - 170 = 190
+        [175, 20]
+      ]);
+    });
+
+    test('handles LineString geometry with negative antimeridian crossing', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [-170, 10],
+                [170, 15], // This should be adjusted to -190
+                [-175, 20]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([
+        [-170, 10],
+        [-190, 15], // 170 - 360 = -190
+        [-175, 20]
+      ]);
+    });
+
+    test('handles Polygon geometry with antimeridian crossing', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [170, 10],
+                  [-170, 15], // This should be adjusted to 190
+                  [175, 20],
+                  [170, 10] // Close the ring
+                ]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates[0]).toEqual([
+        [170, 10],
+        [190, 15],
+        [175, 20],
+        [170, 10]
+      ]);
+    });
+
+    test('handles MultiLineString geometry with antimeridian crossing', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'MultiLineString',
+              coordinates: [
+                [
+                  [170, 10],
+                  [-170, 15], // This should be adjusted to 190
+                  [175, 20]
+                ],
+                [
+                  [-170, 30],
+                  [170, 35], // This should be adjusted to -190
+                  [-175, 40]
+                ]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates[0]).toEqual([
+        [170, 10],
+        [190, 15],
+        [175, 20]
+      ]);
+      expect(result.features[0].geometry.coordinates[1]).toEqual([
+        [-170, 30],
+        [-190, 35],
+        [-175, 40]
+      ]);
+    });
+
+    test('handles MultiPolygon geometry with antimeridian crossing', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'MultiPolygon',
+              coordinates: [
+                [
+                  [
+                    [170, 10],
+                    [-170, 15], // This should be adjusted to 190
+                    [175, 20],
+                    [170, 10]
+                  ]
+                ]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates[0][0]).toEqual([
+        [170, 10],
+        [190, 15],
+        [175, 20],
+        [170, 10]
+      ]);
+    });
+
+    test('leaves Point geometry unchanged', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [170, 10]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([170, 10]);
+    });
+
+    test('leaves MultiPoint geometry unchanged', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'MultiPoint',
+              coordinates: [[170, 10], [-170, 15]]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([[170, 10], [-170, 15]]);
+    });
+
+    test('handles multiple features with different geometry types', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [170, 10],
+                [-170, 15] // This should be adjusted to 190
+              ]
+            },
+            properties: {}
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [170, 10]
+            },
+            properties: {}
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-170, 30],
+                  [170, 35], // This should be adjusted to -190
+                  [-175, 40],
+                  [-170, 30]
+                ]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      // LineString should be fixed
+      expect(result.features[0].geometry.coordinates).toEqual([
+        [170, 10],
+        [190, 15]
+      ]);
+
+      // Point should be unchanged
+      expect(result.features[1].geometry.coordinates).toEqual([170, 10]);
+
+      // Polygon should be fixed
+      expect(result.features[2].geometry.coordinates[0]).toEqual([
+        [-170, 30],
+        [-190, 35],
+        [-175, 40],
+        [-170, 30]
+      ]);
+    });
+
+    test('handles features with no geometry', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: null,
+            properties: {}
+          },
+          {
+            type: 'Feature',
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry).toBe(null);
+      expect(result.features[1].geometry).toBeUndefined();
+    });
+
+    test('handles unknown geometry types by returning them unchanged', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'UnknownGeometry',
+              coordinates: [[170, 10], [-170, 15]]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([[170, 10], [-170, 15]]);
+    });
+
+    test('handles coordinates that do not cross antimeridian', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [10, 10],
+                [20, 15],
+                [30, 20]
+              ]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      expect(result.features[0].geometry.coordinates).toEqual([
+        [10, 10],
+        [20, 15],
+        [30, 20]
+      ]);
+    });
+
+    test('handles large rectangle crossing antimeridian correctly', () => {
+      const trackFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [170, 60],   // Top-left (western edge)
+                [-170, 60],  // Top-right (eastern edge) - crosses antimeridian
+                [-170, -60], // Bottom-right
+                [170, -60],  // Bottom-left
+                [170, 60]    // Close the ring
+              ]]
+            },
+            properties: {}
+          }
+        ]
+      };
+
+      const result = fixAntimeridianCrossing(trackFeatureCollection);
+
+      // For a large rectangle crossing the antimeridian, we expect:
+      // - First coordinate stays the same: [170, 60]
+      // - Second coordinate should be adjusted to [190, 60] (not -170)
+      // - Third coordinate should be adjusted to [190, -60] (not -170)
+      // - Fourth coordinate should be adjusted to [170, -60] (stays the same)
+      // - Fifth coordinate should be adjusted to [170, 60] (stays the same)
+      expect(result.features[0].geometry.coordinates[0]).toEqual([
+        [170, 60],
+        [190, 60],   // -170 + 360 = 190
+        [190, -60],  // -170 + 360 = 190
+        [170, -60],
+        [170, 60]
+      ]);
+    });
 
   });
 

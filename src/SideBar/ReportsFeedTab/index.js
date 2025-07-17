@@ -77,20 +77,18 @@ const ReportsFeedTab = ({ events, feedSort, loadFeedEvents, loadingEventFeed, se
   }, [events.results, shouldExcludeContained]);
 
   return <ErrorBoundary>
-    <div className={styles.filterWrapper} data-testid='filter-wrapper'>
-      <EventFilter
-        data-testid='reports-filter'
-        onResetAll={resetFeedSort}
-        sortConfig={feedSort}
-      >
-        <ColumnSort
-          onChange={setFeedSort}
-          orderOptions={EVENT_SORT_ORDER_OPTIONS}
-          sortOptions={EVENT_SORT_OPTIONS}
-          value={feedSort}
-        />
-      </EventFilter>
-    </div>
+    <EventFilter
+      data-testid='reports-filter'
+      onResetAll={resetFeedSort}
+      sortConfig={feedSort}
+    >
+      <ColumnSort
+        onChange={setFeedSort}
+        orderOptions={EVENT_SORT_ORDER_OPTIONS}
+        sortOptions={EVENT_SORT_OPTIONS}
+        value={feedSort}
+      />
+    </EventFilter>
 
     {!!events.error && <div className={styles.feedError}>
       <ErrorMessage message={t('fetchReportsErrorMessage')} details={events.error} />

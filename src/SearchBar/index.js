@@ -13,6 +13,7 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
 
   return <div
       className={`${styles.searchBar} ${value ? styles.hasValue : ''} ${className}`}
+      data-testid="searchBar"
       onClick={() => searchInputRef.current.focus()}
     >
     <span aria-hidden className={styles.searchIconContainer}>
@@ -20,12 +21,9 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
     </span>
 
     <input
-      aria-label={t('defaultAriaLabel')}
       className={styles.searchInput}
-      data-testid="search-input"
       placeholder={t('defaultPlaceholder')}
       ref={searchInputRef}
-      title={t('defaultAriaLabel')}
       type="search"
       value={value}
       {...otherProps}

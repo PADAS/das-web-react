@@ -62,20 +62,16 @@ describe('EventFilter', () => {
   });
 
   describe('default filters state', () => {
-    test('the default state for Filter button should be light', async () => {
+    test('the default state for Filter button should be inactive', async () => {
       renderEventFilter(mockStore(initialState));
 
-      const filterBtn = screen.getByTestId('filter-btn');
-      expect(filterBtn.className).toEqual(expect.stringContaining('btn-light'));
+      expect(screen.getByTestId('filter-btn')).toHaveClass('inactive');
     });
 
-    test('the default state for Date button, should be light', () => {
+    test('the default state for Date button, should be inactive', () => {
       renderEventFilter(mockStore(initialState));
 
-      const dateFilterBtn = screen.getByTestId('date-filter-btn');
-      expect(dateFilterBtn.className).toEqual(
-        expect.stringContaining('btn-light')
-      );
+      expect(screen.getByTestId('date-filter-btn')).toHaveClass('inactive');
     });
 
     test('the popover for the filters should be shown after clicking on filter button', async () => {
@@ -108,25 +104,18 @@ describe('EventFilter', () => {
   });
 
   describe('After filters being applied', () => {
-    test('the state color for Filter button after filters being applied should be primary', async () => {
+    test('the state for Filter button after filters being applied should be active', async () => {
       initialState.data.eventFilter.filter.priority = [200];
       renderEventFilter(mockStore(initialState));
 
-      const filterBtn = await screen.getByTestId('filter-btn');
-      expect(filterBtn.className).toEqual(
-        expect.stringContaining('btn-primary')
-      );
+      expect(screen.getByTestId('filter-btn')).toHaveClass('active');
     });
 
-    test('the state color for Date button after filters being applied should be primary', async () => {
+    test('the state for Date button after filters being applied should be active', async () => {
       initialState.data.eventFilter.filter.date_range.lower = '2024-01-01T06:00:00.000Z';
       renderEventFilter(mockStore(initialState));
 
-      const dateFilterBtn = await screen.getByTestId('date-filter-btn');
-
-      expect(dateFilterBtn.className).toEqual(
-        expect.stringContaining('btn-primary')
-      );
+      expect(screen.getByTestId('date-filter-btn')).toHaveClass('active');
     });
 
     test('the reset button is not displayed if a filter is not applied', async () => {

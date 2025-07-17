@@ -58,7 +58,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(106);
 
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'fire');
 
     const typeListItems = await screen.findAllByTestId((content) => content.startsWith('categoryList-button-'));
@@ -70,7 +70,7 @@ describe('AddItemButton - AddItemModal - AddReportTab', () => {
   test('clears search text filter', async () => {
     renderAddReportTab();
 
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'fire');
 
     expect((await screen.findAllByTestId((content) => content.startsWith('categoryList-button-')))).toHaveLength(3);

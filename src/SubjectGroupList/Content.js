@@ -1,15 +1,18 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import { useTranslation } from 'react-i18next';
 
 import CheckableList from '../CheckableList';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import TrackToggleButton from '../TrackToggleButton';
 import SubjectListItem from './SubjectListItem';
 
-import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
-import { subjectGroupHeatmapControlState } from './selectors';
+import { TRACKING_CONTROL_STATES } from '../constants';
+
+import { addHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, removeHeatmapSubjects, showSubjectTracks } from '../ducks/map-ui';
+import { groupTrackingDataState, unloadedSubjectTrackIDs, visibleTrackingDataSubjectIDsForGroup } from './selectors';
 
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
@@ -24,33 +27,58 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const TriggerComponent = memo(({ // eslint-disable-line react/display-name
-  listLevel,
-  name,
-  showHeatmapControl,
-  groupIsFullyHeatmapped,
-  loadingTracks,
-  groupIsPartiallyHeatmapped,
-  onGroupHeatmapToggle
-}) => {
+const TriggerComponent = memo((props) => {  // eslint-disable-line react/display-name
+  const {
+    listLevel,
+    name,
+    showTrackingControls,
+    loadingTracks,
+    groupTrackState,
+    onGroupHeatmapToggle,
+    onTrackButtonClick,
+  } = props;
+
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
   const itemTitle = name === 'Subjects' ? t('subjectsTitle') : name;
+
+  const { heatmap, track } = groupTrackState;
+
+  const fullyPinned = track === TRACKING_CONTROL_STATES.FULLY_PINNED;
+  const partiallyPinned = track === TRACKING_CONTROL_STATES.PARTIALLY_PINNED;
+  const fullyVisible = track === TRACKING_CONTROL_STATES.FULLY_VISIBLE;
+  const partiallyVisible = track === TRACKING_CONTROL_STATES.PARTIALLY_VISIBLE;
 
   return <div className={listStyles.trigger}>
     {listLevel === 0 && <h5>{itemTitle}</h5>}
     {listLevel > 0 && <h6>{itemTitle}</h6>}
-    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks}
-      heatmapVisible={groupIsFullyHeatmapped}
-      heatmapPartiallyVisible={groupIsPartiallyHeatmapped}
-      onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
+    {showTrackingControls && <>
+      <TrackToggleButton
+        loading={loadingTracks}
+        onClick={onTrackButtonClick}
+        className={`${(partiallyPinned || partiallyVisible) ? listStyles.partialTrackButton : ''}`}
+        showLabel={false}
+        trackPinned={fullyPinned || partiallyPinned}
+        trackVisible={fullyVisible || partiallyVisible}
+      />
+      <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks}
+        heatmapVisible={heatmap === TRACKING_CONTROL_STATES.FULLY_HEATMAPPED}
+        heatmapPartiallyVisible={heatmap === TRACKING_CONTROL_STATES.PARTIALLY_HEATMAPPED}
+        onButtonClick={onGroupHeatmapToggle} showLabel={false} />
+    </>}
   </div>;
 });
 
 const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick,
-    hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
-    addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
-    groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
+    subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
+    listLevel, } = props;
+
+  const dispatch = useDispatch();
+  const subjectIDsWithTrackingData = useSelector((state) => visibleTrackingDataSubjectIDsForGroup(state, props));
+  const showTrackingControls = !!subjectIDsWithTrackingData.length;
+  const groupTrackState = useSelector((state) => groupTrackingDataState(state, props));
+  const subjectTrackIDsToLoad = useSelector((state) => unloadedSubjectTrackIDs(state, props));
+  const hiddenSubjectIDs = useSelector(({ data: { mapLayerFilter: { hiddenSubjectIDs } } }) => hiddenSubjectIDs);
 
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
@@ -84,25 +112,50 @@ const ContentComponent = (props) => {
       && intersection(groupSubjectIDs, hiddenSubjectIDs).length !== groupSubjectIDs.length;
   };
 
+  const onTrackButtonClick = async (e) => {
+    e.stopPropagation();
+
+    if (subjectTrackIDsToLoad.length) {
+      setTrackLoadingState(true);
+
+      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
+
+      setTrackLoadingState(false);
+    }
+
+    if (groupTrackState.track === TRACKING_CONTROL_STATES.FULLY_PINNED) {
+      return dispatch(hideSubjectTracks(...subjectIDsWithTrackingData));  // turn off all;
+    }
+    if (
+      [TRACKING_CONTROL_STATES.PARTIALLY_PINNED, TRACKING_CONTROL_STATES.FULLY_VISIBLE]
+        .includes(groupTrackState.track)
+    ) {
+      return dispatch(pinSubjectTracks(...subjectIDsWithTrackingData));
+    }
+
+    return dispatch(showSubjectTracks(...subjectIDsWithTrackingData));
+  };
+
   const onGroupHeatmapToggle = async (e) => {
-    const { heatmapEligibleSubjectIDs, groupIsFullyHeatmapped } = props;
+    const groupIsFullyHeatmapped = groupTrackState.heatmap === TRACKING_CONTROL_STATES.FULLY_HEATMAPPED;
 
     e.stopPropagation();
     if (groupIsFullyHeatmapped) {
       mapLayerTracker.track('Uncheck Group Heatmap checkbox', `Group:${name}`);
-      return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
+      return dispatch(removeHeatmapSubjects(...subjectIDsWithTrackingData));
     }
 
     setTrackLoadingState(true);
-    if (unloadedSubjectTrackIDs.length) {
-      await fetchTracksIfNecessary(unloadedSubjectTrackIDs);
+    if (subjectTrackIDsToLoad.length) {
+      await fetchTracksIfNecessary(subjectTrackIDsToLoad);
     }
 
     setTrackLoadingState(false);
 
     mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);
-    return addHeatmapSubjects(...heatmapEligibleSubjectIDs);
+    return dispatch(addHeatmapSubjects(...subjectIDsWithTrackingData));
   };
+
 
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
@@ -112,8 +165,8 @@ const ContentComponent = (props) => {
   };
 
   const triggerProps = {
-    listLevel, name, showHeatmapControl, groupIsFullyHeatmapped,
-    loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle,
+    listLevel, name, showTrackingControls, onTrackButtonClick,
+    groupTrackState, loadingTracks, onGroupHeatmapToggle,
   };
 
   return <Collapsible
@@ -132,7 +185,7 @@ const ContentComponent = (props) => {
         itemFullyChecked={groupIsFullyVisible}
         itemPartiallyChecked={groupIsPartiallyVisible}
         onCheckClick={onGroupCheckClick}
-        itemComponent={ConnectedComponent} />
+        itemComponent={ContentComponent} />
     }
     {!!subjects.length &&
       <CheckableList
@@ -146,7 +199,4 @@ const ContentComponent = (props) => {
   </Collapsible>;
 };
 
-const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
-
-const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(memo(ContentComponent));
-export default ConnectedComponent;
+export default ContentComponent;

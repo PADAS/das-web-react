@@ -21,6 +21,10 @@ describe('LocationPicker', () => {
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+          storedSystems: [],
+        },
         mapLocationSelection: {
           isPickingLocation: false,
         },
@@ -182,7 +186,7 @@ describe('LocationPicker', () => {
       },
     });
 
-    expect(screen.getByLabelText('Location')).toHaveValue('15.000000°,  10.000000°');
+    expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
   });
 
   test('does not show a text copy button if there is no value yet', async () => {

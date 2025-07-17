@@ -225,7 +225,7 @@ const ReportedBySelect = ({
   const optionalProps = {};
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
-    selectStyles.menuPortal = base => ({ ...base, fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
+    selectStyles.menuPortal = base => ({ ...base, fontSize: '0.9rem', zIndex: 9999 });
   }
 
   return <Select

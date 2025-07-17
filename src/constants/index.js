@@ -82,7 +82,7 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_POLYS_CRITICAL: 'analyzer-polygon-critical',
   ANALYZER_POLYS_WARNING: 'analyzer-polygon-warning',
-  CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
+  CLUSTER_POLYGON_LAYER_ID: 'cluster-polygon-layer',
   CLUSTERED_STATIC_SENSORS_LAYER: 'clustered_static_sensors_layer',
   CLUSTERS_LAYER_ID: 'clusters-layer',
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
@@ -111,7 +111,7 @@ export const SOURCE_IDS = {
   ANALYZER_LINES_WARNING_SOURCE: 'analyzer-line-warning-source',
   ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
   ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
-  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
+  CLUSTER_POLYGON_SOURCE_ID: 'cluster-polygon-source',
   CLUSTERS_SOURCE_ID: 'clusters-source',
   CURRENT_USER_LOCATION_SOURCE: 'current-user-location-source',
   EVENT_GEOMETRY: 'event-geometry-source',
@@ -311,9 +311,13 @@ export const SUPPORTED_LANGUAGES = {
   sw: 'Swahili',
 };
 
-export const FEATURE_FLAG_LABELS = {};
+export const FEATURE_FLAG_LABELS = {
+  CUSTOM_COORDINATE_SYSTEMS_ENABLED: 'CUSTOM_COORDINATE_SYSTEMS_ENABLED',
+};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  [FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED]: process.env.REACT_APP_CUSTOM_COORDINATE_SYSTEMS_ENABLED === 'true',
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 
@@ -392,3 +396,12 @@ export const TIME_OF_DAY_PERIODS = [
     color: '#2ec27e'
   }
 ];
+
+export const TRACKING_CONTROL_STATES = {
+  FULLY_HEATMAPPED: 'FULLY_HEATMAPPED',
+  PARTIALLY_HEATMAPPED: 'PARTIALLY_HEATMAPPED',
+  FULLY_PINNED: 'FULLY_PINNED',
+  PARTIALLY_PINNED: 'PARTIALLY_PINNED',
+  FULLY_VISIBLE: 'FULLY_VISIBLE',
+  PARTIALLY_VISIBLE: 'PARTIALLY_VISIBLE',
+};

@@ -100,16 +100,6 @@
   }
 }
 
-.printLogo{
-  display: none;
-  height: 1.25rem;
-  margin: 0.75rem;
-
-  @media print {
-    display: block;
-  }
-}
-
 .sectionWrapper {
   @media print {
     padding: 0;

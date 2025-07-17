@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
@@ -65,8 +66,6 @@ const SideBar = () => {
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
-
-  const isSettingsViewActive = !!matchPath(`/${TAB_KEYS.SETTINGS}`, location.pathname);
 
   const isPatrolDetailsViewActive = useMemo(() => !!matchPath(
     `/${TAB_KEYS.PATROLS}/:id`,
@@ -209,32 +208,40 @@ const SideBar = () => {
 
     <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
       <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
-        <div className={styles.header}>
-          <div className={[TAB_KEYS.EVENTS, TAB_KEYS.PATROLS].includes(currentTab) ? '' : 'hidden'} data-testid="sideBar-addReportButton">
-            {!!itemId
-              ? <button
-                aria-label={t('backButtonLabel')}
-                className={styles.backButton}
-                type='button'
-                onClick={onClickBackFromDetailView}
-                title={t('backButtonTitle')}
-                data-testid="sideBar-backDetailViewButton"
-              >
-                <ArrowLeftIcon />
-              </button>
-              : <AddItemButton
-                analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
-                aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
-                className={styles.addReport}
-                hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
-                hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
-                showLabel={false}
-                title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
-                variant="secondary"
-              />}
-          </div>
+        <div className={styles.printLogo}>
+          <ERLogo />
+        </div>
 
-          <h3>{t(`${currentTab}Link`)}</h3>
+        <div className={styles.header}>
+          <div className={styles.title}>
+            {(currentTab === TAB_KEYS.EVENTS || currentTab === TAB_KEYS.PATROLS) && <div
+              data-testid="sideBar-addReportButton"
+            >
+              {!!itemId
+                ? <button
+                  aria-label={t('backButtonLabel')}
+                  className={styles.backButton}
+                  type='button'
+                  onClick={onClickBackFromDetailView}
+                  title={t('backButtonTitle')}
+                  data-testid="sideBar-backDetailViewButton"
+                >
+                  <ArrowLeftIcon />
+                </button>
+                : <AddItemButton
+                  analyticsMetadata={{ category: FEED_CATEGORY, location: 'Feed' }}
+                  aria-label={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonLabel' : 'addPatrolButtonLabel')}
+                  className={styles.addReport}
+                  hideAddPatrolTab={currentTab === TAB_KEYS.EVENTS}
+                  hideAddReportTab={currentTab === TAB_KEYS.PATROLS}
+                  showLabel={false}
+                  title={t(currentTab === TAB_KEYS.EVENTS ? 'addEventButtonTitle' : 'addPatrolButtonTitle')}
+                  variant="secondary"
+                />}
+            </div>}
+
+            <h3 id="side-bar-tab-header">{t(`${currentTab}Link`)}</h3>
+          </div>
 
           <button
             aria-label={t(CLOSE_BUTTON_LABEL_KEY[currentTab])}
@@ -246,7 +253,7 @@ const SideBar = () => {
           </button>
         </div>
 
-        <div className={`${styles.tabBody} ${isSettingsViewActive ? styles.alertsTabBody : ''}`}>
+        <div className={styles.tabBody}>
           <Routes>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
