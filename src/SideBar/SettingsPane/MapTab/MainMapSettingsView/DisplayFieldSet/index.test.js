@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import { render, screen, within } from '../../../../../test-utils';
+import { GPS_FORMATS } from '../../../../../utils/location';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import {
   setMapClusterData,
@@ -21,7 +22,9 @@ jest.mock('../../../../../ducks/map-ui', () => ({
   toggleTrackTimepointState: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - DisplayFieldSet', () => {
+describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - DisplayFieldSet', () => {
+  const onOpenCoordinateSettingsView = jest.fn();
+
   let store;
   beforeEach(() => {
     setMapClusterData.mockImplementation(() => () => {});
@@ -32,6 +35,9 @@ describe('SideBar - SettingsPane - MapTab - DisplayFieldSet', () => {
     store = {
       data: {},
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+        },
         mapClusterConfig: {
           data: {
             events: true,
@@ -50,9 +56,19 @@ describe('SideBar - SettingsPane - MapTab - DisplayFieldSet', () => {
 
   const renderDisplayFieldSet = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <DisplayFieldSet {...props} />
+      <DisplayFieldSet onOpenCoordinateSettingsView={onOpenCoordinateSettingsView} {...props} />
     </Provider>
   );
+
+  test('opens the coordinate settings view when the user clicks the coordinates button', async () => {
+    renderDisplayFieldSet();
+
+    expect(onOpenCoordinateSettingsView).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Coordinates' }));
+
+    expect(onOpenCoordinateSettingsView).toHaveBeenCalledTimes(1);
+  });
 
   test('updates the show track timepoints setting when user interacts with its checkbox', async () => {
     renderDisplayFieldSet();

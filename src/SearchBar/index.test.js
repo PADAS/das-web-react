@@ -1,40 +1,62 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 
-import SearchBar from './';
 import { render, screen } from '../test-utils';
 
-const changeMock = jest.fn(() => {});
-const clearMock = jest.fn();
+import SearchBar from './';
 
-test('rendering without crashing', async () => {
-  render(<SearchBar placeholder='Search here!' value='' onChange={changeMock} onClear={clearMock}/>);
-});
+describe('SearchBar', () => {
+  const renderSearchBar = (props) => render(<SearchBar value="" {...props} />);
 
-describe('searching and reset', () => {
-  beforeEach(() => {
-    render(<SearchBar placeholder='Search here!' value='' onChange={changeMock} onClear={clearMock}/>);
+  test('adds a custom class name', async () => {
+    renderSearchBar({ className: 'className' });
+
+    expect(screen.getByTestId('searchBar')).toHaveClass('className');
   });
 
-  afterEach(() => {
-    changeMock.mockClear();
-    clearMock.mockClear();
+  test('focuses the input when clicking the wrapper', async () => {
+    renderSearchBar({ 'aria-label': 'Search bar' });
+
+    await userEvent.click(screen.getByTestId('searchBar'));
+
+    expect(screen.getByRole('searchbox', { name: 'Search bar' })).toHaveFocus();
   });
 
-  test('it should show the placeholder in the input', async () => {
-    const searchInput = await screen.getByTestId('search-input');
-    expect(searchInput).toHaveAttribute('placeholder', 'Search here!');
+  test('changes the search when the user types in the search input', async () => {
+    const onChange = jest.fn();
+
+    renderSearchBar({ 'aria-label': 'Search bar', onChange });
+
+    expect(onChange).not.toHaveBeenCalled();
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search bar' }), 'S');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  test('it should call onChange', async () => {
-    const searchInput = screen.getByTestId('search-input');
-    await userEvent.type(searchInput, 'ER');
-    expect(changeMock).toHaveBeenCalledTimes(2);
+  test('does not show a clear button', async () => {
+    renderSearchBar();
+
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
   });
 
-  test('it should clear the search input after clicking the reset button', async () => {
-    const resetButton = await screen.getByTestId('reset-search-button');
-    await userEvent.click(resetButton);
-    expect(clearMock).toHaveBeenCalledTimes(1);
+  test('shows a clear button', async () => {
+    const onClear = jest.fn();
+
+    renderSearchBar({ onClear });
+
+    expect(screen.getByRole('button', { name: 'Clear search' })).toBeVisible();
+  });
+
+  test('clears the search when the user clicks the clear button', async () => {
+    const onClear = jest.fn();
+
+    renderSearchBar({ onClear });
+
+    expect(onClear).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(onClear).toHaveBeenCalledTimes(1);
   });
 });

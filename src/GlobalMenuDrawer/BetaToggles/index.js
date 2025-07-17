@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -11,8 +11,11 @@ const BetaToggles = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'betaToggles' });
 
-  const toggleableFeatures = useSelector(
-    (state) => Object.entries(state.view.featureFlagOverrides).filter(([key]) => key !== '_persist')
+  const featureFlagOverrides = useSelector((state) => state.view.featureFlagOverrides);
+
+  const toggleableFeatures = useMemo(
+    () => Object.entries(featureFlagOverrides).filter(([key]) => key !== '_persist'),
+    [featureFlagOverrides]
   );
 
   const onFlagOverrideToggle = useCallback((event) => {

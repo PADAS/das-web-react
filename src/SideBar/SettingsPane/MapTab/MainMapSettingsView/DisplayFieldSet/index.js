@@ -18,7 +18,7 @@ import * as styles from '../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const DisplayFieldSet = ({ onOpenCoordianteSettingsView }) => {
+const DisplayFieldSet = ({ onOpenCoordinateSettingsView }) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
 
   const dispatch = useDispatch();
@@ -102,7 +102,7 @@ const DisplayFieldSet = ({ onOpenCoordianteSettingsView }) => {
             aria-describedby="open-coordinate-settings-button-details"
             aria-labelledby="open-coordinate-settings-button-label"
             className={styles.button}
-            onClick={() => onOpenCoordianteSettingsView()}
+            onClick={() => onOpenCoordinateSettingsView()}
             title={t('openCoordinateSettingsButtonTitle')}
             type="button"
           >

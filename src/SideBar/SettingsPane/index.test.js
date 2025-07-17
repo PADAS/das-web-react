@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import { render, screen } from '../../test-utils';
 import { createMapMock } from '../../__test-helpers/mocks';
+import { GPS_FORMATS } from '../../utils/location';
 import { MapContext } from '../../App';
 import { mockStore } from '../../__test-helpers/MockStore';
 
@@ -23,6 +24,9 @@ describe('SideBar - SettingsPane', () => {
         patrolFilter: {},
       },
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+        },
         featureFlagOverrides: {},
         mapClusterConfig: {
           data: { events: true, subjects: true  },

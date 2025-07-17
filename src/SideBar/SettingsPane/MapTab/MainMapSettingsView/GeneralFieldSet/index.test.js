@@ -28,7 +28,7 @@ jest.mock('../../../../../ducks/user-preferences', () => {
   };
 });
 
-describe('SideBar - SettingsPane - MapTab - GeneralFieldSet', () => {
+describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - GeneralFieldSet', () => {
   let map, store;
   beforeEach(() => {
     toggleMapDataSimplificationOnZoom.mockImplementation(() => () => {});

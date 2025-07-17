@@ -13,7 +13,7 @@ const MapTab = () => {
     return <CoordinateSettingsView onOpenMainMapSettingsView={() => setCurrentView(null)} />;
 
   default:
-    return <MainMapSettingsView onOpenCoordianteSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
+    return <MainMapSettingsView onOpenCoordinateSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
   };
 };
 

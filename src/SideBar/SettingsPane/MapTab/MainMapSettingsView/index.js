@@ -4,10 +4,10 @@ import DisplayFieldSet from './DisplayFieldSet';
 import GeneralFieldSet from './GeneralFieldSet';
 import MapMarkersFieldSet from './MapMarkersFieldSet';
 
-const MainMapSettingsView = ({ onOpenCoordianteSettingsView }) => <>
+const MainMapSettingsView = ({ onOpenCoordinateSettingsView }) => <>
   <GeneralFieldSet />
 
-  <DisplayFieldSet onOpenCoordianteSettingsView={() => onOpenCoordianteSettingsView()} />
+  <DisplayFieldSet onOpenCoordinateSettingsView={() => onOpenCoordinateSettingsView()} />
 
   <MapMarkersFieldSet />
 </>;

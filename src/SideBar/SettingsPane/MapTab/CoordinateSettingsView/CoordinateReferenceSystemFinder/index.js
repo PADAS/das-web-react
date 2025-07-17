@@ -111,7 +111,7 @@ const CoordinateReferenceSystemFinder = () => {
         {supportedCRS === null && <tr>
           <td colSpan="100%">
             <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-              <MoonLoader size={LOADER_SIZE} />
+              <MoonLoader data-testid="moonLoader" size={LOADER_SIZE} />
             </div>
           </td>
         </tr>}
