@@ -3,7 +3,7 @@ import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-export const FEATURESET_API_URL = `${API_URL}featureset?summarize_features=true`;
+export const FEATURESET_API_URL = `${API_URL}featureset/`;
 
 // actions
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';
@@ -16,7 +16,7 @@ let featureLayerIdentifier = 0;
 // action creators
 export const fetchFeaturesets = () => async (dispatch) => {
   try {
-    const { data: { features } } = await axios.get(FEATURESET_API_URL);
+    const { data: { features } } = await axios.get(FEATURESET_API_URL, { params: { summarize_features: true } });
 
     const allFeatures = Promise.all(
       features.map(async (fs) => {
