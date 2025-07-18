@@ -1,9 +1,9 @@
 import { createSelector } from 'reselect';
 import intersection from 'lodash/intersection';
 
-import { TRACKING_CONTROL_STATES } from '../constants';
+import { TRACKING_CONTROL_STATES } from '../../../constants';
 
-import { getSubjectsWithViewableTrackingDataFromGroups } from '../utils/subjects';
+import { getSubjectsWithViewableTrackingDataFromGroups } from '../../../utils/subjects';
 
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;

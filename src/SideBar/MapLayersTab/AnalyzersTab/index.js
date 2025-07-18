@@ -1,37 +1,32 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
-import Checkmark from '../Checkmark';
+import React, { useCallback, useContext, useMemo } from 'react';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
-import isEqual from 'react-fast-compare';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { hideAnalyzers, showAnalyzers } from '../ducks/map-layer-filter';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
-import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
-import CheckableList from '../CheckableList';
 import { getAnalyzerListState } from './selectors';
-import { analyzerFeatures } from '../selectors';
+import { hideAnalyzers, showAnalyzers } from '../../../ducks/map-layer-filter';
+import { MapContext } from '../../../App';
+import { setAnalyzerFeatureActiveStateForIDs } from '../../../utils/analyzers';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
+
 import AnalyzerListItem from './AnalyzerListItem';
+import CheckableList from '../../../CheckableList';
+import Checkmark from '../../../Checkmark';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
-const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: false,
-  transitionTime: 1,
-};
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-// eslint-disable-next-line react/display-name
-const AnalyzerLayerList = memo(({
-  analyzerList,
-  hiddenAnalyzerIDs,
-  hideAnalyzers,
-  showAnalyzers,
-  map = {},
-  mapLayerFilter
-}) => {
+const AnalyzersTab = () => {
+  const dispatch = useDispatch();
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
+
+  const analyzerList = useSelector(getAnalyzerListState);
+  const hiddenAnalyzerIDs = useSelector((state) => state.data.mapLayerFilter.hiddenAnalyzerIDs);
+  const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
+
+  const map = useContext(MapContext);
 
   const analyzers = useMemo(() => {
     const { text } = mapLayerFilter;
@@ -52,8 +47,8 @@ const AnalyzerLayerList = memo(({
   // XXX flatten the feature array - should be a cleaner way
   const featureIds = analyzerFeatureIDs.flat(2);
 
-  const hideAllAnalyzers = useCallback(() => hideAnalyzers(...analyzerIds), [analyzerIds, hideAnalyzers]);
-  const showAllAnalyzers = useCallback(() => showAnalyzers(...analyzerIds), [analyzerIds, showAnalyzers]);
+  const hideAllAnalyzers = useCallback(() => dispatch(hideAnalyzers(...analyzerIds)), [analyzerIds, dispatch]);
+  const showAllAnalyzers = useCallback(() => dispatch(showAnalyzers(...analyzerIds)), [analyzerIds, dispatch]);
 
   const partiallyChecked = (hiddenAnalyzerIDs.length < analyzerIds.length);
   const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
@@ -98,51 +93,45 @@ const AnalyzerLayerList = memo(({
     if (featureIsVisible(item)) {
       mapLayerTracker.track('Uncheck Analyzer checkbox');
       setAnalyzerFeatureActiveStateForIDs(map, item.features.map(f => f.properties.id), false);
-      return hideAnalyzers(id);
+      return dispatch(hideAnalyzers(id));
     } else {
       mapLayerTracker.track('Check Analyzer checkbox');
-      return showAnalyzers(id);
+      return dispatch(showAnalyzers(id));
     }
-  }, [featureIsVisible, hideAnalyzers, map, showAnalyzers]);
+  }, [dispatch, featureIsVisible, map]);
 
   const itemProps = { map, analyzerIds, featureIds };
 
   const trigger = <span>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={partiallyChecked} />
-    <h5 className={listStyles.trigger}>
+    <h5 className={styles.trigger}>
       {t('analyzersTitle')}
     </h5>
   </span>;
 
-  return !!analyzers.length && <ul className={listStyles.list}>
-    <li><Collapsible
-      {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-      trigger={trigger}
-      triggerElementProps={{
-        label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
-        title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
-      }}
-      open={collapsibleShouldBeOpen}>
-      <CheckableList
-        className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}
-        id='analyzergroup'
-        onCheckClick={onCheckClick}
-        itemComponent={AnalyzerListItem}
-        itemProps={itemProps}
-        items={analyzers}
-        itemFullyChecked={featureIsVisible} />
-    </Collapsible>
+  return analyzers.length > 0 ? <ul className={styles.list}>
+    <li>
+      <Collapsible
+        transitionTime={1}
+        trigger={trigger}
+        triggerElementProps={{
+          label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
+          title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
+        }}
+        open={collapsibleShouldBeOpen}
+      >
+        <CheckableList
+          className={`${styles.list} ${styles.itemList} ${styles.compressed}`}
+          id='analyzergroup'
+          onCheckClick={onCheckClick}
+          itemComponent={AnalyzerListItem}
+          itemProps={itemProps}
+          items={analyzers}
+          itemFullyChecked={featureIsVisible}
+        />
+      </Collapsible>
     </li>
-  </ul>;
-}, (prev, current) =>
-  isEqual(prev.map && current.map) && isEqual(prev.analyzers, current.analyzers)
-);
+  </ul> : null;
+};
 
-const mapStateToProps = (state) => ({
-  analyzerFeatures: analyzerFeatures(state),
-  hiddenAnalyzerIDs: state.data.mapLayerFilter.hiddenAnalyzerIDs,
-  analyzerList: getAnalyzerListState(state),
-  mapLayerFilter: state.data.mapLayerFilter,
-});
-
-export default connect(mapStateToProps, { hideAnalyzers, showAnalyzers })(AnalyzerLayerList);
+export default AnalyzersTab;

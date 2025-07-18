@@ -1,24 +1,39 @@
 @use 'sass:color';
 
-@use '../common/styles/inputs';
-@use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../../../common/styles/inputs';
+@use '../../../common/styles/layout';
+@use '../../../common/styles/vars/colors';
 
 .form {
   border-bottom: 1px solid colors.$gray-border;
   display: flex;
+  flex-direction: column;
   padding: 0.75rem 0.5rem;
 
+  @media (min-width: layout.$md-layout-width-min) {
+    flex-direction: row;
+  }
+
   .searchBar {
-    width: 40%;
+    width: 60%;
+    
+    @media (min-width: layout.$md-layout-width-min) {
+      width: 40%;
+    }
   }
 
   .sortingButtons {
     align-items: center;
     display: flex;
     gap: 0.5rem;
-    justify-content: flex-end;
-    width: 60%;
+    margin-top: 0.5rem;
+    width: 100%;
+    
+    @media (min-width: layout.$md-layout-width-min) {
+      justify-content: flex-end;
+      margin-top: 0;
+      width: 60%;
+    }
 
     .sortingButton {
       border-radius: 0.25rem;

@@ -201,6 +201,12 @@
     "closePatrolFeedButtonLabel": "Close Patrol Feed",
     "closeSettingsButtonLabel": "Close Settings",
     "layersLink": "Map Layers",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analyzers",
+      "eventsTabTitle": "Events",
+      "featuresTabTitle": "Features",
+      "subjectsTabTitle": "Subjects"
+    },
     "noItemsToDisplayInLayers": "No items to display.",
     "patrolsLink": "Patrols",
     "reportsFeedTab": {

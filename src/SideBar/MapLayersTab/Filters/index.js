@@ -4,22 +4,23 @@ import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as ArrowDownIcon } from '../common/images/icons/arrow-down.svg';
-import { ReactComponent as ArrowUpIcon } from '../common/images/icons/arrow-up.svg';
-import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
-import { ReactComponent as SortLinesIcon } from '../common/images/icons/sort-lines.svg';
+import { ReactComponent as ArrowDownIcon } from '../../../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUpIcon } from '../../../common/images/icons/arrow-up.svg';
+import { ReactComponent as CheckIcon } from '../../../common/images/icons/check-light.svg';
+import { ReactComponent as SortLinesIcon } from '../../../common/images/icons/sort-lines.svg';
 
-import { MAP_LAYER_SORT_OPTIONS, SORT_DIRECTION } from '../constants';
-import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { setGrouped, setSortBy, setSortDirection, setText } from '../ducks/map-layer-filter';
+import { MAP_LAYER_SORT_OPTIONS, SORT_DIRECTION } from '../../../constants';
+import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
+import { setGrouped, setSortBy, setSortDirection, setText } from '../../../ducks/map-layer-filter';
+import { TAB_KEYS } from '../utils/constants';
 
-import SearchBar from '../SearchBar';
+import SearchBar from '../../../SearchBar';
 
 import * as styles from './styles.module.scss';
 
 const mapLayersTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-const MapLayerFilter = () => {
+const Filters = ({ tab }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'mapLayerFilter' });
 
@@ -128,7 +129,7 @@ const MapLayerFilter = () => {
       value={mapLayerFilter.text}
     />
 
-    <div className={styles.sortingButtons}>
+    {tab === TAB_KEYS.SUBJECTS && <div className={styles.sortingButtons}>
       <button
         aria-label={t(`groupButtonLabel.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
         aria-pressed={!mapLayerFilter.grouped}
@@ -200,8 +201,8 @@ const MapLayerFilter = () => {
           ? <ArrowDownIcon />
           : <ArrowUpIcon />}
       </button>
-    </div>
+    </div>}
   </form>;
 };
 
-export default MapLayerFilter;
+export default Filters;

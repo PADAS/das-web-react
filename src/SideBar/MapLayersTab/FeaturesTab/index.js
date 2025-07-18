@@ -1,36 +1,32 @@
-import React, { memo, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useContext, useEffect, useState } from 'react';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
-import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
-
-import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
-import CheckableList from '../CheckableList';
+import { getUniqueIDsFromFeatures, filterFeatures } from '../../../utils/features';
+import { hideFeatures, showFeatures } from '../../../ducks/map-layer-filter';
+import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
+import { MapContext } from '../../../App';
+
+import CheckableList from '../../../CheckableList';
+import Checkmark from '../../../Checkmark';
 import Content from './Content';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
-const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: false,
-  transitionTime: 1,
-};
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
-// eslint-disable-next-line react/display-name
-const FeatureLayerList = ({
-  featureList,
-  hideFeatures,
-  showFeatures,
-  hiddenFeatureIDs,
-  map,
-  mapLayerFilter
-}) => {
+const FeaturesTab = () => {
+  const dispatch = useDispatch();
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
+
+  const featureList = useSelector(getFeatureLayerListState);
+  const hiddenFeatureIDs = useSelector((state) => state.data.mapLayerFilter.hiddenFeatureIDs);
+  const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
+
+  const map = useContext(MapContext);
 
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
@@ -48,12 +44,10 @@ const FeatureLayerList = ({
     setFeatureFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
 
-  if (!featureList.length) return null;
-
   const allFeatureIDs = getAllFeatureIDsInList();
 
-  const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
-  const showAllFeatures = () => showFeatures(...allFeatureIDs);
+  const hideAllFeatures = () => dispatch(hideFeatures(...allFeatureIDs));
+  const showAllFeatures = () => dispatch(showFeatures(...allFeatureIDs));
 
   const allVisible = !hiddenFeatureIDs.length;
   const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
@@ -71,10 +65,10 @@ const FeatureLayerList = ({
     const featureIDs = getFeatureSetFeatureIDs(set);
     if (allVisibleInSet(set)) {
       mapLayerTracker.track('Uncheck Feature Set checkbox', `Feature Set:${set.name}`);
-      return hideFeatures(...featureIDs);
+      return dispatch(hideFeatures(...featureIDs));
     } else {
       mapLayerTracker.track('Check Feature Set checkbox', `Feature Set:${set.name}`);
-      return showFeatures(...featureIDs);
+      return dispatch(showFeatures(...featureIDs));
     }
   };
 
@@ -99,29 +93,29 @@ const FeatureLayerList = ({
     filterFeatures(featureList, featureFilterIsMatch) : featureList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
-  if (featureFilterEnabled && !filteredFeatureList.length) return null;
 
   const itemProps = { map, featureFilterEnabled, };
 
   const trigger = <div>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
-    <h5 className={listStyles.trigger}>
+    <h5 className={styles.trigger}>
       {t('featuresTitle')}
     </h5>
   </div>;
 
-  return <ul className={listStyles.list}>
+  return filteredFeatureList.length > 0 ? <ul className={styles.list}>
     <li>
       <Collapsible
-        {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
+        transitionTime={1}
         trigger={trigger}
         triggerElementProps={{
           label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
           title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
         }}
-        open={collapsibleShouldBeOpen}>
+        open={collapsibleShouldBeOpen}
+      >
         <CheckableList
-          className={listStyles.list}
+          className={styles.list}
           items={filteredFeatureList}
           itemProps={itemProps}
           itemFullyChecked={allVisibleInSet}
@@ -131,13 +125,7 @@ const FeatureLayerList = ({
         />
       </Collapsible>
     </li>
-  </ul>;
+  </ul> : null;
 };
 
-const mapStateToProps = (state) => ({
-  featureList: getFeatureLayerListState(state),
-  hiddenFeatureIDs: state.data.mapLayerFilter.hiddenFeatureIDs,
-  mapLayerFilter: state.data.mapLayerFilter
-});
-
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureLayerList));
+export default FeaturesTab;

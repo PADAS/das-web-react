@@ -45,12 +45,26 @@ export const getSubjectGroups = createSelector(
     const hydrateSubjectGroupSubjects = (...groups) => groups.map((group) => {
       const { subgroups, subjects } = group;
 
+      const hydratedSubGroups = hydrateSubjectGroupSubjects(...subgroups);
+      const hydratedSubjects = subjects.map((id) => subjectStore[id]).filter((subject) => !!subject);
+
+      let updatedAt;
+      hydratedSubGroups.forEach((subGroup) => {
+        if (!updatedAt || new Date(subGroup.updated_at) > new Date (updatedAt)) {
+          updatedAt = subGroup.updated_at;
+        }
+      });
+      hydratedSubjects.forEach((subject) => {
+        if (!updatedAt || new Date(subject.updated_at) > new Date (updatedAt)) {
+          updatedAt = subject.updated_at;
+        }
+      });
+
       return {
         ...group,
-        subgroups: hydrateSubjectGroupSubjects(...subgroups),
-        subjects: subjects
-          .map(id =>  subjectStore[id])
-          .filter(item => !!item),
+        subgroups: hydratedSubGroups,
+        subjects: hydratedSubjects,
+        updated_at: updatedAt,
       };
     });
     return hydrateSubjectGroupSubjects(...subjectGroups);

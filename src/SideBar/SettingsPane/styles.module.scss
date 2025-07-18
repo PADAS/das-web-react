@@ -2,7 +2,10 @@
 
 .tabs {
   border-bottom: 1px solid colors.$light-gray-lines;
-  padding: 0 1rem;
+  flex-wrap: nowrap;
+  padding: 0 1rem 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
 
   button[role=tab] {
     color: colors.$secondary-medium-gray;

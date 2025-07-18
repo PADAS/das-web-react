@@ -4,27 +4,23 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import { useTranslation } from 'react-i18next';
 
-import CheckableList from '../CheckableList';
-import HeatmapToggleButton from '../HeatmapToggleButton';
-import TrackToggleButton from '../TrackToggleButton';
+import CheckableList from '../../../CheckableList';
+import HeatmapToggleButton from '../../../HeatmapToggleButton';
+import TrackToggleButton from '../../../TrackToggleButton';
 import SubjectListItem from './SubjectListItem';
 
-import { TRACKING_CONTROL_STATES } from '../constants';
+import { TRACKING_CONTROL_STATES } from '../../../constants';
 
-import { addHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, removeHeatmapSubjects, showSubjectTracks } from '../ducks/map-ui';
+import { addHeatmapSubjects, hideSubjectTracks, pinSubjectTracks, removeHeatmapSubjects, showSubjectTracks } from '../../../ducks/map-ui';
 import { groupTrackingDataState, unloadedSubjectTrackIDs, visibleTrackingDataSubjectIDsForGroup } from './selectors';
 
-import { fetchTracksIfNecessary } from '../utils/tracks';
+import { fetchTracksIfNecessary } from '../../../utils/tracks';
 
-import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import { getUniqueSubjectGroupSubjectIDs } from '../../../utils/subjects';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
-const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: false,
-  transitionTime: 1,
-};
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const TriggerComponent = memo((props) => {  // eslint-disable-line react/display-name
@@ -48,19 +44,19 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
   const fullyVisible = track === TRACKING_CONTROL_STATES.FULLY_VISIBLE;
   const partiallyVisible = track === TRACKING_CONTROL_STATES.PARTIALLY_VISIBLE;
 
-  return <div className={listStyles.trigger}>
+  return <div className={styles.trigger}>
     {listLevel === 0 && <h5>{itemTitle}</h5>}
     {listLevel > 0 && <h6>{itemTitle}</h6>}
     {showTrackingControls && <>
       <TrackToggleButton
         loading={loadingTracks}
         onClick={onTrackButtonClick}
-        className={`${(partiallyPinned || partiallyVisible) ? listStyles.partialTrackButton : ''}`}
+        className={`${(partiallyPinned || partiallyVisible) ? styles.partialTrackButton : ''}`}
         showLabel={false}
         trackPinned={fullyPinned || partiallyPinned}
         trackVisible={fullyVisible || partiallyVisible}
       />
-      <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks}
+      <HeatmapToggleButton className={styles.toggleButton} loading={loadingTracks}
         heatmapVisible={heatmap === TRACKING_CONTROL_STATES.FULLY_HEATMAPPED}
         heatmapPartiallyVisible={heatmap === TRACKING_CONTROL_STATES.PARTIALLY_HEATMAPPED}
         onButtonClick={onGroupHeatmapToggle} showLabel={false} />
@@ -170,7 +166,7 @@ const ContentComponent = (props) => {
   };
 
   return <Collapsible
-    {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
+    transitionTime={1}
     trigger={<TriggerComponent {...triggerProps} />}
     triggerElementProps={{
       label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
@@ -179,7 +175,7 @@ const ContentComponent = (props) => {
     open={collapsibleShouldBeOpen}>
     {!!subgroups.length &&
       <CheckableList
-        className={listStyles.list}
+        className={styles.list}
         items={subgroups}
         itemProps={groupItemProps}
         itemFullyChecked={groupIsFullyVisible}
@@ -189,7 +185,7 @@ const ContentComponent = (props) => {
     }
     {!!subjects.length &&
       <CheckableList
-        className={`${listStyles.list} ${listStyles.itemList}`}
+        className={`${styles.list} ${styles.itemList}`}
         items={subjects}
         itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}

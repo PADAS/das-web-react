@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
-import { analyzerFeatures } from '../selectors';
-import { getBoundsForAnalyzerFeatures } from '../utils/analyzers';
+import { analyzerFeatures } from '../../../selectors';
+import { getBoundsForAnalyzerFeatures } from '../../../utils/analyzers';
 
 export const getAnalyzerListState = createSelector(
   [(...args) => analyzerFeatures(...args)],

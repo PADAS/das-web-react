@@ -1,39 +1,78 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import { useTranslation } from 'react-i18next';
 
-import { MapContext } from '../../App';
+import { TAB_KEYS } from './utils/constants';
 
-import AnalyzerLayerList from '../../AnalyzerLayerList';
-import ClearAllControl from '../../ClearAllControl';
-import ErrorBoundary from '../../ErrorBoundary';
-import FeatureLayerList from '../../FeatureLayerList';
-import MapLayerFilter from '../../MapLayerFilter';
-import ReportMapControl from '../../ReportMapControl';
-import SubjectGroupList from '../../SubjectGroupList';
+import AnalyzersTab from './AnalyzersTab';
+import EventsTab from './EventsTab';
+import Filters from './Filters';
+import FeaturesTab from './FeaturesTab';
+import SubjectsTab from './SubjectsTab';
 
 import * as styles from './styles.module.scss';
 
 const MapLayersTab = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.mapLayersTab' });
 
-  const map = useContext(MapContext);
+  // The tabs that support filtering have mountOnEnter and unmountOnExit so
+  // Bootstrap correctly calculates the dimension of the collapsibles that will
+  // be open by default.
+  return <Tabs
+      aria-labelledby="side-bar-tab-header"
+      className={styles.tabs}
+      defaultActiveKey={TAB_KEYS.SUBJECTS}
+      variant="underline"
+    >
+    <Tab
+      as="section"
+      className={styles.tab}
+      eventKey={TAB_KEYS.SUBJECTS}
+      mountOnEnter
+      title={t('subjectsTabTitle')}
+      unmountOnExit
+    >
+      <Filters tab={TAB_KEYS.SUBJECTS} />
 
-  return <ErrorBoundary>
-    <MapLayerFilter />
+      <SubjectsTab />
+    </Tab>
 
-    <div className={styles.mapLayers}>
-      <ReportMapControl />
+    <Tab
+      as="section"
+      className={styles.tab}
+      eventKey={TAB_KEYS.FEATURES}
+      mountOnEnter
+      title={t('featuresTabTitle')}
+      unmountOnExit
+    >
+      <Filters tab={TAB_KEYS.FEATURES} />
 
-      <SubjectGroupList />
-      <FeatureLayerList map={map} />
-      <AnalyzerLayerList map={map} />
-      <div className={styles.noItems}>{t('noItemsToDisplayInLayers')}</div>
-    </div>
+      <FeaturesTab />
+    </Tab>
 
-    <div className={styles.mapLayerFooter}>
-      <ClearAllControl map={map} />
-    </div>
-  </ErrorBoundary>;
+    <Tab
+      as="section"
+      className={styles.tab}
+      eventKey={TAB_KEYS.ANALYZERS}
+      mountOnEnter
+      title={t('analyzersTabTitle')}
+      unmountOnExit
+    >
+      <Filters tab={TAB_KEYS.ANALYZERS} />
+
+      <AnalyzersTab />
+    </Tab>
+
+    <Tab
+      as="section"
+      className={styles.tab}
+      eventKey={TAB_KEYS.EVENTS}
+      title={t('eventsTabTitle')}
+    >
+      <EventsTab />
+    </Tab>
+  </Tabs>;
 };
 
 export default MapLayersTab;

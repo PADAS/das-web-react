@@ -2,16 +2,16 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { center, feature } from '@turf/turf';
 
-import { showFeatures } from '../ducks/map-layer-filter';
-import { showPopup } from '../ducks/popup';
-import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import { showFeatures } from '../../../ducks/map-layer-filter';
+import { showPopup } from '../../../ducks/popup';
+import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../../../utils/features';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
-import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
-import LocationJumpButton from '../LocationJumpButton';
+import { ReactComponent as GeofenceIcon } from '../../../common/images/icons/geofence-analyzer-icon.svg';
+import { ReactComponent as ProximityIcon } from '../../../common/images/icons/proximity-analyzer-icon.svg';
+import LocationJumpButton from '../../../LocationJumpButton';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
@@ -49,7 +49,7 @@ const FeatureListItem = memo((props) => {
     setFeatureActiveStateByID(map, properties.id, (enter));
   };
 
-  return <span className={listStyles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
+  return <span className={styles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
     {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 

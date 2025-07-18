@@ -4,14 +4,14 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import { useTranslation } from 'react-i18next';
 
-import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
-import { getUniqueIDsFromFeatures } from '../utils/features';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import { hideFeatures, showFeatures } from '../../../ducks/map-layer-filter';
+import { getUniqueIDsFromFeatures } from '../../../utils/features';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import CheckableList from '../CheckableList';
+import CheckableList from '../../../CheckableList';
 import FeatureTypeListItem from './FeatureTypeListItem';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
@@ -51,7 +51,7 @@ const Content = (props) => {
 
   const itemProps = { map, featureFilterEnabled, };
 
-  const trigger = <h6 className={listStyles.trigger}>{name}</h6>;
+  const trigger = <h6 className={styles.trigger}>{name}</h6>;
 
   return <Collapsible
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
@@ -62,7 +62,7 @@ const Content = (props) => {
     }}
     open={collapsibleShouldBeOpen} >
     <CheckableList
-      className={listStyles.list}
+      className={styles.list}
       items={featuresByType}
       itemProps={itemProps}
       itemFullyChecked={allVisible}
