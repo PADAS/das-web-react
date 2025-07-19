@@ -65,18 +65,13 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         'source-layer': 'spatial_features',
         layout: {
           ...DEFAULT_SYMBOL_LAYOUT,
-          'icon-image': [
-            'case',
-            ['has', 'image'], ['get', 'image'],
-            'marker-icon'
+          'icon-image': ['case',
+            ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
+            ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
+            'marker-icon',
           ],
+          'text-size': 0,
           'icon-anchor': 'center',
-          'text-field': [
-            'case',
-            ['has', 'title'], ['get', 'title'],
-            ['has', 'name'], ['get', 'name'],
-            ''
-          ]
         },
         paint: {
           ...DEFAULT_SYMBOL_PAINT
