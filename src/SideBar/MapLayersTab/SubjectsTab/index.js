@@ -45,10 +45,8 @@ const alphabeticCompareFunction = (sortDirection) => (itemA, itemB) => {
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;
 };
 
-// TODO: This method sorts by the updated_at value of the subject, but not
-// by its last track time which I guess is what users want (?).
 const lastUpdateCompareFunction = (sortDirection) => (subjectA, subjectB) => {
-  if (new Date(subjectB.updated_at) > new Date(subjectA.updated_at)) {
+  if (subjectB.updated_at > subjectA.updated_at) {
     return sortDirection === SORT_DIRECTION.down ? 1 : -1;
   }
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;

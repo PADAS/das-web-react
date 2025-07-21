@@ -5,9 +5,9 @@ import {
   groupTracksPartiallyVisible,
 } from './selectors';
 
-import { getSubjectsWithViewableTrackingDataFromGroups } from '../utils/subjects';
+import { getSubjectsWithViewableTrackingDataFromGroups } from '../../../utils/subjects';
 
-jest.mock('../utils/subjects', () => ({
+jest.mock('../../../utils/subjects', () => ({
   getSubjectsWithViewableTrackingDataFromGroups: jest.fn()
 }));
 

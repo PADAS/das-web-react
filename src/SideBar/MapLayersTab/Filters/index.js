@@ -11,7 +11,12 @@ import { ReactComponent as SortLinesIcon } from '../../../common/images/icons/so
 
 import { MAP_LAYER_SORT_OPTIONS, SORT_DIRECTION } from '../../../constants';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
-import { setGrouped, setSortBy, setSortDirection, setText } from '../../../ducks/map-layer-filter';
+import {
+  setMapLayersFilterText,
+  setMapLayersGrouped,
+  setMapLayersSortBy,
+  setMapLayersSortDirection,
+} from '../../../ducks/map-layer-filter';
 import { TAB_KEYS } from '../utils/constants';
 
 import SearchBar from '../../../SearchBar';
@@ -31,16 +36,16 @@ const Filters = ({ tab }) => {
 
   const sortByMenuPopoverId = useId();
 
-  const [isSortByMenuOpen, setIsSortByMenuOpen] = useState();
+  const [isSortByMenuOpen, setIsSortByMenuOpen] = useState(false);
 
   const onSearchBarChange = (event) => {
-    dispatch(setText(event.target.value));
+    dispatch(setMapLayersFilterText(event.target.value));
 
     mapLayersTracker.track('Change Search Text Filter');
   };
 
   const onSearchBarClear = () => {
-    dispatch(setText(''));
+    dispatch(setMapLayersFilterText(''));
 
     mapLayersTracker.track('Clear Search Text Filter');
   };
@@ -100,7 +105,7 @@ const Filters = ({ tab }) => {
   };
 
   const onSortByMenuOptionClick = (sortBy) => {
-    dispatch(setSortBy(sortBy));
+    dispatch(setMapLayersSortBy(sortBy));
     onMenuClose();
   };
 
@@ -122,6 +127,7 @@ const Filters = ({ tab }) => {
     <SearchBar
       aria-label={t('searchBarLabel')}
       className={styles.searchBar}
+      name="map-layers-search-bar"
       onChange={onSearchBarChange}
       onClear={onSearchBarClear}
       placeholder={t('searchBarPlaceholder')}
@@ -134,8 +140,9 @@ const Filters = ({ tab }) => {
         aria-label={t(`groupButtonLabel.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
         aria-pressed={!mapLayerFilter.grouped}
         className={`${styles.sortingButton} ${mapLayerFilter.grouped ? styles.inactive : styles.active}`}
-        onClick={() => dispatch(setGrouped(!mapLayerFilter.grouped))}
+        onClick={() => dispatch(setMapLayersGrouped(!mapLayerFilter.grouped))}
         title={t(`groupButtonLabel.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
+        type="button"
       >
         {t(`groupButton.${mapLayerFilter.grouped ? 'grouped' : 'ungrouped'}`)}
       </button>
@@ -149,6 +156,7 @@ const Filters = ({ tab }) => {
         onClick={() => setIsSortByMenuOpen(true)}
         ref={sortByMenuButtonRef}
         title={t('setSortByButtonLabel')}
+        type="button"
       >
         <SortLinesIcon className={styles.sortingButtonIcon} />
 
@@ -160,14 +168,13 @@ const Filters = ({ tab }) => {
         onHide={() => setIsSortByMenuOpen(false)}
         rootClose
         show={isSortByMenuOpen}
-        target={sortByMenuButtonRef}
+        target={sortByMenuButtonRef.current}
       >
-        <Popover className={styles.sortByMenuPopover} id={sortByMenuPopoverId} role="presentation">
+        <Popover className={styles.sortByMenuPopover} id={sortByMenuPopoverId}>
           <ul aria-label={t('sortByMenuLabel')} className={styles.sortByMenu} onKeyDown={onMenuKeyDown} role="menu">
             {MAP_LAYER_SORT_OPTIONS.map((option, index) => <li
               className={styles.sortByMenuItem}
               key={option.value}
-              role="presentation"
             >
               <button
                 aria-label={t(`sortByMenuOptionLabel.${option.key}`)}
@@ -178,6 +185,7 @@ const Filters = ({ tab }) => {
                 role="menuitemradio"
                 tabIndex={-1}
                 title={t(`sortByMenuOptionLabel.${option.key}`)}
+                type="button"
               >
                 {mapLayerFilter.sortBy === option.value && <CheckIcon className={styles.checkIcon} />}
 
@@ -192,14 +200,15 @@ const Filters = ({ tab }) => {
         aria-pressed={mapLayerFilter.sortDirection === SORT_DIRECTION.up}
         aria-label={t(`sortDirectionButtonLabel.${mapLayerFilter.sortDirection}`)}
         className={`${styles.sortingButton} ${mapLayerFilter.sortDirection === SORT_DIRECTION.up ? styles.active : styles.inactive}`}
-        onClick={() => dispatch(setSortDirection(
+        onClick={() => dispatch(setMapLayersSortDirection(
           mapLayerFilter.sortDirection === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up
         ))}
         title={t(`sortDirectionButtonLabel.${mapLayerFilter.sortDirection}`)}
+        type="button"
       >
         {mapLayerFilter.sortDirection === SORT_DIRECTION.down
-          ? <ArrowDownIcon />
-          : <ArrowUpIcon />}
+          ? <ArrowDownIcon data-testid="arrow-down-icon" />
+          : <ArrowUpIcon data-testid="arrow-up-icon" />}
       </button>
     </div>}
   </form>;

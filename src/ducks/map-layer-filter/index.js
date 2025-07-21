@@ -7,13 +7,13 @@ import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../constants';
 export const MAP_LAYER_FILTER_STORAGE_KEY = 'mapLayerFilter';
 
 // Actions
-const SET_GROUPED = 'MAP_LAYER_FILTER_SET_GROUPED';
+export const SET_GROUPED = 'MAP_LAYER_FILTER.SET_GROUPED';
 
-const SET_SORT_BY = 'MAP_LAYER_FILTER_SET_SORT_BY';
+export const SET_SORT_BY = 'MAP_LAYER_FILTER.SET_SORT_BY';
 
-const SET_SORT_DIRECTION = 'MAP_LAYER_FILTER_SET_SORT_DIRECTION';
+export const SET_SORT_DIRECTION = 'MAP_LAYER_FILTER.SET_SORT_DIRECTION';
 
-const SET_TEXT = 'MAP_LAYER_FILTER_SET_TEXT';
+export const SET_TEXT = 'MAP_LAYER_FILTER.SET_TEXT';
 
 const HIDE_SUBJECTS = 'HIDE_SUBJECTS';
 const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
@@ -62,13 +62,13 @@ export const displayReportsOnMapState = (enabled) => ({
   payload: enabled,
 });
 
-export const setGrouped = (grouped) => ({ payload: grouped, type: SET_GROUPED });
+export const setMapLayersFilterText = (text) => ({ payload: text, type: SET_TEXT });
 
-export const setSortBy = (sortBy) => ({ payload: sortBy, type: SET_SORT_BY });
+export const setMapLayersGrouped = (grouped) => ({ payload: grouped, type: SET_GROUPED });
 
-export const setSortDirection = (sortDirection) => ({ payload: sortDirection, type: SET_SORT_DIRECTION });
+export const setMapLayersSortBy = (sortBy) => ({ payload: sortBy, type: SET_SORT_BY });
 
-export const setText = (text) => ({ payload: text, type: SET_TEXT });
+export const setMapLayersSortDirection = (sortDirection) => ({ payload: sortDirection, type: SET_SORT_DIRECTION });
 
 // Reducer
 export const INITIAL_FILTER_STATE = {
