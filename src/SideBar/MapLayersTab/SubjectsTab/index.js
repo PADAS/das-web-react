@@ -134,7 +134,7 @@ const SubjectsTab = () => {
       && subjects.some((subject) => !isSubjectVisible(subject));
   };
 
-  const onSubjectCheckClick = (subject) => dispatch(isSubjectGroupFullyVisible(subject)
+  const onSubjectCheckClick = (subject) => dispatch(isSubjectVisible(subject)
     ? hideSubjects(subject.id)
     : showSubjects(subject.id));
 

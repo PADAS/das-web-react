@@ -46,12 +46,24 @@
     border-bottom: 1px solid colors.$light-gray-border;
     display: flex;
     padding: 1rem;
-    padding-right: 3rem;
 
     .itemTitle {
+      display: flex;
+      flex-grow: 1;
       margin: 0;
       margin-left: 1rem;
       word-break: break-word;
+
+      .defaultProperty {
+        margin: 0.2rem 0 0 0.5rem;
+        font-size: 0.75rem;
+      }
+
+      img {
+        margin-right: 0.5rem;
+        max-height: 1.5rem;
+        max-width: 1.5rem;
+      }
     }
 
     .controls {
