@@ -184,7 +184,12 @@
   },
   "sideBar": {
     "layersLink": "Calques",
-    "noItemsToDisplayInLayers": "Aucun élément à afficher.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Barriere Virtuelle",
+      "eventsTabTitle": "Événements",
+      "featuresTabTitle": "Calques",
+      "subjectsTabTitle": "Appareils Suivis"
+    },
     "patrolsLink": "Patrouilles",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",

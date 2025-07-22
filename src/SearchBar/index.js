@@ -29,7 +29,7 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
       {...otherProps}
     />
 
-    {onClear && <button
+    {onClear && value && <button
       aria-label={t('clearButtonLabel')}
       className={styles.clearButton}
       data-testid="reset-search-button"

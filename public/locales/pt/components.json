@@ -184,7 +184,12 @@
     },
     "sideBar": {
         "layersLink": "Camadas do mapa",
-        "noItemsToDisplayInLayers": "Não há ítens para mostrar.",
+        "mapLayersTab": {
+            "analyzersTabTitle": "Analisadores",
+            "eventsTabTitle": "Eventos",
+            "featuresTabTitle": "Feições",
+            "subjectsTabTitle": "Indivíduos rastreados"
+        },
         "patrolsLink": "Patrulhas",
         "reportsFeedTab": {
             "fetchReportsErrorMessage": "Não foi possível carregar os eventos. Por favor, tente novamente. ",

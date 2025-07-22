@@ -184,7 +184,12 @@
   },
   "sideBar": {
     "layersLink": "Capas de mapa",
-    "noItemsToDisplayInLayers": "No hay elementos que mostrar.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analizadores",
+      "eventsTabTitle": "Eventos",
+      "featuresTabTitle": "Funcionalidades",
+      "subjectsTabTitle": "Sujetos"
+    },
     "patrolsLink": "Patrullas",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",

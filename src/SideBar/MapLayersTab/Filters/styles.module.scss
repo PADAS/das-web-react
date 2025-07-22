@@ -40,7 +40,10 @@
       font-size: 0.875rem;
       font-weight: 500;
       height: 2rem;
+      overflow: hidden;
       padding: 0 0.5rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 
       &.inactive {
         background-color: colors.$light-gray-background;
@@ -74,6 +77,14 @@
           color: colors.$bright-blue;
           outline: 1px solid colors.$bright-blue;
         }
+      }
+
+      &:not(:last-child) {
+        max-width: 40%;
+      }
+
+      &:last-child {
+        max-width: 20%;
       }
 
       .sortingButtonIcon {

@@ -54,7 +54,37 @@
     },
     "ascendingLabel": " kupanda"
   },
-  "mapLayerSearchbarPlaceholder": "Tafuta Tabaka...",
+  "mapLayerFilter": {
+    "formLabel": "Tafuta tabaka",
+    "groupButton": {
+      "grouped": "Zimepangwa",
+      "ungrouped": "Hazijapangwa"
+    },
+    "groupButtonLabel": {
+      "grouped": "Tenganisha tabaka",
+      "ungrouped": "Panga tabaka"
+    },
+    "searchBarLabel": "Tafuta tabaka",
+    "searchBarPlaceholder": "Tafuta tabaka...",
+    "setSortByButton": {
+      "alphabetical": "Alfabeti",
+      "last_update": "Sasisho la mwisho"
+    },
+    "setSortByButtonLabel": "Fungua chaguzi za kupanga tabaka",
+    "sortDirectionButtonLabel": {
+      "down": "Panga tabaka kwa mpangilio wa kupanda",
+      "up": "Panga tabaka kwa mpangilio wa kushuka"
+    },
+    "sortByMenuLabel": "Chaguzi za kupanga tabaka",
+    "sortByMenuOption": {
+      "alphabetical": "Alfabeti",
+      "lastUpdate": "Sasisho la mwisho"
+    },
+    "sortByMenuOptionLabel": {
+      "alphabetical": "Panga tabaka kwa mpangilio wa alfabeti",
+      "lastUpdate": "Panga tabaka kwa sasisho la mwisho"
+    }
+  },
   "patrolFilters": {
     "datesTitle": "Tarehe",
     "dateRangePopover": {

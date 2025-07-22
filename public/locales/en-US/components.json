@@ -207,7 +207,6 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
-    "noItemsToDisplayInLayers": "No items to display.",
     "patrolsLink": "Patrols",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Could not load events. Please try again.",
