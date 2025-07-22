@@ -23,7 +23,8 @@ jobs:
 
       - name: Read env file
         id: env-vars
-        if: github.ref_name == 'develop'
+        # if: github.ref_name == 'develop'
+        if: github.ref_name == 'custom-google-analytics-for-dev'
         run: |
           tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
           echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
