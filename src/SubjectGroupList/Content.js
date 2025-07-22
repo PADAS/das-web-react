@@ -48,7 +48,7 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
   const fullyVisible = track === TRACKING_CONTROL_STATES.FULLY_VISIBLE;
   const partiallyVisible = track === TRACKING_CONTROL_STATES.PARTIALLY_VISIBLE;
 
-  return <div className={listStyles.trigger}>
+  return <div className={listStyles.trigger} data-testid={`collapsible-${itemTitle}`}>
     {listLevel === 0 && <h5>{itemTitle}</h5>}
     {listLevel > 0 && <h6>{itemTitle}</h6>}
     {showTrackingControls && <>
