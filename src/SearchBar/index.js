@@ -12,7 +12,7 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
   const searchInputRef = useRef();
 
   return <div
-      className={`${styles.searchBar} ${value ? styles.hasValue : ''} ${className}`}
+      className={`${styles.searchBar} ${className}`}
       data-testid="searchBar"
       onClick={() => searchInputRef.current.focus()}
     >
