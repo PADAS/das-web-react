@@ -72,7 +72,7 @@ jobs:
           echo "REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_ENV
 
       - name: Yarn build
-        if: steps.validate_env.outputs.site_exists == 'true'
+        # if: steps.validate_env.outputs.site_exists == 'true'
         run: CI=false yarn build
 
       # - name: UploadDownload to bucket
@@ -82,7 +82,7 @@ jobs:
       #     gsutil -m cp -r gs://er-static/api/* build/static/
 
       - name: Build docker image
-        if: steps.validate_env.outputs.site_exists == 'true'
+        # if: steps.validate_env.outputs.site_exists == 'true'
         run: |-
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
