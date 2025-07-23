@@ -1,5 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
-import Collapsible from 'react-collapsible';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import intersection from 'lodash/intersection';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -23,19 +22,17 @@ const AnalyzersTab = () => {
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
 
   const analyzerList = useSelector(getAnalyzerListState);
-  const hiddenAnalyzerIDs = useSelector((state) => state.data.mapLayerFilter.hiddenAnalyzerIDs);
   const mapLayerFilter = useSelector((state) => state.data.mapLayerFilter);
 
   const map = useContext(MapContext);
 
-  const analyzers = useMemo(() => {
-    const { text } = mapLayerFilter;
+  const allAnalyzersChekboxRef = useRef();
 
-    if (!text) return analyzerList[0].features;
-
-    return analyzerList[0].features.filter(({ name }) => name.toLowerCase().includes(text.toLowerCase()));
-
-  }, [analyzerList, mapLayerFilter]);
+  const analyzers = useMemo(() => mapLayerFilter.text
+    ? analyzerList[0].features.filter(
+      (feature) => feature.name.toLowerCase().includes(mapLayerFilter.text.toLowerCase())
+    )
+    : analyzerList[0].features, [analyzerList, mapLayerFilter.text]);
 
   const analyzerIds = useMemo(() => analyzers.map(({ id }) => id), [analyzers]);
   const analyzerFeatureIDs = useMemo(() =>
@@ -47,47 +44,34 @@ const AnalyzersTab = () => {
   // XXX flatten the feature array - should be a cleaner way
   const featureIds = analyzerFeatureIDs.flat(2);
 
-  const hideAllAnalyzers = useCallback(() => dispatch(hideAnalyzers(...analyzerIds)), [analyzerIds, dispatch]);
-  const showAllAnalyzers = useCallback(() => dispatch(showAnalyzers(...analyzerIds)), [analyzerIds, dispatch]);
+  const areAnalyzersPartiallyChecked = (mapLayerFilter.hiddenAnalyzerIDs.length < analyzerIds.length);
+  const areAnalyzersFullyChecked = !mapLayerFilter.hiddenAnalyzerIDs.length || !intersection(mapLayerFilter.hiddenAnalyzerIDs, analyzerIds);
 
-  const partiallyChecked = (hiddenAnalyzerIDs.length < analyzerIds.length);
-  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
+  const onToggleAllAnalyzers = (event) => {
+    event.stopPropagation();
 
-  const collapsibleShouldBeOpen = useMemo(() => {
-    const { text } = mapLayerFilter;
-
-    if (!text) return false;
-
-    return !!analyzers.length;
-  }, [analyzers.length, mapLayerFilter]);
-
-
-  const onToggleAllFeatures = useCallback((e) => {
-    e.stopPropagation();
-
-    if (allVisible) {
-      const allFeatureIds = analyzers.reduce((accumulator, analyzer) => {
+    if (areAnalyzersFullyChecked) {
+      const allAnalyazerFeautureIds = analyzers.reduce((accumulator, analyzer) => {
         return [...accumulator, ...analyzer.features.map(f => f.properties.id)];
       }, []);
+      setAnalyzerFeatureActiveStateForIDs(map, allAnalyazerFeautureIds, false);
 
-      mapLayerTracker.track('Uncheck All Features checkbox');
-      setAnalyzerFeatureActiveStateForIDs(map, allFeatureIds, false);
+      dispatch(hideAnalyzers(...analyzerIds));
 
-      return hideAllAnalyzers();
+      mapLayerTracker.track('Uncheck All Analyzers checkbox');
     } else {
-      mapLayerTracker.track('Check All Features checkbox');
+      dispatch(showAnalyzers(...analyzerIds));
 
-      return showAllAnalyzers();
+      mapLayerTracker.track('Check All Analyzers checkbox');
     }
-  }, [allVisible, analyzers, hideAllAnalyzers, map, showAllAnalyzers]);
+  };
 
-  const featureIsVisible = useCallback(item => {
+  const featureIsVisible = item => {
     const { id } = item;
-    return !hiddenAnalyzerIDs.includes(id);
-  }, [hiddenAnalyzerIDs]);
+    return !mapLayerFilter.hiddenAnalyzerIDs.includes(id);
+  };
 
-
-  const onCheckClick = useCallback((item) => {
+  const onCheckClick = (item) => {
     const { id } = item;
 
     if (featureIsVisible(item)) {
@@ -98,40 +82,44 @@ const AnalyzersTab = () => {
       mapLayerTracker.track('Check Analyzer checkbox');
       return dispatch(showAnalyzers(id));
     }
-  }, [dispatch, featureIsVisible, map]);
+  };
 
-  const itemProps = { map, analyzerIds, featureIds };
+  useEffect(() => {
+    if (allAnalyzersChekboxRef.current) {
+      allAnalyzersChekboxRef.current.indeterminate = areAnalyzersPartiallyChecked;
+    }
+  }, [areAnalyzersPartiallyChecked]);
 
-  const trigger = <span>
-    <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={partiallyChecked} />
-    <h5 className={styles.trigger}>
-      {t('analyzersTitle')}
-    </h5>
-  </span>;
+  return <>
+    <div className={styles.allCheckboxWrapper}>
+      <input
+        aria-label={t('allAnalyzersCheckboxAriaLabel')}
+        aria-checked={areAnalyzersPartiallyChecked ? 'mixed' : undefined}
+        checked={areAnalyzersFullyChecked}
+        className={styles.checkbox}
+        id="all-analyzers-checkbox"
+        onChange={onToggleAllAnalyzers}
+        ref={allAnalyzersChekboxRef}
+        type="checkbox"
+      />
 
-  return analyzers.length > 0 ? <ul className={styles.list}>
-    <li>
-      <Collapsible
-        transitionTime={1}
-        trigger={trigger}
-        triggerElementProps={{
-          label: t(collapsibleShouldBeOpen ? 'collapseOpenButtonLabel' : 'collapseClosedButtonLabel'),
-          title: t(collapsibleShouldBeOpen ? 'collapseOpenButtonTitle' : 'collapseClosedButtonTitle'),
-        }}
-        open={collapsibleShouldBeOpen}
-      >
-        <CheckableList
-          className={`${styles.list} ${styles.itemList} ${styles.compressed}`}
-          id='analyzergroup'
-          onCheckClick={onCheckClick}
-          itemComponent={AnalyzerListItem}
-          itemProps={itemProps}
-          items={analyzers}
-          itemFullyChecked={featureIsVisible}
-        />
-      </Collapsible>
-    </li>
-  </ul> : null;
+      <label className={styles.label} htmlFor="all-analyzers-checkbox">
+        <Checkmark fullyChecked={areAnalyzersFullyChecked} partiallyChecked={areAnalyzersPartiallyChecked} />
+
+        {t('allAnalyzersCheckboxLabel')}
+      </label>
+    </div>
+
+    {analyzers.length > 0 && <CheckableList
+      className={`${styles.list} ${styles.itemList} ${styles.compressed}`}
+      id='analyzergroup'
+      onCheckClick={onCheckClick}
+      itemComponent={AnalyzerListItem}
+      itemProps={{ analyzerIds, featureIds, map }}
+      items={analyzers}
+      itemFullyChecked={featureIsVisible}
+    />}
+  </>;
 };
 
 export default AnalyzersTab;

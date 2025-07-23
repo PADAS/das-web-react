@@ -37,8 +37,14 @@ const AnalyzerListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   };
 
-  return <span className={styles.analyzerTitle} >
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
+  return <span className={styles.analyzerTitle}>
+    <div className={styles.analyzersName}>
+      {iconForCategory(properties.analyzer_type)}
+
+      {properties.title}
+    </div>
+
+    <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 });
 

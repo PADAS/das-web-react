@@ -1,8 +1,10 @@
 {
   "clearAllButton": "Tout Désélectionner",
   "layerList": {
-    "analyzersTitle": "Barriere Virtuelle",
-    "featuresTitle": "Calques",
+    "allAnalyzersCheckboxLabel": "Tous les analyseurs",
+    "allAnalyzersCheckboxAriaLabel": "Afficher tous les analyseurs",
+    "allFeaturesCheckboxLabel": "Toutes les entités",
+    "allFeaturesCheckboxAriaLabel": "Afficher toutes les entités",
     "subjectsTitle": "Appareils Suivis",
     "reportsTitle": "Événements"
   }

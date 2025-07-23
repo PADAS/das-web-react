@@ -19,7 +19,10 @@ import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { getUniqueSubjectGroupSubjectIDs } from '../../../utils/subjects';
 import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import * as styles from '../styles.module.scss';
+import DateTime from '../../../DateTime';
+
+import * as mapLayersStyles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
@@ -32,6 +35,7 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
     groupTrackState,
     onGroupHeatmapToggle,
     onTrackButtonClick,
+    lastPositionTime,
   } = props;
 
   const { t } = useTranslation('layers', { keyPrefix: 'layerList' });
@@ -44,19 +48,20 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
   const fullyVisible = track === TRACKING_CONTROL_STATES.FULLY_VISIBLE;
   const partiallyVisible = track === TRACKING_CONTROL_STATES.PARTIALLY_VISIBLE;
 
-  return <div className={styles.trigger}>
+  return <div className={mapLayersStyles.trigger}>
     {listLevel === 0 && <h5>{itemTitle}</h5>}
     {listLevel > 0 && <h6>{itemTitle}</h6>}
     {showTrackingControls && <>
+      {lastPositionTime && <DateTime className={styles.subjectGroupDateTime} date={lastPositionTime} />}
       <TrackToggleButton
         loading={loadingTracks}
         onClick={onTrackButtonClick}
-        className={`${(partiallyPinned || partiallyVisible) ? styles.partialTrackButton : ''}`}
+        className={`${(partiallyPinned || partiallyVisible) ? mapLayersStyles.partialTrackButton : ''}`}
         showLabel={false}
         trackPinned={fullyPinned || partiallyPinned}
         trackVisible={fullyVisible || partiallyVisible}
       />
-      <HeatmapToggleButton className={styles.toggleButton} loading={loadingTracks}
+      <HeatmapToggleButton className={mapLayersStyles.toggleButton} loading={loadingTracks}
         heatmapVisible={heatmap === TRACKING_CONTROL_STATES.FULLY_HEATMAPPED}
         heatmapPartiallyVisible={heatmap === TRACKING_CONTROL_STATES.PARTIALLY_HEATMAPPED}
         onButtonClick={onGroupHeatmapToggle} showLabel={false} />
@@ -67,7 +72,7 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
 const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick,
     subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
-    listLevel, } = props;
+    listLevel, lastPositionTime } = props;
 
   const dispatch = useDispatch();
   const subjectIDsWithTrackingData = useSelector((state) => visibleTrackingDataSubjectIDsForGroup(state, props));
@@ -161,8 +166,14 @@ const ContentComponent = (props) => {
   };
 
   const triggerProps = {
-    listLevel, name, showTrackingControls, onTrackButtonClick,
-    groupTrackState, loadingTracks, onGroupHeatmapToggle,
+    listLevel,
+    name,
+    showTrackingControls,
+    onTrackButtonClick,
+    groupTrackState,
+    loadingTracks,
+    onGroupHeatmapToggle,
+    lastPositionTime,
   };
 
   return <Collapsible
@@ -175,7 +186,7 @@ const ContentComponent = (props) => {
     open={collapsibleShouldBeOpen}>
     {!!subgroups.length &&
       <CheckableList
-        className={styles.list}
+        className={mapLayersStyles.list}
         items={subgroups}
         itemProps={groupItemProps}
         itemFullyChecked={groupIsFullyVisible}
@@ -185,7 +196,7 @@ const ContentComponent = (props) => {
     }
     {!!subjects.length &&
       <CheckableList
-        className={`${styles.list} ${styles.itemList}`}
+        className={`${mapLayersStyles.list} ${mapLayersStyles.itemList}`}
         items={subjects}
         itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}

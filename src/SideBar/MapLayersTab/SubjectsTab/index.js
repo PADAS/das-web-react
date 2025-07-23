@@ -45,8 +45,20 @@ const alphabeticCompareFunction = (sortDirection) => (itemA, itemB) => {
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;
 };
 
-const lastUpdateCompareFunction = (sortDirection) => (subjectA, subjectB) => {
-  if (subjectB.updated_at > subjectA.updated_at) {
+const lastUpdateCompareFunction = (sortDirection) => (itemA, itemB) => {
+  const itemALastPositionTime = itemA.lastPositionTime || itemA.last_position?.properties?.coordinateProperties?.time;
+  const itemBLastPositionTime = itemB.lastPositionTime || itemB.last_position?.properties?.coordinateProperties?.time;
+
+  // Subjects that don't have a last position time will always be put at the
+  // bottom of the ones that do.
+  if (!itemALastPositionTime) {
+    return 1;
+  }
+  if (!itemBLastPositionTime) {
+    return -1;
+  }
+
+  if (itemBLastPositionTime > itemALastPositionTime) {
     return sortDirection === SORT_DIRECTION.down ? 1 : -1;
   }
   return sortDirection === SORT_DIRECTION.down ? -1 : 1;

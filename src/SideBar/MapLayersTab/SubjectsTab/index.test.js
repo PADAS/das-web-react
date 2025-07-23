@@ -59,22 +59,46 @@ describe('SideBar - MapLayersTab - SubjectsTab', () => {
           'subject-1': {
             id: 'subject-1',
             name: 'Subject 1',
-            updated_at: '2020-01-01T10:30:00.000000-08:00',
+            last_position: {
+              properties: {
+                coordinateProperties: {
+                  time: '2020-01-01T10:30:00.000000-08:00',
+                },
+              },
+            },
           },
           'subject-2': {
             id: 'subject-2',
             name: 'Subject 2',
-            updated_at: '2020-01-02T10:30:00.000000-08:00',
+            last_position: {
+              properties: {
+                coordinateProperties: {
+                  time: '2020-01-02T10:30:00.000000-08:00',
+                },
+              },
+            },
           },
           'subject-3': {
             id: 'subject-3',
             name: 'Subject 3',
-            updated_at: '2020-01-03T10:30:00.000000-08:00',
+            last_position: {
+              properties: {
+                coordinateProperties: {
+                  time: '2020-01-03T10:30:00.000000-08:00',
+                },
+              },
+            },
           },
           'subject-4': {
             id: 'subject-4',
             name: 'Subject 4',
-            updated_at: '2020-01-04T10:30:00.000000-08:00',
+            last_position: {
+              properties: {
+                coordinateProperties: {
+                  time: '2020-01-04T10:30:00.000000-08:00',
+                },
+              },
+            },
           },
         },
         tracks: {},
