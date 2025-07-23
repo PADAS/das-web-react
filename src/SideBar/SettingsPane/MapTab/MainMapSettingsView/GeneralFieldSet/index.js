@@ -2,10 +2,14 @@ import React, { useContext }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
+
+import { FEATURE_FLAG_LABELS } from '../../../../../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import { MapContext } from '../../../../../App';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
+import { useFeatureFlag } from '../../../../../hooks';
 
 import * as styles from '../styles.module.scss';
 
@@ -21,7 +25,9 @@ const LOCKABLE_MAP_CONTROLS = [
   'touchZoomRotate',
 ];
 
-const GeneralFieldSet = () => {
+const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
+  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
+
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
     keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.generalFieldSet',
@@ -29,6 +35,9 @@ const GeneralFieldSet = () => {
 
   const enable3D = useSelector((state) => state.view.userPreferences.enable3D);
   const mapIsLocked = useSelector((state) => state.view.mapIsLocked);
+  const selectedCoordinateReferenceSystems = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedSystems
+  );
   const simplifyMapDataOnZoom = useSelector((state) => state.view.simplifyMapDataOnZoom.enabled);
 
   const map = useContext(MapContext);
@@ -104,6 +113,30 @@ const GeneralFieldSet = () => {
           {t('simplifyMapDataOnZoomCheckboxLabel')}
         </label>
       </div>
+
+      {customCoordinateSystemsEnabled && <>
+        <hr className={styles.separator} />
+
+        <button
+          aria-label={t('openCoordinateSystemSettingsButtonLabel')}
+          className={styles.button}
+          onClick={() => onOpenCoordinateSystemSettingsView()}
+          title={t('openCoordinateSystemSettingsButtonLabel')}
+          type="button"
+        >
+          <span className={styles.text}>
+            {t('openCoordinateSystemSettingsButton')}
+          </span>
+
+          <span className={styles.details}>
+            {t('openCoordinateSystemSettingsButtonDetails', {
+              selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
+            })}
+          </span>
+
+          <ChevronRight aria-hidden="true" className={styles.icon} />
+        </button>
+      </>}
     </div>
   </fieldset>;
 };

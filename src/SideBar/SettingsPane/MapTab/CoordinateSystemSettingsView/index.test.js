@@ -6,9 +6,9 @@ import { render, screen } from '../../../../test-utils';
 import { GPS_FORMATS } from '../../../../utils/location';
 import { mockStore } from '../../../../__test-helpers/MockStore';
 
-import CoordinateSettingsView from './';
+import CoordinateSystemSettingsView from './';
 
-describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView', () => {
+describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView', () => {
   const onOpenMainMapSettingsView = jest.fn();
 
   let store;
@@ -24,14 +24,14 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView', () => {
     };
   });
 
-  const renderCoordinateSettingsView = (props, overrideStore) => render(
+  const renderCoordinateSystemSettingsView = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <CoordinateSettingsView onOpenMainMapSettingsView={onOpenMainMapSettingsView} {...props} />
+      <CoordinateSystemSettingsView onOpenMainMapSettingsView={onOpenMainMapSettingsView} {...props} />
     </Provider>
   );
 
-  test('closes the coordinate settings view when the user clicks the back button', async () => {
-    renderCoordinateSettingsView();
+  test('closes the coordinate system settings view when the user clicks the back button', async () => {
+    renderCoordinateSystemSettingsView();
 
     expect(onOpenMainMapSettingsView).not.toHaveBeenCalled();
 

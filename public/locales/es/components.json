@@ -209,7 +209,7 @@
       "generalTabTitle": "General",
       "languagesHeader": "Lenguaje",
       "mapTab": {
-        "coordinateSettingsView": {
+        "coordinateSystemSettingsView": {
           "backButtonLabel": "Volver a la configuración principal del mapa",
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Agregar",
@@ -217,6 +217,14 @@
             "emptyStateMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
             "emptyStateMessageTitle": "No se encontraron resultados.",
             "instructions": "Buscar sistemas de referencia de coordenadas adicionales",
+            "readMoreLessButton": {
+              "less": "Leer menos",
+              "more": "Leer más"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Ocultar la descripción completa del área para EPSG:{{epsgCode}} {{name}}",
+              "more": "Mostrar la descripción completa del área para EPSG:{{epsgCode}} {{name}}"
+            },
             "resultsTableAreaHeaderCell": "Área",
             "resultsTableCaption": "Lista de resultados de búsqueda de sistemas de referencia de coordenadas",
             "resultsTableCodeHeaderCell": "Código",
@@ -233,19 +241,13 @@
               "utm": "UTM Transversal Universal de Mercator",
               "mgrs": "MGRS Sistema de referencia de cuadrícula militar"
             },
-            "instructions": "Selecciona hasta 4 unidades de coordenadas para mostrar en todo el sitio. Las opciones se mostrarán alfabéticamente.",
+            "instructions": "Selecciona hasta 4 sistemas de coordenadas para mostrar en todo el sitio. Las opciones se mostrarán en orden alfabético.",
             "legend": "Selector de formato GPS",
             "maximumOptionsSelectedMessage": "Tienes seleccionadas 4 de 4 opciones. Deselecciona al menos 1 opción antes de seleccionar otras."
           },
           "title": "Coordenadas"
         },
         "mainMapSettingsView": {
-          "generalFieldSet": {
-            "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
-            "legend": "General",
-            "lockMapCheckboxLabel": "Bloquear mapa",
-            "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
-          },
           "displayFieldSet": {
             "clusterDataAllCheckboxLabel": "Todo",
             "clusterDataCheckboxLabel": {
@@ -254,12 +256,18 @@
             },
             "clusterDataLegend": "Agrupar datos cuando se superpongan",
             "legend": "Información mostrada",
-            "openCoordinateSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} seleccionados",
-            "openCoordinateSettingsButtonLabel": "Coordenadas",
-            "openCoordinateSettingsButtonTitle": "Abrir configuración de coordenadas",
             "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita el área de datos agrupados",
             "showInactiveRadiosCheckboxLabel": "Mostrar radios inactivos",
             "showTrackTimepointsCheckboxLabel": "Mostrar puntos de tiempo en trayectorias"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Bloquear mapa",
+            "openCoordinateSystemSettingsButton": "Sistemas de coordenadas",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} seleccionados",
+            "openCoordinateSystemSettingsButtonLabel": "Abrir configuración de sistemas de coordenadas",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
           },
           "mapMarkersFieldSet": {
             "legend": "Marcadores del mapa",

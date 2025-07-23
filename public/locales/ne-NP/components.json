@@ -210,7 +210,7 @@
             "generalTabTitle": "सामान्य",
             "languagesHeader": "भाषा",
             "mapTab": {
-                "coordinateSettingsView": {
+                "coordinateSystemSettingsView": {
                     "backButtonLabel": "मुख्य नक्सा सेटिङहरूमा फर्कनुहोस्",
                     "coordinateReferenceSystemFinder": {
                         "addCrsButton": "थप्नुहोस्",
@@ -218,6 +218,14 @@
                         "emptyStateMessage": "तपाईं खोजिरहनुभएको कुरा फेला पार्नको लागि आफ्नो खोज समायोजन गर्नुहोस्।",
                         "emptyStateMessageTitle": "कुनै परिणाम फेला परेन।",
                         "instructions": "थप समन्वय सन्दर्भ प्रणालीहरू खोज्नुहोस्",
+                        "readMoreLessButton": {
+                            "less": "कम पढ्नुहोस्",
+                            "more": "थप पढ्नुहोस्"
+                        },
+                        "readMoreLessButtonLabel": {
+                            "less": "EPSG:{{epsgCode}} {{name}} को विस्तृत क्षेत्र विवरण लुकाउनुहोस्",
+                            "more": "EPSG:{{epsgCode}} {{name}} को विस्तृत क्षेत्र विवरण देखाउनुहोस्"
+                        },
                         "resultsTableAreaHeaderCell": "क्षेत्र",
                         "resultsTableCaption": "समन्वय सन्दर्भ प्रणाली खोज परिणामहरूको सूची",
                         "resultsTableCodeHeaderCell": "कोड",
@@ -234,19 +242,13 @@
                             "utm": "UTM युनिभर्सल ट्रान्सभर्स मर्केटर",
                             "mgrs": "MGRS सैनिक ग्रिड सन्दर्भ प्रणाली"
                         },
-                        "instructions": "साइटभर प्रदर्शन गर्नका लागि अधिकतम ४ समन्वय इकाइहरू चयन गर्नुहोस्। विकल्पहरू वर्णानुक्रममा देखाइनेछ।",
+                        "instructions": "साइटभरि देखाउनका लागि अधिकतम ४ वटा समन्वय प्रणालीहरू छान्नुहोस्। विकल्पहरू वर्णानुक्रम अनुसार देखाइनेछन्।",
                         "legend": "GPS ढाँचा चयनकर्ता",
                         "maximumOptionsSelectedMessage": "तपाईंले ४ मध्ये ४ विकल्पहरू चयन गर्नुभएको छ। अरू चयन गर्नुभन्दा पहिले कम्तीमा १ विकल्प हटाउनुहोस्।"
                     },
                     "title": "समन्वय"
                 },
                 "mainMapSettingsView": {
-                    "generalFieldSet": {
-                        "3DMapTerrainCheckboxLabel": "३डी नक्शा भूभाग",
-                        "legend": "सामान्य",
-                        "lockMapCheckboxLabel": "नक्सा लक गर्नुहोस्",
-                        "simplifyMapDataOnZoomCheckboxLabel": "नक्साका डाटालाई जुममा सरलीकरण गर्नुहोस्"
-                    },
                     "displayFieldSet": {
                         "clusterDataAllCheckboxLabel": "सबै",
                         "clusterDataCheckboxLabel": {
@@ -255,12 +257,18 @@
                         },
                         "clusterDataLegend": "ओभरल्याप हुँदाको सामुहिक डाटा",
                         "legend": "प्रदर्शन गर्नुहोस्",
-                        "openCoordinateSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} चयन गरियो",
-                        "openCoordinateSettingsButtonLabel": "समन्वय",
-                        "openCoordinateSettingsButtonTitle": "कोर्डिनेट सेटिङ खोल्नुहोस्",
                         "showClusterPolygonsCheckboxLabel": "समूहित डाटाको क्षेत्र देखाउने बहुभुज देखाउनुहोस्",
                         "showInactiveRadiosCheckboxLabel": "निष्कृय रेडियो देखाउनुहोस्",
                         "showTrackTimepointsCheckboxLabel": "ट्रयाकको समय देखाउनुहोस्"
+                    },
+                    "generalFieldSet": {
+                        "3DMapTerrainCheckboxLabel": "३डी नक्शा भूभाग",
+                        "legend": "सामान्य",
+                        "lockMapCheckboxLabel": "नक्सा लक गर्नुहोस्",
+                        "openCoordinateSystemSettingsButton": "समन्वय प्रणालीहरू",
+                        "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} चयन गरियो",
+                        "openCoordinateSystemSettingsButtonLabel": "समन्वय प्रणालीहरूको सेटिङ खोल्नुहोस्",
+                        "simplifyMapDataOnZoomCheckboxLabel": "नक्साका डाटालाई जुममा सरलीकरण गर्नुहोस्"
                     },
                     "mapMarkersFieldSet": {
                         "legend": "नक्सामा राखिने चिन्ह",

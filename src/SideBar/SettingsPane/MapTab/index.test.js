@@ -60,10 +60,10 @@ describe('SideBar - SettingsPane - MapTab', () => {
     expect(screen.queryByRole('heading', { name: 'Coordinates' })).toBeNull();
   });
 
-  test('shows the coordinate settings view when opened', async () => {
+  test('shows the coordinate system settings view when opened', async () => {
     renderMapTab();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Coordinates' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Open coordinate system settings' }));
 
     expect(screen.queryByRole('group', { name: 'General' })).toBeNull();
     expect(screen.queryByRole('group', { name: 'Display' })).toBeNull();
