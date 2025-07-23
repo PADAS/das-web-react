@@ -2,9 +2,10 @@ name: Frontend build
 on:
   push:
     branches:
-      - "release-*.*.*"
-      - "legacy-era-*"
-      - "develop*"
+      # - "release-*.*.*"
+      # - "legacy-era-*"
+      # - "develop*"
+      - custom-google-analytics-for-dev-legacy-test
 
 env:
   BUILD_BRANCH: ${{ github.ref_name }}
@@ -65,7 +66,7 @@ jobs:
           if $(wget -q --method=HEAD "https://${SITE}.pamdas.org"); then echo "::set-output name=site_exists::true"; else echo "::set-output name=site_exists::false"; fi
 
       - name: Set GA4 tracking ID for develop
-        if: github.ref_name == 'develop'
+        if: github.ref_name == 'custom-google-analytics-for-dev-legacy-test'
         run: |
           tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
           echo "REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_ENV
@@ -74,11 +75,11 @@ jobs:
         if: steps.validate_env.outputs.site_exists == 'true'
         run: CI=false yarn build
 
-      - name: UploadDownload to bucket
-        if: steps.validate_env.outputs.site_exists == 'true'
-        run: |-
-          gsutil -m cp -r build/static gs://er-static/
-          gsutil -m cp -r gs://er-static/api/* build/static/
+      # - name: UploadDownload to bucket
+      #   if: steps.validate_env.outputs.site_exists == 'true'
+      #   run: |-
+      #     gsutil -m cp -r build/static gs://er-static/
+      #     gsutil -m cp -r gs://er-static/api/* build/static/
 
       - name: Build docker image
         if: steps.validate_env.outputs.site_exists == 'true'
@@ -86,46 +87,46 @@ jobs:
           gcloud auth configure-docker
           make build_and_push descriptive_gcr_path_stem="${GITHUB_REF#refs/heads/}" unique_gcr_tag="${GITHUB_SHA}"
 
-      - name: Terraform config outputs & cluster
-        if: steps.validate_env.outputs.site_exists == 'true'
-        run: |-
-          cd terraform && terraform init
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+      # - name: Terraform config outputs & cluster
+      #   if: steps.validate_env.outputs.site_exists == 'true'
+      #   run: |-
+      #     cd terraform && terraform init
+      #     terraform plan -out=tfplan
+      #     terraform apply -auto-approve tfplan
 
-      - name: Allowlist IP address
-        if: steps.validate_env.outputs.site_exists == 'true'
-        run: |-
-          gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
+      # - name: Allowlist IP address
+      #   if: steps.validate_env.outputs.site_exists == 'true'
+      #   run: |-
+      #     gcloud compute firewall-rules create "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --allow="tcp:443" --description="for GitHub Actions... delete by: $(date --date='tomorrow')" --direction=INGRESS --network="default" --priority=899 --source-ranges="$(curl --silent ifconfig.me)/32" --target-tags="k8s-proxy" --project="earthranger-78ca55ca" --quiet
 
-      - name: Configure cluster connectivity
-        if: steps.validate_env.outputs.site_exists == 'true'
-        run: |-
-          export SITE=${GITHUB_REF#refs/heads/}
-          if [[ ${SITE} =~ release-*.*.* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
-          export SITE_EXISTS=$(if wget -q --method=HEAD https://${SITE}.pamdas.org; then echo "true"; else echo "false"; fi)
-          echo ${SITE_EXISTS}
-          if [[ "${SITE_EXISTS}" = "false" ]]; then
-            echo "Site doesn't exist, skipping deploy."
-            exit 0
-          fi
-          gcloud components install gke-gcloud-auth-plugin
-          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-          echo "Getting credentials"
-          gcloud container clusters get-credentials das-dev --zone us-west1-a
-          echo "Configuring cluster"
-          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
-          echo "Downloading the certificate"
-          echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
-          echo "Setting cluster with certificate"
-          kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
-          echo "Updating the image"
-          if [[ ${SITE} == "stage" ]]; then export IMAGE="${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"; else export IMAGE="${SITE}:${GITHUB_SHA}"; fi
-          kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${IMAGE}
+      # - name: Configure cluster connectivity
+      #   if: steps.validate_env.outputs.site_exists == 'true'
+      #   run: |-
+      #     export SITE=${GITHUB_REF#refs/heads/}
+      #     if [[ ${SITE} =~ release-*.*.* ]]; then export SITE="stage"; else export SITE=$(echo ${SITE} | tr '[:upper:]' '[:lower:]'); fi
+      #     export SITE_EXISTS=$(if wget -q --method=HEAD https://${SITE}.pamdas.org; then echo "true"; else echo "false"; fi)
+      #     echo ${SITE_EXISTS}
+      #     if [[ "${SITE_EXISTS}" = "false" ]]; then
+      #       echo "Site doesn't exist, skipping deploy."
+      #       exit 0
+      #     fi
+      #     gcloud components install gke-gcloud-auth-plugin
+      #     export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+      #     echo "Getting credentials"
+      #     gcloud container clusters get-credentials das-dev --zone us-west1-a
+      #     echo "Configuring cluster"
+      #     kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --server="https://$(cd terraform && terraform output -raw cluster_proxy_endpoint)" || false
+      #     echo "Downloading the certificate"
+      #     echo "$(cd terraform && terraform output -raw cluster_b64_encoded_proxy_ca_certificate)" | base64 -d > proxy.crt
+      #     echo "Setting cluster with certificate"
+      #     kubectl config set-cluster "$(kubectl config get-clusters | tail -n 1)" --certificate-authority="./proxy.crt" || false
+      #     echo "Updating the image"
+      #     if [[ ${SITE} == "stage" ]]; then export IMAGE="${GITHUB_REF#refs/heads/}:${GITHUB_SHA}"; else export IMAGE="${SITE}:${GITHUB_SHA}"; fi
+      #     kubectl set image -n ${SITE} deployment/web-react web-react=gcr.io/padas-app/circleci/das-web-react/${IMAGE}
 
 
-      - name: Remove ip address
-        if: always()
-        continue-on-error: true
-        run: |-
-          gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
+      # - name: Remove ip address
+      #   if: always()
+      #   continue-on-error: true
+      #   run: |-
+      #     gcloud compute firewall-rules delete "k8s-gha-${GITHUB_SHA:0:8}-${{ github.run_number }}" --project="earthranger-78ca55ca" --quiet
