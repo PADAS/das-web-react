@@ -667,6 +667,9 @@ const Map = ({ children, onMapLoad, socket }) => {
         onFeatureSymbolClick={onFeatureSymbolClick}
       />
 
+
+
+
       <AnalyzerLayer
         warningLines={analyzerWarningLines}
         criticalLines={analyzerCriticalLines}
