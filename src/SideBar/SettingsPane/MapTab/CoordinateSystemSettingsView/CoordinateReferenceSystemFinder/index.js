@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -11,12 +11,43 @@ import SearchBar from '../../../../../SearchBar';
 import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 30;
+const MAX_FILTERED_CRS_AREA_LENGTH = 60;
 const MAX_FILTERED_CRS_RESULTS = 10;
+
+const TableCrsAreaDataCell = ({ area, epsgCode, name }) => {
+  const { t } = useTranslation('components', {
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateReferenceSystemFinder',
+  });
+
+  const contentId = useId();
+
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const isLongText = area.length > MAX_FILTERED_CRS_AREA_LENGTH;
+
+  return <td className={styles.areaCell}>
+    <span id={contentId}>
+      {(isLongText && !isExpanded) ? `${area.slice(0, MAX_FILTERED_CRS_AREA_LENGTH)}...` : area}
+    </span>
+
+    {isLongText && <button
+      aria-controls={contentId}
+      aria-expanded={isExpanded}
+      aria-label={t(`readMoreLessButtonLabel.${isExpanded ? 'less' : 'more'}`, { epsgCode, name })}
+      className={styles.readMoreLessButton}
+      onClick={() => setIsExpanded(!isExpanded)}
+      title={t(`readMoreLessButtonLabel.${isExpanded ? 'less' : 'more'}`, { epsgCode, name })}
+      type="button"
+    >
+      {t(`readMoreLessButton.${isExpanded ? 'less' : 'more'}`)}
+    </button>}
+  </td>;
+};
 
 const CoordinateReferenceSystemFinder = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSettingsView.coordinateReferenceSystemFinder',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateReferenceSystemFinder',
   });
 
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
@@ -122,7 +153,7 @@ const CoordinateReferenceSystemFinder = () => {
           <tr key={filteredCRS.code}>
             <td>{filteredCRS.code}</td>
             <td>{filteredCRS.name}</td>
-            <td className={styles.areaCell} >{filteredCRS.area}</td>
+            <TableCrsAreaDataCell area={filteredCRS.area} epsgCode={filteredCRS.code} name={filteredCRS.name} />
             <td>
               <button
                 aria-label={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}

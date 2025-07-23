@@ -13,7 +13,7 @@ jest.mock('../../../../../ducks/coordinate-reference-systems', () => ({
   setStoredCoordinateReferenceSystems: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - CoordinateReferenceSystemFinder', () => {
+describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - CoordinateReferenceSystemFinder', () => {
   let store;
   beforeEach(() => {
     setStoredCoordinateReferenceSystems.mockImplementation(() => () => {});
@@ -95,6 +95,81 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - CoordinateR
     await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
 
     expect(searchBar).toHaveValue('');
+  });
+
+  test('shows the full CRS area if its text is small', async () => {
+    renderCoordinateReferenceSystemFinder();
+
+    const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
+
+    await waitFor(() => {
+      expect(within(resultsTable).getAllByRole('row')[1])
+        .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
+    });
+
+    await userEvent.type(screen.getByRole('searchbox', {
+      name: 'Search additional coordinate reference systems',
+    }), '2159');
+    const resultRows = within(resultsTable).getAllByRole('row');
+
+    expect(resultRows[1]).toHaveTextContent('2159Sierra Leone 1924 / New Colony GridSierra Leone - Freetown Peninsula.Add');
+  });
+
+  test('shows the CRS area truncated and a Read more button if its text is long', async () => {
+    renderCoordinateReferenceSystemFinder();
+
+    const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
+
+    await waitFor(() => {
+      expect(within(resultsTable).getAllByRole('row')[1])
+        .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
+    });
+
+    await userEvent.type(screen.getByRole('searchbox', {
+      name: 'Search additional coordinate reference systems',
+    }), '26753');
+    const resultRows = within(resultsTable).getAllByRole('row');
+
+    expect(resultRows[1])
+      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
+    expect(
+      within(resultRows[1]).getByRole('button', {
+        name: 'Show full area description for EPSG:26753 NAD27 / Colorado North',
+      })
+    ).toBeVisible();
+  });
+
+  test('Expands and collapses a lon CRS area description when the user clicks the Read more and Read less buttons', async () => {
+    renderCoordinateReferenceSystemFinder();
+
+    const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
+
+    await waitFor(() => {
+      expect(within(resultsTable).getAllByRole('row')[1])
+        .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
+    });
+
+    await userEvent.type(screen.getByRole('searchbox', {
+      name: 'Search additional coordinate reference systems',
+    }), '26753');
+    const resultRows = within(resultsTable).getAllByRole('row');
+
+    expect(resultRows[1])
+      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
+
+    await userEvent.click(within(resultRows[1]).getByRole('button', {
+      name: 'Show full area description for EPSG:26753 NAD27 / Colorado North',
+    }));
+
+    expect(resultRows[1])
+      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gilpin; Grand; Jackson; Larimer; Logan; Moffat; Morgan; Phillips; Rio Blanco; Routt; Sedgwick; Washington; Weld; Yuma.Read lessAdd');
+
+    await userEvent.click(within(resultRows[1]).getByRole('button', {
+      name: 'Hide full area description for EPSG:26753 NAD27 / Colorado North',
+    }));
+
+    expect(resultRows[1])
+      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
   });
 
   test('stores a CRS when the user clicks the Add button of its row', async () => {

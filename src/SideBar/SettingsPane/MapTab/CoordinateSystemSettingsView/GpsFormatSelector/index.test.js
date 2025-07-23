@@ -18,7 +18,7 @@ jest.mock('../../../../../ducks/coordinate-reference-systems', () => ({
   setStoredCoordinateReferenceSystems: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSelector', () => {
+describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFormatSelector', () => {
   let store;
   beforeEach(() => {
     setSelectedCoordinateReferenceSystems.mockImplementation(() => () => {});
@@ -112,7 +112,12 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
   });
 
   test('selects a coordinate reference system when checking a default GPS format option', async () => {
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DDM, GPS_FORMATS.UTM, GPS_FORMATS.MGRS];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+      GPS_FORMATS.MGRS,
+    ];
     renderGpsFormatSelector();
 
     expect(setSelectedCoordinateReferenceSystems).not.toHaveBeenCalled();
@@ -192,7 +197,13 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
     }];
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '5367'];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DMS,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
     renderGpsFormatSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeEnabled();
@@ -207,7 +218,12 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
     }];
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DMS,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+    ];
     renderGpsFormatSelector();
 
     expect(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' })).toBeEnabled();
@@ -242,7 +258,12 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
     }];
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DMS,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+    ];
     renderGpsFormatSelector();
 
     expect(setSelectedCoordinateReferenceSystems).not.toHaveBeenCalled();
@@ -280,7 +301,13 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
     }];
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '5367'];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DMS,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
     renderGpsFormatSelector();
 
     expect(setSelectedCoordinateReferenceSystems).not.toHaveBeenCalled();
@@ -296,7 +323,12 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSettingsView - GpsFormatSe
   });
 
   test('does not show a message if the limit of selected systems has not been reached', async () => {
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM];
+    store.view.coordinateReferenceSystems.selectedSystems = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.DMS,
+      GPS_FORMATS.DDM,
+      GPS_FORMATS.UTM,
+    ];
     renderGpsFormatSelector();
 
     expect(screen.queryByText('You have 4 of 4 options selected. Deselect at least 1 option before selecting others.'))

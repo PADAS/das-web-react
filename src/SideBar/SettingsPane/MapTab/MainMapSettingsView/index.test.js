@@ -10,7 +10,7 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import MainMapSettingsView from './';
 
 describe('SideBar - SettingsPane - MapTab - MainMapSettingsView', () => {
-  const onOpenCoordinateSettingsView = jest.fn();
+  const onOpenCoordinateSystemSettingsView = jest.fn();
 
   let store;
   beforeEach(() => {
@@ -48,17 +48,17 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView', () => {
 
   const renderMainMapSettingsView = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <MainMapSettingsView onOpenCoordinateSettingsView={onOpenCoordinateSettingsView} {...props} />
+      <MainMapSettingsView onOpenCoordinateSystemSettingsView={onOpenCoordinateSystemSettingsView} {...props} />
     </Provider>
   );
 
-  test('opens the coordinate settings view when the user clicks the coordinates button', async () => {
+  test('opens the coordinate system settings view when the user clicks the coordinates button', async () => {
     renderMainMapSettingsView();
 
-    expect(onOpenCoordinateSettingsView).not.toHaveBeenCalled();
+    expect(onOpenCoordinateSystemSettingsView).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Coordinates' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Open coordinate system settings' }));
 
-    expect(onOpenCoordinateSettingsView).toHaveBeenCalledTimes(1);
+    expect(onOpenCoordinateSystemSettingsView).toHaveBeenCalledTimes(1);
   });
 });

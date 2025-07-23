@@ -2,9 +2,6 @@ import React, { useEffect, useRef }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
-
-import { FEATURE_FLAG_LABELS } from '../../../../../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import {
   setMapClusterData,
@@ -12,15 +9,12 @@ import {
   toggleShowInactiveRadioState,
   toggleTrackTimepointState,
 } from '../../../../../ducks/map-ui';
-import { useFeatureFlag } from '../../../../../hooks';
 
 import * as styles from '../styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-const DisplayFieldSet = ({ onOpenCoordinateSettingsView }) => {
-  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
-
+const DisplayFieldSet = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
     keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.displayFieldSet',
@@ -28,9 +22,6 @@ const DisplayFieldSet = ({ onOpenCoordinateSettingsView }) => {
 
   const isTimeSliderActive = useSelector((state) => !!state.view.timeSliderState.active);
   const mapClusterConfig = useSelector((state) => state.view.mapClusterConfig);
-  const selectedCoordinateReferenceSystems = useSelector(
-    (state) => state.view.coordinateReferenceSystems.selectedSystems
-  );
   const showInactiveRadios = useSelector((state) => state.view.showInactiveRadios);
   const showTrackTimepoints = useSelector((state) => state.view.showTrackTimepoints);
 
@@ -86,33 +77,6 @@ const DisplayFieldSet = ({ onOpenCoordinateSettingsView }) => {
     <legend className={styles.title}>{t('legend')}</legend>
 
     <div className={styles.sectionWrapper}>
-      {customCoordinateSystemsEnabled && <>
-        <div className={styles.buttonWrapper}>
-          <span className={styles.label} id="open-coordinate-settings-button-label">
-            {t('openCoordinateSettingsButtonLabel')}
-          </span>
-
-          <span className={styles.details} id="open-coordinate-settings-button-details">
-            {t('openCoordinateSettingsButtonDetails', {
-              selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
-            })}
-          </span>
-
-          <button
-            aria-describedby="open-coordinate-settings-button-details"
-            aria-labelledby="open-coordinate-settings-button-label"
-            className={styles.button}
-            onClick={() => onOpenCoordinateSettingsView()}
-            title={t('openCoordinateSettingsButtonTitle')}
-            type="button"
-          >
-            <ChevronRight aria-hidden="true" />
-          </button>
-        </div>
-
-        <hr className={styles.separator} />
-      </>}
-
       <div className={styles.checkboxWrapper}>
         <input
           checked={showTrackTimepoints}

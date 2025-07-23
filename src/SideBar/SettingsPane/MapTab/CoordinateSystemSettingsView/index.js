@@ -8,8 +8,10 @@ import GpsFormatSelector from './GpsFormatSelector';
 
 import * as styles from './styles.module.scss';
 
-const CoordinateSettingsView = ({ onOpenMainMapSettingsView }) => {
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSettingsView' });
+const CoordinateSystemSettingsView = ({ onOpenMainMapSettingsView }) => {
+  const { t } = useTranslation('components', {
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView',
+  });
 
   return <>
     <div className={styles.header}>
@@ -32,4 +34,4 @@ const CoordinateSettingsView = ({ onOpenMainMapSettingsView }) => {
   </>;
 };
 
-export default CoordinateSettingsView;
+export default CoordinateSystemSettingsView;

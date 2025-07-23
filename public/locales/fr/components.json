@@ -204,7 +204,7 @@
       "generalTabTitle": "Actualisation & Langue",
       "languagesHeader": "Langues",
       "mapTab": {
-        "coordinateSettingsView": {
+        "coordinateSystemSettingsView": {
           "backButtonLabel": "Retour aux paramètres principaux de la carte",
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Ajouter",
@@ -212,6 +212,14 @@
             "emptyStateMessage": "Ajustez votre recherche pour trouver ce que vous cherchez.",
             "emptyStateMessageTitle": "Aucun résultat trouvé.",
             "instructions": "Rechercher d'autres systèmes de référence de coordonnées",
+            "readMoreLessButton": {
+              "less": "Lire moins",
+              "more": "Lire plus"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Masquer la description complète de la zone pour EPSG:{{epsgCode}} {{name}}",
+              "more": "Afficher la description complète de la zone pour EPSG:{{epsgCode}} {{name}}"
+            },
             "resultsTableAreaHeaderCell": "Zone",
             "resultsTableCaption": "Liste des résultats de recherche des systèmes de référence de coordonnées",
             "resultsTableCodeHeaderCell": "Code",
@@ -228,19 +236,13 @@
               "utm": "UTM Mercator transverse universel",
               "mgrs": "MGRS Système de référence de grille militaire"
             },
-            "instructions": "Sélectionnez jusqu'à 4 unités de coordonnées à afficher sur le site. Les options seront affichées par ordre alphabétique.",
+            "instructions": "Sélectionnez jusqu'à 4 systèmes de coordonnées à afficher sur l'ensemble du site. Les options seront affichées par ordre alphabétique.",
             "legend": "Sélecteur de format GPS",
             "maximumOptionsSelectedMessage": "Vous avez sélectionné 4 options sur 4. Désélectionnez au moins 1 option avant d'en choisir d'autres."
           },
           "title": "Coordonnées"
         },
         "mainMapSettingsView": {
-          "generalFieldSet": {
-            "3DMapTerrainCheckboxLabel": "Relief 3D",
-            "legend": "Actualisation & langue",
-            "lockMapCheckboxLabel": "Verrouiller la carte",
-            "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
-          },
           "displayFieldSet": {
             "clusterDataAllCheckboxLabel": "Tout sélectionner",
             "clusterDataCheckboxLabel": {
@@ -249,12 +251,18 @@
             },
             "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
             "legend": "Affichage",
-            "openCoordinateSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} sélectionnés",
-            "openCoordinateSettingsButtonLabel": "Coordonnées",
-            "openCoordinateSettingsButtonTitle": "Ouvrir les paramètres de coordonnées",
             "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
             "showInactiveRadiosCheckboxLabel": "Afficher les radios inactives",
             "showTrackTimepointsCheckboxLabel": "Afficher les points temporels du suivi"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Relief 3D",
+            "legend": "Actualisation & langue",
+            "lockMapCheckboxLabel": "Verrouiller la carte",
+            "openCoordinateSystemSettingsButton": "Systèmes de coordonnées",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} sélectionnés",
+            "openCoordinateSystemSettingsButtonLabel": "Ouvrir les paramètres des systèmes de coordonnées",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
           },
           "mapMarkersFieldSet": {
             "legend": "Repères",

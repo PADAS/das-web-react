@@ -72,6 +72,23 @@
       @media (min-width: layout.$md-layout-width-min) {
         display: table-cell;
       }
+
+      .readMoreLessButton {
+        background: none;
+        border: none;
+        border-radius: 0.25rem;
+        color: colors.$bright-blue;
+        display: block;
+        padding: 0 0.125rem;
+
+        &:hover {
+          text-decoration: underline;
+        }
+
+        &:focus-visible {
+          outline: 2px solid colors.$bright-blue;
+        }
+      }
     }
 
     &:last-child {

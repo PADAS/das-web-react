@@ -17,7 +17,7 @@ const MAX_SELECTED_GPS_FORMATS = 5;
 const CrsGpsFormatOption = ({ epsgCode, name }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
@@ -85,7 +85,7 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
 const DefaultGpsFormatOption = ({ formatCode }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
@@ -139,7 +139,7 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
 
 const GpsFormatSelector = () => {
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);

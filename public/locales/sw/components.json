@@ -221,7 +221,7 @@
       "generalTabTitle": "Jumla",
       "languagesHeader": "Lugha",
       "mapTab": {
-        "coordinateSettingsView": {
+        "coordinateSystemSettingsView": {
           "backButtonLabel": "Rudi kwenye mipangilio kuu ya ramani",
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Ongeza",
@@ -229,6 +229,14 @@
             "emptyStateMessage": "Rekebisha utafutaji wako ili kupata kile unachotafuta.",
             "emptyStateMessageTitle": "Hakuna matokeo yaliyopatikana.",
             "instructions": "Tafuta mifumo mingine ya marejeleo ya uratibu",
+            "readMoreLessButton": {
+              "less": "Soma kidogo",
+              "more": "Soma zaidi"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Ficha maelezo kamili ya eneo kwa EPSG:{{epsgCode}} {{name}}",
+              "more": "Onyesha maelezo kamili ya eneo kwa EPSG:{{epsgCode}} {{name}}"
+            },
             "resultsTableAreaHeaderCell": "Eneo",
             "resultsTableCaption": "Orodha ya matokeo ya utafutaji wa mifumo ya marejeleo ya uratibu",
             "resultsTableCodeHeaderCell": "Msimbo",
@@ -245,19 +253,13 @@
               "utm": "UTM Mercator ya Mlalo Ulimwenguni",
               "mgrs": "MGRS Mfumo wa Marejeleo wa Gridi ya Kijeshi"
             },
-            "instructions": "Chagua hadi vitengo 4 vya uratibu kuonyesha kwenye tovuti. Chaguzi zitaonyeshwa kwa mpangilio wa alfabeti.",
+            "instructions": "Chagua hadi mifumo 4 ya uratibu kuonyeshwa kwenye tovuti yote. Chaguo zitaonyeshwa kwa mpangilio wa alfabeti.",
             "legend": "Kichagua muundo wa GPS",
             "maximumOptionsSelectedMessage": "Umechagua chaguzi 4 kati ya 4. Tafadhali ondoa angalau chaguo 1 kabla ya kuchagua nyingine."
           },
           "title": "Kuratibu"
         },
         "mainMapSettingsView": {
-          "generalFieldSet": {
-            "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3D",
-            "legend": "Jumla",
-            "lockMapCheckboxLabel": "Funga ramani",
-            "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
-          },
           "displayFieldSet": {
             "clusterDataAllCheckboxLabel": "Yote",
             "clusterDataCheckboxLabel": {
@@ -266,12 +268,18 @@
             },
             "clusterDataLegend": "Kuweka vikundi data wakati kuna lapitiko kwa",
             "legend": "Onyesha",
-            "openCoordinateSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} vimechaguliwa",
-            "openCoordinateSettingsButtonLabel": "Kuratibu",
-            "openCoordinateSettingsButtonTitle": "Fungua mipangilio ya kuratibu",
             "showClusterPolygonsCheckboxLabel": "Onyesha poligoni inayoonyesha eneo la data iliyowekwa kwenye kundi",
             "showInactiveRadiosCheckboxLabel": "Onyesha redio zisizo na shughuli",
             "showTrackTimepointsCheckboxLabel": "Onyesha muda wa vipindi vya nyayo kwenye ramani"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Mazingira ya ramani ya 3D",
+            "legend": "Jumla",
+            "lockMapCheckboxLabel": "Funga ramani",
+            "openCoordinateSystemSettingsButton": "Mifumo ya uratibu",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} vimechaguliwa",
+            "openCoordinateSystemSettingsButtonLabel": "Fungua mipangilio ya mifumo ya uratibu",
+            "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
           },
           "mapMarkersFieldSet": {
             "legend": "Alama za ramani",

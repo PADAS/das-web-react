@@ -221,7 +221,7 @@
       "generalTabTitle": "General",
       "languagesHeader": "Language",
       "mapTab": {
-        "coordinateSettingsView": {
+        "coordinateSystemSettingsView": {
           "backButtonLabel": "Go back to main map settings",
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Add",
@@ -229,6 +229,14 @@
             "emptyStateMessage": "Adjust your search to find what you are looking for.",
             "emptyStateMessageTitle": "No results found.",
             "instructions": "Search additional coordinate reference systems",
+            "readMoreLessButton": {
+              "less": "Read less",
+              "more": "Read more"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Hide full area description for EPSG:{{epsgCode}} {{name}}",
+              "more": "Show full area description for EPSG:{{epsgCode}} {{name}}"
+            },
             "resultsTableAreaHeaderCell": "Area",
             "resultsTableCaption": "List of coordinate reference system search results",
             "resultsTableCodeHeaderCell": "Code",
@@ -245,19 +253,13 @@
               "utm": "UTM Universal Transverse Mercator",
               "mgrs": "MGRS Military Grid Reference System"
             },
-            "instructions": "Select up to 4 coordinate units to display across the site. Options will be displayed alphabetically.",
+            "instructions": "Select up to 4 coordinate systems to display across the site. Options will be displayed alphabetically.",
             "legend": "GPS format selector",
             "maximumOptionsSelectedMessage": "You have 4 of 4 options selected. Deselect at least 1 option before selecting others."
           },
           "title": "Coordinates"
         },
         "mainMapSettingsView": {
-          "generalFieldSet": {
-            "3DMapTerrainCheckboxLabel": "3D map terrain",
-            "legend": "General",
-            "lockMapCheckboxLabel": "Lock map",
-            "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
-          },
           "displayFieldSet": {
             "clusterDataAllCheckboxLabel": "All",
             "clusterDataCheckboxLabel": {
@@ -266,12 +268,18 @@
             },
             "clusterDataLegend": "Cluster data when there is overlap for",
             "legend": "Display",
-            "openCoordinateSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} selected",
-            "openCoordinateSettingsButtonLabel": "Coordinates",
-            "openCoordinateSettingsButtonTitle": "Open coordinate settings",
             "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
             "showInactiveRadiosCheckboxLabel": "Show inactive radios",
             "showTrackTimepointsCheckboxLabel": "Show track timepoints"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "3D map terrain",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Lock map",
+            "openCoordinateSystemSettingsButton": "Coordinate systems",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} selected",
+            "openCoordinateSystemSettingsButtonLabel": "Open coordinate system settings",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
           },
           "mapMarkersFieldSet": {
             "legend": "Map markers",
