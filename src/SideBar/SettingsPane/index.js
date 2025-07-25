@@ -130,6 +130,7 @@ const SettingsPane = () => {
     </Tab>
 
     <Tab
+      as="section"
       className={styles.tab}
       data-testid="settings-mapTab"
       eventKey={TAB_KEYS.MAP}

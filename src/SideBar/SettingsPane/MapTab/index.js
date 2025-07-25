@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 
-import CoordinateSettingsView from './CoordinateSettingsView';
+import CoordinateSystemSettingsView from './CoordinateSystemSettingsView';
 import MainMapSettingsView from './MainMapSettingsView';
 
-const VIEWS = { COORDINATE_SETTINGS: 'coordinates' };
+const VIEWS = { COORDINATE_SYSTEM_SETTINGS: 'coordinate_systems' };
 
 const MapTab = () => {
   const [currentView, setCurrentView] = useState(null);
 
   switch (currentView) {
-  case VIEWS.COORDINATE_SETTINGS:
-    return <CoordinateSettingsView onShowMainMapSettingsView={() => setCurrentView(null)} />;
+  case VIEWS.COORDINATE_SYSTEM_SETTINGS:
+    return <CoordinateSystemSettingsView onOpenMainMapSettingsView={() => setCurrentView(null)} />;
 
   default:
-    return <MainMapSettingsView onShowCoordianteSettingsView={() => setCurrentView(VIEWS.COORDINATE_SETTINGS)} />;
+    return <MainMapSettingsView
+      onOpenCoordinateSystemSettingsView={() => setCurrentView(VIEWS.COORDINATE_SYSTEM_SETTINGS)}
+    />;
   };
 };
 

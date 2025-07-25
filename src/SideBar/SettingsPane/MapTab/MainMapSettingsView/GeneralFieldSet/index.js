@@ -2,10 +2,14 @@ import React, { useContext }  from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ChevronRight } from '../../../../../common/images/icons/chevron-right.svg';
+
+import { FEATURE_FLAG_LABELS } from '../../../../../constants';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../../../../../utils/analytics';
 import { MapContext } from '../../../../../App';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
+import { useFeatureFlag } from '../../../../../hooks';
 
 import * as styles from '../styles.module.scss';
 
@@ -21,12 +25,19 @@ const LOCKABLE_MAP_CONTROLS = [
   'touchZoomRotate',
 ];
 
-const GeneralFieldSet = () => {
+const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
+  const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
+
   const dispatch = useDispatch();
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.mapTab.generalFieldSet' });
+  const { t } = useTranslation('components', {
+    keyPrefix: 'sideBar.settingsPane.mapTab.mainMapSettingsView.generalFieldSet',
+  });
 
   const enable3D = useSelector((state) => state.view.userPreferences.enable3D);
   const mapIsLocked = useSelector((state) => state.view.mapIsLocked);
+  const selectedCoordinateReferenceSystems = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedSystems
+  );
   const simplifyMapDataOnZoom = useSelector((state) => state.view.simplifyMapDataOnZoom.enabled);
 
   const map = useContext(MapContext);
@@ -56,46 +67,76 @@ const GeneralFieldSet = () => {
   return <fieldset className={styles.section}>
     <legend className={styles.title}>{t('legend')}</legend>
 
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={mapIsLocked}
-        className={styles.checkbox}
-        id="lock-map-checkbox"
-        onChange={onLockMapCheckboxChange}
-        type="checkbox"
-      />
+    <div className={styles.sectionWrapper}>
+      <div className={styles.checkboxWrapper}>
+        <input
+          checked={mapIsLocked}
+          className={styles.checkbox}
+          id="lock-map-checkbox"
+          onChange={onLockMapCheckboxChange}
+          type="checkbox"
+        />
 
-      <label className={styles.label} htmlFor="lock-map-checkbox">
-        {t('lockMapCheckboxLabel')}
-      </label>
-    </div>
+        <label className={styles.label} htmlFor="lock-map-checkbox">
+          {t('lockMapCheckboxLabel')}
+        </label>
+      </div>
 
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={enable3D}
-        className={styles.checkbox}
-        id="3d-map-terrain-checkbox"
-        onChange={on3DMapTerrainCheckboxChange}
-        type="checkbox"
-      />
+      <hr className={styles.separator} />
 
-      <label className={styles.label} htmlFor="3d-map-terrain-checkbox">
-        {t('3DMapTerrainCheckboxLabel')}
-      </label>
-    </div>
+      <div className={styles.checkboxWrapper}>
+        <input
+          checked={enable3D}
+          className={styles.checkbox}
+          id="3d-map-terrain-checkbox"
+          onChange={on3DMapTerrainCheckboxChange}
+          type="checkbox"
+        />
 
-    <div className={styles.checkboxWrapper}>
-      <input
-        checked={simplifyMapDataOnZoom}
-        className={styles.checkbox}
-        id="simplify-map-data-on-zoom-checkbox"
-        onChange={onSimplifyMapDataOnZoomCheckboxChange}
-        type="checkbox"
-      />
+        <label className={styles.label} htmlFor="3d-map-terrain-checkbox">
+          {t('3DMapTerrainCheckboxLabel')}
+        </label>
+      </div>
 
-      <label className={styles.label} htmlFor="simplify-map-data-on-zoom-checkbox">
-        {t('simplifyMapDataOnZoomCheckboxLabel')}
-      </label>
+      <hr className={styles.separator} />
+
+      <div className={styles.checkboxWrapper}>
+        <input
+          checked={simplifyMapDataOnZoom}
+          className={styles.checkbox}
+          id="simplify-map-data-on-zoom-checkbox"
+          onChange={onSimplifyMapDataOnZoomCheckboxChange}
+          type="checkbox"
+        />
+
+        <label className={styles.label} htmlFor="simplify-map-data-on-zoom-checkbox">
+          {t('simplifyMapDataOnZoomCheckboxLabel')}
+        </label>
+      </div>
+
+      {customCoordinateSystemsEnabled && <>
+        <hr className={styles.separator} />
+
+        <button
+          aria-label={t('openCoordinateSystemSettingsButtonLabel')}
+          className={styles.button}
+          onClick={() => onOpenCoordinateSystemSettingsView()}
+          title={t('openCoordinateSystemSettingsButtonLabel')}
+          type="button"
+        >
+          <span className={styles.text}>
+            {t('openCoordinateSystemSettingsButton')}
+          </span>
+
+          <span className={styles.details}>
+            {t('openCoordinateSystemSettingsButtonDetails', {
+              selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
+            })}
+          </span>
+
+          <ChevronRight aria-hidden="true" className={styles.icon} />
+        </button>
+      </>}
     </div>
   </fieldset>;
 };

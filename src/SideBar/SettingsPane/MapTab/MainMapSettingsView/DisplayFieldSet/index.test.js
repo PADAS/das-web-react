@@ -21,7 +21,7 @@ jest.mock('../../../../../ducks/map-ui', () => ({
   toggleTrackTimepointState: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - DisplayFieldSet', () => {
+describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - DisplayFieldSet', () => {
   let store;
   beforeEach(() => {
     setMapClusterData.mockImplementation(() => () => {});

@@ -45,7 +45,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    expect(await screen.queryByRole('textbox')).toBeNull();
+    expect(await screen.queryByRole('searchbox')).toBeNull();
   });
 
   test('shows the search bar if there are more than 5 features', async () => {
@@ -61,7 +61,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    expect(await screen.queryByRole('textbox')).toBeDefined();
+    expect(await screen.queryByRole('searchbox')).toBeDefined();
   });
 
   test('filters the layers shown in the list when user types in the search bar', async () => {
@@ -79,7 +79,7 @@ describe('LayerSelectorPopup', () => {
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(6);
 
-    const searchBar = await screen.findByRole('textbox');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);
@@ -98,7 +98,7 @@ describe('LayerSelectorPopup', () => {
       </Provider>
     );
 
-    const searchBar = await screen.findByRole('textbox');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'Jenae One Field');
 
     expect(await screen.findAllByRole('listitem')).toHaveLength(4);

@@ -181,7 +181,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Clear search bar",
+    "clearButtonLabel": "Clear search",
     "defaultPlaceholder": "Search..."
   },
   "serviceWorkerWatcher": {
@@ -221,35 +221,78 @@
       "generalTabTitle": "General",
       "languagesHeader": "Language",
       "mapTab": {
-        "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "3D map terrain",
-          "legend": "General",
-          "lockMapCheckboxLabel": "Lock map",
-          "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
-        },
-        "displayFieldSet": {
-          "clusterDataAllCheckboxLabel": "All",
-          "clusterDataCheckboxLabel": {
-            "events": "Events",
-            "subjects": "Subjects"
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Go back to main map settings",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Add",
+            "addCrsButtonLabel": "Add EPSG:{{epsgCode}} {{name}} to the GPS format selector options",
+            "emptyStateMessage": "Adjust your search to find what you are looking for.",
+            "emptyStateMessageTitle": "No results found.",
+            "instructions": "Search additional coordinate reference systems",
+            "readMoreLessButton": {
+              "less": "Read less",
+              "more": "Read more"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Hide full area description for EPSG:{{epsgCode}} {{name}}",
+              "more": "Show full area description for EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Area",
+            "resultsTableCaption": "List of coordinate reference system search results",
+            "resultsTableCodeHeaderCell": "Code",
+            "resultsTableNameHeaderCell": "Name",
+            "showingMaximumFilteredResultsMessage": "Showing the top 10 results. Try refining your search to narrow down the list."
           },
-          "clusterDataLegend": "Cluster data when there is overlap for",
-          "legend": "Display",
-          "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
-          "showInactiveRadiosCheckboxLabel": "Show inactive radios",
-          "showTrackTimepointsCheckboxLabel": "Show track timepoints"
-        },
-        "mapMarkersFieldSet": {
-          "legend": "Map markers",
-          "markerNamesAllCheckboxLabel": "All",
-          "markerNamesCheckboxLabel": {
-            "patrols": "Patrols",
-            "reports": "Events",
-            "stationary_subjects": "Stationary Subjects",
-            "subjects": "Subjects"
+          "gpsFormatSelector": {
+            "deleteGpsFormatOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
+            "gpsFormatOptionExample": "Example: {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Decimal Degrees",
+              "dms": "DMS Degrees, Minutes, Seconds",
+              "ddm": "DDM Degrees, Decimal Minutes",
+              "utm": "UTM Universal Transverse Mercator",
+              "mgrs": "MGRS Military Grid Reference System"
+            },
+            "instructions": "Select up to 4 coordinate systems to display across the site. Options will be displayed alphabetically.",
+            "legend": "GPS format selector",
+            "maximumOptionsSelectedMessage": "You have 4 of 4 options selected. Deselect at least 1 option before selecting others."
           },
-          "markerNamesLegend": "Show names on map markers for",
-          "showUserLocationCheckboxLabel": "Show my current location"
+          "title": "Coordinates"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "All",
+            "clusterDataCheckboxLabel": {
+              "events": "Events",
+              "subjects": "Subjects"
+            },
+            "clusterDataLegend": "Cluster data when there is overlap for",
+            "legend": "Display",
+            "showClusterPolygonsCheckboxLabel": "Show polygon outlining area of clustered data",
+            "showInactiveRadiosCheckboxLabel": "Show inactive radios",
+            "showTrackTimepointsCheckboxLabel": "Show track timepoints"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "3D map terrain",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Lock map",
+            "openCoordinateSystemSettingsButton": "Coordinate systems",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} selected",
+            "openCoordinateSystemSettingsButtonLabel": "Open coordinate system settings",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Map markers",
+            "markerNamesAllCheckboxLabel": "All",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Patrols",
+              "reports": "Events",
+              "stationary_subjects": "Stationary Subjects",
+              "subjects": "Subjects"
+            },
+            "markerNamesLegend": "Show names on map markers for",
+            "showUserLocationCheckboxLabel": "Show my current location"
+          }
         }
       },
       "mapTabTitle": "Map"
