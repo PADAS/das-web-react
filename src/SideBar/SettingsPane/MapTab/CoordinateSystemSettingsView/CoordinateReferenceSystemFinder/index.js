@@ -14,7 +14,7 @@ const LOADER_SIZE = 30;
 const MAX_FILTERED_CRS_AREA_LENGTH = 60;
 const MAX_FILTERED_CRS_RESULTS = 10;
 
-const TableCrsAreaDataCell = ({ area, epsgCode, name }) => {
+const AreaTD = ({ area, epsgCode, name }) => {
   const { t } = useTranslation('components', {
     keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateReferenceSystemFinder',
   });
@@ -153,7 +153,7 @@ const CoordinateReferenceSystemFinder = () => {
           <tr key={filteredCRS.code}>
             <td>{filteredCRS.code}</td>
             <td>{filteredCRS.name}</td>
-            <TableCrsAreaDataCell area={filteredCRS.area} epsgCode={filteredCRS.code} name={filteredCRS.name} />
+            <AreaTD area={filteredCRS.area} epsgCode={filteredCRS.code} name={filteredCRS.name} />
             <td>
               <button
                 aria-label={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}
