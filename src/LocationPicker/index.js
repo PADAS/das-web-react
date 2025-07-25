@@ -1,11 +1,11 @@
-import React, { memo, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 
-import { calcGpsDisplayString } from '../utils/location';
+import { transformLngLatToLocationType } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import MenuPopover from './MenuPopover';
@@ -30,8 +30,9 @@ const LocationPicker = ({
   value,
   ...otherProps
 }) => {
-  const jumpToLocation = useJumpToLocation();
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
+
+  const jumpToLocation = useJumpToLocation();
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
@@ -40,14 +41,16 @@ const LocationPicker = ({
 
   useImperativeHandle(ref, () => innerRef.current);
 
+  const inputDescriptionId = useId();
+  const menuPopoverId = useId();
+
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const displayValue = value ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat) : '';
+  const displayValue = value ? transformLngLatToLocationType(value, gpsFormat) : '';
 
   return <>
     <div
         className={`${styles.locationPicker} ${disabled ? styles.disabled : ''} ${inputProps['aria-invalid'] ? styles.error : ''} ${className}`}
-        id={`${id}-wrapper`}
         // Since our picker is a group of buttons, we handle the blur and focus from the wrapper but make sure to not
         // call the methods if we are just changing focus within the inner buttons.
         onBlur={(event) => !innerRef.current.contains(event.relatedTarget) && onBlur?.(event)}
@@ -57,7 +60,7 @@ const LocationPicker = ({
         {...otherProps}
       >
       <button
-        aria-controls={`${id}-menuPopover`}
+        aria-controls={menuPopoverId}
         aria-expanded={isMenuPopoverOpen}
         aria-label={t(`setLocationButtonLabel.${isMenuPopoverOpen ? 'open' : 'closed'}`)}
         className={`${styles.setLocationButton} ${readOnly ? styles.readOnly : ''}`}
@@ -68,7 +71,7 @@ const LocationPicker = ({
         type="button"
       >
         <input
-          aria-describedby={`${id}-inputDescription`}
+          aria-describedby={inputDescriptionId}
           aria-label={t('inputLabel')}
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
@@ -83,7 +86,7 @@ const LocationPicker = ({
           {...inputProps}
         />
 
-        <p className={styles.inputDescription} id={`${id}-inputDescription`}>
+        <p className={styles.inputDescription} id={inputDescriptionId}>
           {t('inputDescription')}
         </p>
       </button>
@@ -117,7 +120,7 @@ const LocationPicker = ({
 
     <Overlay container={innerRef} placement="bottom-start" show={isMenuPopoverOpen} target={innerRef}>
       <MenuPopover
-        id={id}
+        id={menuPopoverId}
         onChange={onChange}
         onBlur={onBlur}
         onClose={() => setIsMenuPopoverOpen(false)}

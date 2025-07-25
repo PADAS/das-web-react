@@ -127,14 +127,14 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
 
     await userEvent.type(screen.getByRole('searchbox', {
       name: 'Search additional coordinate reference systems',
-    }), '26753');
+    }), '2231');
     const resultRows = within(resultsTable).getAllByRole('row');
 
     expect(resultRows[1])
-      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
+      .toHaveTextContent('2231NAD83 / Colorado North (ftUS)United States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
     expect(
       within(resultRows[1]).getByRole('button', {
-        name: 'Show full area description for EPSG:26753 NAD27 / Colorado North',
+        name: 'Show full area description for EPSG:2231 NAD83 / Colorado North (ftUS)',
       })
     ).toBeVisible();
   });
@@ -151,25 +151,25 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
 
     await userEvent.type(screen.getByRole('searchbox', {
       name: 'Search additional coordinate reference systems',
-    }), '26753');
+    }), '2231');
     const resultRows = within(resultsTable).getAllByRole('row');
 
     expect(resultRows[1])
-      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
+      .toHaveTextContent('2231NAD83 / Colorado North (ftUS)United States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
 
     await userEvent.click(within(resultRows[1]).getByRole('button', {
-      name: 'Show full area description for EPSG:26753 NAD27 / Colorado North',
+      name: 'Show full area description for EPSG:2231 NAD83 / Colorado North (ftUS)',
     }));
 
     expect(resultRows[1])
-      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gilpin; Grand; Jackson; Larimer; Logan; Moffat; Morgan; Phillips; Rio Blanco; Routt; Sedgwick; Washington; Weld; Yuma.Read lessAdd');
+      .toHaveTextContent('2231NAD83 / Colorado North (ftUS)United States (USA) - Colorado - counties Adams; Boulder; Gilpin; Grand; Jackson; Larimer; Logan; Moffat; Morgan; Phillips; Rio Blanco; Routt; Sedgwick; Washington; Weld; Yuma.Read lessAdd');
 
     await userEvent.click(within(resultRows[1]).getByRole('button', {
-      name: 'Hide full area description for EPSG:26753 NAD27 / Colorado North',
+      name: 'Hide full area description for EPSG:2231 NAD83 / Colorado North (ftUS)',
     }));
 
     expect(resultRows[1])
-      .toHaveTextContent('26753NAD27 / Colorado NorthUnited States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
+      .toHaveTextContent('2231NAD83 / Colorado North (ftUS)United States (USA) - Colorado - counties Adams; Boulder; Gi...Read moreAdd');
   });
 
   test('stores a CRS when the user clicks the Add button of its row', async () => {
