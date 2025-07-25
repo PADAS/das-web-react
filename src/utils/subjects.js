@@ -20,8 +20,8 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
-    && !!properties.last_position_date
-    && !['null', 'undefined'].includes(properties.last_position_date); /* extra check for bad deserialization from mapbox-held subject data */
+    && !!properties.last_voice_call_start_at
+    && !['null', 'undefined'].includes(properties.last_voice_call_start_at); /* extra check for bad deserialization from mapbox-held subject data */
 };
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
