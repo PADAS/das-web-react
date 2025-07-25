@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import { useTranslation } from 'react-i18next';
 
-import { openMapFeatureType, closeMapFeatureType } from '../ducks/map-ui';
-import { hideFeatures, showFeatures } from '../ducks/map-layer-filter';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import { openMapFeatureType, closeMapFeatureType } from '../../../ducks/map-ui';
+import { hideFeatures, showFeatures } from '../../../ducks/map-layer-filter';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import CheckableList from '../CheckableList';
+import CheckableList from '../../../CheckableList';
 import FeatureListItem from './FeatureListItem';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as mapLayersStyles from '../styles.module.scss';
 import * as styles from './styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
@@ -53,7 +53,7 @@ const FeatureTypeListItem = (props) => {
 
   const itemProps = { map };
 
-  const trigger = <div className={listStyles.trigger}>
+  const trigger = <div className={mapLayersStyles.trigger}>
     <h6>{name}</h6>
   </div>;
 
@@ -69,7 +69,7 @@ const FeatureTypeListItem = (props) => {
     open={collapsibleShouldBeOpen} >
     <CheckableList
       items={features}
-      className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
+      className={`${mapLayersStyles.list} ${mapLayersStyles.itemList} ${styles.featureItemList} ${mapLayersStyles.compressed}`}
       itemProps={itemProps}
       itemFullyChecked={featureIsVisible}
       onCheckClick={onCheckToggle}

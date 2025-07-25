@@ -1,7 +1,7 @@
 import uniq from 'lodash/uniq';
 import { createSelector } from 'reselect';
 
-import { featureSets } from '../selectors';
+import { featureSets } from '../../../selectors';
 
 export const getFeatureLayerListState = createSelector(
   [(state, props) => featureSets(state, props)],

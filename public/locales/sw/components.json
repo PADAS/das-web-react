@@ -201,7 +201,12 @@
     "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
     "closeSettingsButtonLabel": "Funga Mipangilio",
     "layersLink": "Safu za Ramani",
-    "noItemsToDisplayInLayers": "Hakuna vitu vya kuonyesha.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Wachambuzi",
+      "eventsTabTitle": "Matukio",
+      "featuresTabTitle": "Vipengele",
+      "subjectsTabTitle": "Masomo"
+    },
     "patrolsLink": "Doria",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",

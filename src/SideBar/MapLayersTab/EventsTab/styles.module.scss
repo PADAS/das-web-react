@@ -1,11 +1,8 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/layout';
-
 .container {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 1rem 3rem 1rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid #d8d9d9;
 
   > div {

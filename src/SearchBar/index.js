@@ -12,7 +12,7 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
   const searchInputRef = useRef();
 
   return <div
-      className={`${styles.searchBar} ${value ? styles.hasValue : ''} ${className}`}
+      className={`${styles.searchBar} ${className}`}
       data-testid="searchBar"
       onClick={() => searchInputRef.current.focus()}
     >
@@ -29,7 +29,7 @@ const SearchBar = ({ className = '', onClear = null, value, ...otherProps }) => 
       {...otherProps}
     />
 
-    {onClear && <button
+    {onClear && value && <button
       aria-label={t('clearButtonLabel')}
       className={styles.clearButton}
       data-testid="reset-search-button"

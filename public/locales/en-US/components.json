@@ -201,7 +201,12 @@
     "closePatrolFeedButtonLabel": "Close Patrol Feed",
     "closeSettingsButtonLabel": "Close Settings",
     "layersLink": "Map Layers",
-    "noItemsToDisplayInLayers": "No items to display.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analyzers",
+      "eventsTabTitle": "Events",
+      "featuresTabTitle": "Features",
+      "subjectsTabTitle": "Subjects"
+    },
     "patrolsLink": "Patrols",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Could not load events. Please try again.",

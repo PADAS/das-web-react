@@ -34,16 +34,24 @@ describe('SearchBar', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  test('does not show a clear button', async () => {
-    renderSearchBar();
+  test('shows a search bar without clear button', async () => {
+    renderSearchBar({ value: 'Search' });
 
     expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
   });
 
-  test('shows a clear button', async () => {
+  test('does not show the clear button if there is no value', async () => {
     const onClear = jest.fn();
 
     renderSearchBar({ onClear });
+
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+  });
+
+  test('shows a clear button when there is a value', async () => {
+    const onClear = jest.fn();
+
+    renderSearchBar({ onClear, value: 'Search' });
 
     expect(screen.getByRole('button', { name: 'Clear search' })).toBeVisible();
   });
@@ -51,7 +59,7 @@ describe('SearchBar', () => {
   test('clears the search when the user clicks the clear button', async () => {
     const onClear = jest.fn();
 
-    renderSearchBar({ onClear });
+    renderSearchBar({ onClear, value: 'Search' });
 
     expect(onClear).not.toHaveBeenCalled();
 

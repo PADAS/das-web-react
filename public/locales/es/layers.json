@@ -1,8 +1,10 @@
 {
   "clearAllButton": "Limpiar todo",
   "layerList": {
-    "analyzersTitle": "Analizadores",
-    "featuresTitle": "Funcionalidades",
+    "allAnalyzersCheckboxLabel": "Todos los analizadores",
+    "allAnalyzersCheckboxAriaLabel": "Mostrar todos los analizadores",
+    "allFeaturesCheckboxLabel": "Todos los elementos",
+    "allFeaturesCheckboxAriaLabel": "Mostrar todos los elementos",
     "subjectsTitle": "Sujetos",
     "reportsTitle": "Eventos"
   }

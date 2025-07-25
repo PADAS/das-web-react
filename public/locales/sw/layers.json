@@ -1,12 +1,14 @@
 {
   "clearAllButton": "Ondoa Yote",
   "layerList": {
-    "analyzersTitle": "Wachambuzi",
+    "allAnalyzersCheckboxLabel": "Vichanganuzi vyote",
+    "allAnalyzersCheckboxAriaLabel": "Onyesha vichanganuzi vyote",
+    "allFeaturesCheckboxLabel": "Vipengele vyote",
+    "allFeaturesCheckboxAriaLabel": "Onyesha vipengele vyote",
     "collapseClosedButtonLabel": "Fungua",
     "collapseClosedButtonTitle": "Imefungwa",
     "collapseOpenButtonLabel": "Funga",
     "collapseOpenButtonTitle": "Imefunguliwa",
-    "featuresTitle": "Vipengele",
     "subjectsTitle": "Masomo",
     "reportsTitle": "Matukio"
   }

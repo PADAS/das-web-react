@@ -185,7 +185,12 @@
     },
     "sideBar": {
         "layersLink": "नक्साका तहहरु",
-        "noItemsToDisplayInLayers": "प्रदर्शनका लागि कुनै आइटम छैनन् ।",
+        "mapLayersTab": {
+            "analyzersTabTitle": "विश्लेषकहरु",
+            "eventsTabTitle": "घटनाहरु",
+            "featuresTabTitle": "विशेषताहरु",
+            "subjectsTabTitle": "विषयहरु"
+        },
         "patrolsLink": "गस्ती",
         "reportsFeedTab": {
             "fetchReportsErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",

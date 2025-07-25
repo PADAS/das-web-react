@@ -1,16 +1,16 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { showFeatures } from '../ducks/map-layer-filter';
-import { showPopup } from '../ducks/popup';
-import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
-import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
+import { showFeatures } from '../../../ducks/map-layer-filter';
+import { showPopup } from '../../../ducks/popup';
+import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../../../utils/analyzers';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics';
 
-import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
-import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
-import LocationJumpButton from '../LocationJumpButton';
+import { ReactComponent as GeofenceIcon } from '../../../common/images/icons/geofence-analyzer-icon.svg';
+import { ReactComponent as ProximityIcon } from '../../../common/images/icons/proximity-analyzer-icon.svg';
+import LocationJumpButton from '../../../LocationJumpButton';
 
-import * as listStyles from '../SideBar/styles.module.scss';
+import * as styles from '../styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
@@ -37,8 +37,14 @@ const AnalyzerListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   };
 
-  return <span className={listStyles.analyzerTitle} >
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
+  return <span className={styles.analyzerTitle}>
+    <div className={styles.analyzersName}>
+      {iconForCategory(properties.analyzer_type)}
+
+      {properties.title}
+    </div>
+
+    <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 });
 

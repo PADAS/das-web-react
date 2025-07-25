@@ -54,7 +54,37 @@
         },
         "ascendingLabel": "crescente"
     },
-    "mapLayerSearchbarPlaceholder": "Buscar camadas",
+    "mapLayerFilter": {
+        "formLabel": "Pesquisar camadas",
+        "groupButton": {
+            "grouped": "Agrupadas",
+            "ungrouped": "Desagrupadas"
+        },
+        "groupButtonLabel": {
+            "grouped": "Desagrupar camadas",
+            "ungrouped": "Agrupar camadas"
+        },
+        "searchBarLabel": "Pesquisar camadas",
+        "searchBarPlaceholder": "Pesquisar camadas...",
+        "setSortByButton": {
+            "alphabetical": "Alfabética",
+            "last_update": "Última atualização"
+        },
+        "setSortByButtonLabel": "Abrir opções de ordenação para camadas",
+        "sortDirectionButtonLabel": {
+            "down": "Ordenar camadas em ordem crescente",
+            "up": "Ordenar camadas em ordem decrescente"
+        },
+        "sortByMenuLabel": "Opções de ordenação para camadas",
+        "sortByMenuOption": {
+            "alphabetical": "Alfabética",
+            "lastUpdate": "Última atualização"
+        },
+        "sortByMenuOptionLabel": {
+            "alphabetical": "Ordenar camadas alfabeticamente",
+            "lastUpdate": "Ordenar camadas por última atualização"
+        }
+    },
     "patrolFilters": {
         "datesTitle": "Datas",
         "dateRangePopover": {
