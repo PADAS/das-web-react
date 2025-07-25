@@ -1,14 +1,16 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import ReactGA4 from 'react-ga4';
-import { hashString } from './string';
+
 import { CLIENT_BUILD_VERSION } from '../constants';
+import getWindowLocation from './getWindowLocation';
+import { hashString } from './string';
 
 export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}, serverVersion = 'unknown') => {
   const activeUser = selectedUserProfile.id ? selectedUserProfile : user;
 
   return {
     user_role: activeUser.role || 'unknown',
-    organization: window.location.hostname,
+    organization: getWindowLocation().hostname,
     user_id_hash: hashString(activeUser.id),
     is_staff: activeUser.is_staff || false,
     is_superuser: activeUser.is_superuser || false,
@@ -18,7 +20,7 @@ export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}, ser
 };
 
 const isLocalhost = () => {
-  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  return getWindowLocation().hostname === 'localhost' || getWindowLocation().hostname === '127.0.0.1';
 };
 
 export const initializeWebVitals = (userData = {}) => {
@@ -31,7 +33,7 @@ export const initializeWebVitals = (userData = {}) => {
           rating: metric.rating,
           delta: metric.delta,
           id: metric.id,
-          path: window.location.pathname,
+          path: getWindowLocation().pathname,
         });
       }
       return;
@@ -44,9 +46,9 @@ export const initializeWebVitals = (userData = {}) => {
       metric_delta: metric.delta,
       metric_rating: metric.rating,
       metric_id: metric.id,
-      page_path: window.location.pathname,
+      page_path: getWindowLocation().pathname,
       page_title: document.title,
-      hostname: window.location.hostname,
+      hostname: getWindowLocation().hostname,
       ...userData,
     });
 
@@ -57,7 +59,7 @@ export const initializeWebVitals = (userData = {}) => {
         rating: metric.rating,
         delta: metric.delta,
         id: metric.id,
-        path: window.location.pathname,
+        path: getWindowLocation().pathname,
       });
     }
   };

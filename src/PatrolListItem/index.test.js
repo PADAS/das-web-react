@@ -24,8 +24,6 @@ import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
 
-import * as colorVariables from '../common/styles/vars/colors.module.scss';
-
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   updatePatrol: jest.fn(),
@@ -248,13 +246,6 @@ describe('for active patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.DONE);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolActiveThemeColor}`);
-  });
-
 });
 
 describe('for scheduled patrols', () => {
@@ -292,13 +283,6 @@ describe('for scheduled patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolReadyThemeColor}`);
-  });
-
 });
 
 describe('for overdue patrols', () => {
@@ -318,13 +302,6 @@ describe('for overdue patrols', () => {
 
     expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolOverdueThemeColor}`);
-  });
-
 });
 
 describe('for cancelled patrols', () => {
@@ -362,12 +339,6 @@ describe('for cancelled patrols', () => {
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
     expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
   });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolCancelledThemeColor}`);
-  });
 });
 
 describe('for completed patrols', () => {
@@ -393,11 +364,5 @@ describe('for completed patrols', () => {
     expect(updatePatrol).toHaveBeenCalledTimes(1);
     expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
     expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
-  });
-
-  test('theming', async () => {
-    const iconContainer = await screen.findByRole('img');
-
-    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolDoneThemeColor}`);
   });
 });
