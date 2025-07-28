@@ -1,55 +1,14 @@
-import { GPS_FORMATS, normalizeLocationTextToLngLat, transformLngLatToLocationType, validateLocation } from './';
+import { getProj4CompatibleCRS, GPS_FORMATS, normalizeLocationTextToLngLat, transformLngLatToLocationType, validateLocation } from './';
 
 describe('Utils - location', () => {
-  const epsg2154 = {
-    area: 'France - onshore and offshore, mainland and Corsica (France métropolitaine including Corsica).',
-    bbox: [51.56, -9.86, 41.15, 10.38],
-    code: '2154',
-    name: 'RGF93 v1 / Lambert-93',
-    proj4: '+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs',
-  };
-  const epsg2946 = {
-    area: 'Canada - Quebec and Labrador between 63°W and 60°W.',
-    bbox: [58.92, -63, 47.16, -60],
-    code: '2946',
-    name: 'NAD83(CSRS) / MTM zone 4',
-    proj4: '+proj=tmerc +lat_0=0 +lon_0=-61.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +towgs84=-0.991,1.9072,0.5129,-1.25033e-07,-4.6785e-08,-5.6529e-08,0 +units=m +no_defs +type=crs'
-  };
-  const epsg3857 = {
-    area: 'World between 85.06°S and 85.06°N.',
-    bbox: [85.06, -180, -85.06, 180],
-    code: '3857',
-    name: 'WGS 84 / Pseudo-Mercator',
-    proj4: '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs +type=crs',
-  };
-  const epsg4269 = {
-    area: 'North America - onshore and offshore: Canada - Alberta; British Columbia; Manitoba; New Brunswick; Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; Prince Edward Island; Quebec; Saskatchewan; Yukon. Puerto Rico. United States (USA) - Alabama; Alaska; Arizona; Arkansas; California; Colorado; Connecticut; Delaware; Florida; Georgia; Hawaii; Idaho; Illinois; Indiana; Iowa; Kansas; Kentucky; Louisiana; Maine; Maryland; Massachusetts; Michigan; Minnesota; Mississippi; Missouri; Montana; Nebraska; Nevada; New Hampshire; New Jersey; New Mexico; New York; North Carolina; North Dakota; Ohio; Oklahoma; Oregon; Pennsylvania; Rhode Island; South Carolina; South Dakota; Tennessee; Texas; Utah; Vermont; Virginia; Washington; West Virginia; Wisconsin; Wyoming. US Virgin Islands. British Virgin Islands.',
-    bbox: [86.45, 167.65, 14.92, -40.73],
-    code: '4269',
-    name: 'NAD83',
-    proj4: '+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs +type=crs',
-  };
-  const epsg5367 = {
-    area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-    bbox: [11.77, -86.5, 2.21, -81.43],
-    code: '5367',
-    name: 'CR05 / CRTM05',
-    proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-  };
-  const epsg32633 = {
-    area: 'Between 12°E and 18°E, northern hemisphere between equator and 84°N, onshore and offshore. Austria. Bosnia and Herzegovina. Cameroon. Central African Republic. Chad. Congo. Croatia. Czechia. Democratic Republic of the Congo (Zaire). Gabon. Germany. Hungary. Italy. Libya. Malta. Niger. Nigeria. Norway. Poland. San Marino. Slovakia. Slovenia. Svalbard. Sweden. Vatican City State.',
-    bbox: [84, 12, 0, 18],
-    code: '32633',
-    name: 'WGS 84 / UTM zone 33N',
-    proj4: '+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs +type=crs',
-  };
-  const epsg32719 = {
-    area: 'Between 72°W and 66°W, southern hemisphere between 80°S and equator, onshore and offshore. Argentina. Bolivia. Brazil. Chile. Colombia. Peru.',
-    bbox: [0, -72, -80, -66],
-    code: '32719',
-    name: 'WGS 84 / UTM zone 19S',
-    proj4: '+proj=utm +zone=19 +south +datum=WGS84 +units=m +no_defs +type=crs',
-  };
+  let proj4CompatibleCRSByCode;
+  beforeAll(async () => {
+    const proj4CompatibleCRS = await getProj4CompatibleCRS();
+    proj4CompatibleCRSByCode = proj4CompatibleCRS.reduce((accumulator, crs) => {
+      accumulator[crs.code] = crs;
+      return accumulator;
+    }, {});
+  });
 
   describe('normalizeLocationTextToLngLat', () => {
     it('handles invalid locations when transforming from DEG GPS format', () => {
@@ -182,31 +141,31 @@ describe('Utils - location', () => {
     });
 
     it('handles invalid locations when transforming from a coordinate reference system', () => {
-      expect(normalizeLocationTextToLngLat('', epsg2154)).toBe(null);
-      expect(normalizeLocationTextToLngLat(null, epsg2946)).toBe(null);
-      expect(normalizeLocationTextToLngLat(undefined, epsg3857)).toBe(null);
-      expect(normalizeLocationTextToLngLat({}, epsg4269)).toBe(null);
-      expect(normalizeLocationTextToLngLat('   ', epsg5367)).toBe(null);
-      expect(normalizeLocationTextToLngLat('abcd', epsg32633)).toBe(null);
-      expect(normalizeLocationTextToLngLat('NaN, NaN', epsg32719)).toBe(null);
-      expect(normalizeLocationTextToLngLat('1.2.3.4', epsg32719)).toBe(null);
-      expect(normalizeLocationTextToLngLat('1, 2, 3', epsg32719)).toBe(null);
+      expect(normalizeLocationTextToLngLat('', proj4CompatibleCRSByCode[2154])).toBe(null);
+      expect(normalizeLocationTextToLngLat(null, proj4CompatibleCRSByCode[2946])).toBe(null);
+      expect(normalizeLocationTextToLngLat(undefined, proj4CompatibleCRSByCode[3857])).toBe(null);
+      expect(normalizeLocationTextToLngLat({}, proj4CompatibleCRSByCode[4269])).toBe(null);
+      expect(normalizeLocationTextToLngLat('   ', proj4CompatibleCRSByCode[5367])).toBe(null);
+      expect(normalizeLocationTextToLngLat('abcd', proj4CompatibleCRSByCode[32633])).toBe(null);
+      expect(normalizeLocationTextToLngLat('NaN, NaN', proj4CompatibleCRSByCode[32719])).toBe(null);
+      expect(normalizeLocationTextToLngLat('1.2.3.4', proj4CompatibleCRSByCode[32719])).toBe(null);
+      expect(normalizeLocationTextToLngLat('1, 2, 3', proj4CompatibleCRSByCode[32719])).toBe(null);
     });
 
     it('handles valid locations when transforming from a coordinate reference system', () => {
-      expect(normalizeLocationTextToLngLat('-4845662.665438537, 8897548.794431165', epsg2154))
+      expect(normalizeLocationTextToLngLat('-4845662.665438537, 8897548.794431165', proj4CompatibleCRSByCode[2154]))
         .toEqual({ latitude: 40.7128, longitude: -74.006 });
-      expect(normalizeLocationTextToLngLat('6038625.3, 8100395.8', epsg2946))
+      expect(normalizeLocationTextToLngLat('6038625.3, 8100395.8', proj4CompatibleCRSByCode[2946]))
         .toEqual({ latitude: 41.902801, longitude: 12.496403 });
-      expect(normalizeLocationTextToLngLat('-7866870.4907, -3955040.6406', epsg3857))
+      expect(normalizeLocationTextToLngLat('-7866870.4907, -3955040.6406', proj4CompatibleCRSByCode[3857]))
         .toEqual({ latitude: -33.4489, longitude: -70.6693 });
-      expect(normalizeLocationTextToLngLat('51.5074, 0.1278', epsg4269))
+      expect(normalizeLocationTextToLngLat('51.5074, 0.1278', proj4CompatibleCRSByCode[4269]))
         .toEqual({ latitude: 0.1278, longitude: 51.5074 });
-      expect(normalizeLocationTextToLngLat('1162197.59, -10046527.02', epsg5367))
+      expect(normalizeLocationTextToLngLat('1162197.59, -10046527.02', proj4CompatibleCRSByCode[5367]))
         .toEqual({ latitude: -84.067124, longitude: 9.928927 });
-      expect(normalizeLocationTextToLngLat('-1188647.890446, 11.445676', epsg32633))
+      expect(normalizeLocationTextToLngLat('-1188647.890446, 11.445676', proj4CompatibleCRSByCode[32633]))
         .toEqual({ latitude: 0.0001, longitude: 0.0001 });
-      expect(normalizeLocationTextToLngLat('500010, 19997960', epsg32719))
+      expect(normalizeLocationTextToLngLat('500010, 19997960', proj4CompatibleCRSByCode[32719]))
         .toEqual({ latitude: 89.9999, longitude: -5.303284 });
     });
 
@@ -224,10 +183,10 @@ describe('Utils - location', () => {
       expect(transformLngLatToLocationType('', GPS_FORMATS.DDM)).toBe('');
       expect(transformLngLatToLocationType('0, 0', GPS_FORMATS.UTM)).toBe('');
       expect(transformLngLatToLocationType([0, 0], GPS_FORMATS.MGRS)).toBe('');
-      expect(transformLngLatToLocationType({ lat: null, lon: null }, epsg2154)).toBe('');
-      expect(transformLngLatToLocationType({ latitude: null, longitude: null }, epsg2946)).toBe('');
-      expect(transformLngLatToLocationType({ latitude: 91, longitude: 0 }, epsg3857)).toBe('');
-      expect(transformLngLatToLocationType({ latitude: 0, longitude: 181 }, epsg4269)).toBe('');
+      expect(transformLngLatToLocationType({ lat: null, lon: null }, proj4CompatibleCRSByCode[2154])).toBe('');
+      expect(transformLngLatToLocationType({ latitude: null, longitude: null }, proj4CompatibleCRSByCode[2946])).toBe('');
+      expect(transformLngLatToLocationType({ latitude: 91, longitude: 0 }, proj4CompatibleCRSByCode[3857])).toBe('');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 181 }, proj4CompatibleCRSByCode[4269])).toBe('');
     });
 
     it('returns an empty string if the location type is invalid', () => {
@@ -311,19 +270,19 @@ describe('Utils - location', () => {
     });
 
     it('transforms to a coordinate reference system', () => {
-      expect(transformLngLatToLocationType({ latitude: 40.7128, longitude: -74.0060 }, epsg2154))
+      expect(transformLngLatToLocationType({ latitude: 40.7128, longitude: -74.0060 }, proj4CompatibleCRSByCode[2154]))
         .toBe('-4845662.665439, 8897548.794431');
-      expect(transformLngLatToLocationType({ latitude: -33.8651, longitude: 151.2099 }, epsg2946))
+      expect(transformLngLatToLocationType({ latitude: -33.8651, longitude: 151.2099 }, proj4CompatibleCRSByCode[2946]))
         .toBe('-2779703.444813, -15728422.372571');
-      expect(transformLngLatToLocationType({ latitude: 51.5074, longitude: -0.1278 }, epsg3857))
+      expect(transformLngLatToLocationType({ latitude: 51.5074, longitude: -0.1278 }, proj4CompatibleCRSByCode[3857]))
         .toBe('-14226.630923, 6711542.475588');
-      expect(transformLngLatToLocationType({ latitude: 0.0001, longitude: 0.0001 }, epsg4269))
+      expect(transformLngLatToLocationType({ latitude: 0.0001, longitude: 0.0001 }, proj4CompatibleCRSByCode[4269]))
         .toBe('0.000100, 0.000100');
-      expect(transformLngLatToLocationType({ latitude: -84.067124, longitude: 9.928927 }, epsg5367))
+      expect(transformLngLatToLocationType({ latitude: -84.067124, longitude: 9.928927 }, proj4CompatibleCRSByCode[5367]))
         .toBe('1162197.591532, -10046527.018092');
-      expect(transformLngLatToLocationType({ latitude: 89.9999, longitude: 0 }, epsg32633))
+      expect(transformLngLatToLocationType({ latitude: 89.9999, longitude: 0 }, proj4CompatibleCRSByCode[32633]))
         .toBe('499997.110303, 9997954.158527');
-      expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, epsg32719))
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, proj4CompatibleCRSByCode[32719]))
         .toBe('-10308119.733821, 29995929.886042');
     });
   });

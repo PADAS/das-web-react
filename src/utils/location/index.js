@@ -5,7 +5,7 @@ import Mgrs, { LatLon as LatLonMgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 import proj4 from 'proj4';
 
-const PROJ_4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
+const PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
 
 const LNG_LAT_DECIMAL_PRECISION = 6;
 
@@ -163,34 +163,6 @@ export const transformLngLatToLocationType = (lngLat, locationType) => {
 
     if (isValidLatitude(numericLatitude) && isValidLongitude(numericLongitude)) {
       try {
-        if (typeof locationType === 'string') {
-          // If the location type is a string, the location must be transformed
-          // to one of our supported GPS formats.
-          switch (locationType) {
-          case GPS_FORMATS.DEG:
-            return new LatLon(numericLatitude, numericLongitude)
-              .toString('n', LNG_LAT_DECIMAL_PRECISION)
-              .split(',')
-              .map(item => `${item.trim()}°`)
-              .join(', ');
-
-          case GPS_FORMATS.DMS:
-            return new LatLon(numericLatitude, numericLongitude).toString('dms', LNG_LAT_DECIMAL_PRECISION);
-
-          case GPS_FORMATS.DDM:
-            return new LatLon(numericLatitude, numericLongitude).toString('dm', LNG_LAT_DECIMAL_PRECISION);
-
-          case GPS_FORMATS.UTM:
-            return new LatLonUtm(numericLatitude, numericLongitude).toUtm().toString();
-
-          case GPS_FORMATS.MGRS:
-            return new LatLonMgrs(numericLatitude, numericLongitude).toUtm().toMgrs().toString();
-
-          default:
-            return '';
-          }
-        }
-
         if (locationType?.proj4) {
           // If the location type is an object with a property proj4, the
           // location must be transformed to a coordinate reference system
@@ -199,6 +171,31 @@ export const transformLngLatToLocationType = (lngLat, locationType) => {
           const x = locationTypeCoordinates[0].toFixed(LNG_LAT_DECIMAL_PRECISION);
           const y = locationTypeCoordinates[1].toFixed(LNG_LAT_DECIMAL_PRECISION);
           return `${x}, ${y}`;
+        }
+
+        // Otherwise, the location type must be a GPS format.
+        switch (locationType) {
+        case GPS_FORMATS.DEG:
+          return new LatLon(numericLatitude, numericLongitude)
+            .toString('n', LNG_LAT_DECIMAL_PRECISION)
+            .split(',')
+            .map(item => `${item.trim()}°`)
+            .join(', ');
+
+        case GPS_FORMATS.DMS:
+          return new LatLon(numericLatitude, numericLongitude).toString('dms', LNG_LAT_DECIMAL_PRECISION);
+
+        case GPS_FORMATS.DDM:
+          return new LatLon(numericLatitude, numericLongitude).toString('dm', LNG_LAT_DECIMAL_PRECISION);
+
+        case GPS_FORMATS.UTM:
+          return new LatLonUtm(numericLatitude, numericLongitude).toUtm().toString();
+
+        case GPS_FORMATS.MGRS:
+          return new LatLonMgrs(numericLatitude, numericLongitude).toUtm().toMgrs().toString();
+
+        default:
+          return '';
         }
       } catch {}
     }
@@ -226,7 +223,7 @@ export const getProj4CompatibleCRS = async () => {
 
     proj4CompatibleCRSSingleton = Object.values(allCoordinateReferenceSystems)
       .reduce((acc, coordinateReferenceSystem) => {
-        const needsGridShiftFile = PROJ_4_REQUIRES_GRID_SHIFT_FILES_REGEX.test(coordinateReferenceSystem.proj4);
+        const needsGridShiftFile = PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX.test(coordinateReferenceSystem.proj4);
 
         // Only include coordinate reference systems that have proj4 strings
         // and that do not require grid shift files so they can be transformed
