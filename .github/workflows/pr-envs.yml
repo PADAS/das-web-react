@@ -10,6 +10,8 @@ jobs:
   config:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     runs-on: ubuntu-latest
+    outputs:
+      build-args: ${{ steps.env-vars.outputs.build-args }}
     environment: 
       name: ${{ github.head_ref }}
       url: "https://${{ github.head_ref }}.dev.pamdas.org"
@@ -26,10 +28,17 @@ jobs:
         with:
           name: npm-config
           path: package.json
+      - name: Read env file
+        id: env-vars
+        if: github.ref_name == 'develop'
+        run: |
+          tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
+          echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
+
   build:
     if: contains(github.event.pull_request.labels.*.name, 'deploy')
     needs: config
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v2
+    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
     with:
       environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
@@ -37,3 +46,4 @@ jobs:
       dockerfile: Dockerfile.mt
       artifact-download: true
       artifact-name: npm-config
+      build-args: ${{ needs.config.outputs.build-args || '' }}

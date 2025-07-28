@@ -1,4 +1,8 @@
 FROM node:22-alpine as build
+
+ARG REACT_APP_GA4_TRACKING_ID
+ENV REACT_APP_GA4_TRACKING_ID=$REACT_APP_GA4_TRACKING_ID
+
 WORKDIR /app
 
 RUN apk add --no-cache git alpine-sdk python3
