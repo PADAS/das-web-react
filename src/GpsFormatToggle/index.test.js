@@ -35,9 +35,19 @@ describe('GpsFormatToggle', () => {
 
   const renderGpsFormatToggle = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <GpsFormatToggle lat={11.666666} lng={10.012657} name="name" {...props} />
+      <GpsFormatToggle lat={11.666666} lng={10.012657} {...props} />
     </Provider>
   );
+
+  test('assigns the name to the radio inputs', async () => {
+    renderGpsFormatToggle({ name: 'name' });
+
+    expect(screen.getByRole('radio', { name: 'DEG' })).toHaveAttribute('name', 'name');
+    expect(screen.getByRole('radio', { name: 'DMS' })).toHaveAttribute('name', 'name');
+    expect(screen.getByRole('radio', { name: 'DDM' })).toHaveAttribute('name', 'name');
+    expect(screen.getByRole('radio', { name: 'UTM' })).toHaveAttribute('name', 'name');
+    expect(screen.getByRole('radio', { name: 'MGRS' })).toHaveAttribute('name', 'name');
+  });
 
   test('checks the GPS format option that is currently selected', async () => {
     renderGpsFormatToggle();

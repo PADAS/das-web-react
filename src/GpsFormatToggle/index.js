@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { memo, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
 import { FEATURE_FLAG_LABELS } from '../constants';
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { GPS_FORMATS, transformLngLatToLocationType } from '../utils/location';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag } from '../hooks';
 
@@ -14,7 +14,7 @@ import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = true, ...otherProps }) => {
+const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsString = true, ...otherProps }) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
 
   const dispatch = useDispatch();
@@ -29,7 +29,11 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
 
   useImperativeHandle(ref, () => innerRef.current);
 
-  const gpsString = showGpsString && lat !== null && lng !== null ? calcGpsDisplayString(lat, lng, gpsFormat) : null;
+  const nameFallback = useId();
+
+  const gpsString = (showGpsString && lat !== null && lng !== null)
+    ? transformLngLatToLocationType({ latitude: lat, longitude: lng }, gpsFormat)
+    : null;
 
   const gpsFormatOptions = customCoordinateSystemsEnabled ? selectedCRS : Object.values(GPS_FORMATS);
 
@@ -55,19 +59,17 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
   }, []);
 
   return <div {...otherProps}>
-    <fieldset className={styles.fieldset} ref={fieldsetRef}>
+    <fieldset className={styles.fieldset} ref={fieldsetRef} role="radiogroup">
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
       {/* TODO (CRS): Style label to be in a single line with ellipsis */}
       {gpsFormatOptions.map((gpsFormatOption) =>
-        <label
-          className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
-          key={gpsFormatOption}
-        >
+        <div className={styles.radio} key={gpsFormatOption}>
           <input
             checked={gpsFormat === gpsFormatOption}
-            className={styles.radioInput}
-            name={name}
+            className={styles.input}
+            id={`${gpsFormatOption}-radio`}
+            name={name || nameFallback}
             onChange={() => onGpsFormatChange(gpsFormatOption)}
             ref={(element) => {
               if (gpsFormat === gpsFormatOption) {
@@ -78,8 +80,13 @@ const GpsFormatToggle = ({ lat = null, lng = null, name, ref, showGpsString = tr
             value={gpsFormatOption}
           />
 
-          {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
-        </label>)}
+          <label
+            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
+            htmlFor={`${gpsFormatOption}-radio`}
+          >
+            {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
+          </label>
+        </div>)}
     </fieldset>
 
     {gpsString && <div className={styles.gpsStringWrapper}>

@@ -7,6 +7,7 @@ import { addModal } from '../ducks/modals';
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
+import getWindowLocation from '../utils/getWindowLocation';
 import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
@@ -33,7 +34,7 @@ const reloadOnceProfileIsPersisted = (isMainUser) => {
   setTimeout(() => {
     const isProfilePersisted = !!window.localStorage.getItem('persist:userProfile')?.includes('username');
     if (isMainUser ? !isProfilePersisted : isProfilePersisted) {
-      window.location.reload(true);
+      getWindowLocation().reload(true);
     } else {
       reloadOnceProfileIsPersisted();
     }

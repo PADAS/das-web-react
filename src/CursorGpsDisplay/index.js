@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 
-import { calcGpsDisplayString, validateLocation } from '../utils/location';
+import { transformLngLatToLocationType, validateLocation } from '../utils/location';
 
 import { MapContext } from '../App';
 import MenuPopover from './MenuPopover';
@@ -54,7 +54,10 @@ const CursorGpsDisplay = () => {
         <SearchIcon />
       </div>
 
-      {isValidLocation && calcGpsDisplayString(cursorCoordinates.lat, cursorCoordinates.lng, gpsFormat)}
+      {isValidLocation && transformLngLatToLocationType({
+        latitude: cursorCoordinates.lat,
+        longitude: cursorCoordinates.lng,
+      }, gpsFormat)}
 
       <div className={`${styles.caret} ${isMenuPopoverOpen ? styles.open : ''}`} role="img" />
     </button>
