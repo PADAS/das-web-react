@@ -6,6 +6,7 @@ import { MapContext } from '../App';
 import AnalyzerConfigPopup from '../AnalyzerConfigPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
 import FeatureSymbolPopup from '../FeatureLayer/FeatureSymbolPopup';
+import GpsFormatToggle from '../GpsFormatToggle';
 import LayerSelectorPopup from '../LayerSelectorPopup';
 import Popup from '../Popup';
 import SubjectPopup from '../SubjectPopup';
@@ -67,6 +68,10 @@ const TEMPLATES = {
   'cluster-select': {
     Component: LayerSelectorPopup,
     popupAttrs: { className: layerSelectorPopupStyles.popup },
+  },
+  'gps-format-toggle': {
+    Component: GpsFormatToggle,
+    popupAttrs: { anchor: 'top' },
   },
 };
 
