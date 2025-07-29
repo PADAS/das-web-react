@@ -1,8 +1,10 @@
 {
     "clearAllButton": "सबै हटाउनुहोस्",
     "layerList": {
-        "analyzerTitle": "विश्लेषकहरु",
-        "featuresTitle": "विशेषताहरु",
+        "allAnalyzersCheckboxLabel": "सबै विश्लेषकहरू",
+        "allAnalyzersCheckboxAriaLabel": "सबै विश्लेषकहरू देखाउनुहोस्",
+        "allFeaturesCheckboxLabel": "सबै फिचरहरू",
+        "allFeaturesCheckboxAriaLabel": "सबै फिचरहरू देखाउनुहोस्",
         "subjectsTitle": "विषयहरु",
         "reportsTitle": "घटनाहरु",
         "collapseClosedButtonLabel": "विस्तार गर्नुहोस्",

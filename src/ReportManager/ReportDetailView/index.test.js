@@ -249,6 +249,7 @@ describe('ReportManager - ReportDetailView', () => {
 
     expect(titleInput).toHaveTextContent('Accident');
 
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, '2');
 
     expect(titleInput).toHaveTextContent('2');
@@ -819,6 +820,7 @@ describe('ReportManager - ReportDetailView', () => {
     expect(unsetLocallyEditedEvent).toHaveBeenCalledTimes(1);
 
     const titleInput = await screen.findByTestId('reportManager-header-title');
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, '2');
     titleInput.blur();
 
@@ -826,6 +828,7 @@ describe('ReportManager - ReportDetailView', () => {
       expect(setLocallyEditedEvent).toHaveBeenCalledTimes(1);
     });
 
+    await userEvent.clear(titleInput);
     await userEvent.type(titleInput, 'title');
     titleInput.blur();
 
@@ -847,6 +850,7 @@ describe('ReportManager - ReportDetailView', () => {
     );
 
     const titleTextBox = await screen.findByTestId('reportManager-header-title');
+    await userEvent.clear(titleTextBox);
     await userEvent.type(titleTextBox, '2');
     await userEvent.tab();
 

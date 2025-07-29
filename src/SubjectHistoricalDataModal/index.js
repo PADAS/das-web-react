@@ -8,8 +8,8 @@ import unionBy from 'lodash/unionBy';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { calcGpsDisplayString } from '../utils/location';
 import { fetchObservationsForSubject } from '../ducks/observations';
+import { transformLngLatToLocationType } from '../utils/location';
 
 import DateTime from '../DateTime';
 import LoadingOverlay from '../LoadingOverlay';
@@ -51,8 +51,7 @@ const ObservationRow = ({ observation, observationProperties, subjectIsStatic })
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
-  const locationString = !subjectIsStatic
-    && calcGpsDisplayString(observation.location.latitude, observation.location.longitude, gpsFormat);
+  const locationString = !subjectIsStatic && transformLngLatToLocationType(observation.location, gpsFormat);
 
   return <tr>
     <td>

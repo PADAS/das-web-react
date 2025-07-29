@@ -15,7 +15,7 @@ jest.mock('../../../../../ducks/map-ui', () => ({
   toggleMapNamesState: jest.fn(),
 }));
 
-describe('SideBar - SettingsPane - MapTab - MapMarkersFieldSet', () => {
+describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFieldSet', () => {
   let store;
   beforeEach(() => {
     toggleDisplayUserLocation.mockImplementation(() => () => {});

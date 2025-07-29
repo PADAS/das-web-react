@@ -20,8 +20,8 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
-    && !!properties.last_position_date
-    && !['null', 'undefined'].includes(properties.last_position_date); /* extra check for bad deserialization from mapbox-held subject data */
+    && !!properties.last_voice_call_start_at
+    && !['null', 'undefined'].includes(properties.last_voice_call_start_at); /* extra check for bad deserialization from mapbox-held subject data */
 };
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
@@ -195,44 +195,6 @@ export const updateDeviceStatusProperties = (existing, incoming, matchProp = 'la
       ...keyBy(incoming, matchProp),
     }
   );
-
-/**
- * filterSubjects is a function to drill down a given subject group array tree 
- * to filter for subjects matching the search filter as given by the function 
- * isMatch. 
- * @param {Object} s a subject groups array. 
- * @param {function} isMatch function to check if subject matches the filter.
- */
-export const filterSubjects = (s, isMatch) => {
-  // call recursive helper function and then filter out empty subject groups.
-  return s
-    .map(sg => filterSubjectsHelper(sg, isMatch))
-    .filter(sg => !!sg.subgroups.length || !!sg.subjects.length);
-};
-
-/**
- * filterSubjectsHelper is a recursive function to drill down a given subject group 
- * array tree to filter for subjects matching the search filter as given by the 
- * function isMatch. 
- * NOTE that subject groups have both a subgroups and subjects array.
- * @param {Object} s either a subject group or subgroup. 
- * @param {function} isMatch function to check if subject matches the filter.
- */
-const filterSubjectsHelper = (s, isMatch) => {
-  let newS = [];
-  if (s.subjects) { // filter the subjects array:
-    newS = { ...s, subjects: s.subjects.filter(isMatch) };
-  }
-  if (s.subgroups) { // filter subgroups array:
-    newS = {
-      ...newS,
-      subgroups: newS.subgroups
-        .map(sg => filterSubjectsHelper(sg, isMatch))
-        .filter(sg => !!sg.subjects.length || !!sg.subgroups.length)
-    };
-  }
-  return newS;
-};
 
 export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
   ...mapSubjects,

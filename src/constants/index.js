@@ -327,6 +327,16 @@ export const EVENT_SORT_OPTIONS = [
   { value: 'event_time', key: 'eventTimeLabel' },
 ];
 
+export const MAP_LAYER_SORT_VALUES = {
+  ALPHABETICAL: 'alphabetical',
+  LAST_UPDATE: 'last_update',
+};
+
+export const MAP_LAYER_SORT_OPTIONS = [
+  { value: 'last_update', key: 'lastUpdate' },
+  { value: 'alphabetical', key: 'alphabetical' },
+];
+
 export const SORT_DIRECTION = { up: 'up', down: 'down' };
 
 export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];

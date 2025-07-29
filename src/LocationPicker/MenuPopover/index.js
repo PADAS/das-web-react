@@ -22,7 +22,6 @@ const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const MenuPopover = ({
   className,
-  id,
   onBlur,
   onChange,
   onClose,
@@ -151,7 +150,6 @@ const MenuPopover = ({
 
   return <Popover
       className={`${className} ${styles.menuPopover}`}
-      id={`${id}-menuPopover`}
       ref={ref}
       role="presentation"
       style={{ ...style, minWidth: popoverWidthRef.current, width: popoverWidthRef.current }}
@@ -160,7 +158,6 @@ const MenuPopover = ({
     <div className={styles.wrapper} onKeyDown={isPickingLocation ? undefined : onWrapperKeyDown} ref={wrapperRef}>
       <GpsInput
         gpsFormatToggleRef={gpsFormatToggleRef}
-        id={`${id}-menuPopover-gpsInput`}
         inputRef={gpsInputRef}
         onKeyDown={isPickingLocation ? undefined : onGpsInputKeyDown}
         onChange={onChange}

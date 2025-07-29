@@ -175,7 +175,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Effacer la barre de recherche",
+    "clearButtonLabel": "Effacer la barre de recherche",
     "defaultPlaceholder": "Recherche...."
   },
   "serviceWorkerWatcher": {
@@ -184,7 +184,12 @@
   },
   "sideBar": {
     "layersLink": "Calques",
-    "noItemsToDisplayInLayers": "Aucun élément à afficher.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Barriere Virtuelle",
+      "eventsTabTitle": "Événements",
+      "featuresTabTitle": "Calques",
+      "subjectsTabTitle": "Appareils Suivis"
+    },
     "patrolsLink": "Patrouilles",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "Impossible de charger les événements. Veuillez réessayer.",
@@ -204,35 +209,78 @@
       "generalTabTitle": "Actualisation & Langue",
       "languagesHeader": "Langues",
       "mapTab": {
-        "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "Relief 3D",
-          "legend": "Actualisation & langue",
-          "lockMapCheckboxLabel": "Verrouiller la carte",
-          "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
-        },
-        "displayFieldSet": {
-          "clusterDataAllCheckboxLabel": "Tout sélectionner",
-          "clusterDataCheckboxLabel": {
-            "events": "Événements",
-            "subjects": "Appareils suivis"
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Retour aux paramètres principaux de la carte",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Ajouter",
+            "addCrsButtonLabel": "Ajouter EPSG:{{epsgCode}} {{name}} aux options du sélecteur de format GPS",
+            "emptyStateMessage": "Ajustez votre recherche pour trouver ce que vous cherchez.",
+            "emptyStateMessageTitle": "Aucun résultat trouvé.",
+            "instructions": "Rechercher d'autres systèmes de référence de coordonnées",
+            "readMoreLessButton": {
+              "less": "Lire moins",
+              "more": "Lire plus"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Masquer la description complète de la zone pour EPSG:{{epsgCode}} {{name}}",
+              "more": "Afficher la description complète de la zone pour EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Zone",
+            "resultsTableCaption": "Liste des résultats de recherche des systèmes de référence de coordonnées",
+            "resultsTableCodeHeaderCell": "Code",
+            "resultsTableNameHeaderCell": "Nom",
+            "showingMaximumFilteredResultsMessage": "Affichage des 10 meilleurs résultats. Essayez d'affiner votre recherche pour réduire la liste."
           },
-          "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
-          "legend": "Affichage",
-          "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
-          "showInactiveRadiosCheckboxLabel": "Afficher les radios inactives",
-          "showTrackTimepointsCheckboxLabel": "Afficher les points temporels du suivi"
-        },
-        "mapMarkersFieldSet": {
-          "legend": "Repères",
-          "markerNamesAllCheckboxLabel": "Tout sélectionner",
-          "markerNamesCheckboxLabel": {
-            "patrols": "Patrouilles",
-            "reports": "Événements",
-            "stationary_subjects": "Appareils fixes",
-            "subjects": "Appareils suivis"
+          "gpsFormatSelector": {
+            "deleteGpsFormatOptionButtonLabel": "Supprimer {{coordinateReferenceSystemName}} des options",
+            "gpsFormatOptionExample": "Exemple : {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Degrés décimaux",
+              "dms": "DMS Degrés, minutes, secondes",
+              "ddm": "DDM Degrés, minutes décimales",
+              "utm": "UTM Mercator transverse universel",
+              "mgrs": "MGRS Système de référence de grille militaire"
+            },
+            "instructions": "Sélectionnez jusqu'à 4 systèmes de coordonnées à afficher sur l'ensemble du site. Les options seront affichées par ordre alphabétique.",
+            "legend": "Sélecteur de format GPS",
+            "maximumOptionsSelectedMessage": "Vous avez sélectionné 4 options sur 4. Désélectionnez au moins 1 option avant d'en choisir d'autres."
           },
-          "markerNamesLegend": "Afficher les noms pour:",
-          "showUserLocationCheckboxLabel": "Afficher votre position actuelle"
+          "title": "Coordonnées"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "Tout sélectionner",
+            "clusterDataCheckboxLabel": {
+              "events": "Événements",
+              "subjects": "Appareils suivis"
+            },
+            "clusterDataLegend": "Regrouper les données lorsqu'il y a plusieurs:",
+            "legend": "Affichage",
+            "showClusterPolygonsCheckboxLabel": "Afficher le polygone délimitant la zone des données regroupées",
+            "showInactiveRadiosCheckboxLabel": "Afficher les radios inactives",
+            "showTrackTimepointsCheckboxLabel": "Afficher les points temporels du suivi"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Relief 3D",
+            "legend": "Actualisation & langue",
+            "lockMapCheckboxLabel": "Verrouiller la carte",
+            "openCoordinateSystemSettingsButton": "Systèmes de coordonnées",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} sélectionnés",
+            "openCoordinateSystemSettingsButtonLabel": "Ouvrir les paramètres des systèmes de coordonnées",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Repères",
+            "markerNamesAllCheckboxLabel": "Tout sélectionner",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Patrouilles",
+              "reports": "Événements",
+              "stationary_subjects": "Appareils fixes",
+              "subjects": "Appareils suivis"
+            },
+            "markerNamesLegend": "Afficher les noms pour:",
+            "showUserLocationCheckboxLabel": "Afficher votre position actuelle"
+          }
         }
       },
       "mapTabTitle": "Carte"

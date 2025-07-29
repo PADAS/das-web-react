@@ -305,6 +305,7 @@ const Filters = ({
           isMulti={true}
           onChange={onReportedByChange}
           value={selectedReporters}
+          menuRef={document.body}
         />
 
         <Button

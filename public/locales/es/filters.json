@@ -54,7 +54,37 @@
     },
     "ascendingLabel": " ascendentemente"
   },
-  "mapLayerSearchbarPlaceholder": "Buscar capas...",
+  "mapLayerFilter": {
+    "formLabel": "Buscar capas",
+    "groupButton": {
+      "grouped": "Agrupadas",
+      "ungrouped": "Desagrupadas"
+    },
+    "groupButtonLabel": {
+      "grouped": "Desagrupar capas",
+      "ungrouped": "Agrupar capas"
+    },
+    "searchBarLabel": "Buscar capas",
+    "searchBarPlaceholder": "Buscar capas...",
+    "setSortByButton": {
+      "alphabetical": "Alfabético",
+      "last_update": "Última actualización"
+    },
+    "setSortByButtonLabel": "Abrir opciones de orden para las capas",
+    "sortDirectionButtonLabel": {
+      "down": "Ordenar capas de forma ascendente",
+      "up": "Ordenar capas de forma descendente"
+    },
+    "sortByMenuLabel": "Opciones de orden para las capas",
+    "sortByMenuOption": {
+      "alphabetical": "Alfabético",
+      "lastUpdate": "Última actualización"
+    },
+    "sortByMenuOptionLabel": {
+      "alphabetical": "Ordenar capas alfabéticamente",
+      "lastUpdate": "Ordenar capas por última actualización"
+    }
+  },
   "patrolFilters": {
     "datesTitle": "Fechas",
     "dateRangePopover": {

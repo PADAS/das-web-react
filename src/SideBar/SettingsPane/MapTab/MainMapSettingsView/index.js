@@ -4,20 +4,12 @@ import DisplayFieldSet from './DisplayFieldSet';
 import GeneralFieldSet from './GeneralFieldSet';
 import MapMarkersFieldSet from './MapMarkersFieldSet';
 
-import * as styles from './styles.module.scss';
+const MainMapSettingsView = ({ onOpenCoordinateSystemSettingsView }) => <>
+  <GeneralFieldSet onOpenCoordinateSystemSettingsView={() => onOpenCoordinateSystemSettingsView()} />
 
-const MainMapSettingsView = ({ onShowCoordianteSettingsView }) => <>
-  <GeneralFieldSet />
-
-  <hr className={styles.separator} />
-
-  <DisplayFieldSet onShowCoordianteSettingsView={() => onShowCoordianteSettingsView()} />
-
-  <hr className={styles.separator} />
+  <DisplayFieldSet />
 
   <MapMarkersFieldSet />
-
-  <hr className={styles.separator} />
 </>;
 
 export default MainMapSettingsView;

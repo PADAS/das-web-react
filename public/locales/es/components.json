@@ -175,7 +175,7 @@
     }
   },
   "searchBar": {
-    "clearIconTitle": "Limpiar la barra de búsqueda",
+    "clearButtonLabel": "Limpiar la barra de búsqueda",
     "defaultPlaceholder": "Buscar..."
   },
   "serviceWorkerWatcher": {
@@ -184,7 +184,12 @@
   },
   "sideBar": {
     "layersLink": "Capas de mapa",
-    "noItemsToDisplayInLayers": "No hay elementos que mostrar.",
+    "mapLayersTab": {
+      "analyzersTabTitle": "Analizadores",
+      "eventsTabTitle": "Eventos",
+      "featuresTabTitle": "Funcionalidades",
+      "subjectsTabTitle": "Sujetos"
+    },
     "patrolsLink": "Patrullas",
     "reportsFeedTab": {
       "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
@@ -204,35 +209,78 @@
       "generalTabTitle": "General",
       "languagesHeader": "Lenguaje",
       "mapTab": {
-        "generalFieldSet": {
-          "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
-          "legend": "General",
-          "lockMapCheckboxLabel": "Bloquear mapa",
-          "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
-        },
-        "displayFieldSet": {
-          "clusterDataAllCheckboxLabel": "Todo",
-          "clusterDataCheckboxLabel": {
-            "events": "Eventos",
-            "subjects": "Sujetos"
+        "coordinateSystemSettingsView": {
+          "backButtonLabel": "Volver a la configuración principal del mapa",
+          "coordinateReferenceSystemFinder": {
+            "addCrsButton": "Agregar",
+            "addCrsButtonLabel": "Agregar EPSG:{{epsgCode}} {{name}} a las opciones del selector de formato GPS",
+            "emptyStateMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
+            "emptyStateMessageTitle": "No se encontraron resultados.",
+            "instructions": "Buscar sistemas de referencia de coordenadas adicionales",
+            "readMoreLessButton": {
+              "less": "Leer menos",
+              "more": "Leer más"
+            },
+            "readMoreLessButtonLabel": {
+              "less": "Ocultar la descripción completa del área para EPSG:{{epsgCode}} {{name}}",
+              "more": "Mostrar la descripción completa del área para EPSG:{{epsgCode}} {{name}}"
+            },
+            "resultsTableAreaHeaderCell": "Área",
+            "resultsTableCaption": "Lista de resultados de búsqueda de sistemas de referencia de coordenadas",
+            "resultsTableCodeHeaderCell": "Código",
+            "resultsTableNameHeaderCell": "Nombre",
+            "showingMaximumFilteredResultsMessage": "Mostrando los 10 principales resultados. Intenta refinar tu búsqueda para reducir la lista."
           },
-          "clusterDataLegend": "Agrupar datos cuando se superpongan",
-          "legend": "Información mostrada",
-          "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita el área de datos agrupados",
-          "showInactiveRadiosCheckboxLabel": "Mostrar radios inactivos",
-          "showTrackTimepointsCheckboxLabel": "Mostrar puntos de tiempo en trayectorias"
-        },
-        "mapMarkersFieldSet": {
-          "legend": "Marcadores del mapa",
-          "markerNamesAllCheckboxLabel": "Todos",
-          "markerNamesCheckboxLabel": {
-            "patrols": "Patrullas",
-            "reports": "Eventos",
-            "stationary_subjects": "Sujetos estacionarios",
-            "subjects": "Sujetos"
+          "gpsFormatSelector": {
+            "deleteGpsFormatOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
+            "gpsFormatOptionExample": "Ejemplo: {{example}}",
+            "gpsFormatOptionLabel": {
+              "deg": "DEG Grados decimales",
+              "dms": "DMS Grados, minutos, segundos",
+              "ddm": "DDM Grados, minutos decimales",
+              "utm": "UTM Transversal Universal de Mercator",
+              "mgrs": "MGRS Sistema de referencia de cuadrícula militar"
+            },
+            "instructions": "Selecciona hasta 4 sistemas de coordenadas para mostrar en todo el sitio. Las opciones se mostrarán en orden alfabético.",
+            "legend": "Selector de formato GPS",
+            "maximumOptionsSelectedMessage": "Tienes seleccionadas 4 de 4 opciones. Deselecciona al menos 1 opción antes de seleccionar otras."
           },
-          "markerNamesLegend": "Mostrar nombres de marcadores del mapa para",
-          "showUserLocationCheckboxLabel": "Mostrar mi ubicación actual"
+          "title": "Coordenadas"
+        },
+        "mainMapSettingsView": {
+          "displayFieldSet": {
+            "clusterDataAllCheckboxLabel": "Todo",
+            "clusterDataCheckboxLabel": {
+              "events": "Eventos",
+              "subjects": "Sujetos"
+            },
+            "clusterDataLegend": "Agrupar datos cuando se superpongan",
+            "legend": "Información mostrada",
+            "showClusterPolygonsCheckboxLabel": "Mostrar polígono que delimita el área de datos agrupados",
+            "showInactiveRadiosCheckboxLabel": "Mostrar radios inactivos",
+            "showTrackTimepointsCheckboxLabel": "Mostrar puntos de tiempo en trayectorias"
+          },
+          "generalFieldSet": {
+            "3DMapTerrainCheckboxLabel": "Mapa de terreno 3D",
+            "legend": "General",
+            "lockMapCheckboxLabel": "Bloquear mapa",
+            "openCoordinateSystemSettingsButton": "Sistemas de coordenadas",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} seleccionados",
+            "openCoordinateSystemSettingsButtonLabel": "Abrir configuración de sistemas de coordenadas",
+            "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
+          },
+          "mapMarkersFieldSet": {
+            "legend": "Marcadores del mapa",
+            "markerNamesAllCheckboxLabel": "Todos",
+            "markerNamesCheckboxLabel": {
+              "patrols": "Patrullas",
+              "reports": "Eventos",
+              "stationary_subjects": "Sujetos estacionarios",
+              "subjects": "Sujetos"
+            },
+            "markerNamesLegend": "Mostrar nombres de marcadores del mapa para",
+            "showUserLocationCheckboxLabel": "Mostrar mi ubicación actual"
+          }
         }
       },
       "mapTabTitle": "Mapa"

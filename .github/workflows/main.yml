@@ -8,6 +8,8 @@ on:
 jobs:
   config:
     runs-on: ubuntu-latest
+    outputs:
+      build-args: ${{ steps.env-vars.outputs.build-args }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node
@@ -17,13 +19,21 @@ jobs:
       - run: |
           npm pkg set "buildbranch"="${{ github.head_ref || github.ref_name }}"
           npm pkg set "buildnum"="${{ github.run_number }}"
+
+      - name: Read env file
+        id: env-vars
+        if: github.ref_name == 'develop'
+        run: |
+          tracking_id=$(grep REACT_APP_GA4_TRACKING_ID .env.development | cut -d '=' -f2)
+          echo "build-args=REACT_APP_GA4_TRACKING_ID=$tracking_id" >> $GITHUB_OUTPUT
+
       - uses: actions/upload-artifact@v4
         with:
           name: npm-config
           path: package.json
   build:
     needs: config
-    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@v2
+    uses: PADAS/gundi-workflows/.github/workflows/build_docker.yml@main
     with:
       environment: padas-app
       repository: europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
@@ -31,3 +41,4 @@ jobs:
       dockerfile: Dockerfile.mt
       artifact-download: true
       artifact-name: npm-config
+      build-args: ${{ needs.config.outputs.build-args || '' }}

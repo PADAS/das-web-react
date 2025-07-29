@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import { render, screen } from '../../../../../test-utils';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
+import { GPS_FORMATS } from '../../../../../utils/location';
 import { MapContext } from '../../../../../App';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { toggleMapDataSimplificationOnZoom, toggleMapLockState } from '../../../../../ducks/map-ui';
@@ -28,7 +29,9 @@ jest.mock('../../../../../ducks/user-preferences', () => {
   };
 });
 
-describe('SideBar - SettingsPane - MapTab - GeneralFieldSet', () => {
+describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - GeneralFieldSet', () => {
+  const onOpenCoordinateSystemSettingsView = jest.fn();
+
   let map, store;
   beforeEach(() => {
     toggleMapDataSimplificationOnZoom.mockImplementation(() => () => {});
@@ -40,6 +43,9 @@ describe('SideBar - SettingsPane - MapTab - GeneralFieldSet', () => {
     store = {
       data: {},
       view: {
+        coordinateReferenceSystems: {
+          selectedSystems: Object.values(GPS_FORMATS),
+        },
         mapIsLocked: false,
         simplifyMapDataOnZoom: {
           enabled: false,
@@ -54,7 +60,7 @@ describe('SideBar - SettingsPane - MapTab - GeneralFieldSet', () => {
   const renderGeneralFieldSet = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
       <MapContext.Provider value={map}>
-        <GeneralFieldSet {...props} />
+        <GeneralFieldSet onOpenCoordinateSystemSettingsView={onOpenCoordinateSystemSettingsView}  {...props} />
       </MapContext.Provider>
     </Provider>
   );
@@ -88,5 +94,15 @@ describe('SideBar - SettingsPane - MapTab - GeneralFieldSet', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: 'Simplify map data on zoom' }));
 
     expect(toggleMapDataSimplificationOnZoom).toHaveBeenCalledTimes(1);
+  });
+
+  test('opens the coordinate system settings view when the user clicks the coordinate systems button', async () => {
+    renderGeneralFieldSet();
+
+    expect(onOpenCoordinateSystemSettingsView).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open coordinate system settings' }));
+
+    expect(onOpenCoordinateSystemSettingsView).toHaveBeenCalledTimes(1);
   });
 });

@@ -14,7 +14,6 @@ import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { SYSTEM_CONFIG_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
-import { MapContext } from '../App';
 import { SocketContext } from '../withSocketConnection';
 import { useSystemConfigFlag, usePermissions } from '../hooks';
 import useFetchPatrolsFeed from './useFetchPatrolsFeed';
@@ -22,19 +21,13 @@ import useNavigate from '../hooks/useNavigate';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
-import AnalyzerLayerList from '../AnalyzerLayerList';
 import BadgeIcon from '../Badge';
-import ClearAllControl from '../ClearAllControl';
-import ErrorBoundary from '../ErrorBoundary';
-import FeatureLayerList from '../FeatureLayerList';
 import Link from '../Link';
-import MapLayerFilter from '../MapLayerFilter';
 import PatrolDetailView from '../PatrolDetailView';
 import ReportManager from '../ReportManager';
-import ReportMapControl from '../ReportMapControl';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
-import SubjectGroupList from '../SubjectGroupList';
 
+import MapLayersTab from './MapLayersTab';
 import PatrolsFeedTab from './PatrolsFeedTab';
 import ReportsFeedTab from './ReportsFeedTab';
 import SettingsPane from './SettingsPane';
@@ -61,7 +54,6 @@ const SideBar = () => {
   const patrolsFeed = useFetchPatrolsFeed();
   const reportsFeed = useReportsFeed();
 
-  const map = useContext(MapContext);
   const socket = useContext(SocketContext);
 
   const sideBarRef = useRef();
@@ -285,30 +277,9 @@ const SideBar = () => {
               <Route path=":id/*" element={<PatrolDetailView />} />
             </Route>
 
-            <Route
-              path={TAB_KEYS.LAYERS}
-              element={<ErrorBoundary>
-                <MapLayerFilter />
+            <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />
 
-                <div className={styles.mapLayers}>
-                  <ReportMapControl />
-                  <SubjectGroupList map={map} />
-                  <FeatureLayerList map={map} />
-                  <AnalyzerLayerList map={map} />
-                  <div className={styles.noItems}>{t('noItemsToDisplayInLayers')}</div>
-                </div>
-
-                <div className={styles.mapLayerFooter}>
-                  <ClearAllControl map={map} />
-                </div>
-              </ErrorBoundary>}
-            />
-
-            <Route path={TAB_KEYS.SETTINGS}
-              element={
-                <SettingsPane />
-              }
-            />
+            <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>
         </div>
       </div>

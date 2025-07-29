@@ -2,6 +2,8 @@ import { initializeWebVitals, createUserAnalyticsData } from './webVitals';
 import ReactGA4 from 'react-ga4';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
+import getWindowLocation from './getWindowLocation';
+
 jest.mock('web-vitals', () => ({
   onCLS: jest.fn(),
   onFCP: jest.fn(),
@@ -14,23 +16,18 @@ jest.mock('react-ga4', () => ({
   event: jest.fn(),
 }));
 
+jest.mock('./getWindowLocation', () => jest.fn());
+
 describe('webVitals utility', () => {
-  let originalLocation;
   let originalTitle;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    getWindowLocation.mockImplementation(() => ({
+      pathname: '/test-path',
+      hostname: 'test.earthranger.com'
+    }));
 
-    originalLocation = window.location;
     originalTitle = document.title;
-
-    Object.defineProperty(window, 'location', {
-      value: {
-        pathname: '/test-path',
-        hostname: 'test.earthranger.com'
-      },
-      writable: true
-    });
 
     Object.defineProperty(document, 'title', {
       value: 'Test Page',
@@ -39,14 +36,12 @@ describe('webVitals utility', () => {
   });
 
   afterEach(() => {
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true
-    });
     Object.defineProperty(document, 'title', {
       value: originalTitle,
       writable: true
     });
+
+    jest.resetAllMocks();
   });
 
   describe('createUserAnalyticsData', () => {

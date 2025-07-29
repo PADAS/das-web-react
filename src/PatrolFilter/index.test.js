@@ -55,7 +55,7 @@ describe('PatrolFilter', () => {
   });
 
   test('updates the search bar text when the user types in it', async () => {
-    const searchBar = await screen.findByTestId('search-input');
+    const searchBar = await screen.findByRole('searchbox');
 
     expect(searchBar.value).toBe('');
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
@@ -70,8 +70,7 @@ describe('PatrolFilter', () => {
   });
 
   test('clears the search bar text when the user clicks the clear button', async () => {
-    const searchBar = await screen.findByTestId('search-input');
-    const clearSearchBarButton = await screen.findByTestId('reset-search-button');
+    const searchBar = await screen.findByRole('searchbox');
     await userEvent.type(searchBar, 'Search');
 
     await waitFor(() => {
@@ -80,7 +79,7 @@ describe('PatrolFilter', () => {
       expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { text: 'Search' } });
     }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME + 50 });
 
-    await userEvent.click(clearSearchBarButton);
+    await userEvent.click(screen.getByTestId('reset-search-button'));
 
     await waitFor(() => {
       expect(searchBar.value).toBe('');

@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useId, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
-  calcGpsDisplayString,
   GPS_FORMAT_EXAMPLES,
-  normalizeGpsFormatTextToLngLat,
+  normalizeLocationTextToLngLat,
+  transformLngLatToLocationType,
   validateLngLat,
 } from '../utils/location';
 
@@ -15,7 +15,7 @@ import * as styles from './styles.module.scss';
 
 const GpsInput = ({
   gpsFormatToggleRef = null,
-  id,
+  id = null,
   inputRef = null,
   onChange,
   ref,
@@ -29,15 +29,17 @@ const GpsInput = ({
 
   const innerInputRef = useRef();
 
+  const descriptionId = useId();
+
   // The input value is handled locally to accept any input, we just trigger onChange when the input value is valid.
   const [inputValue, setInputValue] = useState(value
-    ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat)
+    ? transformLngLatToLocationType(value, gpsFormat)
     : '');
   const [isValid, setIsValid] = useState(true);
 
   // When blurring the input, we set the value as the input value again since it should have the last valid value.
   const onInputBlur = () => {
-    setInputValue(value ? calcGpsDisplayString(value.latitude, value.longitude, gpsFormat) : '');
+    setInputValue(value ? transformLngLatToLocationType(value, gpsFormat) : '');
     setIsValid(true);
   };
 
@@ -50,7 +52,9 @@ const GpsInput = ({
       onChange(null);
     } else {
       try {
-        const lngLat = normalizeGpsFormatTextToLngLat(event.target.value, gpsFormat);
+        // TODO (CRS): If the selected GPS format is a CRS, get the CRS object
+        // from state.view.coordinateReferenceSystems.storedSystems.
+        const lngLat = normalizeLocationTextToLngLat(event.target.value, gpsFormat);
         const isLocationValid = validateLngLat(lngLat.longitude, lngLat.latitude);
 
         setIsValid(isLocationValid);
@@ -71,14 +75,13 @@ const GpsInput = ({
   useEffect(() => {
     if (value) {
       // If the user changes the GPS format, we transform the input value to the new format.
-      setInputValue(calcGpsDisplayString(value.latitude, value.longitude, gpsFormat));
+      setInputValue(transformLngLatToLocationType(value, gpsFormat));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gpsFormat]);
 
   return <div ref={ref} role="group" {...otherProps}>
     <GpsFormatToggle
-      name={`${id}-gpsFormatToggle`}
       onKeyDown={(event) => event.key === 'Enter' && innerInputRef.current.focus()}
       ref={gpsFormatToggleRef}
       showGpsString={false}
@@ -86,8 +89,8 @@ const GpsInput = ({
 
     <div className={styles.inputWrapper}>
       <input
-        aria-describedby={`${id}-description`}
-        aria-errormessage={!isValid ? `${id}-description` : undefined}
+        aria-describedby={descriptionId}
+        aria-errormessage={!isValid ? descriptionId : undefined}
         aria-invalid={!isValid}
         aria-label={t('inputLabel')}
         className={styles.input}
@@ -111,7 +114,7 @@ const GpsInput = ({
     <p
       aria-live={isValid ? 'off' : 'assertive'}
       className={`${styles.description} ${!isValid ? styles.error : ''}`}
-      id={`${id}-description`}
+      id={descriptionId}
     >
       {isValid
         ? t('inputDescription', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
