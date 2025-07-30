@@ -21,7 +21,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     });
 
     if (features.length > 0 && onFeatureClick) {
-      onFeatureClick(features[0]);
+      onFeatureClick(features[0], event);
     }
   }, [map, onFeatureClick, SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID]);
 

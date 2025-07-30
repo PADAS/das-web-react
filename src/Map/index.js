@@ -21,7 +21,6 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { withMultiLayerHandlerAwareness, queryMultiLayerClickFeatures } from '../utils/map-handlers';
-import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
@@ -51,7 +50,6 @@ import BuoyTrawlLineLayer from '../BuoyTrawlLineLayer';
 import StaticSensorsLayer from '../StaticSensorsLayer';
 import TracksLayer from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
-import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -129,7 +127,6 @@ const Map = ({ children, onMapLoad, socket }) => {
   const trackLength = useSelector(state => state.view.trackSettings.length);
   const trackLengthOrigin = useSelector(state => state.view.trackSettings.origin);
   const mapImages = useSelector(state => state.view.mapImages);
-  const mapFeaturesFeatureCollection = useSelector(getFeatureSetFeatureCollectionsByType);
   const mapSubjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
   const analyzersFeatureCollection = useSelector(getAnalyzerFeatureCollectionsByType);
   const showReportHeatmap = useSelector(state => state.view.showReportHeatmap);
@@ -157,8 +154,6 @@ const Map = ({ children, onMapLoad, socket }) => {
     && !isDrawingEventGeometry;
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
-
-  const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
   const {
     analyzerWarningLines,
@@ -378,7 +373,8 @@ const Map = ({ children, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = withLocationPickerState(({ geometry, properties }) => {
+  const onFeatureSymbolClick = withLocationPickerState((feature) => {
+    const { geometry, properties } = feature;
     const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
 
     showPopup('feature-symbol', { geometry, properties, coordinates });
@@ -669,9 +665,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       /> */}
 
       <SpatialFeaturesLayer
-        onFeatureClick={(feature) => {
-          console.log('Spatial feature clicked:', feature);
-        }}
+        onFeatureClick={onFeatureSymbolClick}
       />
 
       <AnalyzerLayer
