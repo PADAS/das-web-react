@@ -141,7 +141,7 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing, isGeometryAValidPolygon, onCancel, onUndo]);
 
   useEffect(() => {
-    if (event?.geometry) {
+    if (event?.geometry && isDrawing) {
       const eventPolygon = event.geometry.type === 'FeatureCollection'
         ? event.geometry.features[0]
         : event.geometry;
@@ -152,7 +152,7 @@ const ReportGeometryDrawer = () => {
       setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
-  }, [event.geometry, map]);
+  }, [event?.geometry, map, isDrawing]);
 
   return <>
     <MapLocationSelectionOverview
