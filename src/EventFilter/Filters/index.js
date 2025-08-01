@@ -73,7 +73,7 @@ const Filters = ({
   } else if (someReportTypesChecked) {
     appliedFilterLabel = t('reportTypesSelectionLabels.someSelected', {
       eventTypeIDsLength: eventTypeIds.length,
-      selectedEventTypesCount,
+      reportTypesCheckedCount: selectedEventTypesCount,
     });
   }
 
