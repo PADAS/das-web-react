@@ -17,7 +17,7 @@
   @media (min-width: $md-layout-width-min) {
     left: 1rem;
     top: 2rem;
-    width: 25rem;
+    width: auto;
   }
 }
 
@@ -62,10 +62,6 @@
   border-bottom: 1px solid #DDD;
   margin: 0.5rem 0 0.5rem -0.5rem;
   width: calc(100% + 1rem);
-
-  @media (min-width: $md-layout-width-min) {
-    width: 25rem;
-  }
 }
 
 .measurements {

@@ -141,18 +141,18 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing, isGeometryAValidPolygon, onCancel, onUndo]);
 
   useEffect(() => {
-    if (event?.geometry && isDrawing) {
+    if (event?.geometry) {
       const eventPolygon = event.geometry.type === 'FeatureCollection'
         ? event.geometry.features[0]
         : event.geometry;
 
-      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
+      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
       dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
       setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
-  }, [event?.geometry, map, isDrawing]);
+  }, [map]);
 
   return <>
     <MapLocationSelectionOverview
