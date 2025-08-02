@@ -16,7 +16,7 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
-import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
+import { MAP_LOCATION_SELECTION_MODES, setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { TrackerContext } from '../../utils/analytics';
 
 import {
@@ -71,6 +71,10 @@ const DetailsSection = ({
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
+  const mapLocationSelection = useSelector(state => state.view.mapLocationSelection);
+  const isDrawingEventGeometry = mapLocationSelection.isPickingLocation
+      && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+
 
   const reportTracker = useContext(TrackerContext);
 
@@ -129,8 +133,12 @@ const DetailsSection = ({
   useEffect(() => {
     dispatch(setMapLocationSelectionEvent(reportForm));
 
-    return () => dispatch(setMapLocationSelectionEvent(null));
-  }, [dispatch, reportForm]);
+    return () => {
+      if (!isDrawingEventGeometry){
+        dispatch(setMapLocationSelectionEvent(null));
+      }
+    };
+  }, [dispatch, reportForm, isDrawingEventGeometry]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>

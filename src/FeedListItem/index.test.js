@@ -35,7 +35,7 @@ describe('the feed list item component', () => {
 
   test('the icon slot background theme color', async () => {
     const iconContainer = await screen.findByRole('img');
-    expect(iconContainer).toHaveStyle('background-color: rgb(255, 0, 0)');
+    expect(iconContainer).toHaveStyle('background-color: red');
   });
 
   test('rendering a title component slot', async () => {

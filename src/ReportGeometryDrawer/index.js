@@ -152,7 +152,7 @@ const ReportGeometryDrawer = () => {
       setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
-  }, [map]);
+  }, [event?.geometry, map]);
 
   return <>
     <MapLocationSelectionOverview
