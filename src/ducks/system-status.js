@@ -4,8 +4,9 @@ import { combineReducers } from 'redux';
 import { API_URL, DAS_HOST, SYSTEM_CONFIG_FLAGS, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { endOfToday, generateDaysAgoDate } from '../utils/datetime';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
-import { setDefaultDateRange as setDefaultEventDateRange } from './event-filter';
+import { setDefaultDateRange as setDefaultEventDateRange, EVENT_FILTER_STORAGE_KEY } from './event-filter';
 import { setDefaultDateRange as setDefaultPatrolDateRange } from './patrol-filter';
+import { getKeyIsRestorable } from '../reducers/storage-config';
 
 export const STATUS_API_URL = `${API_URL}status`;
 
@@ -87,10 +88,14 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   });
 
   if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]) {
-    dispatch(setDefaultEventDateRange(
-      generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
-      null
-    ));
+    const eventFilterSavedLocally = getKeyIsRestorable(EVENT_FILTER_STORAGE_KEY);
+
+    if (!eventFilterSavedLocally) {
+      dispatch(setDefaultEventDateRange(
+        generateDaysAgoDate(data[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
+        null
+      ));
+    }
   }
 
   if (data[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]) {

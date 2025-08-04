@@ -10,7 +10,7 @@ const RESTORABLE_PREFIX = 'er-web-restorable';
 
 const namespaceForKey = key => `${RESTORABLE_PREFIX}:${key}`;
 
-const getKeyIsRestorable = (key) =>
+export const getKeyIsRestorable = (key) =>
   JSON.parse(
     window.localStorage.getItem(namespaceForKey(key))
   )?.restore;
