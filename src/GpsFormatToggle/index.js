@@ -83,6 +83,7 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
           <label
             className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
             htmlFor={`${gpsFormatOption}-radio`}
+            title={storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           >
             {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           </label>
