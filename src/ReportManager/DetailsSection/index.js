@@ -40,6 +40,7 @@ import SchemaForm from './SchemaForm';
 import TimePicker, { EMPTY_TIME_VALUE, isValidTime } from '../../TimePicker';
 
 import * as styles from './styles.module.scss';
+import isEqual from 'react-fast-compare';
 
 const LOADER_COLOR = '#006cd9'; // Bright blue
 const LOADER_SIZE = 50;
@@ -129,16 +130,6 @@ const DetailsSection = ({
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
   }, [eventSchema?.uiSchema]);
-
-  useEffect(() => {
-    dispatch(setMapLocationSelectionEvent(reportForm));
-
-    return () => {
-      if (!isDrawingEventGeometry){
-        dispatch(setMapLocationSelectionEvent(null));
-      }
-    };
-  }, [dispatch, reportForm, isDrawingEventGeometry]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>

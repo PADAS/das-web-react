@@ -10,7 +10,7 @@ import { ReactComponent as PolygonIcon } from '../../../common/images/icons/poly
 import { EVENT_REPORT_CATEGORY, trackEventFactory } from '../../../utils/analytics';
 import { hideSideBar, showSideBar } from '../../../ducks/side-bar';
 import { MapDrawingToolsContext } from '../../../MapDrawingTools/ContextProvider';
-import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation } from '../../../ducks/map-ui';
+import { MAP_LOCATION_SELECTION_MODES, setIsPickingLocation, setMapLocationSelectionEvent } from '../../../ducks/map-ui';
 import { setModalVisibilityState } from '../../../ducks/modals';
 import { useEventGeoMeasurementDisplayStrings } from '../../../hooks/geometry';
 
@@ -48,6 +48,8 @@ const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = nul
   const shouldShowCopyButton = !!event?.geometry;
 
   const onAreaSelectStart = useCallback(() => {
+
+    dispatch(setMapLocationSelectionEvent(event));
     dispatch(setIsPickingLocation(true, MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY));
 
     if (!event?.geometry) {
@@ -57,7 +59,7 @@ const AreaSelectorInput = ({ event, onGeometryChange = null, originalEvent = nul
     } else {
       eventReportTracker.track('Edit an event geometry');
     }
-  }, [dispatch, event?.geometry]);
+  }, [dispatch, event]);
 
   const onDeleteArea = useCallback(() => {
     setMapDrawingData(null);

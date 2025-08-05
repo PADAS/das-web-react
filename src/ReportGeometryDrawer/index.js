@@ -7,7 +7,7 @@ import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import reportGeometryReducer, { reset, setGeometryPoints, undo } from '../ducks/report-geometry';
-import { setIsPickingLocation } from '../ducks/map-ui';
+import { setIsPickingLocation, setMapLocationSelectionEvent } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
@@ -81,6 +81,7 @@ const ReportGeometryDrawer = () => {
       } else {
         setMapDrawingData(null);
         dispatch(setIsPickingLocation(false));
+        dispatch(setMapLocationSelectionEvent(null));
       }
     }
   }, [dispatch, event?.geometry, points, setMapDrawingData, showInformationModal]);
@@ -107,6 +108,7 @@ const ReportGeometryDrawer = () => {
 
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
+    dispatch(setMapLocationSelectionEvent(null));
   }, [dispatch]);
 
   const onHideCancellationConfirmationModal = useCallback(() => setShowCancellationConfirmationModal(false), []);
