@@ -22,7 +22,7 @@ describe('Ducks - Coordinate reference systems', () => {
     expect(
       setStoredCoordinateReferenceSystems([{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [11.77, -86.5, 2.21, -81.43],
+        bbox: [-86.5, 11.77, -81.43, 2.21],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -30,7 +30,7 @@ describe('Ducks - Coordinate reference systems', () => {
     ).toEqual({
       payload: [{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [11.77, -86.5, 2.21, -81.43],
+        bbox: [-86.5, 11.77, -81.43, 2.21],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -69,7 +69,7 @@ describe('Ducks - Coordinate reference systems', () => {
     test('handles a SET_STORED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
       const payload = [{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [11.77, -86.5, 2.21, -81.43],
+        bbox: [-86.5, 11.77, -81.43, 2.21],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -79,7 +79,7 @@ describe('Ducks - Coordinate reference systems', () => {
         selectedSystems: Object.values(GPS_FORMATS),
         storedSystems: [{
           area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-          bbox: [11.77, -86.5, 2.21, -81.43],
+          bbox: [-86.5, 11.77, -81.43, 2.21],
           code: '5367',
           name: 'CR05 / CRTM05',
           proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',

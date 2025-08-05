@@ -74,7 +74,7 @@ const useCrsBoundingBoxLayer = () => {
     if (map && selectedCrs?.bbox) {
       const longitudeSpan = Math.abs(selectedCrs.bbox[2] - selectedCrs.bbox[0]);
       const latitudeSpan = Math.abs(selectedCrs.bbox[3] - selectedCrs.bbox[1]);
-      return longitudeSpan < LONGITUDE_SPAN_THRESHOLD && latitudeSpan < LATITUDE_SPAN_THRESHOLD;
+      return longitudeSpan < LONGITUDE_SPAN_THRESHOLD || latitudeSpan < LATITUDE_SPAN_THRESHOLD;
     }
     return false;
   }, [map, selectedCrs?.bbox]);

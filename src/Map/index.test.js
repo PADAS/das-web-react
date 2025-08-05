@@ -146,6 +146,9 @@ describe('Map', () => {
         user: { permissions: [] },
       },
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         featureFlagOverrides: {},
         heatmapSubjectIDs: [],
         homeMap: { center: [] },

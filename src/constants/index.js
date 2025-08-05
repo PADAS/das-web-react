@@ -82,7 +82,7 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_POLYS_CRITICAL: 'analyzer-polygon-critical',
   ANALYZER_POLYS_WARNING: 'analyzer-polygon-warning',
-  COORDINATE_REFERENCE_SYSTEM_BBOX: 'coordinate-referenece-system-bbox-layer',
+  COORDINATE_REFERENCE_SYSTEM_BBOX: 'coordinate-reference-system-bbox-layer',
   CLUSTER_POLYGON_LAYER_ID: 'cluster-polygon-layer',
   CLUSTERED_STATIC_SENSORS_LAYER: 'clustered_static_sensors_layer',
   CLUSTERS_LAYER_ID: 'clusters-layer',
