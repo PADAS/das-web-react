@@ -65,6 +65,10 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         'source-layer': 'spatial_features',
         layout: {
           ...DEFAULT_SYMBOL_LAYOUT,
+          'text-allow-overlap': true,           // crucial for consistent visibility
+          'icon-allow-overlap': true,           // crucial if icons are used
+          'text-ignore-placement': true,        // recommended to avoid hiding labels
+          'icon-ignore-placement': true,
           'icon-image': ['case',
             ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
             ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
