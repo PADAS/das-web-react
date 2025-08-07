@@ -40,6 +40,13 @@ const createCrsBboxControlMakerElement = (crsName, isControlMenuOpen, onClick) =
   const containerElement = document.createElement('div');
   containerElement.onclick = onClick;
   injectStylesToElement(containerElement, CRS_BBOX_CONTROL_MARKER_STYLES.CONTAINER);
+  // Hover effect.
+  containerElement.onmouseenter = () => {
+    containerElement.style.backgroundColor = '#005fc0';
+  };
+  containerElement.onmouseleave = () => {
+    containerElement.style.backgroundColor = BRIGHT_BLUE;
+  };
 
   const nameElement = document.createElement('span');
   nameElement.textContent = crsName;

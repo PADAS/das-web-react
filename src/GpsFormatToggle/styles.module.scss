@@ -4,7 +4,7 @@
 
 .fieldset {
   align-items: center;
-  background-color: colors.$very-light-gray;
+  background-color: colors.$light-gray;
   display: flex;
   justify-content: space-evenly;
 
@@ -29,7 +29,7 @@
     }
 
     .label {
-      border: 2px solid colors.$very-light-gray;
+      border: 2px solid colors.$light-gray;
       color: colors.$off-black;
       cursor: pointer;
       display: block;
@@ -49,6 +49,7 @@
       &.active {
         background-color: white;
         border-color: white;
+        border-bottom-color: colors.$bright-blue;
         color: colors.$bright-blue;
       }
     }
