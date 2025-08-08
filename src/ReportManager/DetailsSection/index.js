@@ -1,9 +1,9 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from '@rjsf/bootstrap-4';
 import { format, isToday, isValid, parseISO } from 'date-fns';
 import MoonLoader from 'react-spinners/MoonLoader';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PencilWritingIcon } from '../../common/images/icons/pencil-writing.svg';
@@ -16,7 +16,6 @@ import {
 } from '../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { selectEventTypeByValue } from '../../selectors/event-types';
-import { setMapLocationSelectionEvent } from '../../ducks/map-ui';
 import { TrackerContext } from '../../utils/analytics';
 
 import {
@@ -67,7 +66,6 @@ const DetailsSection = ({
   reportForm,
   submitFormButtonRef,
 }) => {
-  const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection' });
 
   const eventType = useSelector((state) => reportForm?.event_type ? selectEventTypeByValue(state, reportForm.event_type) : null);
@@ -125,12 +123,6 @@ const DetailsSection = ({
 
     return filteredErrors.map((error) => ({ ...error, linearProperty: getLinearErrorPropTree(error.property) }));
   }, [eventSchema?.uiSchema]);
-
-  useEffect(() => {
-    dispatch(setMapLocationSelectionEvent(reportForm));
-
-    return () => dispatch(setMapLocationSelectionEvent(null));
-  }, [dispatch, reportForm]);
 
   return <div ref={ref}>
     <div className={styles.globalDetails}>

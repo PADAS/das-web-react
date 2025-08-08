@@ -7,7 +7,7 @@ import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MapContext } from '../App';
 import { MapDrawingToolsContext } from '../MapDrawingTools/ContextProvider';
 import reportGeometryReducer, { reset, setGeometryPoints, undo } from '../ducks/report-geometry';
-import { setIsPickingLocation } from '../ducks/map-ui';
+import { setIsPickingLocation, setMapLocationSelectionEvent } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 import { validateEventPolygonPoints } from '../utils/geometry';
 
@@ -81,6 +81,7 @@ const ReportGeometryDrawer = () => {
       } else {
         setMapDrawingData(null);
         dispatch(setIsPickingLocation(false));
+        dispatch(setMapLocationSelectionEvent(null));
       }
     }
   }, [dispatch, event?.geometry, points, setMapDrawingData, showInformationModal]);
@@ -107,6 +108,7 @@ const ReportGeometryDrawer = () => {
 
   const onSaveGeometry = useCallback(() => {
     dispatch(setIsPickingLocation(false));
+    dispatch(setMapLocationSelectionEvent(null));
   }, [dispatch]);
 
   const onHideCancellationConfirmationModal = useCallback(() => setShowCancellationConfirmationModal(false), []);
@@ -141,18 +143,18 @@ const ReportGeometryDrawer = () => {
   }, [isDrawing, isGeometryAValidPolygon, onCancel, onUndo]);
 
   useEffect(() => {
-    if (event?.geometry && isDrawing) {
+    if (event?.geometry) {
       const eventPolygon = event.geometry.type === 'FeatureCollection'
         ? event.geometry.features[0]
         : event.geometry;
 
-      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
+      map.fitBounds(bbox(eventPolygon), { padding: VERTICAL_POLYGON_PADDING });
 
       dispatchReportGeometry(setGeometryPoints(eventPolygon.geometry.coordinates[0].slice(0, -1)));
       setTimeout(() => dispatchReportGeometry(reset()));
       setIsDrawing(false);
     }
-  }, [event?.geometry, map, isDrawing]);
+  }, [event?.geometry, map]);
 
   return <>
     <MapLocationSelectionOverview
