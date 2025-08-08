@@ -9,6 +9,8 @@ import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
 import { MapContext } from '../../../App';
 
 const BRIGHT_BLUE = '#006cd9';
+// For hover effect.
+const BRIGHT_BLUE_DARK = '#005fc0';
 
 const CRS_BBOX_CONTROL_MARKER_STYLES = {
   CARET: (isControlMenuOpen) =>  ({
@@ -32,9 +34,11 @@ const CRS_BBOX_CONTROL_MARKER_STYLES = {
   },
 };
 
-// Axis thresholds are 85%.
-const LATITUDE_SPAN_THRESHOLD = 180 * 0.85;
-const LONGITUDE_SPAN_THRESHOLD = 360 * 0.85;
+// If the BBOX of a CRS covers over 85% of the latitude and the longitude of
+// the Earth, we don't add the layer.
+const AXIS_SPAN_THRESHOLD_PERCENTAGE = 0.85;
+const LATITUDE_SPAN_THRESHOLD = 180 * AXIS_SPAN_THRESHOLD_PERCENTAGE;
+const LONGITUDE_SPAN_THRESHOLD = 360 * AXIS_SPAN_THRESHOLD_PERCENTAGE;
 
 const createCrsBboxControlMakerElement = (crsName, isControlMenuOpen, onClick) => {
   const containerElement = document.createElement('div');
@@ -42,7 +46,7 @@ const createCrsBboxControlMakerElement = (crsName, isControlMenuOpen, onClick) =
   injectStylesToElement(containerElement, CRS_BBOX_CONTROL_MARKER_STYLES.CONTAINER);
   // Hover effect.
   containerElement.onmouseenter = () => {
-    containerElement.style.backgroundColor = '#005fc0';
+    containerElement.style.backgroundColor = BRIGHT_BLUE_DARK;
   };
   containerElement.onmouseleave = () => {
     containerElement.style.backgroundColor = BRIGHT_BLUE;
