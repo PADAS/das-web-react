@@ -7,8 +7,9 @@ import { API_URL } from '../constants';
 
 import { objectToParamString, recursivePaginatedQuery } from '../utils/query';
 
-
 import { messageIsValidForDisplay } from '../utils/messaging';
+
+const MAXIMUM_SUBJECT_IDS_PER_REQUEST = 25;
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 const UPDATE_UNREAD_MESSAGES_COUNT = 'UPDATE_UNREAD_MESSAGES_COUNT';
@@ -50,11 +51,31 @@ export const fetchMessages = (params = {}) => {
   return get(`${MESSAGING_API_URL}?${paramString}`);
 };
 
-export const fetchAllMessages = (params = {}) =>
-  recursivePaginatedQuery(
-    fetchMessages(params)
-  );
+export const fetchAllMessages = async (params = {}) => {
+  if (params.subject_id) {
+    // If the parameters of the request includes a string of subject ids,
+    // divide them in chunks to avoid errors due to enormous requests.
+    const subjectIdsChunks = [];
+    const subjectIds = params.subject_id.split(',');
+    for (let i = 0; i < subjectIds.length; i += MAXIMUM_SUBJECT_IDS_PER_REQUEST) {
+      subjectIdsChunks.push(subjectIds.slice(i, i + MAXIMUM_SUBJECT_IDS_PER_REQUEST).join(','));
+    }
 
+    // Do the recursive paginated query for the messages of each chunk of
+    // subject ids in parallel.
+    const responses = await Promise.all(subjectIdsChunks.map((subjectIdsChunk) => recursivePaginatedQuery(
+      fetchMessages({ ...params, subject_id: subjectIdsChunk })
+    )));
+
+    // Flatten the responses and sort them by message time, as the server would
+    // have responded in a single request.
+    return responses.flat().sort((messageA, messageB) => messageA.message_time < messageB.message_time ? 1 : -1);
+  }
+
+  // If the parameters do not include subject ids, do a single recurisve
+  // paginated query.
+  return recursivePaginatedQuery(fetchMessages(params));
+};
 
 export const fetchMessagesNextPage = url => get(url);
 
@@ -80,7 +101,6 @@ export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) =
   const { refresh, type, payload } = action;
 
   if (type === FETCH_MESSAGES_SUCCESS) {
-
     const withOnlyValidMessages = {
       ...payload,
       results: payload.results.filter(msg => messageIsValidForDisplay(msg, store.getState().data.subjectStore)),
