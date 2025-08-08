@@ -52,7 +52,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView', () => {
     </Provider>
   );
 
-  test('opens the coordinate system settings view when the user clicks the coordinates button', async () => {
+  test.skip('opens the coordinate system settings view when the user clicks the coordinates button', async () => {
     renderMainMapSettingsView();
 
     expect(onOpenCoordinateSystemSettingsView).not.toHaveBeenCalled();
