@@ -229,9 +229,17 @@ export const getProj4CompatibleCRS = async () => {
         // and that do not require grid shift files so they can be transformed
         // by the proj4 library.
         if (coordinateReferenceSystem.proj4 && !needsGridShiftFile) {
+          let bbox = coordinateReferenceSystem.bbox;
+          if (Array.isArray(bbox) && bbox.length === 4) {
+            // If the coordinate reference system has a bbox, reorder its parts
+            // to the format expected by Turf utilities.
+            const [minLat, minLng, maxLat, maxLng] = bbox;
+            bbox = [minLng, minLat, maxLng, maxLat];
+          }
+
           acc.push({
             area: coordinateReferenceSystem.area,
-            bbox: coordinateReferenceSystem.bbox,
+            bbox,
             code: coordinateReferenceSystem.code,
             name: coordinateReferenceSystem.name,
             proj4: coordinateReferenceSystem.proj4,

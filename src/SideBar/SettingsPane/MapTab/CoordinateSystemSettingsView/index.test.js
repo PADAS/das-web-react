@@ -20,6 +20,9 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView', () =>
           selectedSystems: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
+        },
       },
     };
   });

@@ -9,6 +9,7 @@ import {
   setSelectedCoordinateReferenceSystems,
   setStoredCoordinateReferenceSystems,
 } from '../../../../../ducks/coordinate-reference-systems';
+import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
 import * as styles from './styles.module.scss';
 
@@ -20,6 +21,7 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
     keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
@@ -28,6 +30,12 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
 
   const onCheckboxChange = () => {
     if (isChecked) {
+      if (gpsFormat === epsgCode) {
+        // If the user is unchecking the CRS that is the current GPS format
+        // established in the user preferences, update the preferences to DEG.
+        dispatch(updateUserPreferences({ gpsFormat: GPS_FORMATS.DEG }));
+      }
+
       dispatch(
         setSelectedCoordinateReferenceSystems(
           selectedCRS.filter((selectedCRSIdentifier) => selectedCRSIdentifier !== epsgCode)
@@ -88,6 +96,7 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
     keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
+  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
   const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
 
   const isChecked = selectedCRS.includes(formatCode);
@@ -97,6 +106,12 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
 
   const onCheckboxChange = () => {
     if (isChecked) {
+      if (gpsFormat === formatCode) {
+        // If the user is unchecking the format that is the current GPS format
+        // established in the user preferences, update the preferences to DEG.
+        dispatch(updateUserPreferences({ gpsFormat: GPS_FORMATS.DEG }));
+      }
+
       dispatch(
         setSelectedCoordinateReferenceSystems(
           selectedCRS.filter((selectedCRSIdentifier) => selectedCRSIdentifier !== formatCode)

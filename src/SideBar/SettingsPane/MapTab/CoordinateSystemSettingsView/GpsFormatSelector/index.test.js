@@ -9,6 +9,7 @@ import {
   setSelectedCoordinateReferenceSystems,
   setStoredCoordinateReferenceSystems,
 } from '../../../../../ducks/coordinate-reference-systems';
+import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
 import GpsFormatSelector from './';
 
@@ -18,11 +19,17 @@ jest.mock('../../../../../ducks/coordinate-reference-systems', () => ({
   setStoredCoordinateReferenceSystems: jest.fn(),
 }));
 
+jest.mock('../../../../../ducks/user-preferences', () => ({
+  ...jest.requireActual('../../../../../ducks/user-preferences'),
+  updateUserPreferences: jest.fn(),
+}));
+
 describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFormatSelector', () => {
   let store;
   beforeEach(() => {
     setSelectedCoordinateReferenceSystems.mockImplementation(() => () => {});
     setStoredCoordinateReferenceSystems.mockImplementation(() => () => {});
+    updateUserPreferences.mockImplementation(() => () => {});
 
     store = {
       data: {},
@@ -30,6 +37,9 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
         coordinateReferenceSystems: {
           selectedSystems: Object.values(GPS_FORMATS),
           storedSystems: [],
+        },
+        userPreferences: {
+          gpsFormat: GPS_FORMATS.DEG,
         },
       },
     };
@@ -111,6 +121,18 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DDM, GPS_FORMATS.UTM, GPS_FORMATS.MGRS]);
   });
 
+  test('sets the GPS format to DEG if the user deselects the GPS format option that is the current GPS format', async () => {
+    store.view.userPreferences.gpsFormat = GPS_FORMATS.DMS;
+    renderGpsFormatSelector();
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'DMS Degrees, Minutes, Seconds' }));
+
+    expect(updateUserPreferences).toHaveBeenCalledTimes(1);
+    expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DEG });
+  });
+
   test('selects a coordinate reference system when checking a default GPS format option', async () => {
     store.view.coordinateReferenceSystems.selectedSystems = [
       GPS_FORMATS.DEG,
@@ -138,7 +160,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('shows a CRS GPS format options if it is stored', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -151,7 +173,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('shows CRS GPS format options checked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -165,7 +187,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('shows CRS GPS format options unchecked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -178,7 +200,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('disables CRS GPS format options if they are unchecked and the limit of choices has been reached', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -192,7 +214,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('selected default GPS format options are enabled if they are checked', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -213,7 +235,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('enables default GPS format options if they are unchecked and the limit of choices has not been reached', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -233,7 +255,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('deselects a coordinate reference system when unchecking a CRS GPS format option', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -250,10 +272,30 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
       .toHaveBeenCalledWith([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM]);
   });
 
+  test('sets the GPS format to DEG if the user deselects the GPS format option that is the current GPS format', async () => {
+    store.view.coordinateReferenceSystems.storedSystems = [{
+      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
+      bbox: [-86.5, 11.77, -81.43, 2.21],
+      code: '5367',
+      name: 'CR05 / CRTM05',
+      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
+    }];
+    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '5367'];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsFormatSelector();
+
+    expect(updateUserPreferences).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'EPSG:5367 CR05 / CRTM05' }));
+
+    expect(updateUserPreferences).toHaveBeenCalledTimes(1);
+    expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.DEG });
+  });
+
   test('selects a coordinate reference system when checking a CRS GPS format option', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -278,7 +320,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('removes a CRS GPS format option from the list of stored systems when the user clicks the delete button', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -296,7 +338,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - GpsFo
   test('removes a CRS GPS format option from the list of stored systems and from the list of selected systems if it was checked when the user clicks the delete button', async () => {
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [11.77, -86.5, 2.21, -81.43],
+      bbox: [-86.5, 11.77, -81.43, 2.21],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',

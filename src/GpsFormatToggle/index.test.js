@@ -80,6 +80,35 @@ describe('GpsFormatToggle', () => {
     expect(updateUserPreferences).toHaveBeenCalledWith({ gpsFormat: GPS_FORMATS.UTM });
   });
 
+  test('sets the label text and title for a coordinate reference system', async () => {
+    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.UTM, '5367'];
+    store.view.coordinateReferenceSystems.storedSystems = [{
+      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
+      bbox: [-86.5, 11.77, -81.43, 2.21],
+      code: '5367',
+      name: 'CR05 / CRTM05',
+      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
+    }];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsFormatToggle();
+
+    const crs5367Label = screen.getByText('CR05 / CRTM05');
+
+    expect(crs5367Label).toBeVisible();
+    expect(crs5367Label).toHaveAttribute('title', 'CR05 / CRTM05');
+    expect(screen.getByLabelText('CR05 / CRTM05')).toBeChecked();
+  });
+
+  test('sets the label text and title for a GPS format', async () => {
+    renderGpsFormatToggle();
+
+    const degGpsFormatLabel = screen.getByText(GPS_FORMATS.DEG);
+
+    expect(degGpsFormatLabel).toBeVisible();
+    expect(degGpsFormatLabel).toHaveAttribute('title', GPS_FORMATS.DEG);
+    expect(screen.getByLabelText(GPS_FORMATS.DEG)).toBeChecked();
+  });
+
   test('shows the GPS string and the copy button if there are valid lat and lng values', async () => {
     renderGpsFormatToggle();
 

@@ -62,7 +62,6 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
     <fieldset className={styles.fieldset} ref={fieldsetRef} role="radiogroup">
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
-      {/* TODO (CRS): Style label to be in a single line with ellipsis */}
       {gpsFormatOptions.map((gpsFormatOption) =>
         <div className={styles.radio} key={gpsFormatOption}>
           <input
@@ -83,6 +82,7 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
           <label
             className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
             htmlFor={`${gpsFormatOption}-radio`}
+            title={storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           >
             {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           </label>

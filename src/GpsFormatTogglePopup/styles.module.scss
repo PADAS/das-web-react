@@ -1,0 +1,14 @@
+.popup {
+  max-width: 22rem !important;
+  
+  [class*=mapboxgl-popup-tip] {
+    border-width: 5px;
+    visibility: hidden;
+  }
+  
+  [class*=mapboxgl-popup-content] {
+    background: white;
+    padding: 0.5rem;
+    width: auto;
+  }
+}

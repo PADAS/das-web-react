@@ -6,6 +6,7 @@ import { MapContext } from '../App';
 import AnalyzerConfigPopup from '../AnalyzerConfigPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
 import FeatureSymbolPopup from '../FeatureLayer/FeatureSymbolPopup';
+import GpsFormatTogglePopup from '../GpsFormatTogglePopup';
 import LayerSelectorPopup from '../LayerSelectorPopup';
 import Popup from '../Popup';
 import SubjectPopup from '../SubjectPopup';
@@ -15,6 +16,7 @@ import TimepointPopup from '../TimepointPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 
 import * as droppedMarkerPopupStyles from '../DroppedMarkerPopup/styles.module.scss';
+import * as gpsFormatTogglePopupStyles from '../GpsFormatTogglePopup/styles.module.scss';
 import * as layerSelectorPopupStyles from '../LayerSelectorPopup/styles.module.scss';
 import * as subjectMessagesPopupStyles from '../SubjectMessagesPopup/styles.module.scss';
 import * as userCurrentLocationPopupStyles from '../UserCurrentLocationPopup/styles.module.scss';
@@ -67,6 +69,10 @@ const TEMPLATES = {
   'cluster-select': {
     Component: LayerSelectorPopup,
     popupAttrs: { className: layerSelectorPopupStyles.popup },
+  },
+  'gps-format-toggle': {
+    Component: GpsFormatTogglePopup,
+    popupAttrs: { anchor: 'top', className: gpsFormatTogglePopupStyles.popup },
   },
 };
 
