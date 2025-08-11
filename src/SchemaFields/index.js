@@ -388,7 +388,7 @@ const selectValue = (value, selected, all) => {
 
 const deselectValue = (value, selected) => selected.filter((v) => v !== value);
 
-const parseValue = (value) => {
+const parseCheckboxesWidgetValue = (value) => {
   if (Array.isArray(value)){
     return value.map((val) => isPlainObject(val) ? val.value : val);
   }
@@ -417,7 +417,7 @@ export const CheckboxesWidget = ({
   value,
 }) => {
   const { enumOptions, enumDisabled, inline } = options;
-  const parsedValue = parseValue(value);
+  const parsedValue = parseCheckboxesWidgetValue(value);
   const [originalValues] = useState(parsedValue);
 
   const filteredEnumOptions = enumOptions.filter((option) => {
