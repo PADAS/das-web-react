@@ -20,7 +20,6 @@ import DateTimePicker, { EMPTY_DATE_TIME_VALUE } from '../DateTimePicker';
 import Select from '../Select';
 
 import * as styles from './styles.module.scss';
-import { isArray } from 'lodash-es';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -390,7 +389,7 @@ const selectValue = (value, selected, all) => {
 const deselectValue = (value, selected) => selected.filter((v) => v !== value);
 
 const parseValue = (value) => {
-  if (isArray(value)){
+  if (Array.isArray(value)){
     return value.map((val) => isPlainObject(val) ? val.value : val);
   }
 
