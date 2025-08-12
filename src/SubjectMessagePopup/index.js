@@ -25,7 +25,6 @@ const SubjectMessagePopup = ({ data }) => {
       lat={message.device_location.latitude}
       lng={message.device_location.longitude}
       name="subjectMessagePopup-gpsFormatToggle"
-      size="small"
     />
   </>;
 };

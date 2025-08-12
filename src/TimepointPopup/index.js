@@ -15,7 +15,6 @@ const TimepointPopup = ({ data }) => <>
     lat={data.geometry.coordinates[1]}
     lng={data.geometry.coordinates[0]}
     name="timepointPopup-gpsFormatToggle"
-    size="small"
   />
 
   <hr />

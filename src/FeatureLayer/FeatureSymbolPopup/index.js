@@ -23,7 +23,6 @@ const FeatureSymbolPopup = ({ data, id }) => {
         lat={coordinates[1]}
         lng={coordinates[0]}
         name="featureLayer-featureSymbolPopup-gpsFormatToggle"
-        size="small"
       />
 
       <hr />

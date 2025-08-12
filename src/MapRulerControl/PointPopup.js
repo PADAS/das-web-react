@@ -52,7 +52,6 @@ const PointPopup = (props) => {
         lat={point[1]}
         lng={point[0]}
         name="mapRulerControl-pointPopup-gpsFormatToggle"
-        size="small"
       />
 
       {points.length > 1 && !isFirstPoint && <>

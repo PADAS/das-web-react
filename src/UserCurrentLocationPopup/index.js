@@ -25,7 +25,6 @@ const UserCurrentLocationPopup = ({ data, id }) => {
       lat={data.location.coords.latitude}
       lng={data.location.coords.longitude}
       name="userCurrentLocationPopup-gpsFormatToggle"
-      size="small"
     />
 
     <p>{t('accuracy', { accuracy: data.location.coords.accuracy })}</p>

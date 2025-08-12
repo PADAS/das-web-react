@@ -14,15 +14,13 @@ import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const SIZES = { NORMAL: 'normal', SMALL: 'small' };
-
 const GpsFormatToggle = ({
+  className = '',
   lat = null,
   lng = null,
   name = null,
   ref,
   showGpsString = true,
-  size = SIZES.NORMAL,
   ...otherProps
 }) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
@@ -68,7 +66,7 @@ const GpsFormatToggle = ({
     });
   }, []);
 
-  return <div {...otherProps}>
+  return <div className={`gps-format-toggle ${className}`} {...otherProps}>
     <fieldset className={styles.fieldset} ref={fieldsetRef} role="radiogroup">
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
@@ -90,7 +88,7 @@ const GpsFormatToggle = ({
           />
 
           <label
-            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''} ${size === SIZES.SMALL ? styles.small : '' }`}
+            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
             htmlFor={`${gpsFormatOption}-radio`}
             title={storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           >
