@@ -14,7 +14,17 @@ import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsString = true, ...otherProps }) => {
+const SIZES = { NORMAL: 'normal', SMALL: 'small' };
+
+const GpsFormatToggle = ({
+  lat = null,
+  lng = null,
+  name = null,
+  ref,
+  showGpsString = true,
+  size = SIZES.NORMAL,
+  ...otherProps
+}) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
 
   const dispatch = useDispatch();
@@ -80,7 +90,7 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
           />
 
           <label
-            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
+            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''} ${size === SIZES.SMALL ? styles.small : '' }`}
             htmlFor={`${gpsFormatOption}-radio`}
             title={storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
           >

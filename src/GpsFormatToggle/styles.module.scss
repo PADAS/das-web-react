@@ -35,7 +35,7 @@
       display: block;
       height: 100%;
       overflow: hidden;
-      padding: 0.25rem;
+      padding: 0.25rem 0;
       text-align: center;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -52,6 +52,10 @@
         border-bottom-color: colors.$bright-blue;
         color: colors.$bright-blue;
       }
+
+      &.small {
+        font-size: 0.6875rem;
+      }
     }
   }
 }
@@ -60,6 +64,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
+  margin-top: 0.25rem;
   position: relative;
 
   .value {
