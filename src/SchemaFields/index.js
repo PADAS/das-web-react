@@ -388,6 +388,22 @@ const selectValue = (value, selected, all) => {
 
 const deselectValue = (value, selected) => selected.filter((v) => v !== value);
 
+const parseCheckboxesWidgetValue = (value) => {
+  if (Array.isArray(value)){
+    return value.map((val) => isPlainObject(val) ? val.value : val);
+  }
+
+  if (isPlainObject(value)){
+    return [value.value];
+  }
+
+  if (typeof value === 'string' && value.length > 0){
+    return  [value];
+  }
+
+  return [];
+};
+
 export const CheckboxesWidget = ({
   autofocus,
   disabled,
@@ -401,8 +417,8 @@ export const CheckboxesWidget = ({
   value,
 }) => {
   const { enumOptions, enumDisabled, inline } = options;
-
-  const [originalValues] = useState(value.map((val) => isPlainObject(val) ? val.value : val));
+  const parsedValue = parseCheckboxesWidgetValue(value);
+  const [originalValues] = useState(parsedValue);
 
   const filteredEnumOptions = enumOptions.filter((option) => {
     const itemDisabled = schema.inactive_enum && schema.inactive_enum.includes(option.value);
@@ -414,9 +430,9 @@ export const CheckboxesWidget = ({
     const all = filteredEnumOptions.map(({ value }) => value);
 
     if (checked) {
-      onChange(selectValue(option.value, value, all));
+      onChange(selectValue(option.value, parsedValue, all));
     } else {
-      onChange(deselectValue(option.value, value));
+      onChange(deselectValue(option.value, parsedValue));
     }
   };
 
@@ -426,7 +442,7 @@ export const CheckboxesWidget = ({
 
   return <Form.Group className={styles.checkboxesWidget}>
     {filteredEnumOptions.map((option, index) => {
-      const checked = value.indexOf(option.value) !== -1;
+      const checked = parsedValue.indexOf(option.value) !== -1;
       const itemDisabled = Array.isArray(enumDisabled) && enumDisabled.indexOf(option.value) !== -1;
 
       return <Form.Check
