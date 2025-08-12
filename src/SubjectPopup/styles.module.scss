@@ -70,14 +70,15 @@ $background_image_url: '../common/images/icons/';
 }
 
 .gpsFormatToggle {
-  background-color: $very-light-gray;
-  margin: 0.5rem 0 0.8rem 0;
   display: flex;
   flex-direction: column-reverse;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.8rem 0;
 
-  div {
-    justify-content: space-between;
-    padding: .3rem;
+  fieldset {
+    label {
+      font-size: 0.6875rem;
+    }
   }
 
   span {
@@ -86,22 +87,6 @@ $background_image_url: '../common/images/icons/';
 
     button {
       padding: 0;
-    }
-  }
-
-  > ul {
-    background-color: $very-light-gray-alt;
-    margin: 0;
-
-    li {
-      color: $dark-gray;
-      padding: .1rem 2% .2rem 2%;
-      text-decoration: none;
-
-      &[class*=active] {
-        color: $bright-blue;
-        background-color: $very-light-gray;
-      }
     }
   }
 }
