@@ -404,6 +404,14 @@ div.mapboxgl-popup-content {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
   }
+
+  .gps-format-toggle {
+    fieldset {
+      label {
+        font-size: 0.6875rem;
+      }
+    }
+  }
 }
 
 div.mapboxgl-popup-tip {
