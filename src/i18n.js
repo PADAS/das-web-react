@@ -4,7 +4,10 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import ChainedBackend from 'i18next-chained-backend';
 import HttpBackend from 'i18next-http-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
+
 import { SUPPORTED_LANGUAGES } from './constants';
+
+const I18N_FILES_VERSION = '1.18';
 
 const preloadNamespaces = [
   'components',
@@ -49,14 +52,12 @@ i18n
       ],
       backendOptions: [{
         expirationTime: 24 * 60 * 60 * 1000 * 7,
-        versions: {
-          es: 'v1.17',
-          'en-US': 'v1.17',
-          fr: 'v1.17',
-          'ne-NP': 'v1.17',
-          pt: 'v1.17',
-          sw: 'v1.17'
-        }
+        versions: Object.keys(SUPPORTED_LANGUAGES).reduce((accumulator, language) => {
+          accumulator[language] = I18N_FILES_VERSION;
+          return accumulator;
+        }, {}),
+      }, {
+        queryStringParams: { v: I18N_FILES_VERSION },
       }]
     }
   });
