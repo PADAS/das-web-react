@@ -23,7 +23,7 @@ describe('GpsFormatToggle', () => {
     store = {
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
         userPreferences: {
@@ -35,7 +35,7 @@ describe('GpsFormatToggle', () => {
 
   const renderGpsFormatToggle = (props, overrideStore) => render(
     <Provider store={mockStore({ ...store, ...overrideStore })}>
-      <GpsFormatToggle lat={11.666666} lng={10.012657} {...props} />
+      <GpsFormatToggle lngLat={{ latitude: 11.666666, longitude: 10.012657 }} {...props} />
     </Provider>
   );
 
@@ -81,7 +81,11 @@ describe('GpsFormatToggle', () => {
   });
 
   test('sets the label text and title for a coordinate reference system', async () => {
-    store.view.coordinateReferenceSystems.selectedSystems = [GPS_FORMATS.DEG, GPS_FORMATS.UTM, '5367'];
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
       bbox: [-86.5, 11.77, -81.43, 2.21],
@@ -123,8 +127,8 @@ describe('GpsFormatToggle', () => {
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();
   });
 
-  test('does not show either the GPS string nor the copy button if the showGpsString is false', async () => {
-    renderGpsFormatToggle({ showGpsString: false });
+  test('does not show either the GPS string nor the copy button if the showCoordinates is false', async () => {
+    renderGpsFormatToggle({ showCoordinates: false });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();

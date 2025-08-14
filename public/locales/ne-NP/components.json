@@ -63,13 +63,17 @@
     },
     "gpsFormatToggle": {
         "fieldsetLegend": "GPS ढाँचा",
+        "coordinatesOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
+        "coordinatesOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
         "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
     },
     "gpsInput": {
         "defaultPlaceholder": "लोकेसन",
-        "errorMessage": "अमान्य लोकेसन",
         "inputDescription": "उदाहरण: {{gpsFormat}}",
         "inputLabel": "GPS स्थान",
+        "invalidLocationErrorMessage": "अमान्य लोकेसन",
+        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
+        "outsideBboxInputValue": "उ/ल",
         "placeholders": {
             "DDM": "डिग्री, दशमलव, मिनेट",
             "DEG": "आक्षांश, देशान्तर",
@@ -94,7 +98,9 @@
             "closed": "मान सेट गर्न स्थान चयन मेनु खोल्नुहोस्",
             "open": "स्थान चयन मेनु बन्द गर्नुहोस्"
         },
-        "textCopyButtonLabel": "स्थान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
+        "textCopyButtonLabel": "स्थान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
+        "valueOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
+        "valueOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी"
     },
     "mapLocationSelectionOverview": {
         "chooseLocationHeader": {
@@ -266,7 +272,7 @@
                         "legend": "सामान्य",
                         "lockMapCheckboxLabel": "नक्सा लक गर्नुहोस्",
                         "openCoordinateSystemSettingsButton": "समन्वय प्रणालीहरू",
-                        "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} चयन गरियो",
+                        "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} चयन गरियो",
                         "openCoordinateSystemSettingsButtonLabel": "समन्वय प्रणालीहरूको सेटिङ खोल्नुहोस्",
                         "simplifyMapDataOnZoomCheckboxLabel": "नक्साका डाटालाई जुममा सरलीकरण गर्नुहोस्"
                     },

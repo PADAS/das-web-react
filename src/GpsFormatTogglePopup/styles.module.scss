@@ -10,5 +10,13 @@
     background: white;
     padding: 0.5rem;
     width: auto;
+
+    [class*=gps-format-toggle] {
+      fieldset {
+        label {
+          font-size: 0.75rem;
+        }
+      }
+    }
   }
 }

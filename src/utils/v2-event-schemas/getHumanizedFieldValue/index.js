@@ -2,7 +2,7 @@ import { format, isValid, parseISO } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../constants';
 import { shouldUse12HourFormat } from '../../datetime';
-import { transformLngLatToLocationType } from '../../location';
+import { stringifyCoordinates } from '../../location';
 
 const getChoiceListOptionLabel = (value, field) => field.details.options
   .find((option) => option.const === value)?.title;
@@ -54,7 +54,7 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, g
     return isValid(parsedDate) ? format(parsedDate, formatStr) : defaultHumanizedValue;
 
   case FORM_ELEMENT_TYPES.LOCATION:
-    return transformLngLatToLocationType(value, gpsFormat);
+    return stringifyCoordinates(value, gpsFormat);
 
   default:
     return value;

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { transformLngLatToLocationType } from '../utils/location';
+import { stringifyCoordinates } from '../utils/location';
 import { validateLngLat } from '../utils/location';
 
 import Popup from '../Popup';
@@ -23,7 +23,7 @@ const MouseMarkerPopup = ({ location = null, ...rest }) => {
     >
     <p>{t('title')}</p>
 
-    <p>{transformLngLatToLocationType({ latitude: location.lat, longitude: location.lng }, gpsFormat)}</p>
+    <p>{stringifyCoordinates({ latitude: location.lat, longitude: location.lng }, gpsFormat)}</p>
   </Popup>;
 };
 

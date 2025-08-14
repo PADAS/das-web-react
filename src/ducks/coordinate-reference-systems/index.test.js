@@ -3,15 +3,15 @@ import { GPS_FORMATS } from '../../utils/location';
 import coordinateReferenceSystemsReducer, {
   SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS,
   SET_STORED_COORDINATE_REFERENCE_SYSTEMS,
-  setSelectedCoordinateReferenceSystems,
+  setSelectedCoordinateRepresentations,
   setStoredCoordinateReferenceSystems,
   INITIAL_STATE,
 } from './';
 
 describe('Ducks - Coordinate reference systems', () => {
-  test('setSelectedCoordinateReferenceSystems dispatches the SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
+  test('setSelectedCoordinateRepresentations dispatches the SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
     expect(
-      setSelectedCoordinateReferenceSystems([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'])
+      setSelectedCoordinateRepresentations([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'])
     ).toEqual({
       payload: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'],
       type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS,
@@ -48,7 +48,7 @@ describe('Ducks - Coordinate reference systems', () => {
       const payload = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'];
       const action = { payload, type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS };
       const expectedState = {
-        selectedSystems: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'],
+        selectedCoordinateRepresentations: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'],
         storedSystems: [],
       };
 
@@ -59,7 +59,7 @@ describe('Ducks - Coordinate reference systems', () => {
       const payload = [GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '4576', '5367'];
       const action = { payload, type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS };
       const expectedState = {
-        selectedSystems: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '4576'],
+        selectedCoordinateRepresentations: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '4576'],
         storedSystems: [],
       };
 
@@ -76,7 +76,7 @@ describe('Ducks - Coordinate reference systems', () => {
       }];
       const action = { payload, type: SET_STORED_COORDINATE_REFERENCE_SYSTEMS };
       const expectedState = {
-        selectedSystems: Object.values(GPS_FORMATS),
+        selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         storedSystems: [{
           area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
           bbox: [-86.5, 11.77, -81.43, 2.21],
@@ -126,7 +126,7 @@ describe('Ducks - Coordinate reference systems', () => {
       }];
       const action = { payload, type: SET_STORED_COORDINATE_REFERENCE_SYSTEMS };
       const expectedState = {
-        selectedSystems: Object.values(GPS_FORMATS),
+        selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         storedSystems: [{
           area: 'China - onshore between 120°E and 126°E.',
           bbox: [

@@ -68,13 +68,17 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Muundo wa GPS",
+    "coordinatesOutsideBboxTooltip": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "coordinatesOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
     "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili"
   },
   "gpsInput": {
     "defaultPlaceholder": "Eneo",
-    "errorMessage": "Eneo halali",
     "inputDescription": "Mfano: {{gpsFormat}}",
     "inputLabel": "Mahali pa GPS",
+    "invalidLocationErrorMessage": "Eneo halali",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "outsideBboxInputValue": "H/P",
     "placeholders": {
       "DDM": "Digrii, Desimali, Dakika",
       "DEG": "Latitudo, Longitudo",
@@ -99,7 +103,9 @@
       "closed": "Fungua menyu ya kiondoa mahali ili kuweka thamani",
       "open": "Funga menyu ya kiondoa mahali"
     },
-    "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili"
+    "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili",
+    "valueOutsideBboxTooltip": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
+    "valueOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -282,7 +288,7 @@
             "legend": "Jumla",
             "lockMapCheckboxLabel": "Funga ramani",
             "openCoordinateSystemSettingsButton": "Mifumo ya uratibu",
-            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} vimechaguliwa",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} vimechaguliwa",
             "openCoordinateSystemSettingsButtonLabel": "Fungua mipangilio ya mifumo ya uratibu",
             "simplifyMapDataOnZoomCheckboxLabel": "Rahisisha data ya ramani kwenye kuongeza kupunguza"
           },

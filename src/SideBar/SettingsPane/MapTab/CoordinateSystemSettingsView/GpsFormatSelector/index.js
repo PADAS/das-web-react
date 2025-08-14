@@ -6,7 +6,7 @@ import { ReactComponent as TrashCanIcon } from '../../../../../common/images/ico
 
 import { GPS_FORMAT_EXAMPLES, GPS_FORMATS } from '../../../../../utils/location';
 import {
-  setSelectedCoordinateReferenceSystems,
+  setSelectedCoordinateRepresentations,
   setStoredCoordinateReferenceSystems,
 } from '../../../../../ducks/coordinate-reference-systems';
 import { updateUserPreferences } from '../../../../../ducks/user-preferences';
@@ -22,11 +22,13 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
   });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
+  const selectedCoordinateRepresentations = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
+  );
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
-  const isChecked = selectedCRS.includes(epsgCode);
-  const isDisabled = !isChecked && selectedCRS.length === MAX_SELECTED_GPS_FORMATS;
+  const isChecked = selectedCoordinateRepresentations.includes(epsgCode);
+  const isDisabled = !isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS;
 
   const onCheckboxChange = () => {
     if (isChecked) {
@@ -37,12 +39,14 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
       }
 
       dispatch(
-        setSelectedCoordinateReferenceSystems(
-          selectedCRS.filter((selectedCRSIdentifier) => selectedCRSIdentifier !== epsgCode)
+        setSelectedCoordinateRepresentations(
+          selectedCoordinateRepresentations.filter(
+            (coordinatesRepresentation) => coordinatesRepresentation !== epsgCode
+          )
         )
       );
     } else {
-      dispatch(setSelectedCoordinateReferenceSystems([...selectedCRS, epsgCode]));
+      dispatch(setSelectedCoordinateRepresentations([...selectedCoordinateRepresentations, epsgCode]));
     }
   };
 
@@ -97,12 +101,14 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
   });
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
+  const selectedCoordinateRepresentations = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
+  );
 
-  const isChecked = selectedCRS.includes(formatCode);
+  const isChecked = selectedCoordinateRepresentations.includes(formatCode);
   // DEG options is always disabled by design.
   const isDisabled = formatCode === GPS_FORMATS.DEG
-    || (!isChecked && selectedCRS.length === MAX_SELECTED_GPS_FORMATS);
+    || (!isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS);
 
   const onCheckboxChange = () => {
     if (isChecked) {
@@ -113,12 +119,14 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
       }
 
       dispatch(
-        setSelectedCoordinateReferenceSystems(
-          selectedCRS.filter((selectedCRSIdentifier) => selectedCRSIdentifier !== formatCode)
+        setSelectedCoordinateRepresentations(
+          selectedCoordinateRepresentations.filter(
+            (coordinatesRepresentation) => coordinatesRepresentation !== formatCode
+          )
         )
       );
     } else {
-      dispatch(setSelectedCoordinateReferenceSystems([...selectedCRS, formatCode]));
+      dispatch(setSelectedCoordinateRepresentations([...selectedCoordinateRepresentations, formatCode]));
     }
   };
 
@@ -157,7 +165,9 @@ const GpsFormatSelector = () => {
     keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
   });
 
-  const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
+  const selectedCoordinateRepresentations = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
+  );
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
   const gpsFormatOptions = [
@@ -175,7 +185,7 @@ const GpsFormatSelector = () => {
       aria-describedby="gps-format-selector-instructions gps-format-selector-message"
       className={styles.fieldset}
     >
-      <legend className={styles.srOnly}>{t('legend')}</legend>
+      <legend className="sr-only">{t('legend')}</legend>
 
       {gpsFormatOptions.map((gpsFormatOption, index) => <Fragment
         key={gpsFormatOption.isDefault ? gpsFormatOption.formatCode : gpsFormatOption.code}
@@ -188,7 +198,7 @@ const GpsFormatSelector = () => {
       </Fragment>)}
     </fieldset>
 
-    {selectedCRS.length === MAX_SELECTED_GPS_FORMATS && <p
+    {selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS && <p
         className={styles.message}
         id="gps-format-selector-message"
         role="status"

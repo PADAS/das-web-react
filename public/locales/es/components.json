@@ -62,13 +62,17 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Formato de GPS",
+    "coordinatesOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "coordinatesOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
     "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
   },
   "gpsInput": {
     "defaultPlaceholder": "Ubicación",
-    "errorMessage": "Ubicación inválida",
     "inputDescription": "Ejemplo: {{gpsFormat}}",
     "inputLabel": "Ubicación GPS",
+    "invalidLocationErrorMessage": "Ubicación inválida",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "outsideBboxInputValue": "N/D",
     "placeholders": {
       "DDM": "Grados, Decimales, Minutos",
       "DEG": "Latitud, Longitud",
@@ -93,7 +97,9 @@
       "closed": "Abrir el menú del selector de ubicación para establecer un valor",
       "open": "Cerrar el menú del selector de ubicación"
     },
-    "textCopyButtonLabel": "Copiar ubicación al portapapeles"
+    "textCopyButtonLabel": "Copiar ubicación al portapapeles",
+    "valueOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
+    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -265,7 +271,7 @@
             "legend": "General",
             "lockMapCheckboxLabel": "Bloquear mapa",
             "openCoordinateSystemSettingsButton": "Sistemas de coordenadas",
-            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} seleccionados",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} seleccionados",
             "openCoordinateSystemSettingsButtonLabel": "Abrir configuración de sistemas de coordenadas",
             "simplifyMapDataOnZoomCheckboxLabel": "Simplificar información del mapa al hacer zoom"
           },
