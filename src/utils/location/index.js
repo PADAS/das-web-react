@@ -28,7 +28,10 @@ export const GPS_FORMAT_EXAMPLES = {
 
 const isValidLatitude = (latitude) => !Number.isNaN(latitude) && Math.abs(latitude) <= 90;
 
-const isValidLongitude = (longitude) => !Number.isNaN(longitude) && Math.abs(longitude) <= 180;
+// Some times, when working with antimeridian crossing, we want to allow
+// unwrapped longitudes (values below -180 and over 180).
+const isValidLongitude = (longitude, unwrapped = false) => !Number.isNaN(longitude)
+  && (unwrapped || Math.abs(longitude) <= 180);
 
 const degToLngLat = (degCoordinates) => {
   try {
@@ -165,7 +168,7 @@ export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) =
     const numericLatitude = Number(lngLat.latitude);
     const numericLongitude = Number(lngLat.longitude);
 
-    if (isValidLatitude(numericLatitude) && isValidLongitude(numericLongitude)) {
+    if (isValidLatitude(numericLatitude) && isValidLongitude(numericLongitude, true)) {
       try {
         if (representation?.proj4) {
           // If the coordinates representation is an object with a property
@@ -218,7 +221,7 @@ export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) =
   return '';
 };
 
-export const validateLngLat = (longitude, latitude) => isValidLatitude(latitude) && isValidLongitude(longitude);
+export const validateLngLat = (longitude, latitude) => isValidLatitude(latitude) && isValidLongitude(longitude, true);
 
 export const calcPositiveBearing = (point1, point2) => (bearing(point1, point2) + 360) % 360;
 

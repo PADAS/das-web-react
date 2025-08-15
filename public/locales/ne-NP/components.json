@@ -193,6 +193,8 @@
         "layersLink": "नक्साका तहहरु",
         "mapLayersTab": {
             "analyzersTabTitle": "विश्लेषकहरु",
+            "clearAllMapLayersButton": "सबै हटाउनुहोस्",
+            "clearAllMapLayersButtonLabel": "नक्साका सबै तहहरू खाली गर्नुहोस्",
             "eventsTabTitle": "घटनाहरु",
             "featuresTabTitle": "विशेषताहरु",
             "subjectsTabTitle": "विषयहरु"

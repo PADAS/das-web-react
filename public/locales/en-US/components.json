@@ -209,6 +209,8 @@
     "layersLink": "Map Layers",
     "mapLayersTab": {
       "analyzersTabTitle": "Analyzers",
+      "clearAllMapLayersButton": "Clear All",
+      "clearAllMapLayersButtonLabel": "Clear all map layers",
       "eventsTabTitle": "Events",
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"

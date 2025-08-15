@@ -186,7 +186,6 @@ describe('Utils - location', () => {
       expect(transformLngLatToLocationType({ lat: null, lon: null }, proj4CompatibleCRSByCode[2154])).toBe('');
       expect(transformLngLatToLocationType({ latitude: null, longitude: null }, proj4CompatibleCRSByCode[2946])).toBe('');
       expect(transformLngLatToLocationType({ latitude: 91, longitude: 0 }, proj4CompatibleCRSByCode[3857])).toBe('');
-      expect(transformLngLatToLocationType({ latitude: 0, longitude: 181 }, proj4CompatibleCRSByCode[4269])).toBe('');
     });
 
     it('returns an empty string if the location type is invalid', () => {
@@ -209,6 +208,8 @@ describe('Utils - location', () => {
         .toBe('89.999900°, 0.000000°');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, GPS_FORMATS.DEG))
         .toBe('0.000000°, 179.999900°');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, GPS_FORMATS.DEG))
+        .toBe('0.000000°, -173.162800°');
     });
 
     it('transforms to DMS GPS format', () => {
@@ -224,6 +225,8 @@ describe('Utils - location', () => {
         .toBe('89° 59′ 59.640000″ N, 000° 00′ 00.000000″ E');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, GPS_FORMATS.DMS))
         .toBe('00° 00′ 00.000000″ N, 179° 59′ 59.640000″ E');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, GPS_FORMATS.DMS))
+        .toBe('00° 00′ 00.000000″ N, 173° 09′ 46.080000″ W');
     });
 
     it('transforms to DDM GPS format', () => {
@@ -239,6 +242,8 @@ describe('Utils - location', () => {
         .toBe('89° 59.994000′ N, 000° 00.000000′ E');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, GPS_FORMATS.DDM))
         .toBe('00° 00.000000′ N, 179° 59.994000′ E');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, GPS_FORMATS.DDM))
+        .toBe('00° 00.000000′ N, 173° 09.768000′ W');
     });
 
     it('transforms to UTM GPS format', () => {
@@ -253,6 +258,8 @@ describe('Utils - location', () => {
       expect(transformLngLatToLocationType({ latitude: 89.9999, longitude: 0 }, GPS_FORMATS.UTM)).toBe('');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, GPS_FORMATS.UTM))
         .toBe('60 N 833967 0');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, GPS_FORMATS.UTM))
+        .toBe('02 N 259277 0');
     });
 
     it('transforms to MGRS GPS format', () => {
@@ -267,6 +274,8 @@ describe('Utils - location', () => {
       expect(transformLngLatToLocationType({ latitude: 89.9999, longitude: 0 }, GPS_FORMATS.MGRS)).toBe('');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, GPS_FORMATS.MGRS))
         .toBe('60N ZF 33967 00000');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, GPS_FORMATS.MGRS))
+        .toBe('02N KF 59276 00000');
     });
 
     it('transforms to a coordinate reference system', () => {
@@ -284,6 +293,8 @@ describe('Utils - location', () => {
         .toBe('499997.110303, 9997954.158527');
       expect(transformLngLatToLocationType({ latitude: 0, longitude: 179.9999 }, proj4CompatibleCRSByCode[32719]))
         .toBe('-10308119.733821, 29995929.886042');
+      expect(transformLngLatToLocationType({ latitude: 0, longitude: 546.8372 }, proj4CompatibleCRSByCode[32719]))
+        .toBe('-12959008.786726, 29995929.886042');
     });
   });
 
@@ -294,6 +305,7 @@ describe('Utils - location', () => {
       expect(validateLocation({ lat: 23.0921, lng: -112.3835 })).toBe(true);
       expect(validateLocation({ lat: 90, lng: -180 })).toBe(true);
       expect(validateLocation({ lat: -90, lng: 180 })).toBe(true);
+      expect(validateLocation({ lat: 0, lng: 546.8372 })).toBe(true);
     });
 
     it('returns false if location is invalid', () => {
@@ -301,8 +313,6 @@ describe('Utils - location', () => {
       expect(validateLocation({})).toBe(false);
       expect(validateLocation({ lat: 23.0921 })).toBe(false);
       expect(validateLocation({ lng: -112.3835 })).toBe(false);
-      expect(validateLocation({ lat: 0, lng: 181 })).toBe(false);
-      expect(validateLocation({ lat: 0, lng: -181 })).toBe(false);
       expect(validateLocation({ lat: 91, lng: 0 })).toBe(false);
       expect(validateLocation({ lat: -91, lng: 0 })).toBe(false);
     });

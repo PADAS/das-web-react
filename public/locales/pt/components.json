@@ -192,6 +192,8 @@
         "layersLink": "Camadas do mapa",
         "mapLayersTab": {
             "analyzersTabTitle": "Analisadores",
+            "clearAllMapLayersButton": "Limpar tudo",
+            "clearAllMapLayersButtonLabel": "Limpar todas as camadas do mapa",
             "eventsTabTitle": "Eventos",
             "featuresTabTitle": "Feições",
             "subjectsTabTitle": "Indivíduos rastreados"
