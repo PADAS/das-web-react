@@ -186,6 +186,8 @@
     "layersLink": "Capas de mapa",
     "mapLayersTab": {
       "analyzersTabTitle": "Analizadores",
+      "clearAllMapLayersButton": "Clear All",
+      "clearAllMapLayersButtonLabel": "Clear all map layers",
       "eventsTabTitle": "Eventos",
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
