@@ -40,6 +40,32 @@
   width: var(--sidebar-width);
 }
 
+.footer {
+  background: white;
+  border-top: 1px solid colors.$light-gray-lines;
+  padding: 1rem;
+
+  .clearAllMapLayersButton {
+    align-items: center;
+    background: none;
+    border: 0;
+    display: flex;
+    gap: 0.5rem;
+    outline: none;
+
+    &:focus-visible svg {
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    svg {
+      border-radius: 0.25rem;
+      height: 2rem;
+      padding: 0.25rem;
+      width: 2rem;
+    }
+  }
+}
+
 .allCheckboxWrapper {
   border-bottom: 1px solid colors.$light-gray-border;
   font-size: 1.25rem;
