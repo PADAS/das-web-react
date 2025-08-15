@@ -203,6 +203,8 @@
     "layersLink": "Safu za Ramani",
     "mapLayersTab": {
       "analyzersTabTitle": "Wachambuzi",
+      "clearAllMapLayersButton": "Ondoa Yote",
+      "clearAllMapLayersButtonLabel": "Futa tabaka zote za ramani",
       "eventsTabTitle": "Matukio",
       "featuresTabTitle": "Vipengele",
       "subjectsTabTitle": "Masomo"

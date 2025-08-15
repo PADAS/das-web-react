@@ -5,7 +5,8 @@
   border-bottom: 1px solid colors.$light-gray-lines;
   flex-wrap: nowrap;
   max-width: var(--sidebar-width);
-  padding: 0 1rem 1px;
+  min-height: fit-content;
+  padding: 0 1rem;
   overflow-x: auto;
   overflow-y: hidden;
 
@@ -38,6 +39,32 @@
   height: 100%;
   overflow-y: auto;
   width: var(--sidebar-width);
+}
+
+.footer {
+  background: white;
+  border-top: 1px solid colors.$light-gray-lines;
+  padding: 1rem;
+
+  .clearAllMapLayersButton {
+    align-items: center;
+    background: none;
+    border: 0;
+    display: flex;
+    gap: 0.5rem;
+    outline: none;
+
+    &:focus-visible svg {
+      outline: 2px solid colors.$bright-blue;
+    }
+
+    svg {
+      border-radius: 0.25rem;
+      height: 2rem;
+      padding: 0.25rem;
+      width: 2rem;
+    }
+  }
 }
 
 .allCheckboxWrapper {

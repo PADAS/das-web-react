@@ -4,7 +4,8 @@
   border-bottom: 1px solid colors.$light-gray-lines;
   flex-wrap: nowrap;
   max-width: var(--sidebar-width);
-  padding: 0 1rem 1px;
+  min-height: fit-content;
+  padding: 0 1rem;
   overflow-x: auto;
   overflow-y: hidden;
 
