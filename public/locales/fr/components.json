@@ -186,6 +186,8 @@
     "layersLink": "Calques",
     "mapLayersTab": {
       "analyzersTabTitle": "Barriere Virtuelle",
+      "clearAllMapLayersButton": "Tout Désélectionner",
+      "clearAllMapLayersButtonLabel": "Effacer toutes les couches de la carte",
       "eventsTabTitle": "Événements",
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"

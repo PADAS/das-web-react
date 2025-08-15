@@ -24,6 +24,6 @@ $hover-color: darken($checkmark-color, 12.5%);
     }
   }
   &:hover {
-     stroke: $hover-color;
+     fill: rgba($hover-color, 0.1);
   }
 }
