@@ -41,7 +41,6 @@ const MapLayersTab = () => {
     mapLayerTracker.track('Clicked Clear All link');
   };
 
-
   // The tabs that support filtering have mountOnEnter and unmountOnExit so
   // Bootstrap correctly calculates the dimension of the collapsibles that will
   // be open by default.
