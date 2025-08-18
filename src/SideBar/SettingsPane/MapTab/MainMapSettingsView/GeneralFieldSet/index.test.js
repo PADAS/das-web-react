@@ -96,7 +96,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - GeneralFieldSe
     expect(toggleMapDataSimplificationOnZoom).toHaveBeenCalledTimes(1);
   });
 
-  test.skip('opens the coordinate system settings view when the user clicks the coordinate systems button', async () => {
+  test('opens the coordinate system settings view when the user clicks the coordinate systems button', async () => {
     renderGeneralFieldSet();
 
     expect(onOpenCoordinateSystemSettingsView).not.toHaveBeenCalled();

@@ -51,7 +51,7 @@ describe('SideBar - SettingsPane - MapTab', () => {
     </Provider>
   );
 
-  test.skip('shows the main map settings view by default', async () => {
+  test('shows the main map settings view by default', async () => {
     renderMapTab();
 
     expect(screen.getByRole('group', { name: 'General' })).toBeVisible();
@@ -60,7 +60,7 @@ describe('SideBar - SettingsPane - MapTab', () => {
     expect(screen.queryByRole('heading', { name: 'Coordinates' })).toBeNull();
   });
 
-  test.skip('shows the coordinate system settings view when opened', async () => {
+  test('shows the coordinate system settings view when opened', async () => {
     renderMapTab();
 
     await userEvent.click(screen.getByRole('button', { name: 'Open coordinate system settings' }));
