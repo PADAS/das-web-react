@@ -51,14 +51,14 @@ export const getSubjectGroups = createSelector(
       let lastPositionTime;
       hydratedSubGroups.forEach((subGroup) => {
         if (subGroup.lastPositionTime &&
-          (!lastPositionTime || new Date(subGroup.lastPositionTime) > new Date (lastPositionTime))) {
+          (!lastPositionTime || new Date(subGroup.lastPositionTime) > new Date(lastPositionTime))) {
           lastPositionTime = subGroup.lastPositionTime;
         }
       });
       hydratedSubjects.forEach((subject) => {
         const subjectLastPositionTime = subject?.last_position?.properties?.coordinateProperties?.time;
         if (subjectLastPositionTime &&
-          (!lastPositionTime || new Date(subject.updated_at) > new Date (lastPositionTime))) {
+          (!lastPositionTime || new Date(subjectLastPositionTime) > new Date(lastPositionTime))) {
           lastPositionTime = subjectLastPositionTime;
         }
       });
