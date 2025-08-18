@@ -71,7 +71,7 @@ const shouldAppendLocationToRequest = (state) => {
   return userIsGeoPermissionRestricted(currentUser) && !!state?.view?.userLocation?.coords;
 };
 
-const removeOpenEventIfAlreadyLoaded = (events, eventStore) => {
+const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
   const currentTab = getCurrentTabFromURL(window.location.pathname);
   const openEventId = getCurrentIdFromURL(window.location.pathname);
   if (currentTab === TAB_KEYS.EVENTS && openEventId && eventStore[openEventId]) {
@@ -137,7 +137,7 @@ const fetchNamedFeedActionCreator = (name) => {
     })
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
-          dispatch(updateEventStore(...removeOpenEventIfAlreadyLoaded(response.data.data.results, state.data.eventStore)));
+          dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
 
           if (
             !response.data.data.results.length
@@ -172,7 +172,7 @@ const fetchNamedFeedActionCreator = (name) => {
       cancelToken: cancelToken.token,
     })
       .then(response => {
-        dispatch(updateEventStore(...removeOpenEventIfAlreadyLoaded(response.data.data.results, state.data.eventStore)));
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, state.data.eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,
@@ -486,7 +486,7 @@ const fetchMapEventsComplete = results => (dispatch, getState) => {
     type: FETCH_MAP_EVENTS_COMPLETE,
     payload: results,
   });
-  dispatch(updateEventStore(...removeOpenEventIfAlreadyLoaded(results, state.data.eventStore)));
+  dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, state.data.eventStore)));
 };
 
 const fetchMapEventsPageSuccess = results => (dispatch, getState) => {
@@ -496,7 +496,7 @@ const fetchMapEventsPageSuccess = results => (dispatch, getState) => {
     type: FETCH_MAP_EVENTS_PAGE_SUCCESS,
     payload: results,
   });
-  dispatch(updateEventStore(...removeOpenEventIfAlreadyLoaded(results, state.data.eventStore)));
+  dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(results, state.data.eventStore)));
 };
 
 const fetchMapEventsError = error => ({
