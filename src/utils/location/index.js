@@ -1,4 +1,3 @@
-import { bboxPolygon, booleanPointInPolygon, point } from '@turf/turf';
 import { bearing } from '@turf/turf';
 import Dms from 'geodesy/dms';
 import Utm, { LatLon as LatLonUtm } from 'geodesy/utm';
@@ -6,9 +5,10 @@ import Mgrs, { LatLon as LatLonMgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 import proj4 from 'proj4';
 
-const PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
-
+const MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE = 180;
 const LOCATION_AXIS_DECIMAL_PRECISION = 6;
+const PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
+const TOTAL_LONGITUDE_SPAN = 360;
 
 export const GPS_FORMATS = {
   DEG: 'DEG',
@@ -142,7 +142,7 @@ export const parseCoordinates = (coordinatesString, representation = GPS_FORMATS
 
     default:
       throw new Error(
-        `Unsupported coordinates representation ${representation}: must be a known GPS format or a proj4 compatible coordinate reference system object`
+        `Unsupported coordinates representation "${representation}": must be a known GPS format or a proj4 compatible coordinate reference system object`
       );
     }
   }
@@ -155,7 +155,7 @@ export const parseCoordinates = (coordinatesString, representation = GPS_FORMATS
   }
 
   throw new Error(
-    'Unsupported locationType: must be a known GPS format or a proj4 compatible coordinate reference system object'
+    'Unsupported coordinates representation: must be a known GPS format or a proj4 compatible coordinate reference system object'
   );
 };
 
@@ -175,10 +175,24 @@ export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) =
           // proj4, the location must be transformed to a coordinate reference
           // system format.
           if (representation.bbox) {
-            const coordinateReferenceSystemBboxPolygon = bboxPolygon(representation.bbox);
-            const locationPoint = point([numericLongitude, numericLatitude]);
-            const isLocationInsideCrsBbox = booleanPointInPolygon(locationPoint, coordinateReferenceSystemBboxPolygon);
-            if (!isLocationInsideCrsBbox) {
+            // Check if the coordinates are inside of the coordinate reference
+            // system BBOX before transforming them.
+            const [bboxMinLongitude, bboxMinLatitude, bboxMaxLongitude, bboxMaxLatitude] = representation.bbox;
+            const locationLatLon = new LatLon(numericLatitude, numericLongitude);
+
+            // Adjusting the longitude if the bbox longitudes are unwrapped to
+            // fix antimeridian crossing.
+            const locationLatitude = locationLatLon.latitude;
+            const locationLongitude = (bboxMaxLongitude > MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE
+              && locationLatLon.longitude < bboxMinLongitude)
+              ? locationLatLon.longitude + TOTAL_LONGITUDE_SPAN
+              : locationLatLon.longitude;
+
+            const isLocationOutsideCrsBbox = locationLatitude < bboxMinLatitude
+              || locationLatitude > bboxMaxLatitude
+              || locationLongitude < bboxMinLongitude
+              || locationLongitude > bboxMaxLongitude;
+            if (isLocationOutsideCrsBbox) {
               return OUTSIDE_BBOX;
             }
           }
@@ -189,8 +203,8 @@ export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) =
           return `${x}, ${y}`;
         }
 
-        // Otherwise, the coordinates representation type must be one of our
-        // GPS formats.
+        // If the coordinates representation wasn't a CRS, it must be one of
+        // our GPS formats.
         switch (representation) {
         case GPS_FORMATS.DEG:
           return new LatLon(numericLatitude, numericLongitude)
@@ -250,8 +264,15 @@ export const getProj4CompatibleCRS = async () => {
           if (Array.isArray(bbox) && bbox.length === 4) {
             // If the coordinate reference system has a bbox, reorder its parts
             // to the format expected by Turf utilities.
-            const [maxLat, minLng, minLat, maxLng] = bbox;
-            bbox = [minLng, minLat, maxLng, maxLat];
+            const [maxLatitude, minLongitude, minLatitude, maxLongitude] = bbox;
+            // If the maximum longitude is less than the minimum longitude, the
+            // BBOX passes through the antimeridian. In those cases Turf
+            // expects the locations to be unwrapped so we adjust the maximum
+            // longitude.
+            const maxLongitudeWithAntimeridianCrossingFixed = maxLongitude < minLongitude
+              ? maxLongitude + TOTAL_LONGITUDE_SPAN
+              : maxLongitude;
+            bbox = [minLongitude, minLatitude, maxLongitudeWithAntimeridianCrossingFixed, maxLatitude];
           }
 
           acc.push({

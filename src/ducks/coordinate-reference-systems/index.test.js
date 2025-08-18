@@ -1,7 +1,7 @@
 import { GPS_FORMATS } from '../../utils/location';
 
 import coordinateReferenceSystemsReducer, {
-  SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS,
+  SET_SELECTED_COORDINATE_REPRESENTATIONS,
   SET_STORED_COORDINATE_REFERENCE_SYSTEMS,
   setSelectedCoordinateRepresentations,
   setStoredCoordinateReferenceSystems,
@@ -9,12 +9,12 @@ import coordinateReferenceSystemsReducer, {
 } from './';
 
 describe('Ducks - Coordinate reference systems', () => {
-  test('setSelectedCoordinateRepresentations dispatches the SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
+  test('setSelectedCoordinateRepresentations dispatches the SET_SELECTED_COORDINATE_REPRESENTATIONS action', async () => {
     expect(
       setSelectedCoordinateRepresentations([GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'])
     ).toEqual({
       payload: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'],
-      type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS,
+      type: SET_SELECTED_COORDINATE_REPRESENTATIONS,
     });
   });
 
@@ -22,7 +22,7 @@ describe('Ducks - Coordinate reference systems', () => {
     expect(
       setStoredCoordinateReferenceSystems([{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [-86.5, 11.77, -81.43, 2.21],
+        bbox: [-86.5, 2.21, -81.43, 11.77],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -30,7 +30,7 @@ describe('Ducks - Coordinate reference systems', () => {
     ).toEqual({
       payload: [{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [-86.5, 11.77, -81.43, 2.21],
+        bbox: [-86.5, 2.21, -81.43, 11.77],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -44,9 +44,9 @@ describe('Ducks - Coordinate reference systems', () => {
       expect(coordinateReferenceSystemsReducer(undefined, {})).toEqual(INITIAL_STATE);
     });
 
-    test('handles a SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
+    test('handles a SET_SELECTED_COORDINATE_REPRESENTATIONS action', async () => {
       const payload = [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'];
-      const action = { payload, type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS };
+      const action = { payload, type: SET_SELECTED_COORDINATE_REPRESENTATIONS };
       const expectedState = {
         selectedCoordinateRepresentations: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, '4576', '5367'],
         storedSystems: [],
@@ -55,9 +55,9 @@ describe('Ducks - Coordinate reference systems', () => {
       expect(coordinateReferenceSystemsReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('always includes the DEG GPS format and limits the length of the selected systems list when handling a SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
+    test('always includes the DEG GPS format and limits the length of the selected systems list when handling a SET_SELECTED_COORDINATE_REPRESENTATIONS action', async () => {
       const payload = [GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '4576', '5367'];
-      const action = { payload, type: SET_SELECTED_COORDINATE_REFERENCE_SYSTEMS };
+      const action = { payload, type: SET_SELECTED_COORDINATE_REPRESENTATIONS };
       const expectedState = {
         selectedCoordinateRepresentations: [GPS_FORMATS.DEG, GPS_FORMATS.DMS, GPS_FORMATS.DDM, GPS_FORMATS.UTM, '4576'],
         storedSystems: [],
@@ -69,7 +69,7 @@ describe('Ducks - Coordinate reference systems', () => {
     test('handles a SET_STORED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
       const payload = [{
         area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-        bbox: [-86.5, 11.77, -81.43, 2.21],
+        bbox: [-86.5, 2.21, -81.43, 11.77],
         code: '5367',
         name: 'CR05 / CRTM05',
         proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -79,7 +79,7 @@ describe('Ducks - Coordinate reference systems', () => {
         selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         storedSystems: [{
           area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-          bbox: [-86.5, 11.77, -81.43, 2.21],
+          bbox: [-86.5, 2.21, -81.43, 11.77],
           code: '5367',
           name: 'CR05 / CRTM05',
           proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',

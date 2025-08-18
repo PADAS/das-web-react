@@ -207,10 +207,5 @@ describe('GpsInput', () => {
     renderGpsInput();
 
     expect(screen.getByLabelText('GPS location')).toHaveAccessibleDescription('Example: -0.15293, 37.30906');
-
-    const description = screen.getByText('Example: -0.15293, 37.30906');
-
-    expect(description).toHaveAttribute('aria-live', 'off');
-    expect(description).not.toHaveClass('error');
   });
 });

@@ -63,6 +63,9 @@ describe('ReportManager', () => {
         patrolStore: {},
       },
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         featureFlagOverrides: {},
         mapLocationSelection: { isPickingLocation: false },
         sideBar: {},

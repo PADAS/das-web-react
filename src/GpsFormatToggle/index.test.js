@@ -88,7 +88,7 @@ describe('GpsFormatToggle', () => {
     ];
     store.view.coordinateReferenceSystems.storedSystems = [{
       area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
+      bbox: [-86.5, 2.21, -81.43, 11.77],
       code: '5367',
       name: 'CR05 / CRTM05',
       proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
@@ -120,8 +120,8 @@ describe('GpsFormatToggle', () => {
     expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
   });
 
-  test('does not show either the GPS string nor the copy button if there are not valid lat and lng values set', async () => {
-    renderGpsFormatToggle({ lat: null, lng: null });
+  test('does not show either the GPS string nor the copy button if the lngLat value is not set set', async () => {
+    renderGpsFormatToggle({ lngLat: null });
 
     expect(screen.queryByText('11.666666°, 10.012657°')).toBeNull();
     expect(screen.queryByLabelText('Copy GPS value to clipboard')).toBeNull();

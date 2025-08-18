@@ -98,9 +98,11 @@ const GpsFormatToggle = ({
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
       {gpsFormatOptions.map((gpsFormatOption) => {
-        // If the option is a CRS, calculate if the lngLat point is outside the
-        // BBOX.
-        const gpsFormatCoordinateReferenceSystem = storedCoordinateReferenceSystemsMappedByCode[gpsFormatOption];
+        // If the option is a CRS and there is a lngLat, calculate if the
+        // lngLat point is outside the BBOX.
+        const gpsFormatCoordinateReferenceSystem = lngLat
+          ? storedCoordinateReferenceSystemsMappedByCode[gpsFormatOption]
+          : null;
         const isLngLatOutsideCrsBbox = gpsFormatCoordinateReferenceSystem
           ? stringifyCoordinates(lngLat, gpsFormatCoordinateReferenceSystem) === OUTSIDE_BBOX
           : false;
