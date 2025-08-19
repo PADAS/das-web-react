@@ -100,10 +100,8 @@ const GpsFormatToggle = ({
       {gpsFormatOptions.map((gpsFormatOption) => {
         // If the option is a CRS and there is a lngLat, calculate if the
         // lngLat point is outside the BBOX.
-        const gpsFormatCoordinateReferenceSystem = lngLat
-          ? storedCoordinateReferenceSystemsMappedByCode[gpsFormatOption]
-          : null;
-        const isLngLatOutsideCrsBbox = gpsFormatCoordinateReferenceSystem
+        const gpsFormatCoordinateReferenceSystem = storedCoordinateReferenceSystemsMappedByCode[gpsFormatOption];
+        const isLngLatOutsideCrsBbox = (gpsFormatCoordinateReferenceSystem && lngLat)
           ? stringifyCoordinates(lngLat, gpsFormatCoordinateReferenceSystem) === OUTSIDE_BBOX
           : false;
 
