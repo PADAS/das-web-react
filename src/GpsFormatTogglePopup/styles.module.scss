@@ -8,6 +8,7 @@
   
   [class*=mapboxgl-popup-content] {
     background: white;
+    min-width: 16rem;
     padding: 0.5rem;
     width: auto;
 
