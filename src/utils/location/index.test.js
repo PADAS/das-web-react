@@ -1,6 +1,7 @@
 import {
   getProj4CompatibleCRS,
   GPS_FORMATS,
+  OUTSIDE_BBOX,
   parseCoordinates,
   stringifyCoordinates,
   validateLocation,
@@ -15,6 +16,7 @@ describe('Utils - location', () => {
       return accumulator;
     }, {});
   });
+
 
   describe('parseCoordinates', () => {
     it('handles invalid coordinates when transforming from DEG GPS format', () => {
@@ -296,8 +298,8 @@ describe('Utils - location', () => {
         .toBe('555818.832808, 1065762.823243');
       expect(stringifyCoordinates({ latitude: 41.742922, longitude: 15.804143 }, proj4CompatibleCRSByCode[32633]))
         .toBe('566864.843233, 4621546.204284');
-      expect(stringifyCoordinates({ latitude: -70.544175, longitude: -70.454460 }, proj4CompatibleCRSByCode[32719]))
-        .toBe('445936.054422, 2172792.957485');
+      expect(stringifyCoordinates({ latitude: 34.544175, longitude: -16.454460 }, proj4CompatibleCRSByCode[32719]))
+        .toBe(OUTSIDE_BBOX);
     });
   });
 

@@ -55,7 +55,7 @@ const GpsFormatToggle = ({
   const gpsFormatOptions = customCoordinateSystemsEnabled
     ? selectedCoordinateRepresentations.sort((optionA, optionB) => {
       // Sort coordinate representation options alphabetically. If they are a
-      // CRS, we use the name property, otherwise we simply use the format
+      // CRS, we use the name property, otherwise we simply use the GPS format
       // string.
       const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
       const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
@@ -154,6 +154,7 @@ const GpsFormatToggle = ({
               aria-hidden
               aria-label={t('coordinatesOutsideBboxTooltipButtonLabel')}
               className={styles.coordinatesOutsideBboxTooltipButton}
+              data-testid="gpsFormatToggle-coordinatesOutsideBboxTooltipButton"
               type="button"
             >
               <TriangleExclamationIcon />

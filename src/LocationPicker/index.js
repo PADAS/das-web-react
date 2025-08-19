@@ -122,6 +122,7 @@ const LocationPicker = ({
             aria-hidden
             aria-label={t('valueOutsideBboxTooltipButtonLabel')}
             className={styles.valueOutsideBboxTooltipButton}
+            data-testid="locationPicker-valueOutsideBboxTooltipButton"
             type="button"
           >
             <TriangleExclamationIcon />

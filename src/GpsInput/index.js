@@ -61,10 +61,10 @@ const GpsInput = ({
         // type to a lngLat object.
         const lngLat = parseCoordinates(event.target.value, coordinatesRepresentation);
 
-        const isInputValueValidLocation = validateLngLat(lngLat.longitude, lngLat.latitude);
-        setIsInputValueValid(isInputValueValidLocation);
+        const isNewInputValueValid = validateLngLat(lngLat.longitude, lngLat.latitude);
+        setIsInputValueValid(isNewInputValueValid);
 
-        if (isInputValueValidLocation) {
+        if (isNewInputValueValid) {
           // If the input value is valid, trigger onChange.
           onChange(lngLat);
         }
@@ -82,8 +82,8 @@ const GpsInput = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coordinatesRepresentation]);
 
-  // We set the input in an error state if the current value is an invalid
-  // location or it is outside of the BBOX of the CRS.
+  // We set the input in an error state if the current value is invalid or if
+  // it is outside of the BBOX of the CRS.
   const isInputValid = isInputValueValid && inputValue !== OUTSIDE_BBOX;
 
   return <div ref={ref} role="group" {...otherProps}>
@@ -96,7 +96,7 @@ const GpsInput = ({
 
     <div className={styles.inputWrapper}>
       <input
-        aria-describedby={isInputValid ? descriptionId : undefined}
+        aria-describedby={isInputValid && typeof coordinatesRepresentation === 'string' ? descriptionId : undefined}
         aria-errormessage={!isInputValid ? errorMessageId : undefined}
         aria-invalid={!isInputValid}
         aria-label={t('inputLabel')}
