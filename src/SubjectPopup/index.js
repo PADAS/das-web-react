@@ -91,8 +91,7 @@ const SubjectPopup = ({ data }) => {
 
     <GpsFormatToggle
       className={styles.gpsFormatToggle}
-      lat={geometry.coordinates[1]}
-      lng={geometry.coordinates[0]}
+      lngLat={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
       name="subjectPopup-gpsFormatToggle"
     />
 

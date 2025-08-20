@@ -6,7 +6,6 @@
   border: none;
   border-radius: 0.1875rem;
   color: colors.$secondary-medium-gray;
-  outline: none;
 
   &:disabled {
     background-color: colors.$disabled-field-gray;
@@ -14,7 +13,7 @@
   }
 
   &:focus-visible:not(:disabled) {
-    border: 2px solid colors.$bright-blue;
+    outline: 2px solid colors.$bright-blue;
     color: colors.$bright-blue;
   }
 

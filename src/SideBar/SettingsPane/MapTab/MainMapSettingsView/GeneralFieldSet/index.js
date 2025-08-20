@@ -35,8 +35,8 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
 
   const enable3D = useSelector((state) => state.view.userPreferences.enable3D);
   const mapIsLocked = useSelector((state) => state.view.mapIsLocked);
-  const selectedCoordinateReferenceSystems = useSelector(
-    (state) => state.view.coordinateReferenceSystems.selectedSystems
+  const selectedCoordinateRepresentations = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
   );
   const simplifyMapDataOnZoom = useSelector((state) => state.view.simplifyMapDataOnZoom.enabled);
 
@@ -130,7 +130,7 @@ const GeneralFieldSet = ({ onOpenCoordinateSystemSettingsView }) => {
 
           <span className={styles.details}>
             {t('openCoordinateSystemSettingsButtonDetails', {
-              selectedCoordinateReferenceSystemsCount: selectedCoordinateReferenceSystems.length,
+              selectedCoordinateRepresentationsCount: selectedCoordinateRepresentations.length,
             })}
           </span>
 

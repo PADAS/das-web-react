@@ -5,9 +5,10 @@ import Mgrs, { LatLon as LatLonMgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 import proj4 from 'proj4';
 
+const MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE = 180;
+const LOCATION_AXIS_DECIMAL_PRECISION = 6;
 const PROJ4_REQUIRES_GRID_SHIFT_FILES_REGEX = /\+nadgrids=(?!@null)[^\s]+/;
-
-const LNG_LAT_DECIMAL_PRECISION = 6;
+const TOTAL_LONGITUDE_SPAN = 360;
 
 export const GPS_FORMATS = {
   DEG: 'DEG',
@@ -27,14 +28,17 @@ export const GPS_FORMAT_EXAMPLES = {
 
 const isValidLatitude = (latitude) => !Number.isNaN(latitude) && Math.abs(latitude) <= 90;
 
-const isValidLongitude = (longitude) => !Number.isNaN(longitude) && Math.abs(longitude) <= 180;
+// Some times, when working with antimeridian crossing, we want to allow
+// unwrapped longitudes (values below -180 and over 180).
+const isValidLongitude = (longitude, unwrapped = false) => !Number.isNaN(longitude)
+  && (unwrapped || Math.abs(longitude) <= 180);
 
-const degToLngLat = (degValue) => {
+const degToLngLat = (degCoordinates) => {
   try {
-    const degValueParts = degValue.split(',').map((part) => part.trim());
-    if (degValueParts.length === 2) {
-      const latitude = Number(parseFloat(degValueParts[0]).toFixed(LNG_LAT_DECIMAL_PRECISION));
-      const longitude = Number(parseFloat(degValueParts[1]).toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const degCoordinatesParts = degCoordinates.split(',').map((part) => part.trim());
+    if (degCoordinatesParts.length === 2) {
+      const latitude = Number(parseFloat(degCoordinatesParts[0]).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+      const longitude = Number(parseFloat(degCoordinatesParts[1]).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
       if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
         return { latitude, longitude };
       }
@@ -44,12 +48,12 @@ const degToLngLat = (degValue) => {
   return null;
 };
 
-const dmsToLngLat = (dmsValue) => {
+const dmsToLngLat = (dmsCoordinates) => {
   try {
-    const dmsValueParts = dmsValue.split(',').map((part) => part.trim());
-    if (dmsValueParts.length === 2) {
-      const latitude = Number(parseFloat(Dms.parse(dmsValueParts[0])).toFixed(LNG_LAT_DECIMAL_PRECISION));
-      const longitude = Number(parseFloat(Dms.parse(dmsValueParts[1])).toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const dmsCoordinatesParts = dmsCoordinates.split(',').map((part) => part.trim());
+    if (dmsCoordinatesParts.length === 2) {
+      const latitude = Number(parseFloat(Dms.parse(dmsCoordinatesParts[0])).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+      const longitude = Number(parseFloat(Dms.parse(dmsCoordinatesParts[1])).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
       if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
         return { latitude, longitude };
       }
@@ -59,12 +63,12 @@ const dmsToLngLat = (dmsValue) => {
   return null;
 };
 
-const ddmToLngLat = (ddmValue) => {
+const ddmToLngLat = (ddmCoordinates) => {
   try {
-    const ddmValueParts = ddmValue.split(',').map((part) => part.trim());
-    if (ddmValueParts.length === 2) {
-      const latitude = Number(parseFloat(Dms.parse(ddmValueParts[0])).toFixed(LNG_LAT_DECIMAL_PRECISION));
-      const longitude = Number(parseFloat(Dms.parse(ddmValueParts[1])).toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const ddmCoordinatesParts = ddmCoordinates.split(',').map((part) => part.trim());
+    if (ddmCoordinatesParts.length === 2) {
+      const latitude = Number(parseFloat(Dms.parse(ddmCoordinatesParts[0])).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+      const longitude = Number(parseFloat(Dms.parse(ddmCoordinatesParts[1])).toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
       if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
         return { latitude, longitude };
       }
@@ -74,11 +78,11 @@ const ddmToLngLat = (ddmValue) => {
   return null;
 };
 
-const utmToLngLat = (utmValue) => {
+const utmToLngLat = (utmCoordinates) => {
   try {
-    const latLonValue = Utm.parse(utmValue).toLatLon();
-    const latitude = Number(latLonValue.lat.toFixed(LNG_LAT_DECIMAL_PRECISION));
-    const longitude = Number(latLonValue.lon.toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const { lat, lon } = Utm.parse(utmCoordinates).toLatLon();
+    const latitude = Number(lat.toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+    const longitude = Number(lon.toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
     if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
       return { latitude, longitude };
     }
@@ -87,11 +91,11 @@ const utmToLngLat = (utmValue) => {
   return null;
 };
 
-const mgrsToLngLat = (mgrsValue) => {
+const mgrsToLngLat = (mgrsCoordinates) => {
   try {
-    const latLonValue = Mgrs.parse(mgrsValue).toUtm().toLatLon();
-    const latitude = Number(latLonValue.lat.toFixed(LNG_LAT_DECIMAL_PRECISION));
-    const longitude = Number(latLonValue.lon.toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const { lat, lon } = Mgrs.parse(mgrsCoordinates).toUtm().toLatLon();
+    const latitude = Number(lat.toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+    const longitude = Number(lon.toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
     if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
       return { latitude, longitude };
     }
@@ -100,13 +104,13 @@ const mgrsToLngLat = (mgrsValue) => {
   return null;
 };
 
-const crsToLngLat = (crsValue, crsProjection) => {
+const crsToLngLat = (crsCoordinates, crsProjection) => {
   try {
-    const crsValueParts = crsValue.split(',').map((part) => parseFloat(part.trim()));
-    if (crsValueParts.length === 2) {
-      const wgs84Coordinates = proj4(crsProjection, 'WGS84', crsValueParts);
-      const latitude = Number(wgs84Coordinates[1].toFixed(LNG_LAT_DECIMAL_PRECISION));
-      const longitude = Number(wgs84Coordinates[0].toFixed(LNG_LAT_DECIMAL_PRECISION));
+    const crsCoordinatesParts = crsCoordinates.split(',').map((part) => parseFloat(part.trim()));
+    if (crsCoordinatesParts.length === 2) {
+      const wgs84Coordinates = proj4(crsProjection, 'WGS84', crsCoordinatesParts);
+      const latitude = Number(wgs84Coordinates[1].toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+      const longitude = Number(wgs84Coordinates[0].toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
       if (isValidLatitude(latitude) && isValidLongitude(longitude)) {
         return { latitude, longitude };
       }
@@ -116,77 +120,104 @@ const crsToLngLat = (crsValue, crsProjection) => {
   return null;
 };
 
-export const normalizeLocationTextToLngLat = (locationText, locationType) => {
-  if (typeof locationType === 'string') {
-    // If the location type is a string, the location text must come in one of
-    // our supported GPS formats.
-    switch (locationType) {
+export const parseCoordinates = (coordinatesString, representation = GPS_FORMATS.DEG) => {
+  if (typeof representation === 'string') {
+    // If the coordinates representation is a string, the coordinates string
+    // must come in one of our GPS formats.
+    switch (representation) {
     case GPS_FORMATS.DEG:
-      return degToLngLat(locationText);
+      return degToLngLat(coordinatesString);
 
     case GPS_FORMATS.DMS:
-      return dmsToLngLat(locationText);
+      return dmsToLngLat(coordinatesString);
 
     case GPS_FORMATS.DDM:
-      return ddmToLngLat(locationText);
+      return ddmToLngLat(coordinatesString);
 
     case GPS_FORMATS.UTM:
-      return utmToLngLat(locationText);
+      return utmToLngLat(coordinatesString);
 
     case GPS_FORMATS.MGRS:
-      return mgrsToLngLat(locationText);
+      return mgrsToLngLat(coordinatesString);
 
     default:
       throw new Error(
-        `Unsupported locationType ${locationType}: must be a known GPS format or a proj4 compatible coordinate reference system object`
+        `Unsupported coordinates representation "${representation}": must be a known GPS format or a proj4 compatible coordinate reference system object`
       );
     }
   }
 
-  if (locationType?.proj4) {
-    // If the location type is an object with a property proj4, the location
-    // text must come in a coordinate reference system format.
-    return crsToLngLat(locationText, locationType.proj4);
+  if (representation?.proj4) {
+    // If the coordinates representation is an object with a property proj4,
+    // the coordinates string must come in a coordinate reference system
+    // format.
+    return crsToLngLat(coordinatesString, representation.proj4);
   }
 
   throw new Error(
-    'Unsupported locationType: must be a known GPS format or a proj4 compatible coordinate reference system object'
+    'Unsupported coordinates representation: must be a known GPS format or a proj4 compatible coordinate reference system object'
   );
 };
 
-export const transformLngLatToLocationType = (lngLat, locationType) => {
+export const OUTSIDE_BBOX = 'OUTSIDE_BBOX';
+
+export const stringifyCoordinates = (lngLat, representation = GPS_FORMATS.DEG) => {
   // First make sure that lngLat is an object with latitude and longitude
   // properties not being null or undefined
   if (lngLat?.latitude != null && lngLat?.longitude != null) {
-    const numericLatitude = Number(lngLat?.latitude);
-    const numericLongitude = Number(lngLat?.longitude);
+    const numericLatitude = Number(lngLat.latitude);
+    const numericLongitude = Number(lngLat.longitude);
 
-    if (isValidLatitude(numericLatitude) && isValidLongitude(numericLongitude)) {
+    if (isValidLatitude(numericLatitude) && isValidLongitude(numericLongitude, true)) {
       try {
-        if (locationType?.proj4) {
-          // If the location type is an object with a property proj4, the
-          // location must be transformed to a coordinate reference system
-          // format.
-          const locationTypeCoordinates = proj4('WGS84', locationType.proj4, [numericLongitude, numericLatitude]);
-          const x = locationTypeCoordinates[0].toFixed(LNG_LAT_DECIMAL_PRECISION);
-          const y = locationTypeCoordinates[1].toFixed(LNG_LAT_DECIMAL_PRECISION);
+        if (representation?.proj4) {
+          // If the coordinates representation is an object with a property
+          // proj4, the location must be transformed to a coordinate reference
+          // system format.
+          if (representation.bbox) {
+            // Check if the coordinates are inside of the coordinate reference
+            // system BBOX before transforming them.
+            const [bboxMinLongitude, bboxMinLatitude, bboxMaxLongitude, bboxMaxLatitude] = representation.bbox;
+            const locationLatLon = new LatLon(numericLatitude, numericLongitude);
+
+            // Adjusting the longitude if the bbox longitudes are unwrapped to
+            // fix antimeridian crossing.
+            const locationLatitude = locationLatLon.latitude;
+            const locationLongitude = (bboxMaxLongitude > MAX_WRAPPED_LONGITUDE_ABSOLUTE_VALUE
+              && locationLatLon.longitude < bboxMinLongitude)
+              ? locationLatLon.longitude + TOTAL_LONGITUDE_SPAN
+              : locationLatLon.longitude;
+
+            const isLocationOutsideCrsBbox = locationLatitude < bboxMinLatitude
+              || locationLatitude > bboxMaxLatitude
+              || locationLongitude < bboxMinLongitude
+              || locationLongitude > bboxMaxLongitude;
+            if (isLocationOutsideCrsBbox) {
+              return OUTSIDE_BBOX;
+            }
+          }
+
+          const crsCoordinates = proj4('WGS84', representation.proj4, [numericLongitude, numericLatitude]);
+          const x = Number(crsCoordinates[0].toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
+          const y = Number(crsCoordinates[1].toFixed(LOCATION_AXIS_DECIMAL_PRECISION));
           return `${x}, ${y}`;
         }
 
-        // Otherwise, the location type must be a GPS format.
-        switch (locationType) {
+        // If the coordinates representation wasn't a CRS, it must be one of
+        // our GPS formats.
+        switch (representation) {
         case GPS_FORMATS.DEG:
           return new LatLon(numericLatitude, numericLongitude)
-            .toString('n', LNG_LAT_DECIMAL_PRECISION)
+            .toString('n', LOCATION_AXIS_DECIMAL_PRECISION)
             .split(',')
             .map(item => `${item.trim()}°`)
             .join(', ');
 
         case GPS_FORMATS.DMS:
-          return new LatLon(numericLatitude, numericLongitude).toString('dms', LNG_LAT_DECIMAL_PRECISION);
+          return new LatLon(numericLatitude, numericLongitude).toString('dms', LOCATION_AXIS_DECIMAL_PRECISION);
 
         case GPS_FORMATS.DDM:
-          return new LatLon(numericLatitude, numericLongitude).toString('dm', LNG_LAT_DECIMAL_PRECISION);
+          return new LatLon(numericLatitude, numericLongitude).toString('dm', LOCATION_AXIS_DECIMAL_PRECISION);
 
         case GPS_FORMATS.UTM:
           return new LatLonUtm(numericLatitude, numericLongitude).toUtm().toString();
@@ -204,7 +235,7 @@ export const transformLngLatToLocationType = (lngLat, locationType) => {
   return '';
 };
 
-export const validateLngLat = (longitude, latitude) => isValidLatitude(latitude) && isValidLongitude(longitude);
+export const validateLngLat = (longitude, latitude) => isValidLatitude(latitude) && isValidLongitude(longitude, true);
 
 export const calcPositiveBearing = (point1, point2) => (bearing(point1, point2) + 360) % 360;
 
@@ -229,9 +260,24 @@ export const getProj4CompatibleCRS = async () => {
         // and that do not require grid shift files so they can be transformed
         // by the proj4 library.
         if (coordinateReferenceSystem.proj4 && !needsGridShiftFile) {
+          let bbox = coordinateReferenceSystem.bbox;
+          if (Array.isArray(bbox) && bbox.length === 4) {
+            // If the coordinate reference system has a bbox, reorder its parts
+            // to the format expected by Turf utilities.
+            const [maxLatitude, minLongitude, minLatitude, maxLongitude] = bbox;
+            // If the maximum longitude is less than the minimum longitude, the
+            // BBOX passes through the antimeridian. In those cases Turf
+            // expects the locations to be unwrapped so we adjust the maximum
+            // longitude.
+            const maxLongitudeWithAntimeridianCrossingFixed = maxLongitude < minLongitude
+              ? maxLongitude + TOTAL_LONGITUDE_SPAN
+              : maxLongitude;
+            bbox = [minLongitude, minLatitude, maxLongitudeWithAntimeridianCrossingFixed, maxLatitude];
+          }
+
           acc.push({
             area: coordinateReferenceSystem.area,
-            bbox: coordinateReferenceSystem.bbox,
+            bbox,
             code: coordinateReferenceSystem.code,
             name: coordinateReferenceSystem.name,
             proj4: coordinateReferenceSystem.proj4,

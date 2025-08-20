@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen } from '../test-utils';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../utils/location';
 import { mockStore } from '../__test-helpers/MockStore';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -25,7 +26,7 @@ describe('GpsInput', () => {
     store = {
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
         userPreferences: {
@@ -54,6 +55,28 @@ describe('GpsInput', () => {
     });
 
     expect(screen.getByLabelText('GPS location')).toHaveValue('10.000000°, 10.000000°');
+  });
+
+  test('sets the input value as N/A and shows an error if the current coordinates are outside of the BBOX of the current CRS', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsInput({
+      value: {
+        latitude: 10,
+        longitude: 10,
+      },
+    });
+
+    const errorMessage = screen.getByText('EPSG:5367 CR05 / CRTM05 is not supported at this location.');
+
+    expect(screen.getByLabelText('GPS location')).toHaveValue('N/A');
+    expect(errorMessage).toHaveAttribute('aria-live', 'assertive');
+    expect(errorMessage).toHaveClass('error');
   });
 
   test('updates the displayed value to the new GPS format when the user changes the toggle', async () => {
@@ -191,10 +214,23 @@ describe('GpsInput', () => {
     expect(screen.getByLabelText('GPS location')).toHaveAttribute('placeholder', 'Location');
   });
 
-  test('sets a placeholder based on the GPS format', async () => {
+  test('sets a placeholder if the coordinates representation is a GPS format', async () => {
     renderGpsInput();
 
     expect(screen.getByLabelText('GPS location')).toHaveAttribute('placeholder', 'Latitude, Longitude');
+  });
+
+  test('sets a placeholder if the coordinates representation is a CRS', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsInput();
+
+    expect(screen.getByLabelText('GPS location')).toHaveAttribute('placeholder', 'CR05 / CRTM05');
   });
 
   test('renders a button', async () => {
@@ -203,14 +239,30 @@ describe('GpsInput', () => {
     expect(screen.getByTestId('button')).toBeVisible();
   });
 
-  test('shows an input description based on the GPS format', async () => {
+  test('shows an input description if the coordinates representation is a GPS format', async () => {
     renderGpsInput();
 
     expect(screen.getByLabelText('GPS location')).toHaveAccessibleDescription('Example: -0.15293, 37.30906');
+  });
 
-    const description = screen.getByText('Example: -0.15293, 37.30906');
+  test('does not show an input description if the coordinates representation is a GPS format but the value is invalid', async () => {
+    renderGpsInput();
 
-    expect(description).toHaveAttribute('aria-live', 'off');
-    expect(description).not.toHaveClass('error');
+    await userEvent.type(screen.getByLabelText('GPS location'), 'a');
+
+    expect(screen.getByLabelText('GPS location')).not.toHaveAccessibleDescription();
+  });
+
+  test('does not show an input description if the coordinates representation is a CRS', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderGpsInput();
+
+    expect(screen.getByLabelText('GPS location')).not.toHaveAccessibleDescription();
   });
 });

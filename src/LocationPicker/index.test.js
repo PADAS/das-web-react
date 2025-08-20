@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
+import { epsg5367 } from '../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -22,7 +23,7 @@ describe('LocationPicker', () => {
     store = {
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
         mapLocationSelection: {
@@ -187,6 +188,59 @@ describe('LocationPicker', () => {
     });
 
     expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
+  });
+
+  test('shows the coordinates in a CRS format if the value is within the BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderLocationPicker({
+      value: {
+        latitude: 9.638124,
+        longitude: -83.491398,
+      },
+    });
+
+    const input = screen.getByLabelText('Location');
+
+    expect(input).toHaveValue('555818.832808, 1065762.823243');
+    expect(input).toHaveAccessibleDescription('Click the button to set a value from the location picker menu.');
+    expect(screen.queryByTestId('locationPicker-valueOutsideBboxTooltipButton')).toBeNull();
+  });
+
+  test('shows the coordinates in DEG format and a warning tooltip if the coordinates representation is a CRS and the value is outside the BBOX', async () => {
+    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
+      GPS_FORMATS.DEG,
+      GPS_FORMATS.UTM,
+      '5367',
+    ];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
+    store.view.userPreferences.gpsFormat = '5367';
+    renderLocationPicker({
+      value: {
+        latitude: 11.666666,
+        longitude: 10.012657,
+      },
+    });
+
+    const input = screen.getByLabelText('Location');
+    const coordinatesOutsideBboxTooltipButton =
+      screen.getByTestId('locationPicker-valueOutsideBboxTooltipButton');
+
+    expect(input).toHaveValue('11.666666°, 10.012657°');
+    expect(input)
+      .toHaveAccessibleDescription('Click the button to set a value from the location picker menu. Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
+    expect(coordinatesOutsideBboxTooltipButton).toBeVisible();
+
+    await userEvent.hover(coordinatesOutsideBboxTooltipButton);
+
+    expect(screen.getByRole('tooltip', {
+      name: 'Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.',
+    })).toBeVisible();
   });
 
   test('does not show a text copy button if there is no value yet', async () => {

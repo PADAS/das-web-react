@@ -117,7 +117,7 @@ const CoordinateReferenceSystemFinder = () => {
     />
 
     <table className={styles.resultsTable}>
-      <caption className={styles.srOnly}>
+      <caption className="sr-only">
         {t('resultsTableCaption')}
       </caption>
 

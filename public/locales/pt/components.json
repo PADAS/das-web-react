@@ -62,13 +62,17 @@
     },
     "gpsFormatToggle": {
         "fieldsetLegend": "Formato de GPS",
+        "coordinatesOutsideBboxTooltip": "A localização é exibida no formato DEG. EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
+        "coordinatesOutsideBboxTooltipButtonLabel": "Mais informações sobre o formato da localização",
         "textCopyButtonLabel": "Copiar valor do GPS para a área de transferência"
     },
     "gpsInput": {
         "defaultPlaceholder": "Localização",
-        "errorMessage": "Localização inválida",
         "inputDescription": "Exemplo: {{gpsFormat}}",
         "inputLabel": "Localização GPS",
+        "invalidLocationErrorMessage": "Localização inválida",
+        "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
+        "outsideBboxInputValue": "N/D",
         "placeholders": {
             "DDM": "Graus, decimais, minutos (DDM)",
             "DEG": "Latitude, longitude",
@@ -93,7 +97,9 @@
             "closed": "Abrir o menu do seletor de localização para definir um valor",
             "open": "Fechar o menu do seletor de localização"
         },
-        "textCopyButtonLabel": "Copiar localização para a área de transferência"
+        "textCopyButtonLabel": "Copiar localização para a área de transferência",
+        "valueOutsideBboxTooltip": "A localização é exibida no formato DEG. EPSG:{{epsgCode}} {{crsName}} não é compatível nesta localização.",
+        "valueOutsideBboxTooltipButtonLabel": "Mais informações sobre o formato da localização"
     },
     "mapLocationSelectionOverview": {
         "chooseLocationHeader": {
@@ -186,6 +192,8 @@
         "layersLink": "Camadas do mapa",
         "mapLayersTab": {
             "analyzersTabTitle": "Analisadores",
+            "clearAllMapLayersButton": "Limpar tudo",
+            "clearAllMapLayersButtonLabel": "Limpar todas as camadas do mapa",
             "eventsTabTitle": "Eventos",
             "featuresTabTitle": "Feições",
             "subjectsTabTitle": "Indivíduos rastreados"
@@ -265,7 +273,7 @@
                         "legend": "Características gerais",
                         "lockMapCheckboxLabel": "Bloquear mapa",
                         "openCoordinateSystemSettingsButton": "Sistemas de coordenadas",
-                        "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} selecionados",
+                        "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} selecionados",
                         "openCoordinateSystemSettingsButtonLabel": "Abrir configurações dos sistemas de coordenadas",
                         "simplifyMapDataOnZoomCheckboxLabel": "Simplificar dados do mapa no zoom"
                     },

@@ -1,10 +1,18 @@
 import React, { memo, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as TriangleExclamationIcon } from '../common/images/icons/triangle-exclamation.svg';
+
 import { FEATURE_FLAG_LABELS } from '../constants';
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { GPS_FORMATS, transformLngLatToLocationType } from '../utils/location';
+import { GPS_FORMATS, OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
+import {
+  selectCoordinatesRepresentation,
+  selectStoredCoordinateReferenceSystemsMappedByCode,
+} from '../selectors/location';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag } from '../hooks';
 
@@ -14,33 +22,60 @@ import * as styles from './styles.module.scss';
 
 const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
-const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsString = true, ...otherProps }) => {
+const GpsFormatToggle = ({
+  className = '',
+  lngLat = null,
+  name = null,
+  ref,
+  showCoordinates = true,
+  ...otherProps
+}) => {
   const customCoordinateSystemsEnabled = useFeatureFlag(FEATURE_FLAG_LABELS.CUSTOM_COORDINATE_SYSTEMS_ENABLED);
 
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'gpsFormatToggle' });
 
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
-  const selectedCRS = useSelector((state) => state.view.coordinateReferenceSystems.selectedSystems);
-  const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
+  const selectedCoordinateRepresentations = useSelector(
+    (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
+  );
+  const storedCoordinateReferenceSystemsMappedByCode = useSelector(selectStoredCoordinateReferenceSystemsMappedByCode);
 
   const fieldsetRef = useRef();
   const innerRef = useRef();
 
   useImperativeHandle(ref, () => innerRef.current);
 
+  const coordinatesOutsideBboxTooltipId = useId();
+  // We need to provide a name for the radio group to behave correctly, so we
+  // add a fallback in case the implementator didn't provide one.
   const nameFallback = useId();
 
-  const gpsString = (showGpsString && lat !== null && lng !== null)
-    ? transformLngLatToLocationType({ latitude: lat, longitude: lng }, gpsFormat)
-    : null;
+  const gpsFormatOptions = customCoordinateSystemsEnabled
+    ? selectedCoordinateRepresentations.sort((optionA, optionB) => {
+      // Sort coordinate representation options alphabetically. If they are a
+      // CRS, we use the name property, otherwise we simply use the GPS format
+      // string.
+      const optionAName = storedCoordinateReferenceSystemsMappedByCode[optionA]?.name || optionA;
+      const optionBName = storedCoordinateReferenceSystemsMappedByCode[optionB]?.name || optionB;
+      return optionAName > optionBName ? 1 : -1;
+    })
+    : Object.values(GPS_FORMATS);
 
-  const gpsFormatOptions = customCoordinateSystemsEnabled ? selectedCRS : Object.values(GPS_FORMATS);
+  const { areCoordinatesOutsideCrsBbox, coordinatesString } = useMemo(() => {
+    if (showCoordinates && lngLat) {
+      // Calculate the coordinates string in the current GPS format and if it
+      // falls outside the BBOX of the CRS, fallback to degrees.
+      const coordinatesString = stringifyCoordinates(lngLat, coordinatesRepresentation);
+      if (coordinatesString === OUTSIDE_BBOX) {
+        return { areCoordinatesOutsideCrsBbox: true, coordinatesString: stringifyCoordinates(lngLat) };
+      }
+      return { areCoordinatesOutsideCrsBbox: false, coordinatesString };
+    }
 
-  const storedCRSMappedByCode = useMemo(() => storedCRS.reduce((accumulator, storedSystem) => {
-    accumulator[storedSystem.code] = storedSystem;
-    return accumulator;
-  }, {}), [storedCRS]);
+    return { areCoordinatesOutsideCrsBbox: false, coordinatesString: null };
+  }, [coordinatesRepresentation, lngLat, showCoordinates]);
 
   const onGpsFormatChange = (gpsFormat) => {
     dispatch(updateUserPreferences({ gpsFormat }));
@@ -58,13 +93,19 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
     });
   }, []);
 
-  return <div {...otherProps}>
+  return <div className={`gps-format-toggle ${className}`} {...otherProps}>
     <fieldset className={styles.fieldset} ref={fieldsetRef} role="radiogroup">
       <legend className={styles.legend}>{t('fieldsetLegend')}</legend>
 
-      {/* TODO (CRS): Style label to be in a single line with ellipsis */}
-      {gpsFormatOptions.map((gpsFormatOption) =>
-        <div className={styles.radio} key={gpsFormatOption}>
+      {gpsFormatOptions.map((gpsFormatOption) => {
+        // If the option is a CRS and there is a lngLat, calculate if the
+        // lngLat point is outside the BBOX.
+        const gpsFormatCoordinateReferenceSystem = storedCoordinateReferenceSystemsMappedByCode[gpsFormatOption];
+        const isLngLatOutsideCrsBbox = (gpsFormatCoordinateReferenceSystem && lngLat)
+          ? stringifyCoordinates(lngLat, gpsFormatCoordinateReferenceSystem) === OUTSIDE_BBOX
+          : false;
+
+        return <div className={styles.radio} key={gpsFormatOption}>
           <input
             checked={gpsFormat === gpsFormatOption}
             className={styles.input}
@@ -81,23 +122,56 @@ const GpsFormatToggle = ({ lat = null, lng = null, name = null, ref, showGpsStri
           />
 
           <label
-            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''}`}
+            className={`${styles.label} ${gpsFormat === gpsFormatOption ? styles.active : ''} ${isLngLatOutsideCrsBbox ? styles.invalid : ''}`}
             htmlFor={`${gpsFormatOption}-radio`}
+            title={gpsFormatCoordinateReferenceSystem?.name || gpsFormatOption}
           >
-            {storedCRSMappedByCode[gpsFormatOption]?.name || gpsFormatOption}
+            {gpsFormatCoordinateReferenceSystem?.name || gpsFormatOption}
           </label>
-        </div>)}
+        </div>;
+      })}
     </fieldset>
 
-    {gpsString && <div className={styles.gpsStringWrapper}>
-      <span className={styles.value}>{gpsString}</span>
+    {coordinatesString && <div className={styles.coordinatesStringWrapper}>
+      <span aria-describedby={coordinatesOutsideBboxTooltipId} className={styles.coordinatesString}>
+        {coordinatesString}
+      </span>
 
-      <TextCopyBtn
-        aria-label={t('textCopyButtonLabel')}
-        className={styles.textCopyButton}
-        text={gpsString}
-        title={t('textCopyButtonLabel')}
-      />
+      {areCoordinatesOutsideCrsBbox
+        ? <>
+          <OverlayTrigger
+            overlay={(props) => <Tooltip {...props} arrowProps={{ style: { display: 'none' } }}>
+              {t('coordinatesOutsideBboxTooltip', {
+                crsName: coordinatesRepresentation.name,
+                epsgCode: coordinatesRepresentation.code,
+              })}
+            </Tooltip>}
+            placement="bottom"
+          >
+            <button
+              aria-hidden
+              aria-label={t('coordinatesOutsideBboxTooltipButtonLabel')}
+              className={styles.coordinatesOutsideBboxTooltipButton}
+              data-testid="gpsFormatToggle-coordinatesOutsideBboxTooltipButton"
+              type="button"
+            >
+              <TriangleExclamationIcon />
+            </button>
+          </OverlayTrigger>
+
+          <p className="sr-only" id={coordinatesOutsideBboxTooltipId}>
+            {t('coordinatesOutsideBboxTooltip', {
+              crsName: coordinatesRepresentation.name,
+              epsgCode: coordinatesRepresentation.code,
+            })}
+          </p>
+        </>
+        : <TextCopyBtn
+          aria-label={t('textCopyButtonLabel')}
+          className={styles.textCopyButton}
+          text={coordinatesString}
+          title={t('textCopyButtonLabel')}
+        />}
     </div>}
   </div>;
 };

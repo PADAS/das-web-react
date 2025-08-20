@@ -34,6 +34,7 @@ import {
 } from '../ducks/map-ui';
 import { MapContext } from '../App';
 import { updatePatrolTrackState } from '../ducks/patrols';
+import useCrsBoundingBoxLayer from './layers/useCrsBoundingBoxLayer';
 import { useMapEventBinding } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -108,6 +109,8 @@ const Map = ({ children, onMapLoad, socket }) => {
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  useCrsBoundingBoxLayer();
 
   const map = useContext(MapContext);
 

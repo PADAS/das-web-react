@@ -404,6 +404,14 @@ div.mapboxgl-popup-content {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
   }
+
+  .gps-format-toggle {
+    fieldset {
+      label {
+        font-size: 0.6875rem;
+      }
+    }
+  }
 }
 
 div.mapboxgl-popup-tip {
@@ -833,6 +841,18 @@ div.mapboxgl-popup-tip {
       display: none !important;
     }
   }
+}
+
+.sr-only {
+  border-width: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 /* --- OLD NAVIGATION STUFF ENDS HERE --- */

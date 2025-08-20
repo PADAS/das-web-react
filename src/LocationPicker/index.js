@@ -1,11 +1,15 @@
-import React, { memo, useId, useImperativeHandle, useContext, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useContext, useMemo, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as TriangleExclamationIcon } from '../common/images/icons/triangle-exclamation.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 
-import { transformLngLatToLocationType } from '../utils/location';
+import { OUTSIDE_BBOX, stringifyCoordinates } from '../utils/location';
+import { selectCoordinatesRepresentation } from '../selectors/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 
 import MenuPopover from './MenuPopover';
@@ -36,7 +40,7 @@ const LocationPicker = ({
   const jumpToLocation = useJumpToLocation();
   const map = useContext(MapContext);
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const innerRef = useRef();
   const setLocationButtonRef = useRef();
@@ -45,10 +49,23 @@ const LocationPicker = ({
 
   const inputDescriptionId = useId();
   const menuPopoverId = useId();
+  const valueOutsideBboxTooltipId = useId();
 
   const [isMenuPopoverOpen, setIsMenuPopoverOpen] = useState(false);
 
-  const displayValue = value ? transformLngLatToLocationType(value, gpsFormat) : '';
+  const { isValueOutsideCrsBbox, displayValue } = useMemo(() => {
+    if (value) {
+      // Calculate the display value in the coordinates representation and if
+      // it falls outside the BBOX of the CRS, fallback to degrees.
+      const displayValue = stringifyCoordinates(value, coordinatesRepresentation);
+      if (displayValue === OUTSIDE_BBOX) {
+        return { displayValue: stringifyCoordinates(value), isValueOutsideCrsBbox: true };
+      }
+      return { displayValue, isValueOutsideCrsBbox: false };
+    }
+
+    return { displayValue: '', isValueOutsideCrsBbox: false };
+  }, [coordinatesRepresentation, value]);
 
   return <>
     <div
@@ -73,7 +90,7 @@ const LocationPicker = ({
         type="button"
       >
         <input
-          aria-describedby={inputDescriptionId}
+          aria-describedby={`${inputDescriptionId}${isValueOutsideCrsBbox ? ` ${valueOutsideBboxTooltipId}`: ''}`}
           aria-label={t('inputLabel')}
           className={`${styles.input} ${readOnly ? styles.readOnly : ''}`}
           disabled={disabled}
@@ -92,6 +109,35 @@ const LocationPicker = ({
           {t('inputDescription')}
         </p>
       </button>
+
+      {isValueOutsideCrsBbox && <>
+        <OverlayTrigger
+          overlay={(props) => <Tooltip {...props} arrowProps={{ style: { display: 'none' } }}>
+            {t('valueOutsideBboxTooltip', {
+              crsName: coordinatesRepresentation.name,
+              epsgCode: coordinatesRepresentation.code,
+            })}
+          </Tooltip>}
+          placement="bottom"
+        >
+          <button
+            aria-hidden
+            aria-label={t('valueOutsideBboxTooltipButtonLabel')}
+            className={styles.valueOutsideBboxTooltipButton}
+            data-testid="locationPicker-valueOutsideBboxTooltipButton"
+            type="button"
+          >
+            <TriangleExclamationIcon />
+          </button>
+        </OverlayTrigger>
+
+        <p className="sr-only" id={valueOutsideBboxTooltipId}>
+          {t('valueOutsideBboxTooltip', {
+            crsName: coordinatesRepresentation.name,
+            epsgCode: coordinatesRepresentation.code,
+          })}
+        </p>
+      </>}
 
       {value && <TextCopyBtn
         aria-label={t('textCopyButtonLabel')}

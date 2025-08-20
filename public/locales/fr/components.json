@@ -62,13 +62,17 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Format GPS",
+    "coordinatesOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
+    "coordinatesOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
     "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers"
   },
   "gpsInput": {
     "defaultPlaceholder": "Position",
-    "errorMessage": "Coordonnées GPS invalides",
     "inputDescription": "Exemple: {{gpsFormat}}",
     "inputLabel": "Position GPS",
+    "invalidLocationErrorMessage": "Coordonnées GPS invalides",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
+    "outsideBboxInputValue": "N/D",
     "placeholders": {
       "DDM": "Degrés Decimaux Minutes (DDM)",
       "DEG": "Lattitude, Longitude",
@@ -93,7 +97,9 @@
       "closed": "Ouvrir le menu du sélecteur d’emplacement pour définir une valeur",
       "open": "Fermer le menu du sélecteur d’emplacement"
     },
-    "textCopyButtonLabel": "Copier l’emplacement dans le presse-papiers"
+    "textCopyButtonLabel": "Copier l’emplacement dans le presse-papiers",
+    "valueOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
+    "valueOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -186,6 +192,8 @@
     "layersLink": "Calques",
     "mapLayersTab": {
       "analyzersTabTitle": "Barriere Virtuelle",
+      "clearAllMapLayersButton": "Tout Désélectionner",
+      "clearAllMapLayersButtonLabel": "Effacer toutes les couches de la carte",
       "eventsTabTitle": "Événements",
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
@@ -265,7 +273,7 @@
             "legend": "Actualisation & langue",
             "lockMapCheckboxLabel": "Verrouiller la carte",
             "openCoordinateSystemSettingsButton": "Systèmes de coordonnées",
-            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} sélectionnés",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} sélectionnés",
             "openCoordinateSystemSettingsButtonLabel": "Ouvrir les paramètres des systèmes de coordonnées",
             "simplifyMapDataOnZoomCheckboxLabel": "Simplifier les données cartographiques sur zoom"
           },

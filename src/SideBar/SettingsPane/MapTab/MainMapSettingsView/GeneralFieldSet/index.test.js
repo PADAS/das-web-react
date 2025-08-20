@@ -44,7 +44,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - GeneralFieldSe
       data: {},
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
         },
         mapIsLocked: false,
         simplifyMapDataOnZoom: {

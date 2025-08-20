@@ -67,7 +67,7 @@ describe('ReportManager - DetailsSection', () => {
       },
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
         mapLocationSelection: { isPickingLocation: false },
