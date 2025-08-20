@@ -137,7 +137,7 @@ const useCrsBoundingBoxLayer = () => {
           // the current size of the marker and open the menu.
           const markerElementRect = event.currentTarget.getBoundingClientRect();
           dispatch(showPopup('gps-format-toggle', {
-            coordinates: [selectedCrs.bbox[0], selectedCrs.bbox[1]],
+            coordinates: [selectedCrs.bbox[0], selectedCrs.bbox[3]],
             popupAttrsOverride: {
               offset: [markerElementRect.width / 2, markerElementRect.height]
             }
@@ -150,7 +150,7 @@ const useCrsBoundingBoxLayer = () => {
         anchor: 'top-left',
         element: createCrsBboxControlMakerElement(selectedCrs.name, isControlMenuOpen, onClick),
       });
-      crsBboxControlMarker.setLngLat([selectedCrs.bbox[0], selectedCrs.bbox[1]]).addTo(map);
+      crsBboxControlMarker.setLngLat([selectedCrs.bbox[0], selectedCrs.bbox[3]]).addTo(map);
 
       return () => {
         crsBboxControlMarker.remove();

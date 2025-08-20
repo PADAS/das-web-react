@@ -119,6 +119,9 @@ describe('ReportManager - DetailsSection - SchemaForm', () => {
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         mapLocationSelection: {
           isPickingLocation: false,
         },

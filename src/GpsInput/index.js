@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import {
   GPS_FORMAT_EXAMPLES,
-  normalizeLocationTextToLngLat,
-  transformLngLatToLocationType,
+  OUTSIDE_BBOX,
+  parseCoordinates,
+  stringifyCoordinates,
   validateLngLat,
 } from '../utils/location';
+import { selectCoordinatesRepresentation } from '../selectors/location';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
@@ -25,22 +27,25 @@ const GpsInput = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'gpsInput' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   const innerInputRef = useRef();
 
   const descriptionId = useId();
+  const errorMessageId = useId();
 
-  // The input value is handled locally to accept any input, we just trigger onChange when the input value is valid.
-  const [inputValue, setInputValue] = useState(value
-    ? transformLngLatToLocationType(value, gpsFormat)
+  // The input value is handled locally to accept any input, but we just
+  // trigger onChange when the value is valid.
+  const [inputValue, setInputValue] = useState(() => value
+    ? stringifyCoordinates(value, coordinatesRepresentation)
     : '');
-  const [isValid, setIsValid] = useState(true);
+  const [isInputValueValid, setIsInputValueValid] = useState(true);
 
-  // When blurring the input, we set the value as the input value again since it should have the last valid value.
+  // When blurring the input, we set the value as the input value again since
+  // it should have the last valid value.
   const onInputBlur = () => {
-    setInputValue(value ? transformLngLatToLocationType(value, gpsFormat) : '');
-    setIsValid(true);
+    setInputValue(value ? stringifyCoordinates(value, coordinatesRepresentation) : '');
+    setIsInputValueValid(true);
   };
 
   const onInputChange = (event) => {
@@ -48,56 +53,60 @@ const GpsInput = ({
 
     if (!event.target.value) {
       // If the input was emptied, it is valid.
-      setIsValid(true);
+      setIsInputValueValid(true);
       onChange(null);
     } else {
       try {
-        // TODO (CRS): If the selected GPS format is a CRS, get the CRS object
-        // from state.view.coordinateReferenceSystems.storedSystems.
-        const lngLat = normalizeLocationTextToLngLat(event.target.value, gpsFormat);
-        const isLocationValid = validateLngLat(lngLat.longitude, lngLat.latitude);
+        // Frist we try to parse the input value from the current location
+        // type to a lngLat object.
+        const lngLat = parseCoordinates(event.target.value, coordinatesRepresentation);
 
-        setIsValid(isLocationValid);
+        const isNewInputValueValid = validateLngLat(lngLat.longitude, lngLat.latitude);
+        setIsInputValueValid(isNewInputValueValid);
 
-        if (isLocationValid) {
-          // Call onChange for valid locations.
-          onChange({
-            latitude: (parseFloat(lngLat.latitude) * 10) / 10,
-            longitude: (parseFloat(lngLat.longitude) * 10) / 10,
-          });
+        if (isNewInputValueValid) {
+          // If the input value is valid, trigger onChange.
+          onChange(lngLat);
         }
       } catch (error) {
-        setIsValid(false);
+        setIsInputValueValid(false);
       }
     }
   };
 
   useEffect(() => {
     if (value) {
-      // If the user changes the GPS format, we transform the input value to the new format.
-      setInputValue(transformLngLatToLocationType(value, gpsFormat));
+      // If the user changes the coordinates representation, we transform the input value to the new format.
+      setInputValue(stringifyCoordinates(value, coordinatesRepresentation));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gpsFormat]);
+  }, [coordinatesRepresentation]);
+
+  // We set the input in an error state if the current value is invalid or if
+  // it is outside of the BBOX of the CRS.
+  const isInputValid = isInputValueValid && inputValue !== OUTSIDE_BBOX;
 
   return <div ref={ref} role="group" {...otherProps}>
     <GpsFormatToggle
+      lngLat={value}
       onKeyDown={(event) => event.key === 'Enter' && innerInputRef.current.focus()}
       ref={gpsFormatToggleRef}
-      showGpsString={false}
+      showCoordinates={false}
     />
 
     <div className={styles.inputWrapper}>
       <input
-        aria-describedby={descriptionId}
-        aria-errormessage={!isValid ? descriptionId : undefined}
-        aria-invalid={!isValid}
+        aria-describedby={isInputValid && typeof coordinatesRepresentation === 'string' ? descriptionId : undefined}
+        aria-errormessage={!isInputValid ? errorMessageId : undefined}
+        aria-invalid={!isInputValid}
         aria-label={t('inputLabel')}
         className={styles.input}
         id={id}
         onBlur={onInputBlur}
         onChange={onInputChange}
-        placeholder={gpsFormat ? t(`placeholders.${gpsFormat}`) : t('defaultPlaceholder')}
+        placeholder={coordinatesRepresentation
+          ? coordinatesRepresentation?.name || t(`placeholders.${coordinatesRepresentation}`)
+          : t('defaultPlaceholder')}
         ref={(element) => {
           if (inputRef) {
             inputRef.current = element;
@@ -105,21 +114,28 @@ const GpsInput = ({
           innerInputRef.current = element;
         }}
         type="text"
-        value={inputValue}
+        // If the value is outside of the BBOX of the CRS, show N/A.
+        value={inputValue === OUTSIDE_BBOX ? t('outsideBboxInputValue') : inputValue}
       />
 
       {renderButton?.()}
     </div>
 
-    <p
-      aria-live={isValid ? 'off' : 'assertive'}
-      className={`${styles.description} ${!isValid ? styles.error : ''}`}
+    {isInputValid && typeof coordinatesRepresentation === 'string' && <p
+      className={styles.description}
       id={descriptionId}
     >
-      {isValid
-        ? t('inputDescription', { gpsFormat: GPS_FORMAT_EXAMPLES[gpsFormat] })
-        : t('errorMessage')}
-    </p>
+      {t('inputDescription', { gpsFormat: GPS_FORMAT_EXAMPLES[coordinatesRepresentation] })}
+    </p>}
+
+    {!isInputValid && <p aria-live="assertive" className={`${styles.description} ${styles.error}`} id={errorMessageId}>
+      {coordinatesRepresentation?.code && inputValue === OUTSIDE_BBOX
+        ? t('outsideBboxErrorMessage', {
+          crsName: coordinatesRepresentation.name,
+          epsgCode: coordinatesRepresentation.code,
+        })
+        : t('invalidLocationErrorMessage')}
+    </p>}
   </div>;
 };
 

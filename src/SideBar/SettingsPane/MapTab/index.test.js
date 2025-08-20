@@ -16,7 +16,7 @@ describe('SideBar - SettingsPane - MapTab', () => {
       data: {},
       view: {
         coordinateReferenceSystems: {
-          selectedSystems: Object.values(GPS_FORMATS),
+          selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
           storedSystems: [],
         },
         mapClusterConfig: {

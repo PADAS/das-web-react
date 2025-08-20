@@ -68,13 +68,17 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "GPS format",
+    "coordinatesOutsideBboxTooltip": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "coordinatesOutsideBboxTooltipButtonLabel": "More information about location format",
     "textCopyButtonLabel": "Copy GPS value to clipboard"
   },
   "gpsInput": {
     "defaultPlaceholder": "Location",
-    "errorMessage": "Invalid location",
     "inputDescription": "Example: {{gpsFormat}}",
     "inputLabel": "GPS location",
+    "invalidLocationErrorMessage": "Invalid location",
+    "outsideBboxErrorMessage": "EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "outsideBboxInputValue": "N/A",
     "placeholders": {
       "DDM": "Degrees, Decimals, Minutes",
       "DEG": "Latitude, Longitude",
@@ -99,7 +103,9 @@
       "closed": "Open the location picker menu to set a value",
       "open": "Close the location picker menu"
     },
-    "textCopyButtonLabel": "Copy location to clipboard"
+    "textCopyButtonLabel": "Copy location to clipboard",
+    "valueOutsideBboxTooltip": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
+    "valueOutsideBboxTooltipButtonLabel": "More information about location format"
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -284,7 +290,7 @@
             "legend": "General",
             "lockMapCheckboxLabel": "Lock map",
             "openCoordinateSystemSettingsButton": "Coordinate systems",
-            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateReferenceSystemsCount}} selected",
+            "openCoordinateSystemSettingsButtonDetails": "{{selectedCoordinateRepresentationsCount}} selected",
             "openCoordinateSystemSettingsButtonLabel": "Open coordinate system settings",
             "simplifyMapDataOnZoomCheckboxLabel": "Simplify map data on zoom"
           },

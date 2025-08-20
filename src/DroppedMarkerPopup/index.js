@@ -14,8 +14,7 @@ const DroppedMarkerPopup = ({ data: { location }, id }) => {
 
   return <>
     <GpsFormatToggle
-      lat={location.lat}
-      lng={location.lng}
+      lngLat={{ latitude: location.lat, longitude: location.lng }}
       name="droppedMarkerPopup-gpsFormatToggle"
     />
 

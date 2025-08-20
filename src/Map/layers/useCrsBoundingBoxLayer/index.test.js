@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { renderHook } from '../../../test-utils';
 import { createMapMock } from '../../../__test-helpers/mocks';
+import { epsg3857, epsg5367 } from '../../../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../../../utils/location';
 import { hidePopup, showPopup } from '../../../ducks/popup';
 import { MapContext } from '../../../App';
@@ -74,14 +75,8 @@ describe('useCrsBoundingBoxLayer', () => {
   it('does not add the coordinate reference system bbox source, layer and control marker if the selected GPS format is a CRS that covers most of the world', async () => {
     map.getSource.mockImplementation(() => false);
     map.getLayer.mockImplementation(() => false);
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'World.',
-      bbox: [-180, 90, 180, -90],
-      code: '4326',
-      name: 'WGS 84',
-      proj4: '+proj=longlat +datum=WGS84 +no_defs +type=crs',
-    }];
-    store.view.userPreferences.gpsFormat = '4326';
+    store.view.coordinateReferenceSystems.storedSystems = [epsg3857];
+    store.view.userPreferences.gpsFormat = '3857';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
     expect(map.addSource).not.toHaveBeenCalled();
@@ -92,28 +87,22 @@ describe('useCrsBoundingBoxLayer', () => {
   it('adds the coordinate reference system bbox source and layer', async () => {
     map.getSource.mockImplementation(() => false);
     map.getLayer.mockImplementation(() => false);
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
     expect(map.addSource).toHaveBeenCalledTimes(1);
     expect(map.addSource).toHaveBeenCalledWith('coordinate-reference-system-bbox-source', {
       data: {
-        bbox: [-86.5, 11.77, -81.43, 2.21],
+        bbox: [-86.5, 2.21, -81.43, 11.77],
         geometry: {
           coordinates: [
             [
-              [-86.5, 11.77],
-              [-81.43, 11.77],
-              [-81.43, 2.21],
               [-86.5, 2.21],
-              [-86.5, 11.77]
+              [-81.43, 2.21],
+              [-81.43, 11.77],
+              [-86.5, 11.77],
+              [-86.5, 2.21]
             ]
           ],
           type: 'Polygon',
@@ -139,27 +128,21 @@ describe('useCrsBoundingBoxLayer', () => {
     const crsBboxSource = { setData: jest.fn() };
     map.getSource.mockImplementation(() => crsBboxSource);
     map.getLayer.mockImplementation(() => false);
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
     expect(crsBboxSource.setData).toHaveBeenCalledTimes(1);
     expect(crsBboxSource.setData).toHaveBeenCalledWith({
-      bbox: [-86.5, 11.77, -81.43, 2.21],
+      bbox: [-86.5, 2.21, -81.43, 11.77],
       geometry: {
         coordinates: [
           [
-            [-86.5, 11.77],
-            [-81.43, 11.77],
-            [-81.43, 2.21],
             [-86.5, 2.21],
-            [-86.5, 11.77]
+            [-81.43, 2.21],
+            [-81.43, 11.77],
+            [-86.5, 11.77],
+            [-86.5, 2.21]
           ]
         ],
         type: 'Polygon',
@@ -173,13 +156,7 @@ describe('useCrsBoundingBoxLayer', () => {
     const crsBboxLayer = {};
     map.getSource.mockImplementation(() => false);
     map.getLayer.mockImplementation(() => crsBboxLayer);
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
@@ -187,13 +164,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('removes the coordinate reference system bbox source and layer when unmounting', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     const { unmount } = renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
@@ -206,13 +177,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('adds the coordinate reference system bbox control marker', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
@@ -221,13 +186,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('shows the gps format toggle popup when clicking the control marker', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
@@ -245,13 +204,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('hides the gps format toggle popup when clicking the control marker if the popup is open', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.popup = { type: 'gps-format-toggle' };
     store.view.userPreferences.gpsFormat = '5367';
     renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
@@ -264,13 +217,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('removes the coordinate reference system bbox control marker when unmounting', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.userPreferences.gpsFormat = '5367';
     const { unmount } = renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });
 
@@ -282,13 +229,7 @@ describe('useCrsBoundingBoxLayer', () => {
   });
 
   it('hides the gps format toggle popup when when removing the control marker if the popup is open', async () => {
-    store.view.coordinateReferenceSystems.storedSystems = [{
-      area: 'Costa Rica - onshore and offshore east of 86°30\'W.',
-      bbox: [-86.5, 11.77, -81.43, 2.21],
-      code: '5367',
-      name: 'CR05 / CRTM05',
-      proj4: '+proj=tmerc +lat_0=0 +lon_0=-84 +k=0.9999 +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-0.16959,0.35312,0.51846,-0.03385,0.16325,-0.03446,0.03693 +units=m +no_defs +type=crs',
-    }];
+    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
     store.view.popup = { type: 'gps-format-toggle' };
     store.view.userPreferences.gpsFormat = '5367';
     const { unmount } = renderHook(() => useCrsBoundingBoxLayer(), { wrapper: Wrapper });

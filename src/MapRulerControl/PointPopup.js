@@ -49,8 +49,7 @@ const PointPopup = (props) => {
 
     {!drawing && <>
       <GpsFormatToggle
-        lat={point[1]}
-        lng={point[0]}
+        lngLat={{ latitude: point[1], longitude: point[0] }}
         name="mapRulerControl-pointPopup-gpsFormatToggle"
       />
 

@@ -8,7 +8,16 @@
   
   [class*=mapboxgl-popup-content] {
     background: white;
+    min-width: 16rem;
     padding: 0.5rem;
     width: auto;
+
+    [class*=gps-format-toggle] {
+      fieldset {
+        label {
+          font-size: 0.75rem;
+        }
+      }
+    }
   }
 }

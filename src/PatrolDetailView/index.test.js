@@ -207,7 +207,7 @@ describe('PatrolDetailView', () => {
     store.view.userPreferences = { gpsFormat: Object.values(GPS_FORMATS)[0] };
     store.view.mapLocationSelection = {};
     store.view.coordinateReferenceSystems = {
-      selectedSystems: Object.values(GPS_FORMATS),
+      selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
       storedSystems: [],
     };
 

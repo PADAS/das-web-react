@@ -20,8 +20,7 @@ const FeatureSymbolPopup = ({ data, id }) => {
     <>
       <h4>{data.properties.title || data.properties.name}</h4>
       <GpsFormatToggle
-        lat={coordinates[1]}
-        lng={coordinates[0]}
+        lngLat={{ latitude: coordinates[1], longitude: coordinates[0] }}
         name="featureLayer-featureSymbolPopup-gpsFormatToggle"
       />
 
