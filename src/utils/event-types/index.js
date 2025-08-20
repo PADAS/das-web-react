@@ -52,6 +52,8 @@ export const mapEventTypesToCategories = (eventTypes, eventCategories) => {
       ? eventType.category
       : eventCategories[eventType.category];
 
+    if (!eventTypeCategory) return accumulator;
+
     if (eventTypeCategory.value === 'hidden') {
       // Ignore the hidden category.
       return accumulator;

@@ -1,4 +1,4 @@
-import React, { memo, useId, useImperativeHandle, useRef, useState } from 'react';
+import React, { memo, useId, useImperativeHandle, useContext, useRef, useState } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import MenuPopover from './MenuPopover';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
+import { MapContext } from '../App';
 
 const LocationPicker = ({
   className = '',
@@ -33,6 +34,7 @@ const LocationPicker = ({
   const { t } = useTranslation('components', { keyPrefix: 'locationPicker' });
 
   const jumpToLocation = useJumpToLocation();
+  const map = useContext(MapContext);
 
   const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
 
@@ -99,7 +101,7 @@ const LocationPicker = ({
         title={t('textCopyButtonLabel')}
       />}
 
-      <button
+      {map && <button
         aria-label={t('jumpToLocationButtonLabel')}
         className={styles.jumpToLocationButton}
         disabled={!value || disabled}
@@ -108,7 +110,7 @@ const LocationPicker = ({
         type="button"
       >
         <MarkerFeedIcon />
-      </button>
+      </button>}
 
       <input
         data-testid="locationPicker-input"

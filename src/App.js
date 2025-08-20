@@ -159,9 +159,9 @@ export const App = () => {
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
 
-          {!!map && <SidebarScrollProvider>
+          <SidebarScrollProvider>
             <SideBar map={map} />
-          </SidebarScrollProvider>}
+          </SidebarScrollProvider>
 
           <ModalRenderer />
         </div>

@@ -80,6 +80,7 @@ import ReportGeometryDrawer from '../ReportGeometryDrawer';
 import MapLocationSelectionOverview from '../MapLocationSelectionOverview';
 
 import './Map.scss';
+import { addMapImage } from '../utils/map';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -577,6 +578,32 @@ const Map = ({ children, onMapLoad, socket }) => {
           replaceLayoutTextFieldLanguage(layer.layout['text-field'], newLanguage)));
     }
   }, [i18n.language, map]);
+
+  useEffect(() => {
+    const handleMapStyleImageMissing = async (event) => {
+      const { id } = event;
+      // querying from the root /static/ dir of the host means this is one of our static assets, let's get it
+      // if the map says it's missing.
+      if (id.includes('/static/')) {
+        const src = id.replace(/(\.svg|\.png|\.jpg).*$/, '$1');
+        try {
+          const img = await addMapImage({ src, id });
+        } catch (error) {
+          console.warn('Error adding map image:', { event, error });
+        }
+
+      }
+
+    };
+
+    if (map) {
+      map.on('styleimagemissing', handleMapStyleImageMissing);
+
+      return () => {
+        map.off('styleimagemissing', handleMapStyleImageMissing);
+      };
+    }
+  }, [map]);
 
   useMapEventBinding('movestart', cancelMapDataRequests);
   useMapEventBinding('moveend', fetchMapData);
