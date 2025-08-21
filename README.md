@@ -19,6 +19,7 @@ This project uses [Jest](https://jestjs.io/) as its test runner and assertion li
 
 <EOF>
 
+
 ---
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
