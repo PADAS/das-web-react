@@ -239,8 +239,8 @@
             "resultsTableNameHeaderCell": "Nombre",
             "showingMaximumFilteredResultsMessage": "Mostrando los 10 principales resultados. Intenta refinar tu búsqueda para reducir la lista."
           },
-          "gpsFormatSelector": {
-            "deleteGpsFormatOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
+          "coordinateRepresentationsSelector": {
+            "deleteCrsOptionButtonLabel": "Eliminar {{coordinateReferenceSystemName}} de las opciones",
             "gpsFormatOptionExample": "Ejemplo: {{example}}",
             "gpsFormatOptionLabel": {
               "deg": "DEG Grados decimales",
@@ -253,7 +253,7 @@
             "legend": "Selector de formato GPS",
             "maximumOptionsSelectedMessage": "Tienes seleccionadas 4 de 4 opciones. Deselecciona al menos 1 opción antes de seleccionar otras."
           },
-          "title": "Coordenadas"
+          "title": "Sistemas de Coordenadas"
         },
         "mainMapSettingsView": {
           "displayFieldSet": {

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as TrashCanIcon } from '../../../../../common/images/icons/trash-can.svg';
 
 import { GPS_FORMAT_EXAMPLES, GPS_FORMATS } from '../../../../../utils/location';
+import { selectCoordinatesRepresentation } from '../../../../../selectors/location';
 import {
   setSelectedCoordinateRepresentations,
   setStoredCoordinateReferenceSystems,
@@ -15,13 +16,13 @@ import * as styles from './styles.module.scss';
 
 const MAX_SELECTED_GPS_FORMATS = 5;
 
-const CrsGpsFormatOption = ({ epsgCode, name }) => {
+const CoordinateReferenceSystemOption = ({ epsgCode, name }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateRepresentationsSelector',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
   const selectedCoordinateRepresentations = useSelector(
     (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
   );
@@ -32,9 +33,9 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
 
   const onCheckboxChange = () => {
     if (isChecked) {
-      if (gpsFormat === epsgCode) {
-        // If the user is unchecking the CRS that is the current GPS format
-        // established in the user preferences, update the preferences to DEG.
+      if (coordinatesRepresentation?.code === epsgCode) {
+        // If the user is unchecking the currently active representation,
+        // set DEG as the active.
         dispatch(updateUserPreferences({ gpsFormat: GPS_FORMATS.DEG }));
       }
 
@@ -52,39 +53,39 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
 
   const onDelete = () => {
     if (isChecked) {
-      // If a selected CRS GPS format is deleted from the list and it is
-      // checked, uncheck it first.
+      // If a selected CRS is deleted from the list and it is checked, uncheck
+      // it first.
       onCheckboxChange();
     }
 
     dispatch(setStoredCoordinateReferenceSystems(storedCRS.filter((storedCRS) => storedCRS.code !== epsgCode)));
   };
 
-  return <div className={styles.gpsFormatOption}>
+  return <div className={styles.coordinatesRepresentationOption}>
     <input
       checked={isChecked}
       className={styles.checkbox}
       disabled={isDisabled}
-      id={`gps-format-${epsgCode}-checkbox`}
+      id={`coordinate-representations-${epsgCode}-checkbox`}
       onChange={onCheckboxChange}
       type="checkbox"
     />
 
     <label
       className={`${styles.label} ${isDisabled ? styles.disabled : ''}`}
-      htmlFor={`gps-format-${epsgCode}-checkbox`}
+      htmlFor={`coordinate-representations-${epsgCode}-checkbox`}
       title={`EPSG:${epsgCode} ${name}`}
     >
       {`EPSG:${epsgCode} ${name}`}
     </label>
 
     <button
-      aria-label={t('deleteGpsFormatOptionButtonLabel', {
+      aria-label={t('deleteCrsOptionButtonLabel', {
         coordinateReferenceSystemName: `EPSG:${epsgCode} ${name}`,
       })}
       className={styles.deleteButton}
       onClick={onDelete}
-      title={t('deleteGpsFormatOptionButtonLabel', {
+      title={t('deleteCrsOptionButtonLabel', {
         coordinateReferenceSystemName: `EPSG:${epsgCode} ${name}`,
       })}
       type="button"
@@ -94,13 +95,13 @@ const CrsGpsFormatOption = ({ epsgCode, name }) => {
   </div>;
 };
 
-const DefaultGpsFormatOption = ({ formatCode }) => {
+const GpsFormatOption = ({ formatCode }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateRepresentationsSelector',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
   const selectedCoordinateRepresentations = useSelector(
     (state) => state.view.coordinateReferenceSystems.selectedCoordinateRepresentations
   );
@@ -112,9 +113,9 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
 
   const onCheckboxChange = () => {
     if (isChecked) {
-      if (gpsFormat === formatCode) {
-        // If the user is unchecking the format that is the current GPS format
-        // established in the user preferences, update the preferences to DEG.
+      if (coordinatesRepresentation === formatCode) {
+        // If the user is unchecking the currently active representation,
+        // set DEG as the active.
         dispatch(updateUserPreferences({ gpsFormat: GPS_FORMATS.DEG }));
       }
 
@@ -131,20 +132,20 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
   };
 
   return <div className={styles.defaultGpsFormatOptionWrapper}>
-    <div className={styles.gpsFormatOption}>
+    <div className={styles.coordinatesRepresentationOption}>
       <input
-        aria-describedby={`gps-format-${formatCode}-example`}
+        aria-describedby={`coordinate-representations-${formatCode}-example`}
         checked={isChecked}
         className={styles.checkbox}
         disabled={isDisabled}
-        id={`gps-format-${formatCode}-checkbox`}
+        id={`coordinate-representations-${formatCode}-checkbox`}
         onChange={onCheckboxChange}
         type="checkbox"
       />
 
       <label
         className={`${styles.label} ${isDisabled ? styles.disabled : ''}`}
-        htmlFor={`gps-format-${formatCode}-checkbox`}
+        htmlFor={`coordinate-representations-${formatCode}-checkbox`}
         title={t(`gpsFormatOptionLabel.${formatCode.toLowerCase()}`)}
       >
         {t(`gpsFormatOptionLabel.${formatCode.toLowerCase()}`)}
@@ -153,16 +154,16 @@ const DefaultGpsFormatOption = ({ formatCode }) => {
 
     <div
       className={`${styles.example} ${isDisabled ? styles.disabled : ''}`}
-      id={`gps-format-${formatCode}-example`}
+      id={`coordinate-representations-${formatCode}-example`}
     >
       {t('gpsFormatOptionExample', { example: GPS_FORMAT_EXAMPLES[formatCode] })}
     </div>
   </div>;
 };
 
-const GpsFormatSelector = () => {
+const CoordinateRepresentationsSelector = () => {
   const { t } = useTranslation('components', {
-    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.gpsFormatSelector',
+    keyPrefix: 'sideBar.settingsPane.mapTab.coordinateSystemSettingsView.coordinateRepresentationsSelector',
   });
 
   const selectedCoordinateRepresentations = useSelector(
@@ -170,37 +171,42 @@ const GpsFormatSelector = () => {
   );
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
-  const gpsFormatOptions = [
+  const coordinateRepresentationOptions = [
     // Default GPS formats are always listed.
     ...Object.values(GPS_FORMATS).map((gpsFormat) => ({ formatCode: gpsFormat, isDefault: true })),
     ...storedCRS,
   ];
 
   return <div>
-    <p className={styles.instructions} id="gps-format-selector-instructions">
+    <p className={styles.instructions} id="coordinate-representations-selector-instructions">
       {t('instructions')}
     </p>
 
     <fieldset
-      aria-describedby="gps-format-selector-instructions gps-format-selector-message"
+      aria-describedby="coordinate-representations-selector-instructions coordinate-representations-selector-message"
       className={styles.fieldset}
     >
       <legend className="sr-only">{t('legend')}</legend>
 
-      {gpsFormatOptions.map((gpsFormatOption, index) => <Fragment
-        key={gpsFormatOption.isDefault ? gpsFormatOption.formatCode : gpsFormatOption.code}
+      {coordinateRepresentationOptions.map((coordinatesRepresentationOption, index) => <Fragment
+        key={coordinatesRepresentationOption.isDefault
+          ? coordinatesRepresentationOption.formatCode
+          : coordinatesRepresentationOption.code}
       >
-        {gpsFormatOption.isDefault
-          ? <DefaultGpsFormatOption formatCode={gpsFormatOption.formatCode} />
-          : <CrsGpsFormatOption epsgCode={gpsFormatOption.code} name={gpsFormatOption.name} />}
+        {coordinatesRepresentationOption.isDefault
+          ? <GpsFormatOption formatCode={coordinatesRepresentationOption.formatCode} />
+          : <CoordinateReferenceSystemOption
+            epsgCode={coordinatesRepresentationOption.code}
+            name={coordinatesRepresentationOption.name}
+          />}
 
-        {index < (gpsFormatOptions.length - 1) && <hr className={styles.separator} />}
+        {index < (coordinateRepresentationOptions.length - 1) && <hr className={styles.separator} />}
       </Fragment>)}
     </fieldset>
 
     {selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS && <p
         className={styles.message}
-        id="gps-format-selector-message"
+        id="coordinate-representations-selector-message"
         role="status"
       >
       {t('maximumOptionsSelectedMessage')}
@@ -208,4 +214,4 @@ const GpsFormatSelector = () => {
   </div>;
 };
 
-export default GpsFormatSelector;
+export default CoordinateRepresentationsSelector;

@@ -240,8 +240,8 @@
                         "resultsTableNameHeaderCell": "नाम",
                         "showingMaximumFilteredResultsMessage": "शीर्ष १० परिणामहरू देखाउँदै। सूची संकुचित गर्न आफ्नो खोज परिष्कृत गर्नुहोस्।"
                     },
-                    "gpsFormatSelector": {
-                        "deleteGpsFormatOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
+                    "coordinateRepresentationsSelector": {
+                        "deleteCrsOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
                         "gpsFormatOptionExample": "उदाहरण: {{example}}",
                         "gpsFormatOptionLabel": {
                             "deg": "DEG दशमलव डिग्री",
@@ -254,7 +254,7 @@
                         "legend": "GPS ढाँचा चयनकर्ता",
                         "maximumOptionsSelectedMessage": "तपाईंले ४ मध्ये ४ विकल्पहरू चयन गर्नुभएको छ। अरू चयन गर्नुभन्दा पहिले कम्तीमा १ विकल्प हटाउनुहोस्।"
                     },
-                    "title": "समन्वय"
+                    "title": "समन्वय प्रणालीहरू"
                 },
                 "mainMapSettingsView": {
                     "displayFieldSet": {
