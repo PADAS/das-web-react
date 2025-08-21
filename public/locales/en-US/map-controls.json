@@ -4,6 +4,7 @@
       "closed": "Open the GPS display menu",
       "open": "Close the GPS display menu"
     },
+    "cursorCoordinatesStringOutsideBbox": "N/A",
     "menuPopover": {
       "gpsDisplayTooltip": "Press enter to jump to coordinates",
       "gpsInputButtonLabel": "Jump to coordinates"

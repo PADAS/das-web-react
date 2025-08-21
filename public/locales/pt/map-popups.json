@@ -14,6 +14,7 @@
         "searchBarPlaceholder": "Buscar"
     },
     "mouseMarkerPopup": {
+        "coordinatesStringOutsideBbox": "N/D",
         "title": "Clique no mapa para adicionar um marcador"
     }
 }

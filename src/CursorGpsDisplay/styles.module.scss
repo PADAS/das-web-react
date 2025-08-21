@@ -66,7 +66,7 @@
 
   .caret {
     @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
-    margin-left: 0.25rem;
+    margin-left: 0.5rem;
 
     &.open {
       transform: rotate(180deg);

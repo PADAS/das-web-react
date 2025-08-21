@@ -62,8 +62,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Formato de GPS",
-    "coordinatesOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
     "coordinatesOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "coordinatesOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
     "textCopyButtonLabel": "Copiar valor GPS al portapapeles"
   },
   "gpsInput": {
@@ -98,8 +98,8 @@
       "open": "Cerrar el menú del selector de ubicación"
     },
     "textCopyButtonLabel": "Copiar ubicación al portapapeles",
-    "valueOutsideBboxTooltip": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación.",
-    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación"
+    "valueOutsideBboxTooltipButtonLabel": "Más información sobre el formato de ubicación",
+    "valueOutsideBboxTooltipTitle": "La ubicación se muestra en formato DEG. EPSG:{{epsgCode}} {{crsName}} no es compatible en esta ubicación."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {

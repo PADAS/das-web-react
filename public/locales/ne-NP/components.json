@@ -63,8 +63,8 @@
     },
     "gpsFormatToggle": {
         "fieldsetLegend": "GPS ढाँचा",
-        "coordinatesOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
         "coordinatesOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
+        "coordinatesOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
         "textCopyButtonLabel": "GPS मान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्"
     },
     "gpsInput": {
@@ -99,8 +99,8 @@
             "open": "स्थान चयन मेनु बन्द गर्नुहोस्"
         },
         "textCopyButtonLabel": "स्थान क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
-        "valueOutsideBboxTooltip": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।",
-        "valueOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी"
+        "valueOutsideBboxTooltipButtonLabel": "स्थान ढाँचाबारे थप जानकारी",
+        "valueOutsideBboxTooltipTitle": "स्थान DEG ढाँचामा देखाइएको छ। EPSG:{{epsgCode}} {{crsName}} यो स्थानमा समर्थित छैन।"
     },
     "mapLocationSelectionOverview": {
         "chooseLocationHeader": {

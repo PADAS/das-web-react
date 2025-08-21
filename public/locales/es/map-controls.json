@@ -4,6 +4,7 @@
       "closed": "Abrir el menú de visualización del GPS",
       "open": "Cerrar el menú de visualización del GPS"
     },
+    "cursorCoordinatesStringOutsideBbox": "N/D",
     "menuPopover": {
       "gpsDisplayTooltip": "Presiona enter para saltar a las coordenadas",
       "gpsInputButtonLabel": "Saltar a las coordenadas"

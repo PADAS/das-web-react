@@ -62,8 +62,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Format GPS",
-    "coordinatesOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
     "coordinatesOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
+    "coordinatesOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
     "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers"
   },
   "gpsInput": {
@@ -98,8 +98,8 @@
       "open": "Fermer le menu du sélecteur d’emplacement"
     },
     "textCopyButtonLabel": "Copier l’emplacement dans le presse-papiers",
-    "valueOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
-    "valueOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement"
+    "valueOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
+    "valueOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {

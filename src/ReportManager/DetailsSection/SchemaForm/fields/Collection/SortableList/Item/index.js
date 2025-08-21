@@ -10,6 +10,7 @@ import { ReactComponent as PencilIcon } from '../../../../../../../common/images
 import { ReactComponent as TrashCanIcon } from '../../../../../../../common/images/icons/trash-can.svg';
 
 import { getItemTitle } from './utils';
+import { selectCoordinatesRepresentation } from '../../../../../../../selectors/location';
 
 import FormModal from './FormModal';
 import FormPreview from './FormPreview';
@@ -43,7 +44,7 @@ const Item = ({
     keyPrefix: 'reportManager.detailsSection.schemaForm.fields.collection.sortableList.item',
   });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   // We use these variables to store the initial errors and form data so we can restore those values if the user does
   // changes and then clicks the cancel button.
@@ -58,7 +59,7 @@ const Item = ({
     `${collectionDetails.itemName} ${id + 1}`,
     fields[collectionDetails.itemIdentifier],
     i18n.language,
-    gpsFormat,
+    coordinatesRepresentation,
     t
   );
 

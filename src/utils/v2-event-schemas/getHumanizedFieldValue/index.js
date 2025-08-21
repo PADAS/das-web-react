@@ -1,15 +1,15 @@
 import { format, isValid, parseISO } from 'date-fns';
 
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../constants';
+import { OUTSIDE_BBOX, stringifyCoordinates } from '../../location';
 import { shouldUse12HourFormat } from '../../datetime';
-import { stringifyCoordinates } from '../../location';
 
 const getChoiceListOptionLabel = (value, field) => field.details.options
   .find((option) => option.const === value)?.title;
 
 // Utility to calculate a human readable version of the field values. For example, render a date-time like
 // 2020/01/01 12:00 PM instead of 2020-01-01T12:00:00Z.
-const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, gpsFormat, t) => {
+const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, coordinatesRepresentation, t) => {
   if (!value) {
     return defaultHumanizedValue;
   }
@@ -54,7 +54,8 @@ const getHumanizedFieldValue = (field, value, defaultHumanizedValue, language, g
     return isValid(parsedDate) ? format(parsedDate, formatStr) : defaultHumanizedValue;
 
   case FORM_ELEMENT_TYPES.LOCATION:
-    return stringifyCoordinates(value, gpsFormat);
+    const coordinatesString = stringifyCoordinates(value, coordinatesRepresentation);
+    return coordinatesString === OUTSIDE_BBOX ? defaultHumanizedValue : coordinatesString;
 
   default:
     return value;

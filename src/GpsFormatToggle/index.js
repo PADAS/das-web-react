@@ -1,10 +1,6 @@
-import React, { memo, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import React, { memo, useEffect, useId, useImperativeHandle, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-
-import { ReactComponent as TriangleExclamationIcon } from '../common/images/icons/triangle-exclamation.svg';
 
 import { FEATURE_FLAG_LABELS } from '../constants';
 import { GPS_FORMAT_CATEGORY, trackEventFactory } from '../utils/analytics';
@@ -15,7 +11,9 @@ import {
 } from '../selectors/location';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag } from '../hooks';
+import useStringifyCoordinates from '../hooks/useStringifyCoordinates';
 
+import IconTooltip from '../IconTooltip';
 import TextCopyBtn from '../TextCopyBtn';
 
 import * as styles from './styles.module.scss';
@@ -52,6 +50,8 @@ const GpsFormatToggle = ({
   // add a fallback in case the implementator didn't provide one.
   const nameFallback = useId();
 
+  const { coordinatesString, outsideRepresentationBbox } = useStringifyCoordinates(lngLat);
+
   const gpsFormatOptions = customCoordinateSystemsEnabled
     ? selectedCoordinateRepresentations.sort((optionA, optionB) => {
       // Sort coordinate representation options alphabetically. If they are a
@@ -62,20 +62,6 @@ const GpsFormatToggle = ({
       return optionAName > optionBName ? 1 : -1;
     })
     : Object.values(GPS_FORMATS);
-
-  const { areCoordinatesOutsideCrsBbox, coordinatesString } = useMemo(() => {
-    if (showCoordinates && lngLat) {
-      // Calculate the coordinates string in the current GPS format and if it
-      // falls outside the BBOX of the CRS, fallback to degrees.
-      const coordinatesString = stringifyCoordinates(lngLat, coordinatesRepresentation);
-      if (coordinatesString === OUTSIDE_BBOX) {
-        return { areCoordinatesOutsideCrsBbox: true, coordinatesString: stringifyCoordinates(lngLat) };
-      }
-      return { areCoordinatesOutsideCrsBbox: false, coordinatesString };
-    }
-
-    return { areCoordinatesOutsideCrsBbox: false, coordinatesString: null };
-  }, [coordinatesRepresentation, lngLat, showCoordinates]);
 
   const onGpsFormatChange = (gpsFormat) => {
     dispatch(updateUserPreferences({ gpsFormat }));
@@ -132,40 +118,21 @@ const GpsFormatToggle = ({
       })}
     </fieldset>
 
-    {coordinatesString && <div className={styles.coordinatesStringWrapper}>
+    {showCoordinates && coordinatesString && <div className={styles.coordinatesStringWrapper}>
       <span aria-describedby={coordinatesOutsideBboxTooltipId} className={styles.coordinatesString}>
         {coordinatesString}
       </span>
 
-      {areCoordinatesOutsideCrsBbox
-        ? <>
-          <OverlayTrigger
-            overlay={(props) => <Tooltip {...props} arrowProps={{ style: { display: 'none' } }}>
-              {t('coordinatesOutsideBboxTooltip', {
-                crsName: coordinatesRepresentation.name,
-                epsgCode: coordinatesRepresentation.code,
-              })}
-            </Tooltip>}
-            placement="bottom"
-          >
-            <button
-              aria-hidden
-              aria-label={t('coordinatesOutsideBboxTooltipButtonLabel')}
-              className={styles.coordinatesOutsideBboxTooltipButton}
-              data-testid="gpsFormatToggle-coordinatesOutsideBboxTooltipButton"
-              type="button"
-            >
-              <TriangleExclamationIcon />
-            </button>
-          </OverlayTrigger>
-
-          <p className="sr-only" id={coordinatesOutsideBboxTooltipId}>
-            {t('coordinatesOutsideBboxTooltip', {
-              crsName: coordinatesRepresentation.name,
-              epsgCode: coordinatesRepresentation.code,
-            })}
-          </p>
-        </>
+      {outsideRepresentationBbox
+        ? <IconTooltip
+          className={styles.coordinatesOutsideBboxTooltip}
+          iconButtonAriaLabel={t('coordinatesOutsideBboxTooltipButtonLabel')}
+          id={coordinatesOutsideBboxTooltipId}
+          title={t('coordinatesOutsideBboxTooltipTitle', {
+            crsName: coordinatesRepresentation.name,
+            epsgCode: coordinatesRepresentation.code,
+          })}
+        />
         : <TextCopyBtn
           aria-label={t('textCopyButtonLabel')}
           className={styles.textCopyButton}

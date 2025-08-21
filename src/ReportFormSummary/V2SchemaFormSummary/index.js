@@ -2,16 +2,17 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../utils/v2-event-schemas/constants';
 import getHumanizedFieldValue from '../../utils/v2-event-schemas/getHumanizedFieldValue';
 import makeFieldsFromSchema from '../../utils/v2-event-schemas/makeFieldsFromSchema';
-import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../../utils/v2-event-schemas/constants';
+import { selectCoordinatesRepresentation } from '../../selectors/location';
 
 import * as styles from './styles.module.scss';
 
 const FieldSummary = ({ field, formData, id }) => {
   const { i18n, t } = useTranslation('details-view', { keyPrefix: 'reportFormSummary.v2SchemaFormSummary' });
 
-  const gpsFormat = useSelector((state) => state.view.userPreferences.gpsFormat);
+  const coordinatesRepresentation = useSelector(selectCoordinatesRepresentation);
 
   return <>
     <p className={styles.fieldLabel}>{field.details.label}</p>
@@ -21,7 +22,7 @@ const FieldSummary = ({ field, formData, id }) => {
       formData[id],
       '-',
       i18n.language,
-      gpsFormat,
+      coordinatesRepresentation,
       t
     )}</p>
   </>;
