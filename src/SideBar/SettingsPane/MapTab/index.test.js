@@ -68,6 +68,6 @@ describe('SideBar - SettingsPane - MapTab', () => {
     expect(screen.queryByRole('group', { name: 'General' })).toBeNull();
     expect(screen.queryByRole('group', { name: 'Display' })).toBeNull();
     expect(screen.queryByRole('group', { name: 'Map markers' })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Coordinates' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Coordinate Systems' })).toBeVisible();
   });
 });

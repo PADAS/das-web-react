@@ -85,7 +85,7 @@ const ObservationRow = ({ observation, observationProperties, subjectIsStatic })
         <span aria-describedby={observationOutsideBboxTooltipId}>{observationCoordinatesString}</span>
 
         {observationOutsideRepresentationBbox && <IconTooltip
-          iconButtonAriaLabel={t('observationOutsideBboxTooltipButtonLabel')}
+          aria-label={t('observationOutsideBboxTooltipButtonLabel')}
           id={observationOutsideBboxTooltipId}
           title={t('observationOutsideBboxTooltipTitle', {
             crsName: coordinatesRepresentation.name,

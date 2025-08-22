@@ -10,7 +10,14 @@ export const TYPES = { WARNING: 'WARNING' };
 
 const ICONS = { [TYPES.WARNING]: <TriangleExclamationIcon /> };
 
-const IconTooltip = ({ className, iconButtonAriaLabel, id, placement = 'bottom', title, type = TYPES.WARNING }) => <>
+const IconTooltip = ({
+  className = '',
+  id = undefined,
+  placement = 'bottom',
+  title,
+  type = TYPES.WARNING,
+  ...otherProps
+}) => <>
   <OverlayTrigger
       overlay={(props) => <Tooltip {...props} arrowProps={{ style: { display: 'none' } }}>
         {title}
@@ -19,9 +26,9 @@ const IconTooltip = ({ className, iconButtonAriaLabel, id, placement = 'bottom',
     >
     <button
       aria-hidden
-      aria-label={iconButtonAriaLabel}
       className={`${styles.iconButton} ${styles[type.toLowerCase()]} ${className}`}
       type="button"
+      {...otherProps}
     >
       {ICONS[type]}
     </button>

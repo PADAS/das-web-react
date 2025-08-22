@@ -34,6 +34,9 @@ describe('ReportManager - DetailsSection - SchemaForm - fields - Collection', ()
 
     store = {
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         modals: {
           canShowModals: true,
         },

@@ -125,8 +125,9 @@ const GpsFormatToggle = ({
 
       {outsideRepresentationBbox
         ? <IconTooltip
+          aria-label={t('coordinatesOutsideBboxTooltipButtonLabel')}
           className={styles.coordinatesOutsideBboxTooltip}
-          iconButtonAriaLabel={t('coordinatesOutsideBboxTooltipButtonLabel')}
+          data-testid="gpsFormatToggle-coordinatesOutsideBboxTooltip"
           id={coordinatesOutsideBboxTooltipId}
           title={t('coordinatesOutsideBboxTooltipTitle', {
             crsName: coordinatesRepresentation.name,

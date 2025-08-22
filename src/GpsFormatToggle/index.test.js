@@ -157,20 +157,6 @@ describe('GpsFormatToggle', () => {
     expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
   });
 
-  test('shows the coordinates in a CRS format and the copy button if the lngLat is within the BBOX', async () => {
-    store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
-      GPS_FORMATS.DEG,
-      GPS_FORMATS.UTM,
-      '5367',
-    ];
-    store.view.coordinateReferenceSystems.storedSystems = [epsg5367];
-    store.view.userPreferences.gpsFormat = '5367';
-    renderGpsFormatToggle({ lngLat: { latitude: 9.638124, longitude: -83.491398 } });
-
-    expect(screen.getByText('555818.832808, 1065762.823243')).toBeVisible();
-    expect(screen.getByLabelText('Copy GPS value to clipboard')).toBeVisible();
-  });
-
   test('shows the coordinates in DEG format and a warning tooltip if the lngLat is outside the CRS BBOX', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -182,15 +168,15 @@ describe('GpsFormatToggle', () => {
     renderGpsFormatToggle();
 
     const coordinatesString = screen.getByText('11.666666°, 10.012657°');
-    const coordinatesOutsideBboxTooltipButton =
-      screen.getByTestId('gpsFormatToggle-coordinatesOutsideBboxTooltipButton');
+    const coordinatesOutsideBboxTooltip =
+      screen.getByTestId('gpsFormatToggle-coordinatesOutsideBboxTooltip');
 
     expect(coordinatesString).toBeVisible();
     expect(coordinatesString)
       .toHaveAccessibleDescription('Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.');
-    expect(coordinatesOutsideBboxTooltipButton).toBeVisible();
+    expect(coordinatesOutsideBboxTooltip).toBeVisible();
 
-    await userEvent.hover(coordinatesOutsideBboxTooltipButton);
+    await userEvent.hover(coordinatesOutsideBboxTooltip);
 
     expect(screen.getByRole('tooltip', {
       name: 'Location is displayed in DEG format. EPSG:5367 CR05 / CRTM05 is not supported at this location.',

@@ -98,8 +98,9 @@ const LocationPicker = ({
       </button>
 
       {valueOutsideRepresentationBbox && <IconTooltip
+        aria-label={t('valueOutsideBboxTooltipButtonLabel')}
         className={styles.valueOutsideBboxTooltip}
-        iconButtonAriaLabel={t('valueOutsideBboxTooltipButtonLabel')}
+        data-testid="locationPicker-valueOutsideBboxTooltip"
         id={valueOutsideBboxTooltipId}
         title={t('valueOutsideBboxTooltipTitle', {
           crsName: coordinatesRepresentation.name,
