@@ -68,8 +68,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Muundo wa GPS",
-    "coordinatesOutsideBboxTooltip": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
     "coordinatesOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
+    "coordinatesOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
     "textCopyButtonLabel": "Nakili thamani ya GPS kwenye ubao wa kunakili"
   },
   "gpsInput": {
@@ -104,8 +104,8 @@
       "open": "Funga menyu ya kiondoa mahali"
     },
     "textCopyButtonLabel": "Nakili mahali kwenye ubao wa kunakili",
-    "valueOutsideBboxTooltip": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili.",
-    "valueOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo"
+    "valueOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
+    "valueOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -256,8 +256,8 @@
             "resultsTableNameHeaderCell": "Jina",
             "showingMaximumFilteredResultsMessage": "Inaonyesha matokeo 10 ya juu. Jaribu kuboresha utafutaji wako ili kupunguza orodha."
           },
-          "gpsFormatSelector": {
-            "deleteGpsFormatOptionButtonLabel": "Futa {{coordinateReferenceSystemName}} kutoka kwenye chaguzi",
+          "coordinateRepresentationsSelector": {
+            "deleteCrsOptionButtonLabel": "Futa {{coordinateReferenceSystemName}} kutoka kwenye chaguzi",
             "gpsFormatOptionExample": "Mfano: {{example}}",
             "gpsFormatOptionLabel": {
               "deg": "DEG Digrii za Kidesimali",
@@ -270,7 +270,7 @@
             "legend": "Kichagua muundo wa GPS",
             "maximumOptionsSelectedMessage": "Umechagua chaguzi 4 kati ya 4. Tafadhali ondoa angalau chaguo 1 kabla ya kuchagua nyingine."
           },
-          "title": "Kuratibu"
+          "title": "Mifumo ya uratibu"
         },
         "mainMapSettingsView": {
           "displayFieldSet": {

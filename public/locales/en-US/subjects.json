@@ -4,7 +4,9 @@
   },
   "subjectHistoricalDataModal": {
     "observationRow": {
-      "noDataLabel": "No data"
+      "noDataLabel": "No data",
+      "observationOutsideBboxTooltipButtonLabel": "More information about location format",
+      "observationOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location."
     },
     "tableDateHeader": "Date",
     "tableLocationHeader": "Location"

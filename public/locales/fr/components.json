@@ -62,8 +62,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "Format GPS",
-    "coordinatesOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
     "coordinatesOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
+    "coordinatesOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
     "textCopyButtonLabel": "Copier la valeur GPS dans le presse-papiers"
   },
   "gpsInput": {
@@ -98,8 +98,8 @@
       "open": "Fermer le menu du sélecteur d’emplacement"
     },
     "textCopyButtonLabel": "Copier l’emplacement dans le presse-papiers",
-    "valueOutsideBboxTooltip": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement.",
-    "valueOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement"
+    "valueOutsideBboxTooltipButtonLabel": "Plus d’informations sur le format de l’emplacement",
+    "valueOutsideBboxTooltipTitle": "L’emplacement est affiché au format DEG. EPSG:{{epsgCode}} {{crsName}} n’est pas pris en charge à cet emplacement."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -239,8 +239,8 @@
             "resultsTableNameHeaderCell": "Nom",
             "showingMaximumFilteredResultsMessage": "Affichage des 10 meilleurs résultats. Essayez d'affiner votre recherche pour réduire la liste."
           },
-          "gpsFormatSelector": {
-            "deleteGpsFormatOptionButtonLabel": "Supprimer {{coordinateReferenceSystemName}} des options",
+          "coordinateRepresentationsSelector": {
+            "deleteCrsOptionButtonLabel": "Supprimer {{coordinateReferenceSystemName}} des options",
             "gpsFormatOptionExample": "Exemple : {{example}}",
             "gpsFormatOptionLabel": {
               "deg": "DEG Degrés décimaux",
@@ -253,7 +253,7 @@
             "legend": "Sélecteur de format GPS",
             "maximumOptionsSelectedMessage": "Vous avez sélectionné 4 options sur 4. Désélectionnez au moins 1 option avant d'en choisir d'autres."
           },
-          "title": "Coordonnées"
+          "title": "Systèmes de Coordonnées"
         },
         "mainMapSettingsView": {
           "displayFieldSet": {

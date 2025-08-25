@@ -68,8 +68,8 @@
   },
   "gpsFormatToggle": {
     "fieldsetLegend": "GPS format",
-    "coordinatesOutsideBboxTooltip": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
     "coordinatesOutsideBboxTooltipButtonLabel": "More information about location format",
+    "coordinatesOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
     "textCopyButtonLabel": "Copy GPS value to clipboard"
   },
   "gpsInput": {
@@ -104,8 +104,8 @@
       "open": "Close the location picker menu"
     },
     "textCopyButtonLabel": "Copy location to clipboard",
-    "valueOutsideBboxTooltip": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location.",
-    "valueOutsideBboxTooltipButtonLabel": "More information about location format"
+    "valueOutsideBboxTooltipButtonLabel": "More information about location format",
+    "valueOutsideBboxTooltipTitle": "Location is displayed in DEG format. EPSG:{{epsgCode}} {{crsName}} is not supported at this location."
   },
   "mapLocationSelectionOverview": {
     "chooseLocationHeader": {
@@ -256,8 +256,8 @@
             "resultsTableNameHeaderCell": "Name",
             "showingMaximumFilteredResultsMessage": "Showing the top 10 results. Try refining your search to narrow down the list."
           },
-          "gpsFormatSelector": {
-            "deleteGpsFormatOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
+          "coordinateRepresentationsSelector": {
+            "deleteCrsOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
             "gpsFormatOptionExample": "Example: {{example}}",
             "gpsFormatOptionLabel": {
               "deg": "DEG Decimal Degrees",
@@ -270,7 +270,7 @@
             "legend": "GPS format selector",
             "maximumOptionsSelectedMessage": "You have 4 of 4 options selected. Deselect at least 1 option before selecting others."
           },
-          "title": "Coordinates"
+          "title": "Coordinate Systems"
         },
         "mainMapSettingsView": {
           "displayFieldSet": {

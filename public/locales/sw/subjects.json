@@ -4,7 +4,9 @@
   },
   "subjectHistoricalDataModal": {
     "observationRow": {
-      "noDataLabel": "Hakuna data"
+      "noDataLabel": "Hakuna data",
+      "observationOutsideBboxTooltipButtonLabel": "Maelezo zaidi kuhusu umbizo la eneo",
+      "observationOutsideBboxTooltipTitle": "Eneo linaonyeshwa kwa umbizo la DEG. EPSG:{{epsgCode}} {{crsName}} haipatikani katika eneo hili."
     },
     "tableDateHeader": "Tarehe",
     "tableLocationHeader": "Mahali"

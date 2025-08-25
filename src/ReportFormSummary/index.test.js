@@ -36,6 +36,9 @@ describe('ReportFormSummary', () => {
         eventTypes,
       },
       view: {
+        coordinateReferenceSystems: {
+          storedSystems: [],
+        },
         userPreferences: {
           gpsFormat: GPS_FORMATS.DEG,
         },

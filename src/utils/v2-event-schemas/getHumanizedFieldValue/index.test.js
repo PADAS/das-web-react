@@ -2,8 +2,10 @@ import { format, parseISO } from 'date-fns';
 
 import { choicesListOptions } from '../fixtures';
 import { DATE_TIME_ELEMENT_INPUT_TYPES, FORM_ELEMENT_TYPES } from '../constants';
-import getHumanizedFieldValue from '.';
+import { epsg5367 } from '../../../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../../location';
+
+import getHumanizedFieldValue from '.';
 
 describe('getHumanizedFieldValue', () => {
   const t = (_, { collectionLength }) => `${collectionLength} items`;
@@ -103,7 +105,7 @@ describe('getHumanizedFieldValue', () => {
     )).toBe('default');
   });
 
-  test('returns the coordinates from a location in the provided GPS format', () => {
+  test('returns the coordinates from a location in the provided coordinates representation', () => {
     expect(getHumanizedFieldValue(
       { type: FORM_ELEMENT_TYPES.LOCATION },
       { latitude: 10.1234, longitude: 30.987 },
@@ -112,6 +114,17 @@ describe('getHumanizedFieldValue', () => {
       GPS_FORMATS.DEG,
       t
     )).toBe('10.123400°, 30.987000°');
+  });
+
+  test('returns the default value if a location falls outsite the supported BBOX of the coordinates representation', () => {
+    expect(getHumanizedFieldValue(
+      { type: FORM_ELEMENT_TYPES.LOCATION },
+      { latitude: 10.1234, longitude: 30.987 },
+      'default',
+      'en-US',
+      epsg5367,
+      t
+    )).toBe('default');
   });
 
   test('returns the plain value for other element types', () => {
