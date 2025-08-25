@@ -239,6 +239,7 @@
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Ongeza",
             "addCrsButtonLabel": "Ongeza EPSG:{{epsgCode}} {{name}} kwenye chaguzi za kielelezo cha muundo wa GPS",
+            "addedMaximumSystemsMessage": "Umeongeza mifumo 6 ya marejeleo ya kuratibu. Futa angalau 1 kabla ya kuongeza mingine.",
             "emptyStateMessage": "Rekebisha utafutaji wako ili kupata kile unachotafuta.",
             "emptyStateMessageTitle": "Hakuna matokeo yaliyopatikana.",
             "instructions": "Tafuta mifumo mingine ya marejeleo ya uratibu",
