@@ -4,6 +4,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
@@ -21,6 +22,7 @@ import { getCurrentTabFromURL } from './utils/navigation';
 import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useNavigate from './hooks/useNavigate';
+import useDetectMapboxSupported from './hooks/useDetectMapboxSupported';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
 import Drawer from './Drawer';
@@ -30,6 +32,7 @@ import ModalRenderer from './ModalRenderer';
 import Nav from './Nav';
 import PrintTitle from './PrintTitle';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
+import ErrorMessage from './ErrorMessage';
 import SideBar from './SideBar';
 import { SidebarScrollProvider } from './SidebarScrollContext';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
@@ -44,6 +47,8 @@ export const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { t } = useTranslation('errors');
+
   const homeMap = useSelector((state) => state.view.homeMap);
   const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
   const mapPosition = useSelector((state) => state.data.mapPosition);
@@ -51,6 +56,8 @@ export const App = () => {
     (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
+
+  const canRenderMap = useDetectMapboxSupported();
 
   const socket = useContext(SocketContext);
 
@@ -122,7 +129,7 @@ export const App = () => {
       });
 
     loadProgressBar({}, axios);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -133,7 +140,7 @@ export const App = () => {
         toastConfig: {
           autoClose: false,
           type: 'info',
-          onClose: () => {},
+          onClose: () => { },
         },
       });
 
@@ -144,11 +151,11 @@ export const App = () => {
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
   return <div
-      className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
-      data-testid="app-wrapper"
-      onDrop={onDrop}
-      onDragLeave={finishDrag}
-      onDragOver={disallowDragAndDrop}
+    className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
+    data-testid="app-wrapper"
+    onDrop={onDrop}
+    onDragLeave={finishDrag}
+    onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
       <MapDrawingToolsContextProvider>
@@ -157,7 +164,9 @@ export const App = () => {
         <Nav map={map} />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+          {canRenderMap && <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />}
+          {!canRenderMap && <ErrorMessage className='webgl-error-message'
+            message={t('webGlDisabled')} />}
 
           {!!map && <SidebarScrollProvider>
             <SideBar map={map} />
