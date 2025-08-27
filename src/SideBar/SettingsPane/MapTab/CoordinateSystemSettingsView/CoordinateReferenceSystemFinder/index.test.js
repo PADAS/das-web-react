@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import { render, screen, waitFor, within } from '../../../../../test-utils';
-import { epsg5367 } from '../../../../../__test-helpers/fixtures/location';
+import { epsg2154, epsg2946, epsg32633, epsg32719, epsg3857, epsg5367 } from '../../../../../__test-helpers/fixtures/location';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { setStoredCoordinateReferenceSystems } from '../../../../../ducks/coordinate-reference-systems';
 
@@ -140,7 +140,7 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
     ).toBeVisible();
   });
 
-  test('Expands and collapses a lon CRS area description when the user clicks the Read more and Read less buttons', async () => {
+  test('Expands and collapses a long CRS area description when the user clicks the Read more and Read less buttons', async () => {
     renderCoordinateReferenceSystemFinder();
 
     const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
@@ -207,13 +207,13 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
         .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
     });
 
-    await userEvent.type(screen.getByRole('searchbox', {
-      name: 'Search additional coordinate reference systems',
-    }), 'xxx');
+    const searchBar = screen.getByRole('searchbox', { name: 'Search additional coordinate reference systems' });
+    await userEvent.type(searchBar, 'xxx');
 
     const firstResultsRow = within(resultsTable).getAllByRole('row')[1];
 
     expect(firstResultsRow).toHaveTextContent('No results found.Adjust your search to find what you are looking for.');
+    expect(searchBar).toHaveAccessibleDescription('No results found. Adjust your search to find what you are looking for.');
   });
 
   test('shows a message when the filter criteria matches more than the maximum results shown', async () => {
@@ -228,6 +228,8 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
 
     expect(screen.getByText('Showing the top 10 results. Try refining your search to narrow down the list.'))
       .toBeVisible();
+    expect(screen.getByRole('searchbox', { name: 'Search additional coordinate reference systems' }))
+      .toHaveAccessibleDescription('Showing the top 10 results. Try refining your search to narrow down the list.');
   });
 
   test('does not show a message when the filter criteria matches less than the maximum results shown', async () => {
@@ -240,11 +242,62 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
         .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
     });
 
-    await userEvent.type(screen.getByRole('searchbox', {
-      name: 'Search additional coordinate reference systems',
-    }), 'CRTM05');
+    const searchBar = screen.getByRole('searchbox', { name: 'Search additional coordinate reference systems' });
+    await userEvent.type(searchBar, 'CRTM05');
 
     expect(screen.queryByText('Showing the top 10 results. Try refining your search to narrow down the list.'))
       .toBeNull();
+    expect(searchBar).not.toHaveAccessibleDescription();
+  });
+
+  test('shows a message when the user already added 6 CRS and disables the Add buttons', async () => {
+    store.view.coordinateReferenceSystems.storedSystems = [
+      epsg2154,
+      epsg2946,
+      epsg3857,
+      epsg5367,
+      epsg32633,
+      epsg32719,
+    ];
+    renderCoordinateReferenceSystemFinder();
+
+    const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
+
+    await waitFor(() => {
+      expect(within(resultsTable).getAllByRole('row')[1])
+        .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
+    });
+
+    const addEpsg2001Button = screen.getByRole('button', {
+      name: 'Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options',
+    });
+
+    expect(screen.getByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
+      .toBeVisible();
+    expect(addEpsg2001Button).toBeDisabled();
+    expect(addEpsg2001Button)
+      .toHaveAccessibleDescription('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.');
+  });
+
+  test('does not show a message if the user has not added 6 CRS yet', async () => {
+    store.view.coordinateReferenceSystems.storedSystems = [epsg2154, epsg2946, epsg3857, epsg5367, epsg32633];
+    renderCoordinateReferenceSystemFinder();
+
+    const resultsTable = screen.getByRole('table', { name: 'List of coordinate reference system search results' });
+
+    await waitFor(() => {
+      expect(within(resultsTable).getAllByRole('row')[1])
+        .toHaveTextContent('2001Antigua 1943 / British West Indies GridAntigua island - onshore.Add');
+    });
+
+    const addEpsg2001Button = screen.getByRole('button', {
+      name: 'Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options',
+    });
+
+    expect(screen.queryByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
+      .toBeNull();
+    expect(addEpsg2001Button).toBeEnabled();
+    expect(addEpsg2001Button)
+      .toHaveAccessibleDescription('Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options');
   });
 });

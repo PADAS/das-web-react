@@ -222,6 +222,7 @@
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Agregar",
             "addCrsButtonLabel": "Agregar EPSG:{{epsgCode}} {{name}} a las opciones del selector de formato GPS",
+            "addedMaximumSystemsMessage": "Has añadido 6 sistemas de referencia de coordenadas. Elimina al menos 1 antes de añadir otros.",
             "emptyStateMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
             "emptyStateMessageTitle": "No se encontraron resultados.",
             "instructions": "Buscar sistemas de referencia de coordenadas adicionales",

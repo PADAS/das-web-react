@@ -223,6 +223,7 @@
                     "coordinateReferenceSystemFinder": {
                         "addCrsButton": "थप्नुहोस्",
                         "addCrsButtonLabel": "EPSG:{{epsgCode}} {{name}} लाई GPS ढाँचा चयन विकल्पहरूमा थप्नुहोस्",
+                        "addedMaximumSystemsMessage": "तपाईंले ६ निर्देशांक सन्दर्भ प्रणाली थप्नुभयो। अरू थप्नुअघि कम्तिमा १ मेटाउनुहोस्।",
                         "emptyStateMessage": "तपाईं खोजिरहनुभएको कुरा फेला पार्नको लागि आफ्नो खोज समायोजन गर्नुहोस्।",
                         "emptyStateMessageTitle": "कुनै परिणाम फेला परेन।",
                         "instructions": "थप समन्वय सन्दर्भ प्रणालीहरू खोज्नुहोस्",
