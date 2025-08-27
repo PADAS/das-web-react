@@ -156,7 +156,7 @@ export const App = () => {
   }, [showGeoPermWarningMessage]);
 
   useEffect(() => {
-    if (!mapboxSupported/*  && process.env.NODE_ENV === 'production' */) {
+    if (!mapboxSupported && process.env.NODE_ENV === 'production') {
       const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
 
       ReactGA4.event('MapboxGL not supported', {
