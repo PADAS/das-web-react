@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,7 +23,6 @@ import { getCurrentTabFromURL } from './utils/navigation';
 import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useNavigate from './hooks/useNavigate';
-import useDetectMapboxSupported from './hooks/useDetectMapboxSupported';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
 import Drawer from './Drawer';
@@ -40,6 +40,8 @@ import WithSocketContext, { SocketContext } from './withSocketConnection';
 import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
 
+const mapboxSupported = !!mapboxgl.supported();
+
 export const MapContext = createContext(null);
 
 export const App = () => {
@@ -56,8 +58,6 @@ export const App = () => {
     (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
-
-  const canRenderMap = useDetectMapboxSupported();
 
   const socket = useContext(SocketContext);
 
@@ -164,8 +164,8 @@ export const App = () => {
         <Nav map={map} />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          {canRenderMap && <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />}
-          {!canRenderMap && <ErrorMessage className='webgl-error-message'
+          {mapboxSupported && <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />}
+          {!mapboxSupported && <ErrorMessage className='webgl-error-message'
             message={t('webGlDisabled')} />}
 
           {!!map && <SidebarScrollProvider>
