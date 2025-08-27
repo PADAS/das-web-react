@@ -10,6 +10,11 @@
   box-sizing: border-box;
 }
 
+.webgl-error-message {
+  margin: 1rem 6rem;
+  max-width: 32rem;
+}
+
 div.Toastify__toast {
   @media (max-width: $sm-layout-width-max) {
     margin-bottom: 0.2rem;

@@ -1,9 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
@@ -30,6 +32,7 @@ import ModalRenderer from './ModalRenderer';
 import Nav from './Nav';
 import PrintTitle from './PrintTitle';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
+import ErrorMessage from './ErrorMessage';
 import SideBar from './SideBar';
 import { SidebarScrollProvider } from './SidebarScrollContext';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
@@ -37,12 +40,16 @@ import WithSocketContext, { SocketContext } from './withSocketConnection';
 import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
 
+const mapboxSupported = !!mapboxgl.supported();
+
 export const MapContext = createContext(null);
 
 export const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { t } = useTranslation('errors');
 
   const homeMap = useSelector((state) => state.view.homeMap);
   const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
@@ -122,7 +129,7 @@ export const App = () => {
       });
 
     loadProgressBar({}, axios);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -133,7 +140,7 @@ export const App = () => {
         toastConfig: {
           autoClose: false,
           type: 'info',
-          onClose: () => {},
+          onClose: () => { },
         },
       });
 
@@ -144,11 +151,11 @@ export const App = () => {
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
   return <div
-      className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
-      data-testid="app-wrapper"
-      onDrop={onDrop}
-      onDragLeave={finishDrag}
-      onDragOver={disallowDragAndDrop}
+    className={`App ${isDragging ? 'dragging' : ''} ${mapLocationSelectionModeClass}`}
+    data-testid="app-wrapper"
+    onDrop={onDrop}
+    onDragLeave={finishDrag}
+    onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
       <MapDrawingToolsContextProvider>
@@ -157,7 +164,9 @@ export const App = () => {
         <Nav map={map} />
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+          {mapboxSupported && <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />}
+          {!mapboxSupported && <ErrorMessage className='webgl-error-message'
+            message={t('webGlDisabled')} />}
 
           {!!map && <SidebarScrollProvider>
             <SideBar map={map} />
