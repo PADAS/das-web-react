@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
 import { loadProgressBar } from 'axios-progress-bar';
@@ -6,6 +6,9 @@ import { Slide, toast, ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import ReactGA4 from 'react-ga4';
+
+import { createUserAnalyticsData } from './utils/analytics';
 
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
@@ -24,6 +27,7 @@ import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useNavigate from './hooks/useNavigate';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
+import getWindowLocation from './utils/getWindowLocation';
 
 import Drawer from './Drawer';
 import Map from './Map';
@@ -40,8 +44,6 @@ import WithSocketContext, { SocketContext } from './withSocketConnection';
 import 'axios-progress-bar/dist/nprogress.css';
 import './App.scss';
 
-const mapboxSupported = !!mapboxgl.supported();
-
 export const MapContext = createContext(null);
 
 export const App = () => {
@@ -54,8 +56,13 @@ export const App = () => {
   const homeMap = useSelector((state) => state.view.homeMap);
   const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
   const mapPosition = useSelector((state) => state.data.mapPosition);
+  const user = useSelector((state) => state.data.user);
+  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
+  const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
+  const mapboxSupported = useMemo(() => !!mapboxgl.supported(), []);
+
   const showGeoPermWarningMessage = useSelector(
-    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(state.data.user)
+    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(user)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
@@ -147,6 +154,17 @@ export const App = () => {
       return () => toast.dismiss(toastId);
     }
   }, [showGeoPermWarningMessage]);
+
+  useEffect(() => {
+    if (!mapboxSupported/*  && process.env.NODE_ENV === 'production' */) {
+      const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+
+      ReactGA4.event('MapboxGL not supported', {
+        event_category: 'Client Hardware Issue',
+        ...userData,
+      });
+    }
+  }, [mapboxSupported, selectedUserProfile, user, serverVersion]);
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 
