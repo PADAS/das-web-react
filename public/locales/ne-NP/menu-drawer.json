@@ -49,6 +49,7 @@
       "serverVersion": "सर्भर संस्करण: {{version}}",
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
+    "header": "मुख्य मेनू",
     "helpCenterButton": "सहायता केन्द्र",
     "masterKMLModal": {
       "title": "विषय KML"

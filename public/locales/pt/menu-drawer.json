@@ -49,6 +49,7 @@
       "serverVersion": "Versão do servidor: {{version}}",
       "websitePrivacyPolicyLink": "Política de privacidade da página web"
     },
+    "header": "Menu principal",
     "helpCenterButton": "Central de Ajuda",
     "masterKMLModal": {
       "title": "KML de indivíduos rastreados"

@@ -66,6 +66,7 @@ describe('GlobalMenuDrawer', () => {
       },
       selectedUserProfile: null,
       view: {
+        drawer: {},
         featureFlagOverrides: {},
         systemConfig: {
           alerts_enabled: true,

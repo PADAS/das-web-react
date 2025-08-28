@@ -49,6 +49,7 @@
       "serverVersion": "Version du Serveur: {{version}}",
       "websitePrivacyPolicyLink": "Politique de Confidentialité du Site Web"
     },
+    "header": "Menu principal",
     "helpCenterButton": "Centre d'Informations",
     "masterKMLModal": {
       "title": "Export des pistes en format KML"
