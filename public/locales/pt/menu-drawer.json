@@ -36,7 +36,11 @@
       "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
       "title": "Relatórios de campo"
     },
-    "ecoscopeDownloaderLink": "Downloader do Ecoscope",
+    "ecoscopeAnalysisLinkAriaLabel": "Análise com Ecoscope",
+    "ecoscopeAnalysisLink": "Análise",
+    "ecoscopeDownloaderLinkAriaLabel": "Baixador do Ecoscope",
+    "ecoscopeDownloaderLink": "Baixar",
+    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versão do cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
