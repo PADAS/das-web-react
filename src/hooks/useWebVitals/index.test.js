@@ -3,10 +3,14 @@ import { Provider } from 'react-redux';
 import { renderHook } from '@testing-library/react';
 import { mockStore } from '../../__test-helpers/MockStore';
 import useWebVitals from './index';
-import { initializeWebVitals, createUserAnalyticsData } from '../../utils/webVitals';
+import { initializeWebVitals } from '../../utils/webVitals';
+import { createUserAnalyticsData } from '../../utils/analytics';
 
 jest.mock('../../utils/webVitals', () => ({
   initializeWebVitals: jest.fn(),
+}));
+
+jest.mock('../../utils/analytics', () => ({
   createUserAnalyticsData: jest.fn(),
 }));
 

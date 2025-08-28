@@ -239,6 +239,7 @@
           "coordinateReferenceSystemFinder": {
             "addCrsButton": "Add",
             "addCrsButtonLabel": "Add EPSG:{{epsgCode}} {{name}} to the GPS format selector options",
+            "addedMaximumSystemsMessage": "You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.",
             "emptyStateMessage": "Adjust your search to find what you are looking for.",
             "emptyStateMessageTitle": "No results found.",
             "instructions": "Search additional coordinate reference systems",

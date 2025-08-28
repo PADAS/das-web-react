@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import * as styles from './styles.module.scss';
 
-const ErrorMessage = ({ details = '', message = null }) => {
+const ErrorMessage = ({ details = '', message = null, className = '' }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorMessage' });
 
   const [detailsShown, showDetails] = useState(false);
@@ -17,7 +17,7 @@ const ErrorMessage = ({ details = '', message = null }) => {
   };
 
   return <>
-    <h6 className={styles.header}>
+    <h6 className={`${styles.header} ${className}`}>
       {message || t('defaultMessage')} {details && <Button
         className={styles.detailsButton}
         onClick={toggleShowDetails}

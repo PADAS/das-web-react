@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { initializeWebVitals, createUserAnalyticsData } from '../../utils/webVitals';
+import { initializeWebVitals } from '../../utils/webVitals';
+import { createUserAnalyticsData } from '../../utils/analytics';
 
 const useWebVitals = () => {
   const user = useSelector((state) => state.data?.user);

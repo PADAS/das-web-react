@@ -106,12 +106,19 @@
       outline: none;
       padding: 0 0.75rem;
 
-      &:hover {
-        background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
+      &:disabled {
+        background-color: colors.$disabled-field-gray;
+        color: colors.$secondary-medium-gray;
+        cursor: not-allowed;
+        opacity: 0.66;
       }
 
-      &:focus-visible {
+      &:focus-visible:not(:disabled) {
         outline: 2px solid colors.$bright-blue;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: color.adjust(colors.$very-light-blue, $lightness: -5%);
       }
     }
 
