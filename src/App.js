@@ -27,7 +27,6 @@ import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useNavigate from './hooks/useNavigate';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
-import getWindowLocation from './utils/getWindowLocation';
 
 import Drawer from './Drawer';
 import Map from './Map';
