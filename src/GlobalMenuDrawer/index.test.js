@@ -248,4 +248,44 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal).toHaveBeenCalledTimes(1);
     expect(addModal.mock.calls[0][0].title).toBe('Field Events');
   });
+
+  test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {
+    const { rerender } = renderGlobalMenuDrawer();
+
+    const closeButton = screen.getByRole('button', { name: 'Close Main Menu' });
+
+    expect(closeButton).not.toBe(document.activeElement);
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: true };
+    rerender(<Provider store={mockStore(store)}>
+      <GlobalMenuDrawer />
+    </Provider>);
+
+    expect(closeButton).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(screen.getByRole('button', { name: 'Tableau' })).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(closeButton).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+    const dataPrivacyPolicyLink = screen.getByRole('link', { name: 'Data Privacy Policy' });
+
+    expect(dataPrivacyPolicyLink).toBe(document.activeElement);
+
+    await userEvent.keyboard('{Shift>}[Tab]{/Shift}');
+
+    expect(screen.getByRole('link', { name: 'Website Privacy Policy' })).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(dataPrivacyPolicyLink).toBe(document.activeElement);
+
+    await userEvent.keyboard('[Tab]');
+
+    expect(closeButton).toBe(document.activeElement);
+  });
 });
