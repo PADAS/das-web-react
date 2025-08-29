@@ -4,7 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - /app/node_modules
       - .:/app
     restart: on-failure
   # mock_api:

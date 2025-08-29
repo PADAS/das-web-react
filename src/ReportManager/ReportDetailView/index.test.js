@@ -283,8 +283,7 @@ describe('ReportManager - ReportDetailView', () => {
     const datePicker = await screen.findByTestId('reportManager-detailsSection-datePicker');
     const datePickerOpenCalendarButton = await within(datePicker).findByLabelText('Open calendar');
     await userEvent.click(datePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, December 22nd, 2022' }));
 
     expect(await within(datePicker).findByTestId('datePicker-input')).toHaveValue('2022-12-22');
   });
