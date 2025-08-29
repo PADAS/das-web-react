@@ -114,13 +114,11 @@
   "scripts": {
     "start": "node react-scripts/start.js",
     "build-sw": "node ./src/sw-build.js",
-    "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
-    "build": "GENERATE_SOURCEMAP=false node react-scripts/build.js && yarn build-sw && yarn clean-cra-sw",
+    "build": "GENERATE_SOURCEMAP=false node react-scripts/build.js && yarn build-sw",
     "test": "node react-scripts/test.js",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit",
-    "postinstall": "sh setUpLocalGitConfig.sh"
+    "test-ci": "CI=true node react-scripts/test.js --silent --detectOpenHandles --forceExit"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.28.0",
