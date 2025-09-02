@@ -45,8 +45,8 @@ const coordinateReferenceSystemsReducer = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       storedSystems: [...action.payload]
-        .sort((crsA, crsB) => crsA.code - crsB.code)
-        .slice(0, MAX_STORED_COORDINATE_REFERENCE_SYSTEMS),
+        .slice(0, MAX_STORED_COORDINATE_REFERENCE_SYSTEMS)
+        .sort((crsA, crsB) => crsA.code - crsB.code),
     };
 
   default:

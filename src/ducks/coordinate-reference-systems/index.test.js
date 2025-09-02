@@ -72,12 +72,12 @@ describe('Ducks - Coordinate reference systems', () => {
       expect(coordinateReferenceSystemsReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('sorts the stored systems by their code when handling a SET_STORED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
+    test('sorts the stored systems by their code and limits the length of the stored systems list when handling a SET_STORED_COORDINATE_REFERENCE_SYSTEMS action', async () => {
       const payload = [epsg32633, epsg2946, epsg2154, epsg32719, epsg4269, epsg3857, epsg5367];
       const action = { payload, type: SET_STORED_COORDINATE_REFERENCE_SYSTEMS };
       const expectedState = {
         selectedCoordinateRepresentations: Object.values(GPS_FORMATS),
-        storedSystems: [epsg2154, epsg2946, epsg3857, epsg4269, epsg5367, epsg32633, epsg32719],
+        storedSystems: [epsg2154, epsg2946, epsg3857, epsg4269, epsg32633, epsg32719],
       };
 
       expect(coordinateReferenceSystemsReducer(INITIAL_STATE, action)).toEqual(expectedState);

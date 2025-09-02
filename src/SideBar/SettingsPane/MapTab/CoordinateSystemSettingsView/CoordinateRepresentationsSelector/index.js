@@ -213,7 +213,7 @@ const CoordinateRepresentationsSelector = () => {
       {t('maximumOptionsSelectedMessage')}
     </p>}
 
-    {storedCRS.length === MAX_STORED_COORDINATE_REFERENCE_SYSTEMS && <p className={styles.message}>
+    {storedCRS.length === MAX_STORED_COORDINATE_REFERENCE_SYSTEMS && <p aria-hidden className={styles.message}>
       {t('addedMaximumSystemsMessage')}
     </p>}
   </div>;
