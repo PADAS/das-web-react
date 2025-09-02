@@ -338,8 +338,7 @@ describe('PatrolDetailView', () => {
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
     await userEvent.click(startDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     expect(await within(startDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -381,8 +380,7 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     expect(await within(endDatePicker).findByTestId('datePicker-input')).toHaveValue('2022-01-20');
   });
@@ -410,8 +408,7 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     const endTimePicker = await screen.findByTestId('patrolDetailView-planSection-endTimePicker');
     const endTimePickerOpenOptionsButton = await within(endTimePicker).findByLabelText('Open time options');
@@ -482,14 +479,12 @@ describe('PatrolDetailView', () => {
     const endDatePicker = await screen.findByTestId('patrolDetailView-planSection-endDatePicker');
     const endDatePickerOpenCalendarButton = await within(endDatePicker).findByLabelText('Open calendar');
     await userEvent.click(endDatePickerOpenCalendarButton);
-    const endOptions = await screen.findAllByRole('option');
-    await userEvent.click(endOptions[25]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Thursday, January 20th, 2022' }));
 
     const startDatePicker = await screen.findByTestId('patrolDetailView-planSection-startDatePicker');
     const startDatePickerOpenCalendarButton = await within(startDatePicker).findByLabelText('Open calendar');
     await userEvent.click(startDatePickerOpenCalendarButton);
-    const options = await screen.findAllByRole('option');
-    await userEvent.click(options[26]);
+    await userEvent.click(screen.getByRole('gridcell', { name: 'Choose Friday, January 21st, 2022' }));
 
     const saveButton = await screen.findByText('Save');
     await userEvent.click(saveButton);

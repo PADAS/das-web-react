@@ -1,129 +1,140 @@
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .globalMenuDrawer {
-  background-color: $off-black;
+  background-color: colors.$off-black;
   color: white;
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  padding: 1rem;
   width: 100vw;
 
-  button {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    display: block;
-    font: inherit;
-    outline: inherit;
-    padding: 0;
-    text-align: left;
-  }
-
-  @media (min-width: $lg-layout-width-min) {
+  @media (min-width: layout.$lg-layout-width-min) {
     width: 18.75rem;
   }
-}
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 5rem;
-  padding: 1.5rem 1rem;
-
-  .logo {
-    width: 8.75rem;
-  }
-
-  @media (min-width: $lg-layout-width-min) {
-    padding: 1.5rem 1rem;
-  }
-}
-
-.navigation {
-  padding: 0 1rem 0.5rem;
-
-  button {
+  .header {
     display: flex;
     align-items: center;
-    margin-bottom: 0.75rem;
-    color: white;
-
-    span {
-      margin-left: 1rem;
+    justify-content: space-between;
+  
+    .logo {
+      height: 2rem;
+      width: 8.75rem;
     }
-
-    svg {
-      fill: white;
-      width: 1.25rem;
-      height: 1.5rem;
+  
+    .closeButton {
+      background: none;
+      border: none;
+      border-radius: 0.25rem;
+      color: white;
+      padding: 0.125rem 0.25rem;
+  
+      &:focus-visible {
+        outline: 2px solid colors.$light-blue;
+      }
+  
+      &:hover {
+        color: colors.$secondary-light-gray;
+      }
     }
   }
-}
 
-.content {
-  height: calc(100% - 11rem);
-}
+  .separator {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
 
-.section {
-  border-top: 1px solid $secondary-medium-gray;
-  padding: 1rem 1rem 0.5rem;
+  ul {
+    margin-bottom: 0;
 
-  h6 {
-    font-size: 0.75rem;
+    li {
+      &:not(:last-child) {
+        margin-bottom: 0.5rem;
+      }
+
+      &.nestedListItem {
+        margin-top: 1rem;
+
+        h4 {
+          color: #b1b3b3;
+          font-size: .75rem;
+          margin-bottom: 0.25rem;
+        }
+
+        ul {
+          margin-left: 1rem;
+        }
+      }
+
+      a, button {
+        background: none;
+        border: none;
+        border-radius: 0.25rem;
+        color: white;
+        display: flex;
+        padding: 0.125rem;
+        text-align: left;
+        text-decoration: none;
+        width: fit-content;
+    
+        &:focus-visible {
+          outline: 2px solid colors.$light-blue;
+        }
+    
+        &:hover {
+          color: colors.$secondary-light-gray;
+        }
+
+        svg {
+          width: 1.25rem;
+          height: 1.5rem;
+        }
+
+        span {
+          margin-left: 1rem;
+        }
+      }
+    }
+  }
+
+  h3 {
+    color: #b1b3b3;
+    font-size: .875rem;
     margin-bottom: 1rem;
-    color: $secondary-light-gray;
   }
 
-  button,
-  .ecoscopeDownloaderLink {
-    color: white;
-    text-decoration: none;
-    margin-bottom: 0.5rem;
-
-    &:hover {
-      color: rgba(255, 255, 255, 0.60)
-    }
-  }
-
-  @media (min-width: $lg-layout-width-min) {
-    padding: 1rem 1.5rem 0.5rem;
-  }
-}
-
-.footer {
-  font-size: 0.6875rem;
-  margin-top: auto;
-  padding: 0.5rem;
-}
-
-.releaseVersions {
-  margin-bottom: 0;
-  margin-left: 0.333rem;
-}
-
-.policies {
-  display: flex;
-  flex-wrap: wrap;
-  line-height: normal;
-  margin-top: 1rem;
-  width: 100%;
-
-  li {
-    font-weight: 500;
-    padding: 0 0.333rem;
-    white-space: nowrap;
-
-    &:not(:last-child) {
-      border-right: 1px solid white;
-    }
-  }
-
-  a {
-    color: $light-blue;
-    filter: brightness(1.25);
+  .footer {
     font-size: 0.75rem;
+    margin-top: auto;
+    padding-top: 2rem;
+
+    .versionsAndCopyright {
+      margin-bottom: 0.5rem;
+    }
+
+    .policies {
+      li {
+        font-weight: 500;
+
+        &:not(:last-child) {
+          margin-bottom: 0.25rem;
+        }
+
+        a {
+          border-radius: 0.125rem;
+          color: colors.$light-blue;
+          filter: brightness(1.25);
+          font-size: 0.75rem;
+          padding: 0;
+          text-decoration: underline;
+
+          &:hover {
+            color: colors.$bright-blue;
+          }
+        }
+      }
+    }
   }
 }
