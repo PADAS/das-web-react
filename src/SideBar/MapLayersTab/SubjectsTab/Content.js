@@ -48,9 +48,9 @@ const TriggerComponent = memo((props) => {  // eslint-disable-line react/display
   const fullyVisible = track === TRACKING_CONTROL_STATES.FULLY_VISIBLE;
   const partiallyVisible = track === TRACKING_CONTROL_STATES.PARTIALLY_VISIBLE;
 
-  return <div className={mapLayersStyles.trigger} data-testid={`collapsible-${itemTitle}`}>
-    {listLevel === 0 && <h5>{itemTitle}</h5>}
-    {listLevel > 0 && <h6>{itemTitle}</h6>}
+  return <div className={mapLayersStyles.trigger} data-testid={`collapsible-${itemTitle}`} title={itemTitle}>
+    {listLevel === 0 && <h5 className={styles.heading}>{itemTitle}</h5>}
+    {listLevel > 0 && <h6 className={styles.heading}>{itemTitle}</h6>}
     {showTrackingControls && <>
       {lastPositionTime && <DateTime className={styles.subjectGroupDateTime} date={lastPositionTime} />}
       <TrackToggleButton
