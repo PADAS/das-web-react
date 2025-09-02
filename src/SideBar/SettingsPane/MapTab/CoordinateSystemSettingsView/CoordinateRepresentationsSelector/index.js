@@ -7,6 +7,7 @@ import { ReactComponent as TrashCanIcon } from '../../../../../common/images/ico
 import { GPS_FORMAT_EXAMPLES, GPS_FORMATS } from '../../../../../utils/location';
 import { selectCoordinatesRepresentation } from '../../../../../selectors/location';
 import {
+  MAX_STORED_COORDINATE_REFERENCE_SYSTEMS,
   setSelectedCoordinateRepresentations,
   setStoredCoordinateReferenceSystems,
 } from '../../../../../ducks/coordinate-reference-systems';
@@ -14,7 +15,7 @@ import { updateUserPreferences } from '../../../../../ducks/user-preferences';
 
 import * as styles from './styles.module.scss';
 
-const MAX_SELECTED_GPS_FORMATS = 5;
+const MAX_SELECTED_REPRESENTATIONS = 5;
 
 const CoordinateReferenceSystemOption = ({ epsgCode, name }) => {
   const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const CoordinateReferenceSystemOption = ({ epsgCode, name }) => {
   const storedCRS = useSelector((state) => state.view.coordinateReferenceSystems.storedSystems);
 
   const isChecked = selectedCoordinateRepresentations.includes(epsgCode);
-  const isDisabled = !isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS;
+  const isDisabled = !isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_REPRESENTATIONS;
 
   const onCheckboxChange = () => {
     if (isChecked) {
@@ -109,7 +110,7 @@ const GpsFormatOption = ({ formatCode }) => {
   const isChecked = selectedCoordinateRepresentations.includes(formatCode);
   // DEG options is always disabled by design.
   const isDisabled = formatCode === GPS_FORMATS.DEG
-    || (!isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS);
+    || (!isChecked && selectedCoordinateRepresentations.length === MAX_SELECTED_REPRESENTATIONS);
 
   const onCheckboxChange = () => {
     if (isChecked) {
@@ -204,12 +205,16 @@ const CoordinateRepresentationsSelector = () => {
       </Fragment>)}
     </fieldset>
 
-    {selectedCoordinateRepresentations.length === MAX_SELECTED_GPS_FORMATS && <p
+    {selectedCoordinateRepresentations.length === MAX_SELECTED_REPRESENTATIONS && <p
         className={styles.message}
         id="coordinate-representations-selector-message"
         role="status"
       >
       {t('maximumOptionsSelectedMessage')}
+    </p>}
+
+    {storedCRS.length === MAX_STORED_COORDINATE_REFERENCE_SYSTEMS && <p className={styles.message}>
+      {t('addedMaximumSystemsMessage')}
     </p>}
   </div>;
 };

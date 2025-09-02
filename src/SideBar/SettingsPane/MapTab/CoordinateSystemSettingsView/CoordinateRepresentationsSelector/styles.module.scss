@@ -82,4 +82,8 @@
   font-size: 0.875rem;
   margin-bottom: 0;
   margin-top: 0.25rem;
+
+  &:not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
 }

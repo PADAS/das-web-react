@@ -4,14 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { getProj4CompatibleCRS } from '../../../../../utils/location';
-import { setStoredCoordinateReferenceSystems } from '../../../../../ducks/coordinate-reference-systems';
+import {
+  MAX_STORED_COORDINATE_REFERENCE_SYSTEMS,
+  setStoredCoordinateReferenceSystems,
+} from '../../../../../ducks/coordinate-reference-systems';
 
 import SearchBar from '../../../../../SearchBar';
 
 import * as styles from './styles.module.scss';
 
 const LOADER_SIZE = 30;
-const MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED = 6;
 const MAX_FILTERED_CRS_AREA_LENGTH = 60;
 const MAX_FILTERED_CRS_RESULTS = 10;
 
@@ -160,7 +162,7 @@ const CoordinateReferenceSystemFinder = () => {
                 aria-describedby="crs-finder-added-maximum-systems-message"
                 aria-label={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}
                 className={styles.addButton}
-                disabled={storedCRS.length === MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED}
+                disabled={storedCRS.length === MAX_STORED_COORDINATE_REFERENCE_SYSTEMS}
                 onClick={() => dispatch(setStoredCoordinateReferenceSystems([...storedCRS, filteredCRS]))}
                 title={t('addCrsButtonLabel', { epsgCode: filteredCRS.code, name: filteredCRS.name })}
                 type="button"
@@ -193,8 +195,8 @@ const CoordinateReferenceSystemFinder = () => {
       {t('showingMaximumFilteredResultsMessage')}
     </p>}
 
-    {storedCRS.length === MAX_COORDINATE_REFERENCE_SYSTEMS_ADDED && <p
-        className={styles.crsFinderMessage}
+    {storedCRS.length === MAX_STORED_COORDINATE_REFERENCE_SYSTEMS && <p
+        className="sr-only"
         id="crs-finder-added-maximum-systems-message"
         role="status"
       >
