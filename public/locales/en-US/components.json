@@ -258,6 +258,7 @@
             "showingMaximumFilteredResultsMessage": "Showing the top 10 results. Try refining your search to narrow down the list."
           },
           "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.",
             "deleteCrsOptionButtonLabel": "Delete {{coordinateReferenceSystemName}} from the options",
             "gpsFormatOptionExample": "Example: {{example}}",
             "gpsFormatOptionLabel": {

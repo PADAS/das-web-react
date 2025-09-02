@@ -258,6 +258,7 @@
             "showingMaximumFilteredResultsMessage": "Inaonyesha matokeo 10 ya juu. Jaribu kuboresha utafutaji wako ili kupunguza orodha."
           },
           "coordinateRepresentationsSelector": {
+            "addedMaximumSystemsMessage": "Umeongeza mifumo 6 ya marejeleo ya kuratibu. Futa angalau 1 kabla ya kuongeza mingine.",
             "deleteCrsOptionButtonLabel": "Futa {{coordinateReferenceSystemName}} kutoka kwenye chaguzi",
             "gpsFormatOptionExample": "Mfano: {{example}}",
             "gpsFormatOptionLabel": {

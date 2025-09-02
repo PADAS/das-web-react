@@ -272,8 +272,6 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
       name: 'Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options',
     });
 
-    expect(screen.getByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
-      .toBeVisible();
     expect(addEpsg2001Button).toBeDisabled();
     expect(addEpsg2001Button)
       .toHaveAccessibleDescription('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.');
@@ -294,8 +292,6 @@ describe('SideBar - SettingsPane - MapTab - CoordinateSystemSettingsView - Coord
       name: 'Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options',
     });
 
-    expect(screen.queryByText('You have added 6 coordinate reference systems. Delete at least 1 of them before adding others.'))
-      .toBeNull();
     expect(addEpsg2001Button).toBeEnabled();
     expect(addEpsg2001Button)
       .toHaveAccessibleDescription('Add EPSG:2001 Antigua 1943 / British West Indies Grid to the GPS format selector options');

@@ -1,5 +1,6 @@
 import { GPS_FORMATS } from '../../utils/location';
 
+export const MAX_STORED_COORDINATE_REFERENCE_SYSTEMS = 6;
 const MAX_SELECTED_COORDINATE_REPRESENTATIONS = 5;
 
 // Actions
@@ -39,10 +40,13 @@ const coordinateReferenceSystemsReducer = (state = INITIAL_STATE, action) => {
     };
 
   case SET_STORED_COORDINATE_REFERENCE_SYSTEMS:
-    // Sort the stored coordinate reference systems by their EPSG code.
+    // Sort the stored coordinate reference systems by their EPSG code and make
+    // sure that the list never has more than the maximum allowed stored CRS.
     return {
       ...state,
-      storedSystems: [...action.payload].sort((crsA, crsB) => crsA.code - crsB.code),
+      storedSystems: [...action.payload]
+        .slice(0, MAX_STORED_COORDINATE_REFERENCE_SYSTEMS)
+        .sort((crsA, crsB) => crsA.code - crsB.code),
     };
 
   default:

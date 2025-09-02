@@ -242,6 +242,7 @@
                         "showingMaximumFilteredResultsMessage": "शीर्ष १० परिणामहरू देखाउँदै। सूची संकुचित गर्न आफ्नो खोज परिष्कृत गर्नुहोस्।"
                     },
                     "coordinateRepresentationsSelector": {
+                        "addedMaximumSystemsMessage": "तपाईंले ६ निर्देशांक सन्दर्भ प्रणाली थप्नुभयो। अरू थप्नुअघि कम्तिमा १ मेटाउनुहोस्।",
                         "deleteCrsOptionButtonLabel": "{{coordinateReferenceSystemName}} विकल्पबाट हटाउनुहोस्",
                         "gpsFormatOptionExample": "उदाहरण: {{example}}",
                         "gpsFormatOptionLabel": {
